@@ -29,6 +29,7 @@ import { Texture, Uniform } from 'three'
 
 import {
   defineQuery,
+  Entity,
   EntityUUID,
   getComponent,
   getOptionalComponent,
@@ -43,10 +44,7 @@ import styles from '@etherealengine/editor/src/components/layout/styles.module.s
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import {
-  getPrototypeEntityFromName,
-  setMaterialName
-} from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
@@ -226,10 +224,10 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         <SelectInput
           value={prototypeName.value}
           options={prototypes}
-          onChange={(protoId) => {
+          onChange={(prototypeEntity: Entity) => {
             if (materialComponent.prototypeEntity.value)
-              materialComponent.prototypeEntity.set(getPrototypeEntityFromName(protoId as string)!)
-            prototypeName.set(protoId as string)
+              materialComponent.prototypeEntity.set(prototypeEntity as Entity)
+            prototypeName.set(getComponent(prototypeEntity as Entity, NameComponent))
           }}
         />
       </InputGroup>

@@ -63,7 +63,7 @@ const reactor = (): ReactElement => {
   return (
     <>
       <QueryReactor Components={[MaterialInstanceComponent]} ChildEntityReactor={MaterialInstanceReactor} />
-      <QueryReactor Components={[MaterialInstanceComponent]} ChildEntityReactor={MaterialEntityReactor} />
+      <QueryReactor Components={[MaterialStateComponent]} ChildEntityReactor={MaterialEntityReactor} />
       <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshReactor} />
     </>
   )
