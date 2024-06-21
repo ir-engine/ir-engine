@@ -258,17 +258,17 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           {t('editor:properties.mesh.material.addPlugin')}
         </Button>
       </div>
-      {!!materialComponent.pluginEntities.value?.length && (
+      {/* {!!materialComponent.pluginEntities.value?.length && (
         <div className={styles.contentContainer}>
           <ParameterInput
             entity={props.materialUUID}
             values={pluginValues.value}
             onChange={(key) => async (value) => {
-              // const property = await shouldLoadTexture(value, key, pluginParameters)
-              // getComponent(pluginEntity.value, MaterialComponent[MaterialComponents.Plugin]).parameters![
-              //   materialName.value
-              // ][key].value = property
-              // pluginValues[key].set(property)
+              const property = await shouldLoadTexture(value, key, pluginParameters)
+              getComponent(pluginEntity.value, MaterialComponent[MaterialComponents.Plugin]).parameters![
+                materialName.value
+              ][key].value = property
+              pluginValues[key].set(property)
             }}
             defaults={pluginParameters.value}
           />
@@ -278,15 +278,15 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
                 materialComponent.pluginEntities.set(
                   materialComponent.pluginEntities.value.filter((val) => val !== pluginEntity.value)
                 )
-              // if (pluginState && pluginState.parameters && pluginState.parameters[materialName.value])
-              //   pluginState.parameters[materialName.value].set(none)
+              if (pluginState && pluginState.parameters && pluginState.parameters[materialName.value])
+                pluginState.parameters[materialName.value].set(none)
               pluginEntity.set(UndefinedEntity)
             }}
           >
             Remove Plugin
           </Button>
         </div>
-      )}
+      )} */}
     </div>
   )
 }
