@@ -25,14 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 
-import { hasComponent, removeComponent, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { hasComponent, removeComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
-import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { HighlightComponent } from '@etherealengine/spatial/src/renderer/components/HighlightComponent'
 import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
@@ -40,11 +37,7 @@ import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/T
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
-import {
-  gatherAvailableInteractables,
-  InteractableState,
-  InteractableTransitions
-} from '../functions/interactableFunctions'
+import { gatherAvailableInteractables, InteractableTransitions } from '../functions/interactableFunctions'
 
 //TODO get rid of the query.exit and put it in component as unmount useEffect return
 //TODO get rid of this map eventually and store on the component instead
@@ -130,36 +123,36 @@ export const InteractableSystem = defineSystem({
 
 let clicking = false
 
-const clickInteract = (entity: Entity) => {
-  const interactable = getComponent(entity, InteractableComponent)
-  for (const callback of interactable.callbacks) {
-    if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
-    const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : entity
-    if (targetEntity && callback.callbackID) {
-      const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
-      if (!callbacks) continue
-      callbacks.get(callback.callbackID)?.(entity, targetEntity)
-    }
-  }
-}
+// const clickInteract = (entity: Entity) => {
+//   const interactable = getComponent(entity, InteractableComponent)
+//   for (const callback of interactable.callbacks) {
+//     if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
+//     const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : entity
+//     if (targetEntity && callback.callbackID) {
+//       const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
+//       if (!callbacks) continue
+//       callbacks.get(callback.callbackID)?.(entity, targetEntity)
+//     }
+//   }
+// }
 
-const interactWithClosestInteractable = () => {
-  const interactableEntity = getState(InteractableState).available[0]
-  if (interactableEntity) {
-    const interactable = getOptionalComponent(interactableEntity, InteractableComponent)
-    if (interactable) {
-      for (const callback of interactable.callbacks) {
-        if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
-        const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : interactableEntity
-        if (targetEntity && callback.callbackID) {
-          const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
-          if (!callbacks) continue
-          callbacks.get(callback.callbackID)?.(interactableEntity, targetEntity)
-        }
-      }
-    }
-  }
-}
+// const interactWithClosestInteractable = () => {
+//   const interactableEntity = getState(InteractableState).available[0]
+//   if (interactableEntity) {
+//     const interactable = getOptionalComponent(interactableEntity, InteractableComponent)
+//     if (interactable) {
+//       for (const callback of interactable.callbacks) {
+//         if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
+//         const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : interactableEntity
+//         if (targetEntity && callback.callbackID) {
+//           const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
+//           if (!callbacks) continue
+//           callbacks.get(callback.callbackID)?.(interactableEntity, targetEntity)
+//         }
+//       }
+//     }
+//   }
+// }
 
 // export const InteractableInputSystem = defineSystem({
 //   uuid: 'ee.engine.InteractableInputSystem',

@@ -35,7 +35,6 @@ import { uploadProjectFiles } from '@etherealengine/editor/src/functions/assetFu
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import {
   createMaterialEntity,
   getMaterialsFromSource
@@ -43,6 +42,8 @@ import {
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { useTranslation } from 'react-i18next'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
@@ -62,9 +63,9 @@ export default function MaterialLibraryPanel() {
   useEffect(() => {
     const materials = selected.value.length
       ? getMaterialsFromSource(UUIDComponent.getEntityByUUID(selected.value[0]))
-      : materialQuery.map((entity) => getComponent(entity, UUIDComponent))
+      : materialQuery.map((entity) => getComponent(entity, NodeIDComponent))
     const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
-      const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
+      const source = getComponent(UUIDComponent.getEntityByUUID(uuid), SourceComponent)
       return [
         {
           uuid: uuid,

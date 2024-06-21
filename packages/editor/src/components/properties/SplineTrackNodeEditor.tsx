@@ -27,13 +27,13 @@ import CameraswitchIcon from '@mui/icons-material/Cameraswitch'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInput from '../inputs/NumericInput'
@@ -55,12 +55,12 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
   const velocity = component.velocity
   const alpha = component.velocity
 
-  const availableSplines = useQuery([SplineComponent]).map((entity) => {
+  const availableSplines = useQuery([SplineComponent, NameComponent, NodeIDComponent]).map((entity) => {
     const name = getComponent(entity, NameComponent)
-    const uuid = getComponent(entity, UUIDComponent)
+    const nodeID = getComponent(entity, NodeIDComponent)
     return {
       label: name,
-      value: uuid
+      value: nodeID
     }
   })
 
@@ -76,8 +76,8 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.entity}
           options={availableSplines}
-          value={component.splineEntityUUID.value!}
-          onChange={commitProperty(SplineTrackComponent, 'splineEntityUUID') as any}
+          value={component.splineNodeID.value!}
+          onChange={commitProperty(SplineTrackComponent, 'splineNodeID') as any}
         />
       </InputGroup>
       <InputGroup name="Velocity" label={t('editor:properties.splinetrack.lbl-velocity')}>

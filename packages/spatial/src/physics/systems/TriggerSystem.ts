@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -33,13 +32,15 @@ import { CollisionComponent } from '@etherealengine/spatial/src/physics/componen
 import { PhysicsSystem } from '@etherealengine/spatial/src/physics/systems/PhysicsSystem'
 import { ColliderHitEvent, CollisionEvents } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 
+import { NodeIDComponent } from '../../transform/components/NodeIDComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
 
-export const triggerEnter = (triggerEntity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
+export const triggerEnter = (triggerEntity: Entity, otherEntity: Entity, hit?: ColliderHitEvent) => {
   const triggerComponent = getComponent(triggerEntity, TriggerComponent)
   for (const trigger of triggerComponent.triggers) {
-    if (trigger.target && !UUIDComponent.getEntityByUUID(trigger.target)) continue
-    const targetEntity = trigger.target ? UUIDComponent.getEntityByUUID(trigger.target) : triggerEntity
+    const targetEntity = trigger.target
+      ? NodeIDComponent.getNodeEntityFromSameSource(triggerEntity, trigger.target)
+      : triggerEntity
     if (targetEntity && trigger.onEnter) {
       const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
       if (!callbacks) continue
@@ -48,11 +49,12 @@ export const triggerEnter = (triggerEntity: Entity, otherEntity: Entity, hit: Co
   }
 }
 
-export const triggerExit = (triggerEntity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
+export const triggerExit = (triggerEntity: Entity, otherEntity: Entity, hit?: ColliderHitEvent) => {
   const triggerComponent = getComponent(triggerEntity, TriggerComponent)
   for (const trigger of triggerComponent.triggers) {
-    if (trigger.target && !UUIDComponent.getEntityByUUID(trigger.target)) continue
-    const targetEntity = trigger.target ? UUIDComponent.getEntityByUUID(trigger.target) : triggerEntity
+    const targetEntity = trigger.target
+      ? NodeIDComponent.getNodeEntityFromSameSource(triggerEntity, trigger.target)
+      : triggerEntity
     if (targetEntity && trigger.onExit) {
       const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
       if (!callbacks) continue

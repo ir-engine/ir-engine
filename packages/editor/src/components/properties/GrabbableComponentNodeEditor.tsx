@@ -27,13 +27,14 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { getComponent, hasComponent, UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, hasComponent } from '@etherealengine/ecs'
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
 import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
 import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
 import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { grabbableInteractMessage } from '@etherealengine/engine/src/interaction/functions/grabbableFunctions'
 
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 
 export const GrabbableComponentNodeEditor: EditorComponentType = (props) => {
@@ -47,7 +48,7 @@ export const GrabbableComponentNodeEditor: EditorComponentType = (props) => {
           callbacks: [
             {
               callbackID: GrabbableComponent.grabbableCallbackName,
-              target: getComponent(props.entity, UUIDComponent)
+              target: getComponent(props.entity, NodeIDComponent)
             }
           ]
         })

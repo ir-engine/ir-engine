@@ -32,7 +32,6 @@ import { MeshBasicMaterial } from 'three'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { EntityUUID, getComponent, UndefinedEntity, useQuery, UUIDComponent } from '@etherealengine/ecs'
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import {
   createMaterialEntity,
   getMaterialsFromSource
@@ -40,6 +39,7 @@ import {
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'

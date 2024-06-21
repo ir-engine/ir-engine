@@ -32,6 +32,7 @@ import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import {
   Assert,
   NodeCategory,
@@ -92,7 +93,7 @@ export const addSplineTrack = makeAsyncNodeDefinition({
   initialState: initialState(),
   triggered: ({ read, write, commit, finished }) => {
     const entity = Number(read('entity')) as Entity
-    const splineUuid = read<EntityUUID>('splineUUID')
+    const splineUuid = read<NodeID>('splineUUID')
     const velocity = read<number>('velocity')
     const isLoop = read<boolean>('isLoop')
     const lockToXZPlane = read<boolean>('lockToXZPlane')
@@ -101,7 +102,7 @@ export const addSplineTrack = makeAsyncNodeDefinition({
 
     setComponent(entity, SplineTrackComponent, {
       alpha: alpha,
-      splineEntityUUID: splineUuid,
+      splineNodeID: splineUuid,
       velocity: velocity,
       enableRotation: enableRotation,
       lockToXZPlane: lockToXZPlane,
@@ -116,7 +117,7 @@ export const addSplineTrack = makeAsyncNodeDefinition({
         // can we hook into the spline track reactor somehow? this feels wasteful, but probably the right way to do it
         const splineTrack = getComponent(entity, SplineTrackComponent)
         if (splineTrack.loop) return
-        const splineEntity = UUIDComponent.getEntityByUUID(splineTrack.splineEntityUUID!)
+        const splineEntity = NodeIDComponent.getNodeEntityFromSameSource(entity, splineTrack.splineNodeID!)
         if (!splineEntity) return
         const spline = getOptionalComponent(splineEntity, SplineComponent)
         if (!spline) return

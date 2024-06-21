@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { LinearToneMapping, PCFSoftShadowMap, ShadowMapType, ToneMapping } from 'three'
 
-import { EntityUUID } from '@etherealengine/ecs'
 import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { NodeID } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 
 export const RenderSettingsComponent = defineComponent({
   name: 'RenderSettingsComponent',
@@ -38,7 +38,7 @@ export const RenderSettingsComponent = defineComponent({
 
   onInit(entity) {
     return {
-      primaryLight: '' as EntityUUID,
+      primaryLight: '' as NodeID,
       csm: true,
       cascades: 5,
       toneMapping: LinearToneMapping as ToneMapping,

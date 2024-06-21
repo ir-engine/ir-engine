@@ -28,7 +28,7 @@ import { useEffect } from 'react'
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import multiLogger from '@etherealengine/common/src/logger'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { Engine, getComponent, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
+import { Engine, getComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
@@ -52,6 +52,7 @@ import {
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 
@@ -97,7 +98,10 @@ export const usePortalTeleport = () => {
     const activePortal = getComponent(activePortalEntity, PortalComponent)
 
     const currentLocation = locationState.locationName.value.split('/')[1]
-    if (currentLocation === activePortal.location || UUIDComponent.getEntityByUUID(activePortal.linkedPortalId)) {
+    if (
+      currentLocation === activePortal.location ||
+      NodeIDComponent.getEntitiesByNodeID(activePortal.linkedPortalId)?.length
+    ) {
       teleportAvatar(
         AvatarComponent.getSelfAvatarEntity(),
         activePortal.remoteSpawnPosition,

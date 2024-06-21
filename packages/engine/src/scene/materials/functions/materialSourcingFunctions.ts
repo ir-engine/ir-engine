@@ -51,8 +51,8 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { MaterialExtensionPluginType } from '../../../assets/exporters/gltf/extensions/EEMaterialExporterExtension'
-import { SourceComponent } from '../../components/SourceComponent'
 import { getModelSceneID } from '../../functions/loaders/ModelFunctions'
 
 export function MaterialNotFoundError(message) {
@@ -116,7 +116,11 @@ export const createMaterialInstance = (path: string, sourceEntity: Entity, mater
 export const createMaterialEntity = (material: Material, path: string, user?: Entity) => {
   const materialEntity = createEntity()
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
-  setComponent(materialEntity, SourceComponent, path)
+  setComponent(
+    materialEntity,
+    SourceComponent,
+    path as any
+  ) /** @todo materials use just the path as it's source to deduplicate materials loaded from the same model multiple times */
   const prototypeEntity = prototypeByName[material.type]
   setComponent(materialEntity, MaterialComponent[MaterialComponents.State], {
     material,

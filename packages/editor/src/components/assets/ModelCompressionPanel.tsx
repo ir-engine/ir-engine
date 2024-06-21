@@ -40,7 +40,6 @@ import {
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { Heuristic, VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
 import { getState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
@@ -53,6 +52,7 @@ import {
   EntityTreeComponent,
   removeEntityNodeRecursively
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { SourceComponent, SourceID } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
@@ -78,7 +78,7 @@ const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity):
   if (hasComponent(parentEntity, SourceComponent)) {
     sceneID = getComponent(parentEntity, SourceComponent)
   }
-  setComponent(entity, SourceComponent, sceneID)
+  setComponent(entity, SourceComponent, sceneID as SourceID)
 
   const uuid = generateEntityUUID()
   setComponent(entity, UUIDComponent, uuid)

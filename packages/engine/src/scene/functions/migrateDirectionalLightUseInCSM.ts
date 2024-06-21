@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, SerializedComponentType } from '@etherealengine/ecs'
+import { SerializedComponentType } from '@etherealengine/ecs'
 import { DirectionalLightComponent } from '@etherealengine/spatial'
 
+import { NodeID } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
+import { SceneJsonType } from '../../gltf/convertJsonToGLTF'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
-import { SceneJsonType } from '../types/SceneTypes'
 
 export const migrateDirectionalLightUseInCSM = (json: SceneJsonType) => {
   const renderSettingsEntity = Object.entries(json.entities).find(([, entity]) =>
@@ -45,7 +46,7 @@ export const migrateDirectionalLightUseInCSM = (json: SceneJsonType) => {
     (c) => c.name === RenderSettingsComponent.jsonID
   )!.props as SerializedComponentType<typeof RenderSettingsComponent>
 
-  renderSettingsComponent.primaryLight = directionalLightEntity[0] as EntityUUID
+  renderSettingsComponent.primaryLight = directionalLightEntity[0] as NodeID
 
   /** @ts-ignore */
   delete directionalLightComponent.useInCSM

@@ -28,7 +28,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { EntityUUID, generateEntityUUID } from '@etherealengine/ecs'
-import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
+import { SceneJsonType } from '@etherealengine/engine/src/gltf/convertJsonToGLTF'
 
 for (const project of fs.readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects/'))) {
   const files = fs.readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects/', project))

@@ -27,7 +27,6 @@ import SportsBarTwoTone from '@mui/icons-material/SportsBarTwoTone'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
@@ -36,6 +35,7 @@ import { getEntityErrors } from '@etherealengine/engine/src/scene/components/Err
 import { EnvMapSourceType, EnvMapTextureType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import FolderInput from '../inputs/FolderInput'
@@ -72,7 +72,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
   const bakeEntities = useQuery([EnvMapBakeComponent]).map((entity) => {
     return {
       label: getComponent(entity, NameComponent),
-      value: getComponent(entity, UUIDComponent)
+      value: getComponent(entity, NodeIDComponent)
     }
   })
 
@@ -115,8 +115,8 @@ export const EnvMapEditor: EditorComponentType = (props) => {
         <InputGroup name="EnvMapBake" label="EnvMap Bake">
           <SelectInput
             options={bakeEntities}
-            value={envmapComponent.envMapSourceEntityUUID.value}
-            onChange={commitProperty(EnvmapComponent, 'envMapSourceEntityUUID')}
+            value={envmapComponent.envMapSourceNodeID.value}
+            onChange={commitProperty(EnvmapComponent, 'envMapSourceNodeID')}
           />
         </InputGroup>
       )}

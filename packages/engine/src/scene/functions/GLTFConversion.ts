@@ -28,10 +28,10 @@ import { Matrix4, Object3D } from 'three'
 
 import config from '@etherealengine/common/src/config'
 import { sceneRelativePathIdentifier } from '@etherealengine/common/src/utils/parseSceneJSON'
-import { EntityUUID, generateEntityUUID, SerializedComponentType, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, generateEntityUUID, SerializedComponentType } from '@etherealengine/ecs'
 import { TransformComponent } from '@etherealengine/spatial'
-
-import { EntityJsonType, SceneJsonType } from '../types/SceneTypes'
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
+import { EntityJsonType, SceneJsonType } from '../../gltf/convertJsonToGLTF'
 
 export const nodeToEntityJson = (node: any): EntityJsonType => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}
@@ -49,7 +49,7 @@ export const nodeToEntityJson = (node: any): EntityJsonType => {
 export const gltfToSceneJson = (gltf: any): SceneJsonType => {
   handleScenePaths(gltf, 'decode')
   const rootGL = gltf.scenes[gltf.scene]
-  const rootUuid = generateEntityUUID()
+  const rootUuid = generateEntityUUID() as any as NodeID
   const result: SceneJsonType = {
     entities: {},
     root: rootUuid,
@@ -111,7 +111,7 @@ export function entityJSONToGLTFNode(entityJson: EntityJsonType, entityUUID: Ent
   const node: GLTF.INode = {
     name: entityJson.name,
     extensions: {
-      [UUIDComponent.jsonID]: entityUUID
+      [NodeIDComponent.jsonID]: entityUUID
     }
   }
   if (entityJson.components) {

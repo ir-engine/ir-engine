@@ -39,7 +39,6 @@ import {
   Wrapping
 } from 'three'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -60,6 +59,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { ContentFitType, ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { clearErrors } from '../functions/ErrorFunctions'
 import { PLANE_GEO, resizeVideoMesh, SPHERE_GEO } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
@@ -105,7 +105,7 @@ export const VideoComponent = defineComponent({
       alphaThreshold: 0.5,
       fit: 'contain' as ContentFitType,
       projection: 'Flat' as 'Flat' | 'Equirectangular360',
-      mediaUUID: '' as EntityUUID,
+      mediaUUID: '' as NodeID,
       // internal
       videoMeshEntity: UndefinedEntity,
       texture: null as VideoTexturePriorityQueue | null
@@ -173,7 +173,7 @@ function VideoReactor() {
   const video = useComponent(entity, VideoComponent)
   const visible = useOptionalComponent(entity, VisibleComponent)
   const mediaUUID = video.mediaUUID.value
-  const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) || entity
+  const mediaEntity = NodeIDComponent.useNodeEntityFromSameSource(entity, mediaUUID) || entity
   const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
 
   const videoMeshEntity = useHookstate(createEntity)

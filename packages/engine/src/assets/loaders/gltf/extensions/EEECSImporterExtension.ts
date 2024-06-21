@@ -28,7 +28,7 @@ import { GLTF } from '@gltf-transform/core'
 import { ComponentJSONIDMap } from '@etherealengine/ecs/src/ComponentFunctions'
 
 import { UUIDComponent, generateEntityUUID } from '@etherealengine/ecs'
-import { ComponentJsonType } from '../../../../scene/types/SceneTypes'
+import { ComponentJsonType } from '../../../../gltf/convertJsonToGLTF'
 import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 

@@ -32,7 +32,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, generateEntityUUID } from '@etherealengine/ecs/src/EntityFunctions'
-import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
+import { ComponentJsonType } from '@etherealengine/engine/src/gltf/convertJsonToGLTF'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'

@@ -22,11 +22,10 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { GLTF } from '@gltf-transform/core'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { TransformComponent } from '@etherealengine/spatial'
 
 import { migrateDirectionalLightUseInCSM } from '../scene/functions/migrateDirectionalLightUseInCSM'
@@ -40,15 +39,15 @@ export type ComponentJsonType = {
 }
 
 export type EntityJsonType = {
-  name: string | EntityUUID
+  name: string | NodeID
   components: ComponentJsonType[]
-  parent?: EntityUUID
+  parent?: NodeID
   index?: number
 }
 
 export type SceneJsonType = {
-  entities: Record<EntityUUID, EntityJsonType>
-  root: EntityUUID
+  entities: Record<NodeID, EntityJsonType>
+  root: NodeID
   version: number
 }
 
@@ -95,8 +94,8 @@ export const convertSceneJSONToGLTF = (json: SceneJsonType): GLTF.IGLTF => {
       extensions: {}
     } as GLTF.INode
 
-    node.extensions![UUIDComponent.jsonID] = uuid
-    if (!gltf.extensionsUsed!.includes(UUIDComponent.jsonID)) gltf.extensionsUsed!.push(UUIDComponent.jsonID)
+    node.extensions![NodeIDComponent.jsonID] = uuid
+    if (!gltf.extensionsUsed!.includes(NodeIDComponent.jsonID)) gltf.extensionsUsed!.push(NodeIDComponent.jsonID)
 
     for (const component of entity.components) {
       if (component.name === TransformComponent.jsonID) {
@@ -119,7 +118,7 @@ export const convertSceneJSONToGLTF = (json: SceneJsonType): GLTF.IGLTF => {
   // populate parent/child relationships
   for (const [uuid, entity] of Object.entries(json.entities)) {
     if (entity.parent === json.root) {
-      const nodeIndex = gltf.nodes!.findIndex((n) => n.extensions![UUIDComponent.jsonID] === uuid)!
+      const nodeIndex = gltf.nodes!.findIndex((n) => n.extensions![NodeIDComponent.jsonID] === uuid)!
       const childIndex = entity.index
       if (typeof childIndex === 'number') {
         gltf.scenes![0].nodes!.splice(childIndex, 0, nodeIndex)
@@ -127,8 +126,8 @@ export const convertSceneJSONToGLTF = (json: SceneJsonType): GLTF.IGLTF => {
         gltf.scenes![0].nodes!.push(nodeIndex)
       }
     } else {
-      const parentNode = gltf.nodes!.find((n) => n.extensions![UUIDComponent.jsonID] === entity.parent)!
-      const nodeIndex = gltf.nodes!.findIndex((n) => n.extensions![UUIDComponent.jsonID] === uuid)
+      const parentNode = gltf.nodes!.find((n) => n.extensions![NodeIDComponent.jsonID] === entity.parent)!
+      const nodeIndex = gltf.nodes!.findIndex((n) => n.extensions![NodeIDComponent.jsonID] === uuid)
       if (!parentNode.children) parentNode.children = []
       const childIndex = entity.index
       if (typeof childIndex === 'number') {

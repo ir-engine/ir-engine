@@ -40,7 +40,7 @@ import {
 
 import config from '@etherealengine/common/src/config'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Engine, UUIDComponent } from '@etherealengine/ecs'
+import { Engine } from '@etherealengine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -86,6 +86,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
@@ -308,7 +309,9 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
     }
 
     if (renderSettingsComponent.primaryLight.value) {
-      activeLightEntity.set(UUIDComponent.getEntityByUUID(renderSettingsComponent.primaryLight.value))
+      activeLightEntity.set(
+        NodeIDComponent.getNodeEntityFromSameSource(renderSettingsEntity, renderSettingsComponent.primaryLight.value)!
+      )
       return
     }
 

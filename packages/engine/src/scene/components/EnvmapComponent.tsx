@@ -64,6 +64,7 @@ import {
 import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { createDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
 
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import {
   envmapParsReplaceLambert,
@@ -88,7 +89,7 @@ export const EnvmapComponent = defineComponent({
         EnvMapTextureType.Equirectangular as (typeof EnvMapTextureType)[keyof typeof EnvMapTextureType],
       envMapSourceColor: new Color(0xfff) as Color,
       envMapSourceURL: '',
-      envMapSourceEntityUUID: '' as EntityUUID,
+      envMapSourceNodeID: '' as NodeID,
       envMapIntensity: 1,
       // internal
       envmap: null as Texture | null
@@ -96,13 +97,16 @@ export const EnvmapComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    if (typeof json?.type === 'string') component.type.set(json.type)
-    if (typeof json?.envMapTextureType === 'string') component.envMapTextureType.set(json.envMapTextureType)
-    if (typeof json?.envMapSourceColor === 'number') component.envMapSourceColor.set(new Color(json.envMapSourceColor))
-    if (typeof json?.envMapSourceURL === 'string') component.envMapSourceURL.set(json.envMapSourceURL)
-    if (typeof json?.envMapSourceEntityUUID === 'string')
-      component.envMapSourceEntityUUID.set(json.envMapSourceEntityUUID)
-    if (typeof json?.envMapIntensity === 'number') component.envMapIntensity.set(json.envMapIntensity)
+    if (!json) return
+    if (typeof json.type === 'string') component.type.set(json.type)
+    if (typeof json.envMapTextureType === 'string') component.envMapTextureType.set(json.envMapTextureType)
+    if (typeof json.envMapSourceColor === 'number') component.envMapSourceColor.set(new Color(json.envMapSourceColor))
+    if (typeof json.envMapSourceURL === 'string') component.envMapSourceURL.set(json.envMapSourceURL)
+    // backcompat
+    if (typeof (json as any).envMapSourceEntityUUID === 'string')
+      component.envMapSourceNodeID.set((json as any).envMapSourceEntityUUID)
+    if (typeof json.envMapSourceNodeID === 'string') component.envMapSourceNodeID.set(json.envMapSourceNodeID)
+    if (typeof json.envMapIntensity === 'number') component.envMapIntensity.set(json.envMapIntensity)
   },
 
   toJSON: (entity, component) => {
@@ -111,7 +115,7 @@ export const EnvmapComponent = defineComponent({
       envMapTextureType: component.envMapTextureType.value,
       envMapSourceColor: component.envMapSourceColor.value,
       envMapSourceURL: component.envMapSourceURL.value,
-      envMapSourceEntityUUID: component.envMapSourceEntityUUID.value,
+      envMapSourceNodeID: component.envMapSourceNodeID.value,
       envMapIntensity: component.envMapIntensity.value
     }
   },
@@ -211,9 +215,9 @@ export const EnvmapComponent = defineComponent({
       }
     }, [component.envmap])
 
-    const bakeEntity = UUIDComponent.getEntityByUUID(component.envMapSourceEntityUUID.value)
+    const bakeEntity = NodeIDComponent.useNodeEntityFromSameSource(entity, component.envMapSourceNodeID.value)
 
-    if (component.type.value !== EnvMapSourceType.Bake) return null
+    if (component.type.value !== EnvMapSourceType.Bake || !bakeEntity) return null
 
     return <EnvBakeComponentReactor key={bakeEntity} envmapEntity={entity} bakeEntity={bakeEntity} />
   },

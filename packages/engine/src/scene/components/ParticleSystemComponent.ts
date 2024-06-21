@@ -73,13 +73,13 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import { AssetType } from '@etherealengine/common/src/constants/AssetType'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useGLTF, useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import getFirstMesh from '../util/meshUtils'
-import { SourceComponent } from './SourceComponent'
 
 export const ParticleState = defineState({
   name: 'ParticleState',

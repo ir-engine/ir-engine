@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { QueryReactor, UUIDComponent } from '@etherealengine/ecs'
+import { QueryReactor } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -34,7 +34,7 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NO_PROXY, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
@@ -43,12 +43,9 @@ import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/re
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import {
-  EntityTreeComponent,
-  iterateEntityNode,
-  removeEntityNodeRecursively,
-  useAncestorWithComponent
-} from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { useAncestorWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import React, { FC, useEffect } from 'react'
@@ -57,13 +54,12 @@ import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
-import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
+import { GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToGLTF'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
-import { SourceComponent } from './SourceComponent'
 
 /**
  * ModelComponent is an entity/object hierarchy loaded from a resource
@@ -79,8 +75,7 @@ export const ModelComponent = defineComponent({
       /** optional, only for bone matchable avatars */
       convertToVRM: false,
       scene: null as Group | null,
-      asset: null as VRM | GLTF | null,
-      dereference: false
+      asset: null as VRM | GLTF | null
     }
   },
 
@@ -109,8 +104,6 @@ export const ModelComponent = defineComponent({
 function ModelReactor() {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-  const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState))
-  const modelSceneID = getModelSceneID(entity)
 
   const [gltf, error] = useGLTF(modelComponent.src.value, entity)
 
@@ -184,7 +177,7 @@ function ModelReactor() {
     const uuid = getModelSceneID(entity)
     const sceneJson: SceneJsonType = {
       entities: loadedJsonHierarchy,
-      root: getComponent(entity, UUIDComponent),
+      root: getComponent(entity, NodeIDComponent),
       version: 0
     }
     const sceneGLTF = convertSceneJSONToGLTF(sceneJson)
@@ -217,31 +210,9 @@ function ModelReactor() {
       // If model hasn't been dereferenced unload and remove children
       if (getState(GLTFSnapshotState)[uuid]) {
         dispatchAction(GLTFSnapshotAction.unload({ source: uuid }))
-        for (const childUUID in loadedJsonHierarchy) {
-          const entity = UUIDComponent.getEntityByUUID(childUUID as EntityUUID)
-          if (entity) {
-            removeEntityNodeRecursively(entity)
-          }
-        }
       }
     }
   }, [modelComponent.scene])
-
-  useEffect(() => {
-    if (!modelComponent.scene.value) return
-    if (!modelComponent.dereference.value) return
-    if (!gltfDocumentState[modelSceneID].value) return
-    const modelUUID = getComponent(entity, UUIDComponent)
-    const sourceID = getModelSceneID(entity)
-    const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
-    if (!parentEntity) return
-    const parentUUID = getComponent(parentEntity, UUIDComponent)
-    const parentSource = getComponent(parentEntity, SourceComponent)
-    iterateEntityNode(entity, (entity) => {
-      setComponent(entity, SourceComponent, parentSource)
-    })
-    GLTFSnapshotState.injectSnapshot(modelUUID, sourceID, parentUUID, parentSource)
-  }, [modelComponent.dereference, gltfDocumentState[modelSceneID]])
 
   return null
 }

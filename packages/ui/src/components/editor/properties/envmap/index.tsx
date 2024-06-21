@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
@@ -41,6 +40,7 @@ import {
   updateProperties,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { IoMapOutline } from 'react-icons/io5'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import Slider from '../../../../primitives/tailwind/Slider'
@@ -70,7 +70,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
   const bakeEntities = useQuery([EnvMapBakeComponent]).map((entity) => {
     return {
       label: getComponent(entity, NameComponent),
-      value: getComponent(entity, UUIDComponent)
+      value: getComponent(entity, NodeIDComponent)
     }
   })
 
@@ -113,8 +113,8 @@ export const EnvMapEditor: EditorComponentType = (props) => {
         <InputGroup name="EnvMapBake" label={t('editor:properties.envmap.lbl-bake')}>
           <SelectInput
             options={bakeEntities}
-            value={envmapComponent.envMapSourceEntityUUID.value}
-            onChange={commitProperty(EnvmapComponent, 'envMapSourceEntityUUID')}
+            value={envmapComponent.envMapSourceNodeID.value}
+            onChange={commitProperty(EnvmapComponent, 'envMapSourceNodeID')}
           />
         </InputGroup>
       )}

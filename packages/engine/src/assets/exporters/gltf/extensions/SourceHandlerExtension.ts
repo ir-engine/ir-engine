@@ -29,7 +29,7 @@ import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { SourceComponent } from '../../../../scene/components/SourceComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { getModelSceneID } from '../../../../scene/functions/loaders/ModelFunctions'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'

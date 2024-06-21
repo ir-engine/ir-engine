@@ -37,18 +37,19 @@ import {
   VSMShadowMap
 } from 'three'
 
-import { EntityUUID, useQuery, UUIDComponent } from '@etherealengine/ecs'
+import { useQuery } from '@etherealengine/ecs'
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
 
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { commitProperty, EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  * ToneMappingOptions array containing tone mapping type options.
@@ -113,13 +114,13 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
   const directionalLightOptions = [
     {
       label: 'None',
-      value: '' as EntityUUID
+      value: '' as NodeID
     }
   ].concat(
     useQuery([DirectionalLightComponent]).map((entity) => {
       return {
         label: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent)
+        value: getComponent(entity, NodeIDComponent)
       }
     })
   )

@@ -41,7 +41,6 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
@@ -54,6 +53,7 @@ import {
   EntityTreeComponent,
   getAncestorWithComponent
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'

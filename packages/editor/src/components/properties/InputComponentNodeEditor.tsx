@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { useQuery, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import PanToolIcon from '@mui/icons-material/PanTool'
 import React from 'react'
 import { useTranslation } from 'react-i18next'

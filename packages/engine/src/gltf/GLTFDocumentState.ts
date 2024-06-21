@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GLTF } from '@gltf-transform/core'
-import matches, { Validator } from 'ts-matches'
-
 import multiLogger from '@etherealengine/common/src/logger'
 import { Entity, EntityUUID, UUIDComponent, getComponent, useOptionalComponent } from '@etherealengine/ecs'
 import { State, defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { SourceComponent } from '../scene/components/SourceComponent'
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
+import { SourceComponent, SourceID } from '@etherealengine/spatial/src/transform/components/SourceComponent'
+import { GLTF } from '@gltf-transform/core'
+import matches, { Validator } from 'ts-matches'
 
 export const GLTFDocumentState = defineState({
   name: 'ee.engine.gltf.GLTFDocumentState',
@@ -39,13 +39,13 @@ export const GLTFDocumentState = defineState({
 export const GLTFNodeState = defineState({
   name: 'ee.engine.gltf.GLTFNodeState',
   initial: {} as Record<
-    string,
+    SourceID,
     Record<
-      string,
+      EntityUUID,
       {
         nodeIndex: number
         childIndex: number
-        parentUUID: EntityUUID | null // store parent, if no parent, then it is a root node
+        parentUUID: EntityUUID
       }
     >
   >,
@@ -75,12 +75,12 @@ export const GLTFNodeState = defineState({
     return getState(GLTFDocumentState)[source].nodes?.[nodeLookup.nodeIndex]
   },
 
-  convertGltfToNodeDictionary: (gltf: GLTF.IGLTF) => {
-    const nodes: Record<string, { nodeIndex: number; childIndex: number; parentUUID: EntityUUID | null }> = {}
+  convertGltfToNodeDictionary: (rootUUID: EntityUUID, gltf: GLTF.IGLTF) => {
+    const nodes: Record<SourceID, { nodeIndex: number; childIndex: number; parentUUID: EntityUUID }> = {}
 
-    const addNode = (nodeIndex: number, childIndex: number, parentUUID: EntityUUID | null) => {
+    const addNode = (nodeIndex: number, childIndex: number, parentUUID: EntityUUID) => {
       const node = gltf.nodes![nodeIndex]
-      const uuid = node.extensions?.[UUIDComponent.jsonID] as any as EntityUUID
+      const uuid = `${rootUUID}-${node.extensions?.[NodeIDComponent.jsonID]}` as any as EntityUUID
       if (uuid) {
         nodes[uuid] = { nodeIndex, childIndex, parentUUID }
       } else {
@@ -98,22 +98,7 @@ export const GLTFNodeState = defineState({
     const scene = gltf.scenes![0]
     for (let i = 0; i < scene.nodes!.length; i++) {
       const index = scene.nodes[i]
-      addNode(index, i, null)
-    }
-
-    for (let i = 0; i < gltf.scenes![0].nodes!.length; i++) {
-      const nodeIndex = gltf.scenes![0].nodes![i]
-      const node = gltf.nodes![nodeIndex]
-      const uuid = node.extensions?.[UUIDComponent.jsonID] as any as EntityUUID
-      if (uuid) {
-        nodes[uuid] = {
-          nodeIndex,
-          childIndex: i,
-          parentUUID: null
-        }
-      } else {
-        console.warn('Node does not have a UUID:', node)
-      }
+      addNode(index, i, rootUUID)
     }
     return nodes
   }
