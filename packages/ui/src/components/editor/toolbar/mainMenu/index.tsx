@@ -41,8 +41,11 @@ interface MainMenuProp {
 }
 
 const MainMenu = ({ commands, icon }: MainMenuProp) => {
-  const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
-  const [anchorEvent, setAnchorEvent] = React.useState<null | React.MouseEvent<HTMLDivElement>>(null)
+  const [anchorPosition, setAnchorPosition] = React.useState<undefined | { left: number; top: number }>({
+    left: 0,
+    top: 0
+  })
+  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const onOpen = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
@@ -56,8 +59,8 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
   }
 
   const handleClose = () => {
-    setAnchorEvent(null)
-    setAnchorPosition({ left: 0, top: 0 })
+    setAnchorEvent(undefined)
+    setAnchorPosition(undefined)
   }
 
   const renderMenu = (command: Command) => {

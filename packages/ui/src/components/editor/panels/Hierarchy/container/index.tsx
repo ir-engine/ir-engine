@@ -82,8 +82,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const { sceneURL, rootEntityUUID, index } = props
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
-  const [anchorEvent, setAnchorEvent] = React.useState<null | React.MouseEvent<HTMLDivElement>>(null)
-  const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
+  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
   const [anchorPositionPop, setAnchorPositionPop] = React.useState<undefined | PopoverPosition>(undefined)
 
   const [prevClickedNode, setPrevClickedNode] = useState<HeirarchyTreeNodeType | null>(null)
@@ -174,16 +173,11 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
     setContextSelectedItem(item)
     setAnchorEvent(event)
-    setAnchorPosition({
-      left: event.clientX + 2,
-      top: event.clientY - 6
-    })
   }
 
   const handleClose = () => {
     setContextSelectedItem(undefined)
-    setAnchorEvent(null)
-    setAnchorPosition({ left: 0, top: 0 })
+    setAnchorEvent(undefined)
   }
 
   const onMouseDown = useCallback((e: React.MouseEvent, node: HeirarchyTreeNodeType) => {}, [])
@@ -497,12 +491,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
       <div id="heirarchy-panel" className="h-5/6 overflow-hidden">
         <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
       </div>
-      <ContextMenu
-        anchorEvent={anchorEvent}
-        panelId={'heirarchy-panel'}
-        anchorPosition={anchorPosition}
-        onClose={handleClose}
-      >
+      <ContextMenu anchorEvent={anchorEvent} panelId={'heirarchy-panel'} onClose={handleClose}>
         <Button
           fullWidth
           size="small"

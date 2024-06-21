@@ -28,9 +28,9 @@ import { twMerge } from 'tailwind-merge'
 import ClickAwayListener from './ClickAwayListener'
 
 type ContextMenuProps = {
-  anchorEvent: null | React.MouseEvent<HTMLElement>
+  anchorEvent: undefined | React.MouseEvent<HTMLElement>
   panelId: string
-  anchorPosition: { left: number; top: number }
+  anchorPosition?: undefined | { left: number; top: number }
   onClose: () => void
   className?: string
 }
@@ -39,7 +39,12 @@ export const ContextMenu = ({
   children,
   anchorEvent,
   panelId,
-  anchorPosition,
+  anchorPosition = anchorEvent
+    ? {
+        left: anchorEvent.clientX + 2,
+        top: anchorEvent.clientY - 6
+      }
+    : undefined,
   onClose,
   className
 }: React.PropsWithChildren<ContextMenuProps>) => {
@@ -50,7 +55,7 @@ export const ContextMenu = ({
 
   // Calculate the Y position of the context menu based on the menu height and space to the bottom of the viewport in order to avoid overflow
   const calculatePositionY = () => {
-    let positionY = open ? anchorPosition.top - panel?.getBoundingClientRect().top! : 0
+    let positionY = anchorPosition ? anchorPosition.top - panel?.getBoundingClientRect().top! : 0
 
     if (open && menuRef.current) {
       const menuHeight = menuRef.current.offsetHeight
@@ -67,7 +72,7 @@ export const ContextMenu = ({
 
   // Calculate the X position of the context menu based on the menu width and space to the right of the panel in order to avoid overflow
   const calculatePositionX = () => {
-    let positionX = open ? anchorPosition.left - panel?.getBoundingClientRect().left! : 0
+    let positionX = anchorPosition ? anchorPosition.left - panel?.getBoundingClientRect().left! : 0
 
     if (open && menuRef.current) {
       const menuWidth = menuRef.current.offsetWidth

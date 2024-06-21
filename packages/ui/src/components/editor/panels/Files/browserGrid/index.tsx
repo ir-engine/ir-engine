@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
 
@@ -224,8 +224,7 @@ export function FileBrowserItem({
   isSelected
 }: FileBrowserItemType) {
   const { t } = useTranslation()
-  const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
-  const [anchorEvent, setAnchorEvent] = React.useState<null | React.MouseEvent<HTMLDivElement>>(null)
+  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const fileService = useMutation(fileBrowserPath)
 
@@ -233,15 +232,10 @@ export function FileBrowserItem({
     event.preventDefault()
     event.stopPropagation()
     setAnchorEvent(event)
-    setAnchorPosition({
-      left: event.clientX + 2,
-      top: event.clientY - 6
-    })
   }
 
   const handleClose = () => {
-    setAnchorEvent(null)
-    setAnchorPosition({ left: 0, top: 0 })
+    setAnchorEvent(undefined)
   }
 
   const onClickItem = (e: React.MouseEvent) => onClick(e, item)
@@ -361,13 +355,7 @@ export function FileBrowserItem({
         </div>
       )}
 
-      <ContextMenu
-        anchorEvent={anchorEvent}
-        panelId={'file-browser-panel'}
-        anchorPosition={anchorPosition}
-        onClose={handleClose}
-        className="gap-1"
-      >
+      <ContextMenu anchorEvent={anchorEvent} panelId={'file-browser-panel'} onClose={handleClose} className="gap-1">
         <Button variant="outline" size="small" fullWidth onClick={addFolder}>
           {t('editor:layout.filebrowser.addNewFolder')}
         </Button>

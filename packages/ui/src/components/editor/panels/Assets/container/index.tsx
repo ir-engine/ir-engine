@@ -98,7 +98,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const { t } = useTranslation()
 
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
-  const [anchorEvent, setAnchorEvent] = React.useState<null | React.MouseEvent<HTMLDivElement>>(null)
+  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
@@ -111,8 +111,8 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   }
 
   const handleClose = () => {
-    setAnchorEvent(null)
-    setAnchorPosition({ left: 0, top: 0 })
+    setAnchorEvent(undefined)
+    setAnchorPosition(undefined)
   }
 
   const { onAssetSelectionChanged } = useContext(AssetsPreviewContext)
