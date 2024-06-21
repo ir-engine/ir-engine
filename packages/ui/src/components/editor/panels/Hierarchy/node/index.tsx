@@ -112,6 +112,11 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const sceneAssetLoading = useOptionalComponent(node.entity, ResourcePendingComponent)
 
   const toggleVisible = () => {
+    if (visible) {
+      EditorControlFunctions.addOrRemoveComponent([node.entity], VisibleComponent, false)
+    } else {
+      EditorControlFunctions.addOrRemoveComponent([node.entity], VisibleComponent, true)
+    }
     setVisibleComponent(node.entity, !hasComponent(node.entity, VisibleComponent))
   }
 
