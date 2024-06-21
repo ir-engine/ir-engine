@@ -39,12 +39,7 @@ export const ContextMenu = ({
   children,
   anchorEvent,
   panelId,
-  anchorPosition = anchorEvent
-    ? {
-        left: anchorEvent.clientX + 2,
-        top: anchorEvent.clientY - 6
-      }
-    : undefined,
+  anchorPosition,
   onClose,
   className
 }: React.PropsWithChildren<ContextMenuProps>) => {
