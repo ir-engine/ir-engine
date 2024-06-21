@@ -62,7 +62,7 @@ export const ModalHeader = ({
       {title && <Text>{title}</Text>}
       <Button
         variant="outline"
-        className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
+        className="absolute right-0 border-0 dark:bg-transparent dark:text-theme-primary-400"
         startIcon={<MdClose />}
         onClick={() => onClose && onClose(true)}
       />

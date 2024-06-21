@@ -52,7 +52,7 @@ export default function GizmoTool() {
       <div className="mt-2 flex flex-col rounded bg-theme-surface-main">
         <Button
           variant="transparent"
-          className={twMerge('border-b border-b-theme-primary p-2 text-[#A3A3A3]')}
+          className={twMerge('border-b border-b-theme-primary p-2 text-theme-primary-400')}
           iconContainerClassName="m-0"
           startIcon={<TbPointer />}
           title="Pointer"
@@ -61,7 +61,7 @@ export default function GizmoTool() {
         <Button
           variant="transparent"
           className={twMerge(
-            'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
+            'border-b border-b-theme-primary p-2 text-theme-primary-400',
             transformMode === TransformMode.translate && 'bg-theme-highlight text-white'
           )}
           iconContainerClassName="m-0"
@@ -72,7 +72,7 @@ export default function GizmoTool() {
         <Button
           variant="transparent"
           className={twMerge(
-            'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
+            'border-b border-b-theme-primary p-2 text-theme-primary-400',
             transformMode === TransformMode.rotate && 'bg-theme-highlight text-white'
           )}
           iconContainerClassName="m-0"
@@ -83,7 +83,7 @@ export default function GizmoTool() {
         <Button
           variant="transparent"
           className={twMerge(
-            'p-2 text-[#A3A3A3]',
+            'p-2 text-theme-primary-400',
             transformMode === TransformMode.scale && 'bg-theme-highlight text-white'
           )}
           iconContainerClassName="m-0"

@@ -119,7 +119,9 @@ export default function ScenesPanel() {
                     onClick={() => onClickScene(scene)}
                   />
                   <div className="flex items-center justify-between px-4 py-1">
-                    <Text className="truncate text-sm leading-5 dark:text-[#A3A3A3]">{getSceneName(scene)}</Text>
+                    <Text className="truncate text-sm leading-5 dark:text-theme-primary-400">
+                      {getSceneName(scene)}
+                    </Text>
                     <div className="relative">
                       <Button
                         variant="transparent"

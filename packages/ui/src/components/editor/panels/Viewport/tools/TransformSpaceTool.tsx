@@ -67,7 +67,7 @@ const TransformSpaceTool = () => {
       <Select
         key={transformSpace.value}
         inputClassName="py-1 h-6 rounded-sm text-xs"
-        className="w-24 p-1 text-[#A3A3A3]"
+        className="w-24 p-1 text-theme-primary-400"
         onChange={setTransformSpace}
         options={transformSpaceOptions}
         currentValue={transformSpace.value}

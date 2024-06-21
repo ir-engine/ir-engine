@@ -55,7 +55,7 @@ const GridTool = () => {
         value={rendererState.gridHeight.value}
         onChange={(value) => rendererState.gridHeight.set(value)}
         className="h-6 w-16 rounded-sm bg-transparent px-2 py-1"
-        inputClassName="text-[#A3A3A3]"
+        inputClassName="text-theme-primary-400"
         precision={0.01}
         smallStep={0.5}
         mediumStep={1}

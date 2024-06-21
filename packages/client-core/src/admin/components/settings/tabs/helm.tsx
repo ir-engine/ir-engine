@@ -99,7 +99,7 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
       ref={ref}
       open={open}
     >
-      <Text component="p" className="mb-6 mt-2 dark:text-[#A3A3A3]">
+      <Text component="p" className="mb-6 mt-2 dark:text-theme-primary-400">
         {t('admin:components.setting.helm.subtitle')}
       </Text>
 

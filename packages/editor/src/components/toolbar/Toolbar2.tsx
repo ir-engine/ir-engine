@@ -128,7 +128,7 @@ export default function Toolbar() {
             <img src="favicon-32x32.png" alt="iR Engine Logo" className={`h-7 w-7 opacity-50`} />
           </div>
           <Button
-            endIcon={<MdOutlineKeyboardArrowDown size="1em" className="-ml-3 text-[#A3A3A3]" />}
+            endIcon={<MdOutlineKeyboardArrowDown size="1em" className="-ml-3 text-theme-primary-400" />}
             iconContainerClassName="ml-2 mr-1"
             rounded="none"
             startIcon={<RxHamburgerMenu size={24} className="text-[#9CA0AA]" />}

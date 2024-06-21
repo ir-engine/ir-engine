@@ -290,9 +290,9 @@ type AssetsBreadcrumbProps = {
 export function AssetsBreadcrumb({ path }: AssetsBreadcrumbProps) {
   return (
     <div className="flex h-[28px] items-center gap-2 rounded-[4px] border border-[#42454D] bg-[#141619] px-2 ">
-      <HiOutlineFolder className="text-xs text-[#A3A3A3]" />
+      <HiOutlineFolder className="text-xs text-theme-primary-400" />
       <span
-        className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]"
+        className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-theme-primary-400"
         style={{ direction: 'rtl' }}
       >
         {path}
@@ -509,8 +509,8 @@ const AssetPanel = () => {
             }}
             labelClassname="text-sm text-red-500"
             containerClassname="flex h-full bg-theme-primary rounded w-auto"
-            className="h-7 rounded-[4px] bg-theme-primary py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
-            startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
+            className="h-7 rounded-[4px] bg-theme-primary py-0 text-xs text-theme-primary-400 placeholder:text-theme-primary-400 focus-visible:ring-0"
+            startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-theme-primary-400" />}
           />
         </div>
 

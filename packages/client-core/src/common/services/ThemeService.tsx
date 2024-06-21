@@ -77,7 +77,7 @@ const lightTheme: CSSClasses = {
   selection: '#3166D0'
 }
 
-const darkTheme: CSSClasses = {
+const darkTheme = {
   'bg-primary': '#111113',
   'bg-secondary': '#000000',
   'bg-highlight': '#212226',
@@ -92,7 +92,21 @@ const darkTheme: CSSClasses = {
   'bg-tag-red': '#B30911',
   'bg-tag-yellow': '#CA8A04',
 
-  'text-primary': '#F5F5F5',
+  // 'text-primary': '#F5F5F5',
+  'text-primary': {
+    DEFAULT: '#F5F5F5',
+    100: '#F5F5F5',
+    200: '#E5E5E5',
+    300: '#D4D4D4',
+    400: '#A3A3A3',
+    500: '#4B4C4E',
+    600: '#3B3B3B',
+    700: '#2E2E2E',
+    800: '#242424',
+    850: '#1C1C1C',
+    900: '#141414',
+    950: '#080808'
+  },
   'text-secondary': '#D4D4D4',
   'text-highlight': '#FFFFFF',
   'icon-green': '#0D9488 ',
@@ -102,7 +116,7 @@ const darkTheme: CSSClasses = {
   selection: '#1E4273'
 }
 
-export const themes: Record<string, Partial<CSSClasses>> = {
+export const themes = {
   light: lightTheme,
   dark: darkTheme,
   custom: {}
@@ -121,12 +135,21 @@ export const ThemeState = defineState({
   extension: syncStateWithLocalStorage(['theme'])
 })
 
-export const updateTheme = (themeClasses: Partial<CSSClasses>) => {
+const updateTheme = (themeClasses) => {
   if (themeClasses) {
     const root = document.querySelector(':root') as any
-    for (const variable of Object.keys(themeClasses)) {
-      root.style.setProperty('--' + variable, themeClasses[variable])
+    for (const [variable, value] of Object.entries(themeClasses) as any) {
+      if (typeof value === 'object') {
+        for (const [shade, shadeValue] of Object.entries(value as any)) {
+          root.style.setProperty(`--${variable}-${shade}`, shadeValue)
+        }
+        // Set the default color without the shade
+        root.style.setProperty(`--${variable}`, value.DEFAULT)
+      } else {
+        root.style.setProperty(`--${variable}`, value)
+      }
     }
+    console.log(root.style)
   }
 }
 
