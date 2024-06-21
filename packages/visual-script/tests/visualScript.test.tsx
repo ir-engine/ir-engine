@@ -72,6 +72,7 @@ import vec2TestVisualScript from './assets/vec2-test-visual-script.json'
 import vec3TestVisualScript from './assets/vec3-test-visual-script.json'
 import vec4TestVisualScript from './assets/vec4-test-visual-script.json'
 
+/** @todo rewrite these tests without relying on logging */
 describe.skip('visual Script', () => {
   let consoleSpy: Sinon.SinonSpy
   let consoleErrorSpy: Sinon.SinonSpy // Spy on console.error
