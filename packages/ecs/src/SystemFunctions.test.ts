@@ -58,7 +58,7 @@ describe('SystemFunctions', () => {
     return destroyEngine()
   })
 
-  it('can run multiple simultion ticks to catch up to elapsed time', async () => {
+  it('can run multiple simulation ticks to catch up to elapsed time', async () => {
     const mockState = getMutableState(MockState)
     assert.equal(mockState.count.value, 0)
 

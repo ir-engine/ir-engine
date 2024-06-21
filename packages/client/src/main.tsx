@@ -24,15 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { lazy, Suspense, useEffect } from 'react'
+import React, { lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { BrowserRouter, history } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
 import './pages/styles.scss'
+import './pages/mui.styles.scss' /** @todo Remove when MUI is removed */
 // tslint:disable:ordered-imports
 // @ts-ignore
 ;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
@@ -44,17 +44,9 @@ const AppPage = lazy(() => import('./pages/_app'))
 const TailwindPage = lazy(() => import('./pages/_app_tw'))
 
 const App = () => {
-  useEffect(() => {
-    const urlSearchParams = new URLSearchParams(window.location.search)
-    const redirectUrl = urlSearchParams.get('redirectUrl')
-    if (redirectUrl) {
-      history.push(redirectUrl)
-    }
-  }, [])
-
   return (
     <ErrorBoundary>
-      <BrowserRouter history={history}>
+      <Engine>
         <Routes>
           {/* @todo - these are for backwards compatibility with non tailwind pages - they will be removed eventually */}
           <Route
@@ -62,9 +54,7 @@ const App = () => {
             path="/location/*"
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'location'} />
-                </Engine>
+                <AppPage route={'location'} />
               </Suspense>
             }
           />
@@ -73,9 +63,7 @@ const App = () => {
             path="/offline/*"
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'offline'} />
-                </Engine>
+                <AppPage route={'offline'} />
               </Suspense>
             }
           />
@@ -85,14 +73,12 @@ const App = () => {
             path="/*"
             element={
               <Suspense>
-                <Engine tailwind>
-                  <TailwindPage />
-                </Engine>
+                <TailwindPage />
               </Suspense>
             }
           />
         </Routes>
-      </BrowserRouter>
+      </Engine>
     </ErrorBoundary>
   )
 }

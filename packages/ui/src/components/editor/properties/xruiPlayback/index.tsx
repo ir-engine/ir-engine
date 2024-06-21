@@ -45,7 +45,7 @@ export const XRUIPlaybackNodeEditor: EditorComponentType = (props) => {
     <NodeEditor
       name={t('editor:properties.xruiPlayback.name')}
       description={t('editor:properties.xruiPlayback.description')}
-      icon={<LuPlayCircle />}
+      icon={<XRUIPlaybackNodeEditor.iconComponent />}
       {...props}
     >
       <InputGroup

@@ -34,7 +34,7 @@ import { transformModel } from '@etherealengine/engine/src/assets/compression/Mo
 import { Application } from '@etherealengine/server-core/declarations'
 
 import config from '../../appconfig'
-import { createExecutorJob } from '../../projects/project/project-helper'
+import { createExecutorJob } from '../../k8s-job-helper'
 import { getModelTransformJobBody } from './model-transform.helpers'
 
 export interface ModelTransformParams extends KnexAdapterParams {
@@ -64,7 +64,8 @@ export class ModelTransformService implements ServiceInterface<void> {
     const createParams: ModelTransformParameters = data
     console.log('config', config)
     if (!config.kubernetes?.enabled) {
-      return transformModel(createParams)
+      await transformModel(createParams)
+      return
     }
     try {
       const transformParms = createParams

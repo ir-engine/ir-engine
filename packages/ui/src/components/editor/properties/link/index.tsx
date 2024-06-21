@@ -23,16 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiLinkBreak } from 'react-icons/pi'
 
-import { useComponent } from '@etherealengine/ecs'
+import { getComponent, hasComponent, useComponent, UUIDComponent } from '@etherealengine/ecs'
 import {
-  EditorComponentType,
   commitProperty,
+  EditorComponentType,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
+import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
+import {
+  InteractableComponent,
+  XRUIActivationType
+} from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import BooleanInput from '../../input/Boolean'
@@ -49,12 +54,29 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
   const linkComponent = useComponent(props.entity, LinkComponent)
   const errors = getEntityErrors(props.entity, LinkComponent)
 
+  useEffect(() => {
+    if (!hasComponent(props.entity, InteractableComponent)) {
+      EditorControlFunctions.addOrRemoveComponent([props.entity], InteractableComponent, true, {
+        label: LinkComponent.interactMessage,
+        uiInteractable: false,
+        clickInteract: true,
+        uiActivationType: XRUIActivationType.hover,
+        callbacks: [
+          {
+            callbackID: LinkComponent.linkCallbackName,
+            target: getComponent(props.entity, UUIDComponent)
+          }
+        ]
+      })
+    }
+  }, [])
+
   return (
     <NodeEditor
       {...props}
       name={t('editor:properties.linkComp.title')}
       description={t('editor:properties.linkComp.description')}
-      icon={<PiLinkBreak />}
+      icon={<LinkNodeEditor.iconComponent />}
     >
       {errors
         ? Object.entries(errors).map(([err, message]) => (

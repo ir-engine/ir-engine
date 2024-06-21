@@ -58,6 +58,7 @@ import {
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useValidProjectForFileBrowser } from '@etherealengine/ui/src/components/editor/panels/Files/container'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
@@ -66,6 +67,8 @@ import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
+import BooleanInput from '../../inputs/BooleanInput'
+import InputGroup from '../../inputs/InputGroup'
 import StringInput from '../../inputs/StringInput'
 import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
@@ -81,9 +84,9 @@ import { FilePropertiesPanel } from './FilePropertiesPanel'
 type FileBrowserContentPanelProps = {
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
   disableDnD?: boolean
+  projectName?: string
   selectedFile?: string
   folderName?: string
-  nestingDirectory?: string
 }
 
 type DnDFileType = {
@@ -125,8 +128,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const { t } = useTranslation()
 
   const originalPath = `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
+
   const selectedDirectory = useHookstate(originalPath)
-  const nestingDirectory = useHookstate(props.nestingDirectory || 'projects')
+  const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
+  const nestingDirectory = useHookstate('projects')
   const fileProperties = useHookstate<FileType | null>(null)
 
   const openProperties = useHookstate(false)
@@ -180,7 +185,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   })
 
   useEffect(() => {
-    FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
+    //FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
   }, [fileQuery.data])
 
   useEffect(() => {
@@ -222,12 +227,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     if (isLoading) return
 
     const path = dropOn?.isFolder ? dropOn.key : selectedDirectory.value
+    const folder = path.replace(/(.*\/).*/, '$1')
 
     if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
         moveContent(data.fullName, data.fullName, data.path, path, false)
       }
     } else {
+      const projectName = folder.split('/')[1] // TODO: support projects with / in the name
+      const relativePath = folder.replace('projects/' + projectName + '/', '')
       await Promise.all(
         data.files.map(async (file) => {
           const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
@@ -238,8 +246,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             try {
               const name = processFileName(file.name)
               await uploadToFeathersService(fileBrowserUploadPath, [file], {
-                fileName: name,
-                path,
+                project: projectName,
+                path: relativePath + name,
                 contentType: file.type
               }).promise
             } catch (err) {
@@ -272,7 +280,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     isCopy = false
   ): Promise<void> => {
     if (isLoading) return
-    fileService.update(null, { oldName, newName, oldPath, newPath, isCopy })
+    fileService.update(null, {
+      oldProject: projectName,
+      newProject: projectName,
+      oldName,
+      newName,
+      oldPath,
+      newPath,
+      isCopy
+    })
   }
 
   const handleConfirmDelete = (contentPath: string, type: string) => {
@@ -384,6 +400,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         key: {
           $in: isListView ? files.map((file) => file.key) : []
         },
+        project: props.projectName,
         $select: ['key', 'updatedAt'] as any,
         $limit: FILES_PAGE_LIMIT
       }
@@ -413,6 +430,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   item={file}
                   disableDnD={props.disableDnD}
                   onClick={onSelect}
+                  projectName={projectName}
                   moveContent={moveContent}
                   deleteContent={handleConfirmDelete}
                   currentContent={currentContentRef}
@@ -448,6 +466,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const ViewModeSettings = () => {
     const viewModeSettings = useMutableState(FilesViewModeSettings)
+    const forceRegenerateThumbnails = useHookstate(false)
     return (
       <>
         <ToolButton
@@ -517,10 +536,18 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             </div>
           </div>
           <div style={{ display: 'flex', width: '200px', flexDirection: 'column' }}>
+            <InputGroup name="Force Regenerate Thumbnails" label="Force Regenerate">
+              <BooleanInput
+                value={forceRegenerateThumbnails.value}
+                onChange={() => forceRegenerateThumbnails.set(!forceRegenerateThumbnails.value)}
+              />
+            </InputGroup>
             <Button
               className={'medium-button button'}
               style={{ width: '100%' }}
-              onClick={() => FileThumbnailJobState.processAllFiles(selectedDirectory.value)}
+              onClick={() =>
+                FileThumbnailJobState.processAllFiles(selectedDirectory.value, forceRegenerateThumbnails.value)
+              }
             >
               Generate thumbnails
             </Button>
@@ -651,7 +678,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       {openConvert.value && fileProperties.value && (
         <ImageConvertPanel
           openConvert={openConvert}
-          fileProperties={fileProperties}
+          fileProperties={fileProperties.value}
           convertProperties={convertProperties}
           onRefreshDirectory={refreshDirectory}
         />

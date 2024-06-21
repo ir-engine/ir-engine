@@ -38,9 +38,9 @@
     "social": {
       "gitHub": "Login with GitHub",
       "google": "Login with Google",
-      "facebook": "Login with Facebook",
+      "facebook": "Login with Meta",
       "linkedin": "Login with Linkedin",
-      "twitter": "Login with Twitter"
+      "twitter": "Login with X"
     },
     "register": {
       "header": "Sign Up",
@@ -163,7 +163,7 @@
       "lbl-left-control-scheme": "Left Control Scheme",
       "lbl-right-control-scheme": "Right Control Scheme",
       "lbl-preferred-hand": "Preferred Hand",
-      "lbl-resolution": "Resolution",
+      "lbl-quality": "Quality Preset",
       "lbl-shadow": "Shadows",
       "lbl-pp": "Post Processing",
       "lbl-pbr": "Full PBR",

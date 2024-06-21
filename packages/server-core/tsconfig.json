@@ -26,7 +26,10 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": ["vite/client", "mocha"]
+    "types": [
+      "vite/client",
+      "mocha"
+    ]
   },
   "exclude": [
     "../projects/projects/**",
@@ -36,6 +39,7 @@
     "../../__global.d.ts",
     "./*.ts",
     "./src/**/*.ts",
-    "./src/**/*.tsx"
+    "./src/**/*.tsx",
+    "../common/src/schemas/setting/account-project.schema.ts"
   ]
 }

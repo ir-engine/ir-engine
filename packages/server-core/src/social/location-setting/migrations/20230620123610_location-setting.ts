@@ -46,10 +46,10 @@ export async function up(knex: Knex): Promise<void> {
   if (tableExists === false) {
     // Added transaction here in order to ensure both below queries run on same pool.
     // https://github.com/knex/knex/issues/218#issuecomment-56686210
-    const trx = await knex.transaction()
-    await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-    await trx.schema.createTable(locationSettingPath, (table) => {
+    await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+    await knex.schema.createTable(locationSettingPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
 
@@ -73,8 +73,7 @@ export async function up(knex: Knex): Promise<void> {
         .onUpdate('CASCADE')
     })
 
-    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-    await trx.commit()
+    await knex.raw('SET FOREIGN_KEY_CHECKS=1')
   }
 }
 
@@ -83,15 +82,13 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(locationSettingPath)
+  const tableExists = await knex.schema.hasTable(locationSettingPath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(locationSettingPath)
+    await knex.schema.dropTable(locationSettingPath)
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

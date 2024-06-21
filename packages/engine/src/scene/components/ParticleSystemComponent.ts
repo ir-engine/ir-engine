@@ -28,6 +28,7 @@ import {
   AdditiveBlending,
   Blending,
   BufferGeometry,
+  DoubleSide,
   Material,
   MeshBasicMaterial,
   Object3D,
@@ -71,8 +72,8 @@ import { useDisposable } from '@etherealengine/spatial/src/resources/resourceHoo
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AssetClass } from '../../assets/enum/AssetClass'
 import { useGLTF, useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
@@ -847,17 +848,18 @@ export const ParticleSystemComponent = defineComponent({
     const [dudMaterial] = useDisposable(MeshBasicMaterial, entity, {
       color: 0xffffff,
       transparent: componentState.value.systemParameters.transparent ?? true,
-      blending: componentState.value.systemParameters.blending as Blending
+      blending: componentState.value.systemParameters.blending as Blending,
+      side: DoubleSide
     })
     //@todo: this is a hack to make trail rendering mode work correctly. We need to find out why an additional snapshot is needed
     useEffect(() => {
       if (rootGLTF?.value?.progress !== 100) return
       if (refreshed.value) return
 
-      if (componentState.systemParameters.renderMode.value === RenderMode.Trail) {
-        const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID!)
-        dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
-      }
+      //if (componentState.systemParameters.renderMode.value === RenderMode.Trail) {
+      const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID!)
+      dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
+      //}
       refreshed.set(true)
     }, [rootGLTF?.value?.progress])
 
@@ -941,15 +943,15 @@ export const ParticleSystemComponent = defineComponent({
 
       const doLoadEmissionGeo =
         component.systemParameters.shape.type === 'mesh_surface' &&
-        AssetLoader.getAssetClass(component.systemParameters.shape.mesh ?? '') === AssetClass.Model
+        AssetLoader.getAssetClass(component.systemParameters.shape.mesh ?? '') === AssetType.Model
 
       const doLoadInstancingGeo =
         component.systemParameters.instancingGeometry &&
-        AssetLoader.getAssetClass(component.systemParameters.instancingGeometry) === AssetClass.Model
+        AssetLoader.getAssetClass(component.systemParameters.instancingGeometry) === AssetType.Model
 
       const doLoadTexture =
         component.systemParameters.texture &&
-        AssetLoader.getAssetClass(component.systemParameters.texture) === AssetClass.Image
+        AssetLoader.getAssetClass(component.systemParameters.texture) === AssetType.Image
 
       const loadedEmissionGeo = (doLoadEmissionGeo && shapeMesh) || !doLoadEmissionGeo
       const loadedInstanceGeo = (doLoadInstancingGeo && geoDependency) || !doLoadInstancingGeo

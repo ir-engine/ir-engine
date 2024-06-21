@@ -110,7 +110,7 @@ export const TransformGizmoControlledComponent = defineComponent({
 
       setComponent(gizmoPlaneEntity, NameComponent, 'gizmoPlaneEntity')
       setComponent(gizmoPlaneEntity, TransformGizmoTagComponent)
-      setComponent(gizmoPlaneEntity, VisibleComponent) // needed for raycasting
+      //NOTE: VisibleComponent for gizmoPlaneEntity is managed in TransformGizmoControlComponent based on drag interaction
 
       return () => {
         removeEntity(gizmoControlEntity)

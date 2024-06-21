@@ -47,6 +47,8 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
     }
   }
 
+  if (prepareDb) return
+
   if (forceRefresh) {
     logger.info('Refreshing default project')
     // for local dev clear the storage provider
@@ -55,7 +57,7 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
       if (fs.existsSync(uploadPath)) fs.rmSync(uploadPath, { recursive: true })
     }
     copyDefaultProject()
-    await app.service(projectPath)._seedProject('default-project')
+    if (config.kubernetes.enabled || config.testEnabled) await app.service(projectPath)._seedProject('default-project')
   }
 
   if (!config.kubernetes.enabled && !config.testEnabled) await app.service(projectPath)._fetchDevLocalProjects()

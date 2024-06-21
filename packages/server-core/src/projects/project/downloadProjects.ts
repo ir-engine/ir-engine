@@ -41,6 +41,8 @@ import logger from '../../ServerLogger'
  * @returns {Promise<boolean>}
  */
 export const download = async (projectName: string, storageProviderName?: string) => {
+  if (projectName === 'default-project') return
+
   const storageProvider = getStorageProvider(storageProviderName)
   try {
     logger.info(`[ProjectLoader]: Installing project "${projectName}"...`)
@@ -98,6 +100,4 @@ export const download = async (projectName: string, storageProviderName?: string
     logger.error(e, errorMsg)
     throw e
   }
-
-  return true
 }

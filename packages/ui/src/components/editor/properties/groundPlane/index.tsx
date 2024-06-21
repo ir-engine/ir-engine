@@ -49,12 +49,14 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.groundPlane.name')}
       description={t('editor:properties.groundPlane.description')}
+      icon={<GroundPlaneNodeEditor.iconComponent />}
     >
       <InputGroup name="Color" label={t('editor:properties.groundPlane.lbl-color')}>
         <ColorInput
           sketchPickerClassName="mt-2"
           value={groundPlaneComponent.color.value}
           onChange={updateProperty(GroundPlaneComponent, 'color')}
+          onRelease={commitProperty(GroundPlaneComponent, 'color')}
         />
       </InputGroup>
       <InputGroup

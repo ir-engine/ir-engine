@@ -71,7 +71,7 @@ export const FileIcon = ({
   isFolder,
   showRibbon
 }: {
-  thumbnailURL: string
+  thumbnailURL?: string
   type: string
   isFolder?: boolean
   showRibbon?: boolean
@@ -82,7 +82,7 @@ export const FileIcon = ({
     <>
       {isFolder ? (
         <FolderIcon fontSize={'inherit'} />
-      ) : thumbnailURL != null ? (
+      ) : thumbnailURL ? (
         <img
           style={{ width: '100%', height: 'auto', maxWidth: '90px', objectFit: 'scale-down' }}
           crossOrigin="anonymous"

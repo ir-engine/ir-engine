@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { createRef, Suspense } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { API } from '@etherealengine/client-core/src/API'
-import { FullscreenContainer } from '@etherealengine/client-core/src/components/FullscreenContainer'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { BrowserRouter, history } from '@etherealengine/client-core/src/common/services/RouterService'
 import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
 import { pipeLogs } from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -37,6 +36,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { initializei18n } from './util'
 
 const initializeLogs = async () => {
@@ -54,14 +54,22 @@ initializeBrowser()
 API.createAPI()
 initializeLogs()
 
-export default function ({ children, tailwind = false }): JSX.Element {
-  const ref = createRef()
+export default function ({ children }): JSX.Element {
   const { t } = useTranslation()
-  return !tailwind ? (
-    <FullscreenContainer ref={ref}>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingClient')} />}>{children}</Suspense>
-    </FullscreenContainer>
-  ) : (
-    children
+
+  useEffect(() => {
+    const urlSearchParams = new URLSearchParams(window.location.search)
+    const redirectUrl = urlSearchParams.get('redirectUrl')
+    if (redirectUrl) {
+      history.push(redirectUrl)
+    }
+  }, [])
+
+  return (
+    <>
+      <BrowserRouter history={history}>
+        <Suspense fallback={<LoadingView title={t('common:loader.loadingClient')} />}>{children}</Suspense>
+      </BrowserRouter>
+    </>
   )
 }

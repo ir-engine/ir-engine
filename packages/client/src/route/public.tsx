@@ -27,31 +27,20 @@ import React, { lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
-const $index = lazy(() => import('@etherealengine/client/src/pages'))
 const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
-const $admin = lazy(() => import('@etherealengine/client-core/src/admin/adminRoutes'))
-const $studio = lazy(() => import('@etherealengine/client/src/pages/editor/editor'))
 const $location = lazy(() => import('@etherealengine/client/src/pages/location/location'))
 
 /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
 function RouterComp({ route }: { route: string }) {
-  const customRoutes = useCustomRoutes()
   const { t } = useTranslation()
 
   let RouteElement
 
   switch (route) {
-    case 'index':
-      RouteElement = $index
-      break
     case 'offline':
       RouteElement = $offline
-      break
-    case 'studio':
-      RouteElement = $studio
       break
     case 'location':
       RouteElement = $location
