@@ -134,8 +134,11 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
       else newBasicMaterial.map = prevMaterial.map
       newBasicMaterial.reflectivity = prevMaterial.metalness
       newBasicMaterial.envMap = prevMaterial.envMap
-      newBasicMaterial.vertexColors = prevMaterial.vertexColors
       newBasicMaterial.uuid = basicUUID
+      newBasicMaterial.alphaTest = prevMaterial.alphaTest
+      newBasicMaterial.side = prevMaterial.side
+      newBasicMaterial.plugins = undefined
+
       createMaterialEntity(newBasicMaterial, '', entity)
       setComponent(entity, MaterialComponent[MaterialComponents.Instance], { uuid: [basicUUID] })
     } else {
