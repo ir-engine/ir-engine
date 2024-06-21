@@ -35,6 +35,7 @@ import {
   createEntity,
   destroyEngine,
   getComponent,
+  hasComponent,
   removeComponent,
   removeEntity,
   setComponent
@@ -45,10 +46,11 @@ import { setCallback } from '../../common/CallbackComponent'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
+import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
 import { PhysicsState } from '../state/PhysicsState'
-import { ColliderHitEvent } from '../types/PhysicsTypes'
+import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 import { TriggerSystem, triggerEnter, triggerExit } from './TriggerSystem'
 
 describe('TriggerSystem', () => {
@@ -183,21 +185,66 @@ describe('TriggerSystem', () => {
   })
 
   describe('execute', () => {
+    const triggerTestStartHit = {
+      type: CollisionEvents.TRIGGER_START,
+      bodySelf: Physics._Rigidbodies.get(triggerEntity)!,
+      bodyOther: Physics._Rigidbodies.get(testEntity)!,
+      shapeSelf: Physics._Colliders.get(triggerEntity)!,
+      shapeOther: Physics._Colliders.get(testEntity)!,
+      maxForceDirection: null,
+      totalForce: null
+    } as ColliderHitEvent
+    const triggerTestEndHit = {
+      type: CollisionEvents.TRIGGER_END,
+      bodySelf: Physics._Rigidbodies.get(triggerEntity)!,
+      bodyOther: Physics._Rigidbodies.get(testEntity)!,
+      shapeSelf: Physics._Colliders.get(triggerEntity)!,
+      shapeOther: Physics._Colliders.get(testEntity)!,
+      maxForceDirection: null,
+      totalForce: null
+    } as ColliderHitEvent
+
     const triggerSystemExecute = SystemDefinitions.get(TriggerSystem)!.execute
 
     it('should only run for entities that have both a TriggerComponent and a CollisionComponent  (aka. collisionQuery)', () => {
       removeComponent(triggerEntity, TriggerComponent)
-      assert.equal(enterVal, EnterStartValue + 1) // +1 because the system runs once before this test
-      assert.equal(exitVal, ExitStartValue + 1)
+      setComponent(triggerEntity, CollisionComponent)
+      const collision = getComponent(triggerEntity, CollisionComponent)
+      collision?.set(testEntity, triggerTestStartHit)
+
+      const beforeEnter = EnterStartValue + 1 // +1 because the system runs once before this test
+      const beforeExit = ExitStartValue + 1
+      assert.equal(enterVal, beforeEnter)
+      assert.equal(exitVal, beforeExit)
       triggerSystemExecute()
-      assert.equal(enterVal, EnterStartValue + 1)
-      assert.equal(exitVal, ExitStartValue + 1)
+      assert.equal(enterVal, beforeEnter)
+      assert.equal(exitVal, beforeExit)
     })
 
-    /**
-    // @todo How to access the hit.type value?
-    // it("should run `triggerEnter` for all entities that match the collisionQuery and have a hit.type === CollisionEvents.TRIGGER_START", () => {})
-    // it("should run `triggerExit` for all entities that match the collisionQuery and have a hit.type === CollisionEvents.TRIGGER_END", () => {})
-    */
+    it('should run `triggerEnter` for all entities that match the collisionQuery and have a CollisionComponent', () => {
+      const beforeEnter = EnterStartValue + 1 // +1 because the system runs once before this test
+      assert.equal(enterVal, beforeEnter)
+      // Set a start collision and run the system
+      assert.ok(!hasComponent(triggerEntity, CollisionComponent))
+      setComponent(triggerEntity, CollisionComponent)
+      const collision = getComponent(triggerEntity, CollisionComponent)
+      collision?.set(testEntity, triggerTestStartHit)
+      triggerSystemExecute()
+      // Check after
+      assert.notEqual(enterVal, beforeEnter)
+    })
+
+    it('should run `triggerExit` for all entities that match the collisionQuery and have a CollisionComponent', () => {
+      const beforeExit = ExitStartValue + 1 // +1 because the system runs once before this test
+      assert.equal(exitVal, beforeExit)
+      // Set an end collision and run the system
+      assert.ok(!hasComponent(triggerEntity, CollisionComponent))
+      setComponent(triggerEntity, CollisionComponent)
+      const collision = getComponent(triggerEntity, CollisionComponent)
+      collision?.set(testEntity, triggerTestEndHit)
+      triggerSystemExecute()
+      // Check after
+      assert.notEqual(exitVal, beforeExit)
+    })
   })
 })
