@@ -26,6 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { Vector2 } from 'three'
 
 import { defineComponent, defineQuery, Entity, getComponent, UndefinedEntity } from '@etherealengine/ecs'
+import { defineState, getState } from '@etherealengine/hyperflux'
+
+export const InputPointerState = defineState({
+  name: 'InputPointerState',
+  initial() {
+    return {
+      pointers: new Map<string, Entity>()
+    }
+  }
+})
 
 export const InputPointerComponent = defineComponent({
   name: 'InputPointerComponent',
@@ -43,10 +53,22 @@ export const InputPointerComponent = defineComponent({
   onSet(entity, component, args: { pointerId: number; canvasEntity: Entity }) {
     component.pointerId.set(args.pointerId)
     component.canvasEntity.set(args.canvasEntity)
+    const pointerHash = `canvas-${args.canvasEntity}.pointer-${args.pointerId}`
+    getState(InputPointerState).pointers.set(pointerHash, entity)
   },
 
-  getPointerForCanvas(canvasEntity: Entity) {
-    return pointerQuery().find((entity) => getComponent(entity, InputPointerComponent).canvasEntity === canvasEntity)
+  onRemove(entity, component) {
+    const pointerHash = `canvas-${component.canvasEntity}.pointer-${component.pointerId}`
+    getState(InputPointerState).pointers.delete(pointerHash)
+  },
+
+  getPointersForCanvas(canvasEntity: Entity) {
+    return pointerQuery().filter((entity) => getComponent(entity, InputPointerComponent).canvasEntity === canvasEntity)
+  },
+
+  getPointerByID(canvasEntity: Entity, pointerId: number) {
+    const pointerHash = `canvas-${canvasEntity}.pointer-${pointerId}`
+    return getState(InputPointerState).pointers.get(pointerHash) ?? UndefinedEntity
   }
 })
 

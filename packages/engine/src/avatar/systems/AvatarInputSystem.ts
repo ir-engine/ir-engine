@@ -244,7 +244,7 @@ const execute = () => {
   controller.gamepadLocalInput.set(0, 0, 0)
 
   const viewerEntity = Engine.instance.viewerEntity
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCanvas(viewerEntity)
   if (!inputPointerEntity && !xrState.session) return
 
   const buttons = InputComponent.getMergedButtons(viewerEntity)

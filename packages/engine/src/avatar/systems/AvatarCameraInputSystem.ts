@@ -129,7 +129,7 @@ const execute = () => {
 
   const viewerEntity = Engine.instance.viewerEntity
 
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCanvas(viewerEntity)
   if (!inputPointerEntity) return
 
   const buttons = InputComponent.getMergedButtons(viewerEntity)

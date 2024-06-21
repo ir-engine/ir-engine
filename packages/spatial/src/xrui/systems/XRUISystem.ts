@@ -32,19 +32,15 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { WebContainer3D } from '@etherealengine/xrui'
 
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
-import { InputState } from '../../input/state/InputState'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
-import { XRState } from '../../xr/XRState'
 import { PointerComponent, PointerObject } from '../components/PointerComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
-import { XRUIState } from '../XRUIState'
 
 const hitColor = new Color(0x00e6e6)
 const normalColor = new Color(0xffffff)
@@ -56,10 +52,13 @@ const inputSourceQuery = defineQuery([InputSourceComponent])
 // redirect DOM events from the canvas, to the 3D scene,
 // to the appropriate child Web3DLayer, and finally (back) to the
 // DOM to dispatch an event on the intended DOM target
-const redirectDOMEvent = (evt) => {
+const redirectDOMEvent = (evt: PointerEvent) => {
+  evt.detail
+
   for (const entity of visibleInteractableXRUIQuery()) {
     const layer = getComponent(entity, XRUIComponent)
-    const inputSources = getComponent(entity, InputComponent).inputSources
+    const inputSources = InputComponent.getInputSourceEntities(entity)
+    // const inputSources = getComponent(entity, InputComponent).inputSources
     if (!inputSources.length) continue
     const inputSource = getComponent(inputSources[0], InputSourceComponent) // assume only one input source per XRUI
     if (inputSource.intersections.length && inputSource.intersections[0].entity !== entity) continue // only handle events for the first intersection
@@ -67,7 +66,7 @@ const redirectDOMEvent = (evt) => {
     const raycaster = inputSource.raycaster
     const hit = layer.hitTest(raycaster.ray)
     if (hit && hit.intersection.object.visible) {
-      hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
+      hit.target.dispatchEvent(new (evt.constructor as any)(evt.type, evt))
       hit.target.focus()
       return
     }
@@ -132,17 +131,6 @@ const updateClickEventsForController = (entity: Entity) => {
 
 const execute = () => {
   if (!isClient) return
-
-  const xruiState = getState(XRUIState)
-  const xrFrame = getState(XRState).xrFrame
-
-  /** Update the objects to use for intersection tests */
-  const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
-  if (xrFrame && xruiState.interactionRays[0] === pointerScreenRaycaster.ray)
-    xruiState.interactionRays = [...PointerComponent.getPointers(), pointerScreenRaycaster.ray] // todo, replace pointerScreenRaycaster with input sources
-
-  if (!xrFrame && xruiState.interactionRays[0] !== pointerScreenRaycaster.ray)
-    xruiState.interactionRays = [pointerScreenRaycaster.ray]
 
   const interactableXRUIEntities = visibleInteractableXRUIQuery()
 
@@ -221,10 +209,6 @@ const reactor = () => {
     document.body.addEventListener('click', redirectDOMEvent)
     document.body.addEventListener('contextmenu', redirectDOMEvent)
     document.body.addEventListener('dblclick', redirectDOMEvent)
-
-    const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
-
-    getMutableState(XRUIState).interactionRays.set([pointerScreenRaycaster.ray])
 
     return () => {
       document.body.removeEventListener('pointerdown', redirectDOMEvent)

@@ -34,7 +34,6 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -260,6 +259,11 @@ const execute = () => {
       TransformComponent.rotation.w[eid] = pose.transform.orientation.w
       TransformComponent.dirtyTransforms[eid] = true
     }
+  }
+
+  const interactionRays = inputSourceQuery().map((eid) => getComponent(eid, InputSourceComponent).raycaster.ray)
+  for (const xrui of inputXRUIs()) {
+    getComponent(xrui, XRUIComponent).interactionRays = interactionRays
   }
 
   // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents
@@ -539,21 +543,10 @@ const CanvasInputReactor = () => {
     const rendererComponent = getComponent(canvasEntity, RendererComponent)
     const canvas = rendererComponent.canvas
 
-    canvas.addEventListener('dragstart', preventDefault, false)
-    canvas.addEventListener('contextmenu', preventDefault)
-
-    // TODO: follow this spec more closely https://immersive-web.github.io/webxr/#transient-input
-    // const pointerEntities = new Map<number, Entity>()
-
-    const emulatedInputSourceEntity = createEntity()
-    setComponent(emulatedInputSourceEntity, NameComponent, 'InputSource-emulated-pointer')
-    setComponent(emulatedInputSourceEntity, TransformComponent)
-    setComponent(emulatedInputSourceEntity, InputSourceComponent)
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
-
     /** Clear mouse events */
     const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
-    const clearPointerState = () => {
+    const clearPointerState = (entity: Entity) => {
+      const inputSourceComponent = getComponent(entity, InputSourceComponent)
       const state = inputSourceComponent.buttons as ButtonStateMap
       for (const button of pointerButtons) {
         const val = state[button]
@@ -561,45 +554,40 @@ const CanvasInputReactor = () => {
       }
     }
 
-    const pointerEnter = (event: PointerEvent) => {
-      setComponent(emulatedInputSourceEntity, InputPointerComponent, {
+    const onPointerEnter = (event: PointerEvent) => {
+      const pointerEntity = createEntity()
+      setComponent(pointerEntity, NameComponent, 'InputSource-emulated-pointer')
+      setComponent(pointerEntity, TransformComponent)
+      setComponent(pointerEntity, InputSourceComponent)
+      setComponent(pointerEntity, InputPointerComponent, {
         pointerId: event.pointerId,
         canvasEntity: canvasEntity
       })
     }
 
-    const pointerLeave = (event: PointerEvent) => {
-      const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+    const onPointerLeave = (event: PointerEvent) => {
+      const pointerEntity = InputPointerComponent.getPointerByID(canvasEntity, event.pointerId)
+      const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
       if (!pointerComponent || pointerComponent?.pointerId !== event.pointerId) return
-      clearPointerState()
-      removeComponent(emulatedInputSourceEntity, InputPointerComponent)
+      clearPointerState(pointerEntity)
     }
 
-    canvas.addEventListener('pointerenter', pointerEnter)
-    canvas.addEventListener('pointerleave', pointerLeave)
+    const onPointerClick = (event: PointerEvent) => {
+      const pointerEntity = InputPointerComponent.getPointerByID(canvasEntity, event.pointerId)
+      const inputSourceComponent = getOptionalComponent(pointerEntity, InputSourceComponent)
+      if (!inputSourceComponent) return
 
-    canvas.addEventListener('blur', clearPointerState)
-    canvas.addEventListener('mouseleave', clearPointerState)
-    const handleVisibilityChange = (event: Event) => {
-      if (document.visibilityState === 'hidden') clearPointerState()
-    }
-    canvas.addEventListener('visibilitychange', handleVisibilityChange)
-
-    const handleMouseClick = (event: MouseEvent) => {
-      const down = event.type === 'mousedown' || event.type === 'touchstart'
+      const down = event.type === 'pointerdown'
 
       let button = MouseButton.PrimaryClick
       if (event.button === 1) button = MouseButton.AuxiliaryClick
       else if (event.button === 2) button = MouseButton.SecondaryClick
 
-      const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
-      if (!inputSourceComponent) return
-
       const state = inputSourceComponent.buttons as ButtonStateMap
       if (down) {
-        state[button] = createInitialButtonState(emulatedInputSourceEntity) //down, pressed, touched = true
+        state[button] = createInitialButtonState(pointerEntity) //down, pressed, touched = true
 
-        const pointer = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+        const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
         if (pointer) {
           state[button]!.downPosition = new Vector3(pointer.position.x, pointer.position.y, 0)
           //rotation will never be defined for the mouse or touch
@@ -609,49 +597,57 @@ const CanvasInputReactor = () => {
       }
     }
 
-    const handleMouseMove = (event: MouseEvent) => {
-      handleMouseOrTouchMovement(event.clientX, event.clientY, event)
-    }
-
-    const handleTouchMove = (event: TouchEvent) => {
-      const touch = event.touches[0]
-      handleMouseOrTouchMovement(touch.clientX, touch.clientY, event)
-    }
-
-    const handleMouseOrTouchMovement = (clientX: number, clientY: number, event: MouseEvent | TouchEvent) => {
-      const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+    const onPointerMove = (event: PointerEvent) => {
+      const pointerEntity = InputPointerComponent.getPointerByID(canvasEntity, event.pointerId)
+      const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
       if (!pointerComponent) return
+
       pointerComponent.position.set(
-        ((clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
-        ((clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
+        ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+        ((event.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
       )
 
-      const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
-      updateMouseOrTouchDragging(emulatedInputSourceEntity, event)
+      updatePointerDragging(pointerEntity, event)
     }
 
-    canvas.addEventListener('touchmove', handleTouchMove, { passive: true, capture: true })
-    canvas.addEventListener('mousemove', handleMouseMove, { passive: true, capture: true })
-    canvas.addEventListener('mouseup', handleMouseClick)
-    canvas.addEventListener('mousedown', handleMouseClick)
-    canvas.addEventListener('touchstart', handleMouseClick)
-    canvas.addEventListener('touchend', handleMouseClick)
+    const onVisibilityChange = (event: Event) => {
+      if (
+        document.visibilityState === 'hidden' ||
+        !canvas.checkVisibility({
+          checkOpacity: true,
+          checkVisibilityCSS: true
+        })
+      ) {
+        InputPointerComponent.getPointersForCanvas(canvasEntity).forEach(clearPointerState)
+      }
+    }
+
+    canvas.addEventListener('dragstart', preventDefault, false)
+    canvas.addEventListener('contextmenu', preventDefault)
+    canvas.addEventListener('pointerenter', onPointerEnter)
+    canvas.addEventListener('pointerleave', onPointerLeave)
+    canvas.addEventListener('pointermove', onPointerMove, { passive: true, capture: true })
+    canvas.addEventListener('pointerup', onPointerClick)
+    canvas.addEventListener('pointerdown', onPointerClick)
+    canvas.addEventListener('blur', onVisibilityChange)
+    canvas.addEventListener('visibilitychange', onVisibilityChange)
+
+    const redirectPointerEvents = (event: PointerEvent) => {
+      const pointerEntity = InputPointerComponent.getPointerByID(canvasEntity, event.pointerId)
+      const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
+      if (!pointerComponent) return
+    }
 
     return () => {
       canvas.removeEventListener('dragstart', preventDefault, false)
       canvas.removeEventListener('contextmenu', preventDefault)
-      canvas.removeEventListener('pointerenter', pointerEnter)
-      canvas.removeEventListener('pointerleave', pointerLeave)
-      canvas.removeEventListener('blur', clearPointerState)
-      canvas.removeEventListener('mouseleave', clearPointerState)
-      canvas.removeEventListener('visibilitychange', handleVisibilityChange)
-      canvas.removeEventListener('touchmove', handleTouchMove)
-      canvas.removeEventListener('mousemove', handleMouseMove)
-      canvas.removeEventListener('mouseup', handleMouseClick)
-      canvas.removeEventListener('mousedown', handleMouseClick)
-      canvas.removeEventListener('touchstart', handleMouseClick)
-      canvas.removeEventListener('touchend', handleMouseClick)
-      removeEntity(emulatedInputSourceEntity)
+      canvas.removeEventListener('pointerenter', onPointerEnter)
+      canvas.removeEventListener('pointerleave', onPointerLeave)
+      canvas.removeEventListener('pointermove', onPointerMove)
+      canvas.removeEventListener('pointerup', onPointerClick)
+      canvas.removeEventListener('pointerdown', onPointerClick)
+      canvas.removeEventListener('blur', onVisibilityChange)
+      canvas.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [xrState.session])
 
@@ -766,20 +762,20 @@ export const ClientInputSystem = defineSystem({
   reactor
 })
 
-function updateMouseOrTouchDragging(emulatedInputSourceEntity: Entity, event: MouseEvent | TouchEvent) {
-  const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+function updatePointerDragging(pointerEntity: Entity, event: PointerEvent) {
+  const inputSourceComponent = getOptionalComponent(pointerEntity, InputSourceComponent)
   if (!inputSourceComponent) return
 
   const state = inputSourceComponent.buttons as ButtonStateMap
 
   let button = MouseButton.PrimaryClick
-  if (event.type === 'mousemove') {
+  if (event.type === 'pointermove') {
     if ((event as MouseEvent).button === 1) button = MouseButton.AuxiliaryClick
     else if ((event as MouseEvent).button === 2) button = MouseButton.SecondaryClick
   }
   const btn = state[button]
   if (btn && !btn.dragging) {
-    const pointer = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+    const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
 
     if (btn.pressed && btn.downPosition) {
       //if not yet dragging, compare distance to drag threshold and begin if appropriate
