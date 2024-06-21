@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { CubeTexture, Material, Texture } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, getComponent, hasComponent, UUIDComponent } from '@etherealengine/ecs'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
-  materialByName,
   MaterialComponent,
-  MaterialComponents
+  MaterialComponents,
+  MaterialPlugins
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
 import { injectMaterialDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
@@ -58,7 +58,7 @@ export function isOldEEMaterial(extension: any) {
     .test(argValues)
 }
 
-export type MaterialExtensionPluginType = { id: string; parameters: { [key: string]: any } }
+export type MaterialExtensionPluginType = { id: string; uniforms: { [key: string]: any } }
 
 export type EEMaterialExtensionType = {
   uuid: EntityUUID
@@ -83,7 +83,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
   matCache: Map<any, any>
 
   writeMaterial(material: Material, materialDef) {
-    const materialEntityUUID = materialByName[material.name]
+    const materialEntityUUID = material.uuid as EntityUUID
     const materialEntity = UUIDComponent.getEntityByUUID(materialEntityUUID)
     const argData = injectMaterialDefaults(materialEntityUUID)
     if (!argData) return
@@ -118,17 +118,22 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.emissiveFactor
     const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
     const prototype = getComponent(materialComponent.prototypeEntity!, MaterialComponent[MaterialComponents.Prototype])
-    const materialStates = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-    const materialPlugins = materialStates.pluginEntities?.map((entity) => {
-      const plugin = getComponent(entity, MaterialComponent[MaterialComponents.Plugin])
-      return { id: plugin?.plugin?.id ?? '', name: plugin?.parameters ?? '' }
+    const plugins = Object.keys(MaterialPlugins).map((plugin) => {
+      if (!hasComponent(materialEntity, MaterialPlugins[plugin])) return
+      const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin])
+      const uniforms = {}
+      for (const key in pluginComponent) {
+        console.log(pluginComponent[key])
+        uniforms[key] = pluginComponent[key].value
+      }
+      return { id: plugin, uniforms }
     })
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
       uuid: getComponent(materialEntity, UUIDComponent),
       name: getComponent(materialEntity, NameComponent),
       prototype: Object.keys(prototype.prototypeConstructor!)[0],
-      plugins: materialPlugins,
+      plugins: plugins,
       args: result
     }
     this.writer.extensionsUsed[this.name] = true

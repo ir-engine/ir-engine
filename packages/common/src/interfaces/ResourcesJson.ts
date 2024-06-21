@@ -23,4 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const projectResourcesPath = 'project-resources'
+// key = /path/to/file.ext
+export type ResourcesJson = Record<
+  string,
+  {
+    type: string // 'scene' | 'asset' | 'file' | 'thumbnail' | 'avatar' | 'recording'
+    tags?: string[]
+    dependencies?: string[] // other keys
+    licensing?: string
+    description?: string
+    attribution?: string
+    thumbnailKey?: string
+    thumbnailMode?: string // 'automatic' | 'manual'
+  }
+>

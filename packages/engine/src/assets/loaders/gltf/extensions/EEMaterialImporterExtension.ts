@@ -82,6 +82,14 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     if (extension.plugins) {
       if (!materialDef.extras) materialDef.extras = {}
       materialDef.extras['plugins'] = extension.plugins
+      for (const plugin of extension.plugins) {
+        if (!plugin?.uniforms) continue
+        for (const v of Object.values(plugin.uniforms)) {
+          if (v.type === 'texture') {
+            parser.assignTexture(materialParams, v.name, v.contents)
+          }
+        }
+      }
     }
     const materialComponent = getComponent(
       UUIDComponent.getEntityByUUID(extension.uuid),

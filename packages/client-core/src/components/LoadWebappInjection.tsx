@@ -23,26 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { NO_PROXY } from '@etherealengine/hyperflux'
+import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import { useHookstate } from '@hookstate/core'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import {
-  assetDataSchema,
-  assetPatchSchema,
-  assetQuerySchema,
-  assetSchema,
-  assetUpdateSchema
-} from '@etherealengine/common/src/schemas/assets/asset.schema'
+export const LoadWebappInjection = (props) => {
+  const { t } = useTranslation()
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    assetSchema,
-    assetDataSchema,
-    assetUpdateSchema,
-    assetPatchSchema,
-    assetQuerySchema
-  },
-  docs: {
-    description: 'Asset service description',
-    securities: ['all']
-  }
-})
+  const projectComponents = useHookstate(null as null | any[])
+
+  useEffect(() => {
+    loadWebappInjection().then((result) => {
+      projectComponents.set(result)
+    })
+  }, [])
+
+  if (!projectComponents.value)
+    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.authenticating')} />
+
+  return (
+    <>
+      {projectComponents.get(NO_PROXY)!.map((Component, i) => (
+        <Component key={i} />
+      ))}
+      {props.children}
+    </>
+  )
+}
