@@ -112,12 +112,12 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     [entityHierarchy]
   )
 
-  const nodeSearch: HeirarchyTreeNodeType[] = []
+  const searchedNodes: HeirarchyTreeNodeType[] = []
   if (searchHierarchy.value.length > 0) {
     const condition = new RegExp(searchHierarchy.value.toLowerCase())
     entityHierarchy.value.forEach((node) => {
       if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
-        nodeSearch.push(node)
+        searchedNodes.push(node)
     })
   }
 
@@ -418,7 +418,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     }
   })
 
-  let validNodes = nodeSearch?.length > 0 ? nodeSearch : entityHierarchy.value
+  let validNodes = searchHierarchy.value.length > 0 ? searchedNodes : entityHierarchy.value
   validNodes = validNodes.filter((node) => entityExists(node.entity))
 
   const HierarchyList = ({ height, width }) => (
@@ -433,7 +433,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         onKeyDown,
         onChangeName,
         onRenameSubmit,
-        onMouseDown,
         onClick,
         onToggle,
         onUpload
