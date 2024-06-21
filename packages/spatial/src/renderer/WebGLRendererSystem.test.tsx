@@ -43,7 +43,7 @@ import React from 'react'
 import { Color, Group, MathUtils, Texture } from 'three'
 import { MockEngineRenderer } from '../../tests/util/MockEngineRenderer'
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { createEngine } from '../initializeEngine'
+import { createEngine, initializeSpatialEngine } from '../initializeEngine'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { RendererState } from './RendererState'
 import {
@@ -80,6 +80,7 @@ describe('WebGl Renderer System', () => {
 
   beforeEach(() => {
     createEngine()
+    initializeSpatialEngine()
 
     rootEntity = Engine.instance.viewerEntity //createEntity()
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)

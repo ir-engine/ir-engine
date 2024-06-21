@@ -55,7 +55,7 @@ export class Engine {
    * @deprecated use "getState(EngineState).localFloorEntity" instead
    */
   get localFloorEntity() {
-    return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).localFloorEntity
+    return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).localFloorEntity as Entity
   }
 
   /**
@@ -63,7 +63,7 @@ export class Engine {
    * @deprecated use "getState(EngineState).originEntity" instead
    */
   get originEntity() {
-    return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).originEntity
+    return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).originEntity as Entity
   }
 
   /**
@@ -71,7 +71,7 @@ export class Engine {
    * @deprecated use "getState(EngineState).viewerEntity" instead
    */
   get viewerEntity() {
-    return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).viewerEntity
+    return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).viewerEntity as Entity
   }
 
   /** @deprecated use viewerEntity instead */
