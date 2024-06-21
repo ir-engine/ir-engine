@@ -179,7 +179,7 @@ const inputs = defineQuery([InputComponent])
 const worldPosInputSourceComponent = new Vector3()
 const worldPosInputComponent = new Vector3()
 
-const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
+const xruiQuery = defineQuery([VisibleComponent, XRUIComponent])
 const boundingBoxesQuery = defineQuery([VisibleComponent, BoundingBoxComponent])
 
 const meshesQuery = defineQuery([VisibleComponent, MeshComponent])
@@ -262,7 +262,7 @@ const execute = () => {
   }
 
   const interactionRays = inputSourceQuery().map((eid) => getComponent(eid, InputSourceComponent).raycaster.ray)
-  for (const xrui of inputXRUIs()) {
+  for (const xrui of xruiQuery()) {
     getComponent(xrui, XRUIComponent).interactionRays = interactionRays
   }
 
@@ -308,7 +308,7 @@ const execute = () => {
         }
       } else {
         // 1st heuristic is XRUI
-        for (const entity of inputXRUIs()) {
+        for (const entity of xruiQuery()) {
           const xrui = getComponent(entity, XRUIComponent)
           const layerHit = xrui.hitTest(inputRay)
           if (
@@ -563,13 +563,21 @@ const CanvasInputReactor = () => {
         pointerId: event.pointerId,
         canvasEntity: canvasEntity
       })
+      redirectPointerEventsToXRUI(canvasEntity, event)
+    }
+
+    const onPointerOver = (event: PointerEvent) => {
+      redirectPointerEventsToXRUI(canvasEntity, event)
+    }
+
+    const onPointerOut = (event: PointerEvent) => {
+      redirectPointerEventsToXRUI(canvasEntity, event)
     }
 
     const onPointerLeave = (event: PointerEvent) => {
       const pointerEntity = InputPointerComponent.getPointerByID(canvasEntity, event.pointerId)
-      const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
-      if (!pointerComponent || pointerComponent?.pointerId !== event.pointerId) return
-      clearPointerState(pointerEntity)
+      redirectPointerEventsToXRUI(canvasEntity, event)
+      removeEntity(pointerEntity)
     }
 
     const onPointerClick = (event: PointerEvent) => {
@@ -595,6 +603,8 @@ const CanvasInputReactor = () => {
       } else if (state[button]) {
         state[button]!.up = true
       }
+
+      redirectPointerEventsToXRUI(canvasEntity, event)
     }
 
     const onPointerMove = (event: PointerEvent) => {
@@ -608,6 +618,8 @@ const CanvasInputReactor = () => {
       )
 
       updatePointerDragging(pointerEntity, event)
+
+      redirectPointerEventsToXRUI(canvasEntity, event)
     }
 
     const onVisibilityChange = (event: Event) => {
@@ -622,32 +634,36 @@ const CanvasInputReactor = () => {
       }
     }
 
+    const onClick = (evt: PointerEvent) => {
+      redirectPointerEventsToXRUI(canvasEntity, evt)
+    }
+
     canvas.addEventListener('dragstart', preventDefault, false)
     canvas.addEventListener('contextmenu', preventDefault)
     canvas.addEventListener('pointerenter', onPointerEnter)
+    canvas.addEventListener('pointerover', onPointerOver)
+    canvas.addEventListener('pointerout', onPointerOut)
     canvas.addEventListener('pointerleave', onPointerLeave)
     canvas.addEventListener('pointermove', onPointerMove, { passive: true, capture: true })
     canvas.addEventListener('pointerup', onPointerClick)
     canvas.addEventListener('pointerdown', onPointerClick)
     canvas.addEventListener('blur', onVisibilityChange)
     canvas.addEventListener('visibilitychange', onVisibilityChange)
-
-    const redirectPointerEvents = (event: PointerEvent) => {
-      const pointerEntity = InputPointerComponent.getPointerByID(canvasEntity, event.pointerId)
-      const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
-      if (!pointerComponent) return
-    }
+    canvas.addEventListener('click', onClick)
 
     return () => {
       canvas.removeEventListener('dragstart', preventDefault, false)
       canvas.removeEventListener('contextmenu', preventDefault)
       canvas.removeEventListener('pointerenter', onPointerEnter)
+      canvas.removeEventListener('pointerover', onPointerOver)
+      canvas.removeEventListener('pointerout', onPointerOut)
       canvas.removeEventListener('pointerleave', onPointerLeave)
       canvas.removeEventListener('pointermove', onPointerMove)
       canvas.removeEventListener('pointerup', onPointerClick)
       canvas.removeEventListener('pointerdown', onPointerClick)
       canvas.removeEventListener('blur', onVisibilityChange)
       canvas.removeEventListener('visibilitychange', onVisibilityChange)
+      canvas.removeEventListener('click', onClick)
     }
   }, [xrState.session])
 
@@ -821,3 +837,22 @@ export const ClientInputCleanupSystem = defineSystem({
   insert: { after: PresentationSystemGroup },
   execute: cleanupInputs
 })
+
+const redirectPointerEventsToXRUI = (canvasEntity: Entity, evt: PointerEvent) => {
+  const pointerEntity = InputPointerComponent.getPointerByID(canvasEntity, evt.pointerId)
+  const inputSource = getOptionalComponent(pointerEntity, InputSourceComponent)
+  if (!inputSource) return
+  for (const i of inputSource.intersections) {
+    const entity = i.entity
+    const xrui = getOptionalComponent(entity, XRUIComponent)
+    if (!xrui) continue
+    xrui.updateWorldMatrix(true, true)
+    const raycaster = inputSource.raycaster
+    const hit = xrui.hitTest(raycaster.ray)
+    if (hit && hit.intersection.object.visible) {
+      hit.target.dispatchEvent(new (evt.constructor as any)(evt.type, evt))
+      hit.target.focus()
+      return
+    }
+  }
+}
