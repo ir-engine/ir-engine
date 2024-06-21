@@ -43,7 +43,6 @@ interface MainMenuProp {
 const MainMenu = ({ commands, icon }: MainMenuProp) => {
   const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
 
   const onOpen = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
