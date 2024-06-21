@@ -136,6 +136,10 @@
       "info-translate": "Translate objects by a unit of measurement.",
       "info-rotate": "Rotate objects by a specific degrees."
     },
+    "placement": {
+      "click": "Point & Click Placement",
+      "drag": "Drag & Drop Placement"
+    },
     "command": {
       "translate": "Translate",
       "rotate": "Rotate",
@@ -934,7 +938,7 @@
       "lbl-torusknot": "Torus Knot"
     },
     "portal": {
-      "name":"Portal",
+      "name": "Portal",
       "lbl-portal": "Linked Portal",
       "lbl-redirect": "Use Page Redirect",
       "description": "A Portal to teleport players to specified location",
