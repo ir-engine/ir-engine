@@ -263,6 +263,8 @@ export const projectPath = 'project'
 
 export const projectsPath = 'projects'
 
+export const assetPath = 'asset'
+
 export const builderInfoPath = 'builder-info'
 
 export const projectCheckSourceDestinationMatchPath = 'project-check-source-destination-match'
