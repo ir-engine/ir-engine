@@ -187,7 +187,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 value={setting.key}
                 endComponent={
                   <Button
-                    className="text-primary rounded py-1"
+                    className="text-primary mr-1 rounded py-1"
                     variant={setting.type === 'private' ? 'danger' : 'success'}
                     size="small"
                     onClick={() => handleSettingsVisibilityChange(setting, index)}
