@@ -112,7 +112,6 @@ export default function Toolbar() {
   const { t } = useTranslation()
   const anchorEl = useHookstate<HTMLElement | null>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
-  const anchorOpen = useHookstate(false)
 
   const { projectName, sceneName } = useMutableState(EditorState)
 
@@ -134,7 +133,6 @@ export default function Toolbar() {
             startIcon={<RxHamburgerMenu size={24} className="text-[#9CA0AA]" />}
             className="-mr-1 border-0 bg-transparent p-0"
             onClick={(event) => {
-              anchorOpen.set(true)
               anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
               anchorEl.set(event.currentTarget)
             }}
@@ -157,9 +155,8 @@ export default function Toolbar() {
       <ContextMenu
         anchorEl={anchorEl.value as HTMLElement}
         anchorPosition={anchorPosition.value}
-        open={anchorOpen.value}
         panelId="toolbar-menu"
-        onClose={() => anchorOpen.set(false)}
+        onClose={() => anchorEl.set(null)}
       >
         {toolbarMenu.map(({ name, action, hotkey }, index) => (
           <div key={index}>

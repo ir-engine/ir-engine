@@ -59,12 +59,12 @@ import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import { PopoverPosition } from '@mui/material'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import { HierarchyPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
-import ContextMenu from '../../../layout/ContextMenu'
 import Popover from '../../../layout/Popover'
 import { PopoverContext } from '../../../util/PopoverContext'
 import ElementList from '../../Properties/elementList'
@@ -498,7 +498,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
       </div>
       <ContextMenu
-        open={!!anchorEl}
         anchorEl={anchorEl}
         panelId={'heirarchy-panel'}
         anchorPosition={anchorPosition}

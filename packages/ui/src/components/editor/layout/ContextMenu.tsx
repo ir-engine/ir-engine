@@ -28,7 +28,6 @@ import { twMerge } from 'tailwind-merge'
 import ClickAwayListener from './ClickAwayListener'
 
 type ContextMenuProps = {
-  open: boolean
   anchorEl: null | HTMLElement
   panelId: string
   anchorPosition: { left: number; top: number }
@@ -38,13 +37,13 @@ type ContextMenuProps = {
 
 export const ContextMenu = ({
   children,
-  open,
   anchorEl,
   panelId,
   anchorPosition,
   onClose,
   className
 }: React.PropsWithChildren<ContextMenuProps>) => {
+  const open = Boolean(anchorEl)
   const panel = document.getElementById(panelId)
   const menuRef = useRef<HTMLDivElement | null>(null)
 

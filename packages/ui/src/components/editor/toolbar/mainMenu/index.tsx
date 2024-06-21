@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '../../../../primitives/tailwind/Button'
-import ContextMenu from '../../layout/ContextMenu'
 
 interface Command {
   name: string
@@ -87,7 +87,7 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
           onClick={(event) => onOpen(event as any)}
         />
       </div>
-      <ContextMenu open={open} anchorEl={anchorEl} panelId="menu" anchorPosition={anchorPosition} onClose={handleClose}>
+      <ContextMenu anchorEl={anchorEl} panelId="menu" anchorPosition={anchorPosition} onClose={handleClose}>
         {commands.map((command: Command) => renderMenu(command))}
       </ContextMenu>
     </>

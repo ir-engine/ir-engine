@@ -37,6 +37,7 @@ import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import React, { MouseEventHandler, MutableRefObject, useEffect } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -46,7 +47,6 @@ import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
-import { ContextMenu } from '../../../layout/ContextMenu'
 import { FileIcon } from '../icon'
 import DeleteFileModal from './DeleteFileModal'
 import RenameFileModal from './RenameFileModal'
@@ -226,7 +226,6 @@ export function FileBrowserItem({
   const { t } = useTranslation()
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
 
   const fileService = useMutation(fileBrowserPath)
 
@@ -363,7 +362,6 @@ export function FileBrowserItem({
       )}
 
       <ContextMenu
-        open={open}
         anchorEl={anchorEl}
         panelId={'file-browser-panel'}
         anchorPosition={anchorPosition}
