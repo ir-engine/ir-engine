@@ -48,8 +48,7 @@ export const ContextMenu = ({
   onClose,
   className
 }: React.PropsWithChildren<ContextMenuProps>) => {
-  const anchorEl = anchorEvent?.currentTarget
-  const open = Boolean(anchorEl)
+  const [open, setOpen] = React.useState(false)
   const panel = document.getElementById(panelId)
   const menuRef = useRef<HTMLDivElement | null>(null)
 
@@ -105,6 +104,14 @@ export const ContextMenu = ({
       setPositionX(calculatePositionX())
     }
   }, [open])
+
+  useEffect(() => {
+    if (anchorEvent) {
+      setOpen(true)
+    } else {
+      setOpen(false)
+    }
+  }, [anchorEvent])
 
   return (
     <ClickAwayListener onClickAway={() => onClose()}>
