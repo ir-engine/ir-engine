@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material, Shader, WebGLRenderer } from 'three'
 
-import { Component, defineComponent } from '@etherealengine/ecs'
+import { Component, UUIDComponent, defineComponent, getComponent, getMutableComponent } from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
@@ -112,6 +112,15 @@ export const MaterialInstanceComponent = defineComponent({
   },
   onSet: (entity, component, json) => {
     if (json?.uuid && component.uuid.value !== undefined) component.uuid.set(json.uuid)
+  },
+  onRemove: (entity) => {
+    const uuids = getComponent(entity, MaterialInstanceComponent).uuid
+    for (const uuid of uuids) {
+      const materialEntity = UUIDComponent.getEntityByUUID(uuid)
+      const materialComponent = getMutableComponent(materialEntity, MaterialStateComponent)
+      if (materialComponent.instances.value)
+        materialComponent.instances.set(materialComponent.instances.value.filter((instance) => instance !== entity))
+    }
   }
 })
 
