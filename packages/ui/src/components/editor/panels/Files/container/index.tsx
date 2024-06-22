@@ -169,7 +169,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const selectedDirectory = useHookstate(props.originalPath)
 
   const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
-  console.log({ projectName }, selectedDirectory.value)
   const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
 
   const fileProperties = useHookstate<FileType | null>(null)
