@@ -333,7 +333,8 @@ const execute = () => {
 
         // 3rd heuristic is bboxes
         for (const entity of inputState.inputBoundingBoxes) {
-          const boundingBox = getComponent(entity, BoundingBoxComponent)
+          const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
+          if (!boundingBox) continue
           const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
           if (hit) {
             intersectionData.add({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
