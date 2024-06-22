@@ -210,7 +210,7 @@ const viewerInputSource = {
     index: 0,
     mapping: '',
     timestamp: Date.now() - performance.timeOrigin,
-    vibrationActuator: null
+    vibrationActuator: {} as any
   },
   profiles: [] as string[]
 } as XRInputSource
