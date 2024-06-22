@@ -487,11 +487,11 @@ const ThumbnailJobReactor = () => {
       viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
 
       viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
-      setComponent(cameraEntity, SceneComponent, { children: [modelEntity, lightEntity] })
+      setComponent(cameraEntity, SceneComponent, { scenes: [modelEntity, lightEntity] })
 
       const scene = new Scene()
       scene.children = getComponent(cameraEntity, SceneComponent)
-        .children.map((entity) => getComponent(entity, GroupComponent))
+        .scenes.map((entity) => getComponent(entity, GroupComponent))
         .flat()
       const canvas = getComponent(cameraEntity, RendererComponent).canvas
 

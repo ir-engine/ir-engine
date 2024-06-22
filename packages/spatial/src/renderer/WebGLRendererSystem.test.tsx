@@ -109,7 +109,7 @@ describe('WebGl Renderer System', () => {
     setComponent(visibleEntity, GroupComponent)
     setComponent(visibleEntity, EntityTreeComponent)
 
-    setComponent(rootEntity, SceneComponent, { children: [invisibleEntity, visibleEntity] })
+    setComponent(rootEntity, SceneComponent, { scenes: [invisibleEntity, visibleEntity] })
 
     nestedInvisibleEntity = createEntity()
     setComponent(nestedInvisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
@@ -117,7 +117,7 @@ describe('WebGl Renderer System', () => {
     const nestedInvisibleObject3d = setComponent(nestedInvisibleEntity, Object3DComponent, new Group())
     addObjectToGroup(nestedInvisibleEntity, nestedInvisibleObject3d)
     setComponent(nestedInvisibleEntity, EntityTreeComponent)
-    setComponent(visibleEntity, SceneComponent, { children: [nestedInvisibleEntity] })
+    setComponent(visibleEntity, SceneComponent, { scenes: [nestedInvisibleEntity] })
 
     nestedVisibleEntity = createEntity()
     setComponent(nestedVisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
@@ -126,7 +126,7 @@ describe('WebGl Renderer System', () => {
     addObjectToGroup(nestedVisibleEntity, nestedVisibleObject3d)
     setComponent(nestedVisibleEntity, GroupComponent)
     setComponent(nestedVisibleEntity, EntityTreeComponent)
-    setComponent(invisibleEntity, SceneComponent, { children: [nestedVisibleEntity] })
+    setComponent(invisibleEntity, SceneComponent, { scenes: [nestedVisibleEntity] })
 
     //override addpass to test data without dependency on Browser
     let addPassCount = 0
@@ -190,7 +190,7 @@ describe('WebGl Renderer System', () => {
 
     assert(!rendererComp.needsResize, 'resize updated')
     const scene = getComponent(rootEntity, SceneComponent)
-    const entitiesToRender = scene.children.map(getNestedVisibleChildren).flat()
+    const entitiesToRender = scene.scenes.map(getNestedVisibleChildren).flat()
     assert(entitiesToRender.length == 1 && entitiesToRender[0] == visibleEntity, 'visible children')
   })
 })

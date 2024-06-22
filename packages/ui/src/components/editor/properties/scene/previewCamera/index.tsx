@@ -68,7 +68,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     const rootEntity = getState(EditorState).rootEntity
     const scene = new Scene()
     scene.children = getComponent(rootEntity, SceneComponent)
-      .children.map(getNestedVisibleChildren)
+      .scenes.map(getNestedVisibleChildren)
       .flat()
       .map((entity) => getComponent(entity, GroupComponent))
       .flat()

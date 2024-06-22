@@ -369,7 +369,7 @@ export function useTreeQuery(entity: Entity) {
       if (sceneComponent) {
         return (
           <>
-            {sceneComponent.children.value.map((e) => (
+            {sceneComponent.scenes.value.map((e) => (
               <TreeSubReactor key={e} entity={e} />
             ))}
           </>
@@ -470,7 +470,7 @@ export function useChildWithComponent(rootEntity: Entity, component: ComponentTy
       if (isScene) {
         return (
           <>
-            {isScene.children.value.map((entity) => (
+            {isScene.scenes.value.map((entity) => (
               <ChildSubReactor entity={entity} key={entity} />
             ))}
           </>

@@ -77,7 +77,7 @@ describe('PostProcessingComponent', () => {
     setComponent(entity, EntityTreeComponent)
 
     //set data to test
-    setComponent(rootEntity, SceneComponent, { children: [entity] })
+    setComponent(rootEntity, SceneComponent, { scenes: [entity] })
 
     //override addpass to test data without dependency on Browser
     let addPassCount = 0

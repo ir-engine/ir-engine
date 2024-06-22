@@ -178,7 +178,7 @@ export const onNewScene = async (
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   const gltfEntity = GLTFSourceState.load(sceneURL, uuid)
-  getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+  getMutableComponent(Engine.instance.viewerEntity, SceneComponent).scenes.merge([gltfEntity])
   getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {
     getMutableState(EditorState).rootEntity.set(UndefinedEntity)

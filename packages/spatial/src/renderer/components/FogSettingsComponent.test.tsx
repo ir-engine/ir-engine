@@ -71,7 +71,7 @@ describe('FogSettingsComponent', () => {
     setComponent(entity, EntityTreeComponent)
 
     //set data to test
-    setComponent(rootEntity, SceneComponent, { children: [entity] })
+    setComponent(rootEntity, SceneComponent, { scenes: [entity] })
   })
 
   afterEach(() => {

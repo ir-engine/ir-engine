@@ -87,7 +87,7 @@ export const GLTFAssetState = defineState({
 
   loadScene: (sceneURL: string, uuid: string) => {
     const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID)
-    getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+    getMutableComponent(Engine.instance.viewerEntity, SceneComponent).scenes.merge([gltfEntity])
     getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
 
     return () => {

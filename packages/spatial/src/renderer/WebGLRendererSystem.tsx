@@ -301,7 +301,7 @@ const execute = () => {
     const renderer = getComponent(entity, RendererComponent)
     const scene = getComponent(entity, SceneComponent)
 
-    const entitiesToRender = scene.children.map(getNestedVisibleChildren).flat()
+    const entitiesToRender = scene.scenes.map(getNestedVisibleChildren).flat()
     const { background, environment, fog, children } = getSceneParameters(entitiesToRender)
     _scene.children = children
 

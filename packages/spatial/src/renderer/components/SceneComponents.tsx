@@ -39,7 +39,7 @@ import {
   useEntityContext,
   UUIDComponent
 } from '@etherealengine/ecs'
-import { createState, NO_PROXY, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { hookstate, NO_PROXY, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import { useAncestorWithComponent, useTreeQuery } from '../../transform/components/EntityTree'
 
@@ -64,28 +64,28 @@ export const SceneComponent = defineComponent({
 
   onInit(entity) {
     return {
-      children: [] as Entity[]
+      scenes: [] as Entity[]
     }
   },
 
   onSet(entity, component, json) {
     if (!json) return
 
-    if (Array.isArray(json.children)) component.children.set(json.children)
+    if (Array.isArray(json.scenes)) component.scenes.set(json.scenes)
   },
 
   reactor: SceneReactor as any, // somehow, typescript freaks out about this...
 
   scenes,
-  sceneState: createState(scenes)
+  sceneState: hookstate(scenes)
 })
 
 function SceneReactor() {
   const entity = useEntityContext()
-  const children = useComponent(entity, SceneComponent).children.value
+  const scenes = useComponent(entity, SceneComponent).scenes.value
   return (
     <>
-      {children.map((e) => (
+      {scenes.map((e) => (
         <SceneComponentReactor entity={e} key={e} />
       ))}
     </>

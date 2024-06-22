@@ -300,7 +300,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     const sceneUpdatedListener = async () => {
       const scene = await app.service(staticResourcePath).get(sceneId, { headers })
       const gltfEntity = GLTFSourceState.load(scene.url, scene.id as EntityUUID)
-      getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+      getMutableComponent(Engine.instance.viewerEntity, SceneComponent).scenes.merge([gltfEntity])
 
       /** @todo - quick hack to wait until scene has loaded */
       await new Promise<void>((resolve) => {

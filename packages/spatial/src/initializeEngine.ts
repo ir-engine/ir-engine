@@ -93,7 +93,7 @@ export const createEngine = (canvas?: HTMLCanvasElement) => {
   camera.matrixWorldAutoUpdate = false
 
   setComponent(Engine.instance.viewerEntity, SceneComponent)
-  getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([
+  getMutableComponent(Engine.instance.viewerEntity, SceneComponent).scenes.merge([
     Engine.instance.originEntity,
     Engine.instance.viewerEntity,
     Engine.instance.localFloorEntity
