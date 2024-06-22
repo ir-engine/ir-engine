@@ -136,9 +136,9 @@ const onSecondaryClick = () => {
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const hits = Physics.castRayFromCamera(
+    physicsWorld,
     getComponent(Engine.instance.cameraEntity, CameraComponent),
     pointerPosition,
-    physicsWorld,
     raycastComponentData
   )
   const state = getMutableState(AvatarUIContextMenuState)

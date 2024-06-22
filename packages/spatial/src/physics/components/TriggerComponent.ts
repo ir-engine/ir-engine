@@ -26,9 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import matches from 'ts-matches'
 
 import { defineComponent, EntityUUID, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { getState, NO_PROXY } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Physics } from '../classes/Physics'
+import { PhysicsState } from '../state/PhysicsState'
 import { ColliderComponent } from './ColliderComponent'
 
 export const TriggerComponent = defineComponent({
@@ -93,10 +94,11 @@ export const TriggerComponent = defineComponent({
     useEffect(() => {
       if (!colliderComponent?.value) return
 
-      Physics.setTrigger(entity, true)
+      const physicsWorld = getState(PhysicsState).physicsWorld
+      Physics.setTrigger(physicsWorld, entity, true)
 
       return () => {
-        Physics.setTrigger(entity, false)
+        Physics.setTrigger(physicsWorld, entity, false)
       }
     }, [colliderComponent])
 

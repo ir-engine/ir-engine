@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EventQueue, World as PhysicsWorld } from '@dimforge/rapier3d-compat'
+import { EventQueue } from '@dimforge/rapier3d-compat'
 
 import { UndefinedEntity } from '@etherealengine/ecs'
 import { defineState } from '@etherealengine/hyperflux'
+import { PhysicsWorld } from '../classes/Physics'
 
 export const PhysicsState = defineState({
   name: 'ee.engine.PhysicsState',

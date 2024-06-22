@@ -100,6 +100,8 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 }
 
 export const copyTransformToRigidBody = (entity: Entity) => {
+  const world = getPhysicsWorld(entity)
+
   const transform = getComponent(entity, TransformComponent)
   const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
   if (parentEntity) {
@@ -141,7 +143,7 @@ export const copyTransformToRigidBody = (entity: Entity) => {
       rotation.w
 
   const rigidbody = getComponent(entity, RigidBodyComponent)
-  Physics.setRigidbodyPose(entity, rigidbody.position, rigidbody.rotation, Vector3_Zero, Vector3_Zero)
+  Physics.setRigidbodyPose(world, entity, rigidbody.position, rigidbody.rotation, Vector3_Zero, Vector3_Zero)
 
   TransformComponent.dirtyTransforms[entity] = false
 
@@ -151,15 +153,17 @@ export const copyTransformToRigidBody = (entity: Entity) => {
 }
 
 const copyTransformToCollider = (entity: Entity) => {
+  const world = getPhysicsWorld(entity)
   computeTransformMatrix(entity)
   getComponent(entity, TransformComponent).matrixWorld.decompose(position, rotation, scale)
-  Physics.setColliderPose(entity, position, rotation)
+  Physics.setColliderPose(world, entity, position, rotation)
 }
 
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
 const colliderQuery = defineQuery([TransformComponent, ColliderComponent])
 
-const filterAwakeCleanRigidbodies = (entity: Entity) => !isDirty(entity) && !Physics.isSleeping(entity)
+const filterAwakeCleanRigidbodies = (entity: Entity) =>
+  !isDirty(entity) && !Physics.isSleeping(getPhysicsWorld(entity), entity)
 
 export const execute = () => {
   const ecsState = getState(ECSState)

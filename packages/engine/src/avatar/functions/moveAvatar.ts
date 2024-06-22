@@ -141,8 +141,9 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
     bodyCollider.collisionMask & ~CollisionGroups.Trigger
   )
 
-  Physics.computeColliderMovement(entity, colliderEntity, desiredMovement, avatarCollisionGroups)
-  Physics.getComputedMovement(entity, computedMovement)
+  const world = getState(PhysicsState).physicsWorld
+  Physics.computeColliderMovement(world, entity, colliderEntity, desiredMovement, avatarCollisionGroups)
+  Physics.getComputedMovement(world, entity, computedMovement)
 
   if (desiredMovement.y === 0) computedMovement.y = 0
 
@@ -158,7 +159,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
 
   if (groundHits.length) {
     const hit = groundHits[0]
-    const controllerOffset = Physics.getControllerOffset(entity)
+    const controllerOffset = Physics.getControllerOffset(world, entity)
     controller.isInAir = hit.distance > avatarGroundRaycastDistanceOffset + controllerOffset * 10 // todo - 10 is way too big, should be 1, but this makes you fall down stairs
 
     if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
@@ -379,6 +380,7 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
 export const updateLocalAvatarPosition = (entity: Entity) => {
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
+  const world = getState(PhysicsState).physicsWorld
 
   // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
   // previous and current position to the target position
@@ -386,7 +388,7 @@ export const updateLocalAvatarPosition = (entity: Entity) => {
   rigidbody.previousPosition.copy(rigidbody.targetKinematicPosition)
   rigidbody.position.copy(rigidbody.targetKinematicPosition)
   transform.position.copy(rigidbody.targetKinematicPosition)
-  Physics.setKinematicRigidbodyPose(entity, rigidbody.targetKinematicPosition, rigidbody.rotation)
+  Physics.setKinematicRigidbodyPose(world, entity, rigidbody.targetKinematicPosition, rigidbody.rotation)
   delete TransformComponent.dirtyTransforms[entity]
 }
 

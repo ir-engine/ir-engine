@@ -72,6 +72,7 @@ export const readRigidBody = (v: ViewCursor, entity: Entity) => {
   }
   if (dynamic && rigidBody && changed) {
     Physics.setRigidbodyPose(
+      getPhysicsWorld(entity),
       entity,
       rigidBody.position,
       rigidBody.rotation,

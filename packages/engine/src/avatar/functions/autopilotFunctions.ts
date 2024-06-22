@@ -70,9 +70,9 @@ export const autopilotSetPosition = (entity: Entity) => {
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
 
   const castedRay = Physics.castRayFromCamera(
+    physicsWorld,
     getComponent(Engine.instance.cameraEntity, CameraComponent),
     pointerPosition,
-    physicsWorld,
     autopilotRaycastArgs
   )
 

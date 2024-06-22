@@ -37,7 +37,7 @@ import { NetworkState } from '@etherealengine/network'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Physics } from '../classes/Physics'
+import { Physics, PhysicsWorld } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
@@ -48,7 +48,7 @@ import { PhysicsSerialization } from '../PhysicsSerialization'
 import { PhysicsState } from '../state/PhysicsState'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
-export function smoothKinematicBody(entity: Entity, dt: number, substep: number) {
+export function smoothKinematicBody(physicsWorld: PhysicsWorld, entity: Entity, dt: number, substep: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
   if (rigidbodyComponent.targetKinematicLerpMultiplier === 0) {
     /** deterministic linear interpolation between substeps */
@@ -66,7 +66,7 @@ export function smoothKinematicBody(entity: Entity, dt: number, substep: number)
     rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
     rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.targetKinematicRotation, alpha)
   }
-  Physics.setKinematicRigidbodyPose(entity, rigidbodyComponent.position, rigidbodyComponent.rotation)
+  Physics.setKinematicRigidbodyPose(physicsWorld, entity, rigidbodyComponent.position, rigidbodyComponent.rotation)
 }
 
 const nonFixedRigidbodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
@@ -83,7 +83,7 @@ const execute = () => {
 
   const allRigidBodies = nonFixedRigidbodyQuery()
 
-  Physics.updatePreviousRigidbodyPose(allRigidBodies)
+  Physics.updatePreviousRigidbodyPose(physicsWorld, allRigidBodies)
 
   const existingColliderHits = [] as Array<{ entity: Entity; collisionEntity: Entity; hit: ColliderHitEvent }>
 
@@ -108,7 +108,7 @@ const execute = () => {
   for (let i = 0; i < physicsSubsteps; i++) {
     // smooth kinematic pose changes
     const substep = (i + 1) / physicsSubsteps
-    for (const entity of kinematicEntities) smoothKinematicBody(entity, timestep, substep)
+    for (const entity of kinematicEntities) smoothKinematicBody(physicsWorld, entity, timestep, substep)
     physicsWorld.step(physicsCollisionEventQueue)
     physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
     physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
@@ -134,7 +134,7 @@ const execute = () => {
     }
   }
 
-  Physics.updateRigidbodyPose(allRigidBodies)
+  Physics.updateRigidbodyPose(physicsWorld, allRigidBodies)
 
   for (const collisionEntity of collisionQuery()) {
     const collisionComponent = getComponent(collisionEntity, CollisionComponent)

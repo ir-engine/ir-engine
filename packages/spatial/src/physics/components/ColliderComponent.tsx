@@ -89,7 +89,7 @@ export const ColliderComponent = defineComponent({
 
       const physicsWorld = getState(PhysicsState).physicsWorld
 
-      const colliderDesc = Physics.createColliderDesc(entity, rigidbodyEntity)
+      const colliderDesc = Physics.createColliderDesc(physicsWorld, entity, rigidbodyEntity)
       if (!colliderDesc) return
 
       Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
@@ -100,7 +100,8 @@ export const ColliderComponent = defineComponent({
     }, [component.shape, rigidbodyEntity, transform.scale])
 
     useLayoutEffect(() => {
-      Physics.setMass(entity, component.mass.value)
+      const physicsWorld = getState(PhysicsState).physicsWorld
+      Physics.setMass(physicsWorld, entity, component.mass.value)
     }, [component.mass])
 
     // useLayoutEffect(() => {
@@ -108,19 +109,23 @@ export const ColliderComponent = defineComponent({
     // }, [component.massCenter])
 
     useLayoutEffect(() => {
-      Physics.setFriction(entity, component.friction.value)
+      const physicsWorld = getState(PhysicsState).physicsWorld
+      Physics.setFriction(physicsWorld, entity, component.friction.value)
     }, [component.friction])
 
     useLayoutEffect(() => {
-      Physics.setRestitution(entity, component.restitution.value)
+      const physicsWorld = getState(PhysicsState).physicsWorld
+      Physics.setRestitution(physicsWorld, entity, component.restitution.value)
     }, [component.restitution])
 
     useLayoutEffect(() => {
-      Physics.setCollisionLayer(entity, component.collisionLayer.value)
+      const physicsWorld = getState(PhysicsState).physicsWorld
+      Physics.setCollisionLayer(physicsWorld, entity, component.collisionLayer.value)
     }, [component.collisionLayer])
 
     useLayoutEffect(() => {
-      Physics.setCollisionMask(entity, component.collisionMask.value)
+      const physicsWorld = getState(PhysicsState).physicsWorld
+      Physics.setCollisionMask(physicsWorld, entity, component.collisionMask.value)
     }, [component.collisionMask])
 
     return null

@@ -33,10 +33,9 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 
-import { World } from '@dimforge/rapier3d-compat'
 import { useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
-import { Physics } from '../classes/Physics'
+import { Physics, PhysicsWorld } from '../classes/Physics'
 import { PhysicsState } from '../state/PhysicsState'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
@@ -108,36 +107,35 @@ export const RigidBodyComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, RigidBodyComponent)
-    const physicsWorld = useMutableState(PhysicsState).physicsWorld
+    const physicsWorld = useMutableState(PhysicsState).physicsWorld.value as PhysicsWorld
 
     useImmediateEffect(() => {
-      const world = physicsWorld.value as World
-      if (!world) return
-      Physics.createRigidBody(entity, world)
+      if (!physicsWorld) return
+      Physics.createRigidBody(physicsWorld, entity)
       return () => {
-        Physics.removeRigidbody(entity, world)
+        Physics.removeRigidbody(physicsWorld, entity)
       }
     }, [physicsWorld])
 
     useImmediateEffect(() => {
       const type = component.type.value
       setComponent(entity, getTagComponentForRigidBody(type))
-      Physics.setRigidBodyType(entity, type)
+      Physics.setRigidBodyType(physicsWorld, entity, type)
       return () => {
         removeComponent(entity, getTagComponentForRigidBody(type))
       }
     }, [component.type])
 
     useImmediateEffect(() => {
-      Physics.enabledCcd(entity, component.ccd.value)
+      Physics.enabledCcd(physicsWorld, entity, component.ccd.value)
     }, [component.ccd])
 
     useImmediateEffect(() => {
-      Physics.lockRotations(entity, !component.allowRolling.value)
+      Physics.lockRotations(physicsWorld, entity, !component.allowRolling.value)
     }, [component.allowRolling])
 
     useImmediateEffect(() => {
-      Physics.setEnabledRotations(entity, component.enabledRotations.value as [boolean, boolean, boolean])
+      Physics.setEnabledRotations(physicsWorld, entity, component.enabledRotations.value as [boolean, boolean, boolean])
     }, [component.enabledRotations])
 
     return null
