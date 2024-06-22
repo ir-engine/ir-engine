@@ -134,7 +134,7 @@ export class ArchiverService implements ServiceInterface<string, ArchiverParams>
       await this.app.service(apiJobPath).patch(newJob.id, {
         name: jobBody.metadata!.name
       })
-      const jobLabelSelector = `etherealengine/directoryField=${project},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/directoryArchiver=true`
+      const jobLabelSelector = `etherealengine/projectField=${project},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/directoryArchiver=true`
       const jobFinishedPromise = createExecutorJob(
         this.app,
         jobBody,

@@ -718,8 +718,8 @@ export const getBranches = async (app: Application, url: string, params?: Projec
               branch.name === repoResponse.data.default_branch
                 ? 'main'
                 : branch.name === `${config.server.releaseName}-deployment`
-                  ? 'deployment'
-                  : 'generic'
+                ? 'deployment'
+                : 'generic'
           }
         })
       )
@@ -1164,7 +1164,7 @@ export async function getDirectoryArchiveJobBody(
     'ts-node',
     '--swc',
     'scripts/archive-directory.ts',
-    `--directory`,
+    `--project`,
     projectName,
     '--jobId',
     jobId
@@ -1176,7 +1176,7 @@ export async function getDirectoryArchiveJobBody(
 
   const labels = {
     'etherealengine/directoryArchiver': 'true',
-    'etherealengine/directoryField': projectName,
+    'etherealengine/projectField': projectName,
     'etherealengine/release': process.env.RELEASE_NAME || ''
   }
 
