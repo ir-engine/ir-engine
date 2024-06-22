@@ -71,7 +71,7 @@ const getAllPods = async (k8Client, continueValue, labelSelector, pods = []) => 
 }
 
 const getAllImages = async (
-  ecr: ECRPUBLICClient,
+  ecr,
   repoName: string,
   token: string | undefined,
   images = [] as Array<ImageDetail>,
@@ -161,7 +161,13 @@ cli.main(async () => {
             }),
             region: options.region || 'us-east-1'
           })
-    const images = await getAllImages(ecr, options.repoName || 'etherealengine', undefined, [], options.public === true)
+    const images = await getAllImages(
+      ecr as ECRClient,
+      options.repoName || 'etherealengine',
+      undefined,
+      [],
+      options.public === true
+    )
     if (!images) return
     const latestImage = images.find(
       (image) =>
