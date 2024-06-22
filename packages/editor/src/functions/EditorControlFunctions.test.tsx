@@ -45,8 +45,6 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
-const timeout = globalThis.setTimeout
-
 describe('EditorControlFunctions', () => {
   beforeEach(async () => {
     createEngine()
@@ -56,13 +54,9 @@ describe('EditorControlFunctions', () => {
     Engine.instance.userID = 'user' as UserID
     await Physics.load()
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
-    // patch setTimeout to run the callback immediately
-    // @ts-ignore
-    globalThis.setTimeout = (fn) => fn()
   })
 
   afterEach(() => {
-    globalThis.setTimeout = timeout
     return destroyEngine()
   })
 
