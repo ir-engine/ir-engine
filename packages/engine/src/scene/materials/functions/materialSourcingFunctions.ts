@@ -41,7 +41,6 @@ import {
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
-  materialByHash,
   MaterialInstanceComponent,
   MaterialPlugins,
   MaterialPrototypeComponent,
@@ -83,7 +82,7 @@ export const getMaterialsFromSource = (source: Entity) => {
 /** Creates and uses a new material entity from a GLTF. If a material from the GLTF path already exists in-scene, uses preexisting entity instead. */
 export const createMaterialInstance = (path: string, sourceEntity: Entity, material: Material) => {
   //if we already have a material by the same name from the same source, use it instead
-  const entityFromHash = materialByHash[hashMaterial(path, material.name)]
+  const entityFromHash = MaterialStateComponent.materialByHash[hashMaterial(path, material.name)]
   setComponent(sourceEntity, MaterialInstanceComponent)
   const materialComponent = getMutableComponent(sourceEntity, MaterialInstanceComponent)
   const uuids = materialComponent.uuid.value
@@ -140,7 +139,7 @@ export const createMaterialEntity = (material: Material, path?: string, user?: E
 export const removeMaterial = (entity: Entity) => {
   const name = getComponent(entity, NameComponent)
   const hash = hashMaterial(getComponent(entity, SourceComponent), name)
-  delete materialByHash[hash]
+  delete MaterialStateComponent.materialByHash[hash]
   removeEntity(entity)
 }
 
@@ -157,9 +156,9 @@ export const setMaterialName = (entity: Entity, name: string) => {
   const oldName = getOptionalComponent(entity, NameComponent)
   if (oldName && canHash) {
     const oldHash = hashMaterial(getComponent(entity, SourceComponent), oldName)
-    const preexistingMaterial = materialByHash[oldHash]
+    const preexistingMaterial = MaterialStateComponent.materialByHash[oldHash]
     if (preexistingMaterial && preexistingMaterial === getComponent(entity, UUIDComponent)) {
-      delete materialByHash[oldHash]
+      delete MaterialStateComponent.materialByHash[oldHash]
     }
   }
 
@@ -167,7 +166,7 @@ export const setMaterialName = (entity: Entity, name: string) => {
   ;(materialComponent.material.value as Material).name = name
   if (!canHash) return
   const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
-  materialByHash[newHash] = getComponent(entity, UUIDComponent)
+  MaterialStateComponent.materialByHash[newHash] = getComponent(entity, UUIDComponent)
 }
 
 export const injectMaterialDefaults = (materialUUID: EntityUUID) => {

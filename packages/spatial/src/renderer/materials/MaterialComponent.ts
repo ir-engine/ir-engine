@@ -79,8 +79,6 @@ export const MaterialPlugins = { TransparencyDitheringPlugin, NoiseOffsetPlugin 
   Component<any, any, any>
 >
 
-export const materialByHash = {} as Record<string, EntityUUID>
-
 export const MaterialStateComponent = defineComponent({
   name: 'MaterialStateComponent',
   onInit: (entity) => {
@@ -93,6 +91,9 @@ export const MaterialStateComponent = defineComponent({
       prototypeEntity: UndefinedEntity as Entity
     }
   },
+
+  materialByHash: {} as Record<string, EntityUUID>,
+
   onSet: (entity, component, json) => {
     if (json?.material && component.material.value !== undefined) component.material.set(json.material)
     if (json?.parameters && component.parameters.value !== undefined) component.parameters.set(json.parameters)
