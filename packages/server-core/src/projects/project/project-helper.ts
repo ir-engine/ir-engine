@@ -1155,8 +1155,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
 export async function getDirectoryArchiveJobBody(
   app: Application,
   projectName: string,
-  jobId: string,
-  storageProviderName?: string
+  jobId: string
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
@@ -1169,10 +1168,6 @@ export async function getDirectoryArchiveJobBody(
     '--jobId',
     jobId
   ]
-  if (storageProviderName) {
-    command.push('--storageProviderName')
-    command.push(storageProviderName)
-  }
 
   const labels = {
     'etherealengine/directoryArchiver': 'true',

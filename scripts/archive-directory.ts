@@ -52,7 +52,6 @@ cli.enable('status')
 
 const options = cli.parse({
   project: [false, 'Project to archive', 'string'],
-  storageProviderName: [false, 'Storage Provider Name', 'string'],
   jobId: [false, 'ID of Job record', 'string']
 })
 
