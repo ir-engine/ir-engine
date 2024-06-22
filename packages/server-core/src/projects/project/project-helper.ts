@@ -718,8 +718,8 @@ export const getBranches = async (app: Application, url: string, params?: Projec
               branch.name === repoResponse.data.default_branch
                 ? 'main'
                 : branch.name === `${config.server.releaseName}-deployment`
-                ? 'deployment'
-                : 'generic'
+                  ? 'deployment'
+                  : 'generic'
           }
         })
       )
@@ -1154,7 +1154,6 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
 
 export async function getDirectoryArchiveJobBody(
   app: Application,
-  directory: string,
   projectName: string,
   jobId: string,
   storageProviderName?: string
@@ -1166,7 +1165,7 @@ export async function getDirectoryArchiveJobBody(
     '--swc',
     'scripts/archive-directory.ts',
     `--directory`,
-    directory,
+    projectName,
     '--jobId',
     jobId
   ]

@@ -141,7 +141,7 @@ export const useValidProjectForFileBrowser = (projectName: string) => {
       allowed: true
     }
   })
-  return projects.data.find((project) => projectName.startsWith(`/projects/${project}/`))?.name ?? ''
+  return projects.data.find((project) => projectName.startsWith(`/projects/${project.name}/`))?.name ?? ''
 }
 
 function GeneratingThumbnailsProgress() {
@@ -169,6 +169,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const selectedDirectory = useHookstate(props.originalPath)
 
   const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
+  console.log({ projectName }, selectedDirectory.value)
   const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
 
   const fileProperties = useHookstate<FileType | null>(null)
@@ -348,10 +349,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const showBackButton = selectedDirectory.value.split('/').length > props.originalPath.split('/').length
 
   const handleDownloadProject = async () => {
-    const url = selectedDirectory.value
     const data = await Engine.instance.api
       .service(archiverPath)
-      .get(null, { query: { directory: url } })
+      .get(null, { query: { project: projectName } })
       .catch((err: Error) => {
         NotificationService.dispatchNotify(err.message, { variant: 'warning' })
         return null
