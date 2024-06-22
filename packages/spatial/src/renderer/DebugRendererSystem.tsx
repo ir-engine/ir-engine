@@ -26,14 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 
-import { Engine } from '@etherealengine/ecs'
+import { Engine, Entity, EntityUUID } from '@etherealengine/ecs'
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import { NameComponent } from '../common/NameComponent'
-import { PhysicsState } from '../physics/state/PhysicsState'
+import { RapierWorldState } from '../physics/classes/Physics'
 import { addObjectToGroup, GroupComponent } from '../renderer/components/GroupComponent'
 import { setObjectLayers } from '../renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
@@ -42,22 +42,22 @@ import { RendererState } from '../renderer/RendererState'
 import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { createInfiniteGridHelper } from './components/InfiniteGridHelper'
+import { SceneComponent } from './components/SceneComponents'
+
+const PhysicsDebugEntities = new Map<EntityUUID, Entity>()
 
 const execute = () => {
-  const physicsDebugEntity = getState(RendererState).physicsDebugEntity
-
-  if (physicsDebugEntity) {
+  for (const [id, physicsDebugEntity] of Array.from(PhysicsDebugEntities)) {
+    const world = getState(RapierWorldState)[id]
+    if (!world) continue
     const lineSegments = getComponent(physicsDebugEntity, GroupComponent)[0] as any as LineSegments
-    const physicsWorld = getState(PhysicsState).physicsWorld
-    if (physicsWorld) {
-      const debugRenderBuffer = physicsWorld.debugRender()
-      lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
-      lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
-    }
+    const debugRenderBuffer = world.debugRender()
+    lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
+    lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
   }
 }
 
-const reactor = () => {
+const PhysicsReactor = (props: { id: EntityUUID }) => {
   const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
@@ -75,13 +75,19 @@ const reactor = () => {
     // TODO: when we have multiple scenes, we need to set the parentEntity to the current scene
     setComponent(lineSegmentsEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setObjectLayers(lineSegments, ObjectLayers.PhysicsHelper)
-    engineRendererSettings.physicsDebugEntity.set(lineSegmentsEntity)
+    PhysicsDebugEntities.set(props.id, lineSegmentsEntity)
 
     return () => {
       removeEntity(lineSegmentsEntity)
-      engineRendererSettings.physicsDebugEntity.set(null)
+      PhysicsDebugEntities.delete(props.id)
     }
   }, [engineRendererSettings.physicsDebug])
+
+  return null
+}
+
+const reactor = () => {
+  const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
     if (!engineRendererSettings.gridVisibility.value) return
@@ -95,8 +101,15 @@ const reactor = () => {
     }
   }, [engineRendererSettings.gridVisibility])
 
-  // return <GroupQueryReactor GroupChildReactor={DebugGroupChildReactor} />
-  return <></>
+  const scenes = useHookstate(SceneComponent.sceneState).keys as EntityUUID[]
+
+  return (
+    <>
+      {scenes.map((id) => (
+        <PhysicsReactor key={id} id={id} />
+      ))}
+    </>
+  )
 }
 
 export const DebugRendererSystem = defineSystem({

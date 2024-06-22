@@ -55,7 +55,7 @@ import { UUIDComponent } from '@etherealengine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection, PI, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { NameComponent } from '../../common/NameComponent'
-import { Physics, RaycastArgs } from '../../physics/classes/Physics'
+import { RaycastArgs } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -316,16 +316,17 @@ const execute = () => {
           intersectionData.add({ entity, distance: layerHit.intersection.distance })
         }
 
-        const physicsWorld = getState(PhysicsState).physicsWorld
+        /** @todo figure out multi-scene client input */
+        // const physicsWorld = getState(PhysicsState).physicsWorld
 
-        // 2nd heuristic is physics colliders
-        if (physicsWorld) {
-          const hits = Physics.castRay(physicsWorld, inputRaycast)
-          for (const hit of hits) {
-            if (!hit.entity) continue
-            intersectionData.add({ entity: hit.entity, distance: hit.distance })
-          }
-        }
+        // // 2nd heuristic is physics colliders
+        // if (physicsWorld) {
+        //   const hits = Physics.castRay(physicsWorld, inputRaycast)
+        //   for (const hit of hits) {
+        //     if (!hit.entity) continue
+        //     intersectionData.add({ entity: hit.entity, distance: hit.distance })
+        //   }
+        // }
 
         // 3rd heuristic is bboxes
         for (const entity of inputState.inputBoundingBoxes) {

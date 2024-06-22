@@ -33,13 +33,15 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
+  useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NO_PROXY, none, startReactor, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from './TransformComponent'
 
@@ -132,8 +134,36 @@ export const EntityTreeComponent = defineComponent({
         if (parentChildIndex > -1) parentState.children[parentChildIndex].set(none)
       }
     }
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    return <ParentReactor childEntity={entity} entity={entity} />
   }
 })
+
+/**
+ * Iterate parents until a scene root parent is found, then update sceneByEntityState
+ */
+const ParentReactor = (props: { childEntity: Entity; entity: Entity }) => {
+  const tree = useComponent(props.entity, EntityTreeComponent)
+  const uuid = useOptionalComponent(props.entity, UUIDComponent)?.value
+  const scenes = useHookstate(SceneComponent.sceneState)
+
+  useLayoutEffect(() => {
+    if (tree.parentEntity.value || !uuid || !scenes[uuid]) return
+
+    SceneComponent.sceneByEntityState[props.childEntity].set(uuid)
+
+    return () => {
+      SceneComponent.sceneByEntityState[props.childEntity].set(none)
+    }
+  }, [tree.parentEntity.value, uuid, scenes.keys])
+
+  if (!tree.parentEntity.value) return null
+
+  return <ParentReactor childEntity={props.childEntity} entity={tree.parentEntity.value} />
+}
 
 /**
  * Recursively destroys all the children entities of the passed entity

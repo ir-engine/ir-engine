@@ -47,7 +47,6 @@ import { ColliderComponent } from '@etherealengine/spatial/src/physics/component
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '@etherealengine/spatial/src/transform/updateWorldOrigin'
@@ -127,8 +126,9 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
 
   const isMovementCaptured = controller.movementCaptured.length
   const isAuthorityPeer = hasComponent(entity, NetworkObjectAuthorityTag)
+  const world = Physics.getWorld(entity)
 
-  if (!isMovementControlsEnabled || isMovementCaptured || !isAuthorityPeer) {
+  if (!isMovementControlsEnabled || isMovementCaptured || !isAuthorityPeer || !world) {
     rigidbody.targetKinematicPosition.copy(rigidbody.position).add(desiredMovement)
     updateLocalAvatarPosition(entity)
     return
@@ -141,7 +141,6 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
     bodyCollider.collisionMask & ~CollisionGroups.Trigger
   )
 
-  const world = getState(PhysicsState).physicsWorld
   Physics.computeColliderMovement(world, entity, colliderEntity, desiredMovement, avatarCollisionGroups)
   Physics.getComputedMovement(world, entity, computedMovement)
 
@@ -154,7 +153,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   avatarGroundRaycast.origin.copy(rigidbody.targetKinematicPosition)
   avatarGroundRaycast.groups = avatarCollisionGroups
   avatarGroundRaycast.origin.y += avatarGroundRaycastDistanceOffset
-  const groundHits = Physics.castRay(getState(PhysicsState).physicsWorld, avatarGroundRaycast)
+  const groundHits = Physics.castRay(world, avatarGroundRaycast)
   controller.isInAir = true
 
   if (groundHits.length) {
@@ -378,9 +377,11 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
 }
 
 export const updateLocalAvatarPosition = (entity: Entity) => {
+  const world = Physics.getWorld(entity)
+  if (!world) return
+
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
-  const world = getState(PhysicsState).physicsWorld
 
   // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
   // previous and current position to the target position
@@ -453,7 +454,10 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3, force = 
 
   const raycastOrigin = targetPosition.clone()
   raycastOrigin.y += 0.1
-  const { raycastHit } = checkPositionIsValid(raycastOrigin, false)
+  const physicsWorld = Physics.getWorld(entity)
+  if (!physicsWorld) return
+
+  const { raycastHit } = checkPositionIsValid(physicsWorld, raycastOrigin, false)
 
   if (raycastHit || force) {
     const transform = getComponent(entity, TransformComponent)

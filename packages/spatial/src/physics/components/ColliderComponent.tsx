@@ -27,13 +27,11 @@ import { useEffect, useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
 
 import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
 
 import { useAncestorWithComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { PhysicsState } from '../state/PhysicsState'
 import { Shape, Shapes } from '../types/PhysicsTypes'
 import { RigidBodyComponent } from './RigidBodyComponent'
 
@@ -83,11 +81,10 @@ export const ColliderComponent = defineComponent({
     const component = useComponent(entity, ColliderComponent)
     const transform = useComponent(entity, TransformComponent)
     const rigidbodyEntity = useAncestorWithComponent(entity, RigidBodyComponent)
+    const physicsWorld = Physics.useWorld(entity)
 
     useEffect(() => {
-      if (!rigidbodyEntity) return
-
-      const physicsWorld = getState(PhysicsState).physicsWorld
+      if (!rigidbodyEntity || !physicsWorld) return
 
       const colliderDesc = Physics.createColliderDesc(physicsWorld, entity, rigidbodyEntity)
       if (!colliderDesc) return
@@ -97,36 +94,36 @@ export const ColliderComponent = defineComponent({
       return () => {
         Physics.removeCollider(physicsWorld, entity)
       }
-    }, [component.shape, rigidbodyEntity, transform.scale])
+    }, [physicsWorld, component.shape, rigidbodyEntity, transform.scale])
 
     useLayoutEffect(() => {
-      const physicsWorld = getState(PhysicsState).physicsWorld
+      if (!physicsWorld) return
       Physics.setMass(physicsWorld, entity, component.mass.value)
-    }, [component.mass])
+    }, [physicsWorld, component.mass])
 
     // useLayoutEffect(() => {
     // @todo
-    // }, [component.massCenter])
+    // }, [physicsWorld, component.massCenter])
 
     useLayoutEffect(() => {
-      const physicsWorld = getState(PhysicsState).physicsWorld
+      if (!physicsWorld) return
       Physics.setFriction(physicsWorld, entity, component.friction.value)
-    }, [component.friction])
+    }, [physicsWorld, component.friction])
 
     useLayoutEffect(() => {
-      const physicsWorld = getState(PhysicsState).physicsWorld
+      if (!physicsWorld) return
       Physics.setRestitution(physicsWorld, entity, component.restitution.value)
-    }, [component.restitution])
+    }, [physicsWorld, component.restitution])
 
     useLayoutEffect(() => {
-      const physicsWorld = getState(PhysicsState).physicsWorld
+      if (!physicsWorld) return
       Physics.setCollisionLayer(physicsWorld, entity, component.collisionLayer.value)
-    }, [component.collisionLayer])
+    }, [physicsWorld, component.collisionLayer])
 
     useLayoutEffect(() => {
-      const physicsWorld = getState(PhysicsState).physicsWorld
+      if (!physicsWorld) return
       Physics.setCollisionMask(physicsWorld, entity, component.collisionMask.value)
-    }, [component.collisionMask])
+    }, [physicsWorld, component.collisionMask])
 
     return null
   }

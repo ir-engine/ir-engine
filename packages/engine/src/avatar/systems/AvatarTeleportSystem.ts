@@ -58,6 +58,7 @@ import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/compon
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { ReferenceSpace, XRAction, XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -220,7 +221,8 @@ const execute = () => {
       currentVertexLocal.toArray(lineGeometryVertices, i * 3)
       positionAtT(nextVertexWorld, ((i + 1) * t) / lineSegments, p, v, gravity)
       const currentVertexDirection = nextVertexWorld.subVectors(nextVertexWorld, currentVertexWorld)
-      const validationData = checkPositionIsValid(currentVertexWorld, false, currentVertexDirection)
+      const physicsWorld = Physics.getWorld(selfAvatarEntity)!
+      const validationData = checkPositionIsValid(physicsWorld, currentVertexWorld, false, currentVertexDirection)
       if (validationData.raycastHit !== null) {
         guidelineBlocked = true
         currentVertexWorld.copy(validationData.raycastHit.position as Vector3)

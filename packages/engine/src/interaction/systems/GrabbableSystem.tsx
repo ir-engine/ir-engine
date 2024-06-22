@@ -60,7 +60,6 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent, onDrop } from '../components/GrabbableComponent'
 import { GrabbableNetworkAction } from '../functions/grabbableFunctions'
@@ -190,7 +189,7 @@ const execute = () => {
     const target = getHandTarget(grabbedComponent.grabberEntity, attachmentPoint ?? 'right')!
 
     const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
-    const world = getState(PhysicsState).physicsWorld
+    const world = Physics.getWorld(entity)!
 
     if (rigidbodyComponent) {
       rigidbodyComponent.targetKinematicPosition.copy(target.position)

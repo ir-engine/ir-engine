@@ -58,6 +58,7 @@ const createSceneComponent = (entity: Entity) => {
 type SceneComponentType = ReturnType<typeof createSceneComponent>
 
 const scenes = {} as Record<EntityUUID, SceneComponentType>
+const sceneByEntity = {} as Record<Entity, EntityUUID>
 
 export const SceneComponent = defineComponent({
   name: 'SceneComponent',
@@ -77,7 +78,10 @@ export const SceneComponent = defineComponent({
   reactor: SceneReactor as any, // somehow, typescript freaks out about this...
 
   scenes,
-  sceneState: hookstate(scenes)
+  sceneState: hookstate(scenes),
+
+  sceneByEntity,
+  sceneByEntityState: hookstate(sceneByEntity)
 })
 
 function SceneReactor() {

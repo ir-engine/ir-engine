@@ -23,19 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EventQueue } from '@dimforge/rapier3d-compat'
-
 import { UndefinedEntity } from '@etherealengine/ecs'
 import { defineState } from '@etherealengine/hyperflux'
-import { PhysicsWorld } from '../classes/Physics'
 
 export const PhysicsState = defineState({
   name: 'ee.engine.PhysicsState',
   initial: () => {
     return {
-      physicsSubsteps: 1,
-      physicsWorld: null! as PhysicsWorld,
-      physicsCollisionEventQueue: null! as EventQueue,
       // used to ignore raycast hits for an entity the camera is attached to
       cameraAttachedRigidbodyEntity: UndefinedEntity
     }

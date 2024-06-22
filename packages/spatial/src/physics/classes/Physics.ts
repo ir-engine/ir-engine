@@ -57,10 +57,14 @@ import {
   hasComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 
+import { defineState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState } from '@etherealengine/hyperflux/functions/StateFunctions'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
+import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
@@ -80,17 +84,30 @@ import {
 } from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World & {
+  id: EntityUUID
+  substeps: number
   Colliders: Map<Entity, Collider>
   Rigidbodies: Map<Entity, RigidBody>
   Controllers: Map<Entity, KinematicCharacterController>
+  collisionEventQueue: EventQueue
+  drainCollisions: ReturnType<typeof Physics.drainCollisionEventQueue>
+  drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
 }
 
 async function load() {
   return RAPIER.init()
 }
 
-function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
-  const world = new World(gravity) as PhysicsWorld
+export const RapierWorldState = defineState({
+  name: 'ir.spatial.physics.RapierWorldState',
+  initial: {} as Record<EntityUUID, PhysicsWorld>
+})
+
+function createWorld(id: EntityUUID, args = { gravity: { x: 0.0, y: -9.81, z: 0.0 }, substeps: 1 }) {
+  const world = new World(args.gravity) as PhysicsWorld
+
+  world.id = id
+  world.substeps = args.substeps
 
   const Colliders = new Map<Entity, Collider>()
   const Rigidbodies = new Map<Entity, RigidBody>()
@@ -100,7 +117,80 @@ function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
   world.Rigidbodies = Rigidbodies
   world.Controllers = Controllers
 
+  world.collisionEventQueue = createCollisionEventQueue()
+  world.drainCollisions = Physics.drainCollisionEventQueue(world)
+  world.drainContacts = Physics.drainContactEventQueue(world)
+
+  getMutableState(RapierWorldState)[id].set(world)
+
   return world
+}
+
+function destroyWorld(id: EntityUUID) {
+  const world = getState(RapierWorldState)[id]
+  if (!world) throw new Error('Physics world not found')
+  getMutableState(RapierWorldState)[id].set(none)
+  world.Colliders.clear()
+  world.Rigidbodies.clear()
+  world.Controllers.clear()
+  world.free()
+}
+
+function getWorld(entity: Entity) {
+  const sceneUUID = SceneComponent.sceneByEntity[entity]
+  if (!sceneUUID) return
+  return getState(RapierWorldState)[sceneUUID]
+}
+
+function useWorld(entity: Entity) {
+  const sceneUUID = useHookstate(SceneComponent.sceneByEntity[entity]).value
+  const worlds = useHookstate(getMutableState(RapierWorldState))
+  return worlds[sceneUUID].get(NO_PROXY) as PhysicsWorld
+}
+
+function smoothKinematicBody(physicsWorld: PhysicsWorld, entity: Entity, dt: number, substep: number) {
+  const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+  if (rigidbodyComponent.targetKinematicLerpMultiplier === 0) {
+    /** deterministic linear interpolation between substeps */
+    rigidbodyComponent.position.lerpVectors(
+      rigidbodyComponent.previousPosition,
+      rigidbodyComponent.targetKinematicPosition,
+      substep
+    )
+    rigidbodyComponent.rotation
+      .copy(rigidbodyComponent.previousRotation)
+      .fastSlerp(rigidbodyComponent.targetKinematicRotation, substep)
+  } else {
+    /** gradual smoothing between substeps */
+    const alpha = smootheLerpAlpha(rigidbodyComponent.targetKinematicLerpMultiplier, dt)
+    rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
+    rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.targetKinematicRotation, alpha)
+  }
+  Physics.setKinematicRigidbodyPose(physicsWorld, entity, rigidbodyComponent.position, rigidbodyComponent.rotation)
+}
+
+function simulate(simulationTimestep: number, kinematicEntities: Entity[]) {
+  const physicsWorlds = Object.values(getState(RapierWorldState))
+
+  for (const world of physicsWorlds) {
+    const { substeps, drainCollisions, drainContacts, collisionEventQueue } = world
+
+    // step physics world
+    const timestep = simulationTimestep / 1000 / substeps
+    world.timestep = timestep
+    // const smoothnessMultiplier = 50
+    // const smoothAlpha = smoothnessMultiplier * timestep
+    for (let i = 0; i < substeps; i++) {
+      // smooth kinematic pose changes
+      const substep = (i + 1) / substeps
+      for (const entity of kinematicEntities) {
+        if (world.Rigidbodies.has(entity)) smoothKinematicBody(world, entity, timestep, substep)
+      }
+      world.step(collisionEventQueue)
+      collisionEventQueue.drainCollisionEvents(drainCollisions)
+      collisionEventQueue.drainContactForceEvents(drainContacts)
+    }
+  }
 }
 
 function createCollisionEventQueue() {
@@ -230,8 +320,10 @@ function setEnabledRotations(world: PhysicsWorld, entity: Entity, enabledRotatio
   rigidBody.setEnabledRotations(enabledRotations[0], enabledRotations[1], enabledRotations[2], false)
 }
 
-function updatePreviousRigidbodyPose(world: PhysicsWorld, entities: Entity[]) {
+function updatePreviousRigidbodyPose(entities: Entity[]) {
   for (const entity of entities) {
+    const world = getWorld(entity)
+    if (!world) continue
     const body = world.Rigidbodies.get(entity)
     if (!body) continue
     const translation = body.translation() as Vector3
@@ -246,8 +338,10 @@ function updatePreviousRigidbodyPose(world: PhysicsWorld, entities: Entity[]) {
   }
 }
 
-function updateRigidbodyPose(world: PhysicsWorld, entities: Entity[]) {
+function updateRigidbodyPose(entities: Entity[]) {
   for (const entity of entities) {
+    const world = getWorld(entity)
+    if (!world) continue
     const body = world.Rigidbodies.get(entity)
     if (!body) continue
     const translation = body.translation() as Vector3
@@ -767,6 +861,10 @@ const drainContactEventQueue = (physicsWorld: PhysicsWorld) => (event: TempConta
 export const Physics = {
   load,
   createWorld,
+  destroyWorld,
+  getWorld,
+  useWorld,
+  simulate,
   /** world.Rigidbodies */
   createRigidBody,
   removeRigidbody,
