@@ -2179,18 +2179,20 @@ describe('Physics : Rapier->ECS API', () => {
         const entity2 = (colliderParent2.userData as any)['entity']
         assert.equal(testEntity1, entity1)
         assert.equal(testEntity2, entity2)
-        // Check the output
+        // Check before
         assert.ok(!hasComponent(entity1, CollisionComponent))
         assert.ok(!hasComponent(entity2, CollisionComponent))
+
+        // Run and Check after
         event(collider1.handle, collider2.handle, true)
         assert.ok(hasComponent(entity1, CollisionComponent))
         assert.ok(hasComponent(entity2, CollisionComponent))
       })
 
       describe('when `started` is set to `true` ...', () => {
-        // it("... should create a CollisionEvents.TRIGGER_START when either of the colliders is a sensor", () => {})
-        // it("... should create a CollisionEvents.COLLISION_START otherwise", () => {})
-        it('... should set entity2 in the CollisionComponent of entity1', () => {
+        it('... should create a CollisionEvents.COLLISION_START when neither of the colliders is a sensor (aka has a TriggerComponent)', () => {
+          const Started = true
+
           assert.ok(physicsWorld)
           const event = Physics.drainCollisionEventQueue(physicsWorld)
           assertCollisionEventClosure(event)
@@ -2199,28 +2201,133 @@ describe('Physics : Rapier->ECS API', () => {
           const collider2 = Physics._Colliders.get(testEntity2)
           assert.ok(collider1)
           assert.ok(collider2)
-
+          // Check before
           const before1 = getComponent(testEntity1, CollisionComponent)?.get(testEntity2)
           const before2 = getComponent(testEntity2, CollisionComponent)?.get(testEntity1)
           assert.equal(before1, undefined)
           assert.equal(before2, undefined)
+          // setComponent(testEntity1, TriggerComponent)  // DONT set the trigger component (testEntity1.body.isSensor() is false)
+
+          // Run and Check after
+          event(collider1.handle, collider2.handle, Started)
+          const after1 = getComponent(testEntity1, CollisionComponent).get(testEntity2)
+          const after2 = getComponent(testEntity2, CollisionComponent).get(testEntity1)
+          assert.ok(after1)
+          assert.ok(after2)
+          assert.equal(after1.type, CollisionEvents.COLLISION_START)
+          assert.equal(after2.type, CollisionEvents.COLLISION_START)
+        })
+
+        it('... should create a CollisionEvents.TRIGGER_START when either one of the colliders is a sensor (aka has a TriggerComponent)', () => {
+          const Started = true
+
+          assert.ok(physicsWorld)
+          const event = Physics.drainCollisionEventQueue(physicsWorld)
+          assertCollisionEventClosure(event)
+          // Get the colliders from the API
+          const collider1 = Physics._Colliders.get(testEntity1)
+          const collider2 = Physics._Colliders.get(testEntity2)
+          assert.ok(collider1)
+          assert.ok(collider2)
+          // Check before
+          const before1 = getComponent(testEntity1, CollisionComponent)?.get(testEntity2)
+          const before2 = getComponent(testEntity2, CollisionComponent)?.get(testEntity1)
+          assert.equal(before1, undefined)
+          assert.equal(before2, undefined)
+          setComponent(testEntity1, TriggerComponent) // Set the trigger component (marks testEntity1.body.isSensor() as true)
+          event(collider1.handle, collider2.handle, Started)
+
+          // Run and Check after
+          const after1 = getComponent(testEntity1, CollisionComponent).get(testEntity2)
+          const after2 = getComponent(testEntity2, CollisionComponent).get(testEntity1)
+          assert.ok(after1)
+          assert.ok(after2)
+          assert.equal(after1.type, CollisionEvents.TRIGGER_START)
+          assert.equal(after2.type, CollisionEvents.TRIGGER_START)
+        })
+
+        it('... should set entity2 in the CollisionComponent of entity1, and entity1 in the CollisionComponent of entity2', () => {
+          assert.ok(physicsWorld)
+          const event = Physics.drainCollisionEventQueue(physicsWorld)
+          assertCollisionEventClosure(event)
+          // Get the colliders from the API
+          const collider1 = Physics._Colliders.get(testEntity1)
+          const collider2 = Physics._Colliders.get(testEntity2)
+          assert.ok(collider1)
+          assert.ok(collider2)
+          // Check before
+          const before1 = getComponent(testEntity1, CollisionComponent)?.get(testEntity2)
+          const before2 = getComponent(testEntity2, CollisionComponent)?.get(testEntity1)
+          assert.equal(before1, undefined)
+          assert.equal(before2, undefined)
+
+          // Run and Check after
           event(collider1.handle, collider2.handle, true)
           const after1 = getComponent(testEntity1, CollisionComponent).get(testEntity2)
           const after2 = getComponent(testEntity2, CollisionComponent).get(testEntity1)
           assert.ok(after1)
           assert.ok(after2)
         })
-
-        it('... should set entity1 in the CollisionComponent of entity2', () => {})
       })
 
       describe('when `started` is set to `false` ...', () => {
-        // it("... should create a CollisionEvents.TRIGGER_END when either of the colliders is a sensor", () => {})
-        // it("... should create a CollisionEvents.COLLISION_END otherwise if `started` is false", () => {})
-        // it("... should set CollisionEvents.TRIGGER_END to the CollisionComponent.type property of entity1.collision.get(entity2) when either of the colliders is a sensor", () => {})
-        // it("... should set CollisionEvents.COLLISION_END to the CollisionComponent.type property of entity1.collision.get(entity2) otherwise", () => {})
-        // it("... should set CollisionEvents.TRIGGER_END to the CollisionComponent.type property of entity2.collision.get(entity1) when either of the colliders is a sensor", () => {})
-        // it("... should set CollisionEvents.COLLISION_END to the CollisionComponent.type property of entity2.collision.get(entity1) otherwise", () => {})
+        it('... should create a CollisionEvents.TRIGGER_END when either one of the colliders is a sensor', () => {
+          const Started = false
+
+          assert.ok(physicsWorld)
+          const event = Physics.drainCollisionEventQueue(physicsWorld)
+          assertCollisionEventClosure(event)
+          // Get the colliders from the API
+          const collider1 = Physics._Colliders.get(testEntity1)
+          const collider2 = Physics._Colliders.get(testEntity2)
+          assert.ok(collider1)
+          assert.ok(collider2)
+          // Check before
+          const before1 = getComponent(testEntity1, CollisionComponent)?.get(testEntity2)
+          const before2 = getComponent(testEntity2, CollisionComponent)?.get(testEntity1)
+          assert.equal(before1, undefined)
+          assert.equal(before2, undefined)
+          setComponent(testEntity1, TriggerComponent) // Set the trigger component (marks testEntity1.body.isSensor() as true)
+
+          // Run and Check after
+          event(collider1.handle, collider2.handle, true) // Run the even twice, so that the entities get each other in their collision components
+          event(collider1.handle, collider2.handle, Started)
+          const after1 = getComponent(testEntity1, CollisionComponent).get(testEntity2)
+          const after2 = getComponent(testEntity2, CollisionComponent).get(testEntity1)
+          assert.ok(after1)
+          assert.ok(after2)
+          assert.equal(after1.type, CollisionEvents.TRIGGER_END)
+          assert.equal(after2.type, CollisionEvents.TRIGGER_END)
+        })
+
+        it('... should create a CollisionEvents.COLLISION_END when neither of the colliders is a sensor', () => {
+          const Started = false
+
+          assert.ok(physicsWorld)
+          const event = Physics.drainCollisionEventQueue(physicsWorld)
+          assertCollisionEventClosure(event)
+          // Get the colliders from the API
+          const collider1 = Physics._Colliders.get(testEntity1)
+          const collider2 = Physics._Colliders.get(testEntity2)
+          assert.ok(collider1)
+          assert.ok(collider2)
+          // Check before
+          const before1 = getComponent(testEntity1, CollisionComponent)?.get(testEntity2)
+          const before2 = getComponent(testEntity2, CollisionComponent)?.get(testEntity1)
+          assert.equal(before1, undefined)
+          assert.equal(before2, undefined)
+          // setComponent(testEntity1, TriggerComponent)  // DONT set the trigger component (testEntity1.body.isSensor() is false)
+
+          // Run and Check after
+          event(collider1.handle, collider2.handle, true) // Run the even twice, so that the entities get each other in their collision components
+          event(collider1.handle, collider2.handle, Started)
+          const after1 = getComponent(testEntity1, CollisionComponent).get(testEntity2)
+          const after2 = getComponent(testEntity2, CollisionComponent).get(testEntity1)
+          assert.ok(after1)
+          assert.ok(after2)
+          assert.equal(after1.type, CollisionEvents.COLLISION_END)
+          assert.equal(after2.type, CollisionEvents.COLLISION_END)
+        })
       })
     }) // << drainCollisionEventQueue
 
@@ -2255,11 +2362,15 @@ describe('Physics : Rapier->ECS API', () => {
         assertContactEventClosure(closure)
       })
 
-      // @todo
-      // should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity1.collision.get(entity2) if the collision exists
-      // should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity2.collision.get(entity1) if the collision exists
-      // should store event.totalForce() into the CollisionComponent.totalForce of entity1.collision.get(entity2) if the collision exists
-      // should store event.totalForce() into the CollisionComponent.totalForce of entity2.collision.get(entity1) if the collision exists
+      /**
+      // @todo How to setup the tests so that TempContactForceEvent 
+      describe("if the collision exists ...", () => {
+        it("should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity1.collision.get(entity2) if the collision exists", () => {})
+        it("should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity2.collision.get(entity1) if the collision exists", () => {})
+        it("should store event.totalForce() into the CollisionComponent.totalForce of entity1.collision.get(entity2) if the collision exists", () => {})
+        it("should store event.totalForce() into the CollisionComponent.totalForce of entity2.collision.get(entity1) if the collision exists", () => {})
+      })
+      */
     }) // << drainContactEventQueue
   }) // << Collisions
 })
