@@ -210,6 +210,8 @@ function createRigidBody(world: PhysicsWorld, entity: Entity) {
   TransformComponent.getMatrixRelativeToEntity(entity, worldEntity, mat4)
   mat4.decompose(position, rotation, scale)
 
+  console.log('createRigidBody', scale.x, scale.y, scale.z)
+
   TransformComponent.dirtyTransforms[entity] = false
 
   const rigidBody = getComponent(entity, RigidBodyComponent)
@@ -416,7 +418,7 @@ function createColliderDesc(world: PhysicsWorld, entity: Entity, rootEntity: Ent
       throw new Error('unrecognized collider shape type: ' + colliderComponent.shape)
   }
 
-  const scale = TransformComponent.getWorldScale(entity, new Vector3())
+  const scale = TransformComponent.getSceneScale(entity, new Vector3())
 
   let colliderDesc: ColliderDesc
 

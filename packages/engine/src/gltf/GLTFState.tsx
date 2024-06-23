@@ -27,7 +27,6 @@ import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
-import config from '@etherealengine/common/src/config'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
@@ -86,7 +85,7 @@ export const GLTFAssetState = defineState({
   },
 
   loadScene: (sceneURL: string, uuid: string) => {
-    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID)
+    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, Engine.instance.originEntity)
     getMutableComponent(Engine.instance.viewerEntity, SceneComponent).scenes.merge([gltfEntity])
     getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
 
@@ -96,8 +95,6 @@ export const GLTFAssetState = defineState({
     }
   }
 })
-
-const fileServer = config.client.fileServer
 
 export const GLTFSourceState = defineState({
   name: 'ee.engine.gltf.GLTFSourceState',

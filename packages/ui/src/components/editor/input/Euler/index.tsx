@@ -39,7 +39,7 @@ const { RAD2DEG, DEG2RAD } = _Math
 type EulerInputProps = {
   quaternion: Quaternion
   onChange?: (euler: Euler) => any
-  onRelease?: () => void
+  onRelease?: (euler: Euler) => void
   unit?: string
 }
 
@@ -68,7 +68,7 @@ export const EulerInput = (props: EulerInputProps) => {
       <NumericInput
         value={euler.x.value * RAD2DEG}
         onChange={onSetEuler('x')}
-        onRelease={() => props.onRelease?.()}
+        onRelease={() => props.onRelease?.(euler.value)}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
@@ -82,7 +82,7 @@ export const EulerInput = (props: EulerInputProps) => {
       <NumericInput
         value={euler.y.value * RAD2DEG}
         onChange={onSetEuler('y')}
-        onRelease={() => props.onRelease?.()}
+        onRelease={() => props.onRelease?.(euler.value)}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
@@ -96,7 +96,7 @@ export const EulerInput = (props: EulerInputProps) => {
       <NumericInput
         value={euler.z.value * RAD2DEG}
         onChange={onSetEuler('z')}
-        onRelease={() => props.onRelease?.()}
+        onRelease={() => props.onRelease?.(euler.value)}
         unit={props.unit}
         prefix={
           <Vector3Scrubber

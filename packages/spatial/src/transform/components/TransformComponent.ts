@@ -30,8 +30,10 @@ import { defineComponent, getComponent, getOptionalComponent } from '@etherealen
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 
 export type TransformComponentType = {
   position: Vector3
@@ -174,6 +176,29 @@ export const TransformComponent = defineComponent({
 
     // if determine is negative, we need to invert one scale
     const det = transform.matrixWorld.determinant()
+    if (det < 0) sx = -sx
+
+    vec3.x = sx
+    vec3.y = sy
+    vec3.z = sz
+
+    return vec3
+  },
+
+  getSceneScale: (entity: Entity, vec3: Vector3) => {
+    const sceneUUID = SceneComponent.sceneByEntity[entity]
+    if (!sceneUUID) return vec3.set(1, 1, 1)
+    const sceneEntity = UUIDComponent.getEntityByUUID(sceneUUID)
+    if (!sceneEntity) return vec3.set(1, 1, 1)
+    TransformComponent.getMatrixRelativeToEntity(entity, sceneEntity, _m1)
+    const te = _m1.elements
+
+    let sx = _v1.set(te[0], te[1], te[2]).length()
+    const sy = _v1.set(te[4], te[5], te[6]).length()
+    const sz = _v1.set(te[8], te[9], te[10]).length()
+
+    // if determine is negative, we need to invert one scale
+    const det = _m1.determinant()
     if (det < 0) sx = -sx
 
     vec3.x = sx
