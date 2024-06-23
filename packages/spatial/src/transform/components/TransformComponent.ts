@@ -119,6 +119,14 @@ export const TransformComponent = defineComponent({
     return vec3
   },
 
+  getMatrixRelativeToEntity: (entity: Entity, relativeEntity: Entity, outMatrix: Matrix4) => {
+    const transform = getComponent(entity, TransformComponent)
+    const relativeTransform = getComponent(relativeEntity, TransformComponent)
+    outMatrix.copy(relativeTransform.matrixWorld).invert()
+    outMatrix.multiply(transform.matrixWorld)
+    return outMatrix
+  },
+
   // this method is essentially equivalent to Matrix4.decompose
   getWorldRotation: (entity: Entity, quaternion: Quaternion) => {
     const transform = getComponent(entity, TransformComponent)

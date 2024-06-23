@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import {
   defineQuery,
@@ -47,7 +47,6 @@ import { RigidBodyComponent } from '../components/RigidBodyComponent'
 const position = new Vector3()
 const rotation = new Quaternion()
 const scale = new Vector3()
-const mat4 = new Matrix4()
 
 export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   /*
@@ -83,17 +82,19 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
   const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
   if (parentEntity) {
+    const parentTransform = getComponent(parentEntity, TransformComponent)
     // todo: figure out proper scale support
     const scale = getComponent(entity, TransformComponent).scale
-    // if the entity has a parent, we need to use the world space
-    transform.matrixWorld.compose(position, rotation, scale)
+    // if the entity has a parent, we need to use the scene space
+    transform.matrix.compose(position, rotation, scale)
+    transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
 
     TransformComponent.dirtyTransforms[entity] = false
 
     for (const child of getComponent(entity, EntityTreeComponent).children)
       TransformComponent.dirtyTransforms[child] = true
   } else {
-    // otherwise, we can use the local space (for things like avatars)
+    // otherwise, we can use the local space
     transform.position.copy(position)
     transform.rotation.copy(rotation)
   }

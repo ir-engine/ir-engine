@@ -37,6 +37,7 @@ import {
   UndefinedEntity,
   useComponent,
   useEntityContext,
+  useOptionalComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
 import { hookstate, NO_PROXY, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
@@ -99,14 +100,15 @@ function SceneReactor() {
 const SceneComponentReactor = (props: { entity: Entity }) => {
   const treeEntities = useTreeQuery(props.entity)
   const Component = useHookstate(() => createSceneComponent(props.entity))
+  const uuid = useOptionalComponent(props.entity, UUIDComponent)?.value
 
   useLayoutEffect(() => {
-    const uuid = getComponent(props.entity, UUIDComponent)
+    if (!uuid) return
     SceneComponent.sceneState.merge({ [uuid]: Component.get(NO_PROXY) })
     return () => {
       SceneComponent.sceneState[uuid].set(none)
     }
-  }, [])
+  }, [uuid])
 
   return (
     <>

@@ -59,6 +59,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { defineState, none, useHookstate } from '@etherealengine/hyperflux'
 import { NO_PROXY, getMutableState, getState } from '@etherealengine/hyperflux/functions/StateFunctions'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
@@ -200,10 +201,14 @@ function createCollisionEventQueue() {
 const position = new Vector3()
 const rotation = new Quaternion()
 const scale = new Vector3()
+const mat4 = new Matrix4()
 
 function createRigidBody(world: PhysicsWorld, entity: Entity) {
-  const transform = getComponent(entity, TransformComponent)
-  transform.matrixWorld.decompose(position, rotation, scale)
+  const worldEntityUUID = SceneComponent.sceneByEntity[entity]
+  const worldEntity = UUIDComponent.getEntityByUUID(worldEntityUUID)
+
+  TransformComponent.getMatrixRelativeToEntity(entity, worldEntity, mat4)
+  mat4.decompose(position, rotation, scale)
 
   TransformComponent.dirtyTransforms[entity] = false
 
@@ -483,13 +488,10 @@ function createColliderDesc(world: PhysicsWorld, entity: Entity, rootEntity: Ent
   const positionRelativeToRoot = new Vector3()
   const quaternionRelativeToRoot = new Quaternion()
 
-  const transform = getComponent(entity, TransformComponent)
-  const rootTransform = getComponent(rootEntity, TransformComponent)
-
   // get matrix relative to root
   if (rootEntity !== entity) {
     const matrixRelativeToRoot = new Matrix4()
-    matrixRelativeToRoot.copy(rootTransform.matrixWorld).invert().multiply(transform.matrixWorld)
+    TransformComponent.getMatrixRelativeToEntity(entity, rootEntity, matrixRelativeToRoot)
     matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, new Vector3())
   }
 

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 
-import { Engine, Entity, EntityUUID } from '@etherealengine/ecs'
+import { Engine, Entity, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -72,8 +72,10 @@ const PhysicsReactor = (props: { id: EntityUUID }) => {
     setComponent(lineSegmentsEntity, NameComponent, 'Physics Debug')
     setVisibleComponent(lineSegmentsEntity, true)
     addObjectToGroup(lineSegmentsEntity, lineSegments)
-    // TODO: when we have multiple scenes, we need to set the parentEntity to the current scene
-    setComponent(lineSegmentsEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+
+    const parentEntity = UUIDComponent.getEntityByUUID(props.id)
+    setComponent(lineSegmentsEntity, EntityTreeComponent, { parentEntity })
+
     setObjectLayers(lineSegments, ObjectLayers.PhysicsHelper)
     PhysicsDebugEntities.set(props.id, lineSegmentsEntity)
 
