@@ -121,6 +121,19 @@ else
   NODE_ENV=$NODE_ENV
 fi
 
+if [ -z "$VITE_ZENDESK_ENABLED" ]
+then
+  VITE_ZENDESK_ENABLED=false
+else
+  VITE_ZENDESK_ENABLED=$VITE_ZENDESK_ENABLED
+fi
+
+if [ -z "$VITE_ZENDESK_KEY" ]
+then
+  VITE_ZENDESK_KEY=null
+else
+  VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY
+fi
 
 # ./generate-certs.sh
 
@@ -153,6 +166,8 @@ docker buildx build \
   --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
   --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET \
   --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
-  --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
+  --build-arg VITE_AVATURN_API=$VITE_AVATURN_API \
+  --build-arg VITE_ZENDESK_ENABLED=$VITE_ZENDESK_ENABLED \
+  --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY .
 
 #DOCKER_BUILDKIT=1 docker build -t etherealengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
