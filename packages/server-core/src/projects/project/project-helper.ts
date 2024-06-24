@@ -1154,10 +1154,8 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
 
 export async function getDirectoryArchiveJobBody(
   app: Application,
-  directory: string,
   projectName: string,
-  jobId: string,
-  storageProviderName?: string
+  jobId: string
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
@@ -1165,19 +1163,15 @@ export async function getDirectoryArchiveJobBody(
     'ts-node',
     '--swc',
     'scripts/archive-directory.ts',
-    `--directory`,
-    directory,
+    `--project`,
+    projectName,
     '--jobId',
     jobId
   ]
-  if (storageProviderName) {
-    command.push('--storageProviderName')
-    command.push(storageProviderName)
-  }
 
   const labels = {
     'etherealengine/directoryArchiver': 'true',
-    'etherealengine/directoryField': projectName,
+    'etherealengine/projectField': projectName,
     'etherealengine/release': process.env.RELEASE_NAME || ''
   }
 
