@@ -24,14 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import { Engine, getComponent } from '@etherealengine/ecs'
+import { Engine, getComponent, useComponent, useQuery } from '@etherealengine/ecs'
 import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { useMutableState } from '@etherealengine/hyperflux'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
+import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import React, { useEffect } from 'react'
@@ -39,6 +43,7 @@ import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { Vector2, Vector3 } from 'three'
+import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
 import { DnDFileType, FileType } from '../../Files/container'
 import GizmoTool from '../tools/GizmoTool'
@@ -100,9 +105,43 @@ const ViewportDnD = () => {
   )
 }
 
-const ViewPortPanelContainer = () => {
+const SceneLoadingProgress = ({ rootEntity }) => {
   const { t } = useTranslation()
-  const sceneName = useMutableState(EditorState).sceneName.value
+  const progress = useComponent(rootEntity, GLTFComponent).progress.value
+  const resourcePendingQuery = useQuery([ResourcePendingComponent])
+  const root = getComponent(rootEntity, SourceComponent)
+  const sceneModified = useHookstate(getMutableState(GLTFModifiedState)[root]).value
+
+  useEffect(() => {
+    if (!sceneModified) return
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      alert('You have unsaved changes. Please save before leaving.')
+      e.preventDefault()
+      e.returnValue = ''
+    }
+
+    window.addEventListener('beforeunload', onBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', onBeforeUnload)
+    }
+  }, [sceneModified])
+
+  if (progress === 100) return null
+
+  return (
+    <LoadingView
+      fullSpace
+      className="mb-2 flex h-1/2 w-1/2 justify-center"
+      title={t('editor:loadingScenesWithProgress', { progress, assetsLeft: resourcePendingQuery.length })}
+    />
+  )
+}
+
+const ViewPortPanelContainer = () => {
+  const { sceneName, rootEntity } = useMutableState(EditorState)
+
+  const { t } = useTranslation()
   const clientSettingState = useMutableState(AdminClientSettingsState)
   const [clientSetting] = clientSettingState?.client?.value || []
   return (
@@ -116,9 +155,12 @@ const ViewPortPanelContainer = () => {
         <RenderModeTool />
         <PlayModeTool />
       </div>
-      {sceneName ? <GizmoTool /> : null}
-      {sceneName ? (
-        <ViewportDnD />
+      {sceneName.value ? <GizmoTool /> : null}
+      {sceneName.value ? (
+        <>
+          {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
+          <ViewportDnD />
+        </>
       ) : (
         <div className="flex h-full w-full flex-col justify-center gap-2">
           <img src={clientSetting.appTitle} className="block scale-[.8]" />
