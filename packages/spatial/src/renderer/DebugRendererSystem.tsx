@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 
-import { Engine, Entity, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { Engine, Entity, EntityUUID, QueryReactor, UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 
 import { NameComponent } from '../common/NameComponent'
 import { RapierWorldState } from '../physics/classes/Physics'
@@ -57,7 +57,9 @@ const execute = () => {
   }
 }
 
-const PhysicsReactor = (props: { id: EntityUUID }) => {
+const PhysicsReactor = () => {
+  const entity = useEntityContext()
+  const uuid = useComponent(entity, UUIDComponent).value
   const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
@@ -73,17 +75,16 @@ const PhysicsReactor = (props: { id: EntityUUID }) => {
     setVisibleComponent(lineSegmentsEntity, true)
     addObjectToGroup(lineSegmentsEntity, lineSegments)
 
-    const parentEntity = UUIDComponent.getEntityByUUID(props.id)
-    setComponent(lineSegmentsEntity, EntityTreeComponent, { parentEntity })
+    setComponent(lineSegmentsEntity, EntityTreeComponent, { parentEntity: entity })
 
     setObjectLayers(lineSegments, ObjectLayers.PhysicsHelper)
-    PhysicsDebugEntities.set(props.id, lineSegmentsEntity)
+    PhysicsDebugEntities.set(uuid, lineSegmentsEntity)
 
     return () => {
       removeEntity(lineSegmentsEntity)
-      PhysicsDebugEntities.delete(props.id)
+      PhysicsDebugEntities.delete(uuid)
     }
-  }, [engineRendererSettings.physicsDebug])
+  }, [engineRendererSettings.physicsDebug, uuid])
 
   return null
 }
@@ -103,13 +104,9 @@ const reactor = () => {
     }
   }, [engineRendererSettings.gridVisibility])
 
-  const scenes = useHookstate(SceneComponent.sceneState).keys as EntityUUID[]
-
   return (
     <>
-      {scenes.map((id) => (
-        <PhysicsReactor key={id} id={id} />
-      ))}
+      <QueryReactor Components={[SceneComponent]} ChildEntityReactor={PhysicsReactor} />
     </>
   )
 }

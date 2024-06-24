@@ -62,12 +62,7 @@ import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRLightProbeState } from '../xr/XRLightProbeSystem'
 import { XRState } from '../xr/XRState'
 import { GroupComponent } from './components/GroupComponent'
-import {
-  BackgroundComponent,
-  EnvironmentMapComponent,
-  FogComponent,
-  SceneComponent
-} from './components/SceneComponents'
+import { BackgroundComponent, EnvironmentMapComponent, FogComponent } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
 import { RenderModes } from './constants/RenderModes'
@@ -87,6 +82,7 @@ export const RendererComponent = defineComponent({
 
   onSet(entity, component, json) {
     if (json?.canvas) component.canvas.set(json.canvas)
+    if (json?.scenes) component.scenes.set(json.scenes)
   }
 })
 
@@ -103,6 +99,9 @@ export class EngineRenderer {
    * see https://github.com/EtherealEngine/etherealengine/issues/9308
    */
   static activeRender = false
+
+  scenes: Entity[]
+
   /** Is resize needed? */
   needsResize: boolean
 
@@ -262,7 +261,7 @@ export const RenderSettingsState = defineState({
   }
 })
 
-const rendererQuery = defineQuery([RendererComponent, CameraComponent, SceneComponent])
+const rendererQuery = defineQuery([RendererComponent, CameraComponent])
 
 export const filterVisible = (entity: Entity) => hasComponent(entity, VisibleComponent)
 export const getNestedVisibleChildren = (entity: Entity) => getNestedChildren(entity, filterVisible)
@@ -299,9 +298,8 @@ const execute = () => {
   for (const entity of rendererQuery()) {
     const camera = getComponent(entity, CameraComponent)
     const renderer = getComponent(entity, RendererComponent)
-    const scene = getComponent(entity, SceneComponent)
 
-    const entitiesToRender = scene.scenes.map(getNestedVisibleChildren).flat()
+    const entitiesToRender = renderer.scenes.map(getNestedVisibleChildren).flat()
     const { background, environment, fog, children } = getSceneParameters(entitiesToRender)
     _scene.children = children
 

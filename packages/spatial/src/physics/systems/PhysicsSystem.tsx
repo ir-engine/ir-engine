@@ -26,15 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
 
-import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, removeComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 
+import { UUIDComponent, useEntityContext } from '@etherealengine/ecs'
 import React from 'react'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -100,13 +101,15 @@ const execute = () => {
   }
 }
 
-const PhysicsSceneReactor = (props: { id: EntityUUID }) => {
+const PhysicsSceneReactor = () => {
+  const entity = useEntityContext()
+  const uuid = useComponent(entity, UUIDComponent).value
   useEffect(() => {
-    Physics.createWorld(props.id)
+    Physics.createWorld(uuid)
     return () => {
-      Physics.destroyWorld(props.id)
+      Physics.destroyWorld(uuid)
     }
-  }, [])
+  }, [uuid])
   return null
 }
 
@@ -130,15 +133,11 @@ const reactor = () => {
     }
   }, [])
 
-  const scenes = useHookstate(SceneComponent.sceneState).keys as EntityUUID[]
-
   if (!physicsLoaded.value) return null
 
   return (
     <>
-      {scenes.map((id) => (
-        <PhysicsSceneReactor key={id} id={id} />
-      ))}
+      <QueryReactor Components={[SceneComponent]} ChildEntityReactor={PhysicsSceneReactor} />
     </>
   )
 }

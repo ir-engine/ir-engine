@@ -35,7 +35,6 @@ import {
   Entity,
   EntityUUID,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -64,10 +63,10 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
@@ -86,8 +85,8 @@ export const GLTFAssetState = defineState({
 
   loadScene: (sceneURL: string, uuid: string) => {
     const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, Engine.instance.originEntity)
-    getMutableComponent(Engine.instance.viewerEntity, SceneComponent).scenes.merge([gltfEntity])
     getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
+    setComponent(gltfEntity, SceneComponent)
 
     return () => {
       GLTFSourceState.unload(gltfEntity)

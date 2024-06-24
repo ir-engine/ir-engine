@@ -38,9 +38,8 @@ import { previewScreenshot } from '@etherealengine/editor/src/functions/takeScre
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@etherealengine/hyperflux'
-import { getNestedVisibleChildren } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent, getNestedVisibleChildren } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { Scene } from 'three'
 import ImagePreviewInput from '../../../input/Image/Preview'
@@ -67,7 +66,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const updateScenePreview = async () => {
     const rootEntity = getState(EditorState).rootEntity
     const scene = new Scene()
-    scene.children = getComponent(rootEntity, SceneComponent)
+    scene.children = getComponent(rootEntity, RendererComponent)
       .scenes.map(getNestedVisibleChildren)
       .flat()
       .map((entity) => getComponent(entity, GroupComponent))

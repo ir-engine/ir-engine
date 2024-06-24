@@ -56,7 +56,6 @@ import { XRState } from './xr/XRState'
 /**
  * Creates a new instance of the engine and engine renderer. This initializes all properties and state for the engine,
  * adds action receptors and creates a new world.
- * @returns {Engine}
  */
 export const createEngine = (canvas?: HTMLCanvasElement) => {
   startEngine()
@@ -74,6 +73,7 @@ export const createEngine = (canvas?: HTMLCanvasElement) => {
   setComponent(Engine.instance.localFloorEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(Engine.instance.localFloorEntity, TransformComponent)
   setComponent(Engine.instance.localFloorEntity, VisibleComponent, true)
+  setComponent(Engine.instance.localFloorEntity, SceneComponent)
   const origin = new Group()
   addObjectToGroup(Engine.instance.localFloorEntity, origin)
   const originHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
@@ -92,16 +92,14 @@ export const createEngine = (canvas?: HTMLCanvasElement) => {
   camera.matrixAutoUpdate = false
   camera.matrixWorldAutoUpdate = false
 
-  setComponent(Engine.instance.viewerEntity, SceneComponent)
-  getMutableComponent(Engine.instance.viewerEntity, SceneComponent).scenes.merge([
-    Engine.instance.originEntity,
-    Engine.instance.viewerEntity,
-    Engine.instance.localFloorEntity
-  ])
-
   if (canvas) {
     setComponent(Engine.instance.viewerEntity, RendererComponent, { canvas })
     getComponent(Engine.instance.viewerEntity, RendererComponent).initialize()
+    getMutableComponent(Engine.instance.viewerEntity, RendererComponent).scenes.merge([
+      Engine.instance.originEntity,
+      Engine.instance.localFloorEntity,
+      Engine.instance.viewerEntity
+    ])
   }
   getMutableState(ECSState).timer.set(
     Timer(

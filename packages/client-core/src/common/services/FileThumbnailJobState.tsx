@@ -52,7 +52,6 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import {
@@ -487,10 +486,10 @@ const ThumbnailJobReactor = () => {
       viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
 
       viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
-      setComponent(cameraEntity, SceneComponent, { scenes: [modelEntity, lightEntity] })
+      setComponent(cameraEntity, RendererComponent, { scenes: [modelEntity, lightEntity] })
 
       const scene = new Scene()
-      scene.children = getComponent(cameraEntity, SceneComponent)
+      scene.children = getComponent(cameraEntity, RendererComponent)
         .scenes.map((entity) => getComponent(entity, GroupComponent))
         .flat()
       const canvas = getComponent(cameraEntity, RendererComponent).canvas

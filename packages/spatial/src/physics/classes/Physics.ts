@@ -55,7 +55,8 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  setComponent
+  setComponent,
+  useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 
@@ -66,6 +67,7 @@ import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { getAncestorWithComponent, useAncestorWithComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
@@ -138,15 +140,18 @@ function destroyWorld(id: EntityUUID) {
 }
 
 function getWorld(entity: Entity) {
-  const sceneUUID = SceneComponent.sceneByEntity[entity]
+  const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+  if (!sceneEntity) return
+  const sceneUUID = getComponent(sceneEntity, UUIDComponent)
   if (!sceneUUID) return
   return getState(RapierWorldState)[sceneUUID]
 }
 
 function useWorld(entity: Entity) {
-  const sceneUUID = useHookstate(SceneComponent.sceneByEntity[entity]).value
+  const sceneEntity = useAncestorWithComponent(entity, SceneComponent)
+  const sceneUUID = useOptionalComponent(sceneEntity, UUIDComponent)?.value
   const worlds = useHookstate(getMutableState(RapierWorldState))
-  return worlds[sceneUUID].get(NO_PROXY) as PhysicsWorld
+  return sceneUUID ? (worlds[sceneUUID].get(NO_PROXY) as PhysicsWorld) : undefined
 }
 
 function smoothKinematicBody(physicsWorld: PhysicsWorld, entity: Entity, dt: number, substep: number) {
@@ -204,10 +209,9 @@ const scale = new Vector3()
 const mat4 = new Matrix4()
 
 function createRigidBody(world: PhysicsWorld, entity: Entity) {
-  const worldEntityUUID = SceneComponent.sceneByEntity[entity]
-  const worldEntity = UUIDComponent.getEntityByUUID(worldEntityUUID)
+  const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
 
-  TransformComponent.getMatrixRelativeToEntity(entity, worldEntity, mat4)
+  TransformComponent.getMatrixRelativeToEntity(entity, sceneEntity, mat4)
   mat4.decompose(position, rotation, scale)
 
   console.log('createRigidBody', scale.x, scale.y, scale.z)

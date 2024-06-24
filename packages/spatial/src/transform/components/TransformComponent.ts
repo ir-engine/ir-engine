@@ -28,9 +28,11 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { defineComponent, getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  getAncestorWithComponent
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { UUIDComponent } from '@etherealengine/ecs'
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
@@ -186,10 +188,9 @@ export const TransformComponent = defineComponent({
   },
 
   getSceneScale: (entity: Entity, vec3: Vector3) => {
-    const sceneUUID = SceneComponent.sceneByEntity[entity]
-    if (!sceneUUID) return vec3.set(1, 1, 1)
-    const sceneEntity = UUIDComponent.getEntityByUUID(sceneUUID)
+    const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
     if (!sceneEntity) return vec3.set(1, 1, 1)
+
     TransformComponent.getMatrixRelativeToEntity(entity, sceneEntity, _m1)
     const te = _m1.elements
 

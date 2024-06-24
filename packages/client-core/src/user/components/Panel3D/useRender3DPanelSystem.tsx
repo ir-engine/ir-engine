@@ -32,10 +32,13 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { removeEntityNodeRecursively } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  removeEntityNodeRecursively
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvasElement>) {
   const panelState = useHookstate(() => ({
@@ -56,14 +59,16 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
     if (!canvas.current) return
 
     const { cameraEntity, sceneEntity } = panelState.value
+    setComponent(sceneEntity, SceneComponent)
+    setComponent(sceneEntity, TransformComponent)
+    setComponent(sceneEntity, EntityTreeComponent)
     setComponent(cameraEntity, CameraComponent)
     setComponent(cameraEntity, TransformComponent)
     setComponent(cameraEntity, VisibleComponent)
     setComponent(cameraEntity, NameComponent, '3D Preview Camera for ' + canvas.current.id)
     setComponent(cameraEntity, CameraOrbitComponent, { refocus: true })
-    setComponent(cameraEntity, RendererComponent, { canvas: canvas.current })
+    setComponent(cameraEntity, RendererComponent, { canvas: canvas.current, scenes: [sceneEntity] })
     getComponent(cameraEntity, RendererComponent).initialize()
-    setComponent(cameraEntity, SceneComponent, { children: [sceneEntity] })
     setComponent(cameraEntity, InputComponent)
   }, [canvas.current])
 

@@ -70,10 +70,10 @@ import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 
 import './InstanceServerModule'
 
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
@@ -300,7 +300,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     const sceneUpdatedListener = async () => {
       const scene = await app.service(staticResourcePath).get(sceneId, { headers })
       const gltfEntity = GLTFSourceState.load(scene.url, scene.id as EntityUUID)
-      getMutableComponent(Engine.instance.viewerEntity, SceneComponent).scenes.merge([gltfEntity])
+      getMutableComponent(Engine.instance.viewerEntity, RendererComponent).scenes.merge([gltfEntity])
 
       /** @todo - quick hack to wait until scene has loaded */
       await new Promise<void>((resolve) => {

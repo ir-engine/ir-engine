@@ -30,7 +30,7 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { cleanString } from '@etherealengine/common/src/utils/cleanString'
 import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
-import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
@@ -177,8 +177,8 @@ export const onNewScene = async (
 }
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
-  const gltfEntity = GLTFSourceState.load(sceneURL, uuid)
-  getMutableComponent(Engine.instance.viewerEntity, SceneComponent).scenes.merge([gltfEntity])
+  const gltfEntity = GLTFSourceState.load(sceneURL, uuid, Engine.instance.originEntity)
+  setComponent(gltfEntity, SceneComponent)
   getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {
     getMutableState(EditorState).rootEntity.set(UndefinedEntity)
