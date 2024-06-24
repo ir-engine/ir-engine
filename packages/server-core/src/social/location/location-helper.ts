@@ -34,6 +34,7 @@ import {
   LocationType,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { Application } from '@etherealengine/server-core/declarations'
 import logger from '@etherealengine/server-core/src/ServerLogger'
 
@@ -60,8 +61,11 @@ export const createLocations = async (app: Application, projectName: string, sce
         audioEnabled: true,
         videoEnabled: true,
         screenSharingEnabled: true,
-        faceStreamingEnabled: true
+        faceStreamingEnabled: true,
+        createdAt: await getDateTimeSql(),
+        updatedAt: await getDateTimeSql()
       } as LocationSettingType
+
       const location = {
         id: locationId,
         name: cleanedLocationName,

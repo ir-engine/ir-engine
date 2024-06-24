@@ -208,11 +208,11 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
+    all: [schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
     find: [discardQuery('action'), discardQuery('studio'), sortByLocationSetting],
     get: [],
     create: [
-      () => schemaHooks.validateData(locationDataValidator),
+      schemaHooks.validateData(locationDataValidator),
       schemaHooks.resolveData(locationDataResolver),
       iff(
         isProvider('external'),
@@ -224,10 +224,11 @@ export default {
       ),
       persistData,
       discard('locationSetting', 'locationAdmin')
+      //schemaHooks.validateData(locationDatabaseValidator)
     ],
     update: [disallow()],
     patch: [
-      () => schemaHooks.validateData(locationPatchValidator),
+      schemaHooks.validateData(locationPatchValidator),
       schemaHooks.resolveData(locationPatchResolver),
       iff(
         isProvider('external'),

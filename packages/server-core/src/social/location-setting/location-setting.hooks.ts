@@ -27,7 +27,6 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 
 import {
-  locationSettingDataValidator,
   locationSettingPatchValidator,
   locationSettingQueryValidator
 } from '@etherealengine/common/src/schemas/social/location-setting.schema'
@@ -57,7 +56,7 @@ export default {
     get: [],
     create: [
       disallow('external'),
-      () => schemaHooks.validateData(locationSettingDataValidator),
+      //schemaHooks.validateData(locationSettingDataValidator),
       schemaHooks.resolveData(locationSettingDataResolver)
     ],
     update: [disallow('external')],

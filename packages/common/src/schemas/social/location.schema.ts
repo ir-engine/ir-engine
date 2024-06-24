@@ -73,17 +73,43 @@ export const locationSchema = Type.Object(
 )
 export interface LocationType extends Static<typeof locationSchema> {}
 
-export interface LocationDatabaseType
-  extends Omit<LocationType, 'locationSetting' | 'locationAuthorizedUsers' | 'locationBans'> {}
-
-// Schema for creating new entries
-export const locationDataSchema = Type.Pick(
+export const locationDatabaseSchema = Type.Omit(
   locationSchema,
-  ['name', 'sceneId', 'slugifiedName', 'isLobby', 'isFeatured', 'maxUsersPerInstance', 'locationSetting'],
+  ['locationSetting', 'locationAuthorizedUsers', 'locationBans'],
   {
-    $id: 'LocationData'
+    $id: 'LocationDatabase'
   }
 )
+export interface LocationDatabaseType extends Static<typeof locationDatabaseSchema> {}
+
+// Schema for creating new entries
+export const locationDatabaseProperties = Type.Pick(locationSchema, [
+  'name',
+  'sceneId',
+  'slugifiedName',
+  'isLobby',
+  'isFeatured',
+  'maxUsersPerInstance',
+  'locationSetting'
+])
+
+export const locationDataSchema = Type.Intersect(
+  [
+    locationDatabaseProperties,
+    Type.Object(
+      {
+        id: Type.Optional(
+          TypedString<LocationID>({
+            format: 'uuid'
+          })
+        )
+      },
+      { additionalProperties: false }
+    )
+  ],
+  { $id: 'LocationData' }
+)
+
 export interface LocationData extends Static<typeof locationDataSchema> {}
 
 // Schema for updating existing entries
@@ -124,5 +150,6 @@ export interface LocationQuery extends Static<typeof locationQuerySchema> {}
 
 export const locationValidator = /* @__PURE__ */ getValidator(locationSchema, dataValidator)
 export const locationDataValidator = /* @__PURE__ */ getValidator(locationDataSchema, dataValidator)
+export const locationDatabaseValidator = /* @__PURE__ */ getValidator(locationDatabaseSchema, dataValidator)
 export const locationPatchValidator = /* @__PURE__ */ getValidator(locationPatchSchema, dataValidator)
 export const locationQueryValidator = /* @__PURE__ */ getValidator(locationQuerySchema, queryValidator)

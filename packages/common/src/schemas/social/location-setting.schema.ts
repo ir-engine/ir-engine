@@ -41,9 +41,7 @@ export const locationSettingSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    locationId: TypedString<LocationID>({
-      format: 'uuid'
-    }),
+    locationId: TypedString<LocationID>(),
     /** @todo review */
     locationType: StringEnum(['private', 'public', 'showroom']),
     audioEnabled: Type.Boolean(),
