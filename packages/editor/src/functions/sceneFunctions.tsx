@@ -50,9 +50,9 @@ const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
  * @param  {string}  sceneId
  * @return {Promise}
  */
-export const deleteScene = async (sceneID: string): Promise<any> => {
+export const deleteScene = async (sceneKey: string): Promise<any> => {
   try {
-    await Engine.instance.api.service(fileBrowserPath).remove(sceneID)
+    await Engine.instance.api.service(fileBrowserPath).remove(sceneKey)
   } catch (error) {
     logger.error(error, 'Error in deleting project')
     throw error
