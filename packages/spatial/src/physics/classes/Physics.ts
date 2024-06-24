@@ -142,7 +142,7 @@ function destroyWorld(id: EntityUUID) {
 function getWorld(entity: Entity) {
   const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
   if (!sceneEntity) return
-  const sceneUUID = getComponent(sceneEntity, UUIDComponent)
+  const sceneUUID = getOptionalComponent(sceneEntity, UUIDComponent)
   if (!sceneUUID) return
   return getState(RapierWorldState)[sceneUUID]
 }

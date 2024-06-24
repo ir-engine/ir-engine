@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import {
   defineQuery,
@@ -47,6 +47,7 @@ import { RigidBodyComponent } from '../components/RigidBodyComponent'
 const position = new Vector3()
 const rotation = new Quaternion()
 const scale = new Vector3()
+const mat4 = new Matrix4()
 
 export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   /*
@@ -107,10 +108,12 @@ export const copyTransformToRigidBody = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
   if (parentEntity) {
-    // if the entity has a parent, we need to use the world space
-    transform.matrixWorld.decompose(position, rotation, scale)
+    // if the entity has a parent, we need to use the scene space
+    computeTransformMatrix(entity)
+    TransformComponent.getMatrixRelativeToScene(entity, mat4)
+    mat4.decompose(position, rotation, scale)
   } else {
-    // otherwise, we can use the local space (for things like avatars)
+    // otherwise, we can use the local space
     position.copy(transform.position)
     rotation.copy(transform.rotation)
   }
@@ -158,7 +161,8 @@ const copyTransformToCollider = (entity: Entity) => {
   const world = Physics.getWorld(entity)
   if (!world) return
   computeTransformMatrix(entity)
-  getComponent(entity, TransformComponent).matrixWorld.decompose(position, rotation, scale)
+  TransformComponent.getMatrixRelativeToScene(entity, mat4)
+  mat4.decompose(position, rotation, scale)
   Physics.setColliderPose(world, entity, position, rotation)
 }
 

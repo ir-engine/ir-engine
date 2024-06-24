@@ -126,9 +126,13 @@ export const TransformComponent = defineComponent({
   getMatrixRelativeToEntity: (entity: Entity, relativeEntity: Entity, outMatrix: Matrix4) => {
     const transform = getComponent(entity, TransformComponent)
     const relativeTransform = getComponent(relativeEntity, TransformComponent)
-    outMatrix.copy(relativeTransform.matrixWorld).invert()
-    outMatrix.multiply(transform.matrixWorld)
-    return outMatrix
+    return outMatrix.copy(relativeTransform.matrixWorld).invert().multiply(transform.matrixWorld)
+  },
+
+  getMatrixRelativeToScene: (entity: Entity, outMatrix: Matrix4) => {
+    const relativeEntity = getAncestorWithComponent(entity, SceneComponent)
+    if (!relativeEntity) return outMatrix.copy(getComponent(entity, TransformComponent).matrixWorld)
+    return TransformComponent.getMatrixRelativeToEntity(entity, relativeEntity, outMatrix)
   },
 
   // this method is essentially equivalent to Matrix4.decompose
