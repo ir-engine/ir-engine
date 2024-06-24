@@ -98,7 +98,7 @@ float FBM(vec3 p) {
 }
 `
 
-const FogShaders = {
+export const FogShaders = {
   fog_fragment: {
     default: ShaderChunk.fog_fragment,
     brownianMotionFog: `#ifdef USE_FOG

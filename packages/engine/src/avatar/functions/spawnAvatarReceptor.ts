@@ -84,9 +84,8 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, FrustumCullCameraComponent)
 
   setComponent(entity, EnvmapComponent, {
-    type: EnvMapSourceType.Bake,
-    envMapIntensity: 0.5,
-    envMapSourceEntityUUID: getComponent(getComponent(entity, EntityTreeComponent).parentEntity, UUIDComponent)
+    type: EnvMapSourceType.Skybox,
+    envMapIntensity: 0.5
   })
 
   setComponent(entity, AvatarComponent)

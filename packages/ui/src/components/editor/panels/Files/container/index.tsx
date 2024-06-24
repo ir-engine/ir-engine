@@ -33,6 +33,7 @@ import {
   archiverPath,
   fileBrowserPath,
   fileBrowserUploadPath,
+  projectPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
@@ -81,7 +82,7 @@ type FileBrowserContentPanelProps = {
   projectName?: string
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
   disableDnD?: boolean
-  selectedFile?: string
+  originalPath: string
   folderName?: string
   nestingDirectory?: string
 }
@@ -123,6 +124,26 @@ const viewModes = [
   { mode: 'icons', icon: <FiGrid /> }
 ]
 
+function extractDirectoryWithoutOrgName(directory: string, orgName: string) {
+  if (!orgName) return directory
+
+  return directory.replace(`projects/${orgName}`, 'projects/')
+}
+
+/**
+ * Gets the project name that may or may not have a single slash it in from a list of valid project names
+ */
+export const useValidProjectForFileBrowser = (projectName: string) => {
+  const projects = useFind(projectPath, {
+    query: {
+      paginate: false,
+      action: 'studio',
+      allowed: true
+    }
+  })
+  return projects.data.find((project) => projectName.startsWith(`/projects/${project.name}/`))?.name ?? ''
+}
+
 function GeneratingThumbnailsProgress() {
   const { t } = useTranslation()
   const thumbnailJobState = useMutableState(FileThumbnailJobState)
@@ -145,9 +166,11 @@ function GeneratingThumbnailsProgress() {
 const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) => {
   const { t } = useTranslation()
 
-  const originalPath = `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
-  const selectedDirectory = useHookstate(originalPath)
-  const nestingDirectory = useHookstate(props.nestingDirectory || 'projects')
+  const selectedDirectory = useHookstate(props.originalPath)
+
+  const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
+  const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
+
   const fileProperties = useHookstate<FileType | null>(null)
   const anchorEl = useHookstate<HTMLButtonElement | null>(null)
 
@@ -159,7 +182,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const contentToDeletePath = useHookstate('')
 
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
-  const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
+  const anchorPosition = useHookstate<any>(undefined)
 
   const page = useHookstate(0)
 
@@ -239,12 +262,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     if (isLoading) return
 
     const path = dropOn?.isFolder ? dropOn.key : selectedDirectory.value
+    const folder = path.replace(/(.*\/).*/, '$1')
 
     if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
         moveContent(data.fullName, data.fullName, data.path, path, false)
       }
     } else {
+      const relativePath = folder.replace('projects/' + projectName + '/', '')
       await Promise.all(
         data.files.map(async (file) => {
           const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
@@ -255,8 +280,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             try {
               const name = processFileName(file.name)
               await uploadToFeathersService(fileBrowserUploadPath, [file], {
-                fileName: name,
-                path,
+                project: projectName,
+                path: relativePath + name,
                 contentType: file.type
               }).promise
             } catch (err) {
@@ -273,7 +298,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const onBackDirectory = () => {
     const pattern = /([^/]+)/g
     const result = selectedDirectory.value.match(pattern)
-    if (!result || result.length === 1) return
+    if (!result || result.length === 1 || (orgName && result.length === 2)) return
     let newPath = '/'
     for (let i = 0; i < result.length - 1; i++) {
       newPath += result[i] + '/'
@@ -289,7 +314,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     isCopy = false
   ): Promise<void> => {
     if (isLoading) return
-    fileService.update(null, { oldName, newName, oldPath, newPath, isCopy })
+    fileService.update(null, {
+      oldProject: projectName,
+      newProject: projectName,
+      oldName,
+      newName,
+      oldPath,
+      newPath,
+      isCopy
+    })
   }
 
   const handleConfirmClose = () => {
@@ -308,15 +341,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
 
   const showUploadAndDownloadButtons =
-    selectedDirectory.value.slice(1).startsWith('projects/') &&
-    !['projects', 'projects/'].includes(selectedDirectory.value.slice(1))
-  const showBackButton = selectedDirectory.value.split('/').length > originalPath.split('/').length
+    selectedDirectory.value.slice(1).startsWith('projects/' + orgName + '/') &&
+    !['projects' + (orgName ? `/${orgName}` : ''), 'projects/' + (orgName ? `/${orgName}/` : '')].includes(
+      selectedDirectory.value.slice(1)
+    )
+  const showBackButton = selectedDirectory.value.split('/').length > props.originalPath.split('/').length
 
   const handleDownloadProject = async () => {
-    const url = selectedDirectory.value
     const data = await Engine.instance.api
       .service(archiverPath)
-      .get(null, { query: { directory: url } })
+      .get(null, { query: { project: projectName } })
       .catch((err: Error) => {
         NotificationService.dispatchNotify(err.message, { variant: 'warning' })
         return null
@@ -325,7 +359,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const blob = await (await fetch(`${config.client.fileServer}/${data}`)).blob()
 
     let fileName: string
-    if (selectedDirectory.value[selectedDirectory.value.length - 1] === '/') {
+    if (selectedDirectory.value.at(-1) === '/') {
       fileName = selectedDirectory.value.split('/').at(-2) as string
     } else {
       fileName = selectedDirectory.value.split('/').at(-1) as string
@@ -336,6 +370,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const BreadcrumbItems = () => {
     const handleBreadcrumbDirectoryClick = (targetFolder: string) => {
+      if (orgName && targetFolder === 'projects') return
       const pattern = /([^/]+)/g
       const result = selectedDirectory.value.match(pattern)
       if (!result) return
@@ -348,9 +383,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       }
       changeDirectoryByPath(newPath)
     }
-    let breadcrumbDirectoryFiles = selectedDirectory.value.slice(1, -1).split('/')
+    let breadcrumbDirectoryFiles = extractDirectoryWithoutOrgName(selectedDirectory.value, orgName)
+      .slice(1, -1)
+      .split('/')
 
-    const nestedIndex = breadcrumbDirectoryFiles.indexOf(nestingDirectory.value)
+    const nestedIndex = breadcrumbDirectoryFiles.indexOf('projects')
 
     breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
 
@@ -365,7 +402,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               {index !== 0 && ( // Add separator for all but the first item
                 <span className="cursor-default align-middle text-xs">{'>'}</span>
               )}
-              {index === arr.length - 1 ? (
+              {index === arr.length - 1 || (orgName && index === 0) ? (
                 <span className="overflow-hidden">
                   <span className="inline-block w-full cursor-default overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
                     {file}
@@ -463,6 +500,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   key={file.key}
                   item={file}
                   disableDnD={props.disableDnD}
+                  projectName={projectName}
                   onClick={(event, currentFile) => {
                     handleFileBrowserItemClick(event, currentFile)
                     onSelect(file)
@@ -510,7 +548,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               startIcon={<IoSettingsSharp />}
               className="p-0"
               onClick={(event) => {
-                setAnchorPosition({ left: event.clientX, top: event.clientY })
+                anchorPosition.set({ left: event.clientX, top: event.clientY })
                 anchorEl.set(event.currentTarget)
               }}
             />
@@ -521,10 +559,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           anchorEl={anchorEl.value as any}
           onClose={() => {
             anchorEl.set(null)
-            setAnchorPosition(undefined)
+            anchorPosition.set(undefined)
           }}
           panelId={FilesPanelTab.id!}
-          anchorPosition={anchorPosition}
+          anchorPosition={anchorPosition.value}
           className="w-45 flex min-w-[300px] flex-col p-2"
         >
           {filesViewMode.value === 'icons' ? (
@@ -650,13 +688,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           rounded="none"
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
           size="small"
-          onClick={async () => {
-            await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+          onClick={() =>
+            inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
               .then(refreshDirectory)
               .catch((err) => {
                 NotificationService.dispatchNotify(err.message, { variant: 'error' })
               })
-          }}
+          }
         >
           {t('editor:layout.filebrowser.uploadAssets')}
         </Button>
@@ -701,17 +739,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
 export default function FilesPanelContainer() {
   const assetsPreviewPanelRef = React.useRef()
-  const projectName = useMutableState(EditorState).projectName.value
+  const originalPath = useMutableState(EditorState).projectName.value
 
   const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
     ;(assetsPreviewPanelRef as any).current?.onSelectionChanged?.(props)
   }
 
   return (
-    <FileBrowserContentPanel
-      projectName={projectName!}
-      selectedFile={projectName ?? undefined}
-      onSelectionChanged={onSelectionChanged}
-    />
+    <FileBrowserContentPanel originalPath={'/projects/' + originalPath + '/'} onSelectionChanged={onSelectionChanged} />
   )
 }

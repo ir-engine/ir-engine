@@ -61,6 +61,10 @@ export class LocalStorage implements StorageProviderInterface {
    */
   PATH_PREFIX: string
 
+  getCacheDomain(): string {
+    return this.cacheDomain
+  }
+
   /**
    * Domain address of local storage cache.
    */
@@ -117,7 +121,8 @@ export class LocalStorage implements StorageProviderInterface {
    */
   getObject = async (key: string): Promise<StorageObjectInterface> => {
     const filePath = path.join(this.PATH_PREFIX, key)
-    const result = await fs.promises.readFile(filePath)
+    /** @todo for some reason, fs.promises.readFile will not read long formatted json files */
+    const result = fs.readFileSync(filePath)
     return {
       Body: result,
       ContentType: getContentType(filePath)
@@ -125,11 +130,12 @@ export class LocalStorage implements StorageProviderInterface {
   }
 
   /**
-   * Get the object from cache, otherwise returns getObject.
+   * Get the object from cache.
    * @param key Key of object.
    */
-  getCachedObject = async (key: string): Promise<StorageObjectInterface> => {
-    return this.getObject(key)
+  getCachedURL(key: string): string {
+    const cacheDomain = this.getCacheDomain()
+    return new URL(key, 'https://' + cacheDomain).href
   }
 
   /**
@@ -160,7 +166,7 @@ export class LocalStorage implements StorageProviderInterface {
       Contents: globResult.map((result) => {
         return {
           Key: result.replace(path.join(this.PATH_PREFIX), ''),
-          Size: fs.lstatSync(path.join(this.PATH_PREFIX)).size
+          Size: fs.lstatSync(result).size
         }
       })
     }
@@ -171,7 +177,7 @@ export class LocalStorage implements StorageProviderInterface {
    * @param data Storage object to be added.
    * @param params Parameters of the add request.
    */
-  putObject = async (data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<any> => {
+  putObject = async (data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<boolean> => {
     const filePath = path.join(this.PATH_PREFIX, data.Key!)
 
     if (params.isDirectory) {

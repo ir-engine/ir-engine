@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 
@@ -41,7 +41,7 @@ export default async function exportModelGLTF(
     onlyVisible: false
   }
 ) {
-  const scene = getComponent(entity, ModelComponent).scene ?? getComponent(entity, GroupComponent)[0]
+  const scene = getOptionalComponent(entity, ModelComponent)?.scene ?? getComponent(entity, GroupComponent)[0]
   const exporter = createGLTFExporter()
   const modelName = options.relativePath.split('/').at(-1)!.split('.').at(0)!
   const resourceURI = `model-resources/${modelName}`
