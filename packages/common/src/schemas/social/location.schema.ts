@@ -150,6 +150,5 @@ export interface LocationQuery extends Static<typeof locationQuerySchema> {}
 
 export const locationValidator = /* @__PURE__ */ getValidator(locationSchema, dataValidator)
 export const locationDataValidator = /* @__PURE__ */ getValidator(locationDataSchema, dataValidator)
-export const locationDatabaseValidator = /* @__PURE__ */ getValidator(locationDatabaseSchema, dataValidator)
 export const locationPatchValidator = /* @__PURE__ */ getValidator(locationPatchSchema, dataValidator)
 export const locationQueryValidator = /* @__PURE__ */ getValidator(locationQuerySchema, queryValidator)

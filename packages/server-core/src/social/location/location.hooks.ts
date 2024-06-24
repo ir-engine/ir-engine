@@ -224,7 +224,6 @@ export default {
       ),
       persistData,
       discard('locationSetting', 'locationAdmin')
-      //schemaHooks.validateData(locationDatabaseValidator)
     ],
     update: [disallow()],
     patch: [
