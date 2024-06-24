@@ -35,8 +35,8 @@ import { getState } from '@etherealengine/hyperflux'
 import { StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 
+import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { getAudioAsync } from '../../assets/functions/resourceLoaderHooks'
-import { MediaComponent } from '../../scene/components/MediaComponent'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
 import { AudioState, useAudioState } from '../AudioState'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
@@ -111,6 +111,11 @@ const execute = () => {
     const media = getMutableComponent(entity, MediaComponent)
     setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
     setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
+    setCallback(entity, StandardCallbacks.RESET, () => {
+      media.paused.set(!media.autoplay.value)
+      media.seekTime.set(0)
+      media.forceSeekTime.set({ force: true })
+    })
   }
 
   const videoPriorityQueue = getState(VideoTexturePriorityQueueState).queue
