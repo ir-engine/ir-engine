@@ -31,7 +31,8 @@ import fs from 'fs'
 import fetch from 'node-fetch'
 import path from 'path'
 
-import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { GITHUB_PER_PAGE } from '@etherealengine/common/src/constants/GitHubConstants'
+import { GITHUB_URL_REGEX } from '@etherealengine/common/src/regex'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {

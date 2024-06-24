@@ -1,0 +1,119 @@
+export const INVALID_FILENAME_REGEX = /[_<>:"/\\|?*\u0000-\u001F]/g
+export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
+export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9_\-\s]{1,62}[a-zA-Z0-9_\-]$/
+
+/**
+ * Matches CSS imports & URLS.
+ * For eg: `@import "styles.css"`, `url(image.png)`
+ */
+export const CSS_URL_REGEX = /(@import.*?["']([^"']+)["'].*?|url\((?!['"]?(?:data):)['"]?([^'"\)]*)['"]?\))/gi
+
+/**
+ * Matches absolute URLs. For eg: `http://example.com`, `https://example.com`, `ftp://example.com`, `//example.com`, etc.
+ * This Does NOT match relative URLs like `example.com`
+ */
+export const ABSOLUTE_URL_REGEX = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/
+
+/**
+ * Matches `https://`
+ */
+export const HTTPS_REGEX = /https:\/\//
+
+/**
+ * Captures project name and asset path from a URL.
+ * For eg: `/path/to/projects/project123/assets/images/logo.png` will capture following groups
+ * - `project123` => Group 1
+ * - `assets/images/logo.png` => Group 2
+ */
+export const STATIC_ASSET_REGEX = /^(?:.*\/(?:projects|static-resources)\/([^\/]*)\/((?:assets\/|).*)$)/
+
+/**
+ * Matches a valid URL.
+ * For eg: `http://example.com`, `https://example.com`, `http://www.example.com`, `www.example.com`, `example.com`, etc.
+ */
+export const REGEX_VALID_URL =
+  /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/g
+
+// =====================================================================
+// ========================= ID Regex Patterns =========================
+// =====================================================================
+
+/**
+ * This regex is used to validate a string that conforms to the UUID version 4 format. It ensures that the string consists of exactly 32 hexadecimal digits arranged in the 8-4-4-4-12 pattern, separated by hyphens.
+ */
+export const USER_ID_REGEX = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
+
+/**
+ * Email regex. Source: https://fightingforalostcause.net/content/misc/2006/compare-email-regex.php
+ */
+export const EMAIL_REGEX =
+  /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i
+
+/**
+ * This regex is useful for validating input that must be exactly 10 digits long, such as a phone number (without any separators or formatting).
+ */
+export const PHONE_REGEX = /^[0-9]{10}$/
+
+/**
+ * This regex is used to validate strings that should consist of exactly 8 hexadecimal digits.
+ */
+export const INVITE_CODE_REGEX = /^[0-9a-fA-F]{8}$/
+
+// =========================================================================
+// ========================= GitHub Regex Patterns =========================
+// =========================================================================
+
+/**
+ * This regular expression is designed to match GitHub repository URLs in both SSH and HTTPS formats. Group 2 captures the owner and repository name.
+ * - For eg: `git@github.com:user/repo.git`
+ * - `user/repo.git` => Group 2
+ */
+export const GITHUB_URL_REGEX = /(?:git@|https:\/\/)([a-zA-Z0-9\-]+:[a-zA-Z0-9_]+@)?github.com[:/](.*)[.git]?/
+
+/**
+ * This regex is useful for extracting the owner and repository name from GitHub HTTPS URLs that contain authentication credentials in the URL itself. Group 1 captures the owner and Group 2 captures the repository name.
+ * - For eg: `https://username:password@github.com/owner/repository-name.git`
+ * - `owner` => Group 1
+ * - `repository-name` => Group 2
+ */
+export const PUBLIC_SIGNED_REGEX = /https:\/\/[\w\d\s\-_]+:[\w\d\s\-_]+@github.com\/([\w\d\s\-_]+)\/([\w\d\s\-_]+).git/
+
+/**
+ * This regex is useful for extracting the owner and repository name from GitHub HTTPS URLs that contain OAuth2 token or credentials in the URL itself. Group 1 captures the owner and Group 2 captures the repository name.
+ * - For eg: `https://oauth2:token123@github.com/owner/repository-name.git`
+ * - `owner` => Group 1
+ * - `repository-name` => Group 2
+ */
+export const INSTALLATION_SIGNED_REGEX = /https:\/\/oauth2:[\w\d\s\-_]+@github.com\/([\w\d\s\-_]+)\/([\w\d\s\-_]+).git/
+
+// ==============================================================================
+// ========================= Project Key Regex Patterns =========================
+// ==============================================================================
+
+/**
+ * This regex is used to match specific file paths or directory structures that start with `projects/`, followed by one or more valid characters (letters, digits, hyphens, underscores, or forward slashes), and end with `/assets/`
+ */
+export const ASSETS_REGEX = /projects\/[a-zA-Z0-9-_\/]+\/assets\//
+
+/**
+ * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes.
+ */
+export const PROJECT_REGEX = /projects\/[a-zA-Z0-9-_\/]+/
+
+/**
+ * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/public/`.
+ */
+export const PROJECT_PUBLIC_REGEX = /projects\/[a-zA-Z0-9-_\/]+\/public\//
+
+/**
+ * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/thumbnails/`.
+ */
+export const PROJECT_THUMBNAIL_REGEX = /projects\/[a-zA-Z0-9-_\/]+\/thumbnails\//
+
+// ==========================================================================
+// ========================= Dynamic Regex Patterns =========================
+// ==========================================================================
+
+export const getCacheRegex = (fileServer: string) => {
+  return new RegExp(`${fileServer}\/projects`)
+}

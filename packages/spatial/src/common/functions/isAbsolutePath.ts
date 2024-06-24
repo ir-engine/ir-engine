@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-const isAbsolute = new RegExp(`(?:^[a-z][a-z0-9+.-]*:|\/\/)`)
+import { ABSOLUTE_URL_REGEX } from '@etherealengine/common/src/regex'
+
 export const isAbsolutePath = (path) => {
-  return isAbsolute.test(path)
+  return ABSOLUTE_URL_REGEX.test(path)
 }

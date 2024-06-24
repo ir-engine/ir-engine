@@ -66,12 +66,14 @@ import S3BlobStore from 's3-blob-store'
 import { PassThrough, Readable } from 'stream'
 
 import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
+
 import {
-  assetsRegex,
-  projectPublicRegex,
-  projectRegex,
-  projectThumbnailsRegex
-} from '@etherealengine/common/src/constants/ProjectKeyConstants'
+  ASSETS_REGEX,
+  PROJECT_PUBLIC_REGEX,
+  PROJECT_REGEX,
+  PROJECT_THUMBNAIL_REGEX
+} from '@etherealengine/common/src/regex'
+
 import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 
 import config from '../../appconfig'
@@ -112,7 +114,10 @@ const awsPath = './.aws/s3'
 const credentialsPath = `${awsPath}/credentials`
 
 export const getACL = (key: string) =>
-  projectRegex.test(key) && !projectPublicRegex.test(key) && !projectThumbnailsRegex.test(key) && !assetsRegex.test(key)
+  PROJECT_REGEX.test(key) &&
+  !PROJECT_PUBLIC_REGEX.test(key) &&
+  !PROJECT_THUMBNAIL_REGEX.test(key) &&
+  !ASSETS_REGEX.test(key)
     ? ObjectCannedACL.private
     : ObjectCannedACL.public_read
 

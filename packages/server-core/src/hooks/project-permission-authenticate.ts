@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
-import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { GITHUB_URL_REGEX } from '@etherealengine/common/src/regex'
 import {
   projectPermissionPath,
   ProjectPermissionType
