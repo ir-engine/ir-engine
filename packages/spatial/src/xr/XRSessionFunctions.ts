@@ -28,11 +28,10 @@ import { Quaternion, Vector3 } from 'three'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { Vector3_Zero } from '../common/constants/MathConstants'
 import { isSafari } from '../common/functions/isMobile'
-import { PhysicsState } from '../physics/state/PhysicsState'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin } from '../transform/updateWorldOrigin'
 import { RendererComponent } from './../renderer/WebGLRendererSystem'
@@ -138,7 +137,8 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
 
 export const getReferenceSpaces = (xrSession: XRSession) => {
   const worldOriginTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
-  const cameraAttachedEntity = getState(PhysicsState).cameraAttachedRigidbodyEntity || Engine.instance.cameraEntity
+  // const cameraAttachedEntity = getState(PhysicsState).cameraAttachedRigidbodyEntity || Engine.instance.cameraEntity
+  const cameraAttachedEntity = Engine.instance.cameraEntity
   const transform = getComponent(cameraAttachedEntity, TransformComponent)
 
   /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */

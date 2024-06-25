@@ -89,6 +89,7 @@ import {
 export type PhysicsWorld = World & {
   id: EntityUUID
   substeps: number
+  cameraAttachedRigidbodyEntity: Entity
   Colliders: Map<Entity, Collider>
   Rigidbodies: Map<Entity, RigidBody>
   Controllers: Map<Entity, KinematicCharacterController>
@@ -111,6 +112,7 @@ function createWorld(id: EntityUUID, args = { gravity: { x: 0.0, y: -9.81, z: 0.
 
   world.id = id
   world.substeps = args.substeps
+  world.cameraAttachedRigidbodyEntity = UndefinedEntity
 
   const Colliders = new Map<Entity, Collider>()
   const Rigidbodies = new Map<Entity, RigidBody>()
@@ -696,8 +698,26 @@ export type RaycastArgs = {
   excludeRigidBody?: Entity
 }
 
+const _worldInverseMatrix = new Matrix4()
+const _origin = new Vector3()
+const _direction = new Vector3()
+const _quaternion = new Quaternion()
+const _vector3 = new Vector3()
+/**
+ * Raycast from a world position and direction
+ */
 function castRay(world: PhysicsWorld, raycastQuery: RaycastArgs, filterPredicate?: (collider: Collider) => boolean) {
-  const ray = new Ray(raycastQuery.origin, raycastQuery.direction)
+  const worldEntity = UUIDComponent.getEntityByUUID(world.id)
+  const worldTransform = getComponent(worldEntity, TransformComponent)
+  _worldInverseMatrix.copy(worldTransform.matrixWorld).invert()
+
+  const ray = new Ray(
+    _origin.copy(raycastQuery.origin).applyMatrix4(_worldInverseMatrix),
+    _direction
+      .copy(raycastQuery.direction)
+      .applyQuaternion(_quaternion.copy(worldTransform.rotation).invert())
+      .multiply(_vector3.set(1 / worldTransform.scale.x, 1 / worldTransform.scale.y, 1 / worldTransform.scale.z))
+  )
   const maxToi = raycastQuery.maxDistance
   const solid = true // TODO: Add option for this in args
   const groups = raycastQuery.groups
@@ -735,6 +755,9 @@ function castRay(world: PhysicsWorld, raycastQuery: RaycastArgs, filterPredicate
   return hits
 }
 
+const _perspectiveCamera = new PerspectiveCamera()
+const _orthographicCamera = new OrthographicCamera()
+
 function castRayFromCamera(
   world: PhysicsWorld,
   camera: PerspectiveCamera | OrthographicCamera,
@@ -742,14 +765,27 @@ function castRayFromCamera(
   raycastQuery: RaycastArgs,
   filterPredicate?: (collider: Collider) => boolean
 ) {
+  const worldEntity = UUIDComponent.getEntityByUUID(world.id)
+  const worldTransform = getComponent(worldEntity, TransformComponent)
+
   if ((camera as PerspectiveCamera).isPerspectiveCamera) {
-    raycastQuery.origin.setFromMatrixPosition(camera.matrixWorld)
-    raycastQuery.direction.set(coords.x, coords.y, 0.5).unproject(camera).sub(raycastQuery.origin).normalize()
+    _perspectiveCamera.copy(camera as PerspectiveCamera)
+    _perspectiveCamera.updateProjectionMatrix()
+    _perspectiveCamera.matrixWorld.copy(worldTransform.matrixWorld).invert().multiply(camera.matrixWorld)
+    raycastQuery.origin.setFromMatrixPosition(_perspectiveCamera.matrixWorld)
+    raycastQuery.direction
+      .set(coords.x, coords.y, 0.5)
+      .unproject(_perspectiveCamera)
+      .sub(raycastQuery.origin)
+      .normalize()
   } else if ((camera as OrthographicCamera).isOrthographicCamera) {
+    _orthographicCamera.copy(camera as OrthographicCamera)
+    _orthographicCamera.updateProjectionMatrix()
+    _orthographicCamera.matrixWorld.copy(worldTransform.matrixWorld).invert().multiply(camera.matrixWorld)
     raycastQuery.origin
       .set(coords.x, coords.y, (camera.near + camera.far) / (camera.near - camera.far))
-      .unproject(camera)
-    raycastQuery.direction.set(0, 0, -1).transformDirection(camera.matrixWorld)
+      .unproject(_orthographicCamera)
+    raycastQuery.direction.set(0, 0, -1).transformDirection(_orthographicCamera.matrixWorld)
   }
   return Physics.castRay(world, raycastQuery, filterPredicate)
 }

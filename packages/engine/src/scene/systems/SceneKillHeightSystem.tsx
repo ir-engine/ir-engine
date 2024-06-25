@@ -41,15 +41,16 @@ import {
   RigidBodyComponent,
   RigidBodyFixedTagComponent
 } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { updateReferenceSpaceFromAvatarMovement } from '../../avatar/functions/moveAvatar'
 import { DefaultKillHeight, SceneSettingsComponent } from '../components/SceneSettingsComponent'
 
 const heightKillApplicableQuery = defineQuery([
   RigidBodyComponent,
   NetworkObjectAuthorityTag,
+  Not(AvatarComponent),
   Not(RigidBodyFixedTagComponent)
 ])
 
@@ -75,9 +76,6 @@ const execute = () => {
         rotation: spawnState?.spawnRotation
       })
       TransformComponent.dirtyTransforms[entity] = true
-
-      const { cameraAttachedRigidbodyEntity } = getState(PhysicsState)
-      if (entity !== cameraAttachedRigidbodyEntity) continue
 
       const { isCameraAttachedToAvatar } = getState(XRControlsState)
       if (!isCameraAttachedToAvatar) continue

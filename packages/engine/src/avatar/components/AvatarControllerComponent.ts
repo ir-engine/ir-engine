@@ -40,7 +40,6 @@ import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFu
 import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
@@ -107,7 +106,9 @@ export const AvatarControllerComponent = defineComponent({
     useEffect(() => {
       if (!world) return
       Physics.createCharacterController(world, entity, {})
+      world.cameraAttachedRigidbodyEntity = entity
       return () => {
+        world.cameraAttachedRigidbodyEntity = UndefinedEntity
         Physics.removeCharacterController(world, entity)
       }
     }, [world])
@@ -136,13 +137,6 @@ export const AvatarControllerComponent = defineComponent({
         })
       }
     }, [isCameraAttachedToAvatar])
-
-    useEffect(() => {
-      getMutableState(PhysicsState).cameraAttachedRigidbodyEntity.set(entity)
-      return () => {
-        getMutableState(PhysicsState).cameraAttachedRigidbodyEntity.set(UndefinedEntity)
-      }
-    }, [])
 
     return null
   }

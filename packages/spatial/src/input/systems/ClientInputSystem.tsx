@@ -55,13 +55,13 @@ import { UUIDComponent } from '@etherealengine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection, PI, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { NameComponent } from '../../common/NameComponent'
-import { RaycastArgs } from '../../physics/classes/Physics'
+import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
@@ -184,6 +184,7 @@ const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent]
 const boundingBoxesQuery = defineQuery([VisibleComponent, BoundingBoxComponent])
 
 const meshesQuery = defineQuery([VisibleComponent, MeshComponent])
+const sceneQuery = defineQuery([SceneComponent])
 
 /**Editor InputComponent raycast query */
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
@@ -244,8 +245,6 @@ const execute = () => {
 
   // update xr input sources
   const xrFrame = getState(XRState).xrFrame
-  const physicsState = getState(PhysicsState)
-  inputRaycast.excludeRigidBody = physicsState.cameraAttachedRigidbodyEntity
 
   for (const eid of xrSpaces()) {
     const space = getComponent(eid, XRSpaceComponent)
@@ -316,17 +315,19 @@ const execute = () => {
           intersectionData.add({ entity, distance: layerHit.intersection.distance })
         }
 
-        /** @todo figure out multi-scene client input */
-        // const physicsWorld = getState(PhysicsState).physicsWorld
-
-        // // 2nd heuristic is physics colliders
-        // if (physicsWorld) {
-        //   const hits = Physics.castRay(physicsWorld, inputRaycast)
-        //   for (const hit of hits) {
-        //     if (!hit.entity) continue
-        //     intersectionData.add({ entity: hit.entity, distance: hit.distance })
-        //   }
-        // }
+        // 2nd heuristic is physics colliders
+        for (const entity of sceneQuery()) {
+          const world = Physics.getWorld(entity)
+          if (!world) continue
+          inputRaycast.excludeRigidBody = world.cameraAttachedRigidbodyEntity
+          // @TODO reproject ray according to scene transform
+          const hits = Physics.castRay(world, inputRaycast)
+          for (const hit of hits) {
+            console.log(hit.entity)
+            if (!hit.entity) continue
+            intersectionData.add({ entity: hit.entity, distance: hit.distance })
+          }
+        }
 
         // 3rd heuristic is bboxes
         for (const entity of inputState.inputBoundingBoxes) {
