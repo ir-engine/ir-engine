@@ -323,7 +323,6 @@ const execute = () => {
           // @TODO reproject ray according to scene transform
           const hits = Physics.castRay(world, inputRaycast)
           for (const hit of hits) {
-            console.log(hit.entity)
             if (!hit.entity) continue
             intersectionData.add({ entity: hit.entity, distance: hit.distance })
           }
