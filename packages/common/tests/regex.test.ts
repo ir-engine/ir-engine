@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 import assert from 'assert'
 import {
-  ABSOLUTE_URL_REGEX,
+  ABSOLUTE_URL_PROTOCOL_REGEX,
   ASSETS_REGEX,
   CSS_URL_REGEX,
   EMAIL_REGEX,
@@ -193,12 +193,16 @@ describe('regex.test', () => {
       const positiveCases = ['http://example.com', 'https://example.com', 'ftp://example.com', '//example.com']
 
       positiveCases.forEach((url) => {
-        assert.match(url, ABSOLUTE_URL_REGEX, `Expected '${url}' to match ABSOLUTE_URL_REGEX`)
+        assert.match(url, ABSOLUTE_URL_PROTOCOL_REGEX, `Expected '${url}' to match ABSOLUTE_URL_REGEX`)
       })
     })
 
     it('should not match relative URLs', () => {
-      assert.doesNotMatch('example.com', ABSOLUTE_URL_REGEX, `Expected 'example.com' to not match ABSOLUTE_URL_REGEX`)
+      assert.doesNotMatch(
+        'example.com',
+        ABSOLUTE_URL_PROTOCOL_REGEX,
+        `Expected 'example.com' to not match ABSOLUTE_URL_REGEX`
+      )
     })
   })
 

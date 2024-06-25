@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ABSOLUTE_URL_REGEX } from '@etherealengine/common/src/regex'
+import { ABSOLUTE_URL_PROTOCOL_REGEX } from '@etherealengine/common/src/regex'
 
 export const isAbsolutePath = (path) => {
-  return ABSOLUTE_URL_REGEX.test(path)
+  return ABSOLUTE_URL_PROTOCOL_REGEX.test(path)
 }
