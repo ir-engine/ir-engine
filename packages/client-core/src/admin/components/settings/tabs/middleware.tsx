@@ -33,7 +33,6 @@ import React, { forwardRef, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-import _ from 'lodash'
 import MiddlewareInput from './middleware-components/MiddlewareInput'
 import MiddlewareSelect from './middleware-components/MiddlewareSelect'
 import MiddlewareTextarea from './middleware-components/MiddlewareTextarea'
@@ -89,13 +88,14 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
             }
           }
 
-          const scenesKeys = _.keys(projectScenes)
-          const mSJsonKeys = _.keys(JSON.parse(object.middlewareSettingMenu))
-
-          _.difference(scenesKeys, mSJsonKeys).forEach((key: any) => {
-            const template = JSON.parse(object.middlewareSettingTemp.toString('utf8'))
-            mtObj[object.middlewareProject][key] = template['Scene']
-          })
+          // Removed scene iterator, for per-npc config //
+          // const scenesKeys = _.keys(projectScenes)
+          // const mSJsonKeys = _.keys(JSON.parse(object.middlewareSettingMenu))
+          //
+          // _.difference(scenesKeys, mSJsonKeys).forEach((key: any) => {
+          //   const template = JSON.parse(object.middlewareSettingTemp.toString('utf8'))
+          //   mtObj[object.middlewareProject][key] = template['Scene']
+          // })
         })
 
         console.log('#### mtObj', JSON.stringify(mtObj, null, 2))
@@ -316,9 +316,10 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
           <div className="mt-6 grid grid-cols-2 gap-4" key={projectName}>
             <h3 className="col-span-full mb-4">{projectName}</h3>
             {Object.entries(categories).map(([categoryName, settings]) => {
+              const formattedCategoryName = categoryName.replace(/-/g, ' ').toUpperCase()
               return (
                 <div key={categoryName}>
-                  <h4>{categoryName}</h4>
+                  <h4>{formattedCategoryName}</h4>
                   {renderSettings(settings, components, actions, projectName, categoryName)}
                 </div>
               )
