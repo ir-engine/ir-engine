@@ -37,11 +37,8 @@ import {
   Not,
   removeComponent,
   setComponent,
-  UndefinedEntity,
-  useQuery
+  UndefinedEntity
 } from '@etherealengine/ecs'
-import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import {
   BoundingBoxHelperComponent,
   ObjectGridSnapComponent
@@ -51,13 +48,13 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
-
-const objectGridQuery = defineQuery([ObjectGridSnapComponent])
 
 function isParentSelected(entity: Entity) {
   let walker: Entity | null = entity
@@ -228,23 +225,25 @@ function resetHelperTransform(entity: Entity) {
   }
 }
 
+const objectGridQuery = defineQuery([ObjectGridSnapComponent])
+const models = defineQuery([ModelComponent, Not(AvatarRigComponent)])
+
 export const ObjectGridSnapSystem = defineSystem({
   uuid: 'ee.engine.scene.ObjectGridSnapSystem',
   insert: { after: TransformSystem },
   reactor: () => {
     const snapState = useMutableState(ObjectGridSnapState)
     const selectionState = useMutableState(SelectionState)
-    const models = useQuery([ModelComponent, Not(AvatarRigComponent)])
+    // const models = useQuery([ModelComponent, Not(AvatarRigComponent)])
 
     useEffect(() => {
       if (snapState.enabled.value) {
-        for (const entity of models) setComponent(entity, ObjectGridSnapComponent)
+        for (const entity of models()) setComponent(entity, ObjectGridSnapComponent)
+        return () => {
+          for (const entity of models()) removeComponent(entity, ObjectGridSnapComponent)
+        }
       }
-
-      return () => {
-        for (const entity of models) removeComponent(entity, ObjectGridSnapComponent)
-      }
-    }, [snapState.enabled, models])
+    }, [snapState.enabled])
 
     useEffect(() => {
       const selectedEntities = SelectionState.getSelectedEntities()
@@ -265,6 +264,15 @@ export const ObjectGridSnapSystem = defineSystem({
     if (!engineState.isEditing) return
     const snapState = getState(ObjectGridSnapState)
     if (!snapState.enabled) return
+
+    for (const entity of models.enter()) {
+      setComponent(entity, ObjectGridSnapComponent)
+    }
+
+    for (const entity of models.exit()) {
+      removeComponent(entity, ObjectGridSnapComponent)
+    }
+
     const entities = objectGridQuery()
     const selectedEntities: Entity[] = []
     const selectedParents: Entity[] = []
