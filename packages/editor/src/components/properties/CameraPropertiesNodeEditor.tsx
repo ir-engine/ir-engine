@@ -31,7 +31,7 @@ import { getOptionalComponent, useComponent } from '@etherealengine/ecs/src/Comp
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { CameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
+import { FollowCameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
@@ -46,27 +46,27 @@ import { commitProperties, commitProperty, EditorComponentType, updateProperty }
 const cameraModeSelect = [
   {
     label: 'First Person',
-    value: CameraMode.FirstPerson
+    value: FollowCameraMode.FirstPerson
   },
   {
     label: 'Shoulder Cam',
-    value: CameraMode.ShoulderCam
+    value: FollowCameraMode.ShoulderCam
   },
   {
     label: 'Third Person',
-    value: CameraMode.ThirdPerson
+    value: FollowCameraMode.ThirdPerson
   },
   {
     label: 'Top Down',
-    value: CameraMode.TopDown
+    value: FollowCameraMode.TopDown
   },
   {
     label: 'Strategic',
-    value: CameraMode.Strategic
+    value: FollowCameraMode.Strategic
   },
   {
     label: 'Dynamic',
-    value: CameraMode.Dynamic
+    value: FollowCameraMode.Dynamic
   }
 ]
 

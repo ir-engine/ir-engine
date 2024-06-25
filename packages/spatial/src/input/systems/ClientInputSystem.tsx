@@ -412,7 +412,7 @@ const execute = () => {
 
     const inputPointerComponent = getOptionalComponent(sourceEid, InputPointerComponent)
     if (inputPointerComponent) {
-      sortedIntersections.push({ entity: inputPointerComponent.canvasEntity, distance: 0 })
+      sortedIntersections.push({ entity: inputPointerComponent.cameraEntity, distance: 0 })
     }
 
     sourceState.intersections.set(sortedIntersections)
@@ -536,12 +536,12 @@ const useGamepadInputSources = () => {
 }
 
 const CanvasInputReactor = () => {
-  const canvasEntity = useEntityContext()
+  const cameraEntity = useEntityContext()
   const xrState = useMutableState(XRState)
   useEffect(() => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
-    const rendererComponent = getComponent(canvasEntity, RendererComponent)
+    const rendererComponent = getComponent(cameraEntity, RendererComponent)
     const canvas = rendererComponent.canvas
 
     /** Clear mouse events */
@@ -562,27 +562,27 @@ const CanvasInputReactor = () => {
       setComponent(pointerEntity, InputSourceComponent)
       setComponent(pointerEntity, InputPointerComponent, {
         pointerId: event.pointerId,
-        canvasEntity: canvasEntity
+        cameraEntity
       })
-      redirectPointerEventsToXRUI(canvasEntity, event)
+      redirectPointerEventsToXRUI(cameraEntity, event)
     }
 
     const onPointerOver = (event: PointerEvent) => {
-      redirectPointerEventsToXRUI(canvasEntity, event)
+      redirectPointerEventsToXRUI(cameraEntity, event)
     }
 
     const onPointerOut = (event: PointerEvent) => {
-      redirectPointerEventsToXRUI(canvasEntity, event)
+      redirectPointerEventsToXRUI(cameraEntity, event)
     }
 
     const onPointerLeave = (event: PointerEvent) => {
-      const pointerEntity = InputPointerComponent.getPointerByID(canvasEntity, event.pointerId)
-      redirectPointerEventsToXRUI(canvasEntity, event)
+      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
+      redirectPointerEventsToXRUI(cameraEntity, event)
       removeEntity(pointerEntity)
     }
 
     const onPointerClick = (event: PointerEvent) => {
-      const pointerEntity = InputPointerComponent.getPointerByID(canvasEntity, event.pointerId)
+      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
       const inputSourceComponent = getOptionalComponent(pointerEntity, InputSourceComponent)
       if (!inputSourceComponent) return
 
@@ -605,11 +605,11 @@ const CanvasInputReactor = () => {
         state[button]!.up = true
       }
 
-      redirectPointerEventsToXRUI(canvasEntity, event)
+      redirectPointerEventsToXRUI(cameraEntity, event)
     }
 
     const onPointerMove = (event: PointerEvent) => {
-      const pointerEntity = InputPointerComponent.getPointerByID(canvasEntity, event.pointerId)
+      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
       const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
       if (!pointerComponent) return
 
@@ -620,7 +620,7 @@ const CanvasInputReactor = () => {
 
       updatePointerDragging(pointerEntity, event)
 
-      redirectPointerEventsToXRUI(canvasEntity, event)
+      redirectPointerEventsToXRUI(cameraEntity, event)
     }
 
     const onVisibilityChange = (event: Event) => {
@@ -631,12 +631,12 @@ const CanvasInputReactor = () => {
           checkVisibilityCSS: true
         })
       ) {
-        InputPointerComponent.getPointersForCanvas(canvasEntity).forEach(clearPointerState)
+        InputPointerComponent.getPointersForCanvas(cameraEntity).forEach(clearPointerState)
       }
     }
 
     const onClick = (evt: PointerEvent) => {
-      redirectPointerEventsToXRUI(canvasEntity, evt)
+      redirectPointerEventsToXRUI(cameraEntity, evt)
     }
 
     canvas.addEventListener('dragstart', preventDefault, false)

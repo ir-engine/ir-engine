@@ -54,7 +54,10 @@ import { InputSourceComponent } from './InputSourceComponent'
 export type InputAlias = Record<string, (string | number)[]>
 
 export const DefaultInputAlias = {
-  Interact: [MouseButton.PrimaryClick, XRStandardGamepadButton.Trigger, KeyboardButton.KeyE]
+  Interact: [MouseButton.PrimaryClick, XRStandardGamepadButton.Trigger, KeyboardButton.KeyE],
+  FollowCameraModeCycle: [KeyboardButton.KeyV],
+  FollowCameraFirstPerson: [KeyboardButton.KeyF],
+  FollowCameraShoulderCam: [KeyboardButton.KeyC]
 }
 
 export const InputComponent = defineComponent({

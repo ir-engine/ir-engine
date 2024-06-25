@@ -46,24 +46,24 @@ export const InputPointerComponent = defineComponent({
       position: new Vector2(),
       lastPosition: new Vector2(),
       movement: new Vector2(),
-      canvasEntity: UndefinedEntity
+      cameraEntity: UndefinedEntity
     }
   },
 
-  onSet(entity, component, args: { pointerId: number; canvasEntity: Entity }) {
+  onSet(entity, component, args: { pointerId: number; cameraEntity: Entity }) {
     component.pointerId.set(args.pointerId)
-    component.canvasEntity.set(args.canvasEntity)
-    const pointerHash = `canvas-${args.canvasEntity}.pointer-${args.pointerId}`
+    component.cameraEntity.set(args.cameraEntity)
+    const pointerHash = `canvas-${args.cameraEntity}.pointer-${args.pointerId}`
     getState(InputPointerState).pointers.set(pointerHash, entity)
   },
 
   onRemove(entity, component) {
-    const pointerHash = `canvas-${component.canvasEntity}.pointer-${component.pointerId}`
+    const pointerHash = `canvas-${component.cameraEntity}.pointer-${component.pointerId}`
     getState(InputPointerState).pointers.delete(pointerHash)
   },
 
   getPointersForCanvas(canvasEntity: Entity) {
-    return pointerQuery().filter((entity) => getComponent(entity, InputPointerComponent).canvasEntity === canvasEntity)
+    return pointerQuery().filter((entity) => getComponent(entity, InputPointerComponent).cameraEntity === canvasEntity)
   },
 
   getPointerByID(canvasEntity: Entity, pointerId: number) {

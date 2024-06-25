@@ -23,37 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-
-import { FollowCameraComponent } from '../components/FollowCameraComponent'
-import { CameraMode } from '../types/CameraMode'
-
-type SwitchCameraModeProps = {
-  cameraMode: CameraMode
-  pointerLock?: boolean
-}
-
-let changeTimeout: any = undefined
-export const switchCameraMode = (
-  cameraEntity: Entity,
-  args: SwitchCameraModeProps = { pointerLock: false, cameraMode: CameraMode.ThirdPerson },
-  force = false
-): void => {
-  if (!force) {
-    if (changeTimeout !== undefined) return
-    changeTimeout = setTimeout(() => {
-      clearTimeout(changeTimeout)
-      changeTimeout = undefined
-    }, 250)
-  }
-
-  const cameraFollow = getOptionalComponent(cameraEntity, FollowCameraComponent)
-  if (!cameraFollow) return
-  cameraFollow.mode = args.cameraMode
-
-  if (cameraFollow.mode === CameraMode.FirstPerson) {
-    cameraFollow.phi = 0
-    cameraFollow.locked = true
-  }
+/** Camera Modes. */
+export enum FollowCameraMode {
+  FirstPerson = 'FirstPerson',
+  ShoulderCam = 'ShoulderCam',
+  ThirdPerson = 'ThirdPerson',
+  TopDown = 'TopDown',
+  Strategic = 'Strategic',
+  Dynamic = 'Dynamic'
 }

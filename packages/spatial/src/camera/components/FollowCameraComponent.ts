@@ -35,7 +35,7 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { getState } from '@etherealengine/hyperflux'
+import { getState, matches } from '@etherealengine/hyperflux'
 
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp, smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
@@ -46,7 +46,7 @@ import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { TransformComponent } from '../../SpatialModule'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
-import { CameraMode } from '../types/CameraMode'
+import { FollowCameraMode } from '../types/FollowCameraMode'
 import { TargetCameraRotationComponent } from './TargetCameraRotationComponent'
 
 export const coneDebugHelpers: ArrowHelper[] = []
@@ -98,9 +98,15 @@ export const FollowCameraComponent = defineComponent({
       targetEntity: UndefinedEntity,
       currentTargetPosition: new Vector3(),
       targetPositionSmoothness: 0,
-      mode: CameraMode.ThirdPerson,
+      mode: FollowCameraMode.ThirdPerson,
+      allowedModes: [
+        FollowCameraMode.ThirdPerson,
+        FollowCameraMode.FirstPerson,
+        FollowCameraMode.TopDown,
+        FollowCameraMode.ShoulderCam
+      ],
       distance: cameraSettings.startCameraDistance,
-      zoomLevel: 5,
+      targetDistance: 5,
       zoomVelocity: { value: 0 },
       minDistance: cameraSettings.minCameraDistance,
       maxDistance: cameraSettings.maxCameraDistance,
@@ -109,7 +115,6 @@ export const FollowCameraComponent = defineComponent({
       minPhi: cameraSettings.minPhi,
       maxPhi: cameraSettings.maxPhi,
       shoulderSide: true,
-      locked: true,
       raycastProps
     }
   },
@@ -119,9 +124,10 @@ export const FollowCameraComponent = defineComponent({
 
     if (typeof json.offset !== 'undefined') component.offset.set(json.offset)
     if (typeof json.targetEntity !== 'undefined') component.targetEntity.set(json.targetEntity)
-    if (typeof json.mode !== 'undefined') component.mode.set(json.mode)
+    if (typeof json.mode === 'string') component.mode.set(json.mode)
+    if (matches.arrayOf(matches.string).test(json.allowedModes)) component.allowedModes.set(json.allowedModes)
     if (typeof json.distance !== 'undefined') component.distance.set(json.distance)
-    if (typeof json.zoomLevel !== 'undefined') component.zoomLevel.set(json.zoomLevel)
+    if (typeof json.targetDistance !== 'undefined') component.targetDistance.set(json.targetDistance)
     if (typeof json.zoomVelocity !== 'undefined') component.zoomVelocity.set(json.zoomVelocity)
     if (typeof json.minDistance !== 'undefined') component.minDistance.set(json.minDistance)
     if (typeof json.maxDistance !== 'undefined') component.maxDistance.set(json.maxDistance)
@@ -130,7 +136,6 @@ export const FollowCameraComponent = defineComponent({
     if (typeof json.minPhi !== 'undefined') component.minPhi.set(json.minPhi)
     if (typeof json.maxPhi !== 'undefined') component.maxPhi.set(json.maxPhi)
     if (typeof json.shoulderSide !== 'undefined') component.shoulderSide.set(json.shoulderSide)
-    if (typeof json.locked !== 'undefined') component.locked.set(json.locked)
   },
 
   reactor: () => {
@@ -170,7 +175,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   // Limit the pitch
   followCamera.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, followCamera.phi))
 
-  let maxDistance = followCamera.zoomLevel
+  let maxDistance = followCamera.targetDistance
   let isInsideWall = false
 
   targetPosition
@@ -182,13 +187,13 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   followCamera.currentTargetPosition.lerp(targetPosition, alpha)
 
   // Run only if not in first person mode
-  if (followCamera.raycastProps.enabled && followCamera.zoomLevel >= followCamera.minDistance) {
+  if (followCamera.raycastProps.enabled && followCamera.targetDistance >= followCamera.minDistance) {
     const distanceResults = getMaxCamDistance(cameraEntity, followCamera.currentTargetPosition)
     maxDistance = distanceResults.maxDistance
     isInsideWall = distanceResults.targetHit
   }
 
-  const newZoomDistance = Math.min(followCamera.zoomLevel, maxDistance)
+  const newZoomDistance = Math.min(followCamera.targetDistance, maxDistance)
 
   // Zoom smoothing
   const smoothingSpeed = isInsideWall ? 0.1 : 0.3

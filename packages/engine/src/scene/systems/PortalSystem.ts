@@ -33,7 +33,7 @@ import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SpawnPoseState } from '@etherealengine/spatial'
 import { switchCameraMode } from '@etherealengine/spatial/src/camera/functions/switchCameraMode'
-import { CameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
+import { FollowCameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -46,7 +46,7 @@ const reactor = () => {
     const activePortalEntity = activePortalEntityState.value
     if (!activePortalEntity) return
     const activePortal = getComponent(activePortalEntity, PortalComponent)
-    switchCameraMode(Engine.instance.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
+    switchCameraMode(Engine.instance.cameraEntity, { cameraMode: FollowCameraMode.ShoulderCam })
     const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
     AvatarControllerComponent.captureMovement(selfAvatarEntity, activePortalEntity)
 

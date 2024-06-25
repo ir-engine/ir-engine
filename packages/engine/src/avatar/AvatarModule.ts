@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { FollowCameraInputSystem } from '@etherealengine/spatial/src/camera/systems/FollowCameraInputSystem'
 import { AvatarIKTargetState } from './state/AvatarIKTargetState'
 import { AvatarState } from './state/AvatarNetworkState'
 import { AnimationSystem } from './systems/AnimationSystem'
 import { AvatarAnimationSystem } from './systems/AvatarAnimationSystem'
 import { AvatarAutopilotSystem } from './systems/AvatarAutopilotSystem'
-import { AvatarCameraInputSystem } from './systems/AvatarCameraInputSystem'
 import { AvatarControllerSystem } from './systems/AvatarControllerSystem'
 import { AvatarInputSystem } from './systems/AvatarInputSystem'
 import { AvatarLoadingSystem } from './systems/AvatarLoadingSystem'
@@ -42,7 +42,7 @@ export default {
   AnimationSystem,
   AvatarAnimationSystem,
   AvatarAutopilotSystem,
-  AvatarCameraInputSystem,
+  AvatarCameraInputSystem: FollowCameraInputSystem,
   AvatarControllerSystem,
   AvatarIKTargetState,
   AvatarInputSystem,
