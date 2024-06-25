@@ -128,7 +128,7 @@ const EditorContainer = () => {
 
   useEffect(() => {
     const scene = sceneQuery[0]
-    if (!scene) return
+    if (!scene || !viewerEntity) return
 
     projectName.set(scene.project!)
     sceneName.set(scene.key.split('/').pop() ?? null)

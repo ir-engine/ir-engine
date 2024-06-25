@@ -24,17 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getComponent } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { destroySpatialEngine, initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { useEffect } from 'react'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
-  useEffect(() => {
-    if (!ref.current) return
+  const lastRef = useHookstate(ref.current)
 
-    const parent = ref.current
+  useEffect(() => {
+    if (ref.current !== lastRef.value) {
+      lastRef.set(ref.current)
+    }
+  }, [ref.current])
+
+  useEffect(() => {
+    if (!lastRef.value) return
+
+    const parent = lastRef.value as HTMLElement
 
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
     const originalParent = canvas.parentElement
@@ -45,7 +53,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
       getComponent(getState(EngineState).viewerEntity, RendererComponent).needsResize = true
     })
 
-    observer.observe(ref.current)
+    observer.observe(parent)
 
     return () => {
       destroySpatialEngine()
@@ -53,7 +61,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
       parent.removeChild(canvas)
       originalParent?.appendChild(canvas)
     }
-  }, [ref.current])
+  }, [lastRef.value])
 }
 
 export const useRemoveEngineCanvas = () => {
