@@ -323,10 +323,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const showBackButton = selectedDirectory.value !== originalPath
 
   const handleDownloadProject = async () => {
-    const url = selectedDirectory.value
     const data = await Engine.instance.api
       .service(archiverPath)
-      .get(null, { query: { directory: url } })
+      .get(null, { query: { project: projectName } })
       .catch((err: Error) => {
         NotificationService.dispatchNotify(err.message, { variant: 'warning' })
         return null
