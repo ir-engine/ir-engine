@@ -136,4 +136,10 @@ export const destroySpatialEngine = () => {
   if (originEntity) {
     removeEntity(originEntity)
   }
+
+  getMutableState(EngineState).merge({
+    originEntity: UndefinedEntity,
+    localFloorEntity: UndefinedEntity,
+    viewerEntity: UndefinedEntity
+  })
 }
