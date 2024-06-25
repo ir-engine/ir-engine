@@ -48,20 +48,12 @@ export type InsertSystem = {
 export interface SystemArgs {
   uuid: string
   insert: InsertSystem
-  timeStep?: number | 'variable'
   execute?: () => void
   reactor?: FC
 }
 
 export interface System {
   uuid: SystemUUID
-  /**
-   * The timestep for the system.
-   * If set to 'variable', the system will run every frame.
-   * If set to a number, the system will run every n milliseconds.
-   * Defaults to 'variable'.
-   */
-  timeStep: number | 'variable'
   reactor?: FC
   insert?: InsertSystem
   preSystems: SystemUUID[]
@@ -164,7 +156,6 @@ export function defineSystem(systemConfig: SystemArgs) {
     subSystems: [],
     postSystems: [],
     sceneSystem: false,
-    timeStep: 'variable',
     execute: () => {},
     ...systemConfig,
     uuid: systemConfig.uuid as SystemUUID,
