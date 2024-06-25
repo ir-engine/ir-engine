@@ -36,7 +36,7 @@ import { EditorPage, useStudioEditor } from '@etherealengine/editor/src/pages/Ed
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { Route, Routes, useLocation } from 'react-router-dom'
 
-const EditorRouter = () => {
+export const EditorRouter = () => {
   const ready = useStudioEditor()
 
   if (!ready) return <LoadingView fullScreen className="h-8 w-8" title={t('common:loader.loadingStudio')} />
