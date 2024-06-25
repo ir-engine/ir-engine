@@ -234,7 +234,6 @@ export const ObjectGridSnapSystem = defineSystem({
   reactor: () => {
     const snapState = useMutableState(ObjectGridSnapState)
     const selectionState = useMutableState(SelectionState)
-    // const models = useQuery([ModelComponent, Not(AvatarRigComponent)])
 
     useEffect(() => {
       if (snapState.enabled.value) {
