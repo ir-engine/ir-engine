@@ -341,7 +341,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
 
   const showUploadAndDownloadButtons =
-    selectedDirectory.value.slice(1).startsWith('projects/' + orgName + '/') &&
+    selectedDirectory.value.slice(1).startsWith('projects/' + (orgName ? orgName + '/' : '')) &&
     !['projects' + (orgName ? `/${orgName}` : ''), 'projects/' + (orgName ? `/${orgName}/` : '')].includes(
       selectedDirectory.value.slice(1)
     )
