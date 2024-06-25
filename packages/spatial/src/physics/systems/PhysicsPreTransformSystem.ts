@@ -167,32 +167,35 @@ const copyTransformToCollider = (entity: Entity) => {
 }
 
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
-const colliderQuery = defineQuery([TransformComponent, ColliderComponent])
+const colliderQuery = defineQuery([TransformComponent, ColliderComponent]) // @todo maybe add Not(RigidBodyComponent) to this query
 
 const filterAwakeCleanRigidbodies = (entity: Entity) => {
+  // if the entity has a parent that is dirty, we need to update the transform
+  const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
+  if (parentEntity && TransformComponent.dirtyTransforms[parentEntity]) return true
+  // if the entity is dirty, we don't need to update the transform
   if (isDirty(entity)) return false
   const world = Physics.getWorld(entity)
   if (!world) return false
+  // if the entity is not dirty, we only need to update the transform if it is awake
   return !Physics.isSleeping(world, entity)
 }
 
 export const execute = () => {
   const ecsState = getState(ECSState)
 
-  /**
-   * Update entity transforms
-   */
+  /** Update entity transforms */
   const allRigidbodyEntities = rigidbodyQuery()
   const dirtyRigidbodyEntities = allRigidbodyEntities.filter(isDirty)
   const dirtyColliderEntities = colliderQuery().filter(isDirty)
 
-  // if rigidbody transforms have been dirtied, teleport the rigidbody to the transform
+  /** Ff rigidbody transforms have been dirtied, teleport the rigidbody to the transform */
   for (const entity of dirtyRigidbodyEntities) copyTransformToRigidBody(entity)
 
-  // if collider transforms have been dirtied, update them
+  /** Ff collider transforms have been dirtied, update them */
   for (const entity of dirtyColliderEntities) copyTransformToCollider(entity)
 
-  // lerp awake clean rigidbody entities (and make their transforms dirty)
+  /** Lerp awake clean rigidbody entities (and make their transforms dirty) */
   const simulationRemainder = ecsState.frameTime - ecsState.simulationTime
   const alpha = Math.min(simulationRemainder / ecsState.simulationTimestep, 1)
 
