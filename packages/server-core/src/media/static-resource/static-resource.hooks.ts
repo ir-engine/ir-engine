@@ -33,6 +33,7 @@ import checkScope from '../../hooks/check-scope'
 import collectAnalytics from '../../hooks/collect-analytics'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import resolveProjectId from '../../hooks/resolve-project-id'
+import resolveProjByPerm from '../../hooks/resolveProjByPerm'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
 import verifyScope from '../../hooks/verify-scope'
@@ -152,6 +153,10 @@ const getProjectName = async (context: HookContext<StaticResourceService>) => {
   return context
 }
 
+const hasProjectField = (context: HookContext<StaticResourceService>) => {
+  return !context.params.query?.project
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveResult(staticResourceResolver)]
@@ -163,9 +168,19 @@ export default {
       iff(
         isProvider('external'),
         iffElse(
-          checkScope('static_resource', 'read'),
-          [],
-          [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])]
+          hasProjectField,
+          [verifyScope('editor', 'write'), resolveProjByPerm()],
+          [
+            iffElse(
+              checkScope('static_resource', 'read'),
+              [],
+              [
+                verifyScope('editor', 'write'),
+                resolveProjectId(),
+                verifyProjectPermission(['owner', 'editor', 'reviewer'])
+              ]
+            ) as any
+          ]
         )
       ),
       enableClientPagination() /** @todo we should either constrain this only for when type='scene' or remove it in favour of comprehensive front end pagination */,
