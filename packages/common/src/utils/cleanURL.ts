@@ -23,17 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ECSState } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
-
-import { loadDRACODecoderNode } from './assets/loaders/gltf/NodeDracoLoader'
-
-/**
- * initializeNode
- *
- * initializes everything for the node context
- */
-export const initializeNode = () => {
-  loadDRACODecoderNode()
-  getState(ECSState).timer.start()
+export const cleanURL = (url: string) => {
+  const newURL = new URL(url)
+  return newURL.origin + newURL.pathname
 }
