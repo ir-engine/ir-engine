@@ -180,17 +180,17 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
       {selectedProjectId.value && (
         <>
           {displayedSettings.value.map((setting: ProjectSettingType, index: number) => (
-            <div className="mb-3 grid auto-cols-fr grid-cols-4 gap-2" key={index}>
+            <div className="my-2 flex flex-row items-end gap-2" key={index}>
               <Input
-                className="col-span-1"
-                label="Key Name"
+                containerClassname="w-1/4"
+                label={t('admin:components.setting.project.keyName')}
                 value={setting.key}
                 endComponent={
                   <Button
-                    className="text-primary mr-2 rounded"
+                    className="text-primary mr-1 rounded py-1"
                     variant={setting.type === 'private' ? 'danger' : 'success'}
                     size="small"
-                    onClick={(e) => handleSettingsVisibilityChange(setting, index)}
+                    onClick={() => handleSettingsVisibilityChange(setting, index)}
                   >
                     {setting.type}
                   </Button>
@@ -198,8 +198,8 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 onChange={(e) => handleSettingsKeyChange(e, setting, index)}
               />
               <Input
-                className="col-span-1"
-                label="Value"
+                containerClassname="w-1/4"
+                label={t('admin:components.setting.project.value')}
                 value={setting.value || ''}
                 endComponent={
                   setting.userId && (
@@ -214,7 +214,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 onChange={(e) => handleSettingsValueChange(e, setting, index)}
               />
               <Button
-                className="text-primary mr-2 rounded"
+                className="text-primary mb-[2px] ml-1 rounded"
                 variant="outline"
                 size="small"
                 title={t('admin:components.common.save')}
@@ -223,27 +223,21 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 {t('admin:components.common.save')}
               </Button>
               <Button
+                className="mb-1 px-0"
                 rounded="full"
-                variant="outline"
-                className="h-8 w-8"
+                variant="transparent"
                 title={t('admin:components.common.delete')}
                 onClick={() => handleRemoveSetting(setting)}
-              >
-                <HiTrash className="place-self-center text-theme-iconRed" />
-              </Button>
+                startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
+              />
             </div>
           ))}
-          <div className="mb-3 grid grid-cols-8 gap-2">
-            <Button
-              size="small"
-              className="col-span-1"
-              fullWidth
-              onClick={handleAddSetting}
-              startIcon={state.loading.value && <LoadingView spinnerOnly className="h-8 w-8" />}
-            >
-              {t('admin:components.setting.project.add')}
-            </Button>
-          </div>
+          <Button
+            onClick={handleAddSetting}
+            startIcon={state.loading.value && <LoadingView spinnerOnly className="h-8 w-8" />}
+          >
+            {t('admin:components.setting.project.add')}
+          </Button>
         </>
       )}
 

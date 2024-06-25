@@ -41,6 +41,7 @@ import { useAuthenticated } from '@etherealengine/client-core/src/user/services/
 import { useMutableState } from '@etherealengine/hyperflux'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
+import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
 import PublicRouter from '../route/public_tw'
 
 import '../themes/base.css'
@@ -50,6 +51,7 @@ import '../themes/utilities.css'
 const AppPage = () => {
   const { t } = useTranslation()
   const isLoggedIn = useAuthenticated()
+  useZendesk()
 
   useEffect(() => {
     initGA()

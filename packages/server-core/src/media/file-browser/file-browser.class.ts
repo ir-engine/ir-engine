@@ -114,8 +114,10 @@ export class FileBrowserService
     let result = await storageProvider.listFolderContent(directory)
     Object.entries(params.query).forEach(([key, value]) => {
       if (value['$like']) {
-        const searchString = value['$like'].replace(/%/g, '')
-        result = result.filter((item) => item[key].includes(searchString))
+        result = result.filter(
+          (item) =>
+            (item[key] as string).search(new RegExp((value['$like'] as string).replaceAll('%', ''), 'gi')) !== -1
+        )
       }
     })
 
@@ -264,7 +266,7 @@ export class FileBrowserService
       }
     }
 
-    validateSceneName(data.path)
+    if (data.type === 'scene') validateSceneName(data.path)
 
     let key = path.join('projects', data.project, data.path)
     if (data.unique) {

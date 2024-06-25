@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Material, Object3D, Object3DEventMap, Texture } from 'three'
 
 import { pathJoin, relativePathTo } from '@etherealengine/common/src/utils/miscUtils'
-import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, getOptionalComponent } from '@etherealengine/ecs'
 
 import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { pathResolver } from '../../../functions/pathResolver'
@@ -45,12 +45,19 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
     if (this.writer.options.binary || this.writer.options.embedImages) return
     const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
     if (!materialEntity) return
-    const src = getComponent(materialEntity, SourceComponent)
+    const src = getOptionalComponent(materialEntity, SourceComponent)
+    if (!src) return
     const resolvedPath = pathResolver().exec(src)!
-    let relativeSrc = resolvedPath[2]
-    relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
+    const projectDst = this.writer.options.projectName!
+    let projectSrc = this.writer.options.projectName!
+    let relativeSrc = './assets/'
+    if (resolvedPath) {
+      projectSrc = resolvedPath[1]
+      relativeSrc = resolvedPath[2]
+      relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
+    }
     const dst = this.writer.options.relativePath!.replace(/\/[^\/]*$/, '')
-    const relativeBridge = relativePathTo(dst, relativeSrc)
+    const relativeBridge = relativePathTo(pathJoin(projectDst, dst), pathJoin(projectSrc, relativeSrc))
 
     for (const [field, value] of Object.entries(material)) {
       if (field === 'envMap') continue
@@ -60,8 +67,15 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
         let oldURI = texture.userData.src
         if (!oldURI) {
           const resolved = pathResolver().exec(texture.image.src)!
+          const oldProject = resolved[1]
           const relativeOldURL = resolved[2]
-          oldURI = relativePathTo(relativeSrc, relativeOldURL)
+          if (oldProject !== projectSrc) {
+            const srcWithProject = pathJoin(projectSrc, relativeSrc)
+            const dstWithProject = pathJoin(oldProject, relativeOldURL)
+            oldURI = relativePathTo(srcWithProject, dstWithProject)
+          } else {
+            oldURI = relativePathTo(relativeSrc, relativeOldURL)
+          }
         }
         const newURI = pathJoin(relativeBridge, oldURI)
         if (!texture.image.src) {

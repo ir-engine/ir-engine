@@ -43,7 +43,9 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { Engine, EntityUUID, UUIDComponent, entityExists, useQuery } from '@etherealengine/ecs'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
+import CreatePrefabPanel from '@etherealengine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
   HeirarchyTreeNodeType,
   heirarchyTreeWalker
@@ -57,12 +59,12 @@ import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import { PopoverPosition } from '@mui/material'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import { HierarchyPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
-import ContextMenu from '../../../layout/ContextMenu'
 import Popover from '../../../layout/Popover'
 import { PopoverContext } from '../../../util/PopoverContext'
 import ElementList from '../../Properties/elementList'
@@ -80,9 +82,9 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const { sceneURL, rootEntityUUID, index } = props
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
+  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
   const [anchorPositionPop, setAnchorPositionPop] = React.useState<undefined | PopoverPosition>(undefined)
+
   const [prevClickedNode, setPrevClickedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const onUpload = useUpload(uploadOptions)
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
@@ -94,6 +96,9 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const sourcedEntities = useQuery([SourceComponent])
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const rootEntityTree = useComponent(rootEntity, EntityTreeComponent)
+  const panel = document.getElementById('propertiesPanel')
+  const anchorElButton = useHookstate<HTMLButtonElement | null>(null)
+  const open = !!anchorElButton.value
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -106,12 +111,12 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     [entityHierarchy]
   )
 
-  const nodeSearch: HeirarchyTreeNodeType[] = []
+  const searchedNodes: HeirarchyTreeNodeType[] = []
   if (searchHierarchy.value.length > 0) {
     const condition = new RegExp(searchHierarchy.value.toLowerCase())
     entityHierarchy.value.forEach((node) => {
       if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
-        nodeSearch.push(node)
+        searchedNodes.push(node)
     })
   }
 
@@ -167,17 +172,12 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     event.stopPropagation()
 
     setContextSelectedItem(item)
-    setAnchorEl(event.currentTarget)
-    setAnchorPosition({
-      left: event.clientX + 2,
-      top: event.clientY - 6
-    })
+    setAnchorEvent(event)
   }
 
   const handleClose = () => {
     setContextSelectedItem(undefined)
-    setAnchorEl(null)
-    setAnchorPosition({ left: 0, top: 0 })
+    setAnchorEvent(undefined)
   }
 
   const onMouseDown = useCallback((e: React.MouseEvent, node: HeirarchyTreeNodeType) => {}, [])
@@ -412,7 +412,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     }
   })
 
-  let validNodes = nodeSearch?.length > 0 ? nodeSearch : entityHierarchy.value
+  let validNodes = searchHierarchy.value.length > 0 ? searchedNodes : entityHierarchy.value
   validNodes = validNodes.filter((node) => entityExists(node.entity))
 
   const HierarchyList = ({ height, width }) => (
@@ -427,7 +427,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         onKeyDown,
         onChangeName,
         onRenameSubmit,
-        onMouseDown,
         onClick,
         onToggle,
         onUpload
@@ -439,9 +438,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
       {MemoTreeNode}
     </FixedSizeList>
   )
-  const panel = document.getElementById('propertiesPanel')
-  const anchorElButton = useHookstate<HTMLButtonElement | null>(null)
-  const open = !!anchorElButton.value
+
   return (
     <>
       <PopoverContext.Provider
@@ -461,6 +458,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             className="m-1 rounded bg-theme-primary text-[#A3A3A3]"
             startComponent={<HiMagnifyingGlass className="text-white" />}
           />
+
           <Button
             startIcon={<HiOutlinePlusCircle />}
             variant="transparent"
@@ -493,13 +491,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
       <div id="heirarchy-panel" className="h-5/6 overflow-hidden">
         <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
       </div>
-      <ContextMenu
-        open={!!anchorEl}
-        anchorEl={anchorEl}
-        panelId={'heirarchy-panel'}
-        anchorPosition={anchorPosition}
-        onClose={handleClose}
-      >
+      <ContextMenu anchorEvent={anchorEvent} panelId={'heirarchy-panel'} onClose={handleClose}>
         <Button
           fullWidth
           size="small"
@@ -608,6 +600,18 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         >
           {t('editor:hierarchy.lbl-collapseAll')}
         </Button>
+
+        <Button
+          fullWidth
+          size="small"
+          variant="transparent"
+          className="text-left text-xs"
+          onClick={() => PopoverState.showPopupover(<CreatePrefabPanel node={contextSelectedItem!} />)}
+        >
+          {t('editor:hierarchy.lbl-createPrefab')}
+        </Button>
+
+        {/* )} */}
       </ContextMenu>
     </>
   )
