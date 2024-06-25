@@ -29,9 +29,9 @@ export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9_\-\s]{1,62}[a-zA-Z
 
 /**
  * Matches CSS imports & URLS.
- * For eg: `@import "styles.css"`, `url(image.png)`
+ * For eg: `@import "styles.css"`, `url(image.png)`. Captures the resource in group 2 or group 3.
  */
-export const CSS_URL_REGEX = /(@import.*?["']([^"']+)["'].*?|url\((?!['"]?(?:data):)['"]?([^'"\)]*)['"]?\))/gi
+export const CSS_URL_REGEX = /(@import\s+["']([^"']+)["']|url\((?!['"]?(?:data):)['"]?([^'"\)]+)['"]?\))/gi
 
 /**
  * Matches absolute URLs. For eg: `http://example.com`, `https://example.com`, `ftp://example.com`, `//example.com`, etc.
