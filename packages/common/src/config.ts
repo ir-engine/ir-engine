@@ -89,8 +89,12 @@ const client = {
   key8thWall: globalThis.process.env.VITE_8TH_WALL!,
   featherStoreKey: globalThis.process.env.VITE_FEATHERS_STORE_KEY,
   gaMeasurementId: globalThis.process.env.VITE_GA_MEASUREMENT_ID,
-  zendeskEnabled: globalThis.process.env.VITE_ZENDESK_ENABLED,
-  zendeskKey: globalThis.process.env.VITE_ZENDESK_KEY
+
+  zendesk: {
+    enabled: globalThis.process.env.VITE_ZENDESK_ENABLED,
+    authenticationEnabled: globalThis.process.env.VITE_ZENDESK_AUTHENTICATION_ENABLED,
+    key: globalThis.process.env.VITE_ZENDESK_KEY
+  }
 }
 
 /**

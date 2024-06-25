@@ -33,6 +33,7 @@ export type * from './schemas/cluster/build-status.schema'
 export type * from './schemas/cluster/logs-api.schema'
 export type * from './schemas/cluster/migrations-info.schema'
 export type * from './schemas/cluster/pods.schema'
+export type * from './schemas/integrations/zendesk/zendesk.schema'
 export type * from './schemas/matchmaking/match-instance.schema'
 export type * from './schemas/matchmaking/match-user.schema'
 export type * from './schemas/media/archiver.schema'
@@ -297,3 +298,5 @@ export const uploadAssetPath = 'upload-asset'
 export const invalidationPath = 'invalidation'
 
 export const imageConvertPath = 'image-convert'
+
+export const zendeskAuthenticationPath = 'zendesk-authentication'
