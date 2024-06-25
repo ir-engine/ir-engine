@@ -39,6 +39,7 @@ import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHo
 import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
 import StringInput from '@etherealengine/ui/src/components/editor/input/String'
 import ContextMenu from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaArrowRightToBracket } from 'react-icons/fa6'
@@ -336,35 +337,36 @@ const ProfileModal = ({ user }) => {
 
 export const Profile = ({ user }) => {
   const { avatar } = user
-  const anchorEl = useHookstate<HTMLElement | null>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
-
-  const showProfile = useHookstate(true)
-
-  const toggleDropdown = (event) => {
-    showProfile.set((v) => !v)
-    anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
-    anchorEl.set(event.currentTarget)
-  }
-
+  const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
+  console.log(avatar)
   return (
     <>
       <div className="flex items-center justify-center rounded-full bg-[#1F1F1F] px-1 py-1">
         <div className="h-6 w-6 overflow-hidden rounded-full bg-slate-300 px-1">
           <img src={avatar.thumbnailResource.url.value} alt="Image" className="h-full w-full object-contain" />
         </div>
-        <MdOutlineKeyboardArrowDown
-          size="1.5em"
-          className={`text-theme-primary transition-transform ${showProfile.value ? 'rotate-180' : ''}`}
-          onClick={(event) => toggleDropdown(event)}
+        <Button
+          endIcon={
+            <MdOutlineKeyboardArrowDown
+              size="1.5em"
+              className={`-ml-3 text-theme-primary transition-transform ${anchorEvent.value ? 'rotate-180' : ''}`}
+            />
+          }
+          iconContainerClassName="ml-2 mr-1"
+          rounded="none"
+          className="-mr-1 border-0 bg-transparent p-0"
+          onClick={(event) => {
+            anchorPosition.set({ left: event.clientX, top: event.clientY })
+            anchorEvent.set(event)
+          }}
         />
       </div>
       <ContextMenu
-        anchorEl={anchorEl.value as HTMLElement}
+        anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
         anchorPosition={anchorPosition.value}
-        open={showProfile.value}
         panelId="profile-menu"
-        onClose={() => showProfile.set(false)}
+        onClose={() => anchorEvent.set(null)}
       >
         <ProfileModal user={user} />
       </ContextMenu>
