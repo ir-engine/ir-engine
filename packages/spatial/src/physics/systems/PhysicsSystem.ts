@@ -169,10 +169,6 @@ const reactor = () => {
         console.error(e)
       }
       physicsWorld.set(null!)
-      /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
-      physicsState.drainCollisions.set(null!)
-      /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
-      physicsState.drainContacts.set(null!)
 
       networkState.networkSchema[PhysicsSerialization.ID].set(none)
     }
