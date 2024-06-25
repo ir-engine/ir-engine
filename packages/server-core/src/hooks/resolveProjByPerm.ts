@@ -47,15 +47,12 @@ export default () => {
           $limit: 1000 //idk what's a good number
         }
       })) as Paginated<ProjectPermissionType>
-      console.log(loggedInUser.id)
-      console.log(data)
 
       for (const projP of data) {
         if (!context.params.query?.$or) {
           context.params.query.$or = []
         }
         const project = await context.app.service(projectPath).get(projP.projectId)
-        console.log(project)
         if (project !== undefined) context.params.query?.$or?.push({ project: project.name })
       }
       context.params.query?.$or?.push({ project: 'default-project' })
