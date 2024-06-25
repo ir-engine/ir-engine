@@ -99,7 +99,7 @@ export const AvatarTransparencySystem = defineSystem({
       const followCamera = getOptionalComponent(Engine.instance.viewerEntity, FollowCameraComponent)
       if (!followCamera) return
       const prevOffsetZ = followCamera.offset.z
-      followCamera.offset.setZ(eyeOffset)
+      followCamera.offset.setZ(hasDecapComponent ? eyeOffset : 0)
       return () => {
         followCamera.offset.setZ(prevOffsetZ)
       }
