@@ -1036,13 +1036,21 @@
     },
     "cameraTrigger": {
       "name": "Camera Trigger",
-      "description": "Camera Component",
+      "description": "Camera Trigger Component",
       "lbl-lookAt": "Look At",
       "lbl-offset": "Offset",
       "lbl-lockCamera": "Lock Camera",
       "lbl-angleTheta": "Theta Angle",
       "lbl-anglePhi": "Phi Angle",
       "lbl-distance": "Distance"
+    },
+    "videoTrigger": {
+      "name": "Video Trigger",
+      "description": "Video Trigger Component",
+      "lbl-video":"Video",
+      "lbl-media":"Media",
+      "lbl-resetEnter":"Reset on Enter",
+      "lbl-resetExit":"Reset on Exit"
     }
   },
   "projects": {
