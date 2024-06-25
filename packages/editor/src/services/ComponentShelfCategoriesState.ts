@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Component } from '@etherealengine/ecs'
 import { VisualScriptComponent } from '@etherealengine/engine'
 import { CameraTriggerComponent } from '@etherealengine/engine/src/CameraTriggerComponent'
-import { TestComponent } from '@etherealengine/engine/src/TestComponent'
+import { VideoTriggerComponent } from '@etherealengine/engine/src/VideoTriggerComponent'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
@@ -132,8 +132,8 @@ export const ComponentShelfCategoriesState = defineState({
         TextComponent,
         ScreenshareTargetComponent,
         LookAtComponent,
-        TestComponent,
-        CameraTriggerComponent
+        CameraTriggerComponent,
+        VideoTriggerComponent
       ]
     } as Record<string, Component[]>
   }

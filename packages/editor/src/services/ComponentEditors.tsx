@@ -121,7 +121,7 @@ import SpawnPointNodeEditor from '@etherealengine/ui/src/components/editor/prope
 import SplineNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline'
 
 import { CameraTriggerComponent } from '@etherealengine/engine/src/CameraTriggerComponent'
-import { TestComponent } from '@etherealengine/engine/src/TestComponent'
+import { VideoTriggerComponent } from '@etherealengine/engine/src/VideoTriggerComponent'
 import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import PlaylistNodeEditor from '@etherealengine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline/track'
@@ -136,7 +136,7 @@ import NewVolumetricNodeEditor from '@etherealengine/ui/src/components/editor/pr
 import { EditorComponentType } from '../components/properties/Util'
 
 import { CameraTriggerNodeEditor } from '@etherealengine/engine/src/CameraTriggerNodeEditor'
-import { TestComponentNodeEditor } from '@etherealengine/engine/src/TestComponentNodeEditor'
+import { VideoTriggerNodeEditor } from '@etherealengine/engine/src/VideoTriggerNodeEditor'
 
 export const ComponentEditorsState = defineState({
   name: 'ee.editor.ComponentEditorsState',
@@ -193,8 +193,8 @@ export const ComponentEditorsState = defineState({
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor,
       [LookAtComponent.name]: LookAtNodeEditor,
-      [TestComponent.name]: TestComponentNodeEditor,
-      [CameraTriggerComponent.name]: CameraTriggerNodeEditor
+      [CameraTriggerComponent.name]: CameraTriggerNodeEditor,
+      [VideoTriggerComponent.name]: VideoTriggerNodeEditor
     } as Record<string, EditorComponentType>
   }
 })
