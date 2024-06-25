@@ -216,6 +216,9 @@ const bboxHitTarget = new Vector3()
 const quat = new Quaternion()
 
 const execute = () => {
+  const viewerEntity = getState(EngineState).viewerEntity
+  if (!viewerEntity) return
+
   const capturedEntity = getMutableState(InputState).capturingEntity.value
   InputState.setCapturingEntity(UndefinedEntity, true)
 
