@@ -28,8 +28,19 @@ import {
   ASSETS_REGEX,
   CSS_URL_REGEX,
   EMAIL_REGEX,
+  GITHUB_URL_REGEX,
   HTTPS_REGEX,
+  INSTALLATION_SIGNED_REGEX,
   INVALID_FILENAME_REGEX,
+  INVITE_CODE_REGEX,
+  PHONE_REGEX,
+  PROJECT_PUBLIC_REGEX,
+  PROJECT_REGEX,
+  PROJECT_THUMBNAIL_REGEX,
+  PUBLIC_SIGNED_REGEX,
+  STATIC_ASSET_REGEX,
+  USER_ID_REGEX,
+  VALID_PROJECT_NAME,
   VALID_SCENE_NAME_REGEX,
   WINDOWS_RESERVED_NAME_REGEX
 } from '../src/regex'
@@ -135,64 +146,45 @@ describe('regex.test', () => {
   })
 
   describe('CSS_URL_REGEX', () => {
-    afterEach(() => {
-      // Reset the regex to its initial state, because .exec keeps track of the last index
-      CSS_URL_REGEX.lastIndex = 0
+    it('should match for CSS sources with valid URLs', () => {
+      const positiveCases = [
+        {
+          source: '@import url("https://example.com/styles.css");',
+          urlResource: 'https://example.com/styles.css'
+        },
+        {
+          source: 'background: url("https://example.com/image.jpg");',
+          urlResource: 'https://example.com/image.jpg'
+        },
+        {
+          source: "background: url('https://example.com/image.jpg');",
+          urlResource: 'https://example.com/image.jpg'
+        },
+        {
+          source: 'background: url(https://example.com/image.jpg);',
+          urlResource: 'https://example.com/image.jpg'
+        }
+      ]
+
+      positiveCases.forEach(({ source, urlResource }) => {
+        const match = CSS_URL_REGEX.exec(source)
+        assert.ok(match, `Expected '${source}' to match CSS_URL_REGEX`)
+        assert.equal(match?.[2] ?? match?.[3], urlResource, `Expected URL resource: ${urlResource} in '${source}'`)
+        CSS_URL_REGEX.lastIndex = 0 // reset the regex (important for patterns with global flag)
+      })
     })
 
-    it('Positive: @import url with double quotes', () => {
-      const match = CSS_URL_REGEX.exec('@import url("https://example.com/styles.css");')
-      assert.ok(match, 'Expected match but got null')
-      const resource = match[2] || match[3]
+    it('should not match invalid CSS imports & URLs', () => {
+      const negativeCases = [
+        'color: #fff;',
+        'background: urll(https://example.com/image.jpg);', // Misspelled 'url'
+        'url(https://example.com/image', // Missing closing parenthesis
+        'background: url();' // Empty URL
+      ]
 
-      assert.equal(
-        resource,
-        'https://example.com/styles.css',
-        `Expected 'https://example.com/styles.css' but got '${resource}'`
-      )
-    })
-
-    it('Positive: url with double quotes', () => {
-      const match = CSS_URL_REGEX.exec('background: url("https://example.com/image.jpg");')
-      assert.ok(match, 'Expected match but got null')
-      const resource = match[2] || match[3]
-
-      assert.equal(
-        resource,
-        'https://example.com/image.jpg',
-        `Expected 'https://example.com/image.jpg' but got '${resource}'`
-      )
-    })
-
-    it('Positive: url with single quotes', () => {
-      const match = CSS_URL_REGEX.exec("background: url('https://example.com/image.jpg');")
-      assert.ok(match, 'Expected match but got null')
-      const resource = match[2] || match[3]
-
-      assert.equal(
-        resource,
-        'https://example.com/image.jpg',
-        `Expected 'https://example.com/image.jpg' but got '${resource}'`
-      )
-    })
-
-    it('Positive: url with no quotes', () => {
-      const match = CSS_URL_REGEX.exec('background: url(https://example.com/image.jpg);')
-      assert.ok(match, 'Expected match but got null')
-      const resource = match[2] || match[3]
-
-      assert.equal(
-        resource,
-        'https://example.com/image.jpg',
-        `Expected 'https://example.com/image.jpg' but got '${resource}'`
-      )
-    })
-
-    it('Negative: should not match invalid CSS imports & URLs', () => {
-      assert.ok(!CSS_URL_REGEX.test('color: #fff;'))
-      assert.ok(!CSS_URL_REGEX.test('background: urll(https://example.com/image.jpg);')) // Misspelled 'url'
-      assert.ok(!CSS_URL_REGEX.test('url(https://example.com/image')) // Missing closing parenthesis
-      assert.ok(!CSS_URL_REGEX.test('background: url();')) // Empty URL
+      negativeCases.forEach((source) => {
+        assert.ok(!CSS_URL_REGEX.test(source), `Expected '${source}' to not match CSS_URL_REGEX`)
+      })
     })
   })
 
@@ -201,12 +193,12 @@ describe('regex.test', () => {
       const positiveCases = ['http://example.com', 'https://example.com', 'ftp://example.com', '//example.com']
 
       positiveCases.forEach((url) => {
-        assert.match(url, ABSOLUTE_URL_REGEX)
+        assert.match(url, ABSOLUTE_URL_REGEX, `Expected '${url}' to match ABSOLUTE_URL_REGEX`)
       })
     })
 
     it('should not match relative URLs', () => {
-      assert.doesNotMatch('example.com', ABSOLUTE_URL_REGEX)
+      assert.doesNotMatch('example.com', ABSOLUTE_URL_REGEX, `Expected 'example.com' to not match ABSOLUTE_URL_REGEX`)
     })
   })
 
@@ -243,6 +235,60 @@ describe('regex.test', () => {
     })
   })
 
+  describe('STATIC_ASSET_REGEX', () => {
+    it('should match static asset URLs', () => {
+      const positiveCases = [
+        'https://example.com/projects/default-project/assets/images/logo.png',
+        'https://example.com/static-resources/default-project/assets/images/logo.png',
+        'https://example.com/projects/default-project/assets/animations/emotes.glb',
+        'https://example.com/projects/default-project/assets/animations/locomotion.glb'
+      ]
+      positiveCases.forEach((url) => {
+        assert.match(url, STATIC_ASSET_REGEX, `Expected '${url}' to match STATIC_ASSET_REGEX`)
+      })
+    })
+
+    it('should not match non-static asset URLs', () => {
+      const negativeCases = [
+        'https://example.com/static-resources/',
+        'https://example.com/project/subdir/assets',
+        'https://example.com/default-project/assets/animations/emotes.glb'
+      ]
+      negativeCases.forEach((url) => {
+        assert.doesNotMatch(url, STATIC_ASSET_REGEX, `Expected '${url}' to not match STATIC_ASSET_REGEX`)
+      })
+    })
+  })
+
+  describe('USER_ID_REGEX', () => {
+    it('should match valid user Ids', () => {
+      const positiveCases = [
+        '123e4567-e89b-12d3-a456-426614174000',
+        'abcdef01-2345-6789-abcd-ef0123456789',
+        'ABCDEF01-2345-6789-ABCD-EF0123456789',
+        'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+        'ffffffff-ffff-ffff-ffff-ffffffffffff'
+      ]
+      positiveCases.forEach((userId) => {
+        assert.match(userId, USER_ID_REGEX, `Expected '${userId}' to match USER_ID_REGEX`)
+      })
+    })
+
+    it('should not match invalid user Ids', () => {
+      const negativeCases = [
+        '123e4567-e89b-12d3-a456-42661417400',
+        '123e4567e89b12d3a456426614174000',
+        '123e4567-e89b-12d3-a456-426614174000-',
+        '-123e4567-e89b-12d3-a456-426614174000',
+        '123e4567-e89b-12d3-a456-4266141740000',
+        '123e4567-e89b-12d3-g456-426614174000'
+      ]
+      negativeCases.forEach((userId) => {
+        assert.doesNotMatch(userId, USER_ID_REGEX, `Expected '${userId}' to not match USER_ID_REGEX`)
+      })
+    })
+  })
+
   describe('EMAIL_REGEX', () => {
     it('should match valid emails', () => {
       const positiveCases = [
@@ -260,7 +306,7 @@ describe('regex.test', () => {
       ]
 
       positiveCases.forEach((email) => {
-        assert.match(email, EMAIL_REGEX)
+        assert.match(email, EMAIL_REGEX, `Expected '${email}' to match EMAIL_REGEX`)
       })
     })
 
@@ -282,7 +328,161 @@ describe('regex.test', () => {
         'username@-example.com'
       ]
       negativeCases.forEach((email) => {
-        assert.doesNotMatch(email, EMAIL_REGEX)
+        assert.doesNotMatch(email, EMAIL_REGEX, `Expected '${email}' to not match EMAIL_REGEX`)
+      })
+    })
+  })
+
+  describe('PHONE_REGEX', () => {
+    it('should match valid phone numbers', () => {
+      const positiveCases = ['1234567890', '0987654321', '0000000000', '1111111111', '9999999999']
+
+      positiveCases.forEach((phoneNo) => {
+        assert.match(phoneNo, PHONE_REGEX, `Expected '${phoneNo}' to match PHONE_REGEX`)
+      })
+    })
+
+    it('should not match invalid phone numbers', () => {
+      const negativeCases = [
+        '123456789',
+        '12345678901',
+        '12345abcde',
+        '123 456 7890',
+        '123-456-7890',
+        '+1234567890',
+        '0123456789a',
+        'a123456789',
+        '12345 67890',
+        ``
+      ]
+      negativeCases.forEach((phoneNo) => {
+        assert.doesNotMatch(phoneNo, PHONE_REGEX, `Expected '${phoneNo}' to not match PHONE_REGEX`)
+      })
+    })
+  })
+
+  describe('INVITE_CODE_REGEX', () => {
+    it('should match valid invite codes', () => {
+      const positiveCases = ['1a2b3c4d', 'A1B2C3D4', 'abcdef12', '12345678', 'ABCDEF12']
+
+      positiveCases.forEach((inviteCode) => {
+        assert.match(inviteCode, INVITE_CODE_REGEX, `Expected '${inviteCode}' to match INVITE_CODE_REGEX`)
+      })
+    })
+
+    it('should not match invalid invite codes', () => {
+      const negativeCases = [
+        '1a2b3c4',
+        '1a2b3c4d5',
+        '1a2b3c4g',
+        '1a2b 3c4d',
+        '1a-2b-3c-4d',
+        '1234abcd!',
+        'GHIJKLMN',
+        '123'
+      ]
+      negativeCases.forEach((inviteCode) => {
+        assert.doesNotMatch(inviteCode, INVITE_CODE_REGEX, `Expected '${inviteCode}' to not match INVITE_CODE_REGEX`)
+      })
+    })
+  })
+
+  describe('GITHUB_URL_REGEX', () => {
+    it('should match valid GitHub Repository URLs', () => {
+      const positiveCases = [
+        'git@github.com:user/repo.git',
+        'https://github.com/user/repo.git',
+        'git@github.com:user/repo',
+        'https://github.com/user/repo',
+        'git@github.com:username_123/repo-name.git'
+      ]
+
+      positiveCases.forEach((url) => {
+        assert.match(url, GITHUB_URL_REGEX, `Expected '${url}' to match GITHUB_URL_REGEX`)
+      })
+    })
+
+    it('should not match invalid GitHub Repository URLs', () => {
+      const negativeCases = [
+        'git@bitbucket.org:user/repo.git', // different domain
+        'http://github.com/user/repo.git', // uses HTTP instead of HTTPS
+        'git@github.comuser/repo.git', // missing colon
+        'https://bitbucket.org/user/repo', // different domain
+        'git@github.com:/user/repo.git', // extra colon
+        'https://github.com:user/repo.git', // colon in HTTPS format
+        'git://github.com/user/repo.git', // unsupported protocol
+        'git@github.com:username/repo.', // ends with a dot instead of .git
+        'https://github.com/username/repo.git/extra', // extra path segment
+        'git@github.com:username' // missing repository name
+      ]
+      negativeCases.forEach((url) => {
+        assert.doesNotMatch(url, GITHUB_URL_REGEX, `Expected '${url}' to not match GITHUB_URL_REGEX`)
+      })
+    })
+  })
+
+  describe('PUBLIC_SIGNED_REGEX', () => {
+    it('should match valid public signed GitHub Repository URLs', () => {
+      const positiveCases = [
+        'https://username:password@github.com/owner/repo.git',
+        'https://user-name:pass-word@github.com/owner-name/repo-name.git',
+        'https://user_name:pass_word@github.com/owner_name/repo_name.git',
+        'https://user name:pass word@github.com/owner name/repo name.git',
+        'https://user123:pass123@github.com/owner123/repo123.git',
+        'https://user_name-123:pass_word-123@github.com/owner_name-123/repo_name-123.git'
+      ]
+
+      positiveCases.forEach((url) => {
+        assert.match(url, PUBLIC_SIGNED_REGEX, `Expected '${url}' to match PUBLIC_SIGNED_REGEX`)
+      })
+    })
+
+    it('should not match invalid public signed GitHub Repository URLs', () => {
+      const negativeCases = [
+        'http://username:password@github.com/owner/repo.git', // uses HTTP instead of HTTPS
+        'https://username:password@bitbucket.com/owner/repo.git', // different domain
+        'https://username:password@github.com/owner/repo', // missing .git suffix
+        'https://username:password@github.com/owner/repo/extra.git', // extra path segment
+        'https://username:password@github.com//repo.git', // missing owner name
+        'https://username:password@github.com/owner/.git', // missing repository name
+        'https://username:password@github.com/owner', // missing repository name and .git
+        'https://username@github.com/owner/repo.git', // missing password
+        'https://:password@github.com/owner/repo.git', // missing username
+        'https://username:password@github.com/owner/repo.git/extra' // extra path after .git
+      ]
+      negativeCases.forEach((url) => {
+        assert.doesNotMatch(url, PUBLIC_SIGNED_REGEX, `Expected '${url}' to not match PUBLIC_SIGNED_REGEX`)
+      })
+    })
+  })
+
+  describe('INSTALLATION_SIGNED_REGEX', () => {
+    it('should match valid Installation signed GitHub Repository URLs', () => {
+      const positiveCases = [
+        'https://oauth2:token123@github.com/owner/repo.git',
+        'https://oauth2:my-oauth-token@github.com/user-name/repository-name.git',
+        'https://oauth2:abc_123@github.com/org_name/repo_name.git'
+      ]
+
+      positiveCases.forEach((url) => {
+        assert.match(url, INSTALLATION_SIGNED_REGEX, `Expected '${url}' to match INSTALLATION_SIGNED_REGEX`)
+      })
+    })
+
+    it('should not match invalid Installation signed GitHub Repository URLs', () => {
+      const negativeCases = [
+        'http://oauth2:token123@github.com/owner/repo.git', // uses HTTP instead of HTTPS
+        'https://oauth2:token123@bitbucket.org/owner/repo.git', // different domain
+        'https://oauth2:token123@github.com/owner/repo', // missing .git suffix
+        'https://oauth2:token123@github.com/owner/repo/extra.git', // extra path segment
+        'https://oauth2:token123@github.com//repo.git', // missing owner name
+        'https://oauth2:token123@github.com/owner/.git', // missing repository name
+        'https://oauth2:token123@github.com/owner', // missing repository name and .git
+        'https://oauth2:token123@github.com/owner/repo/.git', // trailing slash after .git
+        'https://oauth2:token123@github.com/owner/repo.git/extra' // extra path segment after .git
+      ]
+      negativeCases.forEach((url) => {
+        assert.doesNotMatch(url, INSTALLATION_SIGNED_REGEX, `Expected '${url}' to not match INSTALLATION_SIGNED_REGEX`)
       })
     })
   })
@@ -295,7 +495,7 @@ describe('regex.test', () => {
         'https://example.com/projects/default-project/assets/animations/locomotion.glb'
       ]
       positiveCases.forEach((url) => {
-        assert.match(url, ASSETS_REGEX)
+        assert.match(url, ASSETS_REGEX, `Expected '${url}' to match ASSETS_REGEX`)
       })
     })
 
@@ -306,7 +506,118 @@ describe('regex.test', () => {
         'https://example.com/default-project/assets/animations/emotes.glb'
       ]
       negativeCases.forEach((url) => {
-        assert.doesNotMatch(url, ASSETS_REGEX)
+        assert.doesNotMatch(url, ASSETS_REGEX, `Expected '${url}' to not match ASSETS_REGEX`)
+      })
+    })
+  })
+
+  describe('PROJECT_REGEX', () => {
+    it('should match valid project paths', () => {
+      const positiveCases = [
+        'projects/project123',
+        'projects/project-name',
+        'projects/project_name',
+        'projects/project/123',
+        'projects/project/abc_def'
+      ]
+      positiveCases.forEach((value) => {
+        assert.match(value, PROJECT_REGEX, `Expected '${value}' to match PROJECT_REGEX`)
+      })
+    })
+
+    it('should not match invalid project paths', () => {
+      const negativeCases = [
+        'projects/', // (missing project name)
+        'projects' // (missing trailing slash and project name)
+      ]
+      negativeCases.forEach((value) => {
+        assert.doesNotMatch(value, PROJECT_REGEX, `Expected '${value}' to not match PROJECT_REGEX`)
+      })
+    })
+  })
+
+  describe('PROJECT_PUBLIC_REGEX', () => {
+    it('should match valid project paths', () => {
+      const positiveCases = [
+        'projects/project123/public/',
+        'projects/project-name/public/',
+        'projects/project_name/public/',
+        'projects/project/123/public/',
+        'projects/project/abc_def/public/'
+      ]
+      positiveCases.forEach((value) => {
+        assert.match(value, PROJECT_PUBLIC_REGEX, `Expected '${value}' to match PROJECT_PUBLIC_REGEX`)
+      })
+    })
+
+    it('should not match invalid project paths', () => {
+      const negativeCases = [
+        'projects/project123/public', // (missing trailing slash)
+        'projects/project-name/private/', // (incorrect folder private instead of public)
+        'projects/project$name/public/', // (contains invalid character $)
+        'projects/project-@name/public/', // (contains invalid character @)
+        'projects/' // (missing project name and /public/)
+      ]
+      negativeCases.forEach((value) => {
+        assert.doesNotMatch(value, PROJECT_PUBLIC_REGEX, `Expected '${value}' to not match PROJECT_PUBLIC_REGEX`)
+      })
+    })
+  })
+
+  describe('PROJECT_THUMBNAIL_REGEX', () => {
+    it('should match valid project thumbnail paths', () => {
+      const positiveCases = [
+        'projects/project123/thumbnails/',
+        'projects/project-name/thumbnails/',
+        'projects/project_name/thumbnails/',
+        'projects/project/123/thumbnails/',
+        'projects/project/abc_def/thumbnails/'
+      ]
+      positiveCases.forEach((value) => {
+        assert.match(value, PROJECT_THUMBNAIL_REGEX, `Expected '${value}' to match PROJECT_THUMBNAIL_REGEX`)
+      })
+    })
+
+    it('should not match invalid project thumbnail paths', () => {
+      const negativeCases = [
+        'projects/project123/thumbnails', // (missing trailing slash)
+        'projects/project-name/private/', // (incorrect folder private instead of public)
+        'projects/project$name/thumbnails/', // (contains invalid character $)
+        'projects/project-@name/thumbnails/', // (contains invalid character @)
+        'projects/' // (missing project name and /thumbnail/)
+      ]
+      negativeCases.forEach((value) => {
+        assert.doesNotMatch(value, PROJECT_THUMBNAIL_REGEX, `Expected '${value}' to not match PROJECT_THUMBNAIL_REGEX`)
+      })
+    })
+  })
+
+  describe('VALID_PROJECT_NAME', () => {
+    it('should match valid project names', () => {
+      const positiveCases = [
+        'example',
+        'example-example',
+        'example example',
+        'example123',
+        'example-example123',
+        'example example 123',
+        'example-example_123',
+        'example example-123',
+        'example-example_123',
+        'example example_123'
+      ]
+      positiveCases.forEach((name) => {
+        assert.match(name, VALID_PROJECT_NAME, `Expected '${name}' to match VALID_PROJECT_NAME`)
+      })
+    })
+
+    it('should not match invalid project names', () => {
+      const negativeCases = [
+        ' word', // (leading space)
+        'word@word' // (contains non-word character @)
+      ]
+      negativeCases.forEach((name) => {
+        assert.doesNotMatch(name, VALID_PROJECT_NAME, `Expected '${name}' to not match VALID_PROJECT_NAME`)
       })
     })
   })

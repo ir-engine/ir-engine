@@ -53,13 +53,6 @@ export const HTTPS_REGEX = /https:\/\//
  */
 export const STATIC_ASSET_REGEX = /^(?:.*\/(?:projects|static-resources)\/([^\/]*)\/((?:assets\/|).*)$)/
 
-/**
- * Matches a valid URL.
- * For eg: `http://example.com`, `https://example.com`, `http://www.example.com`, `www.example.com`, `example.com`, etc.
- */
-export const REGEX_VALID_URL =
-  /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/g
-
 // =====================================================================
 // ========================= ID Regex Patterns =========================
 // =====================================================================
@@ -94,7 +87,7 @@ export const INVITE_CODE_REGEX = /^[0-9a-fA-F]{8}$/
  * - For eg: `git@github.com:user/repo.git`
  * - `user/repo.git` => Group 2
  */
-export const GITHUB_URL_REGEX = /(?:git@|https:\/\/)([a-zA-Z0-9\-]+:[a-zA-Z0-9_]+@)?github.com[:/](.*)[.git]?/
+export const GITHUB_URL_REGEX = /(?:git@github.com:|https:\/\/github.com\/)([a-zA-Z0-9_\-]+\/[a-zA-Z0-9_\-]+)(\.git)?$/
 
 /**
  * This regex is useful for extracting the owner and repository name from GitHub HTTPS URLs that contain authentication credentials in the URL itself. Group 1 captures the owner and Group 2 captures the repository name.
@@ -102,7 +95,7 @@ export const GITHUB_URL_REGEX = /(?:git@|https:\/\/)([a-zA-Z0-9\-]+:[a-zA-Z0-9_]
  * - `owner` => Group 1
  * - `repository-name` => Group 2
  */
-export const PUBLIC_SIGNED_REGEX = /https:\/\/[\w\d\s\-_]+:[\w\d\s\-_]+@github.com\/([\w\d\s\-_]+)\/([\w\d\s\-_]+).git/
+export const PUBLIC_SIGNED_REGEX = /https:\/\/[\w\d\s\-_]+:[\w\d\s\-_]+@github.com\/([\w\d\s\-_]+)\/([\w\d\s\-_]+).git$/
 
 /**
  * This regex is useful for extracting the owner and repository name from GitHub HTTPS URLs that contain OAuth2 token or credentials in the URL itself. Group 1 captures the owner and Group 2 captures the repository name.
@@ -110,7 +103,7 @@ export const PUBLIC_SIGNED_REGEX = /https:\/\/[\w\d\s\-_]+:[\w\d\s\-_]+@github.c
  * - `owner` => Group 1
  * - `repository-name` => Group 2
  */
-export const INSTALLATION_SIGNED_REGEX = /https:\/\/oauth2:[\w\d\s\-_]+@github.com\/([\w\d\s\-_]+)\/([\w\d\s\-_]+).git/
+export const INSTALLATION_SIGNED_REGEX = /https:\/\/oauth2:[\w\d\s\-_]+@github.com\/([\w\d\s\-_]+)\/([\w\d\s\-_]+).git$/
 
 // ==============================================================================
 // ========================= Project Key Regex Patterns =========================
@@ -135,6 +128,8 @@ export const PROJECT_PUBLIC_REGEX = /projects\/[a-zA-Z0-9-_\/]+\/public\//
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/thumbnails/`.
  */
 export const PROJECT_THUMBNAIL_REGEX = /projects\/[a-zA-Z0-9-_\/]+\/thumbnails\//
+
+export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
 
 // ==========================================================================
 // ========================= Dynamic Regex Patterns =========================
