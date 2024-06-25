@@ -23,11 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBodyType, ShapeType, World } from '@dimforge/rapier3d-compat'
+import { RigidBodyType, ShapeType, TempContactForceEvent, Vector, World } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
+import sinon from 'sinon'
 import { BoxGeometry, Mesh, Quaternion, Vector3 } from 'three'
 
-import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
@@ -48,10 +56,17 @@ import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enum
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 
-import { SystemDefinitions, UndefinedEntity, removeEntity } from '@etherealengine/ecs'
+import { Entity, SystemDefinitions, UndefinedEntity, removeEntity } from '@etherealengine/ecs'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { PhysicsSystem } from '../PhysicsModule'
-import { BodyTypes, ColliderDescOptions, CollisionEvents, SceneQueryType, Shapes } from '../types/PhysicsTypes'
+import {
+  BodyTypes,
+  ColliderDescOptions,
+  ColliderHitEvent,
+  CollisionEvents,
+  SceneQueryType,
+  Shapes
+} from '../types/PhysicsTypes'
 import { Physics } from './Physics'
 
 const Rotation_Zero = { x: 0, y: 0, z: 0, w: 1 }
@@ -2348,6 +2363,8 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('drainContactEventQueue', () => {
       let physicsWorld = undefined as World | undefined
+      let testEntity1 = UndefinedEntity
+      let testEntity2 = UndefinedEntity
 
       beforeEach(async () => {
         createEngine()
@@ -2355,9 +2372,20 @@ describe('Physics : Rapier->ECS API', () => {
         physicsWorld = Physics.createWorld()
         physicsWorld.timestep = 1 / 60
         getMutableState(PhysicsState).physicsWorld.set(physicsWorld)
+
+        testEntity1 = createEntity()
+        setComponent(testEntity1, TransformComponent)
+        setComponent(testEntity1, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity1, ColliderComponent)
+        testEntity2 = createEntity()
+        setComponent(testEntity2, TransformComponent)
+        setComponent(testEntity2, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity2, ColliderComponent)
       })
 
       afterEach(() => {
+        removeEntity(testEntity1)
+        removeEntity(testEntity2)
         physicsWorld = undefined
         return destroyEngine()
       })
@@ -2377,15 +2405,179 @@ describe('Physics : Rapier->ECS API', () => {
         assertContactEventClosure(closure)
       })
 
-      /**
-      // @todo How to setup the tests so that TempContactForceEvent 
-      describe("if the collision exists ...", () => {
-        it("should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity1.collision.get(entity2) if the collision exists", () => {})
-        it("should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity2.collision.get(entity1) if the collision exists", () => {})
-        it("should store event.totalForce() into the CollisionComponent.totalForce of entity1.collision.get(entity2) if the collision exists", () => {})
-        it("should store event.totalForce() into the CollisionComponent.totalForce of entity2.collision.get(entity1) if the collision exists", () => {})
+      describe('if the collision exists ...', () => {
+        const DummyMaxForce = { x: 42, y: 43, z: 44 }
+        const DummyTotalForce = { x: 45, y: 46, z: 47 }
+        const DummyHit = {
+          maxForceDirection: DummyMaxForce,
+          totalForce: DummyTotalForce
+        } as ColliderHitEvent
+        function setDummyCollisionBetween(ent1: Entity, ent2: Entity, hit = DummyHit): void {
+          const hits = new Map<Entity, ColliderHitEvent>()
+          hits.set(ent2, hit)
+          setComponent(ent1, CollisionComponent)
+          getMutableComponent(ent1, CollisionComponent).set(hits)
+        }
+
+        const ExpectedMaxForce = { x: 4, y: 5, z: 6 }
+        const ExpectedTotalForce = { x: 7, y: 8, z: 9 }
+
+        it('should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity1.collision.get(entity2) if the collision exists', () => {
+          // Setup the function spies
+          const collider1Spy = sinon.spy((): number => {
+            return Physics._Colliders.get(testEntity1)!.handle
+          })
+          const collider2Spy = sinon.spy((): number => {
+            return Physics._Colliders.get(testEntity2)!.handle
+          })
+          const totalForceSpy = sinon.spy((): Vector => {
+            return ExpectedTotalForce
+          })
+          const maxForceSpy = sinon.spy((): Vector => {
+            return ExpectedMaxForce
+          })
+
+          // Check before
+          assert.ok(physicsWorld)
+          const event = Physics.drainContactEventQueue(physicsWorld)
+          assertContactEventClosure(event)
+          assert.equal(getOptionalComponent(testEntity1, CollisionComponent), undefined)
+          assert.equal(getOptionalComponent(testEntity2, CollisionComponent), undefined)
+
+          // Run and Check after
+          setDummyCollisionBetween(testEntity1, testEntity2)
+          setDummyCollisionBetween(testEntity2, testEntity1)
+          event({
+            collider1: collider1Spy as any,
+            collider2: collider2Spy as any,
+            totalForce: totalForceSpy as any,
+            maxForceDirection: maxForceSpy as any
+          } as TempContactForceEvent)
+          sinon.assert.called(collider1Spy)
+          sinon.assert.called(collider2Spy)
+          sinon.assert.called(maxForceSpy)
+          const after = getComponent(testEntity1, CollisionComponent).get(testEntity2)?.maxForceDirection
+          assertVecApproxEq(after, ExpectedMaxForce, 3)
+        })
+
+        it('should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity2.collision.get(entity1) if the collision exists', () => {
+          // Setup the function spies
+          const collider1Spy = sinon.spy((): number => {
+            return Physics._Colliders.get(testEntity1)!.handle
+          })
+          const collider2Spy = sinon.spy((): number => {
+            return Physics._Colliders.get(testEntity2)!.handle
+          })
+          const totalForceSpy = sinon.spy((): Vector => {
+            return ExpectedTotalForce
+          })
+          const maxForceSpy = sinon.spy((): Vector => {
+            return ExpectedMaxForce
+          })
+
+          // Check before
+          assert.ok(physicsWorld)
+          const event = Physics.drainContactEventQueue(physicsWorld)
+          assertContactEventClosure(event)
+          assert.equal(getOptionalComponent(testEntity1, CollisionComponent), undefined)
+          assert.equal(getOptionalComponent(testEntity2, CollisionComponent), undefined)
+
+          // Run and Check after
+          setDummyCollisionBetween(testEntity1, testEntity2)
+          setDummyCollisionBetween(testEntity2, testEntity1)
+
+          event({
+            collider1: collider1Spy as any,
+            collider2: collider2Spy as any,
+            totalForce: totalForceSpy as any,
+            maxForceDirection: maxForceSpy as any
+          } as TempContactForceEvent)
+
+          sinon.assert.called(collider1Spy)
+          sinon.assert.called(collider2Spy)
+          sinon.assert.called(maxForceSpy)
+          const after = getComponent(testEntity2, CollisionComponent).get(testEntity1)?.maxForceDirection
+          assertVecApproxEq(after, ExpectedMaxForce, 3)
+        })
+
+        it('should store event.totalForce() into the CollisionComponent.totalForce of entity1.collision.get(entity2) if the collision exists', () => {
+          // Setup the function spies
+          const collider1Spy = sinon.spy((): number => {
+            return Physics._Colliders.get(testEntity1)!.handle
+          })
+          const collider2Spy = sinon.spy((): number => {
+            return Physics._Colliders.get(testEntity2)!.handle
+          })
+          const totalForceSpy = sinon.spy((): Vector => {
+            return ExpectedTotalForce
+          })
+          const maxForceSpy = sinon.spy((): Vector => {
+            return ExpectedMaxForce
+          })
+
+          // Check before
+          assert.ok(physicsWorld)
+          const event = Physics.drainContactEventQueue(physicsWorld)
+          assertContactEventClosure(event)
+          assert.equal(getOptionalComponent(testEntity1, CollisionComponent), undefined)
+          assert.equal(getOptionalComponent(testEntity2, CollisionComponent), undefined)
+          // Run and Check after
+          setDummyCollisionBetween(testEntity1, testEntity2)
+          setDummyCollisionBetween(testEntity2, testEntity1)
+
+          event({
+            collider1: collider1Spy as any,
+            collider2: collider2Spy as any,
+            totalForce: totalForceSpy as any,
+            maxForceDirection: maxForceSpy as any
+          } as TempContactForceEvent)
+
+          sinon.assert.called(collider1Spy)
+          sinon.assert.called(collider2Spy)
+          sinon.assert.called(totalForceSpy)
+          const after = getComponent(testEntity1, CollisionComponent).get(testEntity2)?.totalForce
+          assertVecApproxEq(after, ExpectedTotalForce, 3)
+        })
+
+        it('should store event.totalForce() into the CollisionComponent.totalForce of entity2.collision.get(entity1) if the collision exists', () => {
+          // Setup the function spies
+          const collider1Spy = sinon.spy((): number => {
+            return Physics._Colliders.get(testEntity1)!.handle
+          })
+          const collider2Spy = sinon.spy((): number => {
+            return Physics._Colliders.get(testEntity2)!.handle
+          })
+          const totalForceSpy = sinon.spy((): Vector => {
+            return ExpectedTotalForce
+          })
+          const maxForceSpy = sinon.spy((): Vector => {
+            return ExpectedMaxForce
+          })
+
+          // Check before
+          assert.ok(physicsWorld)
+          const event = Physics.drainContactEventQueue(physicsWorld)
+          assertContactEventClosure(event)
+          assert.equal(getOptionalComponent(testEntity1, CollisionComponent), undefined)
+          assert.equal(getOptionalComponent(testEntity2, CollisionComponent), undefined)
+
+          // Run and Check after
+          setDummyCollisionBetween(testEntity1, testEntity2)
+          setDummyCollisionBetween(testEntity2, testEntity1)
+          event({
+            collider1: collider1Spy as any,
+            collider2: collider2Spy as any,
+            totalForce: totalForceSpy as any,
+            maxForceDirection: maxForceSpy as any
+          } as TempContactForceEvent)
+
+          sinon.assert.called(collider1Spy)
+          sinon.assert.called(collider2Spy)
+          sinon.assert.called(totalForceSpy)
+          const after = getComponent(testEntity2, CollisionComponent).get(testEntity1)?.totalForce
+          assertVecApproxEq(after, ExpectedTotalForce, 3)
+        })
       })
-      */
     }) // << drainContactEventQueue
   }) // << Collisions
 })
