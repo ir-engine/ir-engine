@@ -419,11 +419,7 @@ const decrementCPUPerformance = () => {
   )
 }
 
-const buildPerformanceState = async (
-  renderer: EngineRenderer,
-  onFinished: () => void,
-  override?: GetGPUTier['override']
-) => {
+const buildPerformanceState = async (renderer: EngineRenderer, override?: GetGPUTier['override']) => {
   const performanceState = getMutableState(PerformanceState)
   const gpuTier = await getGPUTier({
     glContext: renderer.renderContext,
@@ -460,7 +456,6 @@ const buildPerformanceState = async (
   }
 
   performanceState.gpuTier.set(tier as PerformanceTier)
-  onFinished()
 }
 
 export const PerformanceManager = {
