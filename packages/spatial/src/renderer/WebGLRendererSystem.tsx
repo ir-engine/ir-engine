@@ -90,8 +90,8 @@ export const RendererComponent = defineComponent({
   },
 
   onRemove(entity, component) {
-    component.renderer.value.dispose()
-    component.effectComposer.value?.dispose()
+    component.value.renderer.dispose()
+    component.value.effectComposer?.dispose()
   }
 })
 

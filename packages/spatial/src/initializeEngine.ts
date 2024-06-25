@@ -67,7 +67,6 @@ export const createEngine = () => {
     executeSystems(time)
     getMutableState(XRState).xrFrame.set(null)
   })
-  timer.start()
   getMutableState(ECSState).timer.set(timer)
 }
 
