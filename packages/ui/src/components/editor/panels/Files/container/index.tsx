@@ -314,7 +314,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     isCopy = false
   ): Promise<void> => {
     if (isLoading) return
-    console.log('debug2', oldName, newName, oldPath, newPath)
     fileService.update(null, {
       oldProject: projectName,
       newProject: projectName,
