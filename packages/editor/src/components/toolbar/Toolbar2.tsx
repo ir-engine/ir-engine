@@ -139,7 +139,7 @@ export default function Toolbar() {
             className="-mr-1 border-0 bg-transparent p-0"
             onClick={(event) => {
               anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
-              anchorEvent.set(event)
+              anchorEvent.set({ ...event, currentTarget: event.currentTarget })
             }}
           />
         </div>

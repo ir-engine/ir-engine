@@ -338,8 +338,8 @@ const ProfileModal = ({ user }) => {
 export const Profile = ({ user }) => {
   const { avatar } = user
   const anchorPosition = useHookstate({ left: 0, top: 0 })
-  const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
-  console.log(avatar)
+  const anchorEvent = useHookstate<any>(null)
+
   return (
     <>
       <div className="flex items-center justify-center rounded-full bg-[#1F1F1F] px-1 py-1">
@@ -358,13 +358,13 @@ export const Profile = ({ user }) => {
           className="-mr-1 border-0 bg-transparent p-0"
           onClick={(event) => {
             anchorPosition.set({ left: event.clientX, top: event.clientY })
-            anchorEvent.set(event)
+            anchorEvent.set({ ...event, currentTarget: event.currentTarget })
           }}
         />
       </div>
       <ContextMenu
         anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
-        anchorPosition={anchorPosition.value}
+        // anchorPosition={anchorPosition.value}
         panelId="profile-menu"
         onClose={() => anchorEvent.set(null)}
       >
