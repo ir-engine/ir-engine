@@ -50,16 +50,19 @@ import {
 export type PluginObjectType = {
   id: string
   priority?: number
-  compile: typeof Material.prototype.onBeforeCompile
+  compile
 }
 
 export type PluginType = PluginObjectType | typeof Material.prototype.onBeforeCompile
 
+/**@deprecated Use setPlugin instead */
 export function addOBCPlugin(material: Material, plugin: PluginType): void {
   material.onBeforeCompile = plugin as any
+  console.log(material.onBeforeCompile)
   material.needsUpdate = true
 }
 
+/**@deprecated Use removePlugin instead */
 export function removeOBCPlugin(material: Material, plugin: PluginType): void {
   if (material.plugins) {
     const index = indexOfPlugin(plugin, material.plugins)
@@ -68,6 +71,7 @@ export function removeOBCPlugin(material: Material, plugin: PluginType): void {
   }
 }
 
+/**@deprecated use hasPlugin instead */
 export function hasOBCPlugin(material: Material, plugin: PluginType): boolean {
   if (!material.plugins) return false
   return indexOfPlugin(plugin, material.plugins) > -1

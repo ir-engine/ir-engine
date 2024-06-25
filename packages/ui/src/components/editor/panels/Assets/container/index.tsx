@@ -34,6 +34,7 @@ import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/compon
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { getState, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import {
@@ -53,7 +54,6 @@ import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
-import { ContextMenu } from '../../../layout/ContextMenu'
 import { FileIcon } from '../../Files/icon'
 
 type Category = {
@@ -98,13 +98,12 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const { t } = useTranslation()
 
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
+  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
-    setAnchorEl(event.currentTarget)
+    setAnchorEvent(event)
     setAnchorPosition({
       top: event.clientY,
       left: event.clientX
@@ -112,8 +111,8 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   }
 
   const handleClose = () => {
-    setAnchorEl(null)
-    setAnchorPosition({ left: 0, top: 0 })
+    setAnchorEvent(undefined)
+    setAnchorPosition(undefined)
   }
 
   const { onAssetSelectionChanged } = useContext(AssetsPreviewContext)
@@ -156,8 +155,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
       <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
 
       <ContextMenu
-        open={open}
-        anchorEl={anchorEl}
+        anchorEvent={anchorEvent}
         panelId={'asset-browser-panel'}
         anchorPosition={anchorPosition}
         onClose={handleClose}

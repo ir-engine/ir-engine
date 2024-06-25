@@ -50,6 +50,7 @@ import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transfor
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -293,14 +294,18 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   const findColliderData = (obj: Object3D) => {
     if (
+      hasComponent(obj.entity, ColliderComponent) ||
       Object.keys(obj.userData).find(
         (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
       )
     ) {
       return true
     } else if (obj.parent) {
-      return Object.keys(obj.parent.userData).some(
-        (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+      return (
+        hasComponent(obj.parent.entity, ColliderComponent) ||
+        Object.keys(obj.parent.userData).some(
+          (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+        )
       )
     }
     return false
