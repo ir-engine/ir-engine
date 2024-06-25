@@ -92,7 +92,7 @@ export function assertArrayNotEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays a
   }
 }
 
-function assertRigidBodyComponentEqual(data, expected = RigidBodyComponentDefaults) {
+export function assertRigidBodyComponentEqual(data, expected = RigidBodyComponentDefaults) {
   assert.equal(data.type, expected.type)
   assert.equal(data.ccd, expected.ccd)
   assert.equal(data.allowRolling, expected.allowRolling)
