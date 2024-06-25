@@ -60,7 +60,6 @@ import { ThreeToPhysics } from '@etherealengine/spatial/src/physics/types/Physic
 import { GroupComponent, GroupQueryReactor } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { ResourceManager } from '@etherealengine/spatial/src/resources/ResourceState'
 import {
@@ -69,6 +68,10 @@ import {
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -123,7 +126,7 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
       const basicUUID = `basic-${child.material.uuid}` as EntityUUID
       const basicMaterialEntity = UUIDComponent.getEntityByUUID(basicUUID)
       if (basicMaterialEntity) {
-        child.material = getComponent(basicMaterialEntity, MaterialComponent[MaterialComponents.State]).material
+        child.material = getComponent(basicMaterialEntity, MaterialStateComponent).material
         return
       }
       const prevMaterial = child.material
@@ -140,7 +143,7 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
       newBasicMaterial.plugins = undefined
 
       createMaterialEntity(newBasicMaterial, '', entity)
-      setComponent(entity, MaterialComponent[MaterialComponents.Instance], { uuid: [basicUUID] })
+      setComponent(entity, MaterialInstanceComponent, { uuid: [basicUUID] })
     } else {
       const UUID = child.material.uuid as EntityUUID
       const basicMaterialEntity = UUIDComponent.getEntityByUUID(UUID)
@@ -150,7 +153,7 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
       const materialEntity = UUIDComponent.getEntityByUUID(nonBasicUUID)
       if (!materialEntity) return
 
-      setComponent(entity, MaterialComponent[MaterialComponents.Instance], { uuid: [nonBasicUUID] })
+      setComponent(entity, MaterialInstanceComponent, { uuid: [nonBasicUUID] })
     }
   }
 }
