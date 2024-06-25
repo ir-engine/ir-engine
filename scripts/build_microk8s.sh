@@ -124,6 +124,20 @@ else
   VITE_AVATURN_API=$VITE_AVATURN_API
 fi
 
+if [ -z "$VITE_ZENDESK_ENABLED" ]
+then
+  VITE_ZENDESK_ENABLED=false
+else
+  VITE_ZENDESK_ENABLED=$VITE_ZENDESK_ENABLED
+fi
+
+if [ -z "$VITE_ZENDESK_KEY" ]
+then
+  VITE_ZENDESK_KEY=null
+else
+  VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY
+fi
+
 if [ -z "$NODE_ENV" ]
 then
   NODE_ENV=development
@@ -180,7 +194,9 @@ docker buildx build \
   --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
   --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET \
   --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
-  --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
+  --build-arg VITE_AVATURN_API=$VITE_AVATURN_API \
+  --build-arg VITE_ZENDESK_ENABLED=$VITE_ZENDESK_ENABLED \
+  --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY .
 
 docker tag $REGISTRY_HOST:32000/etherealengine $REGISTRY_HOST:32000/etherealengine:$TAG
 docker push $REGISTRY_HOST:32000/etherealengine:$TAG

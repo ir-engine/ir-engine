@@ -29,9 +29,9 @@ import matches from 'ts-matches'
 import { EntityUUID, getComponent, hasComponent, UUIDComponent } from '@etherealengine/ecs'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
-  MaterialComponent,
-  MaterialComponents,
-  MaterialPlugins
+  MaterialPlugins,
+  MaterialPrototypeComponent,
+  MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
 import { injectMaterialDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
@@ -116,8 +116,8 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.normalTexture
     delete materialDef.emissiveTexture
     delete materialDef.emissiveFactor
-    const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-    const prototype = getComponent(materialComponent.prototypeEntity!, MaterialComponent[MaterialComponents.Prototype])
+    const materialComponent = getComponent(materialEntity, MaterialStateComponent)
+    const prototype = getComponent(materialComponent.prototypeEntity!, MaterialPrototypeComponent)
     const plugins = Object.keys(MaterialPlugins).map((plugin) => {
       if (!hasComponent(materialEntity, MaterialPlugins[plugin])) return
       const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin])

@@ -79,7 +79,9 @@ then
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
-    --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
+    --build-arg VITE_AVATURN_API=$VITE_AVATURN_API \
+    --build-arg VITE_ZENDESK_ENABLED=$VITE_ZENDESK_ENABLED \
+    --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY .
 else
   docker buildx build \
     --builder etherealengine-$PACKAGE \
@@ -125,7 +127,9 @@ else
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
-    --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
+    --build-arg VITE_AVATURN_API=$VITE_AVATURN_API \
+    --build-arg VITE_ZENDESK_ENABLED=$VITE_ZENDESK_ENABLED \
+    --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY .
 fi
 
 if [ $PRIVATE_REPO == "true" ]

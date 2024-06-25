@@ -56,9 +56,12 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { createDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
 
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import {
@@ -221,7 +224,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const { envmapEntity, bakeEntity } = props
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
   const group = useComponent(envmapEntity, GroupComponent)
-  const uuid = useComponent(envmapEntity, MaterialComponent[MaterialComponents.Instance]).uuid
+  const uuid = useComponent(envmapEntity, MaterialInstanceComponent).uuid
   const [envMaptexture, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
   useEffect(() => {
     const texture = envMaptexture
@@ -281,7 +284,7 @@ export const BoxProjectionPlugin = defineComponent({
     const entity = useEntityContext()
 
     useEffect(() => {
-      const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
+      const materialComponent = getComponent(entity, MaterialStateComponent)
 
       const callback = (shader, renderer) => {
         const plugin = getComponent(entity, BoxProjectionPlugin)

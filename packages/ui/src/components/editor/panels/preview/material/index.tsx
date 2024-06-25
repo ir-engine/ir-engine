@@ -42,7 +42,7 @@ import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/compone
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { MaterialsPanelTab } from '../../Materials'
@@ -52,10 +52,7 @@ export const MaterialPreviewCanvas = () => {
   const renderPanel = useRender3DPanelSystem(panelRef)
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   const panel = document.getElementById(MaterialsPanelTab.id!)
-  const materialComponent = useComponent(
-    UUIDComponent.getEntityByUUID(selectedMaterial.value!),
-    MaterialComponent[MaterialComponents.State]
-  )
+  const materialComponent = useComponent(UUIDComponent.getEntityByUUID(selectedMaterial.value!), MaterialStateComponent)
 
   useEffect(() => {
     if (!selectedMaterial.value) return
