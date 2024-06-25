@@ -1,0 +1,14 @@
+doctype html
+body(style='margin: 0;')
+  div(style='margin: 0 auto; width:75%;background: #fff;')
+    div(style='margin-top:40px;height: auto;background: #383650;box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;padding: 4rem; border-radius: 10px;')
+      .hd(style='padding-bottom:30px')
+        img(src=logo, style='display: block; margin: 0 auto; max-width: 6em;')
+      .main
+        div(style='background: #5045AB;padding: 3rem 4rem 1.5rem 4rem;')
+          h1(style='font-family: Roboto, Arial; color: #fff;font-size: 1.8rem;') You've Been Invited to a Project
+        div(style='background: #fff;padding: 2rem;')
+          h2(style='font-family: Roboto, Arial;color: #918EAD;') Hi 👋!
+          p(style='font-family: Roboto, Arial;color: #8f9299;font-weight: bold;') You've been invited to join a project by #{ownerName}. To get started, click the link below to sign in.
+          div
+            a(style='word-wrap: break-word;', href=hashLink) #{hashLink}

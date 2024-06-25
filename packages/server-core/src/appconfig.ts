@@ -240,7 +240,8 @@ const email = {
     instance: 'Location invitation',
     login: 'Login link',
     friend: 'Friend request',
-    channel: 'Channel invitation'
+    channel: 'Channel invitation',
+    project: 'Project invitation'
   },
   smsNameCharacterLimit: 20
 }
