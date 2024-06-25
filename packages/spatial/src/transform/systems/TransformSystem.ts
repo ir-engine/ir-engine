@@ -177,9 +177,8 @@ const execute = () => {
   const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirtyNonRigidbody)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
-  // XRUI is the only non ecs hierarchy with support still - see https://github.com/EtherealEngine/etherealengine/issues/8519
-  const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirty)
-  for (const entity of dirtyOrAnimatingGroupEntities) updateGroupChildren(entity)
+  const dirtyGroupEntities = groupQuery().filter(isDirty)
+  for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
 
   const cameraEntities = cameraQuery()
 

@@ -105,7 +105,6 @@ export const AvatarControllerComponent = defineComponent({
     const world = Physics.useWorld(entity)
 
     useEffect(() => {
-      console.log('Creating character controller', world)
       if (!world) return
       Physics.createCharacterController(world, entity, {})
       return () => {
