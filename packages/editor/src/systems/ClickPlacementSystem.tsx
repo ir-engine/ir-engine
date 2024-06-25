@@ -69,6 +69,7 @@ import { HolographicMaterial } from '@etherealengine/spatial/src/renderer/materi
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useEffect } from 'react'
 import { Euler, Material, Mesh, Quaternion, Raycaster, Vector3 } from 'three'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
@@ -90,7 +91,6 @@ export const ClickPlacementState = defineState({
 
 const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
   const { parentEntity } = props
-  const sceneState = useHookstate(getMutableState(GLTFDocumentState))
   const clickState = useState(getMutableState(ClickPlacementState))
   const editorState = useState(getMutableState(EditorHelperState))
   const gltfComponent = useComponent(parentEntity, GLTFComponent)
@@ -115,6 +115,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
       clickState.placementEntity.set(createPlacementEntity(parentEntity))
     } else {
       if (!clickState.placementEntity.value) return
+      EditorControlFunctions.removeObject([clickState.placementEntity.value])
       removeEntity(clickState.placementEntity.value)
       clickState.placementEntity.set(UndefinedEntity)
     }
@@ -130,17 +131,9 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
 
   useEffect(() => {
     if (!clickState.placedEntity.value) return
-    const placedEntity = clickState.placedEntity.value
-    const sceneID = getComponent(placedEntity, SourceComponent)
-    if (sceneState[sceneID].value) {
-      if (getState(ObjectGridSnapState).enabled) {
-        getMutableState(ObjectGridSnapState).entitiesToSnap.set((prev) => [...prev, placedEntity])
-        ObjectGridSnapState.unlockAndApply()
-      } else {
-        ObjectGridSnapState.unlock()
-      }
-    }
-    clickState.placedEntity.set(UndefinedEntity)
+    const _parentEntity = getParentEntity()
+    if (!_parentEntity) return
+    clickState.placementEntity.set(createPlacementEntity(_parentEntity))
   }, [clickState.placedEntity])
 
   return (
@@ -176,19 +169,8 @@ const getParentEntity = () => {
 }
 
 const createPlacementEntity = (parentEntity: Entity) => {
-  placedCount += 1
   const placementEntity = createSceneEntity('Placement-' + placedCount, parentEntity)
-  //removeComponent(placementEntity, SourceComponent)
-  return placementEntity
-}
 
-const clickListener = () => {
-  const clickState = getMutableState(ClickPlacementState)
-  if (!clickState.selectedAsset.value) return
-  const parentEntity = getParentEntity()
-  if (!parentEntity) return
-  const placementEntity = clickState.placementEntity.value
-  if (!placementEntity) return
   const sceneID = getComponent(parentEntity, SourceComponent)
   setComponent(placementEntity, SourceComponent, sceneID)
   setComponent(placementEntity, EntityTreeComponent, { parentEntity })
@@ -198,9 +180,20 @@ const clickListener = () => {
   snapshot.data.nodes!.push(entityGLTFNode)
   dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
 
-  ObjectGridSnapState.lock()
+  return placementEntity
+}
+
+const clickListener = () => {
+  const clickState = getMutableState(ClickPlacementState)
+  if (!clickState.selectedAsset.value) return
+  const placementEntity = clickState.placementEntity.value
+  if (!placementEntity) return
+
+  if (getState(ObjectGridSnapState).enabled) {
+    getMutableState(ObjectGridSnapState).apply.set(true)
+  }
+  placedCount += 1
   clickState.placedEntity.set(placementEntity)
-  clickState.placementEntity.set(createPlacementEntity(parentEntity))
   for (const [mesh, material] of clickState.materialCache.value as [Mesh, Material][]) {
     mesh.material = material
   }

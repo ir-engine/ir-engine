@@ -62,12 +62,11 @@ const objectGridQuery = defineQuery([ObjectGridSnapComponent])
 function isParentSelected(entity: Entity) {
   let walker: Entity | null = entity
   const clickState = getState(ClickPlacementState)
-  const snapState = getState(ObjectGridSnapState)
-  const placementEntity = snapState.entitiesToSnap.length > 0 ? snapState.entitiesToSnap : [clickState.placementEntity]
+  const placementEntity = clickState.placementEntity
 
   const selectedEntities = SelectionState.getSelectedEntities()
   while (walker) {
-    if (placementEntity.includes(walker) || selectedEntities.includes(walker)) return walker
+    if (placementEntity === walker || selectedEntities.includes(walker)) return walker
     walker = getOptionalComponent(walker, EntityTreeComponent)?.parentEntity ?? null
   }
   return false
@@ -199,22 +198,7 @@ export const ObjectGridSnapState = defineState({
   name: 'ObjectGridSnapState',
   initial: {
     enabled: false,
-    apply: false,
-    locked: false,
-    entitiesToSnap: [] as Entity[]
-  },
-  lock: () => {
-    if (getState(ObjectGridSnapState).enabled) getMutableState(ObjectGridSnapState).locked.set(true)
-  },
-  unlockAndApply: () => {
-    if (getState(ObjectGridSnapState).enabled)
-      getMutableState(ObjectGridSnapState).merge({
-        locked: false,
-        apply: true
-      })
-  },
-  unlock: () => {
-    if (getState(ObjectGridSnapState).enabled) getMutableState(ObjectGridSnapState).locked.set(false)
+    apply: false
   }
 })
 
@@ -280,7 +264,7 @@ export const ObjectGridSnapSystem = defineSystem({
     const engineState = getState(EngineState)
     if (!engineState.isEditing) return
     const snapState = getState(ObjectGridSnapState)
-    if (!snapState.enabled || snapState.locked) return
+    if (!snapState.enabled) return
     const entities = objectGridQuery()
     const selectedEntities: Entity[] = []
     const selectedParents: Entity[] = []
@@ -331,7 +315,6 @@ export const ObjectGridSnapSystem = defineSystem({
         if (getState(ObjectGridSnapState).apply) {
           EditorControlFunctions.commitTransformSave([selectedParent])
           getMutableState(ObjectGridSnapState).apply.set(false)
-          getMutableState(ObjectGridSnapState).entitiesToSnap.set([])
         }
       }
       if (closestEntities.length === 0) {
@@ -399,7 +382,6 @@ export const ObjectGridSnapSystem = defineSystem({
         resetHelper()
         EditorControlFunctions.commitTransformSave([dstEntity])
         getMutableState(ObjectGridSnapState).apply.set(false)
-        getMutableState(ObjectGridSnapState).entitiesToSnap.set([])
       }
       break
     }
