@@ -38,7 +38,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { generateNoiseTexture } from '@etherealengine/spatial/src/renderer/functions/generateNoiseTexture'
 
 import { useEffect } from 'react'
-import { MaterialComponent, MaterialComponents } from '../../MaterialComponent'
+import { MaterialStateComponent } from '../../MaterialComponent'
 import { setPlugin } from '../../materialFunctions'
 
 export type NoiseOffsetParameters = {
@@ -64,7 +64,7 @@ export const NoiseOffsetPlugin = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     useEffect(() => {
-      const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
+      const materialComponent = getComponent(entity, MaterialStateComponent)
       const callback = (shader) => {
         const plugin = getComponent(entity, NoiseOffsetPlugin)
 

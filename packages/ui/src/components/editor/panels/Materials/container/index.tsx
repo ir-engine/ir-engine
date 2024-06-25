@@ -42,7 +42,7 @@ import {
 } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { useTranslation } from 'react-i18next'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
@@ -55,7 +55,7 @@ export default function MaterialLibraryPanel() {
   const srcPath = useState('/mat/material-test')
   const materialPreviewPanelRef = React.useRef()
 
-  const materialQuery = useQuery([MaterialComponent[MaterialComponents.State]])
+  const materialQuery = useQuery([MaterialStateComponent])
   const nodes = useHookstate([] as MaterialLibraryEntryType[])
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
 

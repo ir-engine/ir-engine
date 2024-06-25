@@ -35,7 +35,7 @@ import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/compone
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 
 export const MaterialPreviewCanvas = () => {
@@ -58,8 +58,7 @@ export const MaterialPreviewCanvas = () => {
     orbitCamera.refocus.set(true)
   }, [
     selectedMaterial,
-    useComponent(UUIDComponent.getEntityByUUID(selectedMaterial.value!), MaterialComponent[MaterialComponents.State])
-      .material
+    useComponent(UUIDComponent.getEntityByUUID(selectedMaterial.value!), MaterialStateComponent).material
   ])
   return (
     <>
