@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '../../../../primitives/tailwind/Button'
-import ContextMenu from '../../layout/ContextMenu'
 
 interface Command {
   name: string
@@ -41,15 +41,17 @@ interface MainMenuProp {
 }
 
 const MainMenu = ({ commands, icon }: MainMenuProp) => {
-  const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
+  const [anchorPosition, setAnchorPosition] = React.useState<undefined | { left: number; top: number }>({
+    left: 0,
+    top: 0
+  })
+  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const onOpen = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
 
-    setAnchorEl(event.currentTarget)
+    setAnchorEvent(event)
     setAnchorPosition({
       left: 0,
       top: event.currentTarget.offsetHeight + 6
@@ -57,8 +59,8 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
   }
 
   const handleClose = () => {
-    setAnchorEl(null)
-    setAnchorPosition({ left: 0, top: 0 })
+    setAnchorEvent(undefined)
+    setAnchorPosition(undefined)
   }
 
   const renderMenu = (command: Command) => {
@@ -87,7 +89,7 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
           onClick={(event) => onOpen(event as any)}
         />
       </div>
-      <ContextMenu open={open} anchorEl={anchorEl} panelId="menu" anchorPosition={anchorPosition} onClose={handleClose}>
+      <ContextMenu anchorEvent={anchorEvent} panelId="menu" anchorPosition={anchorPosition} onClose={handleClose}>
         {commands.map((command: Command) => renderMenu(command))}
       </ContextMenu>
     </>
