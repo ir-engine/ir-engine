@@ -36,7 +36,6 @@ import { WebContainer3D } from '@etherealengine/xrui'
 
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { PointerComponent, PointerObject } from '../components/PointerComponent'
@@ -154,7 +153,7 @@ const execute = () => {
     if (!pointer) continue
 
     if (
-      buttons[XRStandardGamepadButton.Trigger]?.down &&
+      buttons.XRStandardGamepadTrigger?.down &&
       (inputSource.handedness === 'left' || inputSource.handedness === 'right')
     )
       updateClickEventsForController(pointerEntity)

@@ -28,7 +28,7 @@ import React from 'react'
 
 import { getOptionalComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
-import { FollowCameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
+import { FollowCameraMode } from '@etherealengine/spatial/src/camera/types/FollowCameraMode'
 
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import {

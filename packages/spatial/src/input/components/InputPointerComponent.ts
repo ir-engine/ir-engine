@@ -62,12 +62,12 @@ export const InputPointerComponent = defineComponent({
     getState(InputPointerState).pointers.delete(pointerHash)
   },
 
-  getPointersForCanvas(canvasEntity: Entity) {
-    return pointerQuery().filter((entity) => getComponent(entity, InputPointerComponent).cameraEntity === canvasEntity)
+  getPointersForCanvas(cameraEntity: Entity) {
+    return pointerQuery().filter((entity) => getComponent(entity, InputPointerComponent).cameraEntity === cameraEntity)
   },
 
-  getPointerByID(canvasEntity: Entity, pointerId: number) {
-    const pointerHash = `canvas-${canvasEntity}.pointer-${pointerId}`
+  getPointerByID(cameraEntity: Entity, pointerId: number) {
+    const pointerHash = `canvas-${cameraEntity}.pointer-${pointerId}`
     return getState(InputPointerState).pointers.get(pointerHash) ?? UndefinedEntity
   }
 })

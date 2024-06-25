@@ -70,7 +70,7 @@ import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
 import { XRControlsState, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
-import { InputComponent } from '../components/InputComponent'
+import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
@@ -100,7 +100,7 @@ const preventDefaultKeyDown = (evt) => {
 export function updateGamepadInput(eid: Entity) {
   const inputSource = getComponent(eid, InputSourceComponent)
   const gamepad = inputSource.source.gamepad
-  const buttons = inputSource.buttons as ButtonStateMap
+  const buttons = inputSource.buttons
   // const buttonDownPos = inputSource.buttonDownPositions as WeakMap<AnyButton, Vector3>
   // log buttons
   // if (source.gamepad) {
@@ -467,7 +467,7 @@ const useNonSpatialInputSources = () => {
       const code = event.code
       const down = event.type === 'keydown'
 
-      const buttonState = inputSourceComponent.buttons as ButtonStateMap
+      const buttonState = inputSourceComponent.buttons
       if (down) buttonState[code] = createInitialButtonState(eid)
       else if (buttonState[code]) buttonState[code].up = true
     }
@@ -485,12 +485,12 @@ const useNonSpatialInputSources = () => {
     document.addEventListener('touchstickmove', handleTouchDirectionalPad)
 
     document.addEventListener('touchgamepadbuttondown', (event: CustomEvent) => {
-      const buttonState = inputSourceComponent.buttons as ButtonStateMap
+      const buttonState = inputSourceComponent.buttons
       buttonState[event.detail.button] = createInitialButtonState(eid)
     })
 
     document.addEventListener('touchgamepadbuttonup', (event: CustomEvent) => {
-      const buttonState = inputSourceComponent.buttons as ButtonStateMap
+      const buttonState = inputSourceComponent.buttons
       if (buttonState[event.detail.button]) buttonState[event.detail.button].up = true
     })
 
@@ -548,7 +548,7 @@ const CanvasInputReactor = () => {
     const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
     const clearPointerState = (entity: Entity) => {
       const inputSourceComponent = getComponent(entity, InputSourceComponent)
-      const state = inputSourceComponent.buttons as ButtonStateMap
+      const state = inputSourceComponent.buttons
       for (const button of pointerButtons) {
         const val = state[button]
         if (!val?.up && val?.pressed) state[button].up = true
@@ -592,9 +592,9 @@ const CanvasInputReactor = () => {
       if (event.button === 1) button = MouseButton.AuxiliaryClick
       else if (event.button === 2) button = MouseButton.SecondaryClick
 
-      const state = inputSourceComponent.buttons as ButtonStateMap
+      const state = inputSourceComponent.buttons
       if (down) {
-        state[button] = createInitialButtonState(pointerEntity) //down, pressed, touched = true
+        state[button as any] = createInitialButtonState(pointerEntity) //down, pressed, touched = true
 
         const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
         if (pointer) {
@@ -708,7 +708,7 @@ const useXRInputSources = () => {
       if (!eid) return
       const inputSourceComponent = getComponent(eid, InputSourceComponent)
       if (!inputSourceComponent) return
-      const state = inputSourceComponent.buttons as ButtonStateMap
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
       state.PrimaryClick = createInitialButtonState(eid)
     }
     const onXRSelectEnd = (event: XRInputSourceEvent) => {
@@ -716,7 +716,7 @@ const useXRInputSources = () => {
       if (!eid) return
       const inputSourceComponent = getComponent(eid, InputSourceComponent)
       if (!inputSourceComponent) return
-      const state = inputSourceComponent.buttons as ButtonStateMap
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
       if (!state.PrimaryClick) return
       state.PrimaryClick.up = true
     }
@@ -783,7 +783,7 @@ function updatePointerDragging(pointerEntity: Entity, event: PointerEvent) {
   const inputSourceComponent = getOptionalComponent(pointerEntity, InputSourceComponent)
   if (!inputSourceComponent) return
 
-  const state = inputSourceComponent.buttons as ButtonStateMap
+  const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
 
   let button = MouseButton.PrimaryClick
   if (event.type === 'pointermove') {
@@ -810,7 +810,7 @@ function updatePointerDragging(pointerEntity: Entity, event: PointerEvent) {
   }
 }
 
-function cleanupButton(key: string, buttons: ButtonStateMap, hasFocus: boolean) {
+function cleanupButton(key: string, buttons: ButtonStateMap<{}>, hasFocus: boolean) {
   const button = buttons[key]
   if (button?.down) button.down = false
   if (button?.up || !hasFocus) delete buttons[key]

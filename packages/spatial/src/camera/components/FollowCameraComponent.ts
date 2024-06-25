@@ -30,6 +30,7 @@ import { defineQuery, ECSState, Engine, useEntityContext } from '@etherealengine
 import {
   defineComponent,
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   removeComponent,
   setComponent
@@ -46,6 +47,7 @@ import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { TransformComponent } from '../../SpatialModule'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
+import { setTargetCameraRotation } from '../functions/CameraFunctions'
 import { FollowCameraMode } from '../types/FollowCameraMode'
 import { TargetCameraRotationComponent } from './TargetCameraRotationComponent'
 
@@ -108,14 +110,17 @@ export const FollowCameraComponent = defineComponent({
       distance: cameraSettings.startCameraDistance,
       targetDistance: 5,
       zoomVelocity: { value: 0 },
-      minDistance: cameraSettings.minCameraDistance,
-      maxDistance: cameraSettings.maxCameraDistance,
+      thirdPersonMinDistance: cameraSettings.minCameraDistance,
+      thirdPersonMaxDistance: cameraSettings.maxCameraDistance,
+      effectiveMinDistance: cameraSettings.minCameraDistance,
+      effectiveMaxDistance: cameraSettings.maxCameraDistance,
       theta: 180,
       phi: 10,
       minPhi: cameraSettings.minPhi,
       maxPhi: cameraSettings.maxPhi,
       shoulderSide: true,
-      raycastProps
+      raycastProps,
+      scrollPauseTime: -1
     }
   },
 
@@ -129,8 +134,10 @@ export const FollowCameraComponent = defineComponent({
     if (typeof json.distance !== 'undefined') component.distance.set(json.distance)
     if (typeof json.targetDistance !== 'undefined') component.targetDistance.set(json.targetDistance)
     if (typeof json.zoomVelocity !== 'undefined') component.zoomVelocity.set(json.zoomVelocity)
-    if (typeof json.minDistance !== 'undefined') component.minDistance.set(json.minDistance)
-    if (typeof json.maxDistance !== 'undefined') component.maxDistance.set(json.maxDistance)
+    if (typeof json.thirdPersonMinDistance !== 'undefined')
+      component.thirdPersonMinDistance.set(json.thirdPersonMinDistance)
+    if (typeof json.thirdPersonMaxDistance !== 'undefined')
+      component.thirdPersonMaxDistance.set(json.thirdPersonMaxDistance)
     if (typeof json.theta !== 'undefined') component.theta.set(json.theta)
     if (typeof json.phi !== 'undefined') component.phi.set(json.phi)
     if (typeof json.minPhi !== 'undefined') component.minPhi.set(json.minPhi)
@@ -166,58 +173,160 @@ const tempVec1 = new Vector3()
 const raycaster = new Raycaster()
 
 const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
-  const followCamera = getComponent(cameraEntity, FollowCameraComponent)
+  const follow = getComponent(cameraEntity, FollowCameraComponent)
+  const followState = getMutableComponent(cameraEntity, FollowCameraComponent)
   const cameraTransform = getComponent(cameraEntity, TransformComponent)
   const targetTransform = getComponent(referenceEntity, TransformComponent)
 
-  if (!targetTransform || !followCamera) return
+  if (!targetTransform || !follow) return
 
   // Limit the pitch
-  followCamera.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, followCamera.phi))
+  follow.phi = Math.min(follow.maxPhi, Math.max(follow.minPhi, follow.phi))
 
-  let maxDistance = followCamera.targetDistance
   let isInsideWall = false
 
   targetPosition
-    .copy(followCamera.offset)
+    .copy(follow.offset)
     .applyQuaternion(TransformComponent.getWorldRotation(referenceEntity, targetTransform.rotation))
     .add(TransformComponent.getWorldPosition(referenceEntity, new Vector3()))
 
-  const alpha = smootheLerpAlpha(followCamera.targetPositionSmoothness, getState(ECSState).deltaSeconds)
-  followCamera.currentTargetPosition.lerp(targetPosition, alpha)
+  const alpha = smootheLerpAlpha(follow.targetPositionSmoothness, getState(ECSState).deltaSeconds)
+  follow.currentTargetPosition.lerp(targetPosition, alpha)
 
   // Run only if not in first person mode
-  if (followCamera.raycastProps.enabled && followCamera.targetDistance >= followCamera.minDistance) {
-    const distanceResults = getMaxCamDistance(cameraEntity, followCamera.currentTargetPosition)
-    maxDistance = distanceResults.maxDistance
+  let obstacleDistance = Infinity
+  if (follow.raycastProps.enabled && follow.targetDistance >= follow.thirdPersonMinDistance) {
+    const distanceResults = getMaxCamDistance(cameraEntity, follow.currentTargetPosition)
+    obstacleDistance = distanceResults.maxDistance
     isInsideWall = distanceResults.targetHit
   }
 
-  const newZoomDistance = Math.min(followCamera.targetDistance, maxDistance)
+  follow.effectiveMinDistance = follow.mode === FollowCameraMode.FirstPerson ? 0 : follow.thirdPersonMinDistance
+  follow.effectiveMaxDistance = Math.min(obstacleDistance * 0.9, follow.thirdPersonMaxDistance)
+  const effectiveRange = follow.effectiveMaxDistance - follow.effectiveMinDistance
+
+  let newZoomDistance = Math.max(
+    Math.min(follow.targetDistance, follow.effectiveMaxDistance),
+    follow.effectiveMinDistance
+  )
+
+  const allowModeShift = follow.scrollPauseTime > 0.2
+
+  if (follow.mode === FollowCameraMode.FirstPerson) {
+    newZoomDistance = Math.sqrt(follow.targetDistance)
+    // Move from first person mode to third person mode
+    if (
+      allowModeShift &&
+      follow.allowedModes.includes(FollowCameraMode.ThirdPerson) &&
+      newZoomDistance > 0.1 * follow.thirdPersonMinDistance
+    ) {
+      setTargetCameraRotation(cameraEntity, 0, follow.theta)
+      followState.mode.set(FollowCameraMode.ThirdPerson)
+    } else if (follow.scrollPauseTime > 1) {
+      newZoomDistance = 0
+      follow.targetDistance = 0
+    }
+  }
+
+  if (follow.mode === FollowCameraMode.ThirdPerson) {
+    const minSpringFactor = Math.max(
+      Math.sqrt(follow.targetDistance - follow.effectiveMinDistance) *
+        0.1 *
+        Math.sign(follow.targetDistance - follow.effectiveMinDistance),
+      0
+    )
+    const maxSpringFactor = Math.min(
+      Math.sqrt(follow.targetDistance - follow.effectiveMaxDistance) *
+        0.1 *
+        Math.sign(follow.targetDistance - follow.effectiveMaxDistance),
+      0
+    )
+    newZoomDistance =
+      follow.targetDistance -
+      (isFinite(minSpringFactor) ? minSpringFactor : 0) -
+      (isFinite(maxSpringFactor) ? maxSpringFactor : 0)
+    // Move from third person mode to first person mode
+    if (
+      allowModeShift &&
+      follow.allowedModes.includes(FollowCameraMode.FirstPerson) &&
+      follow.targetDistance < follow.thirdPersonMinDistance + effectiveRange * 0.1
+    ) {
+      setTargetCameraRotation(cameraEntity, 0, follow.theta)
+      followState.mode.set(FollowCameraMode.FirstPerson)
+      newZoomDistance = 0
+    } else if (
+      allowModeShift &&
+      follow.allowedModes.includes(FollowCameraMode.TopDown) &&
+      follow.targetDistance > follow.effectiveMaxDistance + effectiveRange * 0.1
+    ) {
+      setTargetCameraRotation(cameraEntity, 85, follow.theta)
+      followState.mode.set(FollowCameraMode.TopDown)
+    } else if (follow.scrollPauseTime > 1) {
+      newZoomDistance = Math.max(
+        Math.min(follow.targetDistance, follow.effectiveMaxDistance),
+        follow.effectiveMinDistance
+      )
+      follow.targetDistance = Math.max(
+        Math.min(follow.targetDistance, follow.effectiveMaxDistance),
+        follow.effectiveMinDistance
+      )
+    }
+  }
+
+  if (follow.mode === FollowCameraMode.TopDown) {
+    newZoomDistance = follow.effectiveMaxDistance + (follow.targetDistance - follow.effectiveMaxDistance) * 0.2
+    // Move from third person mode to top down mode
+    if (
+      allowModeShift &&
+      follow.allowedModes.includes(FollowCameraMode.ThirdPerson) &&
+      newZoomDistance < follow.effectiveMaxDistance - effectiveRange * 0.1
+    ) {
+      setTargetCameraRotation(cameraEntity, 90, follow.theta)
+      followState.mode.set(FollowCameraMode.ThirdPerson)
+    } else if (follow.scrollPauseTime > 1) {
+      follow.targetDistance = follow.effectiveMaxDistance
+    }
+  }
+
+  // // Move from third person mode to top down mode
+  // if (allowModeShift && follow.mode === FollowCameraMode.ThirdPerson &&
+  //     follow.allowedModes.includes(FollowCameraMode.TopDown) &&
+  //     follow.targetDistance >= 1.1 * follow.thirdPersonMaxDistance) {
+  //   setTargetCameraRotation(cameraEntity, 90, follow.theta)
+  //   followState.mode.set(FollowCameraMode.TopDown)
+  // }
+
+  // // Rotate camera to the top but let the player rotate if he/she desires
+  // if (Math.abs(follow.thirdPersonMaxDistance - nextTargetDistance) <= 1.0 && scrollDelta > 0 && follow) {
+  //   setTargetCameraRotation(cameraEntity, 85, follow.theta)
+  // }
+
+  // // Rotate from top
+  // if (Math.abs(follow.thirdPersonMaxDistance - follow.targetDistance) <= 1.0 && scrollDelta < 0 && follow.phi >= 80) {
+  //   setTargetCameraRotation(cameraEntity, 45, follow.theta)
+  // }
+
+  // if (Math.abs(follow.targetDistance - nextTargetDistance) > epsilon) {
+  //   follow.targetDistance = nextTargetDistance
+  // }
 
   // Zoom smoothing
   const smoothingSpeed = isInsideWall ? 0.1 : 0.3
   const deltaSeconds = getState(ECSState).deltaSeconds
 
-  followCamera.distance = smoothDamp(
-    followCamera.distance,
-    newZoomDistance,
-    followCamera.zoomVelocity,
-    smoothingSpeed,
-    deltaSeconds
-  )
+  follow.distance = smoothDamp(follow.distance, newZoomDistance, follow.zoomVelocity, smoothingSpeed, deltaSeconds)
 
-  const theta = followCamera.theta
+  const theta = follow.theta
   const thetaRad = MathUtils.degToRad(theta)
-  const phiRad = MathUtils.degToRad(followCamera.phi)
+  const phiRad = MathUtils.degToRad(follow.phi)
 
   cameraTransform.position.set(
-    followCamera.currentTargetPosition.x + followCamera.distance * Math.sin(thetaRad) * Math.cos(phiRad),
-    followCamera.currentTargetPosition.y + followCamera.distance * Math.sin(phiRad),
-    followCamera.currentTargetPosition.z + followCamera.distance * Math.cos(thetaRad) * Math.cos(phiRad)
+    follow.currentTargetPosition.x + follow.distance * Math.sin(thetaRad) * Math.cos(phiRad),
+    follow.currentTargetPosition.y + follow.distance * Math.sin(phiRad),
+    follow.currentTargetPosition.z + follow.distance * Math.cos(thetaRad) * Math.cos(phiRad)
   )
 
-  direction.copy(cameraTransform.position).sub(followCamera.currentTargetPosition).normalize()
+  direction.copy(cameraTransform.position).sub(follow.currentTargetPosition).normalize()
   mx.lookAt(direction, empty, upVector)
 
   cameraTransform.rotation.setFromRotationMatrix(mx)
@@ -268,13 +377,13 @@ const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
   createConeOfVectors(targetToCamVec, cameraRays, rayConeAngle)
 
-  let maxDistance = Math.min(followCamera.maxDistance, raycastProps.rayLength)
+  let maxDistance = Math.min(followCamera.thirdPersonMaxDistance, raycastProps.rayLength)
 
   // Check hit with mid ray
   raycaster.layers.set(ObjectLayers.Camera) // Ignore avatars
   // @ts-ignore - todo figure out why typescript freaks out at this
   raycaster.firstHitOnly = true // three-mesh-bvh setting
-  raycaster.far = followCamera.maxDistance
+  raycaster.far = followCamera.thirdPersonMaxDistance
   raycaster.set(target, targetToCamVec.normalize())
   const hits = raycaster.intersectObjects(sceneObjects, false)
 

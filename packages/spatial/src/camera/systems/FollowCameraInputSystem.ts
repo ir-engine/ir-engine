@@ -37,19 +37,19 @@ import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/compon
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { setTargetCameraRotation } from '@etherealengine/spatial/src/camera/functions/CameraFunctions'
 import { FollowCameraMode } from '@etherealengine/spatial/src/camera/types/FollowCameraMode'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { DefaultAxisAlias, InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { getThumbstickOrThumbpadAxes } from '@etherealengine/spatial/src/input/functions/getThumbstickOrThumbpadAxes'
-import { MouseScroll } from '@etherealengine/spatial/src/input/state/ButtonState'
+import { AxisValueMap } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { clamp } from 'lodash'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 
 // const throttleHandleCameraZoom = throttle(handleFollowCameraZoom, 30, { leading: true, trailing: false })
 
 const pointerPositionDelta = new Vector2()
-const pointerQuery = defineQuery([InputPointerComponent])
+const rendererQuery = defineQuery([RendererComponent])
 const epsilon = 0.001
 
 const followCameraModeCycle = [
@@ -83,41 +83,23 @@ const onFollowCameraShoulderCam = (cameraEntity: Entity) => {
  * Change camera distance.
  * @param cameraEntity Entity holding camera and input component.
  */
-export const onFollowCameraZoom = (cameraEntity: Entity, scrollDelta: number): void => {
-  if (scrollDelta === 0) return
-
+export const handleFollowCameraScroll = (
+  cameraEntity: Entity,
+  axes: AxisValueMap<typeof DefaultAxisAlias>,
+  deltaTime: number
+): void => {
   const follow = getComponent(cameraEntity, FollowCameraComponent)
-  const followState = getMutableComponent(cameraEntity, FollowCameraComponent)
 
-  // Move out of first person mode
-  if (follow.targetDistance <= epsilon && scrollDelta > 0) {
-    follow.targetDistance = follow.minDistance
-    return
-  }
+  const zoomDelta = axes.FollowCameraZoomScroll ?? 0
+  const shoulderDelta = axes.FollowCameraShoulderCamScroll ?? 0
 
-  const nextTargetDistance = clamp(follow.targetDistance + scrollDelta, epsilon, follow.maxDistance)
+  if (zoomDelta === 0 && shoulderDelta === 0) follow.scrollPauseTime += deltaTime
+  else follow.scrollPauseTime = 0
 
-  // Move to first person mode
-  if (follow.allowedModes.includes(FollowCameraMode.FirstPerson) && nextTargetDistance < follow.minDistance) {
-    follow.targetDistance = epsilon
-    setTargetCameraRotation(cameraEntity, 0, follow.theta)
-    followState.mode.set(FollowCameraMode.FirstPerson)
-    return
-  }
-
-  // Rotate camera to the top but let the player rotate if he/she desires
-  if (Math.abs(follow.maxDistance - nextTargetDistance) <= 1.0 && scrollDelta > 0 && follow) {
-    setTargetCameraRotation(cameraEntity, 85, follow.theta)
-  }
-
-  // Rotate from top
-  if (Math.abs(follow.maxDistance - follow.targetDistance) <= 1.0 && scrollDelta < 0 && follow.phi >= 80) {
-    setTargetCameraRotation(cameraEntity, 45, follow.theta)
-  }
-
-  if (Math.abs(follow.targetDistance - nextTargetDistance) > epsilon) {
-    follow.targetDistance = nextTargetDistance
-  }
+  follow.targetDistance = Math.min(
+    Math.max(follow.targetDistance + zoomDelta, follow.effectiveMinDistance),
+    follow.effectiveMaxDistance * 1.1
+  )
 }
 
 const execute = () => {
@@ -126,49 +108,44 @@ const execute = () => {
   const deltaSeconds = getState(ECSState).deltaSeconds
   const cameraSettings = getState(CameraSettings)
 
-  for (const inputPointerEntity of pointerQuery()) {
-    const inputPointer = getComponent(inputPointerEntity, InputPointerComponent)
-    const inputSource = getComponent(inputPointerEntity, InputSourceComponent)
-
-    const cameraEntity = inputPointer.cameraEntity
-
-    const follow = getComponent(cameraEntity, FollowCameraComponent)
-
+  for (const cameraEntity of rendererQuery()) {
     const buttons = InputComponent.getMergedButtons(cameraEntity)
     const axes = InputComponent.getMergedAxes(cameraEntity)
 
-    if (buttons?.PrimaryClick?.pressed) InputState.setCapturingEntity(cameraEntity)
+    const inputPointerEntities = InputPointerComponent.getPointersForCanvas(cameraEntity)
+    const inputState = getState(InputState)
 
+    const follow = getOptionalComponent(cameraEntity, FollowCameraComponent)
+    if (!follow) continue
+
+    let { theta, phi } = getOptionalComponent(cameraEntity, TargetCameraRotationComponent) ?? follow
+    let time = 0.3
+
+    if (buttons?.PrimaryClick?.pressed) InputState.setCapturingEntity(cameraEntity)
     if (buttons?.FollowCameraModeCycle?.down) onFollowCameraModeCycle(cameraEntity)
     if (buttons?.FollowCameraFirstPerson?.down) onFollowCameraFirstPerson(cameraEntity)
     if (buttons?.FollowCameraShoulderCam?.down) onFollowCameraShoulderCam(cameraEntity)
 
-    const inputState = getState(InputState)
-
-    const pointerDragging = buttons?.PrimaryClick?.dragging
-
-    const target = getOptionalComponent(cameraEntity, TargetCameraRotationComponent) ?? follow
-
-    const [x, z] = getThumbstickOrThumbpadAxes(inputSource.source, inputState.preferredHand)
-    target.theta -= x * 2
-    target.phi += z * 2
-
     const keyDelta = (buttons?.ArrowLeft ? 1 : 0) + (buttons?.ArrowRight ? -1 : 0)
-    target.theta += 100 * deltaSeconds * keyDelta
-    setTargetCameraRotation(cameraEntity, target.phi, target.theta)
+    theta += 100 * deltaSeconds * keyDelta
 
-    if (pointerDragging) {
-      pointerPositionDelta.subVectors(inputPointer.position, inputPointer.lastPosition)
-      setTargetCameraRotation(
-        cameraEntity,
-        target.phi - pointerPositionDelta.y * cameraSettings.cameraRotationSpeed,
-        target.theta - pointerPositionDelta.x * cameraSettings.cameraRotationSpeed,
-        0.1
-      )
+    for (const inputPointerEid of inputPointerEntities) {
+      const inputSource = getComponent(inputPointerEid, InputSourceComponent)
+      const [x, y] = getThumbstickOrThumbpadAxes(inputSource.source, inputState.preferredHand)
+      theta -= x * 2
+      phi += y * 2
+      const pointerDragging = inputSource.buttons?.PrimaryClick?.dragging
+      if (pointerDragging) {
+        const inputPointer = getComponent(inputPointerEid, InputPointerComponent)
+        pointerPositionDelta.subVectors(inputPointer.position, inputPointer.lastPosition)
+        phi -= pointerPositionDelta.y * cameraSettings.cameraRotationSpeed
+        theta -= pointerPositionDelta.x * cameraSettings.cameraRotationSpeed
+        time = 0.1
+      }
     }
 
-    const zoom = axes[MouseScroll.VerticalScroll]
-    onFollowCameraZoom(cameraEntity, zoom)
+    setTargetCameraRotation(cameraEntity, phi, theta, time)
+    handleFollowCameraScroll(cameraEntity, axes, deltaSeconds)
   }
 }
 

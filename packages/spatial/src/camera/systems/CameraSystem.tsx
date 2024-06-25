@@ -104,8 +104,8 @@ function CameraReactor() {
     if (!cameraSettings?.fov) return
     const follow = getOptionalMutableComponent(Engine.instance.cameraEntity, FollowCameraComponent)
     if (follow) {
-      follow.minDistance.set(cameraSettings.minCameraDistance.value)
-      follow.maxDistance.set(cameraSettings.maxCameraDistance.value)
+      follow.thirdPersonMinDistance.set(cameraSettings.minCameraDistance.value)
+      follow.thirdPersonMaxDistance.set(cameraSettings.maxCameraDistance.value)
       follow.distance.set(cameraSettings.startCameraDistance.value)
     }
   }, [cameraSettings])

@@ -240,7 +240,7 @@ const execute = () => {
 
   if (buttons.ShiftLeft?.down) onShiftLeft()
 
-  const gamepadJump = buttons[StandardGamepadButton.ButtonA]?.down
+  const gamepadJump = buttons[StandardGamepadButton.StandardGamepadButtonA]?.down
 
   //** touch input (only for avatar jump)*/
   const doubleClicked = isCameraAttachedToAvatar ? false : getAvatarDoubleClick(buttons)
@@ -248,15 +248,15 @@ const execute = () => {
   const keyDeltaX =
     (buttons.KeyA?.pressed ? -1 : 0) +
     (buttons.KeyD?.pressed ? 1 : 0) +
-    (buttons[StandardGamepadButton.DPadLeft]?.pressed ? -1 : 0) +
-    (buttons[StandardGamepadButton.DPadRight]?.pressed ? 1 : 0)
+    (buttons[StandardGamepadButton.StandardGamepadDPadLeft]?.pressed ? -1 : 0) +
+    (buttons[StandardGamepadButton.StandardGamepadDPadRight]?.pressed ? 1 : 0)
   const keyDeltaZ =
     (buttons.KeyW?.pressed ? -1 : 0) +
     (buttons.KeyS?.pressed ? 1 : 0) +
     (buttons.ArrowUp?.pressed ? -1 : 0) +
     (buttons.ArrowDown?.pressed ? 1 : 0) +
-    (buttons[StandardGamepadButton.DPadUp]?.pressed ? -1 : 0) +
-    (buttons[StandardGamepadButton.DPadDown]?.pressed ? -1 : 0)
+    (buttons[StandardGamepadButton.StandardGamepadDPadUp]?.pressed ? -1 : 0) +
+    (buttons[StandardGamepadButton.StandardGamepadDPadDown]?.pressed ? -1 : 0)
 
   controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ).normalize()
 
