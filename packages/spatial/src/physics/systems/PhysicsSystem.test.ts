@@ -29,11 +29,13 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { World } from '@dimforge/rapier3d-compat'
 import {
   Entity,
+  SystemDefinitions,
   SystemUUID,
   UndefinedEntity,
   createEntity,
   getComponent,
   getMutableComponent,
+  hasComponent,
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
@@ -44,9 +46,12 @@ import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
-import { assertVecAllApproxNotEq, assertVecApproxEq } from '../classes/Physics.test'
+import { assertVecAllApproxNotEq, assertVecAnyApproxNotEq, assertVecApproxEq } from '../classes/Physics.test'
+import { ColliderComponent } from '../components/ColliderComponent'
+import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { PhysicsState } from '../state/PhysicsState'
+import { BodyTypes } from '../types/PhysicsTypes'
 import { PhysicsSystem, smoothKinematicBody } from './PhysicsSystem'
 
 // Epsilon Constants for Interpolation
@@ -316,7 +321,112 @@ describe('PhysicsSystem', () => {
     })
   })
 
-  describe('execute', () => {})
+  describe('execute', () => {
+    let testEntity = UndefinedEntity
+    let physicsWorld = undefined as World | undefined
+
+    beforeEach(async () => {
+      createEngine()
+      await Physics.load()
+      physicsWorld = Physics.createWorld()
+      physicsWorld!.timestep = 1 / 60
+      const physicsState = getMutableState(PhysicsState)
+      physicsState.physicsWorld!.set(physicsWorld!)
+      physicsState.physicsCollisionEventQueue.set(Physics.createCollisionEventQueue())
+      /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+      physicsState.drainCollisions.set((val) => Physics.drainCollisionEventQueue(physicsWorld!))
+      /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+      physicsState.drainContacts.set((val) => Physics.drainContactEventQueue(physicsWorld!))
+
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+      setComponent(testEntity, ColliderComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    const physicsSystemExecute = SystemDefinitions.get(PhysicsSystem)!.execute
+
+    it('should step the physics', () => {
+      const testImpulse = new Vector3(1, 2, 3)
+      const beforeBody = Physics._Rigidbodies.get(testEntity)
+      assert.ok(beforeBody)
+      const before = beforeBody.linvel()
+      assertVecApproxEq(before, Vector3_Zero, 3)
+      Physics.applyImpulse(testEntity, testImpulse)
+      physicsSystemExecute()
+      const afterBody = Physics._Rigidbodies.get(testEntity)
+      assert.ok(afterBody)
+      const after = afterBody.linvel()
+      assertVecAllApproxNotEq(after, before, 3)
+    })
+
+    function cloneRigidBodyPoseData(entity: Entity) {
+      const body = getComponent(testEntity, RigidBodyComponent)
+      return {
+        previousPosition: body.previousPosition.clone(),
+        previousRotation: body.previousRotation.clone(),
+        position: body.position.clone(),
+        rotation: body.rotation.clone(),
+        targetKinematicPosition: body.targetKinematicPosition.clone(),
+        targetKinematicRotation: body.targetKinematicRotation.clone(),
+        linearVelocity: body.linearVelocity.clone(),
+        angularVelocity: body.angularVelocity.clone()
+      }
+    }
+
+    it('should update poses on the ECS', () => {
+      const testImpulse = new Vector3(1, 2, 3)
+      const before = cloneRigidBodyPoseData(testEntity)
+      const body = getComponent(testEntity, RigidBodyComponent)
+      assertVecApproxEq(before.previousPosition, body.previousPosition.clone(), 3)
+      assertVecApproxEq(before.previousRotation, body.previousRotation.clone(), 3)
+      assertVecApproxEq(before.position, body.position.clone(), 3)
+      assertVecApproxEq(before.rotation, body.rotation.clone(), 4)
+      assertVecApproxEq(before.targetKinematicPosition, body.targetKinematicPosition.clone(), 3)
+      assertVecApproxEq(before.targetKinematicRotation, body.targetKinematicRotation.clone(), 4)
+      assertVecApproxEq(before.linearVelocity, body.linearVelocity.clone(), 3)
+      assertVecApproxEq(before.angularVelocity, body.angularVelocity.clone(), 3)
+
+      Physics.applyImpulse(testEntity, testImpulse)
+      physicsSystemExecute()
+
+      const after = cloneRigidBodyPoseData(testEntity)
+      assertVecAnyApproxNotEq(after.previousPosition, before.previousPosition, 3)
+      assertVecAnyApproxNotEq(after.previousRotation, before.previousRotation, 3)
+      assertVecAnyApproxNotEq(after.position, before.position, 3)
+      assertVecAnyApproxNotEq(after.rotation, before.rotation, 4)
+      assertVecAnyApproxNotEq(after.targetKinematicPosition, before.targetKinematicPosition, 3)
+      assertVecAnyApproxNotEq(after.targetKinematicRotation, before.targetKinematicRotation, 4)
+      assertVecAnyApproxNotEq(after.linearVelocity, before.linearVelocity, 3)
+      assertVecAnyApproxNotEq(after.angularVelocity, before.angularVelocity, 3)
+    })
+
+    it('should update collisions on the ECS', () => {
+      const testImpulse = new Vector3(1, 2, 3)
+      const entity1 = createEntity()
+      setComponent(entity1, TransformComponent)
+      setComponent(entity1, RigidBodyComponent, { type: BodyTypes.Dynamic })
+      setComponent(entity1, ColliderComponent)
+      const entity2 = createEntity()
+      setComponent(entity2, TransformComponent)
+      setComponent(entity2, RigidBodyComponent, { type: BodyTypes.Dynamic })
+      setComponent(entity2, ColliderComponent)
+      // Check before
+      assert.ok(!hasComponent(entity1, CollisionComponent))
+      assert.ok(!hasComponent(entity2, CollisionComponent))
+
+      // Run and Check after
+      Physics.applyImpulse(entity1, testImpulse)
+      physicsSystemExecute()
+      assert.ok(hasComponent(entity1, ColliderComponent))
+      assert.ok(hasComponent(entity2, ColliderComponent))
+    })
+  })
 
   /**
   // @note The reactor is currently just binding data onMount and onUnmount
