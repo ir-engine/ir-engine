@@ -57,12 +57,15 @@ import { Physics } from './Physics'
 const Rotation_Zero = { x: 0, y: 0, z: 0, w: 1 }
 
 const Epsilon = 0.001
+function floatApproxEq(A: number, B: number, epsilon = Epsilon): boolean {
+  return Math.abs(A - B) < epsilon
+}
 export function assertFloatApproxEq(A: number, B: number, epsilon = Epsilon) {
-  assert.ok(Math.abs(A - B) < epsilon, `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
+  assert.ok(floatApproxEq(A, B, epsilon), `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
 }
 
 export function assertFloatApproxNotEq(A: number, B: number, epsilon = Epsilon) {
-  assert.ok(Math.abs(A - B) > epsilon, `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
+  assert.ok(!floatApproxEq(A, B, epsilon), `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
 }
 
 export function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
@@ -71,6 +74,18 @@ export function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
   assertFloatApproxEq(A.y, B.y, epsilon)
   assertFloatApproxEq(A.z, B.z, epsilon)
   if (elems > 3) assertFloatApproxEq(A.w, B.w, epsilon)
+}
+
+/**
+ * @description
+ * Triggers an assert if one or many of the (x,y,z,w) members of `@param A` is not equal to `@param B`.
+ * Does nothing for members that are equal */
+export function assertVecAnyApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
+  // @note Also used by PhysicsSystem.test.ts
+  !floatApproxEq(A.x, B.x, epsilon) && assertFloatApproxNotEq(A.x, B.x, epsilon)
+  !floatApproxEq(A.y, B.y, epsilon) && assertFloatApproxNotEq(A.y, B.y, epsilon)
+  !floatApproxEq(A.z, B.z, epsilon) && assertFloatApproxNotEq(A.z, B.z, epsilon)
+  if (elems > 3) !floatApproxEq(A.w, B.w, epsilon) && assertFloatApproxEq(A.w, B.w, epsilon)
 }
 
 export function assertVecAllApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
