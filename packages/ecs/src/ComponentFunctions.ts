@@ -481,7 +481,7 @@ export const serializeComponent = <C extends Component<any, any, any>>(entity: E
 }
 
 // use seems to be unavailable in the server environment
-function _use(promise) {
+export function _use(promise) {
   if (promise.status === 'fulfilled') {
     return promise.value
   } else if (promise.status === 'rejected') {

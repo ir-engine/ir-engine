@@ -87,15 +87,18 @@ export const RendererComponent = defineComponent({
 
   onSet(entity, component, json) {
     if (json?.canvas) component.canvas.set(json.canvas)
+  },
+
+  onRemove(entity, component) {
+    component.value.renderer.dispose()
+    component.value.effectComposer?.dispose()
   }
 })
 
-let lastRenderTime = 0
 const _scene = new Scene()
 _scene.matrixAutoUpdate = false
 _scene.matrixWorldAutoUpdate = false
 _scene.layers.set(ObjectLayers.Scene)
-globalThis._scene = _scene
 
 export class EngineRenderer {
   /**
@@ -342,7 +345,7 @@ const rendererReactor = () => {
   }, [engineRendererSettings.renderScale])
 
   useEffect(() => {
-    changeRenderMode()
+    changeRenderMode(entity)
   }, [engineRendererSettings.renderMode])
 
   return null
