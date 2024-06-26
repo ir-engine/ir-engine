@@ -62,6 +62,7 @@ describe('TriggerSystem', () => {
 
   const InvalidEntityUUID = 'dummyID-123456' as EntityUUID
 
+  /** @todo Refactor: Simplify by using sinon.spy functions */
   const EnterStartValue = 42 // Start testOnEnter at 42
   let enterVal = EnterStartValue
   const TestOnEnterName = 'test.onEnter'
@@ -69,6 +70,7 @@ describe('TriggerSystem', () => {
     ++enterVal
   }
 
+  /** @todo Refactor: Simplify by using sinon.spy functions */
   const ExitStartValue = 10_042 // Start testOnExit at 10_042
   let exitVal = ExitStartValue
   const TestOnExitName = 'test.onExit'
