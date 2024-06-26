@@ -32,6 +32,7 @@ import { HookContext } from '../../../declarations'
 import checkScope from '../../hooks/check-scope'
 import collectAnalytics from '../../hooks/collect-analytics'
 import enableClientPagination from '../../hooks/enable-client-pagination'
+import isAction from '../../hooks/is-action'
 import resolveProjectId from '../../hooks/resolve-project-id'
 import resolveProjByPerm from '../../hooks/resolveProjByPerm'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
@@ -180,15 +181,20 @@ export default {
     find: [
       iff(
         isProvider('external'),
-        // if admin, if user. Admin Can see all Projects no matter what(individual or all). User can only see projects he has perms for.
         iffElse(
-          hasProjectField,
+          (ctx: HookContext) => isAction('admin')(ctx) && checkScope('static_resource', 'read')(ctx),
+          [],
           [
-            verifyScope('editor', 'write'),
-            resolveProjectId(),
-            verifyProjectPermission(['owner', 'editor', 'reviewer'])
-          ],
-          [verifyScope('editor', 'write'), resolveProjByPerm()]
+            iffElse(
+              hasProjectField,
+              [
+                verifyScope('editor', 'write'),
+                resolveProjectId(),
+                verifyProjectPermission(['owner', 'editor', 'reviewer'])
+              ],
+              [verifyScope('editor', 'write'), resolveProjByPerm()]
+            ) as any
+          ]
         )
       ),
       enableClientPagination() /** @todo we should either constrain this only for when type='scene' or remove it in favour of comprehensive front end pagination */,
