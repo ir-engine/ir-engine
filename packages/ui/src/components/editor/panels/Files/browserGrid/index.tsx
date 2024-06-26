@@ -38,7 +38,7 @@ import { getMutableState, useHookstate, useMutableState } from '@etherealengine/
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
-import React, { MouseEventHandler, MutableRefObject, useEffect } from 'react'
+import React, { MouseEventHandler, MutableRefObject, useEffect, useRef } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
@@ -47,6 +47,7 @@ import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { FileIcon } from '../icon'
 import DeleteFileModal from './DeleteFileModal'
 import RenameFileModal from './RenameFileModal'
@@ -160,6 +161,9 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const { projectName } = useMutableState(EditorState)
   const staticResource = useFind(staticResourcePath, { query: { key: props.item.key, project: projectName.value! } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
+  const showTooltip = useHookstate(false)
+  const { t } = useTranslation()
+
   return (
     <div
       className={`flex h-32 w-28 cursor-pointer flex-col items-center text-center ${
@@ -183,7 +187,12 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
           color="text-[#375DAF]"
         />
       </div>
-      <div className="text-secondary mb-2 line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
+
+      <Tooltip title={t(props.item.fullName)} direction="bottom">
+        <div className="text-secondary relative mb-2 line-clamp-1 w-full text-wrap break-all text-sm ">
+          {props.item.fullName}
+        </div>
+      </Tooltip>
     </div>
   )
 }
@@ -227,7 +236,8 @@ export function FileBrowserItem({
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const fileService = useMutation(fileBrowserPath)
-
+  const tooltipPosition = useHookstate({ x: 0, y: 0 })
+  const itemRef = useRef<HTMLDivElement>(null)
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
