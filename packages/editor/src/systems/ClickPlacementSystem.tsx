@@ -116,9 +116,13 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
       clickState.placementEntity.set(createPlacementEntity(parentEntity))
     } else {
       if (!clickState.placementEntity.value) return
+      const selectedEntities = getState(SelectionState).selectedEntities.filter(
+        (uuid) => uuid !== getComponent(clickState.placementEntity.value, UUIDComponent)
+      )
       EditorControlFunctions.removeObject([clickState.placementEntity.value])
       removeEntity(clickState.placementEntity.value)
       clickState.placementEntity.set(UndefinedEntity)
+      SelectionState.updateSelection(selectedEntities)
     }
   }, [editorState.placementMode, gltfComponent.progress])
 
