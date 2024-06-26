@@ -62,7 +62,7 @@ export const InputPointerComponent = defineComponent({
     getState(InputPointerState).pointers.delete(pointerHash)
   },
 
-  getPointersForCanvas(cameraEntity: Entity) {
+  getPointersForCamera(cameraEntity: Entity) {
     return pointerQuery().filter((entity) => getComponent(entity, InputPointerComponent).cameraEntity === cameraEntity)
   },
 

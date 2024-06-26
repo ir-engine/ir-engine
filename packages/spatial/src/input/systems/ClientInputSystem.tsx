@@ -621,7 +621,7 @@ const CanvasInputReactor = () => {
           checkVisibilityCSS: true
         })
       ) {
-        InputPointerComponent.getPointersForCanvas(cameraEntity).forEach(clearPointerState)
+        InputPointerComponent.getPointersForCamera(cameraEntity).forEach(clearPointerState)
       }
     }
 
@@ -630,7 +630,7 @@ const CanvasInputReactor = () => {
     }
 
     const onWheelEvent = (event: WheelEvent) => {
-      const pointer = InputPointerComponent.getPointersForCanvas(cameraEntity)[0]
+      const pointer = InputPointerComponent.getPointersForCamera(cameraEntity)[0]
       if (!pointer) return
       const inputSourceComponent = getComponent(pointer, InputSourceComponent)
       const normalizedValues = normalizeWheel(event)

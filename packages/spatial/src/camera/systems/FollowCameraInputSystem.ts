@@ -123,7 +123,7 @@ const execute = () => {
     const buttons = InputComponent.getMergedButtons(cameraEntity)
     const axes = InputComponent.getMergedAxes(cameraEntity)
 
-    const inputPointerEntities = InputPointerComponent.getPointersForCanvas(cameraEntity)
+    const inputPointerEntities = InputPointerComponent.getPointersForCamera(cameraEntity)
     const inputState = getState(InputState)
 
     const follow = getOptionalComponent(cameraEntity, FollowCameraComponent)
