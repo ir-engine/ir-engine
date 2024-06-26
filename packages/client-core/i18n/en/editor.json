@@ -757,6 +757,11 @@
       "lbl-trebleMultiplier": "Treble Multiplier",
       "lbl-midMultiplier": "Mid Multiplier"
     },
+    "reflectionProbe": {
+      "name": "Reflection Probe",
+      "description": "A reflection probe that captures the environment and uses it for reflection.",
+      "src": "Source"
+    },
     "renderSettings": {
       "name": "Render Settings",
       "description": "Customise the scene renderer settings",
