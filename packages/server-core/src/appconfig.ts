@@ -399,6 +399,7 @@ const ipfs = {
 }
 
 const zendesk = {
+  name: process.env.ZENDESK_KEY_NAME,
   secret: process.env.ZENDESK_SECRET,
   kid: process.env.ZENDESK_KID
 }
