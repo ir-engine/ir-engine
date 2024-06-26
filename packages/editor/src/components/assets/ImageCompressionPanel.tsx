@@ -32,7 +32,7 @@ import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
 } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { ImmutableArray, useHookstate } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
@@ -47,7 +47,9 @@ import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
-import { FileType } from '@etherealengine/ui/src/components/editor/panels/Files/container'
+import { FileType, createFileDigest } from '@etherealengine/ui/src/components/editor/panels/Files/container'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
+import styles from './styles.module.scss'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },
@@ -64,31 +66,33 @@ const UASTCFlagOptions = [
 ]
 
 export default function ImageCompressionPanel({
-  selectedFile,
+  selectedFiles,
   refreshDirectory
 }: {
-  selectedFile: FileType
+  selectedFiles: ImmutableArray<FileType>
   refreshDirectory: () => Promise<void>
 }) {
   const { t } = useTranslation()
+  const digest = createFileDigest(selectedFiles)
+
   const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const compressionLoading = useHookstate(false)
 
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
 
-    compressProperties.src.set(
-      selectedFile.type === 'folder' ? `${selectedFile.url}/${selectedFile.key}` : selectedFile.url
-    )
-
-    await compressImage()
+    for (const file of selectedFiles) {
+      await compressImage(file)
+    }
     await refreshDirectory()
 
     compressionLoading.set(false)
     PopoverState.hidePopupover()
   }
 
-  const compressImage = async () => {
+  const compressImage = async (props: FileType) => {
+    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
+
     const ktx2Encoder = new KTX2Encoder()
 
     const img = await new Promise<HTMLImageElement>((resolve) => {
@@ -118,9 +122,9 @@ export default function ImageCompressionPanel({
       uastcZstandard: compressProperties.uastcZstandard.value
     })
 
-    const newFileName = selectedFile.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
-    const path = selectedFile.key.replace(/(.*\/).*/, '$1')
-    const projectName = selectedFile.key.split('/')[1] // TODO: support projects with / in the name
+    const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
+    const path = props.key.replace(/(.*\/).*/, '$1')
+    const projectName = props.key.split('/')[1] // TODO: support projects with / in the name
     const relativePath = path.replace('projects/' + projectName + '/', '')
 
     const file = new File([data], newFileName, { type: 'image/ktx2' })
@@ -138,6 +142,13 @@ export default function ImageCompressionPanel({
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
+  }
+
+  let title: string
+  if (selectedFiles.length === 1) {
+    title = selectedFiles[0].name
+  } else {
+    title = selectedFiles.length + ' Items'
   }
 
   return (
@@ -159,7 +170,7 @@ export default function ImageCompressionPanel({
           name="mode"
           label={t('editor:properties.model.transform.dst')}
         >
-          <Input className="border-[#42454D] bg-[#141619] px-2 py-1.5" value={selectedFile.name} disabled />
+          <Input className="border-[#42454D] bg-[#141619] px-2 py-1.5" value={title} disabled />
         </InputGroup>
         <div className="w-full border border-[#2B2C30]" />
         <InputGroup

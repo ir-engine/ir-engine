@@ -40,7 +40,7 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { Heuristic, VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
-import { getState, NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
+import { getState, ImmutableArray, NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -140,10 +140,10 @@ export const createLODVariants = async (
 }
 
 export default function ModelCompressionPanel({
-  selectedFile,
+  selectedFiles,
   refreshDirectory
 }: {
-  selectedFile: FileType
+  selectedFiles: ImmutableArray<FileType>
   refreshDirectory: () => Promise<void>
 }) {
   const { t } = useTranslation()
@@ -163,7 +163,9 @@ export default function ModelCompressionPanel({
 
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
-    await compressModel()
+    for (const file of selectedFiles) {
+      await compressModel(file)
+    }
     await refreshDirectory()
     compressionLoading.set(false)
   }
@@ -196,12 +198,28 @@ export default function ModelCompressionPanel({
     localStorage.setItem('presets', JSON.stringify(presetList.value))
   }
 
-  const compressModel = async () => {
+  const compressModel = async (file: FileType) => {
     const clientside = true
     const exportCombined = true
 
+    let fileLODs = lods.value as LODVariantDescriptor[]
+
+    if (selectedFiles.length > 1) {
+      fileLODs = fileLODs.map((lod) => {
+        const src = file.url
+        const fileName = src.split('/').pop()!.split('.').shift()!
+        const dst = fileName + lod.suffix
+        return {
+          ...lod,
+          src,
+          dst,
+          modelFormat: src.endsWith('.gltf') ? 'gltf' : src.endsWith('.vrm') ? 'vrm' : 'glb'
+        }
+      })
+    }
+
     const heuristic = Heuristic.BUDGET
-    await createLODVariants(lods.value as LODVariantDescriptor[], clientside, heuristic, exportCombined)
+    await createLODVariants(fileLODs, clientside, heuristic, exportCombined)
   }
 
   const deletePreset = (event: React.MouseEvent, idx: number) => {
@@ -219,7 +237,12 @@ export default function ModelCompressionPanel({
   }
 
   useEffect(() => {
-    const fullSrc = selectedFile.url
+    const firstFile = selectedFiles[0]
+    if (firstFile == null) {
+      return
+    }
+
+    const fullSrc = firstFile.url
     const fileName = fullSrc.split('/').pop()!.split('.').shift()!
 
     const defaults = defaultLODs.map((defaultLOD) => {
@@ -232,7 +255,7 @@ export default function ModelCompressionPanel({
     })
 
     lods.set(defaults)
-  }, [selectedFile.url])
+  }, [selectedFiles])
 
   const handleAddLOD = () => {
     const params = JSON.parse(JSON.stringify(lods[selectedLODIndex.value].params.value)) as ModelTransformParameters
@@ -246,6 +269,17 @@ export default function ModelCompressionPanel({
       }
     ])
     selectedLODIndex.set(lods.length - 1)
+  }
+
+  let title: string
+  let fileTypeText: string
+  if (selectedFiles.length === 1) {
+    const file = selectedFiles[0]
+    title = file.name
+    fileTypeText = file.isFolder ? 'Directory' : 'File'
+  } else {
+    title = selectedFiles.length + ' Items'
+    fileTypeText = 'Multiple Selection'
   }
 
   return (

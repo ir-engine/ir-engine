@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
@@ -36,7 +36,7 @@ import {
 import { Engine } from '@etherealengine/ecs'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, ImmutableArray, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { HiPencil, HiPlus, HiXMark } from 'react-icons/hi2'
 import { RiSave2Line } from 'react-icons/ri'
@@ -44,95 +44,120 @@ import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import Modal from '../../../../../primitives/tailwind/Modal'
 import Text from '../../../../../primitives/tailwind/Text'
+import { createFileDigest, createStaticResourceDigest, FileType } from '../container'
+import { debounce } from '@mui/material'
 
-export default function FilePropertiesModal({ projectName, file }: { projectName: string; file: FileDataType }) {
+export default function FilePropertiesModal({ projectName, files }: { projectName: string; files: ImmutableArray<FileType> }) {
+  const itemCount = files.length
+  if (itemCount === 0) return null
   const { t } = useTranslation()
-  const newFileName = useHookstate(file.name)
-  const fileService = useMutation(fileBrowserPath)
+
+  const fileStaticResources = useHookstate<StaticResourceType[]>([])
+  const fileDigest = createFileDigest(files)
+  const resourceDigest = useHookstate<StaticResourceType>(createStaticResourceDigest([]))
+  const sharedFields = useHookstate<string[]>([])
+  const modifiedFields = useHookstate<string[]>([])
+  const editedField = useHookstate<string|null>(null)
+  const tagInput = useHookstate<string>('')
+  const sharedTags = useHookstate<string[]>([])
+
+  let title: string
+  let filename: string
+  if (itemCount === 1) {
+    const firstFile = files[0]
+    filename = firstFile.name
+    title = t('editor:layout.filebrowser.fileProperties.header', { fileName: filename.toUpperCase() })
+  } else {
+    filename = ''
+    title = t('editor:layout.filebrowser.fileProperties.header', { itemCount })
+  }
+
+  const onChange = (fieldName: string, state: State<any>) => {
+    return (e) => {
+      if (!modifiedFields.value.includes(fieldName)) {
+        modifiedFields.set([...modifiedFields.value, fieldName])
+      }
+      state.set(e.target.value)
+    }
+  }
 
   const handleSubmit = async () => {
-    fileService.update(null, {
-      oldProject: projectName,
-      newProject: projectName,
-      oldName: file.fullName,
-      newName: file.isFolder ? newFileName.value : `${newFileName.value}.${file.type}`,
-      oldPath: file.path,
-      newPath: file.path,
-      isCopy: false
-    })
-    PopoverState.hidePopupover()
+    if (modifiedFields.value.length > 0) {
+      const addedTags: string[] = resourceDigest.tags.value!.filter((tag) => !sharedTags.value.includes(tag))
+      const removedTags: string[] = sharedTags.value!.filter((tag) => !resourceDigest.tags.value!.includes(tag))
+      for (const resource of fileStaticResources.value) {
+        const oldTags = resource.tags ?? []
+        const newTags = Array.from(new Set([...addedTags, ...oldTags.filter((tag) => !removedTags.includes(tag))]))
+        await Engine.instance.api.service(staticResourcePath).patch(resource.id, {
+          key: resource.key,
+          tags: newTags,
+          licensing: resourceDigest.licensing.value,
+          attribution: resourceDigest.attribution.value
+        })
+      }
+      modifiedFields.set([])
+      PopoverState.hidePopupover()
+    }
   }
 
-  const staticResource = useFind(staticResourcePath, {
-    query: {
-      key: file.key,
-      project: getMutableState(EditorState).projectName.value!
+  const staticResourcesFindApi = () => {
+    const query = {
+      key: {
+        $like: undefined,
+        $or: files.map(({ key }) => ({
+          key
+        }))
+      },
+      $limit: 10000
     }
-  })
 
-  const staticResourceMutation = useMutation(staticResourcePath)
+    Engine.instance.api
+      .service(staticResourcePath)
+      .find({ query })
+      .then((resources) => {
 
-  const resourceProperties = useHookstate({
-    id: '',
-    project: '',
-    author: null as UserType | null,
-    tags: {
-      input: '',
-      all: [] as string[]
-    },
-    attribution: {
-      editing: false,
-      input: ''
-    },
-    licensing: {
-      editing: false,
-      input: ''
-    }
-  })
-
-  useEffect(() => {
-    if (staticResource.data.length > 0) {
-      if (staticResource.data.length > 1) console.info('Multiple resources with same key found')
-      const resources = JSON.parse(JSON.stringify(staticResource.data[0])) as StaticResourceType
-      if (resources) {
         Engine.instance.api
           .service('user')
-          .get(resources.userId)
-          .then((user) => resourceProperties.author.set(user))
-        resourceProperties.id.set(resources.id)
-        resourceProperties.project.set(resources.project ?? '')
-        resourceProperties.tags.all.set(resources.tags ?? [])
-        resourceProperties.attribution.input.set(resources.attribution ?? '')
-        resourceProperties.licensing.input.set(resources.licensing ?? '')
-      }
-    }
-  }, [staticResource.data])
+          .get(resources.data[0].userId)
+          .then((user) => author.set(user))
+
+        fileStaticResources.set(resources.data)
+        const digest = createStaticResourceDigest(resources.data)
+        resourceDigest.set(digest)
+        sharedFields.set(
+          Object.keys(resourceDigest).filter((key) => {
+            const value = resourceDigest[key]
+            return value.length !== ''
+          })
+        )
+        sharedTags.set(resourceDigest.tags.get(NO_PROXY)!.slice() as string[])
+      })
+  }
+  const debouncedQuery = debounce(staticResourcesFindApi, 500)
+  debouncedQuery()
+
+  const author = useHookstate<UserType|null>(null)
 
   const handleAddTag = () => {
-    if (
-      resourceProperties.tags.input.value &&
-      !resourceProperties.tags.all.value.find((tag) => tag === resourceProperties.tags.input.value)
-    ) {
-      const newTags = [...resourceProperties.tags.all.value, resourceProperties.tags.input.value]
-      staticResourceMutation.patch(resourceProperties.id.value, {
-        tags: newTags
-      })
-      resourceProperties.tags.all.set(newTags)
+    if (tagInput.value != '' && resourceDigest.tags.value!.includes(tagInput.value)) {
+      if (!modifiedFields.value.includes('tags')) {
+        modifiedFields.set([...modifiedFields.value, 'tags'])
+      }
+      resourceDigest.tags.set([...resourceDigest.tags.value!, tagInput.value])
     }
-    resourceProperties.tags.input.set('')
+    tagInput.set('')
   }
 
-  const handleRemoveTag = (removedTag: string) => {
-    const currentTags = resourceProperties.tags.all.value.filter((tag) => tag !== removedTag)
-    staticResourceMutation.patch(resourceProperties.id.value, {
-      tags: currentTags
-    })
-    resourceProperties.tags.all.set(currentTags)
+  const handleRemoveTag = (index: number) => {
+    if (!modifiedFields.value.includes('tags')) {
+      modifiedFields.set([...modifiedFields.value, 'tags'])
+    }
+    resourceDigest.tags.set(resourceDigest.tags.value!.filter((_, i) => i !== index))
   }
 
   return (
     <Modal
-      title={t('editor:layout.filebrowser.fileProperties.header', { fileName: file.name.toUpperCase() })}
+      title={title}
       className="w-96"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
@@ -142,55 +167,58 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
       <div className="flex flex-col items-center gap-2">
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.name')}</Text>
-          <Text className="text-[#9CA0AA]">{file.name}</Text>
+          <Text className="text-[#9CA0AA]">{filename}</Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.type')}</Text>
-          <Text className="text-[#9CA0AA]">{file.type.toUpperCase()}</Text>
+          <Text className="text-[#9CA0AA]">{fileDigest.type.toUpperCase()}</Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.size')}</Text>
-          <Text className="text-[#9CA0AA]">{file.size}</Text>
+          <Text className="text-[#9CA0AA]">{
+              files
+                .map((file) => file.size)
+                .reduce((total, value) => total + parseInt(value ?? '0'), 0)
+          }</Text>
         </div>
-        {resourceProperties.id.value && (
+        {fileStaticResources.length > 0 && (
           <>
             <div className="grid grid-cols-2 gap-2">
               <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.author')}</Text>
-              <Text className="text-[#9CA0AA]">{resourceProperties.author.value?.name}</Text>
+              <Text className="text-[#9CA0AA]">{author.value?.name}</Text>
             </div>
             <div className="grid grid-cols-2 items-center gap-2">
               <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.attribution')}</Text>
               <span className="flex items-center">
-                {resourceProperties.attribution.editing.value ? (
+                {editedField.value === "attribution" ? (
                   <>
                     <Input
-                      value={resourceProperties.attribution.input.value}
-                      onChange={(event) => resourceProperties.attribution.input.set(event.target.value)}
+                      value={
+                        files.length > 1 && !sharedFields.value.includes('attribution')
+                          ? t('editor:layout.filebrowser.fileProperties.mixed-values')
+                          : resourceDigest.attribution.value!
+                      }
+                      onChange={onChange('attribution', resourceDigest.attribution)}
                     />
                     <Button
                       title={t('common:components.save')}
                       variant="transparent"
                       size="small"
                       startIcon={<RiSave2Line />}
-                      onClick={() => resourceProperties.attribution.editing.set(false)}
+                      onClick={() => editedField.set(null)}
                     />
                   </>
                 ) : (
                   <>
                     <Text className="text-[#9CA0AA]">
-                      {resourceProperties.attribution.input.value || <em>{t('common:components.none')}</em>}
+                      {resourceDigest.attribution.value || <em>{t('common:components.none')}</em>}
                     </Text>
                     <Button
                       title={t('common:components.edit')}
                       variant="transparent"
                       size="small"
                       startIcon={<HiPencil />}
-                      onClick={() => {
-                        resourceProperties.attribution.editing.set(true)
-                        staticResourceMutation.patch(resourceProperties.id.value, {
-                          attribution: resourceProperties.attribution.input.value
-                        })
-                      }}
+                      onClick={() => editedField.set("attribution")}
                     />
                   </>
                 )}
@@ -199,36 +227,35 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
             <div className="grid grid-cols-2 items-center gap-2">
               <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.licensing')}</Text>
               <span className="flex items-center">
-                {resourceProperties.licensing.editing.value ? (
+                {editedField.value === "licensing" ? (
                   <>
                     <Input
-                      value={resourceProperties.licensing.input.value}
-                      onChange={(event) => resourceProperties.licensing.input.set(event.target.value)}
+                      value={
+                        files.length > 1 && !sharedFields.value.includes('licensing')
+                          ? t('editor:layout.filebrowser.fileProperties.mixed-values')
+                          : resourceDigest.licensing.value!
+                      }
+                      onChange={onChange('licensing', resourceDigest.licensing)}
                     />
                     <Button
                       title={t('common:components.save')}
                       variant="transparent"
                       size="small"
                       startIcon={<RiSave2Line />}
-                      onClick={() => resourceProperties.licensing.editing.set(false)}
+                      onClick={() => editedField.set(null)}
                     />
                   </>
                 ) : (
                   <>
                     <Text className="text-[#9CA0AA]">
-                      {resourceProperties.licensing.input.value || <em>{t('common:components.none')}</em>}
+                      {resourceDigest.licensing.value || <em>{t('common:components.none')}</em>}
                     </Text>
                     <Button
                       title={t('common:components.edit')}
                       variant="transparent"
                       size="small"
                       startIcon={<HiPencil />}
-                      onClick={() => {
-                        resourceProperties.licensing.editing.set(true)
-                        staticResourceMutation.patch(resourceProperties.id.value, {
-                          licensing: resourceProperties.licensing.input.value
-                        })
-                      }}
+                      onClick={() => editedField.set("licensing")}
                     />
                   </>
                 )}
@@ -240,9 +267,13 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
               </Text>
               <div className="flex items-center gap-2">
                 <Input
-                  value={resourceProperties.tags.input.value}
-                  onChange={(event) => resourceProperties.tags.input.set(event.target.value)}
-                  onKeyUp={(event) => event.key === 'Enter' && handleAddTag()}
+                  value={tagInput.value}
+                  onChange={(event) => tagInput.set(event.target.value)}
+                  onKeyUp={(event) => {
+                    if (event.key === 'Enter') {
+                      handleAddTag()
+                    }
+                  }}
                 />
                 <Button
                   startIcon={<HiPlus />}
@@ -251,9 +282,9 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
                 />
               </div>
               <div className="flex h-24 flex-wrap gap-2 overflow-y-auto bg-theme-surfaceInput p-2">
-                {resourceProperties.tags.all.value.map((tag, idx) => (
+                {resourceDigest.tags.value!.map((tag, idx) => (
                   <span key={idx} className="flex h-fit w-fit items-center rounded bg-[#2F3137] px-2 py-0.5">
-                    {tag} <HiXMark className="ml-1 cursor-pointer" onClick={() => handleRemoveTag(tag)} />
+                    {tag} <HiXMark className="ml-1 cursor-pointer" onClick={() => handleRemoveTag(idx)} />
                   </span>
                 ))}
               </div>

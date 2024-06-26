@@ -31,8 +31,6 @@ import {
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
-import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
-import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
@@ -53,7 +51,6 @@ import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import { FileType } from '../container'
 import { FileIcon } from '../icon'
 import DeleteFileModal from './DeleteFileModal'
-import FilePropertiesModal from './FilePropertiesModal'
 import ImageConvertModal from './ImageConvertModal'
 import RenameFileModal from './RenameFileModal'
 
@@ -201,6 +198,9 @@ type FileBrowserItemType = {
   item: FileDataType
   disableDnD?: boolean
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
+  openModelCompress: () => void
+  openImageCompress: () => void
+  openFileProperties: () => void
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
@@ -228,6 +228,9 @@ export function FileBrowserItem({
   projectName,
   onClick,
   handleDropItemsOnPanel,
+  openModelCompress,
+  openImageCompress,
+  openFileProperties,
   isFilesLoading,
   addFolder,
   isListView,
@@ -413,12 +416,13 @@ export function FileBrowserItem({
             size="small"
             fullWidth
             onClick={() => {
-              PopoverState.showPopupover(<FilePropertiesModal projectName={projectName} file={item} />)
+              openFileProperties()
               handleClose()
             }}
           >
             {t('editor:layout.filebrowser.viewAssetProperties')}
           </Button>
+          {/*
           <Button
             variant="outline"
             size="small"
@@ -439,6 +443,38 @@ export function FileBrowserItem({
           >
             {t('editor:layout.filebrowser.compress')}
           </Button>
+          */}
+
+          {fileConsistsOfContentType(item, 'model') && (
+            <Button
+              variant="outline"
+              size="small"
+              fullWidth
+              // disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')}
+              onClick={() => {
+                openModelCompress()
+                handleClose()
+              }}
+            >
+              {t('editor:layout.filebrowser.compress')}
+            </Button>
+          )}
+
+          {fileConsistsOfContentType(item, 'image') && (
+            <Button
+              variant="outline"
+              size="small"
+              fullWidth
+              // disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')}
+              onClick={() => {
+                openImageCompress()
+                handleClose()
+              }}
+            >
+              {t('editor:layout.filebrowser.compress')}
+            </Button>
+          )}
+
           <Button
             variant="outline"
             size="small"
