@@ -31,7 +31,6 @@ import {
   AnimationSystemGroup,
   defineQuery,
   defineSystem,
-  Engine,
   Entity,
   getComponent,
   getOptionalComponent,
@@ -42,6 +41,7 @@ import { NetworkState } from '@etherealengine/network'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { EngineState } from '../../EngineState'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
@@ -102,6 +102,7 @@ export const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vec
 }
 
 const _frustum = new Frustum()
+const _worldPos = new Vector3()
 const _projScreenMatrix = new Matrix4()
 
 const transformDepths = new Map<Entity, number>()
@@ -177,11 +178,14 @@ const execute = () => {
   const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirty)
   for (const entity of dirtyOrAnimatingGroupEntities) updateGroupChildren(entity)
 
+  const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
+  for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
+
+  const viewerEntity = getState(EngineState).viewerEntity
   const cameraEntities = cameraQuery()
 
   for (const entity of cameraEntities) {
-    if (entity === Engine.instance.viewerEntity && xrFrame) continue
-
+    if (xrFrame && entity === viewerEntity) continue
     const camera = getComponent(entity, CameraComponent)
     camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
     const viewCamera = camera.cameras[0]
@@ -191,11 +195,10 @@ const execute = () => {
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
   }
 
-  const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
-  for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
+  if (!viewerEntity) return
 
-  const cameraPosition = getComponent(Engine.instance.viewerEntity, TransformComponent).position
-  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
+  const cameraPosition = getComponent(viewerEntity, TransformComponent).position
+  const camera = getComponent(viewerEntity, CameraComponent)
   for (const entity of distanceFromCameraQuery())
     DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
@@ -209,7 +212,7 @@ const execute = () => {
     )?.box
     const cull = boundingBox
       ? _frustum.intersectsBox(boundingBox)
-      : _frustum.containsPoint(getComponent(entity, TransformComponent).position)
+      : _frustum.containsPoint(TransformComponent.getWorldPosition(entity, _worldPos))
     FrustumCullCameraComponent.isCulled[entity] = cull ? 0 : 1
   }
 }

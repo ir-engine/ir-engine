@@ -47,7 +47,7 @@ import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterat
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -98,17 +98,14 @@ export async function addMediaNode(
 
         const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
         if (materialEntity) material = getMaterial(material.uuid as EntityUUID)!
-        const materialStateComponent = getMutableComponent(materialEntity, MaterialComponent[MaterialComponents.State])
 
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
-          const materialInstanceComponent = getMutableComponent(
-            mesh.entity,
-            MaterialComponent[MaterialComponents.Instance]
-          )
+          const materialInstanceComponent = getMutableComponent(mesh.entity, MaterialInstanceComponent)
           if (materialInstanceComponent.uuid.value) materialInstanceComponent.uuid.set([material.uuid as EntityUUID])
-          if (materialStateComponent.instances.value)
-            materialStateComponent.instances.set([...materialStateComponent.instances.value, mesh.entity])
+          /**this SHOULD be handled by library reactor */
+          // if (materialStateComponent.instances.value)
+          //   materialStateComponent.instances.set([...materialStateComponent.instances.value, mesh.entity])
         })
       })
     } else if (contentType.startsWith('model/lookdev')) {

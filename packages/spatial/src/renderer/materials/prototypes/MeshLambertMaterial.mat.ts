@@ -42,4 +42,13 @@ export const MeshLambertMaterial: MaterialPrototypeDefinition = {
   arguments: MeshLambertArguments
 }
 
+// export const MeshLambertMaterial = defineComponent({
+//   name: 'MeshLambertMaterial',
+//   onInit: (entity) => {
+//     return {
+//       material: new Lambert()
+//     }
+//   },
+// })
+
 export default MeshLambertMaterial

@@ -29,10 +29,10 @@ import { useDrag } from 'react-dnd'
 import { EntityUUID, getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { SiRoundcube } from 'react-icons/si'
 import { twMerge } from 'tailwind-merge'
 
@@ -56,10 +56,8 @@ export type MaterialLibraryEntryProps = {
 
 const nodeDisplayName = (node: MaterialLibraryEntryType) => {
   return (
-    getOptionalComponent(
-      UUIDComponent.getEntityByUUID(node.uuid as EntityUUID),
-      MaterialComponent[MaterialComponents.State]
-    )?.material?.name ?? ''
+    getOptionalComponent(UUIDComponent.getEntityByUUID(node.uuid as EntityUUID), MaterialStateComponent)?.material
+      ?.name ?? ''
   )
 }
 

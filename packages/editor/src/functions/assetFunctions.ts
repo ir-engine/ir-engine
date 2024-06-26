@@ -37,6 +37,7 @@ import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/
 import { Heuristic } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { getState } from '@etherealengine/hyperflux'
 
+import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { createLODVariants } from '../components/assets/ModelCompressionPanel'
 import { LODVariantDescriptor } from '../constants/GLTFPresets'
@@ -135,7 +136,7 @@ export const uploadProjectFiles = (projectName: string, files: File[], paths: st
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
     const fileDirectory = paths[i].replace('projects/' + projectName + '/', '')
-    const filePath = (fileDirectory.endsWith('/') ? fileDirectory : fileDirectory + '/') + file.name
+    const filePath = fileDirectory ? pathJoin(fileDirectory, file.name) : file.name
     promises.push(
       uploadToFeathersService(
         fileBrowserUploadPath,
