@@ -223,10 +223,11 @@ const execute = () => {
       getMutableComponent(eid, InputComponent).inputSources.set([])
 
   // update 2D screen-based (driven by pointer api) input sources
-  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
   for (const eid of pointers()) {
     const pointer = getComponent(eid, InputPointerComponent)
     const inputSource = getComponent(eid, InputSourceComponent)
+    const viewerEntity = pointer.canvasEntity
+    const camera = getComponent(viewerEntity, CameraComponent)
     pointer.movement.copy(pointer.position).sub(pointer.lastPosition)
     pointer.lastPosition.copy(pointer.position)
     inputSource.raycaster.setFromCamera(pointer.position, camera)
@@ -610,7 +611,6 @@ const CanvasInputReactor = () => {
       )
 
       updatePointerDragging(pointerEntity, event)
-
       redirectPointerEventsToXRUI(cameraEntity, event)
     }
 

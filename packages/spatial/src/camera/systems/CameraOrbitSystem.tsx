@@ -83,8 +83,6 @@ const execute = () => {
   for (const cameraEid of orbitCameraQuery()) {
     const inputPointerEntity = InputPointerComponent.getPointersForCanvas(cameraEid)[0]
 
-    const buttons = InputComponent.getMergedButtons(cameraEid)
-    const axes = InputComponent.getMergedAxes(cameraEid)
     const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)
 
     if (!inputPointerEntity && !cameraOrbit.refocus.value) continue
@@ -96,6 +94,9 @@ const execute = () => {
       (cameraEid == Engine.instance.viewerEntity && !getState(EngineState).isEditing)
     )
       continue
+
+    const buttons = InputComponent.getMergedButtons(cameraEid)
+    const axes = InputComponent.getMergedAxes(cameraEid)
 
     if (buttons.PrimaryClick?.pressed && buttons.PrimaryClick?.dragging) {
       InputState.setCapturingEntity(cameraEid)

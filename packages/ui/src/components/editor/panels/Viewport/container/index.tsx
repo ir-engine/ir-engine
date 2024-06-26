@@ -24,21 +24,26 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import { Engine, getComponent } from '@etherealengine/ecs'
+import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useEngineCanvas'
+import { getComponent, useComponent, useQuery } from '@etherealengine/ecs'
 import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { useMutableState } from '@etherealengine/hyperflux'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
+import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import React, { useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { Vector2, Vector3 } from 'three'
+import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
 import { DnDFileType, FileType } from '../../Files/container'
 import GizmoTool from '../tools/GizmoTool'
@@ -69,25 +74,6 @@ const ViewportDnD = () => {
     }
   })
 
-  useEffect(() => {
-    const viewportPanelNode = document.getElementById('viewport-panel')
-    if (!viewportPanelNode) return
-
-    const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement
-    viewportPanelNode.appendChild(canvas)
-
-    getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
-
-    const observer = new ResizeObserver(() => {
-      getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
-    })
-
-    observer.observe(viewportPanelNode)
-    return () => {
-      observer.disconnect()
-    }
-  }, [])
-
   return (
     <div
       id="viewport-panel"
@@ -100,14 +86,53 @@ const ViewportDnD = () => {
   )
 }
 
-const ViewPortPanelContainer = () => {
+const SceneLoadingProgress = ({ rootEntity }) => {
   const { t } = useTranslation()
-  const sceneName = useMutableState(EditorState).sceneName.value
+  const progress = useComponent(rootEntity, GLTFComponent).progress.value
+  const resourcePendingQuery = useQuery([ResourcePendingComponent])
+  const root = getComponent(rootEntity, SourceComponent)
+  const sceneModified = useHookstate(getMutableState(GLTFModifiedState)[root]).value
+
+  useEffect(() => {
+    if (!sceneModified) return
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      alert('You have unsaved changes. Please save before leaving.')
+      e.preventDefault()
+      e.returnValue = ''
+    }
+
+    window.addEventListener('beforeunload', onBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', onBeforeUnload)
+    }
+  }, [sceneModified])
+
+  if (progress === 100) return null
+
+  return (
+    <LoadingView
+      fullSpace
+      className="mb-2 flex h-1/2 w-1/2 justify-center"
+      title={t('editor:loadingScenesWithProgress', { progress, assetsLeft: resourcePendingQuery.length })}
+    />
+  )
+}
+
+const ViewPortPanelContainer = () => {
+  const { sceneName, rootEntity } = useMutableState(EditorState)
+
+  const { t } = useTranslation()
   const clientSettingState = useMutableState(AdminClientSettingsState)
   const [clientSetting] = clientSettingState?.client?.value || []
+
+  const ref = React.useRef<HTMLDivElement>(null)
+
+  useEngineCanvas(ref)
+
   return (
     <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
-      <div className="flex gap-1 p-1">
+      <div className="z-10 flex gap-1 p-1">
         <TransformSpaceTool />
         <TransformPivotTool />
         <GridTool />
@@ -116,15 +141,19 @@ const ViewPortPanelContainer = () => {
         <RenderModeTool />
         <PlayModeTool />
       </div>
-      {sceneName ? <GizmoTool /> : null}
-      {sceneName ? (
-        <ViewportDnD />
+      {sceneName.value ? <GizmoTool /> : null}
+      {sceneName.value ? (
+        <>
+          {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
+          <ViewportDnD />
+        </>
       ) : (
         <div className="flex h-full w-full flex-col justify-center gap-2">
           <img src={clientSetting.appTitle} className="block scale-[.8]" />
           <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
         </div>
       )}
+      <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
     </div>
   )
 }
