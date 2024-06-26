@@ -226,8 +226,7 @@ const execute = () => {
   for (const eid of pointers()) {
     const pointer = getComponent(eid, InputPointerComponent)
     const inputSource = getComponent(eid, InputSourceComponent)
-    const viewerEntity = pointer.canvasEntity
-    const camera = getComponent(viewerEntity, CameraComponent)
+    const camera = getComponent(pointer.cameraEntity, CameraComponent)
     pointer.movement.copy(pointer.position).sub(pointer.lastPosition)
     pointer.lastPosition.copy(pointer.position)
     inputSource.raycaster.setFromCamera(pointer.position, camera)
@@ -842,8 +841,8 @@ export const ClientInputCleanupSystem = defineSystem({
   execute: cleanupInputs
 })
 
-const redirectPointerEventsToXRUI = (canvasEntity: Entity, evt: PointerEvent) => {
-  const pointerEntity = InputPointerComponent.getPointerByID(canvasEntity, evt.pointerId)
+const redirectPointerEventsToXRUI = (cameraEntity: Entity, evt: PointerEvent) => {
+  const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, evt.pointerId)
   const inputSource = getOptionalComponent(pointerEntity, InputSourceComponent)
   if (!inputSource) return
   for (const i of inputSource.intersections) {
