@@ -72,6 +72,9 @@ export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity
     ${probes.map((probe, index) => `uniform vec3 envMapPosition${index};`).join('\n')}
     uniform vec3 targetPosition;
     varying vec2 vUv;
+
+    float EPSILON = 0.0001;
+
     void main() {
       vec3 color = vec3(0.0);
       float totalDistance = 0.0;
@@ -79,12 +82,12 @@ export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity
         .map(
           (probe, index) => `
         float distance = distance(targetPosition, envMapPosition${index});
-        totalDistance += distance;
-        color += texture2D(envMap${index}, vUv).rgb * distance;
+        totalDistance += distance + EPSILON;
+        color += texture2D(envMap${index}, vUv).rgb / (distance + EPSILON);
         `
         )
         .join('\n')}
-      gl_FragColor = vec4(color / totalDistance, 1.0);
+      gl_FragColor = vec4(color * totalDistance, 1.0);
     }
     `
   const uniforms = {
