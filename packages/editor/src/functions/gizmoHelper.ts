@@ -39,7 +39,7 @@ import {
   TransformMode,
   TransformSpace
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
+import { getState, NO_PROXY } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { Axis, Q_IDENTITY, Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
@@ -906,7 +906,7 @@ function pointerUp(gizmoEntity) {
     if (!getState(ObjectGridSnapState).enabled) {
       EditorControlFunctions.commitTransformSave(gizmoControlComponent.controlledEntities.get(NO_PROXY) as Entity[])
     } else {
-      getMutableState(ObjectGridSnapState).apply.set(true)
+      ObjectGridSnapState.apply()
     }
   }
   gizmoControlComponent.dragging.set(false)

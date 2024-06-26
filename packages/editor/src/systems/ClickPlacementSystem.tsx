@@ -79,7 +79,6 @@ export const ClickPlacementState = defineState({
   name: 'ClickPlacementState',
   initial: {
     placementEntity: UndefinedEntity as Entity,
-    placedEntity: UndefinedEntity as Entity,
     selectedAsset: null as string | null,
     yawOffset: 0,
     pitchOffset: 0,
@@ -128,13 +127,6 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
     if (getOptionalComponent(placementEntity, ModelComponent)?.src === assetURL) return
     setComponent(placementEntity, ModelComponent, { src: assetURL })
   }, [clickState.selectedAsset, clickState.placementEntity])
-
-  useEffect(() => {
-    if (!clickState.placedEntity.value) return
-    const _parentEntity = getParentEntity()
-    if (!_parentEntity) return
-    clickState.placementEntity.set(createPlacementEntity(_parentEntity))
-  }, [clickState.placedEntity])
 
   return (
     <PlacementModelReactor key={clickState.placementEntity.value} placementEntity={clickState.placementEntity.value} />
@@ -186,18 +178,20 @@ const createPlacementEntity = (parentEntity: Entity) => {
 const clickListener = () => {
   const clickState = getMutableState(ClickPlacementState)
   if (!clickState.selectedAsset.value) return
+  const parentEntity = getParentEntity()
+  if (!parentEntity) return
   const placementEntity = clickState.placementEntity.value
   if (!placementEntity) return
 
-  if (getState(ObjectGridSnapState).enabled) {
-    getMutableState(ObjectGridSnapState).apply.set(true)
-  }
   placedCount += 1
-  clickState.placedEntity.set(placementEntity)
+  clickState.placementEntity.set(createPlacementEntity(parentEntity))
   for (const [mesh, material] of clickState.materialCache.value as [Mesh, Material][]) {
     mesh.material = material
   }
   clickState.materialCache.set([])
+  if (getState(ObjectGridSnapState).enabled) {
+    ObjectGridSnapState.apply()
+  }
 }
 
 export const ClickPlacementSystem = defineSystem({
@@ -254,6 +248,8 @@ export const ClickPlacementSystem = defineSystem({
     }
     if (buttons.PrimaryClick?.up) {
       clickListener()
+      //Wait until next frame is placement entity changed
+      if (placementEntity !== clickState.placementEntity) return
     }
 
     const pointer = getComponent(mouseEntity, InputPointerComponent)
@@ -289,7 +285,7 @@ export const ClickPlacementSystem = defineSystem({
       }
       break
     }
-    if (!placementEntity) return
+
     if (!targetIntersection) {
       const point = cameraPosition.clone().add(cameraDirection.clone().multiplyScalar(clickState.maxDistance))
       targetIntersection = { point, normal: new Vector3(0, 1, 0) }
