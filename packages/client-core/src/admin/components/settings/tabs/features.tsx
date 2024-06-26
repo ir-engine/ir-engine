@@ -28,16 +28,21 @@ import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-import {
-  FeatureFlag,
-  FeatureFlagSettingType,
-  featureFlagSettingPath
-} from '@etherealengine/common/src/schema.type.module'
+import { FeatureFlagSettingType, featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import { useHookstate } from '@hookstate/core'
 
 const defaultProps = ['id', 'flagName', 'flagValue', 'createdAt', 'updatedAt']
+
+const defaultTypes = [
+  'ir.client.menu.social',
+  'ir.client.menu.emote',
+  'ir.client.menu.avaturn',
+  'ir.client.menu.readyPlayerMe'
+] as const
+
+type FeatureFlag = (typeof defaultTypes)[number]
 
 const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
@@ -46,13 +51,6 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
   const featureFlagSettings = useFind(featureFlagSettingPath)
 
   useEffect(() => {
-    const defaultTypes = [
-      'ir.client.menu.social',
-      'ir.client.menu.emote',
-      'ir.client.menu.avaturn',
-      'ir.client.menu.readyPlayerMe'
-    ]
-
     if (featureFlagSettings.status === 'success') {
       const missingTypes = defaultTypes.filter(
         (type) =>
