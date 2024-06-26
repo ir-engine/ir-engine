@@ -49,14 +49,10 @@ export const useZendesk = () => {
     if (authenticated.value || config.client.zendesk.authenticationEnabled !== 'true') return
 
     window.zE('messenger', 'loginUser', function (callback: any) {
-      locationMutation
-        .create({
-          scope: 'user'
-        })
-        .then(async (token) => {
-          authenticated.set(true)
-          await callback(token)
-        })
+      locationMutation.create().then(async (token) => {
+        authenticated.set(true)
+        await callback(token)
+      })
     })
   }
 

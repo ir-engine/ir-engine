@@ -25,14 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { ZendeskAuthenticationType } from '@etherealengine/common/src/schemas/integrations/zendesk/zendesk.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { resolve, virtual } from '@feathersjs/schema'
+import { resolve } from '@feathersjs/schema'
 
-export const zendeskAuthenticationDataResolver = resolve<ZendeskAuthenticationType, HookContext>({
-  external_id: virtual((_zendeskAuthentication, context: HookContext) => {
-    return context.params.user.id
-  }),
-
-  name: virtual((_zendeskAuthentication, context: HookContext) => {
-    return context.params.user.name
-  })
-})
+export const zendeskAuthenticationDataResolver = resolve<ZendeskAuthenticationType, HookContext>({})

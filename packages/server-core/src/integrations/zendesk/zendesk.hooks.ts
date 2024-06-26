@@ -31,13 +31,20 @@ import { sign } from 'jsonwebtoken'
 import { zendeskAuthenticationDataResolver } from './zendesk.resolver'
 
 const getZendeskToken = (context: HookContext<Application>) => {
-  const token = sign(context.data, appConfig.zendesk.secret!, {
-    header: {
-      alg: 'HS256',
-      kid: appConfig.zendesk.kid
+  context.result = sign(
+    {
+      scope: 'user',
+      external_id: context.params.user.id,
+      name: context.params.user.name
+    },
+    appConfig.zendesk.secret!,
+    {
+      header: {
+        alg: 'HS256',
+        kid: appConfig.zendesk.kid
+      }
     }
-  })
-  context.result = token
+  )
   return context
 }
 
