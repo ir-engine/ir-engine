@@ -34,14 +34,15 @@ import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
-import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
 export const WarningUIState = defineState({
@@ -151,12 +152,8 @@ export const WarningUISystemState = defineState({
     const transitionPeriodSeconds = 0.2
     const transition = createTransitionState(transitionPeriodSeconds, 'OUT')
 
-    const ui = createXRUI(WarningSystemXRUI)
-    removeComponent(ui.entity, VisibleComponent)
-    setComponent(ui.entity, NameComponent, 'Warning XRUI')
-
     return {
-      ui,
+      ui: null as null | ReturnType<typeof createXRUI>,
       transition
     }
   }
@@ -179,8 +176,10 @@ function TransitionReactor() {
 let accumulator = 0
 
 const execute = () => {
-  const state = getState(WarningUIState)
   const { transition, ui } = getState(WarningUISystemState)
+  if (!ui) return
+
+  const state = getState(WarningUIState)
 
   const deltaSeconds = getState(ECSState).deltaSeconds
 
@@ -226,10 +225,14 @@ const execute = () => {
   })
 }
 
-const reactor = () => {
+const Reactor = () => {
   useEffect(() => {
+    const ui = createXRUI(WarningSystemXRUI)
+    removeComponent(ui.entity, VisibleComponent)
+    setComponent(ui.entity, NameComponent, 'Warning XRUI')
+    getMutableState(WarningUISystemState).ui.set(ui)
+
     return () => {
-      const ui = getState(WarningUISystemState).ui
       removeEntity(ui.entity)
     }
   }, [])
@@ -240,5 +243,8 @@ export const WarningUISystem = defineSystem({
   uuid: 'ee.client.WarningUISystem',
   insert: { after: PresentationSystemGroup },
   execute,
-  reactor
+  reactor: () => {
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <Reactor />
+  }
 })
