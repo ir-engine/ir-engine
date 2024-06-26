@@ -34,7 +34,7 @@ import collectAnalytics from '../../hooks/collect-analytics'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import resolveProjectId from '../../hooks/resolve-project-id'
-import resolveProjByPerm from '../../hooks/resolveProjByPerm'
+import resolveProjectsByPermission from '../../hooks/resolveProjectsByPermission'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
 import verifyScope from '../../hooks/verify-scope'
@@ -192,7 +192,7 @@ export default {
                 resolveProjectId(),
                 verifyProjectPermission(['owner', 'editor', 'reviewer'])
               ],
-              [verifyScope('editor', 'write'), resolveProjByPerm()]
+              [verifyScope('editor', 'write'), resolveProjectsByPermission()]
             ) as any
           ]
         )
