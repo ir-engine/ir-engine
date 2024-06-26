@@ -64,9 +64,13 @@ export const updateProperties = <C extends Component>(
     : editorState.lockPropertiesPanel.value
     ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
     : SelectionState.getSelectedEntities()
-  for (let i = 0; i < affectedNodes.length; i++) {
-    const node = affectedNodes[i]
-    updateComponent(node, component, properties)
+
+  for (const node of affectedNodes) {
+    try {
+      updateComponent(node, component, properties)
+    } catch (e) {
+      continue
+    }
   }
 }
 
