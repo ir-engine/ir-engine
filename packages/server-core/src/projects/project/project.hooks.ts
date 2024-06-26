@@ -312,7 +312,11 @@ const uploadLocalProject = async (context: HookContext<ProjectService>) => {
   manifestData.engineVersion = engineVersion
   fs.writeFileSync(path.resolve(projectLocalDirectory, 'manifest.json'), JSON.stringify(manifestData, null, 2))
 
+  // we should replace this with explicitly putting the files into the storage provider, rather than writing to disk
   await uploadLocalProjectToProvider(context.app, context.projectName, false)
+
+  // TODO: see if this is necessary
+  // if (!config.fsProjectSyncEnabled) fs.rmSync(projectLocalDirectory, { recursive: true })
 }
 
 /**
@@ -502,7 +506,7 @@ const removeStaticResourcesFromProject = async (context: HookContext<ProjectServ
   })) as any as StaticResourceType[]
   staticResourceItems.length &&
     staticResourceItems.forEach(async (staticResource) => {
-      await context.app.service(staticResourcePath).remove(staticResource.id)
+      await context.app.service(staticResourcePath).remove(staticResource.id, { ignoreResourcesJson: true })
     })
 }
 

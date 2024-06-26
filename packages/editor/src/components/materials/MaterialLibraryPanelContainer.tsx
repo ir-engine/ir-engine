@@ -39,8 +39,8 @@ import {
 } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
+import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
@@ -54,7 +54,7 @@ import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibrar
 export default function MaterialLibraryPanel() {
   const srcPath = useState('/mat/material-test')
 
-  const materialQuery = useQuery([MaterialComponent[MaterialComponents.State]])
+  const materialQuery = useQuery([MaterialStateComponent])
   const nodes = useHookstate([] as MaterialLibraryEntryType[])
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
 
@@ -126,7 +126,8 @@ export default function MaterialLibraryPanel() {
                 const relativePath = pathJoin('assets', libraryName)
                 const gltf = (await exportMaterialsGLTF([UUIDComponent.getEntityByUUID(materialUUID)], {
                   binary: false,
-                  relativePath
+                  relativePath,
+                  projectName
                 })!) as { [key: string]: any }
                 const blob = [JSON.stringify(gltf)]
                 const file = new File(blob, libraryName)

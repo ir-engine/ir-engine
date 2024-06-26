@@ -519,8 +519,14 @@
         "subtitle": "Edit Project Settings",
         "submit": "Submit",
         "clear": "Clear",
+        "save": "Save",
+        "delete": "Delete",
+        "add": "Add",
         "noSettingsMessage": "No settings available",
-        "lastUpdatedBy": "Last updated by user id: {{userId}}"
+        "lastUpdatedBy": "Last updated by user id: {{userId}}",
+        "duplicateKey": "Duplicate keys cannot exist",
+        "keyName": "Key Name",
+        "value": "Value"
       },
       "server": {
         "header": "Server",

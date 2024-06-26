@@ -63,11 +63,9 @@ class FileLoader<TData = unknown> extends Loader<TData> {
     if (cached !== undefined) {
       this.manager.itemStart(url)
 
-      setTimeout(() => {
-        if (onLoad) onLoad(cached)
+      if (onLoad) onLoad(cached)
 
-        this.manager.itemEnd(url)
-      }, 0)
+      this.manager.itemEnd(url)
 
       return cached
     }

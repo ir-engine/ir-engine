@@ -4,6 +4,8 @@ on:
     branches: [dev]
   push:
     branches: [dev]
+  merge_group:
+    types: [checks_requested]
 jobs:
   secrets-gate:
     runs-on: ubuntu-latest
@@ -98,6 +100,7 @@ jobs:
     needs: install-modules
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         package:
           - client

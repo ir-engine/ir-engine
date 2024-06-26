@@ -29,8 +29,6 @@ import { Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 import $404 from '../pages/404'
@@ -40,9 +38,8 @@ const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes
 
 function PublicRouter() {
   const customRoutes = useCustomRoutes()
-  const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
 
-  if (!/auth\/oauth/.test(location.pathname) && (!customRoutes.length || !isLoggedIn.value)) {
+  if (!/auth\/oauth/.test(location.pathname) && !customRoutes.length) {
     return <LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />
   }
 

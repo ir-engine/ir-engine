@@ -26,6 +26,7 @@
   "envMapError": "Error loading cubemap images {{files}}",
   "lbl-return": "Return",
   "loadingScenes": "Loading Scenes",
+  "loadingScenesWithProgress": "Scene Loading... {{progress}}% ({{assetsLeft}} assets left)",
   "menubar": {
     "newScene": "New Scene",
     "saveScene": "Save Scene",
@@ -66,7 +67,8 @@
     "networkError": "Network Error: {{status}}. {{text}}",
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
-    "urlFetchError": "Failed to fetch \"{{url}}\""
+    "urlFetchError": "Failed to fetch \"{{url}}\"",
+    "invalidSceneName": "Provide a valid scene name"
   },
   "viewport": {
     "title": "Viewport",
@@ -322,7 +324,7 @@
         "path": "Path:",
         "prototype": "Prototype",
         "loading": "Loading...",
-        "addPlugin": "Add Plugin",
+        "setPlugin": "Set Plugin",
         "plugin": "Plugin"
       },
       "materialProperties": {
@@ -1166,6 +1168,7 @@
       "refresh": "Refresh",
       "back": "Back",
       "loadingFiles": "Loading files",
+      "loadingProjects": "Loading projects",
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
@@ -1226,6 +1229,7 @@
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
+    "lbl-createPrefab": "Create Prefab",
     "issues": "Issues",
     "copy-paste": {
       "no-hierarchy-nodes": "No hierarchy nodes found"
@@ -1383,5 +1387,15 @@
   "tabs": {
     "scene-assets": "Assets",
     "project-assets": "Project Assets"
+  },
+  "generatingThumbnails": {
+    "title": "Generating Thumbnails",
+    "amountRemaining": "{{count}} remaining"
+  },
+  "assetMetadata": {
+    "name": "Name",
+    "path": "Path",
+    "type": "Type",
+    "tags": "Tags"
   }
 }

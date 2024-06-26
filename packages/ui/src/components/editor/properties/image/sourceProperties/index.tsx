@@ -66,24 +66,24 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
         />
       </InputGroup>
       {
-        /*imageComponent.alphaMode.value === ImageAlphaMode.Mask*/ true && (
-          <InputGroup
-            name="Alpha Cutoff"
-            label={t('editor:properties.image.lbl-alphaCutoff')}
-            info={t('editor:properties.image.info-alphaCutoff')}
-          >
-            <NumericInput
-              min={0}
-              max={1}
-              smallStep={0.01}
-              mediumStep={0.1}
-              largeStep={0.25}
-              value={/*imageComponent.alphaCutoff.value*/ 0}
-              onChange={updateProperty(ImageComponent, 'alphaCutoff')}
-              onRelease={commitProperty(ImageComponent, 'alphaCutoff')}
-            />
-          </InputGroup>
-        )
+        /*{imageComponent.alphaMode.value === ImageAlphaMode.Mask && (*/
+        <InputGroup
+          name="Alpha Cutoff"
+          label={t('editor:properties.image.lbl-alphaCutoff')}
+          info={t('editor:properties.image.info-alphaCutoff')}
+        >
+          <NumericInput
+            min={0}
+            max={1}
+            smallStep={0.01}
+            mediumStep={0.1}
+            largeStep={0.25}
+            value={/*imageComponent.alphaCutoff.value*/ 0}
+            onChange={updateProperty(ImageComponent, 'alphaCutoff')}
+            onRelease={commitProperty(ImageComponent, 'alphaCutoff')}
+          />
+        </InputGroup>
+        /** )} */
       }
       <InputGroup name="Projection" label={t('editor:properties.image.lbl-projection')}>
         <SelectInput

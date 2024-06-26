@@ -419,11 +419,7 @@ const decrementCPUPerformance = () => {
   )
 }
 
-const buildPerformanceState = async (
-  renderer: EngineRenderer,
-  onFinished: () => void,
-  override?: GetGPUTier['override']
-) => {
+const buildPerformanceState = async (renderer: EngineRenderer, override?: GetGPUTier['override']) => {
   const performanceState = getMutableState(PerformanceState)
   const gpuTier = await getGPUTier({
     glContext: renderer.renderContext,
@@ -432,7 +428,7 @@ const buildPerformanceState = async (
     mobileTiers: [0, 15, 30, 45, 60, 75],
     override
   })
-  let tier = gpuTier.tier
+  let tier = gpuTier.type === 'FALLBACK' ? performanceState.gpuTier.value : gpuTier.tier
   performanceState.isMobileGPU.set(!!gpuTier.isMobile)
   if (gpuTier.gpu) performanceState.gpu.set(gpuTier.gpu)
   if (gpuTier.device) performanceState.device.set(gpuTier.device)
@@ -460,7 +456,6 @@ const buildPerformanceState = async (
   }
 
   performanceState.gpuTier.set(tier as PerformanceTier)
-  onFinished()
 }
 
 export const PerformanceManager = {

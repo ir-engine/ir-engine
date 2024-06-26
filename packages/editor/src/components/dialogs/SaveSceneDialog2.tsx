@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import isValidSceneName from '@etherealengine/common/src/utils/validateSceneName'
 import { getComponent } from '@etherealengine/ecs'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
@@ -81,8 +82,14 @@ export const SaveNewSceneDialog = () => {
   const { t } = useTranslation()
   const inputSceneName = useHookstate('New Scene')
   const modalProcessing = useHookstate(false)
+  const inputError = useHookstate('')
 
   const handleSubmit = async () => {
+    if (!isValidSceneName(inputSceneName.value)) {
+      inputError.set(t('editor:errors.invalidSceneName'))
+      return
+    }
+
     modalProcessing.set(true)
     const { projectName, sceneName, rootEntity } = getState(EditorState)
     const sceneModified = EditorState.isModified()
@@ -120,6 +127,7 @@ export const SaveNewSceneDialog = () => {
         onChange={(event) => inputSceneName.set(event.target.value)}
         label={t('editor:dialog.saveNewScene.lbl-name')}
         description={t('editor:dialog.saveNewScene.info-name')}
+        error={inputError.value}
       />
     </Modal>
   )

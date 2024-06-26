@@ -37,6 +37,7 @@ import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/
 import { Heuristic } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { getState } from '@etherealengine/hyperflux'
 
+import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { createLODVariants } from '../components/assets/ModelCompressionPanel'
 import { LODVariantDescriptor } from '../constants/GLTFPresets'
@@ -102,9 +103,9 @@ export const inputFileWithAddToScene = async ({
               files.map(
                 (file) =>
                   uploadToFeathersService(fileBrowserUploadPath, [file], {
-                    fileName: file.name,
-                    path: directoryPath,
-                    contentType: ''
+                    project: projectName,
+                    path: directoryPath.replace('projects/' + projectName + '/', '') + file.name,
+                    contentType: file.type
                   }).promise
               )
             )
@@ -122,11 +123,12 @@ export const inputFileWithAddToScene = async ({
         }
       } catch (err) {
         reject(err)
+      } finally {
+        el.remove()
       }
     }
 
     el.click()
-    el.remove()
   })
 
 export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], onProgress?) => {
@@ -134,16 +136,17 @@ export const uploadProjectFiles = (projectName: string, files: File[], paths: st
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
-    const path = paths[i]
+    const fileDirectory = paths[i].replace('projects/' + projectName + '/', '')
+    const filePath = fileDirectory ? pathJoin(fileDirectory, file.name) : file.name
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: file.name, path, contentType: '' }, onProgress)
+      uploadToFeathersService(
+        fileBrowserUploadPath,
+        [file],
+        { project: projectName, path: filePath, contentType: '' },
+        onProgress
+      )
     )
   }
-
-  const uploadPromises = [...promises]
-  Promise.all(uploadPromises).then(() =>
-    Engine.instance.api.service('project-resources').create({ project: projectName })
-  )
 
   return {
     cancel: () => promises.forEach((promise) => promise.cancel()),
@@ -193,11 +196,11 @@ export const processEntry = async (
 
   if (item.isFile) {
     const file = await getFile(item)
-    const path = `projects/${projectName}/assets${directory}`
     const name = processFileName(file.name)
+    const path = `assets${directory}/` + name
 
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: name, path, contentType: '' }, onProgress)
+      uploadToFeathersService(fileBrowserUploadPath, [file], { projectName, path, contentType: '' }, onProgress)
     )
   }
 }
