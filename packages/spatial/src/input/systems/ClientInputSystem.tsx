@@ -74,7 +74,7 @@ import { DefaultButtonAlias, InputComponent } from '../components/InputComponent
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
-import { ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
+import { AnyButton, ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 
 /** squared distance threshold for dragging state */
@@ -536,13 +536,13 @@ const CanvasInputReactor = () => {
     const canvas = rendererComponent.canvas
 
     /** Clear mouse events */
-    const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
+    const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick'] as AnyButton[]
     const clearPointerState = (entity: Entity) => {
       const inputSourceComponent = getComponent(entity, InputSourceComponent)
       const state = inputSourceComponent.buttons
       for (const button of pointerButtons) {
-        const val = state[button]
-        if (!val?.up && val?.pressed) state[button].up = true
+        const val = state[button] as ButtonState
+        if (!val?.up && val?.pressed) (state[button] as ButtonState).up = true
       }
     }
 
@@ -583,9 +583,9 @@ const CanvasInputReactor = () => {
       if (event.button === 1) button = MouseButton.AuxiliaryClick
       else if (event.button === 2) button = MouseButton.SecondaryClick
 
-      const state = inputSourceComponent.buttons
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
       if (down) {
-        state[button as any] = createInitialButtonState(pointerEntity) //down, pressed, touched = true
+        state[button] = createInitialButtonState(pointerEntity) //down, pressed, touched = true
 
         const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
         if (pointer) {
