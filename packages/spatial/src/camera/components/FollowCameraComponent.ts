@@ -198,7 +198,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   // Run only if not in first person mode
   let obstacleDistance = Infinity
-  if (follow.raycastProps.enabled && follow.targetDistance >= follow.thirdPersonMinDistance) {
+  if (follow.raycastProps.enabled && follow.mode !== FollowCameraMode.FirstPerson) {
     const distanceResults = getMaxCamDistance(cameraEntity, follow.currentTargetPosition)
     obstacleDistance = distanceResults.maxDistance
     isInsideWall = distanceResults.targetHit
@@ -207,7 +207,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   if (follow.mode === FollowCameraMode.FirstPerson) {
     follow.effectiveMinDistance = follow.effectiveMaxDistance = 0
   } else if (follow.mode === FollowCameraMode.ThirdPerson || follow.mode === FollowCameraMode.ShoulderCam) {
-    follow.effectiveMinDistance = follow.thirdPersonMinDistance * 1.1
+    follow.effectiveMinDistance = follow.thirdPersonMinDistance
     follow.effectiveMaxDistance = Math.min(obstacleDistance * 0.9, follow.thirdPersonMaxDistance)
   } else if (follow.mode === FollowCameraMode.TopDown) {
     follow.effectiveMinDistance = follow.effectiveMaxDistance = Math.min(
@@ -236,14 +236,13 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   )
 
   if (follow.mode === FollowCameraMode.FirstPerson) {
-    newZoomDistance = Math.sqrt(follow.targetDistance) * 0.1
+    newZoomDistance = Math.sqrt(follow.targetDistance) * 0.5
     // Move from first person mode to third person mode
     if (triggerZoomShift) {
       follow.accumulatedZoomTriggerDebounceTime = -1
       if (
         follow.allowedModes.includes(FollowCameraMode.ThirdPerson) &&
-        newZoomDistance > 0.1 * follow.thirdPersonMinDistance &&
-        Math.abs(follow.lastZoomStartDistance - follow.thirdPersonMinDistance) < 0.1 * follow.thirdPersonMinDistance
+        newZoomDistance > 0.1 * follow.thirdPersonMinDistance
       ) {
         // setup third person mode
         setTargetCameraRotation(cameraEntity, 0, follow.theta)
@@ -254,10 +253,8 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
         follow.targetDistance = newZoomDistance = 0
       }
     }
-  }
-
-  if (follow.mode === FollowCameraMode.ThirdPerson) {
-    newZoomDistance = newZoomDistance + minSpringFactor + maxSpringFactor
+  } else if (follow.mode === FollowCameraMode.ThirdPerson) {
+    newZoomDistance = newZoomDistance + minSpringFactor * 0.5 + maxSpringFactor
     if (triggerZoomShift) {
       follow.accumulatedZoomTriggerDebounceTime = -1
       const effectiveRange = follow.effectiveMaxDistance - follow.effectiveMinDistance
@@ -286,10 +283,8 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
         )
       }
     }
-  }
-
-  if (follow.mode === FollowCameraMode.TopDown) {
-    newZoomDistance = follow.effectiveMaxDistance + maxSpringFactor
+  } else if (follow.mode === FollowCameraMode.TopDown) {
+    newZoomDistance += minSpringFactor + maxSpringFactor
     // Move from top down mode to third person mode
     if (triggerZoomShift) {
       follow.accumulatedZoomTriggerDebounceTime = -1

@@ -105,7 +105,7 @@ export const handleFollowCameraScroll = (
 
   if (zoomDelta === 0 && shoulderDelta === 0 && follow.accumulatedZoomTriggerDebounceTime >= 0 && outsideMinMaxRange) {
     follow.accumulatedZoomTriggerDebounceTime += deltaTime
-  } else if (zoomDelta > 0 || shoulderDelta > 0) {
+  } else if (Math.abs(zoomDelta) > 0 || Math.abs(shoulderDelta) > 0) {
     if (follow.accumulatedZoomTriggerDebounceTime === -1) {
       follow.lastZoomStartDistance = follow.distance
     }
