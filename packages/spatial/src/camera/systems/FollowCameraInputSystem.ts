@@ -93,13 +93,24 @@ export const handleFollowCameraScroll = (
   const zoomDelta = axes.FollowCameraZoomScroll ?? 0
   const shoulderDelta = axes.FollowCameraShoulderCamScroll ?? 0
 
-  if (zoomDelta === 0 && shoulderDelta === 0) follow.scrollPauseTime += deltaTime
-  else follow.scrollPauseTime = 0
+  follow.targetDistance = Math.max(follow.targetDistance + zoomDelta, 0)
 
-  follow.targetDistance = Math.min(
-    Math.max(follow.targetDistance + zoomDelta, follow.effectiveMinDistance),
-    follow.effectiveMaxDistance * 1.1
-  )
+  // Math.min(
+  //   Math.max(follow.targetDistance + zoomDelta, follow.effectiveMinDistance * 0.8),
+  //   follow.effectiveMaxDistance * 1.2
+  // )
+
+  const outsideMinMaxRange =
+    follow.targetDistance < follow.effectiveMinDistance || follow.targetDistance > follow.effectiveMaxDistance
+
+  if (zoomDelta === 0 && shoulderDelta === 0 && follow.accumulatedZoomTriggerDebounceTime >= 0 && outsideMinMaxRange) {
+    follow.accumulatedZoomTriggerDebounceTime += deltaTime
+  } else if (zoomDelta > 0 || shoulderDelta > 0) {
+    if (follow.accumulatedZoomTriggerDebounceTime === -1) {
+      follow.lastZoomStartDistance = follow.distance
+    }
+    follow.accumulatedZoomTriggerDebounceTime = 0
+  }
 }
 
 const execute = () => {

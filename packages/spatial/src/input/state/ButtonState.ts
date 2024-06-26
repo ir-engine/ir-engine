@@ -71,8 +71,8 @@ export enum MouseButton {
 }
 
 export enum MouseScroll {
-  'HorizontalScroll' = 'HorizontalScroll',
-  'VerticalScroll' = 'VerticalScroll'
+  'HorizontalScroll' = 0,
+  'VerticalScroll' = 1
 }
 
 /**
@@ -253,6 +253,7 @@ export type AnyAxis =
   | keyof typeof MouseScroll
   | keyof typeof StandardGamepadAxes
   | keyof typeof XRStandardGamepadAxes
+  | MouseScroll
   | StandardGamepadAxes
   | XRStandardGamepadAxes
 

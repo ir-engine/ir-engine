@@ -494,21 +494,12 @@ const useNonSpatialInputSources = () => {
       if (buttonState[event.detail.button]) buttonState[event.detail.button].up = true
     })
 
-    const onWheelEvent = (event: WheelEvent) => {
-      const normalizedValues = normalizeWheel(event)
-      const axes = inputSourceComponent.source.gamepad!.axes as number[]
-      axes[0] = normalizedValues.spinX
-      axes[1] = normalizedValues.spinY
-    }
-    document.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
-
     return () => {
       document.removeEventListener('DOMMouseScroll', preventDefault, false)
       document.removeEventListener('gesturestart', preventDefault)
       document.removeEventListener('keyup', onKeyEvent)
       document.removeEventListener('keydown', onKeyEvent)
       document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
-      document.removeEventListener('wheel', onWheelEvent)
       removeEntity(eid)
     }
   }, [])
@@ -639,6 +630,16 @@ const CanvasInputReactor = () => {
       redirectPointerEventsToXRUI(cameraEntity, evt)
     }
 
+    const onWheelEvent = (event: WheelEvent) => {
+      const pointer = InputPointerComponent.getPointersForCanvas(cameraEntity)[0]
+      if (!pointer) return
+      const inputSourceComponent = getComponent(pointer, InputSourceComponent)
+      const normalizedValues = normalizeWheel(event)
+      const axes = inputSourceComponent.source.gamepad!.axes as number[]
+      axes[0] = normalizedValues.spinX
+      axes[1] = normalizedValues.spinY
+    }
+
     canvas.addEventListener('dragstart', preventDefault, false)
     canvas.addEventListener('contextmenu', preventDefault)
     canvas.addEventListener('pointerenter', onPointerEnter)
@@ -651,6 +652,7 @@ const CanvasInputReactor = () => {
     canvas.addEventListener('blur', onVisibilityChange)
     canvas.addEventListener('visibilitychange', onVisibilityChange)
     canvas.addEventListener('click', onClick)
+    canvas.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
 
     return () => {
       canvas.removeEventListener('dragstart', preventDefault, false)
@@ -665,6 +667,7 @@ const CanvasInputReactor = () => {
       canvas.removeEventListener('blur', onVisibilityChange)
       canvas.removeEventListener('visibilitychange', onVisibilityChange)
       canvas.removeEventListener('click', onClick)
+      canvas.removeEventListener('wheel', onWheelEvent)
     }
   }, [xrState.session])
 
