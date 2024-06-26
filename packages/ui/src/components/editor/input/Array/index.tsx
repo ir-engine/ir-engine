@@ -70,7 +70,7 @@ export default function ArrayInputGroup({
       </div>
       <div className="flex flex-col space-y-1 bg-[#1A1A1A] py-1.5">
         {values.map((value, idx) => (
-          <div key={value + idx} className="mr-5 flex items-center justify-end gap-x-2.5">
+          <div key={idx} className="mr-5 flex items-center justify-end gap-x-2.5">
             {inputLabel && <Label className="text-[#A0A1A2]">{inputLabel + ' ' + (idx + 1)}</Label>}
             <Input
               containerClassname="w-32"
