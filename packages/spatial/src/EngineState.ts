@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UndefinedEntity } from '@etherealengine/ecs'
 import { defineState } from '@etherealengine/hyperflux'
 
-// TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
   name: 'EngineState',
   initial: {
@@ -35,6 +35,22 @@ export const EngineState = defineState({
     publicPath: '',
     /** @deprecated use isEditing instead */
     isEditor: false,
-    isEditing: false
+    isEditing: false,
+
+    /**
+     * Represents the reference space of the xr session local floor.
+     */
+    localFloorEntity: UndefinedEntity,
+
+    /**
+     * Represents the reference space for the absolute origin of the rendering context.
+     */
+
+    originEntity: UndefinedEntity,
+
+    /**
+     * Represents the reference space for the viewer.
+     */
+    viewerEntity: UndefinedEntity
   }
 })

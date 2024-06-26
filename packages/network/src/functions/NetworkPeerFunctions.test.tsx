@@ -30,7 +30,7 @@ import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.modul
 import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { PeerID, applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { createEngine, initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 
 import { SpawnObjectActions } from '../../../spatial/src/transform/SpawnObjectActions'
 import { createMockNetwork } from '../../tests/createMockNetwork'
@@ -44,6 +44,7 @@ describe('NetworkPeerFunctions', () => {
     createEngine()
     createMockNetwork()
     Engine.instance.store.defaultDispatchDelay = () => 0
+    initializeSpatialEngine()
   })
 
   afterEach(() => {

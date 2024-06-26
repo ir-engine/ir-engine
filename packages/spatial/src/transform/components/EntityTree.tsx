@@ -195,15 +195,14 @@ export function traverseEntityNodeChildFirst(
   cb: (entity: Entity, index: number) => void,
   index = 0
 ): void {
-  const entityTreeNode = getComponent(entity, EntityTreeComponent)
+  const entityTreeNode = getOptionalComponent(entity, EntityTreeComponent)
 
-  if (!entityTreeNode) return
-
-  const children = [...entityTreeNode.children]
-
-  for (let i = 0; i < children.length; i++) {
-    const child = children[i]
-    traverseEntityNodeChildFirst(child, cb, i)
+  if (entityTreeNode) {
+    const children = [...entityTreeNode.children]
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i]
+      traverseEntityNodeChildFirst(child, cb, i)
+    }
   }
 
   cb(entity, index)

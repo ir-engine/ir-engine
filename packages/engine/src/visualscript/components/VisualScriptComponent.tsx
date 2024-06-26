@@ -28,7 +28,7 @@ import matches, { Validator } from 'ts-matches'
 
 import { cleanStorageProviderURLs, parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { Entity } from '@etherealengine/ecs'
-import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useMutableState } from '@etherealengine/hyperflux'
 import { useAncestorWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -118,6 +118,7 @@ const LoadReactor = (props: { entity: Entity; gltfAncestor: Entity }) => {
     setComponent(props.entity, VisualScriptComponent, { run: true })
 
     return () => {
+      if (!hasComponent(props.entity, VisualScriptComponent)) return
       setComponent(props.entity, VisualScriptComponent, { run: false })
     }
   }, [loaded])

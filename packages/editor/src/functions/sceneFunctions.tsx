@@ -37,6 +37,7 @@ import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentS
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { handleScenePaths } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { Params } from '@feathersjs/feathers'
 import { EditorState } from '../services/EditorServices'
@@ -177,7 +178,7 @@ export const onNewScene = async (
 }
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
-  const gltfEntity = GLTFSourceState.load(sceneURL, uuid, Engine.instance.originEntity)
+  const gltfEntity = GLTFSourceState.load(sceneURL, uuid, getState(EngineState).originEntity)
   setComponent(gltfEntity, SceneComponent)
   getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {

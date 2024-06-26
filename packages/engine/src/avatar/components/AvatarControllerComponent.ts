@@ -37,11 +37,12 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
 import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
@@ -53,7 +54,7 @@ export const AvatarControllerComponent = defineComponent({
   onInit(entity) {
     return {
       /** The camera entity that should be updated by this controller */
-      cameraEntity: Engine.instance.cameraEntity,
+      cameraEntity: getState(EngineState).viewerEntity || UndefinedEntity,
       movementCaptured: [] as Array<Entity>,
       isJumping: false,
       isWalking: false,

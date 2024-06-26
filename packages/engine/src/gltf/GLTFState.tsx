@@ -31,7 +31,6 @@ import { staticResourcePath } from '@etherealengine/common/src/schema.type.modul
 import {
   ComponentJSONIDMap,
   createEntity,
-  Engine,
   Entity,
   EntityUUID,
   getComponent,
@@ -66,6 +65,7 @@ import { Object3DComponent } from '@etherealengine/spatial/src/renderer/componen
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
@@ -84,7 +84,7 @@ export const GLTFAssetState = defineState({
   },
 
   loadScene: (sceneURL: string, uuid: string) => {
-    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, Engine.instance.originEntity)
+    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, getState(EngineState).originEntity)
     getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
     setComponent(gltfEntity, SceneComponent)
 

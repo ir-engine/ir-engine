@@ -73,6 +73,7 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 
 import './InstanceServerModule'
 
+import { initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
@@ -274,6 +275,8 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   Engine.instance.userID = hostId
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
   HyperFlux.store.forwardingTopics.add(topic)
+
+  initializeSpatialEngine()
 
   await setupIPs()
   const network = await initializeNetwork(app, hostId, Engine.instance.store.peerID, topic)
