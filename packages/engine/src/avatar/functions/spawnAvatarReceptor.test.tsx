@@ -36,7 +36,7 @@ import { ReactorReconciler, applyIncomingActions, dispatchAction, getMutableStat
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@etherealengine/network'
 import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { createEngine, initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import {
   RigidBodyComponent,
@@ -56,6 +56,7 @@ describe('spawnAvatarReceptor', () => {
   let sceneEntity: Entity
   beforeEach(async () => {
     createEngine()
+    initializeSpatialEngine()
     await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())

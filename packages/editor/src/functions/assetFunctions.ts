@@ -123,11 +123,12 @@ export const inputFileWithAddToScene = async ({
         }
       } catch (err) {
         reject(err)
+      } finally {
+        el.remove()
       }
     }
 
     el.click()
-    el.remove()
   })
 
 export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], onProgress?) => {
