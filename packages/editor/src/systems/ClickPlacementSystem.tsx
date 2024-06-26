@@ -72,6 +72,7 @@ import { Euler, Material, Mesh, Quaternion, Raycaster, Vector3 } from 'three'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
+import { SelectionState } from '../services/SelectionServices'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 let placedCount = 0
@@ -110,6 +111,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
   useEffect(() => {
     if (gltfComponent.progress.value < 100) return
     if (editorState.placementMode.value === PlacementMode.CLICK) {
+      SelectionState.updateSelection([])
       if (clickState.placementEntity.value) return
       clickState.placementEntity.set(createPlacementEntity(parentEntity))
     } else {
