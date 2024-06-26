@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Static, Type } from '@feathersjs/typebox'
+import { Static, Type, querySyntax } from '@feathersjs/typebox'
 
 export const zendeskAuthenticationPath = 'zendesk-authentication'
 
@@ -35,3 +35,14 @@ export const zendeskAuthenticationSchema = Type.Object({
   name: Type.Optional(Type.String())
 })
 export interface ZendeskAuthenticationType extends Static<typeof zendeskAuthenticationSchema> {}
+
+export const zendeskAuthenticationQueryProperties = Type.Pick(zendeskAuthenticationSchema, [])
+export const zendeskAuthenticationQuerySchema = Type.Intersect(
+  [
+    querySyntax(zendeskAuthenticationQueryProperties),
+    // Add additional query properties here
+    Type.Object({}, { additionalProperties: false })
+  ],
+  { additionalProperties: false }
+)
+export interface ZendeskAuthenticationQuery extends Static<typeof zendeskAuthenticationQuerySchema> {}

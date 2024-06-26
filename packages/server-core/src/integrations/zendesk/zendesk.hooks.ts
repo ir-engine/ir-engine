@@ -23,22 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserType } from '@etherealengine/common/src/schema.type.module'
-import { NotAuthenticated } from '@feathersjs/errors'
+import appConfig from '@etherealengine/server-core/src/appconfig'
 import { Application, HookContext } from '@feathersjs/feathers/lib/declarations'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
+import { sign } from 'jsonwebtoken'
+import { zendeskAuthenticationDataResolver } from './zendesk.resolver'
 
-const resolveLoggedInUser = async (context: HookContext<Application>) => {
-  if (context.params.isInternal) return context
-  const loggedInUser = context.params.user as UserType
-  if (!loggedInUser || !loggedInUser.id) throw new NotAuthenticated('No logged in user')
-
-  context.data = {
-    ...context.data,
-    external_id: loggedInUser.id,
-    name: loggedInUser.name
-  }
-
+const getZendeskToken = (context: HookContext<Application>) => {
+  const token = sign(context.data, appConfig.zendesk.secret!, {
+    header: {
+      alg: 'HS256',
+      kid: appConfig.zendesk.kid
+    }
+  })
+  context.result = token
   return context
 }
 
@@ -47,7 +46,7 @@ export default {
     all: [],
     find: [disallow()],
     get: [disallow()],
-    create: [resolveLoggedInUser],
+    create: [schemaHooks.resolveData(zendeskAuthenticationDataResolver), getZendeskToken],
     update: [disallow()],
     patch: [disallow()],
     remove: [disallow()]

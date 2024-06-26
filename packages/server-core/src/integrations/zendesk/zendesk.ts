@@ -40,7 +40,7 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  app.use(zendeskAuthenticationPath, new ZendeskAuthenticationService(app), {
+  app.use(zendeskAuthenticationPath, new ZendeskAuthenticationService(), {
     // A list of all methods this service exposes externally
     methods: zendeskAuthenticationMethods,
     // You can add additional custom events to be sent to clients here

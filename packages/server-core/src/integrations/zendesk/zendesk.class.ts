@@ -23,31 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
+import { ZendeskAuthenticationQuery, ZendeskAuthenticationType } from '@etherealengine/common/src/schema.type.module'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
+import { BaseService } from '../../BaseService'
 
-import { Application } from '../../../declarations'
-
-import { sign } from 'jsonwebtoken'
-
-import { ZendeskAuthenticationType } from '@etherealengine/common/src/schema.type.module'
-import appConfig from '@etherealengine/server-core/src/appconfig'
+export interface ZendeskAuthenticationParams extends KnexAdapterParams<ZendeskAuthenticationQuery> {}
 
 /**
- * A class for Signing zendesk tokens service
+ * A class for ZendeskAuthentication service
  */
-export class ZendeskAuthenticationService implements ServiceInterface<string, ZendeskAuthenticationType> {
-  app: Application
-
-  constructor(app: Application) {
-    this.app = app
-  }
-
-  async create(data: ZendeskAuthenticationType): Promise<string> {
-    return sign(data, appConfig.zendesk.secret!, {
-      header: {
-        alg: 'HS256',
-        kid: appConfig.zendesk.kid
-      }
-    })
-  }
-}
+export class ZendeskAuthenticationService<
+  T = ZendeskAuthenticationType,
+  ServiceParams extends Params = ZendeskAuthenticationParams
+> extends BaseService<ZendeskAuthenticationType, void, ZendeskAuthenticationParams> {}
