@@ -2,15 +2,6 @@ name: branch-build
 on:
   pull_request:
     branches: [dev]
-    paths:
-      - '**.ts'
-      - '**.tsx'
-      - '**.js'
-      - '**.jsx'
-      - '**.json'
-      - '**.wasm'
-      - '**.sh'
-      - '**.yml'
   push:
     branches: [dev]
   merge_group:
