@@ -54,9 +54,11 @@ import { defineActionQueue, defineState, getMutableState, getState, useMutableSt
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { smootheLerpAlpha } from '../common/functions/MathLerpFunctions'
 
+import React from 'react'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { Vector3_Up } from '../common/constants/MathConstants'
 import { NameComponent } from '../common/NameComponent'
+import { EngineState } from '../EngineState'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { InputState } from '../input/state/InputState'
@@ -190,38 +192,9 @@ const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
 
 export const XRAnchorSystemState = defineState({
   name: 'XRAnchorSystemState',
-  initial: () => {
-    const scenePlacementEntity = createEntity()
-    setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
-    setComponent(scenePlacementEntity, XRScenePlacementComponent)
-    setComponent(scenePlacementEntity, TransformComponent)
-    setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
-    setComponent(scenePlacementEntity, VisibleComponent, true)
-    setComponent(scenePlacementEntity, InputComponent, { highlight: false, grow: false })
-
-    const scenePlacementRingGeom = new RingGeometry(0.08, 0.1, 16)
-    scenePlacementRingGeom.rotateX(-Math.PI / 2)
-    scenePlacementRingGeom.translate(0, 0.01, 0)
-
-    const pinSphereGeometry = new SphereGeometry(0.025, 16, 16)
-    pinSphereGeometry.translate(0, 0.1125, 0)
-    const pinConeGeom = new ConeGeometry(0.01, 0.1, 16)
-    pinConeGeom.rotateX(Math.PI)
-    pinConeGeom.translate(0, 0.05, 0)
-
-    const mergedGeometry = mergeBufferGeometries([scenePlacementRingGeom, pinSphereGeometry, pinConeGeom])!
-
-    const originAnchorMesh = new Mesh(mergedGeometry, new MeshBasicMaterial({ color: 'white' }))
-    originAnchorMesh.name = 'world-origin-pinpoint-anchor'
-
-    const originAnchorEntity = createEntity()
-    setComponent(originAnchorEntity, NameComponent, 'xr-world-anchor')
-    addObjectToGroup(originAnchorEntity, originAnchorMesh)
-
-    return {
-      scenePlacementEntity,
-      originAnchorEntity
-    }
+  initial: {
+    scenePlacementEntity: UndefinedEntity,
+    originAnchorEntity: UndefinedEntity
   }
 })
 
@@ -253,7 +226,38 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
+const Reactor = () => {
+  useEffect(() => {
+    const scenePlacementEntity = createEntity()
+    setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
+    setComponent(scenePlacementEntity, XRScenePlacementComponent)
+    setComponent(scenePlacementEntity, TransformComponent)
+    setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
+    setComponent(scenePlacementEntity, VisibleComponent, true)
+    setComponent(scenePlacementEntity, InputComponent, { highlight: false, grow: false })
+
+    const scenePlacementRingGeom = new RingGeometry(0.08, 0.1, 16)
+    scenePlacementRingGeom.rotateX(-Math.PI / 2)
+    scenePlacementRingGeom.translate(0, 0.01, 0)
+
+    const pinSphereGeometry = new SphereGeometry(0.025, 16, 16)
+    pinSphereGeometry.translate(0, 0.1125, 0)
+    const pinConeGeom = new ConeGeometry(0.01, 0.1, 16)
+    pinConeGeom.rotateX(Math.PI)
+    pinConeGeom.translate(0, 0.05, 0)
+
+    const mergedGeometry = mergeBufferGeometries([scenePlacementRingGeom, pinSphereGeometry, pinConeGeom])!
+
+    const originAnchorMesh = new Mesh(mergedGeometry, new MeshBasicMaterial({ color: 'white' }))
+    originAnchorMesh.name = 'world-origin-pinpoint-anchor'
+
+    const originAnchorEntity = createEntity()
+    setComponent(originAnchorEntity, NameComponent, 'xr-world-anchor')
+    addObjectToGroup(originAnchorEntity, originAnchorMesh)
+
+    getMutableState(XRAnchorSystemState).set({ scenePlacementEntity, originAnchorEntity })
+  }, [])
+
   const { scenePlacementMode, session: xrSession } = useMutableState(XRState).value
   const { scenePlacementEntity, originAnchorEntity } = useMutableState(XRAnchorSystemState).value
   const hitTest = useOptionalComponent(scenePlacementEntity, XRHitTestComponent)
@@ -366,5 +370,8 @@ export const XRAnchorSystem = defineSystem({
   uuid: 'ee.engine.XRAnchorSystem',
   insert: { after: XRCameraUpdateSystem },
   execute,
-  reactor
+  reactor: () => {
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <Reactor />
+  }
 })

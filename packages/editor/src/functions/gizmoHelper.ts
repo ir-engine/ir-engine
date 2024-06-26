@@ -86,7 +86,6 @@ const _alignVector = new Vector3(0, 1, 0)
 const _lookAtMatrix = new Matrix4()
 const _dirVector = new Vector3()
 const _tempMatrix = new Matrix4()
-const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
 
 const _v1 = new Vector3()
 const _v2 = new Vector3()
@@ -106,6 +105,8 @@ export function gizmoUpdate(gizmoEntity) {
 
   const gizmo = getComponent(gizmoControl.visualEntity, TransformGizmoVisualComponent)
   if (gizmo === undefined) return
+
+  const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
 
   const factor = (camera as any).isOrthographicCamera
     ? ((camera as any).top - (camera as any).bottom) / camera.zoom
@@ -433,6 +434,7 @@ export function planeUpdate(gizmoEntity) {
   }
   if (_dirVector.length() === 0) {
     // If in rotate mode, make the plane parallel to camera
+    const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
     setComponent(gizmoControl.planeEntity, TransformComponent, { rotation: camera.quaternion })
   } else {
     _tempMatrix.lookAt(Vector3_Zero, _dirVector, _alignVector)
@@ -471,6 +473,7 @@ export function controlUpdate(gizmoEntity: Entity) {
   else _parentQuaternionInv.set(0, 0, 0, 1).invert()
   _worldQuaternionInv.copy(getComponent(targetEntity, TransformComponent).rotation).invert()
 
+  const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
   if ((camera as any).isOrthographicCamera) {
     camera.getWorldDirection(gizmoControl.eye.value).negate()
   } else {
@@ -493,6 +496,7 @@ function pointerHover(gizmoEntity) {
 
   if (targetEntity === UndefinedEntity || gizmoControlComponent.dragging.value === true) return
 
+  const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
   _raycaster.setFromCamera(pointerPosition, camera)
   const intersect = intersectObjectWithRay(picker, _raycaster, true)
 
@@ -523,6 +527,7 @@ function pointerDown(gizmoEntity) {
     return
 
   if (gizmoControlComponent.axis.value !== null) {
+    const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
     _raycaster.setFromCamera(pointer.position, camera)
 
     const planeIntersect = intersectObjectWithRay(plane, _raycaster, true)
@@ -669,6 +674,7 @@ function applyScale(entity, pointStart, pointEnd, axis, scaleSnap, pivotControll
 
 function applyRotation(entity, gizmoControlComponent, axis, space) {
   _offset.copy(gizmoControlComponent.pointEnd.value).sub(gizmoControlComponent.pointStart.value)
+  const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
 
   const ROTATION_SPEED =
     20 / gizmoControlComponent.worldPosition.value.distanceTo(_tempVector.setFromMatrixPosition(camera.matrixWorld))
@@ -792,6 +798,7 @@ function pointerMove(gizmoEntity) {
   )
     return
 
+  const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
   _raycaster.setFromCamera(pointer.position, camera)
 
   const planeIntersect = intersectObjectWithRay(plane, _raycaster, true)

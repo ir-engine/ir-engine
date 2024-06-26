@@ -32,7 +32,14 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { defineActionQueue, defineState, dispatchAction, getState, useMutableState } from '@etherealengine/hyperflux'
+import {
+  defineActionQueue,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useMutableState
+} from '@etherealengine/hyperflux'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
@@ -54,6 +61,8 @@ import {
   WidgetAppState
 } from '@etherealengine/spatial/src/xrui/WidgetAppService'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import React from 'react'
 import { createAnchorWidget } from './createAnchorWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
@@ -71,20 +80,8 @@ const widgetRightRotation = new Quaternion()
 
 const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
-  initial: () => {
-    const widgetMenuUI = createWidgetButtonsView()
-    /** @todo is originEntity is the correct parent? */
-    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-    setComponent(widgetMenuUI.entity, TransformComponent)
-    removeComponent(widgetMenuUI.entity, VisibleComponent)
-    setComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
-    // const helper = new AxesHelper(0.1)
-    // setObjectLayers(helper, ObjectLayers.Gizmos)
-    // addObjectToGroup(widgetMenuUI.entity, helper)
-
-    return {
-      widgetMenuUI
-    }
+  initial: {
+    widgetMenuUI: null as ReturnType<typeof createWidgetButtonsView> | null
   }
 })
 
@@ -118,8 +115,10 @@ const registerWidgetQueue = defineActionQueue(WidgetAppActions.registerWidget.ma
 const unregisterWidgetQueue = defineActionQueue(WidgetAppActions.unregisterWidget.matches)
 
 const execute = () => {
-  const widgetState = getState(WidgetAppState)
   const { widgetMenuUI } = getState(WidgetUISystemState)
+  if (!widgetMenuUI) return
+
+  const widgetState = getState(WidgetAppState)
   const inputSources = inputSourceQuery()
 
   for (const inputSourceEntity of inputSources) {
@@ -201,7 +200,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
+const Reactor = () => {
   const xrState = useMutableState(XRState)
 
   useEffect(() => {
@@ -213,9 +212,20 @@ const reactor = () => {
   }, [xrState.sessionActive])
 
   useEffect(() => {
+    const widgetMenuUI = createWidgetButtonsView()
+    /** @todo is originEntity is the correct parent? */
+    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(widgetMenuUI.entity, TransformComponent)
+    removeComponent(widgetMenuUI.entity, VisibleComponent)
+    setComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
+    // const helper = new AxesHelper(0.1)
+    // setObjectLayers(helper, ObjectLayers.Gizmos)
+    // addObjectToGroup(widgetMenuUI.entity, helper)
+
+    getMutableState(WidgetUISystemState).widgetMenuUI.set(widgetMenuUI)
+
     createWidgetMenus()
     return () => {
-      const { widgetMenuUI } = getState(WidgetUISystemState)
       removeEntity(widgetMenuUI.entity)
     }
   }, [])
@@ -227,5 +237,8 @@ export const WidgetUISystem = defineSystem({
   uuid: 'ee.client.WidgetUISystem',
   insert: { before: TransformSystem },
   execute,
-  reactor
+  reactor: () => {
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <Reactor />
+  }
 })

@@ -32,10 +32,12 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { defineActionQueue, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 
-import { createTransitionState } from '../../common/functions/createTransitionState'
+import React from 'react'
+import { EngineState } from '../../EngineState'
 import { NameComponent } from '../../common/NameComponent'
+import { createTransitionState } from '../../common/functions/createTransitionState'
 import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
@@ -85,7 +87,7 @@ const execute = () => {
   })
 }
 
-const reactor = () => {
+const Reactor = () => {
   useEffect(() => {
     const geometry = new SphereGeometry(10)
     const material = new MeshBasicMaterial({
@@ -125,5 +127,8 @@ export const CameraFadeBlackEffectSystem = defineSystem({
   uuid: 'ee.engine.CameraFadeBlackEffectSystem',
   insert: { with: CameraSystem },
   execute,
-  reactor
+  reactor: () => {
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <Reactor />
+  }
 })
