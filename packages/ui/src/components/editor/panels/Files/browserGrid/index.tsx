@@ -38,7 +38,7 @@ import { getMutableState, useHookstate, useMutableState } from '@etherealengine/
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
-import React, { MouseEventHandler, MutableRefObject, useEffect, useRef } from 'react'
+import React, { MouseEventHandler, MutableRefObject, useEffect } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
@@ -161,7 +161,6 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const { projectName } = useMutableState(EditorState)
   const staticResource = useFind(staticResourcePath, { query: { key: props.item.key, project: projectName.value! } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
-  const showTooltip = useHookstate(false)
   const { t } = useTranslation()
 
   return (
@@ -236,8 +235,6 @@ export function FileBrowserItem({
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const fileService = useMutation(fileBrowserPath)
-  const tooltipPosition = useHookstate({ x: 0, y: 0 })
-  const itemRef = useRef<HTMLDivElement>(null)
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
