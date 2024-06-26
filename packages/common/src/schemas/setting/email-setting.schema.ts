@@ -40,7 +40,8 @@ export const emailSubjectSchema = Type.Object(
     instance: Type.String(),
     login: Type.String(),
     friend: Type.String(),
-    channel: Type.String()
+    channel: Type.String(),
+    project: Type.String()
   },
   { $id: 'EmailSubject', additionalProperties: false }
 )
