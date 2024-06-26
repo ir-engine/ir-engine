@@ -43,6 +43,8 @@ export const LookAtSystem = defineSystem({
   insert: { before: TransformSystem },
   execute: () => {
     const viewerEntity = Engine.instance.viewerEntity
+    if (!viewerEntity) return
+
     for (const entity of facerQuery()) {
       const facer = getComponent(entity, LookAtComponent)
       const targetEntity: Entity | null = facer.target ? UUIDComponent.getEntityByUUID(facer.target) : viewerEntity

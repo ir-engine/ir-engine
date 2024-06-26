@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { StaticResourceType, uploadAssetPath } from '@etherealengine/common/src/schema.type.module'
+import { cleanURL } from '@etherealengine/common/src/utils/cleanURL'
 import { AssetsPreviewPanel } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import {
   AssetTypeToMimeType,
@@ -110,12 +111,13 @@ export default function CreateResourceModal({ selectedResource }: { selectedReso
         contentType: MimeTypeToAssetType[state.mimeType.value]
       })
     } else {
-      getNameAndType(state.resourceURL.value).then(({ name, mimeType, assetType }) => {
+      const url = cleanURL(state.resourceURL.value)
+      getNameAndType(url).then(({ name, mimeType, assetType }) => {
         state.name.set(name)
         state.mimeType.set(mimeType)
         ;(previewPanelRef as any).current?.onSelectionChanged({
           name: name,
-          resourceUrl: state.resourceURL.value,
+          resourceUrl: url,
           contentType: assetType
         })
       })
@@ -145,8 +147,9 @@ export default function CreateResourceModal({ selectedResource }: { selectedReso
         })
       } else if (state.source.value === 'url' && state.resourceURL.value) {
         const response = await fetch(state.resourceURL.value)
+        const url = cleanURL(state.resourceURL.value)
         const blob = await response.blob()
-        const resourceFile = new File([blob], state.resourceURL.value.split('/').pop()!, {
+        const resourceFile = new File([blob], url.split('/').pop()!, {
           type: state.mimeType.value
         })
         await uploadToFeathersService(uploadAssetPath, [resourceFile], {
