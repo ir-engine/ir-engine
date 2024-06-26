@@ -37,7 +37,7 @@ export const FeatureFlagsState = defineState({
   },
   useEnabled(flagName: FeatureFlag) {
     const state = useHookstate(getMutableState(FeatureFlagsState)[flagName]).value
-    return typeof state === 'boolean' ? state : true
+    return typeof state === 'boolean' ? state : typeof state === 'number' && state === 0 ? false : true
   },
   reactor: () => {
     const featureFlagQuery = useFind(featureFlagSettingPath)

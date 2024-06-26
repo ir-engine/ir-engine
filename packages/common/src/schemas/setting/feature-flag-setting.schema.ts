@@ -44,7 +44,10 @@ export const featureFlagSettingSchema = Type.Object(
       'ir.client.menu.social',
       'ir.client.menu.emote',
       'ir.client.menu.avaturn',
-      'ir.client.menu.readyPlayerMe'
+      'ir.client.menu.readyPlayerMe',
+      'ir.mt.menu.myDomains',
+      'ir.mt.project.storage',
+      'ir.mt.project.version'
     ]),
     flagValue: Type.Boolean(),
     createdAt: Type.String({ format: 'date-time' }),
