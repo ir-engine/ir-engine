@@ -154,7 +154,7 @@ const getProjectName = async (context: HookContext<StaticResourceService>) => {
 }
 
 const hasProjectField = (context: HookContext<StaticResourceService>) => {
-  return !context.params.query?.project
+  return context.params.query?.project != undefined
 }
 
 const isKeyPublic = (context: HookContext<StaticResourceService>) => {
@@ -180,18 +180,13 @@ export default {
     find: [
       iff(
         isProvider('external'),
+        // if admin, if user. Admin Can see all Projects no matter what(individual or all). User can only see projects he has perms for.
         iffElse(
           hasProjectField,
           [
-            iffElse(
-              checkScope('static_resource', 'read'),
-              [],
-              [
-                verifyScope('editor', 'write'),
-                resolveProjectId(),
-                verifyProjectPermission(['owner', 'editor', 'reviewer'])
-              ]
-            ) as any
+            verifyScope('editor', 'write'),
+            resolveProjectId(),
+            verifyProjectPermission(['owner', 'editor', 'reviewer'])
           ],
           [verifyScope('editor', 'write'), resolveProjByPerm()]
         )
