@@ -72,7 +72,7 @@ export const LoopAnimationComponent = defineComponent({
       zeroSlopeAtStart: true,
       zeroSlopeAtEnd: true,
       weight: 1,
-
+      forceStop: {},
       // internal
       _action: null as AnimationAction | null
     }
@@ -226,6 +226,14 @@ export const LoopAnimationComponent = defineComponent({
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
       animComponent.animations.set(animations)
     }, [gltf, animComponent, modelComponent?.asset])
+
+    useEffect(() => {
+      if (animComponent) {
+        //loopAnimationComponent.time.set(loopAnimationComponent.forceTime.time.value)
+        //animComponent.mixer.time.set(loopAnimationComponent.forceTime.time.value)
+        animComponent.mixer.value.stopAllAction()
+      }
+    }, [loopAnimationComponent.forceStop])
 
     return null
   }

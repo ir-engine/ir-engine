@@ -120,6 +120,7 @@ import SkyboxNodeEditor from '@etherealengine/ui/src/components/editor/propertie
 import SpawnPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline'
 
+import { AnimationTriggerComponent } from '@etherealengine/engine/src/AnimationTriggerComponent'
 import { CameraTriggerComponent } from '@etherealengine/engine/src/CameraTriggerComponent'
 import { VideoTriggerComponent } from '@etherealengine/engine/src/VideoTriggerComponent'
 import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
@@ -135,6 +136,7 @@ import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/prope
 import NewVolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric/new'
 import { EditorComponentType } from '../components/properties/Util'
 
+import { AnimationTriggerNodeEditor } from '@etherealengine/engine/src/AnimationTriggerNodeEditor'
 import { CameraTriggerNodeEditor } from '@etherealengine/engine/src/CameraTriggerNodeEditor'
 import { VideoTriggerNodeEditor } from '@etherealengine/engine/src/VideoTriggerNodeEditor'
 
@@ -194,7 +196,8 @@ export const ComponentEditorsState = defineState({
       [TextComponent.name]: TextNodeEditor,
       [LookAtComponent.name]: LookAtNodeEditor,
       [CameraTriggerComponent.name]: CameraTriggerNodeEditor,
-      [VideoTriggerComponent.name]: VideoTriggerNodeEditor
+      [VideoTriggerComponent.name]: VideoTriggerNodeEditor,
+      [AnimationTriggerComponent.name]: AnimationTriggerNodeEditor
     } as Record<string, EditorComponentType>
   }
 })

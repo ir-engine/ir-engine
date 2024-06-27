@@ -1051,6 +1051,15 @@
       "lbl-media":"Media",
       "lbl-resetEnter":"Reset on Enter",
       "lbl-resetExit":"Reset on Exit"
+    },
+    "animationTrigger": {
+      "name": "Animation Trigger",
+      "description": "Animation Trigger Component",
+      "lbl-animation":"Animation",
+      "lbl-enterAnimation":"Enter Animation Clip",
+      "lbl-exitAnimation":"Exit Animation Clip",
+      "lbl-enterLoop":"Enter Loop Type",
+      "lbl-exitLoop":"Exit Loop Type"
     }
   },
   "projects": {
