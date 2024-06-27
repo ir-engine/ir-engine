@@ -23,13 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Box, List, ListItem, ListItemButton, ListItemText, Modal } from '@mui/material'
-import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
 import { Group, LoaderUtils } from 'three'
 
-import Button from '@etherealengine/client-core/src/common/components/Button'
-import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
 import { createEntity, Entity, generateEntityUUID, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -53,19 +49,14 @@ import {
   EntityTreeComponent,
   removeEntityNodeRecursively
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
-import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import exportGLTF from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
-import BooleanInput from '../inputs/BooleanInput'
-import InputGroup from '../inputs/InputGroup'
-import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 import { FileType } from './FileBrowser/FileBrowserContentPanel'
-import styles from './styles.module.scss'
+
+import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 
 const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity): Entity => {
   const entity = createEntity()
@@ -263,119 +254,9 @@ export default function ModelCompressionPanel({
     setSelectedLODIndex(Math.min(selectedLODIndex, lods.length - 1))
   }
 
-  return (
-    <Menu
-      open={openCompress.value}
-      onClose={() => openCompress.set(false)}
-      showCloseButton={true}
-      maxWidth={'lg'}
-      header={fileProperties.value.name}
-      actions={
-        <>
-          {!compressionLoading ? (
-            <Button type="gradient" className={styles.horizontalCenter} onClick={compressContentInBrowser}>
-              {t('editor:properties.model.transform.compress') as string}
-            </Button>
-          ) : (
-            <CircularProgress style={{ margin: '1rem auto' }} className={styles.horizontalCenter} />
-          )}
-        </>
-      }
-    >
-      <div className={styles.modelMenu}>
-        <Box>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div className={styles.headerContainer}>LOD Levels</div>
-            <List>
-              {lods.map((lod, lodIndex) => (
-                <ListItem key={lodIndex}>
-                  <ListItemButton
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'start'
-                    }}
-                    selected={selectedLODIndex === lodIndex}
-                    onClick={() => handleLODSelect(lodIndex)}
-                  >
-                    <ListItemText primary={`LOD Level ${lodIndex}`} style={{ color: 'white' }} />
-                    {lods.length > 1 && lodIndex == lods.length - 1 && (
-                      <IconButton
-                        onClick={handleLodRemove}
-                        icon={<Icon type="Close" style={{ color: 'var(--iconButtonColor)' }} />}
-                      ></IconButton>
-                    )}
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-            <div>
-              <IconButton
-                onClick={() => handleLODAdd()}
-                icon={<Icon type="Add" style={{ color: 'var(--iconButtonColor)' }} />}
-              ></IconButton>
-            </div>
-          </div>
-        </Box>
-        <Box>
-          <InputGroup name="fileType" label={fileProperties.value?.isFolder ? 'Directory' : 'File'}>
-            <Typography variant="body2">{t('editor:properties.model.transform.compress') as string}</Typography>
-          </InputGroup>
-          <>
-            <GLTFTransformProperties transformParms={lods[selectedLODIndex].params} onChange={() => {}} />
-            <InputGroup name="Clientside Transform" label="Clientside Transform">
-              <BooleanInput
-                value={
-                  true
-                  // isClientside.value
-                }
-                onChange={(val: boolean) => {
-                  // isClientside.set(val)
-                }}
-                disabled={true}
-              />
-            </InputGroup>
-            <InputGroup name="Generate Integrated Variant Prefab" label="Generate Integrated Variant Prefab">
-              <BooleanInput
-                value={isIntegratedPrefab}
-                onChange={(val: boolean) => {
-                  setIsIntegratedPrefab(val)
-                }}
-              />
-            </InputGroup>
-          </>
-        </Box>
-        <Box className={styles.presetBox}>
-          <Typography className={styles.presetHeader} align="center">
-            LOD Presets
-          </Typography>
-          <Box display="flex" alignItems="center">
-            <List>
-              {presetList.map((lodItem: LODVariantDescriptor, idx) => (
-                <Box key={idx}>
-                  <ListItemButton className={styles.presetButton} onClick={() => applyPreset(lodItem.params)}>
-                    <ListItemText>{lodItem.params.dst}</ListItemText>
-                  </ListItemButton>
-                  {!LODList.find((l) => l.params.dst === lodItem.params.dst) && (
-                    <ListItemButton onClick={() => deletePreset(idx)}>x</ListItemButton>
-                  )}
-                </Box>
-              ))}
-            </List>
-          </Box>
-          <Button onClick={() => savePresetList(false)}>Save Preset</Button>
-        </Box>
-      </div>
-      <Modal open={modalOpen}>
-        <Box className={styles.confirmModal}>
-          <Typography>Would you like to apply this preset?</Typography>
-          <Typography>{selectedPreset.dst}</Typography>
-          <Box className={styles.confirmModalButtons}>
-            <Button onClick={() => confirmPreset()}>Yes</Button>
-            <Button onClick={() => setModalOpen(false)}>Close</Button>
-          </Box>
-        </Box>
-      </Modal>
-    </Menu>
-  )
+  const handleClose = () => {
+    PopoverState.hidePopupover()
+  }
+
+  return <Modal onClose={handleClose}></Modal>
 }

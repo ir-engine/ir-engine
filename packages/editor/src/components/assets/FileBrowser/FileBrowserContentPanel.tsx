@@ -38,6 +38,7 @@ import ConfirmDialog from '@etherealengine/client-core/src/common/components/Con
 import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
 import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
 import {
@@ -183,6 +184,18 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       isFolder
     }
   })
+
+  useEffect(() => {
+    if (openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model')) {
+      PopoverState.showPopupover(
+        <ModelCompressionPanel
+          openCompress={openCompress}
+          fileProperties={fileProperties as any}
+          onRefreshDirectory={refreshDirectory}
+        />
+      )
+    }
+  }, [openCompress.value, fileProperties.value])
 
   useEffect(() => {
     //FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
@@ -679,14 +692,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           openConvert={openConvert}
           fileProperties={fileProperties.value}
           convertProperties={convertProperties}
-          onRefreshDirectory={refreshDirectory}
-        />
-      )}
-
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model') && (
-        <ModelCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
           onRefreshDirectory={refreshDirectory}
         />
       )}
