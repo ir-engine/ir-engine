@@ -233,7 +233,10 @@ const execute = () => {
   controller.gamepadLocalInput.set(0, 0, 0)
 
   const viewerEntity = Engine.instance.viewerEntity
-  if (!xrState.session) return
+
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(viewerEntity)[0]
+
+  if (!inputPointerEntity && !xrState.session) return
 
   const buttons = InputComponent.getMergedButtons(viewerEntity)
 
