@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import { SelectOptionsType } from '@etherealengine/client-core/src/common/components/InputSelect'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { UserSettingPatch, clientSettingPath } from '@etherealengine/common/src/schema.type.module'
@@ -51,7 +51,7 @@ import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
 
-export const ShadowMapResolutionOptions: InputMenuItem[] = [
+export const ShadowMapResolutionOptions: SelectOptionsType[] = [
   {
     label: '256px',
     value: 256
@@ -151,21 +151,21 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     return true
   })
 
-  const colorModesMenu: InputMenuItem[] = Object.keys(themeSettings).map((el) => {
+  const colorModesMenu: SelectOptionsType[] = Object.keys(themeSettings).map((el) => {
     return {
       label: capitalizeFirstLetter(el),
       value: el
     }
   })
 
-  const controlSchemesMenu: InputMenuItem[] = controlSchemes.map(([label, value]) => {
+  const controlSchemesMenu: SelectOptionsType[] = controlSchemes.map(([label, value]) => {
     return {
       label,
       value
     }
   })
 
-  const handOptionsMenu: InputMenuItem[] = handOptions.map((el) => {
+  const handOptionsMenu: SelectOptionsType[] = handOptions.map((el) => {
     return {
       label: el,
       value: el
