@@ -207,9 +207,9 @@ export const pushProject = async (
 
     const githubPathRegexExec = GITHUB_URL_REGEX.exec(repoPath)
     if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
-    const split = githubPathRegexExec[2].split('/')
+    const split = githubPathRegexExec[1].split('/')
     const owner = split[0]
-    const repo = split[1].replace('.git', '')
+    const repo = split[1]
 
     if (githubIdentityProvider.data.length === 0 || !githubIdentityProvider.data[0].oauthToken)
       throw new Forbidden('You must log out and log back in with Github to refresh the token, and then try again.')
@@ -466,14 +466,14 @@ export const getGithubOwnerRepo = (url: string) => {
       error: 'invalidUrl',
       text: 'Project URL is not a valid GitHub URL, or the GitHub repo is private'
     }
-  const split = githubPathRegexExec[2].split('/')
+  const split = githubPathRegexExec[1].split('/')
   if (!split[0] || !split[1])
     return {
       error: 'invalidUrl',
       text: 'Project URL is not a valid GitHub URL, or the GitHub repo is private'
     }
   const owner = split[0]
-  const repo = split[1].replace('.git', '')
+  const repo = split[1]
   return {
     owner,
     repo

@@ -360,15 +360,32 @@ describe('regex.test', () => {
   describe('GITHUB_URL_REGEX', () => {
     it('should match valid GitHub Repository URLs', () => {
       const positiveCases = [
-        'git@github.com:user/repo.git',
-        'https://github.com/user/repo.git',
-        'git@github.com:user/repo',
-        'https://github.com/user/repo',
-        'git@github.com:username_123/repo-name.git'
+        {
+          url: 'git@github.com:user/repo.git',
+          capturedGroup: 'user/repo'
+        },
+        {
+          url: 'https://github.com/user/repo.git',
+          capturedGroup: 'user/repo'
+        },
+        {
+          url: 'git@github.com:user/repo',
+          capturedGroup: 'user/repo'
+        },
+        {
+          url: 'https://github.com/user/repo',
+          capturedGroup: 'user/repo'
+        },
+        {
+          url: 'git@github.com:username_123/repo-name.git',
+          capturedGroup: 'username_123/repo-name'
+        }
       ]
 
-      positiveCases.forEach((url) => {
-        assert.match(url, GITHUB_URL_REGEX, `Expected '${url}' to match GITHUB_URL_REGEX`)
+      positiveCases.forEach(({ url, capturedGroup }) => {
+        const match = GITHUB_URL_REGEX.exec(url)
+        assert.ok(match, `Expected '${url}' to match GITHUB_URL_REGEX`)
+        assert.equal(match?.[1], capturedGroup, `Expected group '${capturedGroup}' in '${url}'. Found ${match?.[1]}`)
       })
     })
 

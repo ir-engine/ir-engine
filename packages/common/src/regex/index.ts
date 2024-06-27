@@ -80,7 +80,7 @@ export const INVITE_CODE_REGEX = /^[0-9a-fA-F]{8}$/
 /**
  * This regular expression is designed to match GitHub repository URLs in both SSH and HTTPS formats. Group 2 captures the owner and repository name.
  * - For eg: `git@github.com:user/repo.git`
- * - `user/repo.git` => Group 2
+ * - `user/repo` => Group 1
  */
 export const GITHUB_URL_REGEX = /(?:git@github.com:|https:\/\/github.com\/)([a-zA-Z0-9_\-]+\/[a-zA-Z0-9_\-]+)(\.git)?$/
 
