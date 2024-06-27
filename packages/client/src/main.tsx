@@ -39,6 +39,7 @@ import './pages/mui.styles.scss' /** @todo Remove when MUI is removed */
 
 const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
 const $location = lazy(() => import('@etherealengine/client/src/pages/location/location'))
+const $auth = lazy(() => import('@etherealengine/client/src/pages/auth/authRoutes'))
 
 const Engine = lazy(() => import('./engine'))
 
@@ -76,6 +77,15 @@ const App = () => {
             }
           />
           {/* This will become redundant and we can embed the AppPage directly */}
+          <Route
+            key="auth"
+            path="/auth/*"
+            element={
+              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                <$auth />
+              </Suspense>
+            }
+          />
           <Route
             key="default"
             path="/*"

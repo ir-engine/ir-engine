@@ -37,7 +37,7 @@ import $503 from '../pages/503'
 function CustomRouter() {
   const customRoutes = useCustomRoutes()
 
-  if (location.pathname.startsWith('/auth') && !customRoutes.length) {
+  if (!customRoutes.length) {
     return <LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />
   }
 
@@ -60,7 +60,7 @@ function CustomRouter() {
             )
           })}
           {/* if no index page has been provided, indicate this as obviously as possible */}
-          <Route key={'/503'} path={'/'} element={<$503 />} />
+          {!customRoutes.find((route) => route.route === '/') && <Route key={'/503'} path={'/'} element={<$503 />} />}
           <Route key={'404'} path="*" element={<$404 />} />
         </Routes>
       </Suspense>
