@@ -152,7 +152,10 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
       <span className="mb-[5px] h-[70px] w-[70px] text-[70px]">
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
-      <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
+
+      <Tooltip title={t(name)} direction="bottom">
+        <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
+      </Tooltip>
 
       <ContextMenu
         anchorEvent={anchorEvent}
