@@ -356,15 +356,15 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const thetaRad = MathUtils.degToRad(theta)
   const phiRad = MathUtils.degToRad(follow.phi)
 
+  direction.set(Math.sin(thetaRad) * Math.cos(phiRad), Math.sin(phiRad), Math.cos(thetaRad) * Math.cos(phiRad))
+
   cameraTransform.position.set(
-    follow.currentTargetPosition.x + follow.distance * Math.sin(thetaRad) * Math.cos(phiRad),
-    follow.currentTargetPosition.y + follow.distance * Math.sin(phiRad),
-    follow.currentTargetPosition.z + follow.distance * Math.cos(thetaRad) * Math.cos(phiRad)
+    follow.currentTargetPosition.x + follow.distance * direction.x,
+    follow.currentTargetPosition.y + follow.distance * direction.y,
+    follow.currentTargetPosition.z + follow.distance * direction.z
   )
 
-  direction.copy(cameraTransform.position).sub(follow.currentTargetPosition).normalize()
   mx.lookAt(direction, empty, upVector)
-
   cameraTransform.rotation.setFromRotationMatrix(mx)
 
   updateCameraTargetRotation(cameraEntity)
