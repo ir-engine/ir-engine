@@ -32,8 +32,8 @@ import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { startEngine } from '@etherealengine/ecs/src/Engine'
 import { ObjectDirection } from '../../common/constants/MathConstants'
-import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -65,7 +65,7 @@ export const boxDynamicConfig = {
 
 describe('Physics', () => {
   beforeEach(async () => {
-    createEngine()
+    startEngine()
     await Physics.load()
     const physicsWorld = Physics.createWorld()
     getMutableState(PhysicsState).physicsWorld.set(physicsWorld)

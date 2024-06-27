@@ -41,6 +41,7 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
+import { startEngine } from '@etherealengine/ecs/src/Engine'
 import { PeerID, applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux'
 import {
   Network,
@@ -50,7 +51,6 @@ import {
   NetworkWorldUserStateSystem
 } from '@etherealengine/network'
 import { createMockNetwork } from '../../../../network/tests/createMockNetwork'
-import { createEngine } from '../../initializeEngine'
 import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
 
@@ -59,7 +59,7 @@ describe('CameraSystem', async () => {
 
   describe('CameraEntityState', async () => {
     beforeEach(async () => {
-      createEngine()
+      startEngine()
       createMockNetwork()
       Engine.instance.store.defaultDispatchDelay = () => 0
       viewerEntity = createEntity()

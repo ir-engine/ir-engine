@@ -27,8 +27,8 @@ import assert from 'assert'
 import { LoadingManager } from 'three'
 
 import { createEntity, destroyEngine } from '@etherealengine/ecs'
+import { startEngine } from '@etherealengine/ecs/src/Engine'
 import { getState } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { ResourceState, ResourceType } from '@etherealengine/spatial/src/resources/ResourceState'
 
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
@@ -41,7 +41,7 @@ describe('ResourceLoadingManager', () => {
   const url = '/packages/projects/default-project/assets/collisioncube.glb'
 
   beforeEach(async () => {
-    createEngine()
+    startEngine()
     loadEmptyScene()
   })
 

@@ -29,8 +29,8 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 
 import { ChannelID, MessageID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { startEngine } from '@etherealengine/ecs'
 import { getMutableState } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
 import { InstanceChat } from '.'
 import { createDOM } from '../../../tests/createDOM'
@@ -45,8 +45,8 @@ describe('Instance Chat Component', () => {
     createDOM()
     rootContainer = document.createElement('div')
     document.body.appendChild(rootContainer)
+    startEngine()
     API.instance = createMockAPI()
-    createEngine()
   })
 
   afterEach(() => {

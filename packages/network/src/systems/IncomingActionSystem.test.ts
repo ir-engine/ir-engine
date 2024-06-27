@@ -28,9 +28,9 @@ import assert, { strictEqual } from 'assert'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { destroyEngine, Engine, startEngine } from '@etherealengine/ecs/src/Engine'
 import { ActionRecipients, applyIncomingActions, getMutableState, getState } from '@etherealengine/hyperflux'
-import { createEngine, initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { SpawnObjectActions } from '@etherealengine/spatial/src/transform/SpawnObjectActions'
 
 import { createMockNetwork } from '../../tests/createMockNetwork'
@@ -38,7 +38,7 @@ import { NetworkTopics } from '../Network'
 
 describe('IncomingActionSystem Unit Tests', async () => {
   beforeEach(() => {
-    createEngine()
+    startEngine()
     // this is hacky but works and preserves the logic
     Engine.instance.store.getDispatchTime = () => {
       return getState(ECSState).simulationTime

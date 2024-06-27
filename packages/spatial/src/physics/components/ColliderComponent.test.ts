@@ -28,7 +28,7 @@ import assert from 'assert'
 import { createEntity, destroyEngine, removeComponent, setComponent } from '@etherealengine/ecs'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { createEngine } from '../../initializeEngine'
+import { startEngine } from '@etherealengine/ecs/src/Engine'
 import { TransformComponent } from '../../SpatialModule'
 import { Physics } from '../classes/Physics'
 import { PhysicsState } from '../state/PhysicsState'
@@ -38,7 +38,7 @@ import { TriggerComponent } from './TriggerComponent'
 
 describe('ColliderComponent', () => {
   beforeEach(async () => {
-    createEngine()
+    startEngine()
     await Physics.load()
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
   })

@@ -30,15 +30,15 @@ import sinon from 'sinon'
 import { AmbientLight, DirectionalLight } from 'three'
 
 import { createEntity, destroyEngine } from '@etherealengine/ecs'
+import { startEngine } from '@etherealengine/ecs/src/Engine'
 import { getState } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
 import { useDisposable, useResource } from './resourceHooks'
 import { ResourceState } from './ResourceState'
 
 describe('ResourceHooks', () => {
   beforeEach(async () => {
-    createEngine()
+    startEngine()
   })
 
   afterEach(() => {

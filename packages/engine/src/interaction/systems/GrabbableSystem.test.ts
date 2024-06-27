@@ -30,7 +30,7 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { Engine, destroyEngine, startEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import {
   PeerID,
@@ -40,7 +40,6 @@ import {
   getMutableState
 } from '@etherealengine/hyperflux'
 import { NetworkObjectComponent, NetworkPeerFunctions, NetworkState } from '@etherealengine/network'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -61,7 +60,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
   let equippableSystem
   let sceneEntity: Entity
   beforeEach(async () => {
-    createEngine()
+    startEngine()
     await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())

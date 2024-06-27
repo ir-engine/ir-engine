@@ -35,11 +35,10 @@ import {
   hasComponent,
   setComponent
 } from '@etherealengine/ecs'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { destroyEngine, startEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -61,7 +60,7 @@ describe('PostProcessingComponent', () => {
   }
 
   beforeEach(() => {
-    createEngine()
+    startEngine()
 
     rootEntity = createEntity()
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)

@@ -29,11 +29,10 @@ import React, { useEffect } from 'react'
 
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { destroyEngine, startEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { startReactor } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
 import { NameComponent } from '../../common/NameComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
@@ -72,7 +71,7 @@ function assertEntityHierarchy(name: string, entity: Entity, parent: Entity = Un
 
 describe('EntityTreeComponent', () => {
   beforeEach(() => {
-    createEngine()
+    startEngine()
   })
 
   afterEach(() => {
@@ -191,7 +190,7 @@ describe('EntityTreeFunctions', () => {
   let root: Entity
 
   beforeEach(() => {
-    createEngine()
+    startEngine()
 
     root = createEntity()
 
@@ -404,7 +403,7 @@ describe('EntityTreeFunctions', () => {
 
 describe('useTreeQuery', () => {
   beforeEach(() => {
-    createEngine()
+    startEngine()
   })
 
   afterEach(() => {
@@ -512,7 +511,7 @@ describe('useTreeQuery', () => {
 describe('useChildWithComponent', () => {
   // Run before every test case
   beforeEach(() => {
-    createEngine()
+    startEngine()
   })
   afterEach(() => {
     return destroyEngine()
@@ -643,7 +642,7 @@ describe('useChildWithComponent', () => {
 describe('useAncestorWithComponent', () => {
   // Run before every test case
   beforeEach(() => {
-    createEngine()
+    startEngine()
   })
   afterEach(() => {
     return destroyEngine()

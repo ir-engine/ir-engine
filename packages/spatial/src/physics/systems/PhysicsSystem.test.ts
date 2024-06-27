@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { createEngine } from '../../initializeEngine'
+import { startEngine } from '@etherealengine/ecs/src/Engine'
 import { Physics } from '../classes/Physics'
 import { PhysicsState } from '../state/PhysicsState'
 
@@ -35,7 +35,7 @@ import { PhysicsState } from '../state/PhysicsState'
  */
 describe.skip('PhysicsSystem', () => {
   beforeEach(async () => {
-    createEngine()
+    startEngine()
     await Physics.load()
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
   })

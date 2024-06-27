@@ -29,13 +29,13 @@ import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 
-import { createEngine } from '../../initializeEngine'
+import { startEngine } from '@etherealengine/ecs/src/Engine'
 import { addObjectToGroup } from './GroupComponent'
 import { RenderOrderComponent } from './RenderOrderComponent'
 
 describe('RenderOrderComponent', () => {
   beforeEach(() => {
-    createEngine()
+    startEngine()
   })
 
   afterEach(() => {

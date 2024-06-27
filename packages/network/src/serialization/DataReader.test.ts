@@ -30,12 +30,11 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { destroyEngine, Engine, startEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState, PeerID } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import {
   readPosition,
@@ -73,7 +72,7 @@ import { createViewCursor, readFloat64, readUint32, readUint8, sliceViewCursor, 
 
 describe('DataReader', () => {
   beforeEach(() => {
-    createEngine()
+    startEngine()
     createMockNetwork()
     getMutableState(NetworkState).networkSchema[TransformSerialization.ID].set({
       read: TransformSerialization.readTransform,

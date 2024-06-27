@@ -27,10 +27,9 @@ import assert, { strictEqual } from 'assert'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { destroyEngine, startEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { getMutableState } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
 import { NetworkObjectComponent } from '../NetworkObjectComponent'
 import {
@@ -56,7 +55,7 @@ import {
 
 describe('ViewCursor read/write', () => {
   beforeEach(() => {
-    createEngine()
+    startEngine()
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTime.set(1)
   })

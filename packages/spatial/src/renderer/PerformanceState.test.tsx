@@ -32,7 +32,8 @@ import sinon from 'sinon'
 import { destroyEngine } from '@etherealengine/ecs'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { createEngine, initializeSpatialEngine } from '../initializeEngine'
+import { startEngine } from '@etherealengine/ecs/src/Engine'
+import { initializeSpatialEngine } from '../initializeEngine'
 import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
 import { EngineRenderer, RenderSettingsState } from './WebGLRendererSystem'
@@ -71,7 +72,7 @@ describe('PerformanceState', () => {
   })
 
   beforeEach(async () => {
-    createEngine()
+    startEngine()
     initializeSpatialEngine()
   })
 

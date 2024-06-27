@@ -47,8 +47,8 @@ import {
 } from '@etherealengine/hyperflux'
 import { matchesUserID, NetworkObjectComponent, NetworkTopics, WorldNetworkAction } from '@etherealengine/network'
 
-import { TransformComponent } from '../../SpatialModule'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
 import { FlyControlComponent } from '../components/FlyControlComponent'
 

@@ -32,7 +32,7 @@ import { AvatarID, UserName, userPath } from '@etherealengine/common/src/schema.
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createState } from '@etherealengine/hyperflux'
 
-import { createEngine } from '../../initializeEngine'
+import { startEngine } from '@etherealengine/ecs/src/Engine'
 import { EventDispatcher } from '../classes/EventDispatcher'
 import { useFind, useGet, useMutation } from './FeathersHooks'
 
@@ -40,7 +40,7 @@ let eventDispatcher: EventDispatcher
 
 describe('FeathersHooks', () => {
   beforeEach(() => {
-    createEngine()
+    startEngine()
     const db = [
       { id: '1', name: 'John' as UserName },
       { id: '2', name: 'Jane' as UserName }

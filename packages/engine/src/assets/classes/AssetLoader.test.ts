@@ -29,8 +29,7 @@ import Sinon from 'sinon'
 // hack to make tests happy
 import '../../EngineModule'
 
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { destroyEngine, startEngine } from '@etherealengine/ecs/src/Engine'
 
 import { AssetExt, AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { AssetLoader } from './AssetLoader'
@@ -40,7 +39,7 @@ import { AssetLoader } from './AssetLoader'
  */
 describe('AssetLoader', async () => {
   beforeEach(async () => {
-    createEngine()
+    startEngine()
   })
 
   afterEach(() => {

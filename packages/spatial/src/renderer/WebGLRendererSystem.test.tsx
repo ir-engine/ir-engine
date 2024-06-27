@@ -34,6 +34,7 @@ import {
   getMutableComponent,
   setComponent
 } from '@etherealengine/ecs'
+import { startEngine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
@@ -43,7 +44,6 @@ import { Color, Group, MathUtils, Texture } from 'three'
 import { MockEngineRenderer } from '../../tests/util/MockEngineRenderer'
 import { EngineState } from '../EngineState'
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { createEngine } from '../initializeEngine'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { RendererState } from './RendererState'
 import {
@@ -79,7 +79,7 @@ describe('WebGl Renderer System', () => {
   }
 
   beforeEach(() => {
-    createEngine()
+    startEngine()
 
     rootEntity = createEntity()
     getMutableState(EngineState).viewerEntity.set(rootEntity)

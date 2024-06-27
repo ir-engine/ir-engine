@@ -27,8 +27,7 @@ import assert from 'assert'
 import fs from 'fs'
 import path from 'path/posix'
 
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { destroyEngine, startEngine } from '@etherealengine/ecs/src/Engine'
 
 import { projectsRootFolder } from './file-browser/file-browser.class'
 import { copyRecursiveSync, getIncrementalName } from './FileUtil'
@@ -41,7 +40,7 @@ describe('FileUtil functions', () => {
   let STORAGE_PATH: string
   let store: LocalStorage
   before(() => {
-    createEngine()
+    startEngine()
     store = new LocalStorage()
     PROJECT_PATH = path.join(projectsRootFolder, TEST_DIR)
     STORAGE_PATH = path.join(store.PATH_PREFIX, TEST_DIR)
