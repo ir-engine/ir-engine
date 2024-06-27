@@ -23,37 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { lazy, Suspense } from 'react'
-import { useTranslation } from 'react-i18next'
+import React from 'react'
 
-import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import '../themes/base.css'
+import '../themes/components.css'
+import '../themes/utilities.css'
 
-const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
-const $location = lazy(() => import('@etherealengine/client/src/pages/location/location'))
-
-/** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
-function RouterComp({ route }: { route: string }) {
-  const { t } = useTranslation()
-
-  let RouteElement
-
-  switch (route) {
-    case 'offline':
-      RouteElement = $offline
-      break
-    case 'location':
-      RouteElement = $location
-      break
-  }
-
-  return (
-    <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
-        <RouteElement />
-      </Suspense>
-    </ErrorBoundary>
-  )
+export default function Tailwind() {
+  return <></>
 }
-
-export default RouterComp

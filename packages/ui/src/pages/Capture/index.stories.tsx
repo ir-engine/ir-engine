@@ -89,7 +89,7 @@ const decorators = [
       // This would normally cause doLoginAuto to make a guest user, which we do not want.
       // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
       // The client and auth settigns will not be needed on these routes
-      if (!/auth\/oauth/.test(location.pathname)) {
+      if (!location.pathname.startsWith('/auth')) {
         AuthService.doLoginAuto()
       }
 
