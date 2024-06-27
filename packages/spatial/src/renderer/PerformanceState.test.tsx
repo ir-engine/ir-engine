@@ -186,6 +186,7 @@ describe('PerformanceState', () => {
 
   it('Updates render settings reactively', (done) => {
     const performanceState = getMutableState(PerformanceState)
+    performanceState.enabled.set(true)
     const initialTier = performanceState.gpuTier.value
     let updatedTier = 5
     if (updatedTier === initialTier) updatedTier -= 1
