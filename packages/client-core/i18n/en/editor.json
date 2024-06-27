@@ -216,7 +216,8 @@
       "lbl-bake": "Envmap Bake",
       "lbl-textureType": "Texture Type",
       "lbl-textureUrl": "Texture URL",
-      "lbl-intensity": "Envmap Intensity"
+      "lbl-intensity": "Envmap Intensity",
+      "bake-reflection-probes": "Bake Probes"
     },
     "trigger": {
       "name": "Trigger",
@@ -760,8 +761,7 @@
     "reflectionProbe": {
       "name": "Reflection Probe",
       "description": "A reflection probe that captures the environment and uses it for reflection.",
-      "src": "Source",
-      "bake": "Bake Probes"
+      "src": "Source"
     },
     "renderSettings": {
       "name": "Render Settings",

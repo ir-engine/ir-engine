@@ -154,7 +154,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
             }, 1000)
           }}
         >
-          {t('editor:properties.reflectionProbe.bake')}
+          {t('editor:properties.envmap.bake-reflection-probes')}
         </Button>
       )}
       {envmapComponent.type.value !== EnvMapSourceType.None && (
