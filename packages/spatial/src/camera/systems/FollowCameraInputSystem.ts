@@ -148,7 +148,7 @@ const execute = () => {
       const pointerDragging = inputSource.buttons?.PrimaryClick?.dragging
       if (pointerDragging) {
         const inputPointer = getComponent(inputPointerEid, InputPointerComponent)
-        pointerPositionDelta.subVectors(inputPointer.position, inputPointer.lastPosition)
+        pointerPositionDelta.copy(inputPointer.movement)
         phi -= pointerPositionDelta.y * cameraSettings.cameraRotationSpeed
         theta -= pointerPositionDelta.x * cameraSettings.cameraRotationSpeed
         time = 0.1
