@@ -32,6 +32,7 @@ import sinon from 'sinon'
 import { destroyEngine } from '@etherealengine/ecs'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { EngineState } from '../EngineState'
 import { createEngine, initializeSpatialEngine } from '../initializeEngine'
 import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
@@ -63,6 +64,9 @@ describe('PerformanceState', () => {
     }
     dpr = globalThis.window.devicePixelRatio
     globalThis.window.devicePixelRatio = 3
+    getMutableState(EngineState).isEditing.set(false)
+    getMutableState(RendererState).automatic.set(true)
+    getMutableState(PerformanceState).enabled.set(true)
   })
 
   after(() => {
