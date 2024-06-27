@@ -183,7 +183,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
           color="text-[#375DAF]"
         />
       </div>
-      <div className="text-secondary mb-2 line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
+      <div className="text-secondary line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
     </div>
   )
 }
