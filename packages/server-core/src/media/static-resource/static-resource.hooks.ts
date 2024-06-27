@@ -32,6 +32,7 @@ import { HookContext } from '../../../declarations'
 import checkScope from '../../hooks/check-scope'
 import collectAnalytics from '../../hooks/collect-analytics'
 import enableClientPagination from '../../hooks/enable-client-pagination'
+import isAction from '../../hooks/is-action'
 import resolveProjectId from '../../hooks/resolve-project-id'
 import resolveProjectsByPermission from '../../hooks/resolveProjectsByPermission'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
@@ -181,7 +182,7 @@ export default {
       iff(
         isProvider('external'),
         iffElse(
-          checkScope('static_resource', 'read'),
+          (ctx: HookContext) => isAction('admin')(ctx) && checkScope('static_resource', 'read')(ctx),
           [],
           [
             iffElse(
