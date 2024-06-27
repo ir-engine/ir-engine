@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { RenderPass } from 'postprocessing'
 import { MeshBasicMaterial, MeshNormalMaterial } from 'three'
 
-import { Engine, getComponent } from '@etherealengine/ecs'
+import { Entity, getComponent } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 
 import { RenderModes } from '../constants/RenderModes'
@@ -37,7 +37,7 @@ import { RendererComponent } from '../WebGLRendererSystem'
  * Change render mode of the renderer
  * @param mode Mode which will be set to renderer
  */
-export function changeRenderMode() {
+export function changeRenderMode(entity: Entity) {
   const renderMode = getState(RendererState).renderMode
 
   // revert any changes made by a render mode
@@ -56,7 +56,7 @@ export function changeRenderMode() {
       break
   }
 
-  const passes = getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.passes.filter(
+  const passes = getComponent(entity, RendererComponent).effectComposer?.passes.filter(
     (p) => p.name === 'RenderPass'
   ) as any
   const renderPass: RenderPass = passes ? passes[0] : undefined

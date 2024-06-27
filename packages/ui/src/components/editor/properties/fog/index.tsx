@@ -90,6 +90,7 @@ export const FogSettingsEditor: EditorComponentType = (props) => {
             <ColorInput
               value={new Color(fogState.color.value)}
               onChange={(val) => updateProperty(FogSettingsComponent, 'color')('#' + val.getHexString())}
+              onRelease={(val) => commitProperty(FogSettingsComponent, 'color')('#' + val.getHexString())}
             />
           </InputGroup>
           {fogState.type.value === FogType.Linear ? (

@@ -108,9 +108,9 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   const nodeSearch: HeirarchyTreeNodeType[] = []
   if (searchHierarchy.value.length > 0) {
-    const condition = new RegExp(searchHierarchy.value.toLowerCase())
+    const searchString = searchHierarchy.value.toLowerCase()
     entityHierarchy.value.forEach((node) => {
-      if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
+      if (node.entity && (getComponent(node.entity, NameComponent)?.toLowerCase() ?? '').includes(searchString))
         nodeSearch.push(node)
     })
   }

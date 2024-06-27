@@ -23,17 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ECSState } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
+import React from 'react'
 
-import { loadDRACODecoderNode } from './assets/loaders/gltf/NodeDracoLoader'
+import '../themes/base.css'
+import '../themes/components.css'
+import '../themes/utilities.css'
 
-/**
- * initializeNode
- *
- * initializes everything for the node context
- */
-export const initializeNode = () => {
-  loadDRACODecoderNode()
-  getState(ECSState).timer.start()
+export default function Tailwind() {
+  return <></>
 }

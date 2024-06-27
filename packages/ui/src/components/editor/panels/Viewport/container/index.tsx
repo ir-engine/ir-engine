@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import { Engine, getComponent, useComponent, useQuery } from '@etherealengine/ecs'
+import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useEngineCanvas'
+import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { getComponent, useComponent, useQuery } from '@etherealengine/ecs'
 import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
@@ -37,7 +38,7 @@ import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/Resour
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
@@ -73,25 +74,6 @@ const ViewportDnD = () => {
       }
     }
   })
-
-  useEffect(() => {
-    const viewportPanelNode = document.getElementById('viewport-panel')
-    if (!viewportPanelNode) return
-
-    const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement
-    viewportPanelNode.appendChild(canvas)
-
-    getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
-
-    const observer = new ResizeObserver(() => {
-      getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
-    })
-
-    observer.observe(viewportPanelNode)
-    return () => {
-      observer.disconnect()
-    }
-  }, [])
 
   return (
     <div
@@ -142,11 +124,16 @@ const ViewPortPanelContainer = () => {
   const { sceneName, rootEntity } = useMutableState(EditorState)
 
   const { t } = useTranslation()
-  const clientSettingState = useMutableState(AdminClientSettingsState)
-  const [clientSetting] = clientSettingState?.client?.value || []
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettings = clientSettingQuery.data[0]
+
+  const ref = React.useRef<HTMLDivElement>(null)
+
+  useEngineCanvas(ref)
+
   return (
     <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
-      <div className="flex gap-1 p-1">
+      <div className="z-10 flex gap-1 p-1">
         <TransformSpaceTool />
         <TransformPivotTool />
         <GridTool />
@@ -163,10 +150,11 @@ const ViewPortPanelContainer = () => {
         </>
       ) : (
         <div className="flex h-full w-full flex-col justify-center gap-2">
-          <img src={clientSetting.appTitle} className="block scale-[.8]" />
+          <img src={clientSettings?.appTitle} className="block scale-[.8]" />
           <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
         </div>
       )}
+      <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
     </div>
   )
 }
