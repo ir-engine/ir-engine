@@ -82,17 +82,10 @@ export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
     thumbnailURL: virtual(async (staticResource, context) => {
       if (!staticResource.thumbnailKey) return
       const storageProvider = getStorageProvider()
-      /** @todo optimize this */
-      const thumbnailStaticResource = await context.app.service('static-resource').find({
-        query: {
-          key: staticResource.thumbnailKey
-        }
-      })
-      if (!thumbnailStaticResource.data.length) return
       return (
         storageProvider.getCachedURL(staticResource.thumbnailKey, context.params.isInternal) +
         '?hash=' +
-        thumbnailStaticResource.data[0].hash.slice(0, 6)
+        staticResource.hash.slice(0, 6)
       )
     })
   },
