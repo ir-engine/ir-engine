@@ -527,8 +527,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
       if (!scalabilityMode) maxLayer = 0
       else {
         const execed = /L([0-9])/.exec(scalabilityMode)
-        if (execed)
-          maxLayer = parseInt(execed[1]) - 1 //Subtract 1 from max scalabilityMode since layers are 0-indexed
+        if (execed) maxLayer = parseInt(execed[1]) - 1 //Subtract 1 from max scalabilityMode since layers are 0-indexed
         else maxLayer = 0
       }
       // If we're in immersive media mode, using max-resolution video for everyone could overwhelm some devices.
@@ -542,8 +541,8 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
         (immersiveMedia.value && maxLayer) > 1
           ? maxLayer - 1
           : (!isScreen && resolution.height.ideal) > MAX_RES_TO_USE_TOP_LAYER
-            ? maxLayer - 1
-            : maxLayer
+          ? maxLayer - 1
+          : maxLayer
       )
     }
     // Standard video bubbles in flat/non-immersive mode should use the lowest quality layer for performance reasons
@@ -640,10 +639,10 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                     (isSelf && audioStream?.paused === false
                       ? t('user:person.muteMe')
                       : isSelf && audioStream?.paused === true
-                        ? t('user:person.unmuteMe')
-                        : !isSelf && audioStream?.paused === false
-                          ? t('user:person.muteThisPerson')
-                          : t('user:person.unmuteThisPerson')) as string
+                      ? t('user:person.unmuteMe')
+                      : !isSelf && audioStream?.paused === false
+                      ? t('user:person.muteThisPerson')
+                      : t('user:person.unmuteThisPerson')) as string
                   }
                 >
                   <IconButton
