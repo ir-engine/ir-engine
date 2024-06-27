@@ -591,7 +591,7 @@ export default createSkippableHooks(
     },
 
     before: {
-      all: [() => schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
+      all: [schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
       find: [
         enableClientPagination(),
         iffElse(isAction('admin'), [], filterDisabledProjects),
@@ -603,7 +603,7 @@ export default createSkippableHooks(
       get: [],
       create: [
         iff(isProvider('external') && !isSignedByAppJWT(), verifyScope('editor', 'write')),
-        () => schemaHooks.validateData(projectDataValidator),
+        schemaHooks.validateData(projectDataValidator),
         schemaHooks.resolveData(projectDataResolver),
         discardQuery('action'),
         checkIfProjectExists,
@@ -625,7 +625,7 @@ export default createSkippableHooks(
           verifyScope('editor', 'write'),
           projectPermissionAuthenticate(false)
         ),
-        () => schemaHooks.validateData(projectPatchValidator),
+        schemaHooks.validateData(projectPatchValidator),
         schemaHooks.resolveData(projectPatchResolver),
         iff(isProvider('external'), iffElse(checkEnabled, [], linkGithubToProject))
       ],

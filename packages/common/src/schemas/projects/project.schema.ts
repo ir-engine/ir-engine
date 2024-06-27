@@ -74,7 +74,7 @@ export interface ProjectType extends Static<typeof projectSchema> {}
 export interface ProjectDatabaseType extends Omit<ProjectType, 'settings'> {}
 
 // Schema for creating new entries
-export const projectDataSchema = Type.Partial(projectSchema, {
+export const projectDataSchema = Type.Partial(Type.Omit(projectSchema, ['id', 'createdAt', 'updatedAt']), {
   $id: 'ProjectData'
 })
 export interface ProjectData extends Static<typeof projectDataSchema> {}
