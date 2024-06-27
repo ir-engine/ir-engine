@@ -92,7 +92,7 @@ export interface InviteDatabaseType extends Omit<InviteType, 'spawnDetails'> {
 }
 
 // Schema for creating new entries
-export const inviteDataProperties = Type.Pick(
+export const inviteDataSchema = Type.Pick(
   inviteSchema,
   [
     'token',
@@ -112,14 +112,6 @@ export const inviteDataProperties = Type.Pick(
   {
     $id: 'InviteData'
   }
-)
-export const inviteDataSchema = Type.Intersect(
-  [
-    inviteDataProperties,
-    // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
-  ],
-  { additionalProperties: false }
 )
 export interface InviteData extends Static<typeof inviteDataSchema> {}
 

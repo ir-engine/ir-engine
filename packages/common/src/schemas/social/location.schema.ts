@@ -32,7 +32,7 @@ import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { TypedString } from '../../types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
 import { dataValidator, queryValidator } from '../validators'
-import { locationAdminSchema } from './location-admin.schema'
+import { locationAdminDataSchema, locationAdminSchema } from './location-admin.schema'
 import { locationAuthorizedUserSchema } from './location-authorized-user.schema'
 import { locationBanSchema } from './location-ban.schema'
 import { locationSettingSchema } from './location-setting.schema'
@@ -102,7 +102,8 @@ export const locationDataSchema = Type.Intersect(
           TypedString<LocationID>({
             format: 'uuid'
           })
-        )
+        ),
+        locationAdmin: Type.Optional(Type.Ref(locationAdminDataSchema))
       },
       { additionalProperties: false }
     )

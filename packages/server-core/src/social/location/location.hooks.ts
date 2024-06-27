@@ -119,14 +119,12 @@ const createAuthorizedLocation = async (context: HookContext<LocationService>) =
   for (const item of data) {
     if (item.locationAdmin && context.params && context.params.user) {
       await context.app.service(locationAdminPath).create({
-        ...(item as LocationType).locationAdmin,
         userId: context.params.user.id,
-        locationId: (item as LocationType).id as LocationID
+        locationId: item.id as LocationID
       })
       await context.app.service(locationAuthorizedUserPath).create({
-        ...(item as LocationType).locationAdmin,
         userId: context.params.user.id,
-        locationId: (item as LocationType).id as LocationID
+        locationId: item.id as LocationID
       })
     }
   }
