@@ -23,15 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EMAIL_REGEX } from './regex'
+
 /**
  * Config settings (for client and isomorphic engine usage).
  */
 const localBuildOrDev =
   globalThis.process.env.APP_ENV === 'development' || globalThis.process.env.VITE_LOCAL_BUILD === 'true'
-
-// https://fightingforalostcause.net/content/misc/2006/compare-email-regex.php
-const EMAIL_REGEX =
-  /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i
 
 export function validateEmail(email: string): boolean {
   return EMAIL_REGEX.test(email)

@@ -169,8 +169,8 @@ export default function AddEditProjectModal({
       ProjectUpdateService.setSourceProjectName(project.name, '')
       return
     }
-    const valueRegex = new RegExp(`^${commitValue}`, 'g')
-    let matchingCommit = commitData.find((data) => valueRegex.test(data.commitSHA))
+
+    let matchingCommit = commitData.find((data) => data.commitSHA.startsWith(commitValue))
     if (!matchingCommit) {
       const commitResponse = (await ProjectService.checkUnfetchedCommit({
         url: projectUpdateStatus.value.sourceURL,
@@ -187,7 +187,7 @@ export default function AddEditProjectModal({
             resolve(null)
           }, 100)
         })
-        matchingCommit = commitData.find((data) => valueRegex.test(data.commitSHA))
+        matchingCommit = commitData.find((data) => data.commitSHA.startsWith(commitValue))
       }
     }
     ProjectUpdateService.setSourceProjectName(project.name, matchingCommit?.projectName || '')
