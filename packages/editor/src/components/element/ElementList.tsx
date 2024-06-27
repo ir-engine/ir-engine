@@ -126,11 +126,9 @@ const useComponentShelfCategories = (search: string) => {
     return Object.entries(getState(ComponentShelfCategoriesState))
   }
 
-  const searchRegExp = new RegExp(search, 'gi')
-
   return Object.entries(getState(ComponentShelfCategoriesState))
     .map(([category, items]) => {
-      const filteredItems = items.filter((item) => item.name.match(searchRegExp)?.length)
+      const filteredItems = items.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
       return [category, filteredItems] as [string, Component[]]
     })
     .filter(([_, items]) => !!items.length)

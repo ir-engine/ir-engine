@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
+import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/regex'
 import {
   ProjectPermissionData,
   ProjectPermissionPatch,

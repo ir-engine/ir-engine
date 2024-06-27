@@ -31,8 +31,8 @@ import fs from 'fs'
 import { Knex } from 'knex'
 import path from 'path'
 
-import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
+import { GITHUB_URL_REGEX } from '@etherealengine/common/src/regex'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
@@ -165,7 +165,7 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
       allowedProjectGithubRepos.map(async (project) => {
         const regexExec = GITHUB_URL_REGEX.exec(project.repositoryPath)
         if (!regexExec) return { repositoryPath: '', name: '' }
-        const split = regexExec[2].split('/')
+        const split = regexExec[1].split('/')
         project.repositoryPath = `https://github.com/${split[0]}/${split[1]}`
         return project
       })
@@ -184,7 +184,7 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
           repositoryPaths.push(`${url}.git`)
           const regexExec = GITHUB_URL_REGEX.exec(url)
           if (regexExec) {
-            const split = regexExec[2].split('/')
+            const split = regexExec[1].split('/')
             repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}`)
             repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}.git`)
           }
@@ -360,9 +360,9 @@ const linkGithubToProject = async (context: HookContext) => {
     if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
     if (githubIdentityProvider.data.length === 0)
       throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
-    const split = githubPathRegexExec[2].split('/')
+    const split = githubPathRegexExec[1].split('/')
     const org = split[0]
-    const repo = split[1].replace('.git', '')
+    const repo = split[1]
     const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken)
     if (!appOrgAccess)
       throw new Forbidden(

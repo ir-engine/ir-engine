@@ -44,7 +44,8 @@ import semver from 'semver'
 import { promisify } from 'util'
 
 import { AssetType } from '@etherealengine/common/src/constants/AssetType'
-import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/regex'
+
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ResourcesJson } from '@etherealengine/common/src/interfaces/ResourcesJson'
