@@ -26,35 +26,52 @@ Ethereal Engine. All Rights Reserved.
 import {
   Entity,
   PresentationSystemGroup,
-  QueryReactor,
+  createEntity,
   defineSystem,
   getComponent,
   setComponent,
   useComponent,
-  useEntityContext,
-  useQuery
+  useEntityContext
 } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import React, { useEffect } from 'react'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { useEffect } from 'react'
 import {
+  CanvasTexture,
+  EquirectangularReflectionMapping,
   Mesh,
+  MeshBasicMaterial,
   OrthographicCamera,
   PlaneGeometry,
+  RepeatWrapping,
+  SRGBColorSpace,
   Scene,
   ShaderMaterial,
   Texture,
   Uniform,
   Vector3,
-  WebGLRenderTarget,
   WebGLRenderer
 } from 'three'
+import { randFloat } from 'three/src/math/MathUtils'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ReflectionProbeComponent } from '../components/ReflectionProbeComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
+import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
+
+let textureIndex = 0
 
 export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity[]): Texture {
-  const renderer = new WebGLRenderer()
+  const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas') as HTMLCanvasElement
+  canvas.style.display = 'block'
+  const renderer = new WebGLRenderer({ canvas })
   const scene = new Scene()
   const camera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 10)
   camera.position.z = 1
@@ -68,38 +85,48 @@ export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity
   `
 
   const fragmentShader = `
-    ${probes.map((probe, index) => `uniform sampler2D envMap${index};`).join('\n')}
-    ${probes.map((probe, index) => `uniform vec3 envMapPosition${index};`).join('\n')}
-    uniform vec3 targetPosition;
-    varying vec2 vUv;
+  ${probes.map((probe, index) => `uniform sampler2D envMap${index};`).join('\n')}
+  ${probes.map((probe, index) => `uniform mat4 envMapTransform${index};`).join('\n')}
+  uniform mat4 targetTransform;
+  varying vec2 vUv;
 
-    float EPSILON = 0.0001;
+  //uniform vec3 targetPosition;
+  float EPSILON = 0.0;
 
-    void main() {
-      vec3 color = vec3(0.0);
-      float totalDistance = 0.0;
-      ${probes
-        .map(
-          (probe, index) => `
-        float distance = distance(targetPosition, envMapPosition${index});
-        totalDistance += distance + EPSILON;
-        color += texture2D(envMap${index}, vUv).rgb / (distance + EPSILON);
-        `
-        )
-        .join('\n')}
-      gl_FragColor = vec4(color * totalDistance, 1.0);
-    }
+    
+  void main() {
+    vec3 targetPosition = targetTransform[3].xyz; // Extract position component from targetMatrix
+    vec3 color = vec3(0.0);
+    float totalWeight = 0.0;
+    float currentDistance = 0.0;
+    float weight = 0.0;
+    ${probes
+      .map(
+        (probe, index) => `
+      vec3 envMapPosition${index} = envMapTransform${index}[3].xyz; // Extract position component from envMapTransforms
+      currentDistance = length(targetPosition - envMapPosition${index}) + EPSILON;
+      weight = 1.0 / currentDistance;
+      totalWeight += weight;
+      color += texture2D(envMap${index}, vUv).rgb * weight;
     `
+      )
+      .join('\n')}
+    color /= totalWeight; // Normalize the accumulated color by the total weight
+    gl_FragColor = vec4(color, 1.0);
+  }
+`
+
   const uniforms = {
-    targetPosition: new Uniform(TransformComponent.getWorldPosition(entity, new Vector3()))
-  } as Record<string, Uniform>
+    targetTransform: { value: getComponent(entity, TransformComponent).matrixWorld }
+  } as Record<string, any>
 
   let index = 0
   for (let i = 0; i < probes.length; i++) {
     const probeComponent = getComponent(probes[i], ReflectionProbeComponent)
+    const transformComponent = getComponent(probes[i], TransformComponent)
     if (!probeComponent.texture) continue
     uniforms[`envMap${index}`] = new Uniform(probeComponent.texture)
-    uniforms[`envMapPosition${index}`] = new Uniform(TransformComponent.getWorldPosition(probes[i], new Vector3()))
+    uniforms[`envMapTransform${index}`] = { value: transformComponent.matrixWorld }
     index++
   }
 
@@ -113,15 +140,37 @@ export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity
   scene.add(quad)
 
   renderer.setSize(256, 256)
-  const renderTarget = new WebGLRenderTarget(256, 256)
-  renderer.setRenderTarget(renderTarget)
+
+  setComponent(entity, UpdatableComponent)
+  const result = new CanvasTexture(canvas)
+  result.mapping = EquirectangularReflectionMapping
+  result.wrapS = result.wrapT = RepeatWrapping
+  result.colorSpace = SRGBColorSpace
+  //result.generateMipmaps = false
+  result.needsUpdate = true
+
+  const testMat = new MeshBasicMaterial({ map: result })
+  const testQuad = new Mesh(new PlaneGeometry(1, 1), testMat)
+
+  const testEntity = createEntity()
+  setComponent(testEntity, EntityTreeComponent, {
+    parentEntity: getComponent(getState(EngineState).viewerEntity, SceneComponent).children[0]
+  })
+  setComponent(testEntity, TransformComponent, { position: new Vector3(0, randFloat(5, 15), 0) })
+
+  setComponent(testEntity, MeshComponent, testQuad)
+  addObjectToGroup(testEntity, testQuad)
+  proxifyParentChildRelationships(testQuad)
+  setComponent(testEntity, NameComponent, 'Test Entity')
+  setComponent(testEntity, VisibleComponent, true)
 
   setCallback(entity, UpdatableCallback, () => {
+    renderer.clear()
     renderer.render(scene, camera)
+    result.needsUpdate = true
   })
-  setComponent(entity, UpdatableComponent)
-
-  return renderTarget.texture
+  result.name = `ReflectionProbeTexture__${textureIndex++}`
+  return result
 }
 
 const EnvmapReactor = (props: { probeQuery: Entity[] }) => {
@@ -131,8 +180,16 @@ const EnvmapReactor = (props: { probeQuery: Entity[] }) => {
   useEffect(() => {
     if (envmapComponent.type.value !== 'Probes') return
     const renderTexture = createReflectionProbeRenderTarget(entity, props.probeQuery)
-    envmapComponent.envmap.set(renderTexture)
+    // envmapComponent.envmap.set(renderTexture)
   }, [props.probeQuery, envmapComponent.type])
+
+  useEffect(() => {
+    console.log('here')
+  }, [envmapComponent.type])
+
+  useEffect(() => {
+    console.log('here')
+  }, [props.probeQuery])
 
   return null
 }
@@ -141,13 +198,14 @@ export const ReflectionProbeSystem = defineSystem({
   uuid: 'ir.engine.ReflectionProbeSystem',
   insert: { after: PresentationSystemGroup },
   reactor: () => {
-    const reflectionProbeQuery = useQuery([ReflectionProbeComponent])
-    return (
-      <QueryReactor
-        Components={[EnvmapComponent]}
-        ChildEntityReactor={EnvmapReactor}
-        props={{ probeQuery: reflectionProbeQuery }}
-      />
-    )
+    return null
+    // const reflectionProbeQuery = useQuery([ReflectionProbeComponent])
+    // return (
+    //   <QueryReactor
+    //     Components={[EnvmapComponent]}
+    //     ChildEntityReactor={EnvmapReactor}
+    //     props={{ probeQuery: reflectionProbeQuery }}
+    //   />
+    // )
   }
 })
