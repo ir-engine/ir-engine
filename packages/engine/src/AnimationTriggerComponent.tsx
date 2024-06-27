@@ -99,10 +99,8 @@ export const AnimationTriggerComponent = defineComponent({
           animation.activeClipIndex.set(component.enterClipIndex.value)
           animation.loop.set(LoopTypeLookup(component.enterLoopType.value))
           //animation.clampWhenFinished.set(true)
-          animation.repetitions.set(1)
           animation.paused.set(false)
           animation.time.set(0)
-          animation.forceStop.set({})
         } else {
           animation.paused.set(true)
           animation.forceStop.set({})
@@ -116,7 +114,6 @@ export const AnimationTriggerComponent = defineComponent({
           //animation.
           animation.paused.set(false)
           animation.time.set(0)
-          animation.forceStop.set({})
         } else {
           animation.paused.set(true)
           animation.forceStop.set({})

@@ -74,8 +74,6 @@ export const AnimationTriggerNodeEditor: EditorComponentType = (props) => {
   useEffect(() => {}, [])
 
   useEffect(() => {
-    component.enterClipIndex.set(-1)
-    component.exitClipIndex.set(-1)
     animationOptions.set([{ label: 'None', value: -1 }])
     if (!component.animationEntityUUID.value) {
       return
