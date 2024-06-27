@@ -33,13 +33,13 @@ import { ProjectState } from '@etherealengine/client-core/src/common/services/Pr
 import config from '@etherealengine/common/src/config'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { updateModelResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
 import { recursiveHipsLookup } from '@etherealengine/engine/src/avatar/AvatarBoneMatching'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getState, useState } from '@etherealengine/hyperflux'
 
+import { STATIC_ASSET_REGEX } from '@etherealengine/common/src/regex'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import BooleanInput from '../inputs/BooleanInput'
@@ -69,10 +69,10 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const editorState = getState(EditorState)
   const projectState = getState(ProjectState)
   const loadedProjects = useState(() => projectState.projects.map((project) => project.name))
-  const srcProject = useState(() => pathResolver().exec(modelComponent.src.value)?.[1] ?? editorState.projectName!)
+  const srcProject = useState(() => STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[1] ?? editorState.projectName!)
 
   const getRelativePath = useCallback(() => {
-    const relativePath = pathResolver().exec(modelComponent.src.value)?.[2]
+    const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[2]
     if (!relativePath) {
       return 'assets/new-model'
     } else {

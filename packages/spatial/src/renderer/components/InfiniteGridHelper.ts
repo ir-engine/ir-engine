@@ -94,13 +94,13 @@ float getGrid(float size) {
 }
 
 float getXAxisLine() {
-  float lineWidth = 0.02; // Adjust line width if needed
+  float lineWidth = 0.1; // Adjust line width if needed
   float xLine = smoothstep(-lineWidth, lineWidth, abs(worldPosition.x));
   return 1.0 - xLine;
 }
 
 float getZAxisLine() {
-  float lineWidth = 0.02; // Adjust line width if needed
+  float lineWidth = 0.1; // Adjust line width if needed
   float zLine = smoothstep(-lineWidth, lineWidth, abs(worldPosition.z));
   return 1.0 - zLine;
 }
@@ -114,14 +114,13 @@ void main() {
   float g2 = getGrid(uSize2);
   float xAxisLine = getXAxisLine();
   float zAxisLine = getZAxisLine();
-  vec3 xAxisColor = vec3(1.0, 0.0, 0.0);
-  vec3 zAxisColor = vec3(0.0, 0.0, 1.0);
 
   if (xAxisLine > 0.0 || zAxisLine > 0.0) {
     discard;
   } else {
-    gl_FragColor = vec4(uColor.rgb, mix(g2, g1, g1) * pow(d, 3.0));
+    gl_FragColor = vec4(uColor.rgb, mix(g2, g1, g1));
     gl_FragColor.a = mix(0.5 * gl_FragColor.a, gl_FragColor.a, g2);
+    gl_FragColor.a *= pow(d, 3.0);
 }
 
   if ( gl_FragColor.a <= 0.0 ) discard;
@@ -133,8 +132,8 @@ export const InfiniteGridComponent = defineComponent({
   onInit(entity) {
     return {
       size: 1,
-      color: new Color('white'),
-      distance: 8000
+      color: new Color(0x535353),
+      distance: 200
     }
   },
 
