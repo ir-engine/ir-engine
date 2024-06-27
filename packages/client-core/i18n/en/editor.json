@@ -760,7 +760,8 @@
     "reflectionProbe": {
       "name": "Reflection Probe",
       "description": "A reflection probe that captures the environment and uses it for reflection.",
-      "src": "Source"
+      "src": "Source",
+      "bake": "Bake Probes"
     },
     "renderSettings": {
       "name": "Render Settings",
