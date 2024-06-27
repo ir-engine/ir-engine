@@ -37,7 +37,7 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { getState, matches } from '@etherealengine/hyperflux'
+import { getState, matches, useImmediateEffect } from '@etherealengine/hyperflux'
 
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp, smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
@@ -99,6 +99,8 @@ export const FollowCameraComponent = defineComponent({
     return {
       firstPersonOffset: new Vector3(),
       thirdPersonOffset: new Vector3(),
+      currentOffset: new Vector3(),
+      offsetSmoothness: 0.1,
       targetEntity: UndefinedEntity,
       currentTargetPosition: new Vector3(),
       targetPositionSmoothness: 0,
@@ -165,13 +167,9 @@ export const FollowCameraComponent = defineComponent({
       }
     }, [])
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       if (follow.mode.value === FollowCameraMode.FirstPerson) {
         follow.targetDistance.set(0)
-      } else {
-        follow.targetDistance.set((v) => {
-          return Math.min(Math.max(v, follow.effectiveMinDistance.value), follow.effectiveMaxDistance.value)
-        })
       }
     }, [follow.mode])
 
@@ -187,7 +185,7 @@ const mx = new Matrix4()
 const tempVec1 = new Vector3()
 const raycaster = new Raycaster()
 
-const MODE_SWITCH_DEBOUNCE = 0.1
+const MODE_SWITCH_DEBOUNCE = 0.03
 
 const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const follow = getComponent(cameraEntity, FollowCameraComponent)
@@ -202,15 +200,18 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   let isInsideWall = false
 
-  const offset = follow.mode === FollowCameraMode.FirstPerson ? follow.firstPersonOffset : follow.thirdPersonOffset
+  const offsetAlpha = smootheLerpAlpha(follow.offsetSmoothness, getState(ECSState).deltaSeconds)
+  const targetOffset =
+    follow.mode === FollowCameraMode.FirstPerson ? follow.firstPersonOffset : follow.thirdPersonOffset
+  follow.currentOffset.lerp(targetOffset, offsetAlpha)
 
   targetPosition
-    .copy(offset)
+    .copy(follow.currentOffset)
     .applyQuaternion(TransformComponent.getWorldRotation(referenceEntity, targetTransform.rotation))
     .add(TransformComponent.getWorldPosition(referenceEntity, new Vector3()))
 
-  const alpha = smootheLerpAlpha(follow.targetPositionSmoothness, getState(ECSState).deltaSeconds)
-  follow.currentTargetPosition.lerp(targetPosition, alpha)
+  const targetPositionAlpha = smootheLerpAlpha(follow.targetPositionSmoothness, getState(ECSState).deltaSeconds)
+  follow.currentTargetPosition.lerp(targetPosition, targetPositionAlpha)
 
   // Run only if not in first person mode
   let obstacleDistance = Infinity
@@ -223,8 +224,8 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   if (follow.mode === FollowCameraMode.FirstPerson) {
     follow.effectiveMinDistance = follow.effectiveMaxDistance = 0
   } else if (follow.mode === FollowCameraMode.ThirdPerson || follow.mode === FollowCameraMode.ShoulderCam) {
-    follow.effectiveMaxDistance = Math.min(obstacleDistance * 0.9, follow.thirdPersonMaxDistance)
-    follow.effectiveMinDistance = Math.min(follow.thirdPersonMinDistance, follow.effectiveMinDistance)
+    follow.effectiveMaxDistance = Math.min(obstacleDistance * 0.8, follow.thirdPersonMaxDistance)
+    follow.effectiveMinDistance = Math.min(follow.thirdPersonMinDistance, follow.effectiveMaxDistance)
   } else if (follow.mode === FollowCameraMode.TopDown) {
     follow.effectiveMinDistance = follow.effectiveMaxDistance = Math.min(
       obstacleDistance * 0.9,
@@ -237,19 +238,27 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     follow.effectiveMinDistance
   )
 
+  const constrainTargetDistance = follow.accumulatedZoomTriggerDebounceTime === -1
+
+  if (constrainTargetDistance) {
+    follow.targetDistance = newZoomDistance
+  }
+
   const triggerZoomShift = follow.accumulatedZoomTriggerDebounceTime > MODE_SWITCH_DEBOUNCE
 
-  const minSpringFactor = Math.min(
-    Math.sqrt(Math.abs(follow.targetDistance - follow.effectiveMinDistance)) *
-      Math.sign(follow.targetDistance - follow.effectiveMinDistance),
-    0
-  )
+  const minSpringFactor =
+    Math.min(
+      Math.sqrt(Math.abs(follow.targetDistance - follow.effectiveMinDistance)) *
+        Math.sign(follow.targetDistance - follow.effectiveMinDistance),
+      0
+    ) * 0.5
 
-  const maxSpringFactor = Math.max(
-    Math.sqrt(Math.abs(follow.targetDistance - follow.effectiveMaxDistance)) *
-      Math.sign(follow.targetDistance - follow.effectiveMaxDistance),
-    0
-  )
+  const maxSpringFactor =
+    Math.max(
+      Math.sqrt(Math.abs(follow.targetDistance - follow.effectiveMaxDistance)) *
+        Math.sign(follow.targetDistance - follow.effectiveMaxDistance),
+      0
+    ) * 0.5
 
   if (follow.mode === FollowCameraMode.FirstPerson) {
     newZoomDistance = Math.sqrt(follow.targetDistance) * 0.5
@@ -270,15 +279,14 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
       }
     }
   } else if (follow.mode === FollowCameraMode.ThirdPerson) {
-    newZoomDistance = newZoomDistance + minSpringFactor * 0.5 + maxSpringFactor
+    newZoomDistance = newZoomDistance + minSpringFactor + maxSpringFactor
     if (triggerZoomShift) {
       follow.accumulatedZoomTriggerDebounceTime = -1
-      const effectiveRange = follow.effectiveMaxDistance - follow.effectiveMinDistance
       if (
         // Move from third person mode to first person mode
         follow.allowedModes.includes(FollowCameraMode.FirstPerson) &&
-        follow.targetDistance < follow.effectiveMinDistance - effectiveRange * 0.1 &&
-        Math.abs(follow.lastZoomStartDistance - follow.effectiveMinDistance) < effectiveRange * 0.1
+        follow.targetDistance < follow.effectiveMinDistance - follow.effectiveMaxDistance * 0.05 &&
+        Math.abs(follow.lastZoomStartDistance - follow.effectiveMinDistance) < follow.effectiveMaxDistance * 0.05
       ) {
         setTargetCameraRotation(cameraEntity, 0, follow.theta)
         followState.mode.set(FollowCameraMode.FirstPerson)
@@ -286,8 +294,8 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
       } else if (
         // Move from third person mode to top down mode
         follow.allowedModes.includes(FollowCameraMode.TopDown) &&
-        follow.targetDistance > follow.effectiveMaxDistance + effectiveRange * 0.1 &&
-        Math.abs(follow.lastZoomStartDistance - follow.effectiveMaxDistance) < effectiveRange * 0.1
+        follow.targetDistance > follow.effectiveMaxDistance + follow.effectiveMaxDistance * 0.02 &&
+        Math.abs(follow.lastZoomStartDistance - follow.effectiveMaxDistance) < follow.effectiveMaxDistance * 0.02
       ) {
         setTargetCameraRotation(cameraEntity, 85, follow.theta)
         followState.mode.set(FollowCameraMode.TopDown)
@@ -300,14 +308,14 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
       }
     }
   } else if (follow.mode === FollowCameraMode.TopDown) {
-    newZoomDistance += minSpringFactor + maxSpringFactor
+    newZoomDistance += minSpringFactor + maxSpringFactor * 0.1
     // Move from top down mode to third person mode
     if (triggerZoomShift) {
       follow.accumulatedZoomTriggerDebounceTime = -1
       if (
         follow.allowedModes.includes(FollowCameraMode.ThirdPerson) &&
-        newZoomDistance < follow.effectiveMaxDistance * 0.9 &&
-        Math.abs(follow.lastZoomStartDistance - follow.effectiveMaxDistance) < 0.1 * follow.effectiveMaxDistance
+        newZoomDistance < follow.effectiveMaxDistance * 0.98 &&
+        Math.abs(follow.lastZoomStartDistance - follow.effectiveMaxDistance) < 0.05 * follow.effectiveMaxDistance
       ) {
         setTargetCameraRotation(cameraEntity, 0, follow.theta)
         followState.mode.set(FollowCameraMode.ThirdPerson)
