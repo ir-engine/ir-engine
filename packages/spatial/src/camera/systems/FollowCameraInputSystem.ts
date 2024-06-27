@@ -76,7 +76,6 @@ const onFollowCameraFirstPerson = (cameraEntity: Entity) => {
 const onFollowCameraShoulderCam = (cameraEntity: Entity) => {
   const follow = getMutableComponent(cameraEntity, FollowCameraComponent)
   follow.mode.set(FollowCameraMode.ShoulderCam)
-  follow.shoulderSide.set((v) => !v)
 }
 
 /**

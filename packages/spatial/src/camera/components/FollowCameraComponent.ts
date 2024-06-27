@@ -33,7 +33,8 @@ import {
   getMutableComponent,
   getOptionalComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { getState, matches } from '@etherealengine/hyperflux'
@@ -48,7 +49,7 @@ import { TransformComponent } from '../../SpatialModule'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { setTargetCameraRotation } from '../functions/CameraFunctions'
-import { FollowCameraMode } from '../types/FollowCameraMode'
+import { FollowCameraMode, FollowCameraShoulderSide } from '../types/FollowCameraMode'
 import { TargetCameraRotationComponent } from './TargetCameraRotationComponent'
 
 export const coneDebugHelpers: ArrowHelper[] = []
@@ -96,7 +97,8 @@ export const FollowCameraComponent = defineComponent({
     }
 
     return {
-      offset: new Vector3(),
+      firstPersonOffset: new Vector3(),
+      thirdPersonOffset: new Vector3(),
       targetEntity: UndefinedEntity,
       currentTargetPosition: new Vector3(),
       targetPositionSmoothness: 0,
@@ -118,7 +120,7 @@ export const FollowCameraComponent = defineComponent({
       phi: 10,
       minPhi: cameraSettings.minPhi,
       maxPhi: cameraSettings.maxPhi,
-      shoulderSide: true,
+      shoulderSide: FollowCameraShoulderSide.Left,
       raycastProps,
       accumulatedZoomTriggerDebounceTime: -1,
       lastZoomStartDistance: (cameraSettings.minCameraDistance + cameraSettings.minCameraDistance) / 2
@@ -128,7 +130,8 @@ export const FollowCameraComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
 
-    if (typeof json.offset !== 'undefined') component.offset.set(json.offset)
+    if (typeof json.firstPersonOffset !== 'undefined') component.firstPersonOffset.set(json.firstPersonOffset)
+    if (typeof json.thirdPersonOffset !== 'undefined') component.thirdPersonOffset.set(json.thirdPersonOffset)
     if (typeof json.targetEntity !== 'undefined') component.targetEntity.set(json.targetEntity)
     if (typeof json.mode === 'string') component.mode.set(json.mode)
     if (matches.arrayOf(matches.string).test(json.allowedModes)) component.allowedModes.set(json.allowedModes)
@@ -148,6 +151,7 @@ export const FollowCameraComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
+    const follow = useComponent(entity, FollowCameraComponent)
 
     useEffect(() => {
       const followCamera = getComponent(entity, FollowCameraComponent)
@@ -160,6 +164,16 @@ export const FollowCameraComponent = defineComponent({
         removeComponent(entity, ComputedTransformComponent)
       }
     }, [])
+
+    useEffect(() => {
+      if (follow.mode.value === FollowCameraMode.FirstPerson) {
+        follow.targetDistance.set(0)
+      } else {
+        follow.targetDistance.set((v) => {
+          return Math.min(Math.max(v, follow.effectiveMinDistance.value), follow.effectiveMaxDistance.value)
+        })
+      }
+    }, [follow.mode])
 
     return null
   }
@@ -188,8 +202,10 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   let isInsideWall = false
 
+  const offset = follow.mode === FollowCameraMode.FirstPerson ? follow.firstPersonOffset : follow.thirdPersonOffset
+
   targetPosition
-    .copy(follow.offset)
+    .copy(offset)
     .applyQuaternion(TransformComponent.getWorldRotation(referenceEntity, targetTransform.rotation))
     .add(TransformComponent.getWorldPosition(referenceEntity, new Vector3()))
 
@@ -207,8 +223,8 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   if (follow.mode === FollowCameraMode.FirstPerson) {
     follow.effectiveMinDistance = follow.effectiveMaxDistance = 0
   } else if (follow.mode === FollowCameraMode.ThirdPerson || follow.mode === FollowCameraMode.ShoulderCam) {
-    follow.effectiveMinDistance = follow.thirdPersonMinDistance
     follow.effectiveMaxDistance = Math.min(obstacleDistance * 0.9, follow.thirdPersonMaxDistance)
+    follow.effectiveMinDistance = Math.min(follow.thirdPersonMinDistance, follow.effectiveMinDistance)
   } else if (follow.mode === FollowCameraMode.TopDown) {
     follow.effectiveMinDistance = follow.effectiveMaxDistance = Math.min(
       obstacleDistance * 0.9,

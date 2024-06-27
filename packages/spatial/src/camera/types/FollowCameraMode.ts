@@ -32,3 +32,8 @@ export enum FollowCameraMode {
   Strategic = 'Strategic',
   Dynamic = 'Dynamic'
 }
+
+export enum FollowCameraShoulderSide {
+  Left = 'Left',
+  Right = 'Right'
+}
