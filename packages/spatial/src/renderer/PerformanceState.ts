@@ -139,7 +139,7 @@ export const PerformanceState = defineState({
   name: 'PerformanceState',
 
   initial: () => ({
-    enabled: true,
+    enabled: false,
 
     isMobileGPU: false,
     gpuTier: 3 as PerformanceTier,
@@ -193,13 +193,13 @@ export const PerformanceState = defineState({
     }, [performanceState.targetFPS])
 
     useEffect(() => {
-      if (engineState.isEditing.value) return
+      if (!performanceState.enabled.value) return
 
       const performanceTier = performanceState.gpuTier.value
       const settings = tieredSettings[performanceTier]
       engineSettings.merge(settings.engine)
       renderSettings.merge(settings.render)
-    }, [performanceState.gpuTier])
+    }, [performanceState.gpuTier, performanceState.enabled])
 
     useEffect(() => {
       recreateEMA()
