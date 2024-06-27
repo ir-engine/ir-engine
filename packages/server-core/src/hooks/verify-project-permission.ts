@@ -58,6 +58,8 @@ export default (types: string[]) => {
 
     if (!project) throw new NotFound('Project not found')
 
+    if (project.name === 'default-project') return context
+
     const { data } = (await context.app.service(projectPermissionPath).find({
       query: {
         userId: loggedInUser.id,
