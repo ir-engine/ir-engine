@@ -29,7 +29,7 @@ import { useEffect } from 'react'
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
 import { RouterState } from '../../common/services/RouterService'
@@ -88,15 +88,11 @@ export const useLoadLocation = (props: { locationName: string }) => {
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
   const sceneKey = `projects/${props.projectName}/${props.sceneName}`
   const assetID = useFind(staticResourcePath, { query: { key: sceneKey, type: 'scene' } })
-  const sceneID = useHookstate<string | undefined>(undefined)
 
   useEffect(() => {
     if (!props.sceneName || !props.projectName) return
     if (!assetID.data.length) return
-    sceneID.set(assetID.data[0].id)
     getMutableState(LocationState).currentLocation.location.sceneId.set(assetID.data[0].id)
     return GLTFAssetState.loadScene(assetID.data[0].url, assetID.data[0].id)
   }, [assetID.data.length])
-
-  return sceneID.value
 }
