@@ -208,13 +208,32 @@ describe('regex.test', () => {
   describe('STATIC_ASSET_REGEX', () => {
     it('should match static asset URLs', () => {
       const positiveCases = [
-        'https://example.com/projects/default-project/assets/images/logo.png',
-        'https://example.com/static-resources/default-project/assets/images/logo.png',
-        'https://example.com/projects/default-project/assets/animations/emotes.glb',
-        'https://example.com/projects/default-project/assets/animations/locomotion.glb'
+        {
+          url: 'https://example.com/projects/default-project/assets/images/logo.png',
+          projectName: 'default-project',
+          assetPath: 'assets/images/logo.png'
+        },
+        {
+          url: 'https://example.com/static-resources/default-project/assets/images/logo.png',
+          projectName: 'default-project',
+          assetPath: 'assets/images/logo.png'
+        },
+        {
+          url: 'https://example.com/projects/default-project/assets/animations/emotes.glb',
+          projectName: 'default-project',
+          assetPath: 'assets/animations/emotes.glb'
+        },
+        {
+          url: 'https://example.com/projects/default-project/assets/animations/locomotion.glb',
+          projectName: 'default-project',
+          assetPath: 'assets/animations/locomotion.glb'
+        }
       ]
-      positiveCases.forEach((url) => {
-        assert.match(url, STATIC_ASSET_REGEX, `Expected '${url}' to match STATIC_ASSET_REGEX`)
+      positiveCases.forEach(({ url, projectName, assetPath }) => {
+        const match = STATIC_ASSET_REGEX.exec(url)
+        assert.ok(match, `Expected '${url}' to match STATIC_ASSET_REGEX`)
+        assert.equal(match?.[1], projectName, `Expected project name '${projectName}' in '${url}'. Found ${match?.[1]}`)
+        assert.equal(match?.[2], assetPath, `Expected asset path '${assetPath}' in '${url}'. Found ${match?.[2]}`)
       })
     })
 
@@ -411,16 +430,43 @@ describe('regex.test', () => {
   describe('PUBLIC_SIGNED_REGEX', () => {
     it('should match valid public signed GitHub Repository URLs', () => {
       const positiveCases = [
-        'https://username:password@github.com/owner/repo.git',
-        'https://user-name:pass-word@github.com/owner-name/repo-name.git',
-        'https://user_name:pass_word@github.com/owner_name/repo_name.git',
-        'https://user name:pass word@github.com/owner name/repo name.git',
-        'https://user123:pass123@github.com/owner123/repo123.git',
-        'https://user_name-123:pass_word-123@github.com/owner_name-123/repo_name-123.git'
+        {
+          url: 'https://username:password@github.com/owner/repo.git',
+          owner: 'owner',
+          repo: 'repo'
+        },
+        {
+          url: 'https://user-name:pass-word@github.com/owner-name/repo-name.git',
+          owner: 'owner-name',
+          repo: 'repo-name'
+        },
+        {
+          url: 'https://user_name:pass_word@github.com/owner_name/repo_name.git',
+          owner: 'owner_name',
+          repo: 'repo_name'
+        },
+        {
+          url: 'https://user name:pass word@github.com/owner name/repo name.git',
+          owner: 'owner name',
+          repo: 'repo name'
+        },
+        {
+          url: 'https://user123:pass123@github.com/owner123/repo123.git',
+          owner: 'owner123',
+          repo: 'repo123'
+        },
+        {
+          url: 'https://user_name-123:pass_word-123@github.com/owner_name-123/repo_name-123.git',
+          owner: 'owner_name-123',
+          repo: 'repo_name-123'
+        }
       ]
 
-      positiveCases.forEach((url) => {
-        assert.match(url, PUBLIC_SIGNED_REGEX, `Expected '${url}' to match PUBLIC_SIGNED_REGEX`)
+      positiveCases.forEach(({ url, owner, repo }) => {
+        const match = PUBLIC_SIGNED_REGEX.exec(url)
+        assert.ok(match, `Expected '${url}' to match PUBLIC_SIGNED_REGEX`)
+        assert.equal(match?.[1], owner, `Expected owner '${owner}' in '${url}'. Found ${match?.[1]}`)
+        assert.equal(match?.[2], repo, `Expected repo '${repo}' in '${url}'. Found ${match?.[2]}`)
       })
     })
 
@@ -446,13 +492,28 @@ describe('regex.test', () => {
   describe('INSTALLATION_SIGNED_REGEX', () => {
     it('should match valid Installation signed GitHub Repository URLs', () => {
       const positiveCases = [
-        'https://oauth2:token123@github.com/owner/repo.git',
-        'https://oauth2:my-oauth-token@github.com/user-name/repository-name.git',
-        'https://oauth2:abc_123@github.com/org_name/repo_name.git'
+        {
+          url: 'https://oauth2:token123@github.com/owner/repo.git',
+          owner: 'owner',
+          repo: 'repo'
+        },
+        {
+          url: 'https://oauth2:my-oauth-token@github.com/user-name/repository-name.git',
+          owner: 'user-name',
+          repo: 'repository-name'
+        },
+        {
+          url: 'https://oauth2:abc_123@github.com/org_name/repo_name.git',
+          owner: 'org_name',
+          repo: 'repo_name'
+        }
       ]
 
-      positiveCases.forEach((url) => {
-        assert.match(url, INSTALLATION_SIGNED_REGEX, `Expected '${url}' to match INSTALLATION_SIGNED_REGEX`)
+      positiveCases.forEach(({ url, owner, repo }) => {
+        const match = INSTALLATION_SIGNED_REGEX.exec(url)
+        assert.ok(match, `Expected '${url}' to match INSTALLATION_SIGNED_REGEX`)
+        assert.equal(match?.[1], owner, `Expected owner '${owner}' in '${url}'. Found ${match?.[1]}`)
+        assert.equal(match?.[2], repo, `Expected repo '${repo}' in '${url}'. Found ${match?.[2]}`)
       })
     })
 
