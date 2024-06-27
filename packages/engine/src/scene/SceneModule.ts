@@ -65,7 +65,6 @@ import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { MeshBVHSystem } from './systems/MeshBVHSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
-import { ReflectionProbeSystem } from './systems/ReflectionProbeSystem'
 import { SceneKillHeightSystem } from './systems/SceneKillHeightSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
@@ -123,7 +122,6 @@ export {
   NoiseOffsetSystem,
   ParticleSystem,
   PortalSystem,
-  ReflectionProbeSystem,
   SceneKillHeightSystem,
   SceneObjectDynamicLoadSystem,
   SceneObjectSystem,

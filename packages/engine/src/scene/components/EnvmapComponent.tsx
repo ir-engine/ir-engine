@@ -73,7 +73,7 @@ import {
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { createReflectionProbeRenderTarget } from '../systems/ReflectionProbeSystem'
+import { createReflectionProbeRenderTarget } from '../functions/reflectionProbeFunctions'
 import { EnvMapBakeComponent } from './EnvMapBakeComponent'
 import { ReflectionProbeComponent } from './ReflectionProbeComponent'
 
@@ -166,8 +166,12 @@ export const EnvmapComponent = defineComponent({
     useEffect(() => {
       if (component.type.value !== EnvMapSourceType.Probes) return
       if (!probeQuery.length) return
-      const renderTexture = createReflectionProbeRenderTarget(entity, probeQuery)
+      const [renderTexture, unload] = createReflectionProbeRenderTarget(entity, probeQuery)
       component.envmap.set(renderTexture)
+      return () => {
+        unload()
+        component.envmap.set(null)
+      }
     }, [component.type, probeQuery.length])
 
     useEffect(() => {
@@ -208,7 +212,7 @@ export const EnvmapComponent = defineComponent({
     }, [component.type, component.envMapSourceURL])
 
     useEffect(() => {
-      if (!component.envmap.value) return
+      //if (!component.envmap.value) return
       updateEnvMap(mesh, component.envmap.value as Texture)
     }, [mesh, component.envmap])
 
@@ -259,13 +263,13 @@ export function updateEnvMap(obj: Mesh<any, any> | null, envmap: Texture | null)
   if (Array.isArray(obj.material)) {
     obj.material.forEach((mat: MeshStandardMaterial) => {
       if (mat instanceof MeshMatcapMaterial) return
-      mat.envMap = envmap!
+      mat.envMap = envmap
       mat.needsUpdate = true
     })
   } else {
     if (obj.material instanceof MeshMatcapMaterial) return
     const material = obj.material as MeshStandardMaterial
-    material.envMap = envmap!
+    material.envMap = envmap
     material.needsUpdate = true
   }
 }

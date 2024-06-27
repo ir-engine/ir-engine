@@ -23,32 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Entity,
-  PresentationSystemGroup,
-  createEntity,
-  defineSystem,
-  getComponent,
-  setComponent,
-  useComponent,
-  useEntityContext
-} from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
+import { Entity, getComponent } from '@etherealengine/ecs'
 import { TransformComponent } from '@etherealengine/spatial'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
+import { createDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
 import {
   CanvasTexture,
   EquirectangularReflectionMapping,
+  LinearFilter,
   Mesh,
-  MeshBasicMaterial,
   OrthographicCamera,
   PlaneGeometry,
   RepeatWrapping,
@@ -57,21 +39,22 @@ import {
   ShaderMaterial,
   Texture,
   Uniform,
-  Vector3,
   WebGLRenderer
 } from 'three'
-import { randFloat } from 'three/src/math/MathUtils'
-import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ReflectionProbeComponent } from '../components/ReflectionProbeComponent'
-import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
-import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 
 let textureIndex = 0
+let renderer: WebGLRenderer | null = null
+let canvas: HTMLCanvasElement | null = null
 
-export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity[]): Texture {
-  const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas') as HTMLCanvasElement
-  canvas.style.display = 'block'
-  const renderer = new WebGLRenderer({ canvas })
+export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity[]): [Texture, () => void] {
+  if (!canvas) {
+    canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas') as HTMLCanvasElement
+    canvas.style.display = 'block'
+  }
+  if (!renderer) {
+    renderer = new WebGLRenderer({ canvas })
+  }
   const scene = new Scene()
   const camera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 10)
   camera.position.z = 1
@@ -140,72 +123,53 @@ export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity
   scene.add(quad)
 
   renderer.setSize(256, 256)
-
-  setComponent(entity, UpdatableComponent)
-  const result = new CanvasTexture(canvas)
-  result.mapping = EquirectangularReflectionMapping
-  result.wrapS = result.wrapT = RepeatWrapping
+  renderer.render(scene, camera)
+  const dupeCanvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas') as HTMLCanvasElement
+  dupeCanvas.width = 256
+  dupeCanvas.height = 256
+  const ctx = dupeCanvas.getContext('2d')
+  if (ctx) {
+    ctx.drawImage(canvas, 0, 0)
+  }
+  const [result, unload] = createDisposable(
+    CanvasTexture,
+    entity,
+    dupeCanvas,
+    EquirectangularReflectionMapping,
+    RepeatWrapping,
+    RepeatWrapping,
+    LinearFilter,
+    LinearFilter
+  )
   result.colorSpace = SRGBColorSpace
-  //result.generateMipmaps = false
   result.needsUpdate = true
 
-  const testMat = new MeshBasicMaterial({ map: result })
-  const testQuad = new Mesh(new PlaneGeometry(1, 1), testMat)
+  // const testMat = new MeshBasicMaterial({ map: result })
+  // const testQuad = new Mesh(new PlaneGeometry(1, 1), testMat)
 
-  const testEntity = createEntity()
-  setComponent(testEntity, EntityTreeComponent, {
-    parentEntity: getComponent(getState(EngineState).viewerEntity, SceneComponent).children[0]
-  })
-  setComponent(testEntity, TransformComponent, { position: new Vector3(0, randFloat(5, 15), 0) })
+  // const testEntity = createEntity()
+  // setComponent(testEntity, EntityTreeComponent, {
+  //   parentEntity: getComponent(getState(EngineState).viewerEntity, SceneComponent).children[0]
+  // })
+  // setComponent(testEntity, TransformComponent, { position: new Vector3(0, randFloat(5, 15), 0) })
 
-  setComponent(testEntity, MeshComponent, testQuad)
-  addObjectToGroup(testEntity, testQuad)
-  proxifyParentChildRelationships(testQuad)
-  setComponent(testEntity, NameComponent, 'Test Entity')
-  setComponent(testEntity, VisibleComponent, true)
-
-  setCallback(entity, UpdatableCallback, () => {
-    renderer.clear()
-    renderer.render(scene, camera)
-    result.needsUpdate = true
-  })
+  // setComponent(testEntity, MeshComponent, testQuad)
+  // addObjectToGroup(testEntity, testQuad)
+  // proxifyParentChildRelationships(testQuad)
+  // setComponent(testEntity, NameComponent, 'Test Entity')
+  // setComponent(testEntity, VisibleComponent, true)
+  // setComponent(entity, UpdatableComponent)
+  // setCallback(entity, UpdatableCallback, () => {
+  //   renderer.clear()
+  //   renderer.render(scene, camera)
+  //   result.needsUpdate = true
+  // })
   result.name = `ReflectionProbeTexture__${textureIndex++}`
-  return result
-}
-
-const EnvmapReactor = (props: { probeQuery: Entity[] }) => {
-  const entity = useEntityContext()
-  const envmapComponent = useComponent(entity, EnvmapComponent)
-
-  useEffect(() => {
-    if (envmapComponent.type.value !== 'Probes') return
-    const renderTexture = createReflectionProbeRenderTarget(entity, props.probeQuery)
-    // envmapComponent.envmap.set(renderTexture)
-  }, [props.probeQuery, envmapComponent.type])
-
-  useEffect(() => {
-    console.log('here')
-  }, [envmapComponent.type])
-
-  useEffect(() => {
-    console.log('here')
-  }, [props.probeQuery])
-
-  return null
-}
-
-export const ReflectionProbeSystem = defineSystem({
-  uuid: 'ir.engine.ReflectionProbeSystem',
-  insert: { after: PresentationSystemGroup },
-  reactor: () => {
-    return null
-    // const reflectionProbeQuery = useQuery([ReflectionProbeComponent])
-    // return (
-    //   <QueryReactor
-    //     Components={[EnvmapComponent]}
-    //     ChildEntityReactor={EnvmapReactor}
-    //     props={{ probeQuery: reflectionProbeQuery }}
-    //   />
-    // )
+  const fullUnload = () => {
+    unload()
+    scene.clear()
+    quad.geometry.dispose()
+    dupeCanvas.remove()
   }
-})
+  return [result, fullUnload]
+}
