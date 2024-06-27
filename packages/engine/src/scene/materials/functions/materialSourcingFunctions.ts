@@ -86,10 +86,15 @@ export const createMaterialInstance = (path: string, sourceEntity: Entity, mater
   setComponent(sourceEntity, MaterialInstanceComponent)
   const materialComponent = getMutableComponent(sourceEntity, MaterialInstanceComponent)
   const uuids = materialComponent.uuid.value
-  if (!uuids) return
 
   if (entityFromHash) {
     materialComponent.uuid.set([...uuids, entityFromHash])
+    const materialStateComponent = getMutableComponent(
+      UUIDComponent.getEntityByUUID(entityFromHash),
+      MaterialStateComponent
+    )
+    materialStateComponent.instances.set([...materialStateComponent.instances.value, sourceEntity])
+
     return entityFromHash
   }
   const newUUID = material.uuid as EntityUUID
