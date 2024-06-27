@@ -125,8 +125,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     settingsState.set(clientSettings)
   }
 
-  console.log(settingsState.value)
-
   if (!settingsState.value)
     return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loading')} />
 
