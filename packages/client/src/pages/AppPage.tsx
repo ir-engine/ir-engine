@@ -51,8 +51,12 @@ const AppPage = (props: { children: React.ReactNode }) => {
 
   useThemeProvider()
 
-  if (!/auth\/oauth/.test(location.pathname) && !isLoggedIn) {
+  if (!location.pathname.startsWith('/auth') && !isLoggedIn) {
     return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingRoutes')} />
+  }
+
+  if (location.pathname.startsWith('/auth')) {
+    return <>{props.children}</>
   }
 
   return (

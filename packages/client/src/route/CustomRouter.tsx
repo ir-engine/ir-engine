@@ -37,14 +37,9 @@ import $503 from '../pages/503'
 function CustomRouter() {
   const customRoutes = useCustomRoutes()
 
-  if (!/auth\/oauth/.test(location.pathname) && !customRoutes.length) {
+  if (location.pathname.startsWith('/auth') && !customRoutes.length) {
     return <LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />
   }
-
-  // Improve loading by only using matched route
-  const matchedRoutes = customRoutes.filter((r) => {
-    return r.route.split('/')[1]
-  })
 
   return (
     <ErrorBoundary>
@@ -52,13 +47,13 @@ function CustomRouter() {
         fallback={<LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />}
       >
         <Routes>
-          {matchedRoutes.map((route, i) => {
+          {customRoutes.map((route, i) => {
             const { route: r, component, props: p, componentProps } = route
             const Element = component as any
             return (
               <Route
                 key={`custom-route-${i}`}
-                path={r.split('/')[1] === '' ? `${r}*` : `${r}/*`}
+                path={r === '/' ? '' : r.split('/')[1] === '' ? `${r}*` : `${r}/*`}
                 element={<Element {...componentProps} />}
                 {...p}
               />
