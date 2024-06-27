@@ -42,9 +42,6 @@ export const instanceAttendanceSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    sceneId: Type.String({
-      format: 'uuid'
-    }),
     isChannel: Type.Boolean(),
     ended: Type.Boolean(),
     instanceId: TypedString<InstanceID>({
@@ -62,13 +59,9 @@ export const instanceAttendanceSchema = Type.Object(
 export interface InstanceAttendanceType extends Static<typeof instanceAttendanceSchema> {}
 
 // Schema for creating new entries
-export const instanceAttendanceDataSchema = Type.Pick(
-  instanceAttendanceSchema,
-  ['sceneId', 'isChannel', 'ended', 'instanceId', 'userId'],
-  {
-    $id: 'InstanceAttendanceData'
-  }
-)
+export const instanceAttendanceDataSchema = Type.Pick(instanceAttendanceSchema, ['isChannel', 'instanceId', 'userId'], {
+  $id: 'InstanceAttendanceData'
+})
 export interface InstanceAttendanceData extends Static<typeof instanceAttendanceDataSchema> {}
 
 // Schema for updating existing entries
@@ -80,7 +73,6 @@ export interface InstanceAttendancePatch extends Static<typeof instanceAttendanc
 // Schema for allowed query properties
 export const instanceAttendanceQueryProperties = Type.Pick(instanceAttendanceSchema, [
   'id',
-  'sceneId',
   'isChannel',
   'ended',
   'instanceId',

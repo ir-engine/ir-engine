@@ -75,12 +75,14 @@ export const instanceSchema = Type.Object(
 export interface InstanceType extends Static<typeof instanceSchema> {}
 
 // Schema for creating new entries
-export const instanceDataSchema = Type.Pick(
-  instanceSchema,
-  ['roomCode', 'ipAddress', 'channelId', 'podName', 'currentUsers', 'ended', 'assigned', 'locationId', 'assignedAt'],
-  {
-    $id: 'InstanceData'
-  }
+export const instanceDataSchema = Type.Partial(
+  Type.Pick(
+    instanceSchema,
+    ['roomCode', 'ipAddress', 'channelId', 'podName', 'currentUsers', 'ended', 'assigned', 'locationId', 'assignedAt'],
+    {
+      $id: 'InstanceData'
+    }
+  )
 )
 export interface InstanceData extends Static<typeof instanceDataSchema> {}
 
