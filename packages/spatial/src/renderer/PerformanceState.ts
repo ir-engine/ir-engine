@@ -189,6 +189,10 @@ export const PerformanceState = defineState({
     }
 
     useEffect(() => {
+      performanceState.enabled.set(!engineState.isEditing.value && engineSettings.automatic.value)
+    }, [engineState.isEditing, engineSettings.automatic])
+
+    useEffect(() => {
       recreateEMA()
     }, [performanceState.targetFPS])
 
@@ -205,10 +209,6 @@ export const PerformanceState = defineState({
       recreateEMA()
       performanceState.performanceSmoothingAccum.set(0)
     }, [performanceState.gpuPerformanceOffset, performanceState.cpuPerformanceOffset])
-
-    useEffect(() => {
-      performanceState.enabled.set(!engineState.isEditing.value && engineSettings.automatic.value)
-    }, [engineState.isEditing, engineSettings.automatic])
   }
 })
 
