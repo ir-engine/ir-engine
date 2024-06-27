@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { CSS_URL_REGEX } from '@etherealengine/common/src/regex/index'
 import { WebRenderer } from '../WebRenderer'
 import { getEmbeddedDataURL } from './getEmbeddedDataURL'
 
@@ -39,14 +40,12 @@ export async function generateEmbeddedCSS(url: string, css: string): Promise<str
   const promises = [] as Promise<any>[]
 
   // Add classes for psuedo-classes
-  css = css.replace(new RegExp(':hover', 'g'), WebRenderer.attributeCSS(WebRenderer.HOVER_ATTRIBUTE))
-  css = css.replace(new RegExp(':active', 'g'), WebRenderer.attributeCSS(WebRenderer.ACTIVE_ATTRIBUTE))
-  css = css.replace(new RegExp(':focus', 'g'), WebRenderer.attributeCSS(WebRenderer.FOCUS_ATTRIBUTE))
-  css = css.replace(new RegExp(':target', 'g'), WebRenderer.attributeCSS(WebRenderer.TARGET_ATTRIBUTE))
+  css = css.replaceAll(':hover', WebRenderer.attributeCSS(WebRenderer.HOVER_ATTRIBUTE))
+  css = css.replaceAll(':active', WebRenderer.attributeCSS(WebRenderer.ACTIVE_ATTRIBUTE))
+  css = css.replaceAll(':focus', WebRenderer.attributeCSS(WebRenderer.FOCUS_ATTRIBUTE))
+  css = css.replaceAll(':target', WebRenderer.attributeCSS(WebRenderer.TARGET_ATTRIBUTE))
 
-  // Replace all urls in the css
-  const regEx = RegExp(/(@import.*?["']([^"']+)["'].*?|url\((?!['"]?(?:data):)['"]?([^'"\)]*)['"]?\))/gi)
-  while ((found = regEx.exec(css))) {
+  while ((found = CSS_URL_REGEX.exec(css))) {
     const isCSSImport = !!found[2]
     const accept = isCSSImport ? 'type/css' : undefined
     const resourceURL = found[2] || found[3]

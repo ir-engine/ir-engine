@@ -78,7 +78,7 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
         max={max}
         value={value}
         onChange={handleChange}
-        onBlur={() => onRelease(value)}
+        onPointerUp={() => onRelease(value)}
         step={step}
         type="range"
         style={sliderStyle}

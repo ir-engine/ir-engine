@@ -23,7 +23,7 @@ import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transfo
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 
-import { pathResolver } from '../../../assets/functions/pathResolver'
+import { STATIC_ASSET_REGEX } from '@etherealengine/common/src/regex'
 import { getGLTFAsync } from '../../../assets/functions/resourceLoaderHooks'
 import { InstancingComponent } from '../../components/InstancingComponent'
 import { ModelComponent } from '../../components/ModelComponent'
@@ -66,8 +66,8 @@ export function updateModelVariant(
     const levelIndex = variantComponent.levels.findIndex((level) => level.metadata['device'] === targetDevice)
     if (levelIndex < 0) return
     const deviceVariant = variantComponent.levels[levelIndex]
-    const modelRelativePath = pathResolver().exec(modelComponent.src.value)?.[2]
-    const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src.value)?.[2] : ''
+    const modelRelativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[2]
+    const deviceRelativePath = deviceVariant ? STATIC_ASSET_REGEX.exec(deviceVariant.src.value)?.[2] : ''
     if (deviceVariant && modelRelativePath !== deviceRelativePath) {
       variantComponent.currentLevel.set(levelIndex)
     }

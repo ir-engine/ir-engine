@@ -160,11 +160,11 @@ const useComponentShelfCategories = (search: string) => {
     return Object.entries(getState(ComponentShelfCategoriesState))
   }
 
-  const searchRegExp = new RegExp(search, 'gi')
+  const searchString = search.toLowerCase()
 
   return Object.entries(getState(ComponentShelfCategoriesState))
     .map(([category, items]) => {
-      const filteredItems = items.filter((item) => item.name.match(searchRegExp)?.length)
+      const filteredItems = items.filter((item) => item.name.toLowerCase().includes(searchString))
       return [category, filteredItems] as [string, Component[]]
     })
     .filter(([_, items]) => !!items.length)
@@ -185,11 +185,11 @@ const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][]
     return Object.entries(prefabShelves)
   }
 
-  const searchRegExp = new RegExp(search, 'gi')
+  const searchString = search.toLowerCase()
 
   return Object.entries(prefabShelves)
     .map(([category, items]) => {
-      const filteredItems = items.filter((item) => item.name.match(searchRegExp)?.length)
+      const filteredItems = items.filter((item) => item.name.toLowerCase().includes(searchString))
       return [category, filteredItems] as [string, PrefabShelfItem[]]
     })
     .filter(([_, items]) => !!items.length)
