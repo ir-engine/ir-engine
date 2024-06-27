@@ -188,9 +188,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
       </div>
 
       <Tooltip title={t(props.item.fullName)} direction="bottom">
-        <div className="text-secondary relative mb-2 line-clamp-1 w-full text-wrap break-all text-sm ">
-          {props.item.fullName}
-        </div>
+        <div className="text-secondary line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
       </Tooltip>
     </div>
   )
