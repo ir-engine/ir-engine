@@ -131,7 +131,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
     const assetURL = clickState.selectedAsset.get(NO_PROXY)!
     const placementEntity = clickState.placementEntity.value
     if (getComponent(placementEntity, ModelComponent)?.src === assetURL) return
-    setComponent(placementEntity, ModelComponent, { src: assetURL })
+    updatePlacementEntitySnapshot(placementEntity)
   }, [clickState.selectedAsset, clickState.placementEntity])
 
   return (
@@ -166,13 +166,24 @@ const getParentEntity = () => {
   return getState(EditorState).rootEntity
 }
 
-const createPlacementEntity = (parentEntity: Entity) => {
-  const placementEntity = createSceneEntity('Placement-' + placedCount, parentEntity)
-
-  const sceneID = getComponent(parentEntity, SourceComponent)
-  setComponent(placementEntity, SourceComponent, sceneID)
-  setComponent(placementEntity, EntityTreeComponent, { parentEntity })
+const updatePlacementEntitySnapshot = (placementEntity: Entity) => {
   setComponent(placementEntity, ModelComponent, { src: getState(ClickPlacementState).selectedAsset })
+  const sceneID = getComponent(placementEntity, SourceComponent)
+  const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+  const uuid = getComponent(placementEntity, UUIDComponent)
+  const nodeIndex = snapshot.data.nodes!.findIndex(
+    (value) => value.extensions && value.extensions[UUIDComponent.jsonID] === uuid
+  )
+  const entityJson = toEntityJson(placementEntity)
+  const entityGLTFNode = entityJSONToGLTFNode(entityJson, uuid)
+  delete entityGLTFNode.matrix
+  snapshot.data.nodes![nodeIndex] = entityGLTFNode
+  dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
+}
+
+const createPlacementEntitySnapshot = (placementEntity: Entity) => {
+  setComponent(placementEntity, ModelComponent, { src: getState(ClickPlacementState).selectedAsset })
+  const sceneID = getComponent(placementEntity, SourceComponent)
   const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
   const uuid = getComponent(placementEntity, UUIDComponent)
   const entityJson = toEntityJson(placementEntity)
@@ -182,6 +193,15 @@ const createPlacementEntity = (parentEntity: Entity) => {
   snapshot.data.nodes!.push(entityGLTFNode)
   snapshot.data.scenes![0].nodes.push(nodeIndex)
   dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
+}
+
+const createPlacementEntity = (parentEntity: Entity) => {
+  const placementEntity = createSceneEntity('Placement-' + placedCount, parentEntity)
+
+  const sceneID = getComponent(parentEntity, SourceComponent)
+  setComponent(placementEntity, SourceComponent, sceneID)
+  setComponent(placementEntity, EntityTreeComponent, { parentEntity })
+  createPlacementEntitySnapshot(placementEntity)
 
   return placementEntity
 }
