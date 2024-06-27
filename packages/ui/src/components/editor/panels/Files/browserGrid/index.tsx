@@ -49,6 +49,7 @@ import { Vector3 } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
 import { FileIcon } from '../icon'
 import DeleteFileModal from './DeleteFileModal'
+import ImageConvertModal from './ImageConvertModal'
 import RenameFileModal from './RenameFileModal'
 
 export const canDropItemOverFolder = (folderName: string) =>
@@ -66,7 +67,6 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
   }
   const { t } = useTranslation()
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
-  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
   return (
     <div className="table-container">
       <table className="w-full">
@@ -195,7 +195,6 @@ type FileBrowserItemType = {
   setFileProperties: any
   setOpenPropertiesModal: any
   setOpenCompress: any
-  setOpenConvert: any
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
@@ -204,6 +203,7 @@ type FileBrowserItemType = {
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
   isSelected: boolean
+  refreshDirectory: () => Promise<void>
 }
 
 export function FileBrowserItem({
@@ -213,7 +213,6 @@ export function FileBrowserItem({
   setOpenPropertiesModal,
   setFileProperties,
   setOpenCompress,
-  setOpenConvert,
   projectName,
   onClick,
   dropItemsOnPanel,
@@ -221,7 +220,8 @@ export function FileBrowserItem({
   addFolder,
   isListView,
   staticResourceModifiedDates,
-  isSelected
+  isSelected,
+  refreshDirectory
 }: FileBrowserItemType) {
   const { t } = useTranslation()
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
@@ -299,12 +299,6 @@ export function FileBrowserItem({
   const viewCompress = () => {
     setFileProperties(item)
     setOpenCompress(true)
-    handleClose()
-  }
-
-  const viewConvert = () => {
-    setFileProperties(item)
-    setOpenConvert(true)
     handleClose()
   }
 
@@ -408,7 +402,15 @@ export function FileBrowserItem({
         <Button variant="outline" size="small" fullWidth onClick={viewCompress}>
           {t('editor:layout.filebrowser.compress')}
         </Button>
-        <Button variant="outline" size="small" fullWidth onClick={viewConvert}>
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          onClick={() =>
+            PopoverState.showPopupover(<ImageConvertModal file={item} refreshDirectory={refreshDirectory} />)
+          }
+          disabled={!(['jpg', 'png', 'webp'].includes(item.type) || item.isFolder)}
+        >
           {t('editor:layout.filebrowser.convert')}
         </Button>
       </ContextMenu>
