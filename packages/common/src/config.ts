@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import type { MediaSettingsType } from './schema.type.module'
+
 /**
  * Config settings (for client and isomorphic engine usage).
  */
@@ -81,6 +83,7 @@ const client = {
     forceClientAggregate: globalThis.process.env.VITE_FORCE_CLIENT_LOG_AGGREGATE,
     disabled: globalThis.process.env.VITE_DISABLE_LOG
   },
+  mediaSettings: null! as MediaSettingsType,
   rootRedirect: globalThis.process.env.VITE_ROOT_REDIRECT,
   tosAddress: globalThis.process.env.VITE_TERMS_OF_SERVICE_ADDRESS,
   readyPlayerMeUrl: globalThis.process.env.VITE_READY_PLAYER_ME_URL,

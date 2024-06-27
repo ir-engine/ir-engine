@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { VideoConstants } from '@etherealengine/network'
 
-import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
+import config from '@etherealengine/common/src/config'
 import { ProducerExtension } from './SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:MediaStreams' })
@@ -182,9 +182,8 @@ export const MediaStreamService = {
    */
   async getVideoStream() {
     const state = getMutableState(MediaStreamState)
-    const clientSettingState = getState(AdminClientSettingsState)
     try {
-      const { maxResolution } = clientSettingState.client[0].mediaSettings.video
+      const { maxResolution } = config.client.mediaSettings!.video
       const constraints = {
         video: VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
       }
