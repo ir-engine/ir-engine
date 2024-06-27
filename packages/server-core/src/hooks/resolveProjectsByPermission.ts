@@ -29,6 +29,7 @@ import {
   projectPath,
   projectPermissionPath
 } from '@etherealengine/common/src/schema.type.module'
+import { Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { Application, HookContext } from '../../declarations'
 /**
@@ -48,6 +49,11 @@ export default () => {
         }
       })) as Paginated<ProjectPermissionType>
 
+      if (data.length === 0) {
+        console.error(`No Project permissions found. UserId: ${loggedInUser.id}`)
+        throw new Forbidden(`Project permissions not found`)
+      }
+
       for (const projP of data) {
         if (!context.params.query?.$or) {
           context.params.query.$or = []
@@ -55,7 +61,6 @@ export default () => {
         const project = await context.app.service(projectPath).get(projP.projectId)
         if (project !== undefined) context.params.query?.$or?.push({ project: project.name })
       }
-      context.params.query?.$or?.push({ project: 'default-project' })
       return context
     }
     return context
