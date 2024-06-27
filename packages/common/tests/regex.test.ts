@@ -29,7 +29,6 @@ import {
   CSS_URL_REGEX,
   EMAIL_REGEX,
   GITHUB_URL_REGEX,
-  HTTPS_REGEX,
   INSTALLATION_SIGNED_REGEX,
   INVALID_FILENAME_REGEX,
   INVITE_CODE_REGEX,
@@ -203,39 +202,6 @@ describe('regex.test', () => {
         ABSOLUTE_URL_PROTOCOL_REGEX,
         `Expected 'example.com' to not match ABSOLUTE_URL_REGEX`
       )
-    })
-  })
-
-  describe('HTTPS_REGEX', () => {
-    it('should match https URLs', () => {
-      const positiveCases = [
-        'https://example.com',
-        'https://www.example.com',
-        'https://subdomain.example.com',
-        'https://example.com/path/to/resource',
-        'https://127.0.0.1',
-        'https://[::1]',
-        'https://localhost'
-      ]
-
-      positiveCases.forEach((url) => {
-        assert.match(url, HTTPS_REGEX, `Expected '${url}' to match HTTPS_REGEX`)
-      })
-    })
-    it('should not match any other URLs', () => {
-      const negativeCases = [
-        'http://',
-        'http://example.com',
-        'http://www.example.com',
-        'ftp://example.com',
-        'https:/',
-        'https:',
-        'https'
-      ]
-
-      negativeCases.forEach((url) => {
-        assert.doesNotMatch(url, HTTPS_REGEX, `Expected '${url}' to not match HTTPS_REGEX`)
-      })
     })
   })
 

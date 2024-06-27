@@ -41,11 +41,6 @@ export const CSS_URL_REGEX = /(@import\s+["']([^"']+)["']|url\((?!['"]?(?:data):
 export const ABSOLUTE_URL_PROTOCOL_REGEX = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/
 
 /**
- * Matches `https://`
- */
-export const HTTPS_REGEX = /https:\/\//
-
-/**
  * Captures project name and asset path from a URL.
  * For eg: `/path/to/projects/project123/assets/images/logo.png` will capture following groups
  * - `project123` => Group 1

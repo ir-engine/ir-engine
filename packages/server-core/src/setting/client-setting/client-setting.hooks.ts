@@ -30,8 +30,6 @@ import path from 'path'
 
 import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 
-import { HTTPS_REGEX } from '@etherealengine/common/src/regex'
-
 import {
   ClientSettingData,
   clientSettingDataValidator,
@@ -72,11 +70,11 @@ const updateWebManifest = async (context: HookContext<ClientSettingService>) => 
   try {
     const webmanifestResponse = await storageProvider.getObject(webmanifestPath)
     const webmanifest = JSON.parse(webmanifestResponse.Body.toString('utf-8'))
-    context.data![0].startPath = data![0].startPath?.replace(HTTPS_REGEX, '/')
-    const icon192px = HTTPS_REGEX.test(data![0].icon192px!)
+    context.data![0].startPath = data![0].startPath?.replace('https://', '/')
+    const icon192px = data![0].icon192px!.startsWith('https://')
       ? data![0].icon192px
       : path.join('client', data![0].icon192px!)
-    const icon512px = HTTPS_REGEX.test(data![0].icon512px!)
+    const icon512px = data![0].icon512px!.startsWith('https://')
       ? data![0].icon512px
       : path.join('client', data![0].icon512px!)
     webmanifest.name = data![0].title
@@ -90,7 +88,7 @@ const updateWebManifest = async (context: HookContext<ClientSettingService>) => 
     const cacheDomain = storageProvider.getCacheDomain()
     webmanifest.icons = [
       {
-        src: HTTPS_REGEX.test(icon192px!)
+        src: icon192px!.startsWith('https://')
           ? icon192px
           : cacheDomain[cacheDomain.length - 1] === '/' && icon192px![0] === '/'
           ? `https://${cacheDomain}${icon192px?.slice(1)}`
@@ -101,7 +99,7 @@ const updateWebManifest = async (context: HookContext<ClientSettingService>) => 
         type: getContentType(icon192px!)
       },
       {
-        src: HTTPS_REGEX.test(icon512px!)
+        src: icon512px!.startsWith('https://')
           ? icon512px
           : cacheDomain[cacheDomain.length - 1] === '/' && icon512px![0] === '/'
           ? `https://${cacheDomain}${icon512px?.slice(1)}`
