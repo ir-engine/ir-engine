@@ -58,18 +58,20 @@ import { TransformSystem } from '@etherealengine/spatial/src/transform/Transform
 import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import React from 'react'
 import { useBatchGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { AnimationComponent } from '.././components/AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
-import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
+import { AnimationComponent } from '../components/AnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
 import { retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
@@ -324,7 +326,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
+const Reactor = () => {
   /**loads animation bundles. assumes the bundle is a glb */
   const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
   const [gltfs] = useBatchGLTF(
@@ -388,7 +390,10 @@ export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
   insert: { after: AnimationSystem },
   execute,
-  reactor
+  reactor: () => {
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <Reactor />
+  }
 })
 
 const skinnedMeshQuery = defineQuery([SkinnedMeshComponent])

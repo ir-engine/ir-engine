@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { FrontSide, Material, Uniform, Vector3 } from 'three'
 
 import { defineComponent, EntityUUID, getComponent, useEntityContext } from '@etherealengine/ecs'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
+import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useEffect } from 'react'
 import {
@@ -70,7 +70,7 @@ export const TransparencyDitheringPlugin = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     useEffect(() => {
-      const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
+      const materialComponent = getComponent(entity, MaterialStateComponent)
       const material = materialComponent.material as Material
       const callback = (shader) => {
         material.alphaTest = 0.5

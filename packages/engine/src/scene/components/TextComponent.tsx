@@ -249,7 +249,13 @@ export const TextComponent = defineComponent({
     if (matches.string.test(json.font)) component.font.set(json.font)
     else if (matches.nill.test(json.font)) component.font.set(null)
     if (matches.number.test(json.fontSize)) component.fontSize.set(json.fontSize)
-    if (matches.object.test(json.fontColor) && json.fontColor.isColor) component.fontColor.set(json.fontColor)
+
+    if (matches.object.test(json.fontColor) && json.fontColor.isColor) {
+      component.fontColor.set(json.fontColor)
+    } else if (matches.number.test(json.fontColor)) {
+      component.fontColor.set(new Color(json.fontColor))
+    }
+
     if (matches.number.test(json.fontMaterial) && json.fontMaterial in FontMaterialKind)
       component.fontMaterial.set(json.fontMaterial)
     if (matches.number.test(json.outlineOpacity)) component.outlineOpacity.set(json.outlineOpacity)
@@ -257,11 +263,22 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.outlineBlur)) component.outlineBlur.set(json.outlineBlur)
     if (matches.object.test(json.outlineOffset) && json.outlineOffset.isVector2)
       component.outlineOffset.set(json.outlineOffset)
-    if (matches.object.test(json.outlineColor) && json.outlineColor.isColor)
+
+    if (matches.object.test(json.outlineColor) && json.outlineColor.isColor) {
       component.outlineColor.set(json.outlineColor)
+    } else if (matches.number.test(json.outlineColor)) {
+      component.outlineColor.set(new Color(json.outlineColor))
+    }
+
     if (matches.number.test(json.strokeOpacity)) component.strokeOpacity.set(json.strokeOpacity)
     if (matches.number.test(json.strokeWidth)) component.strokeWidth.set(json.strokeWidth)
-    if (matches.object.test(json.strokeColor) && json.strokeColor.isColor) component.strokeColor.set(json.strokeColor)
+
+    if (matches.object.test(json.strokeColor) && json.strokeColor.isColor) {
+      component.strokeColor.set(json.strokeColor)
+    } else if (matches.number.test(json.strokeColor)) {
+      component.strokeColor.set(new Color(json.strokeColor))
+    }
+
     // Advanced configuration
     if (matches.string.test(json.textOrientation)) component.textOrientation.set(json.textOrientation)
     if (matches.boolean.test(json.gpuAccelerated)) component.gpuAccelerated.set(json.gpuAccelerated)

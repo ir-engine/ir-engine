@@ -79,7 +79,7 @@ const Select = <T extends OptionValueType>({
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
   const showOptions = useHookstate(false)
-  const filteredOptions = useHookstate(options)
+  const filteredOptions = useHookstate(JSON.parse(JSON.stringify(options)))
   const selectLabel = useHookstate('')
 
   useClickOutside(ref, () => showOptions.set(false))
@@ -90,7 +90,7 @@ const Select = <T extends OptionValueType>({
   }, [currentValue, options])
 
   useEffect(() => {
-    filteredOptions.set(options)
+    filteredOptions.set(JSON.parse(JSON.stringify(options)))
   }, [options])
 
   const toggleDropdown = () => {

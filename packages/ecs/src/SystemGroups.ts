@@ -33,7 +33,6 @@ export const InputSystemGroup = defineSystem({
 /** Run inside of fixed pipeline */
 export const SimulationSystemGroup = defineSystem({
   uuid: 'ee.engine.simulation-group',
-  timeStep: 1 / 60,
   insert: {}
 })
 
