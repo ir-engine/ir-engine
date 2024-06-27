@@ -29,6 +29,7 @@ import {
   scopeTypePath,
   UserData,
   UserName,
+  UserPatch,
   userPath,
   UserType
 } from '@etherealengine/common/src/schema.type.module'
@@ -121,7 +122,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
     submitLoading.set(true)
     try {
       if (user?.id) {
-        await userMutation.patch(user.id, userData)
+        await userMutation.patch(user.id, userData as UserPatch)
       } else {
         await userMutation.create(userData)
       }

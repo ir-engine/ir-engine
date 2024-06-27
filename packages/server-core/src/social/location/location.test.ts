@@ -31,6 +31,7 @@ import { LocationID, locationPath, LocationType } from '@etherealengine/common/s
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { LocationParams } from './location.class'
@@ -99,12 +100,15 @@ describe('location.test', () => {
   it('should be able to update the location', async () => {
     const newName = `Update Test Location ${uuidv4()}`
     const locationSetting = await app.service(locationSettingPath).create({
+      id: uuidv4(),
       locationType: 'public',
       audioEnabled: true,
       videoEnabled: true,
       faceStreamingEnabled: false,
       screenSharingEnabled: false,
-      locationId: locations[0].id
+      locationId: locations[0].id,
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
     })
 
     const locationData = JSON.parse(JSON.stringify(locations[0]))

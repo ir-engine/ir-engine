@@ -32,6 +32,7 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import {
   LocationData,
   LocationID,
+  LocationPatch,
   locationPath,
   LocationType,
   staticResourcePath
@@ -215,7 +216,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
           NotificationService.dispatchNotify(error.message, { variant: 'error' })
         })
       } else if (selectedLocation) {
-        locationMutation.patch(selectedLocation.id, data).catch((error) => {
+        locationMutation.patch(selectedLocation.id, data as LocationPatch).catch((error) => {
           NotificationService.dispatchNotify(error.message, { variant: 'error' })
         })
         editMode.set(false)

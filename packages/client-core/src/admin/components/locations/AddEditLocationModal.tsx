@@ -25,6 +25,7 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import {
   LocationData,
   LocationID,
+  LocationPatch,
   locationPath,
   LocationType,
   staticResourcePath
@@ -118,7 +119,7 @@ export default function AddEditLocationModal({
 
     try {
       if (location?.id) {
-        await locationMutation.patch(location.id, locationData)
+        await locationMutation.patch(location.id, locationData as LocationPatch)
       } else {
         await locationMutation.create(locationData)
       }
