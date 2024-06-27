@@ -80,7 +80,7 @@ export const ClickPlacementState = defineState({
   name: 'ClickPlacementState',
   initial: {
     placementEntity: UndefinedEntity as Entity,
-    selectedAsset: null as string | null,
+    selectedAsset: undefined as undefined | string,
     yawOffset: 0,
     pitchOffset: 0,
     rollOffset: 0,
@@ -130,7 +130,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
     if (!clickState.selectedAsset.value || !clickState.placementEntity.value) return
     const assetURL = clickState.selectedAsset.get(NO_PROXY)!
     const placementEntity = clickState.placementEntity.value
-    if (getOptionalComponent(placementEntity, ModelComponent)?.src === assetURL) return
+    if (getComponent(placementEntity, ModelComponent)?.src === assetURL) return
     setComponent(placementEntity, ModelComponent, { src: assetURL })
   }, [clickState.selectedAsset, clickState.placementEntity])
 
@@ -172,10 +172,15 @@ const createPlacementEntity = (parentEntity: Entity) => {
   const sceneID = getComponent(parentEntity, SourceComponent)
   setComponent(placementEntity, SourceComponent, sceneID)
   setComponent(placementEntity, EntityTreeComponent, { parentEntity })
+  setComponent(placementEntity, ModelComponent, { src: getState(ClickPlacementState).selectedAsset })
   const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
   const uuid = getComponent(placementEntity, UUIDComponent)
-  const entityGLTFNode = entityJSONToGLTFNode(toEntityJson(placementEntity), uuid)
+  const entityJson = toEntityJson(placementEntity)
+  const entityGLTFNode = entityJSONToGLTFNode(entityJson, uuid)
+  delete entityGLTFNode.matrix
+  const nodeIndex = snapshot.data.nodes!.length
   snapshot.data.nodes!.push(entityGLTFNode)
+  snapshot.data.scenes![0].nodes.push(nodeIndex)
   dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
 
   return placementEntity
@@ -189,15 +194,18 @@ const clickListener = () => {
   const placementEntity = clickState.placementEntity.value
   if (!placementEntity) return
 
+  if (getState(ObjectGridSnapState).enabled) {
+    ObjectGridSnapState.apply()
+  } else {
+    TransformComponent.updateFromWorldMatrix(placementEntity)
+    EditorControlFunctions.commitTransformSave([placementEntity])
+  }
   placedCount += 1
   clickState.placementEntity.set(createPlacementEntity(parentEntity))
   for (const [mesh, material] of clickState.materialCache.value as [Mesh, Material][]) {
     mesh.material = material
   }
   clickState.materialCache.set([])
-  if (getState(ObjectGridSnapState).enabled) {
-    ObjectGridSnapState.apply()
-  }
 }
 
 export const ClickPlacementSystem = defineSystem({
