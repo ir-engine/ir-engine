@@ -51,20 +51,20 @@ export default {
 
   before: {
     all: [
-      () => schemaHooks.validateQuery(featureFlagSettingQueryValidator),
+      schemaHooks.validateQuery(featureFlagSettingQueryValidator),
       schemaHooks.resolveQuery(featureFlagSettingQueryResolver)
     ],
     find: [],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('settings', 'write')),
-      () => schemaHooks.validateData(featureFlagSettingDataValidator),
+      schemaHooks.validateData(featureFlagSettingDataValidator),
       schemaHooks.resolveData(featureFlagSettingDataResolver)
     ],
     update: [iff(isProvider('external'), verifyScope('settings', 'write'))],
     patch: [
       iff(isProvider('external'), verifyScope('settings', 'write')),
-      () => schemaHooks.validateData(featureFlagSettingPatchValidator),
+      schemaHooks.validateData(featureFlagSettingPatchValidator),
       schemaHooks.resolveData(featureFlagSettingPatchResolver)
     ],
     remove: [iff(isProvider('external'), verifyScope('settings', 'write'))]
