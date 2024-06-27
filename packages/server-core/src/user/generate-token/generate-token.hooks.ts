@@ -45,21 +45,12 @@ export default {
   },
 
   before: {
-    all: [
-      () => schemaHooks.validateQuery(generateTokenQueryValidator),
-      schemaHooks.resolveQuery(generateTokenQueryResolver)
-    ],
+    all: [schemaHooks.validateQuery(generateTokenQueryValidator), schemaHooks.resolveQuery(generateTokenQueryResolver)],
     find: [],
     get: [],
-    create: [
-      () => schemaHooks.validateData(generateTokenDataValidator),
-      schemaHooks.resolveData(generateTokenDataResolver)
-    ],
+    create: [schemaHooks.validateData(generateTokenDataValidator), schemaHooks.resolveData(generateTokenDataResolver)],
     update: [],
-    patch: [
-      () => schemaHooks.validateData(generateTokenPatchValidator),
-      schemaHooks.resolveData(generateTokenPatchResolver)
-    ],
+    patch: [schemaHooks.validateData(generateTokenPatchValidator), schemaHooks.resolveData(generateTokenPatchResolver)],
     remove: []
   },
   after: {

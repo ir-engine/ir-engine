@@ -46,12 +46,12 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(userKickQueryValidator), schemaHooks.resolveQuery(userKickQueryResolver)],
+    all: [schemaHooks.validateQuery(userKickQueryValidator), schemaHooks.resolveQuery(userKickQueryResolver)],
     find: [],
     get: [disallow()],
-    create: [() => schemaHooks.validateData(userKickDataValidator), schemaHooks.resolveData(userKickDataResolver)],
+    create: [schemaHooks.validateData(userKickDataValidator), schemaHooks.resolveData(userKickDataResolver)],
     update: [],
-    patch: [() => schemaHooks.validateData(userKickPatchValidator), schemaHooks.resolveData(userKickPatchResolver)],
+    patch: [schemaHooks.validateData(userKickPatchValidator), schemaHooks.resolveData(userKickPatchResolver)],
     remove: []
   },
 

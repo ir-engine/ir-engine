@@ -31,7 +31,7 @@ import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
 import { TypedString } from '../../types/TypeboxUtils'
 import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
-import { ScopeType } from '../scope/scope.schema'
+import { scopeDataSchema, ScopeType } from '../scope/scope.schema'
 import { locationAdminSchema } from '../social/location-admin.schema'
 import { locationBanSchema } from '../social/location-ban.schema'
 import { userSettingSchema } from '../user/user-setting.schema'
@@ -84,9 +84,18 @@ export const userSchema = Type.Object(
 export interface UserType extends Static<typeof userSchema> {}
 
 // Schema for creating new entries
-export const userDataSchema = Type.Partial(userSchema, {
-  $id: 'UserData'
-})
+export const userDataSchema = Type.Partial(
+  Type.Intersect([
+    Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode', 'avatarId']),
+    Type.Object(
+      {
+        scopes: Type.Array(Type.Partial(scopeDataSchema))
+      },
+      { additionalProperties: false }
+    )
+  ]),
+  { $id: 'UserData' }
+)
 export interface UserData extends Static<typeof userDataSchema> {}
 
 // Schema for updating existing entries

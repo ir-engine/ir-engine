@@ -50,20 +50,20 @@ export default {
 
   before: {
     all: [
-      () => schemaHooks.validateQuery(userRelationshipTypeQueryValidator),
+      schemaHooks.validateQuery(userRelationshipTypeQueryValidator),
       schemaHooks.resolveQuery(userRelationshipTypeQueryResolver)
     ],
     find: [],
     get: [],
     create: [
       disallow('external'),
-      () => schemaHooks.validateData(userRelationshipTypeDataValidator),
+      schemaHooks.validateData(userRelationshipTypeDataValidator),
       schemaHooks.resolveData(userRelationshipTypeDataResolver)
     ],
     update: [disallow()],
     patch: [
       disallow(),
-      () => schemaHooks.validateData(userRelationshipTypePatchValidator),
+      schemaHooks.validateData(userRelationshipTypePatchValidator),
       schemaHooks.resolveData(userRelationshipTypePatchResolver)
     ],
     remove: [disallow('external')]

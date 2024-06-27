@@ -215,7 +215,7 @@ export default {
 
   before: {
     all: [
-      () => schemaHooks.validateQuery(identityProviderQueryValidator),
+      schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
     find: [iff(isProvider('external'), setLoggedinUserInQuery('userId'))],
@@ -227,7 +227,7 @@ export default {
           throw new MethodNotAllowed('identity-provider create works only with singular entries')
         }
       ),
-      () => schemaHooks.validateData(identityProviderDataValidator),
+      schemaHooks.validateData(identityProviderDataValidator),
       schemaHooks.resolveData(identityProviderDataResolver),
       persistData,
       validateAuthParams,
@@ -239,7 +239,7 @@ export default {
     update: [disallow()],
     patch: [
       iff(isProvider('external'), checkIdentityProvider),
-      () => schemaHooks.validateData(identityProviderPatchValidator),
+      schemaHooks.validateData(identityProviderPatchValidator),
       schemaHooks.resolveData(identityProviderPatchResolver)
     ],
     remove: [iff(isProvider('external'), checkIdentityProvider, checkOnlyIdentityProvider)]

@@ -76,21 +76,18 @@ export default {
   },
 
   before: {
-    all: [
-      () => schemaHooks.validateQuery(userSettingQueryValidator),
-      schemaHooks.resolveQuery(userSettingQueryResolver)
-    ],
+    all: [schemaHooks.validateQuery(userSettingQueryValidator), schemaHooks.resolveQuery(userSettingQueryResolver)],
     find: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     get: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     create: [
       iff(isProvider('external'), attachOwnerId('userId')),
-      () => schemaHooks.validateData(userSettingDataValidator),
+      schemaHooks.validateData(userSettingDataValidator),
       schemaHooks.resolveData(userSettingDataResolver)
     ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), ensureUserSettingsOwner()),
-      () => schemaHooks.validateData(userSettingPatchValidator),
+      schemaHooks.validateData(userSettingPatchValidator),
       schemaHooks.resolveData(userSettingPatchResolver)
     ],
     remove: [disallow('external')]

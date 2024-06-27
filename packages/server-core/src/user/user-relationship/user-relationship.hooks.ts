@@ -204,13 +204,13 @@ export default {
 
   before: {
     all: [
-      () => schemaHooks.validateQuery(userRelationshipQueryValidator),
+      schemaHooks.validateQuery(userRelationshipQueryValidator),
       schemaHooks.resolveQuery(userRelationshipQueryResolver)
     ],
     find: [iff(isProvider('external'), verifyUserId()), iff(isProvider('external'), setLoggedInUserInQuery('userId'))],
     get: [disallow()],
     create: [
-      () => schemaHooks.validateData(userRelationshipDataValidator),
+      schemaHooks.validateData(userRelationshipDataValidator),
       setLoggedinUserInBody('userId'),
       clearBlockingRelationships,
       updateDataBothWays,
@@ -219,7 +219,7 @@ export default {
     ],
     update: [],
     patch: [
-      () => schemaHooks.validateData(userRelationshipPatchValidator),
+      schemaHooks.validateData(userRelationshipPatchValidator),
       schemaHooks.resolveData(userRelationshipPatchResolver),
       disallowNonId,
       setLoggedinUserInBody('userId'),

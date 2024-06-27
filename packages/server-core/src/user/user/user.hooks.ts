@@ -321,7 +321,7 @@ export default createSkippableHooks(
     },
 
     before: {
-      all: [() => schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
+      all: [schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
       find: [
         iff(
           isProvider('external'),
@@ -335,7 +335,7 @@ export default createSkippableHooks(
       get: [persistQuery, discardQuery('skipAvatar')],
       create: [
         iff(isProvider('external'), verifyScope('user', 'write')),
-        () => schemaHooks.validateData(userDataValidator),
+        schemaHooks.validateData(userDataValidator),
         schemaHooks.resolveData(userDataResolver),
         persistData,
         discard('scopes', 'avatarId')
@@ -343,7 +343,7 @@ export default createSkippableHooks(
       update: [disallow()],
       patch: [
         iff(isProvider('external'), restrictUserPatch),
-        () => schemaHooks.validateData(userPatchValidator),
+        schemaHooks.validateData(userPatchValidator),
         schemaHooks.resolveData(userPatchResolver),
         persistData,
         disallowNonId,

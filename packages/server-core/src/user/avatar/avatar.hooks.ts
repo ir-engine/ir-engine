@@ -234,7 +234,7 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(avatarQueryValidator), schemaHooks.resolveQuery(avatarQueryResolver)],
+    all: [schemaHooks.validateQuery(avatarQueryValidator), schemaHooks.resolveQuery(avatarQueryResolver)],
     find: [
       iffElse(isAction('admin'), verifyScope('globalAvatars', 'read'), ensureUserAccessibleAvatars),
       persistQuery,
@@ -245,14 +245,14 @@ export default {
     get: [persistQuery, discardQuery('skipUser')],
     create: [
       iff(isProvider('external') && !checkRefreshMode() && isPublicAvatar(), verifyScope('globalAvatars', 'write')),
-      () => schemaHooks.validateData(avatarDataValidator),
+      schemaHooks.validateData(avatarDataValidator),
       schemaHooks.resolveData(avatarDataResolver),
       setLoggedInUser('userId')
     ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), checkUserHasPermissionOrIsOwner),
-      () => schemaHooks.validateData(avatarPatchValidator),
+      schemaHooks.validateData(avatarPatchValidator),
       schemaHooks.resolveData(avatarPatchResolver)
     ],
     remove: [
