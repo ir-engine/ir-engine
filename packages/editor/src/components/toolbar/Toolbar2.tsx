@@ -23,14 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import AddEditLocationModal from '@etherealengine/client-core/src/admin/components/locations/AddEditLocationModal'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { useProjectPermissions } from '@etherealengine/client-core/src/user/useUserProjectPermission'
 import { useUserHasAccessHook } from '@etherealengine/client-core/src/user/userHasAccess'
+import { locationPath } from '@etherealengine/common/src/schema.type.module'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ContextMenu from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { t } from 'i18next'
@@ -115,11 +118,13 @@ export default function Toolbar() {
   const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
 
-  const { projectName, sceneName } = useMutableState(EditorState)
+  const { projectName, sceneName, sceneAssetID } = useMutableState(EditorState)
 
   const hasLocationWriteScope = useUserHasAccessHook('location:write')
   const permission = useProjectPermissions(projectName.value!)
   const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
+  const locationQuery = useFind(locationPath, { query: { sceneId: sceneAssetID.value } })
+  const currentLocation = locationQuery.data.length === 1 ? locationQuery.data[0] : undefined
 
   const authState = useMutableState(AuthState)
   const user = authState.user
@@ -158,6 +163,19 @@ export default function Toolbar() {
             {t('editor:toolbar.lbl-publish')}
           </Button>
         </div>
+        {sceneAssetID.value && (
+          <Button
+            rounded="none"
+            disabled={!hasPublishAccess}
+            onClick={() =>
+              PopoverState.showPopupover(
+                <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
+              )
+            }
+          >
+            {t('editor:toolbar.lbl-publish')}
+          </Button>
+        )}
       </div>
 
       <ContextMenu

@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
-import { UserSettingPatch } from '@etherealengine/common/src/schema.type.module'
+import { UserSettingPatch, clientSettingPath } from '@etherealengine/common/src/schema.type.module'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
@@ -37,7 +37,7 @@ import {
   AvatarInputSettingsState
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
@@ -47,7 +47,6 @@ import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
 import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
-import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
@@ -99,15 +98,14 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const controlSchemes = Object.entries(AvatarAxesControlScheme)
   const handOptions = ['left', 'right']
   const selectedTab = useHookstate('general')
-  const engineState = useMutableState(EngineState)
 
-  const clientSettingState = useMutableState(AdminClientSettingsState)
-  const [clientSetting] = clientSettingState?.client?.value || []
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettings = clientSettingQuery.data[0]
   const userSettings = selfUser.userSetting.value
 
   const hasAdminAccess = userHasAccess('admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
-  const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
+  const themeSettings = { ...defaultThemeSettings, ...clientSettings?.themeSettings }
   const themeModes = {
     client: userSettings?.themeModes?.client ?? defaultThemeModes.client,
     studio: userSettings?.themeModes?.studio ?? defaultThemeModes.studio,

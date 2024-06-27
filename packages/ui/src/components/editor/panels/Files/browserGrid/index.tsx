@@ -47,6 +47,7 @@ import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { FileIcon } from '../icon'
 import DeleteFileModal from './DeleteFileModal'
 import RenameFileModal from './RenameFileModal'
@@ -160,6 +161,8 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const { projectName } = useMutableState(EditorState)
   const staticResource = useFind(staticResourcePath, { query: { key: props.item.key, project: projectName.value! } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
+  const { t } = useTranslation()
+
   return (
     <div
       className={`flex h-32 w-28 cursor-pointer flex-col items-center text-center ${
@@ -183,7 +186,10 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
           color="text-[#375DAF]"
         />
       </div>
-      <div className="text-secondary mb-2 line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
+
+      <Tooltip title={t(props.item.fullName)} direction="bottom">
+        <div className="text-secondary line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
+      </Tooltip>
     </div>
   )
 }
@@ -227,7 +233,6 @@ export function FileBrowserItem({
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const fileService = useMutation(fileBrowserPath)
-
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()

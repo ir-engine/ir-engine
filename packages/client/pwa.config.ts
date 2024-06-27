@@ -27,6 +27,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 import manifest from './manifest.default.json'
 
+const WILDCARD_REGEX = /^\/.*$/
+const LOCAL_FILESYSTEM_REGEX = /^\/@fs\/.*$/
+
 /**
  * Creates a new instance of the VitePWA plugin for Vite.js.
  * @param {Object} clientSetting - An object containing custom settings for the PWA.
@@ -75,9 +78,9 @@ const PWA = (clientSetting) =>
       // Allowlist all paths for navigateFallback during development
       navigateFallbackAllowlist: [
         // allow everything
-        new RegExp('^/.*$'),
+        WILDCARD_REGEX,
         // allow @fs
-        new RegExp('^/@fs/.*$')
+        LOCAL_FILESYSTEM_REGEX
       ]
     },
     workbox: {
@@ -94,7 +97,7 @@ const PWA = (clientSetting) =>
       // Allowlist all paths for navigateFallback during production
       navigateFallbackAllowlist: [
         // allow everything
-        new RegExp('^/.*$')
+        WILDCARD_REGEX
       ],
       // Set the glob directory and patterns for the cache
       globDirectory: process.env.APP_ENV === 'development' ? './public' : './dist',

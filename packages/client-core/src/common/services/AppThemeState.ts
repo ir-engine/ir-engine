@@ -27,7 +27,6 @@ import { defaultThemeSettings, getCurrentTheme } from '@etherealengine/common/sr
 import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
 import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 
-import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { AuthState } from '../../user/services/AuthService'
 
 /** @deprected this is the thene for mui pages, it will be replaced with ThemeService / ThemeState */
@@ -70,9 +69,5 @@ export const getAppTheme = () => {
 
   const authState = getState(AuthState)
   const theme = getCurrentTheme(authState.user?.userSetting?.themeModes)
-  const clientSettingState = getState(AdminClientSettingsState)
-  const themeSettings = clientSettingState?.client?.[0]?.themeSettings
-  if (themeSettings) return themeSettings[theme]
-
   return defaultThemeSettings[theme]
 }
