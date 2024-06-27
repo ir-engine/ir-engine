@@ -47,6 +47,7 @@ export const NetworkWorldUserState = defineState({
   },
 
   userLeft: (userID: UserID, instanceID: InstanceID) => {
+    if (!getState(NetworkWorldUserState)[userID]) return
     getMutableState(NetworkWorldUserState)[userID].set((ids) => ids.filter((id) => id !== instanceID))
     if (getState(NetworkWorldUserState)[userID].length === 0) getMutableState(NetworkWorldUserState)[userID].set(none)
   }

@@ -36,6 +36,7 @@ class MockRenderer {
   getSize = () => 0
   getContext = () => {}
   getPixelRatio = () => 1
+  dispose = () => {}
 }
 
 export class MockEngineRenderer extends EngineRenderer {
@@ -49,7 +50,8 @@ export class MockEngineRenderer extends EngineRenderer {
       passes: [{ name: 'RenderPass', overrideMaterial: null }],
       setMainScene: () => {},
       setMainCamera: () => {},
-      render: () => {}
+      render: () => {},
+      dispose: () => {}
     } as unknown as EffectComposer
     this.needsResize = false
   }
