@@ -264,7 +264,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   }
 
   const renderEffects = () => {
-    const items = Object.keys(PostProcessingEffectState).map((effect) => {
+    const items = Object.keys(getState(PostProcessingEffectState)).map((effect) => {
       return (
         <div className="py-1" key={effect}>
           <Checkbox
