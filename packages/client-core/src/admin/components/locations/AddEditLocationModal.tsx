@@ -49,7 +49,13 @@ const locationTypeOptions = [
   { label: 'Showroom', value: 'showroom' }
 ]
 
-export default function AddEditLocationModal({ location }: { location?: LocationType }) {
+export default function AddEditLocationModal({
+  location,
+  sceneID
+}: {
+  location?: LocationType
+  sceneID?: string | null
+}) {
   const { t } = useTranslation()
 
   const locationMutation = useMutation(locationPath)
@@ -59,7 +65,8 @@ export default function AddEditLocationModal({ location }: { location?: Location
 
   const name = useHookstate(location?.name || '')
   const maxUsers = useHookstate(location?.maxUsersPerInstance || 20)
-  const scene = useHookstate(location?.sceneId || '')
+
+  const scene = useHookstate((location ? location.sceneId : sceneID) ?? '')
   const videoEnabled = useHookstate<boolean>(location?.locationSetting.videoEnabled || true)
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)

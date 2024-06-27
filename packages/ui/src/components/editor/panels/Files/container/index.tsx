@@ -269,7 +269,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         moveContent(data.fullName, data.fullName, data.path, path, false)
       }
     } else {
-      const relativePath = folder.replace('projects/' + projectName + '/', '')
+      const relativePath = folder.replace('projects/' + projectName + '/', '').replace(/^\//gi, '')
       await Promise.all(
         data.files.map(async (file) => {
           const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
