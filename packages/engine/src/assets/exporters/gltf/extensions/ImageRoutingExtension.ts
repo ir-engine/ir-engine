@@ -28,8 +28,8 @@ import { Material, Object3D, Object3DEventMap, Texture } from 'three'
 import { pathJoin, relativePathTo } from '@etherealengine/common/src/utils/miscUtils'
 import { EntityUUID, UUIDComponent, getOptionalComponent } from '@etherealengine/ecs'
 
+import { STATIC_ASSET_REGEX } from '@etherealengine/common/src/regex'
 import { SourceComponent } from '../../../../scene/components/SourceComponent'
-import { pathResolver } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -47,7 +47,7 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
     if (!materialEntity) return
     const src = getOptionalComponent(materialEntity, SourceComponent)
     if (!src) return
-    const resolvedPath = pathResolver().exec(src)!
+    const resolvedPath = STATIC_ASSET_REGEX.exec(src)!
     const projectDst = this.writer.options.projectName!
     let projectSrc = this.writer.options.projectName!
     let relativeSrc = './assets/'
@@ -66,7 +66,7 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
         if (texture.image instanceof ImageBitmap) continue
         let oldURI = texture.userData.src
         if (!oldURI) {
-          const resolved = pathResolver().exec(texture.image.src)!
+          const resolved = STATIC_ASSET_REGEX.exec(texture.image.src)!
           const oldProject = resolved[1]
           const relativeOldURL = resolved[2]
           if (oldProject !== projectSrc) {
