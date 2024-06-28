@@ -39,9 +39,9 @@ import {
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { World } from '@dimforge/rapier3d-compat'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
-import { createEngine } from '../../initializeEngine'
 import { EntityTreeComponent, getAncestorWithComponent } from '../../transform/components/EntityTree'
 import { Physics } from '../classes/Physics'
 import { assertVecAllApproxNotEq, assertVecApproxEq } from '../classes/Physics.test'

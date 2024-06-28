@@ -23,20 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DirectionalLight, SpotLight, Vector3 } from 'three'
+import { ECSState, Timer, executeSystems } from '@etherealengine/ecs'
+import { getMutableState } from '@etherealengine/hyperflux'
+import { XRState } from './xr/XRState'
 
-import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
-import { TransformSystem } from '../../transform/systems/TransformSystem'
-
-export const useUpdateLight = (light: DirectionalLight | SpotLight) => {
-  useExecute(
-    () => {
-      light.getWorldDirection(_vec3)
-      light.getWorldPosition(light.target.position).add(_vec3)
-      light.target.updateMatrixWorld()
-    },
-    { after: TransformSystem }
-  )
+export const startTimer = () => {
+  const timer = Timer((time, xrFrame) => {
+    getMutableState(XRState).xrFrame.set(xrFrame)
+    executeSystems(time)
+    getMutableState(XRState).xrFrame.set(null)
+  })
+  getMutableState(ECSState).timer.set(timer)
+  timer.start()
 }
-
-const _vec3 = new Vector3()

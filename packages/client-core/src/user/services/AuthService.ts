@@ -49,7 +49,6 @@ import {
   UserType,
   generateTokenPath,
   identityProviderPath,
-  locationBanPath,
   loginPath,
   loginTokenPath,
   magicLinkPath,
@@ -58,12 +57,9 @@ import {
   userPath,
   userSettingPath
 } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import {
   defineState,
-  dispatchAction,
   getMutableState,
   getState,
   syncStateWithLocalStorage,
@@ -72,7 +68,6 @@ import {
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { LocationState } from '../../social/services/LocationService'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
@@ -655,15 +650,6 @@ export const AuthService = {
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
-  async updateUsername(userId: UserID, name: UserName) {
-    const { name: updatedName } = (await Engine.instance.api
-      .service(userPath)
-      .patch(userId, { name: name })) as UserType
-    NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
-    getMutableState(AuthState).user.merge({ name: updatedName })
-    dispatchAction(AvatarNetworkAction.setName({ entityUUID: (userId + '_avatar') as EntityUUID, name: updatedName }))
-  },
-
   async createLoginToken() {
     return Engine.instance.api.service(loginTokenPath).create({})
   },
@@ -695,25 +681,12 @@ export const AuthService = {
         }
       }
 
-      const locationBanCreatedListener = async (params) => {
-        const selfUser = getState(AuthState).user
-        const currentLocation = getState(LocationState).currentLocation.location
-        const locationBan = params.locationBan
-        if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
-          const userId = selfUser.id ?? ''
-          const user = await Engine.instance.api.service(userPath).get(userId)
-          getMutableState(AuthState).merge({ user })
-        }
-      }
-
       Engine.instance.api.service(userPath).on('patched', userPatchedListener)
       Engine.instance.api.service(userAvatarPath).on('patched', userAvatarPatchedListener)
-      Engine.instance.api.service(locationBanPath).on('created', locationBanCreatedListener)
 
       return () => {
         Engine.instance.api.service(userPath).off('patched', userPatchedListener)
         Engine.instance.api.service(userAvatarPath).off('patched', userAvatarPatchedListener)
-        Engine.instance.api.service(locationBanPath).off('created', locationBanCreatedListener)
       }
     }, [])
   }
