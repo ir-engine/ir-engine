@@ -97,6 +97,7 @@ export function useReactorRootContext(): ReactorRoot {
 export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactNode; reactorRoot: ReactorRoot }>(
   function error(props, error?: Error) {
     if (error) {
+      console.error(error)
       props.reactorRoot.errors.merge([error])
       return null
     } else {

@@ -24,63 +24,43 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
+
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import { NotificationSnackbar } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { useThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
-import { useAuthenticated } from '@etherealengine/client-core/src/user/services/AuthService'
-
-import '@etherealengine/client-core/src/util/GlobalStyle.css'
-
-import { StyledEngineProvider, Theme } from '@mui/material/styles'
-import { useTranslation } from 'react-i18next'
-
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-
 import { LoadWebappInjection } from '@etherealengine/client-core/src/components/LoadWebappInjection'
-import RouterComp from '../route/public'
-import { ThemeContextProvider } from './themeContext'
+import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
+import { useAuthenticated } from '@etherealengine/client-core/src/user/services/AuthService'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
-
-/** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
-const AppPage = ({ route }: { route: string }) => {
-  const isLoggedIn = useAuthenticated()
+const AppPage = (props: { children: React.ReactNode }) => {
   const { t } = useTranslation()
+  const isLoggedIn = useAuthenticated()
+
+  useZendesk()
 
   useEffect(() => {
     initGA()
     logPageView()
   }, [])
 
+  useThemeProvider()
+
   if (!isLoggedIn) {
-    return <LoadingCircle message={t('common:loader.authenticating')} />
+    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingRoutes')} />
   }
 
   return (
     <>
-      <ThemeContextProvider>
-        <StyledEngineProvider injectFirst>
-          <NotificationSnackbar
-            style={{
-              fontFamily: 'var(--lato)',
-              fontSize: '12px'
-            }}
-          />
-          <div style={{ pointerEvents: 'auto' }}>
-            <InviteToast />
-            <Debug />
-          </div>
-          <LoadWebappInjection>
-            <RouterComp route={route} />
-          </LoadWebappInjection>
-        </StyledEngineProvider>
-      </ThemeContextProvider>
+      <NotificationSnackbar />
+      <LoadWebappInjection>{props.children}</LoadWebappInjection>
+      <InviteToast />
+      <Debug />
     </>
   )
 }

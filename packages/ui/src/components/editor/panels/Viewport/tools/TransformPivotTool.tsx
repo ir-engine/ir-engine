@@ -76,7 +76,7 @@ const TransformPivotTool = () => {
       <Select
         key={editorHelperState.transformPivot.value}
         inputClassName="py-1 h-6 rounded-sm text-[#A3A3A3] text-xs"
-        className="w-28 p-1"
+        className="m-1 w-28"
         onChange={setTransformPivot}
         options={transformPivotOptions}
         currentValue={editorHelperState.transformPivot.value}
