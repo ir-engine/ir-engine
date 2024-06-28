@@ -34,7 +34,7 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { LuMove3D } from 'react-icons/lu'
 
@@ -80,9 +80,9 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     transformComponent.matrixWorld.value.decompose(position, rotation, scale)
 
   const onRelease = () => {
-    const bboxSnapState = getMutableState(ObjectGridSnapState)
-    if (bboxSnapState.enabled.value) {
-      bboxSnapState.apply.set(true)
+    const bboxSnapState = getState(ObjectGridSnapState)
+    if (bboxSnapState.enabled) {
+      ObjectGridSnapState.apply()
     } else {
       EditorControlFunctions.commitTransformSave([props.entity])
     }
