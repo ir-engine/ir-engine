@@ -64,7 +64,7 @@ export const ContextMenu = ({
 
   // Calculate the Y position of the context menu based on the menu height and space to the bottom of the viewport in order to avoid overflow
   const calculatePositionY = () => {
-    let positionY = anchorEl?.getBoundingClientRect().bottom! ?? anchorPosition.top
+    let positionY = anchorEl ? anchorEl.getBoundingClientRect().bottom! : anchorPosition.top
 
     if (open && menuRef.current) {
       const menuHeight = menuRef.current.offsetHeight
@@ -91,7 +91,7 @@ export const ContextMenu = ({
 
   // Calculate the X position of the context menu based on the menu width and space to the right of the panel in order to avoid overflow
   const calculatePositionX = () => {
-    let positionX = anchorEl?.getBoundingClientRect().left! ?? anchorPosition.left
+    let positionX = anchorEl ? anchorEl.getBoundingClientRect().left! : anchorPosition.left
 
     if (open && menuRef.current) {
       const menuWidth = menuRef.current.offsetWidth
