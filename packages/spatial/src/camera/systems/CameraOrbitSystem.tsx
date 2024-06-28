@@ -35,7 +35,8 @@ import {
   getMutableComponent,
   getOptionalComponent,
   InputSystemGroup,
-  setComponent
+  setComponent,
+  UndefinedEntity
 } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
@@ -89,7 +90,7 @@ const execute = () => {
     // TODO: replace w/ EnabledComponent or DisabledComponent in query
     if (
       cameraOrbit.disabled.value ||
-      getState(InputState).capturingEntity !== cameraEid ||
+      getState(InputState).capturingEntity !== UndefinedEntity ||
       (cameraEid == Engine.instance.viewerEntity && !getState(EngineState).isEditing)
     )
       continue
