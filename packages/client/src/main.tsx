@@ -92,7 +92,6 @@ const App = () => {
             element={
               <Suspense>
                 <AppPage>
-                  <Tailwind />
                   <Router />
                 </AppPage>
               </Suspense>
