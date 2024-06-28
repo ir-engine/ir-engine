@@ -24,15 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { toggleSnapMode } from '@etherealengine/editor/src/functions/transformFunctions'
-import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
+import { EditorHelperState } from '@etherealengine/editor/src/services/EditorHelperState'
 import { ObjectGridSnapState } from '@etherealengine/editor/src/systems/ObjectGridSnapSystem'
-import { useTranslation } from 'react-i18next'
-import { LuMousePointerClick, LuMove3D, LuUtilityPole } from 'react-icons/lu'
+import { LuUtilityPole } from 'react-icons/lu'
 import { MdOutlineCenterFocusWeak } from 'react-icons/md'
 import Button from '../../../../../primitives/tailwind/Button'
 import Select from '../../../../../primitives/tailwind/Select'
@@ -116,20 +116,6 @@ const TransformSnapTool = () => {
         currentValue={editorHelperState.rotationSnap.value}
       />
       {/* </Tooltip> */}
-      <Button
-        startIcon={<LuMousePointerClick />}
-        onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
-        variant={editorHelperState.placementMode.value === PlacementMode.CLICK ? 'outline' : 'transparent'}
-        title={t('editor:toolbar.placement.click')}
-        className="px-0"
-      />
-      <Button
-        startIcon={<LuMove3D />}
-        onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
-        variant={editorHelperState.placementMode.value === PlacementMode.DRAG ? 'outline' : 'transparent'}
-        title={t('editor:toolbar.placement.drag')}
-        className="px-0"
-      />
     </div>
   )
 }
