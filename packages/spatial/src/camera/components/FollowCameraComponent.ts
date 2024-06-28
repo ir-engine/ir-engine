@@ -110,6 +110,7 @@ export const FollowCameraComponent = defineComponent({
       maxPhi: cameraSettings.maxPhi,
       shoulderSide: true,
       locked: false,
+      enabled: true,
       raycastProps
     }
   },
@@ -160,12 +161,12 @@ const mx = new Matrix4()
 const tempVec1 = new Vector3()
 const raycaster = new Raycaster()
 
-const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
+export const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
   const cameraTransform = getComponent(cameraEntity, TransformComponent)
   const targetTransform = getComponent(referenceEntity, TransformComponent)
 
-  if (!targetTransform || !followCamera) return
+  if (!targetTransform || !followCamera || !followCamera?.enabled) return
 
   // Limit the pitch
   followCamera.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, followCamera.phi))

@@ -83,7 +83,6 @@ export const VideoTriggerComponent = defineComponent({
     const media = getMutableComponent(mediaEnity, MediaComponent)
     const tween = createTween({ value: 0.0001 }).onUpdate(({ value }) => {
       media.volume.set(value)
-      console.log('volume = ' + value)
     })
     let targetVolume: number
 

@@ -1042,7 +1042,9 @@
       "lbl-lockCamera": "Lock Camera",
       "lbl-angleTheta": "Theta Angle",
       "lbl-anglePhi": "Phi Angle",
-      "lbl-distance": "Distance"
+      "lbl-distance": "Distance",
+      "lbl-lerpDurationEnter": "Enter Lerp Duration",
+      "lbl-lerpDurationExit": "Exit Lerp Duration"
     },
     "videoTrigger": {
       "name": "Video Trigger",

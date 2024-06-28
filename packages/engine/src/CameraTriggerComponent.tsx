@@ -28,21 +28,24 @@ import {
   Entity,
   EntityUUID,
   UUIDComponent,
+  createEntity,
   defineComponent,
   getComponent,
   getMutableComponent,
   hasComponent,
+  removeEntity,
   setComponent,
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
-import { NO_PROXY, useState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
+import { Easing, Tween } from '@tweenjs/tween.js'
 import { useEffect } from 'react'
-import { Vector3 } from 'three'
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { AvatarComponent } from './avatar/components/AvatarComponent'
 
 export const CameraTriggerComponent = defineComponent({
@@ -53,10 +56,11 @@ export const CameraTriggerComponent = defineComponent({
     return {
       lookAtEntityUUID: null as EntityUUID | null,
       offset: new Vector3(),
-      lockCamera: false,
       theta: 0,
       phi: 0,
-      distance: 10
+      distance: 10,
+      enterLerpDuration: 0,
+      exitLerpDuration: 0
     }
   },
 
@@ -64,20 +68,22 @@ export const CameraTriggerComponent = defineComponent({
     if (!json) return
     if (typeof json.lookAtEntityUUID !== 'undefined') component.lookAtEntityUUID.set(json.lookAtEntityUUID)
     if (typeof json.offset !== 'undefined') component.offset.set(json.offset)
-    if (typeof json.lockCamera !== 'undefined') component.lockCamera.set(json.lockCamera)
     if (typeof json.theta !== 'undefined') component.theta.set(json.theta)
     if (typeof json.phi !== 'undefined') component.phi.set(json.phi)
     if (typeof json.distance !== 'undefined') component.distance.set(json.distance)
+    if (typeof json.enterLerpDuration !== 'undefined') component.enterLerpDuration.set(json.enterLerpDuration)
+    if (typeof json.exitLerpDuration !== 'undefined') component.exitLerpDuration.set(json.exitLerpDuration)
   },
 
   toJSON(entity, component) {
     return {
       lookAtEntityUUID: component.lookAtEntityUUID.value,
       offset: component.offset.value,
-      lockCamera: component.lockCamera.value,
       theta: component.theta.value,
       phi: component.phi.value,
-      distance: component.distance.value
+      distance: component.distance.value,
+      enterLerpDuration: component.enterLerpDuration.value,
+      exitLerpDuration: component.exitLerpDuration.value
     }
   },
 
@@ -85,46 +91,82 @@ export const CameraTriggerComponent = defineComponent({
     const entity = useEntityContext()
     const component = useComponent(entity, CameraTriggerComponent)
     const follow = useComponent(Engine.instance.viewerEntity, FollowCameraComponent)
-    let prevOffset = useState(new Vector3())
-    let prevLockCamera = useState(false)
-    let prevTheta = useState(0)
-    let prevPhi = useState(0)
-    let prevDistance = useState(0)
+    const cameraTransform = getComponent(Engine.instance.viewerEntity, TransformComponent)
+    const avatarTransform = getComponent(AvatarComponent.getSelfAvatarEntity(), TransformComponent)
+
+    let prevCameraPostion = new Vector3()
+    let prevCamearRotation = new Quaternion()
+
+    const tween = createTween({ value: 0.0001 })
+    const upVector = new Vector3(0, 1, 0)
+    const empty = new Vector3()
+    const direction = new Vector3()
+    const mx = new Matrix4()
 
     useEffect(() => {
       const Enter = () => {
-        console.log('Enter \n ' + component.lookAtEntityUUID.value + '\n' + component.offset.value)
         const lookAtEnity = UUIDComponent.getEntityByUUID(component.lookAtEntityUUID.value as EntityUUID)
         const lookAtEnityTransform = getComponent(lookAtEnity, TransformComponent)
 
-        prevOffset.set(follow.offset.value)
-        prevLockCamera.set(follow.locked.value)
-        prevTheta.set(follow.theta.value)
-        prevPhi.set(follow.phi.value)
-        prevDistance.set(follow.distance.value)
+        prevCameraPostion = new Vector3(
+          cameraTransform.position.x,
+          cameraTransform.position.y,
+          cameraTransform.position.z
+        )
 
-        follow.distance.set(component.distance.value)
-        follow.offset.set(component.offset.get(NO_PROXY) as Vector3)
-        follow.targetEntity.set(lookAtEnity)
+        prevCamearRotation = cameraTransform.rotation
 
-        follow.locked.set(component.lockCamera.value)
-        if (component.lockCamera.value) {
-          follow.theta.set(component.theta.value)
-          follow.phi.set(component.phi.value)
-        }
+        follow.enabled.set(false)
+
+        const theta = component.theta.value
+        const thetaRad = MathUtils.degToRad(theta)
+        const phiRad = MathUtils.degToRad(component.phi.value)
+
+        const startLookAtPosition = follow.currentTargetPosition.value
+        const endLookAtPosition = lookAtEnityTransform.position.clone()
+
+        const startPositon = cameraTransform.position
+        const targetPosition = new Vector3()
+        targetPosition
+          .copy(component.offset.value)
+          .applyQuaternion(TransformComponent.getWorldRotation(lookAtEnity, lookAtEnityTransform.rotation))
+          .add(TransformComponent.getWorldPosition(lookAtEnity, new Vector3()))
+        const endPosition = new Vector3(
+          targetPosition.x + component.distance.value * Math.sin(thetaRad) * Math.cos(phiRad),
+          targetPosition.y + component.distance.value * Math.sin(phiRad),
+          targetPosition.z + component.distance.value * Math.cos(thetaRad) * Math.cos(phiRad)
+        )
+
+        tween
+          .stop()
+          .to({ value: 1 }, 1000 * component.enterLerpDuration.value)
+          .onUpdate(({ value }) => {
+            console.log('enter value = ' + value)
+            const currentPosition = startPositon.lerp(endPosition, value)
+            cameraTransform.position.set(currentPosition.x, currentPosition.y, currentPosition.z)
+
+            const currentLookAtPosition = startLookAtPosition.lerp(endLookAtPosition, value)
+
+            direction.copy(cameraTransform.position).sub(currentLookAtPosition).normalize()
+            mx.lookAt(direction, empty, upVector)
+            cameraTransform.rotation.setFromRotationMatrix(mx)
+          })
+          .onComplete(() => {})
+          .easing(Easing.Exponential.InOut)
+          .start()
       }
 
       const Exit = () => {
-        console.log('Exit')
         follow.targetEntity.set(AvatarComponent.getSelfAvatarEntity())
-        follow.offset.set(prevOffset.value)
-        follow.distance.set(prevDistance.value)
 
-        if (follow.locked.value) {
-          follow.theta.set(prevTheta.value)
-          follow.phi.set(prevPhi.value)
-        }
-        follow.locked.set(prevLockCamera.value)
+        cameraTransform.position.set(prevCameraPostion.x, prevCameraPostion.y, prevCameraPostion.z)
+        cameraTransform.rotation.set(
+          prevCamearRotation.x,
+          prevCamearRotation.y,
+          prevCamearRotation.z,
+          prevCamearRotation.w
+        )
+        follow.enabled.set(true)
       }
 
       setCallback(entity, 'onEnter', (triggerEntity: Entity, otherEntity: Entity) => {
@@ -151,3 +193,17 @@ export const CameraTriggerComponent = defineComponent({
     return null
   }
 })
+
+function createTween<T extends Record<string, any>>(obj: T) {
+  const entity = createEntity()
+  const tween = setComponent(entity, TweenComponent, new Tween<T>(obj))
+
+  Object.assign(tween, {
+    destroy: () => {
+      tween.stop()
+      removeEntity(entity)
+    }
+  })
+
+  return tween as Tween<T> & { destroy: () => void }
+}
