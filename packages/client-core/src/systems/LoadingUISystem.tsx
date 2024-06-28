@@ -70,7 +70,6 @@ import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/O
 import type { WebLayer3D } from '@etherealengine/xrui'
 
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { useRemoveEngineCanvas } from '../hooks/useEngineCanvas'
 import { LocationState } from '../social/services/LocationService'
@@ -339,9 +338,6 @@ const execute = () => {
 const Reactor = () => {
   const themeState = useMutableState(AppThemeState)
   const themeModes = useHookstate(getMutableState(AuthState).user?.userSetting?.ornull?.themeModes)
-  const clientSettings = useHookstate(
-    getMutableState(AdminClientSettingsState)?.client?.[0]?.themeSettings?.clientSettings
-  )
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
   const sceneEntity = GLTFAssetState.useScene(locationSceneID)
   const gltfDocumentState = useMutableState(GLTFDocumentState)
@@ -349,7 +345,7 @@ const Reactor = () => {
   useEffect(() => {
     const theme = getAppTheme()
     if (theme) defaultColor.set(theme!.textColor)
-  }, [themeState, themeModes, clientSettings])
+  }, [themeState, themeModes])
 
   if (!sceneEntity) return null
 
