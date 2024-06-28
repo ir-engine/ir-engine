@@ -642,7 +642,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <ToolButton
             tooltip={t('editor:layout.filebrowser.uploadAssets')}
             onClick={async () => {
-              await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+              await inputFileWithAddToScene({ projectName, directoryPath: selectedDirectory.value })
                 .then(refreshDirectory)
                 .catch((err) => {
                   NotificationService.dispatchNotify(err.message, { variant: 'error' })

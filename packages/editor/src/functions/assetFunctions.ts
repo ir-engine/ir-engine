@@ -53,8 +53,8 @@ export const inputFileWithAddToScene = async ({
   projectName,
   directoryPath
 }: {
-  projectName?: string
-  directoryPath?: string
+  projectName: string
+  directoryPath: string
 }): Promise<null> =>
   new Promise((resolve, reject) => {
     const el = document.createElement('input')

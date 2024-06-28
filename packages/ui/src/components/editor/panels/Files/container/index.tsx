@@ -350,11 +350,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
 
-  const showUploadAndDownloadButtons =
-    selectedDirectory.value.slice(1).startsWith('projects/' + orgName + '/') &&
-    !['projects' + (orgName ? `/${orgName}` : ''), 'projects/' + (orgName ? `/${orgName}/` : '')].includes(
-      selectedDirectory.value.slice(1)
-    )
+  const showDownloadButtons = selectedDirectory.value === '/projects/' + projectName + '/'
+  const showUploadButtons =
+    selectedDirectory.value.startsWith('/projects/' + projectName + '/public/') ||
+    selectedDirectory.value.startsWith('/projects/' + projectName + '/assets/')
   const showBackButton = selectedDirectory.value.split('/').length > props.originalPath.split('/').length
 
   const handleDownloadProject = async () => {
@@ -679,7 +678,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               startIcon={<FiDownload />}
               className="p-0"
               onClick={handleDownloadProject}
-              disabled={!showUploadAndDownloadButtons}
+              disabled={!showDownloadButtons}
             />
           </Tooltip>
         </div>
@@ -694,12 +693,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           id="uploadAssets"
           startIcon={<HiOutlinePlusCircle />}
           variant="transparent"
-          disabled={!showUploadAndDownloadButtons}
+          disabled={!showUploadButtons}
           rounded="none"
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
           size="small"
           onClick={() =>
-            inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+            inputFileWithAddToScene({ projectName, directoryPath: selectedDirectory.value.slice(1) })
               .then(refreshDirectory)
               .catch((err) => {
                 NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -756,6 +755,9 @@ export default function FilesPanelContainer() {
   }
 
   return (
-    <FileBrowserContentPanel originalPath={'/projects/' + originalPath + '/'} onSelectionChanged={onSelectionChanged} />
+    <FileBrowserContentPanel
+      originalPath={'/projects/' + originalPath + '/assets/'}
+      onSelectionChanged={onSelectionChanged}
+    />
   )
 }
