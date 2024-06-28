@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -31,7 +32,6 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { toggleSnapMode } from '@etherealengine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@etherealengine/editor/src/services/EditorHelperState'
 import { ObjectGridSnapState } from '@etherealengine/editor/src/systems/ObjectGridSnapSystem'
-import { useTranslation } from 'react-i18next'
 import { LuUtilityPole } from 'react-icons/lu'
 import { MdOutlineCenterFocusWeak } from 'react-icons/md'
 import Button from '../../../../../primitives/tailwind/Button'
