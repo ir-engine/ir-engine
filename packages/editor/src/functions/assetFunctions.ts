@@ -103,9 +103,13 @@ export const inputFileWithAddToScene = async ({
               files.map(
                 (file) =>
                   uploadToFeathersService(fileBrowserUploadPath, [file], {
-                    project: projectName,
-                    path: directoryPath.replace('projects/' + projectName + '/', '') + file.name,
-                    contentType: file.type
+                    args: [
+                      {
+                        project: projectName,
+                        path: directoryPath.replace('projects/' + projectName + '/', '') + file.name,
+                        contentType: file.type
+                      }
+                    ]
                   }).promise
               )
             )
@@ -142,7 +146,9 @@ export const uploadProjectFiles = (projectName: string, files: File[], paths: st
       uploadToFeathersService(
         fileBrowserUploadPath,
         [file],
-        { project: projectName, path: filePath, contentType: '' },
+        {
+          args: [{ project: projectName, path: filePath, contentType: '' }]
+        },
         onProgress
       )
     )

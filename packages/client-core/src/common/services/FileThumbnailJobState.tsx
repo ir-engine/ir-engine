@@ -107,12 +107,18 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
     .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
   await uploadToFeathersService(fileBrowserUploadPath, [file], {
-    fileName: file.name,
-    project: projectName,
-    path: 'public/thumbnails/' + file.name,
-    contentType: file.type
+    args: [
+      {
+        fileName: file.name,
+        project: projectName,
+        path: 'public/thumbnails/' + file.name,
+        contentType: file.type,
+        type: 'thumbnail',
+        thumbnailKey,
+        thumbnailMode
+      }
+    ]
   }).promise
-  await Engine.instance.api.service(staticResourcePath).patch(staticResourceId, { thumbnailKey, thumbnailMode })
 }
 
 const seenThumbnails = new Set<string>()
