@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { middlewareSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { middlewareApiUrl, middlewareSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
@@ -46,13 +46,17 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
   const patchMiddlewareSetting = useMutation(middlewareSettingPath).patch
   const middlewareTable = useFind(middlewareSettingPath).data
   const middlewareSetting = useFind(middlewareSettingPath).data.at(0)
+  const middlewareApi = useFind(middlewareApiUrl).data.at(0)
 
   const id = middlewareSetting?.id
   const mS = middlewareTable
   let mtObj = {}
   const middlewareTemplate = middlewareSetting?.middlewareSettingTemp
 
-  const [testSettings, setTestSettings] = useState([])
+  const middlewareUrlBase = middlewareApi?.middlewareUrl
+  console.log('#### #### #### middlewareApi ####', middlewareApiUrl, '####', middlewareUrlBase)
+
+  const [mwSettings, setMwSettings] = useState([])
 
   const scenes = useFind(assetPath, {
     query: {
@@ -100,7 +104,7 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
 
         console.log('#### mtObj', JSON.stringify(mtObj, null, 2))
 
-        setTestSettings(mtObj)
+        setMwSettings(mtObj)
         // #### Multi Project Array #### //
       } catch (e) {
         console.error('#### Could not parse middlewareSettingMenu', e)
@@ -118,11 +122,11 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
 
   const mwHandleChange = (inputValue: string, project: string, category: string, inputLabel: string) => {
     // console.log('#### mwHandleChange', inputValue, '### e', typeof(inputValue))
-    setTestSettings((prevTestSettings) => {
-      const newTestSettings = JSON.parse(JSON.stringify(prevTestSettings))
+    setMwSettings((prevMwSettings) => {
+      const newMwSettings = JSON.parse(JSON.stringify(prevMwSettings))
 
-      // iterate over newTestSettings
-      Object.entries(newTestSettings[project]).forEach(([key, value]) => {
+      // iterate over newMwSettings
+      Object.entries(newMwSettings[project]).forEach(([key, value]) => {
         if (key === category) {
           // iterate over setting entries
           value.forEach((setting, idx) => {
@@ -135,20 +139,20 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
         }
       })
 
-      return newTestSettings
+      return newMwSettings
     })
   }
 
   const mwHandleTextarea = (inputValue: string, project: string, category: string, label: string) => {
     console.log('#### #### mwHandleTextarea', project, category, label, '### e', inputValue, typeof inputValue)
-    setTestSettings((prevTestSettings) => {
-      const newTestSettings = JSON.parse(JSON.stringify(prevTestSettings))
-      const testSettingKeys = Object.keys(newTestSettings)
+    setMwSettings((prevMwSettings) => {
+      const newMwSettings = JSON.parse(JSON.stringify(prevMwSettings))
+      const testSettingKeys = Object.keys(newMwSettings)
 
-      console.log('#### #### setTestSettings', testSettingKeys)
-      console.log('#### #### category', newTestSettings[project][category])
+      console.log('#### #### setMwSettings', testSettingKeys)
+      console.log('#### #### category', newMwSettings[project][category])
 
-      Object.entries(newTestSettings[project]).forEach(([key, value]) => {
+      Object.entries(newMwSettings[project]).forEach(([key, value]) => {
         if (key === category) {
           console.log('#### #### entries', key)
           value.forEach((setting, idx) => {
@@ -172,22 +176,22 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
         }
       })
 
-      return newTestSettings
+      return newMwSettings
     })
   }
 
   const mwHandleToggle = (inputLabel: string, project: string, category: string) => {
     // console.log('#### mwHandleToggle', inputValue, '### e', typeof(inputValue))
-    setTestSettings((prevTestSettings) => {
-      const newTestSettings = JSON.parse(JSON.stringify(prevTestSettings))
+    setMwSettings((prevMwSettings) => {
+      const newMwSettings = JSON.parse(JSON.stringify(prevMwSettings))
 
       console.log('Project:', project)
       console.log('category', category)
       console.log('inputLabel', inputLabel)
-      console.log('NewTestSettings:', newTestSettings)
+      console.log('NewTestSettings:', newMwSettings)
 
       // Iterate over entries corresponding the project key
-      Object.entries(newTestSettings[project]).forEach(([key, value]) => {
+      Object.entries(newMwSettings[project]).forEach(([key, value]) => {
         // If the key matches the category, process the settings
         if (key === category) {
           // Iterate over each setting under the category
@@ -200,19 +204,19 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
         }
       })
 
-      return newTestSettings
+      return newMwSettings
     })
-    // console.log('## mwHandleToggle', testSettings)
+    // console.log('## mwHandleToggle', mwSettings)
   }
 
   const mwHandleSelect = (inputValue: string, project: string, category: string, inputLabel: string) => {
     // console.log('#### #### mwHandleSelect', inputValue, typeof(inputValue), inputLabel, typeof(inputLabel))
 
-    setTestSettings((prevTestSettings) => {
-      const newTestSettings = JSON.parse(JSON.stringify(prevTestSettings))
+    setMwSettings((prevMwSettings) => {
+      const newMwSettings = JSON.parse(JSON.stringify(prevMwSettings))
 
       //Iterate over entries corresponding the project key
-      Object.entries(newTestSettings[project]).forEach(([key, value]) => {
+      Object.entries(newMwSettings[project]).forEach(([key, value]) => {
         // If the key matches the category, process the settings
         if (key === category) {
           // Iterate over each setting under the category
@@ -226,9 +230,9 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
         }
       })
 
-      return newTestSettings
+      return newMwSettings
     })
-    // console.log('## mwHandleSelect', testSettings)
+    // console.log('## mwHandleSelect', mwSettings)
   }
 
   const actions = {
@@ -245,15 +249,31 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
     errorMessage: ''
   })
 
+  function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  }
+
+  async function updateChat(tenant: string): Promise<Response> {
+    // TODO set and retrieve middleware URL from env
+    const apiUrl = `${middlewareUrlBase}/middleware/v1/chat-bot/chat-update`
+    console.log('#### #### Middleware update hook:', apiUrl)
+    await delay(5000)
+    const response = await fetch(apiUrl, {
+      method: 'GET', // explicitly specify the method
+      headers: {
+        tenant: tenant
+      }
+    })
+    return response
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault()
     if (!id) return
     state.loading.set(true)
 
-    const middlewareSettingsMenuJson = JSON.stringify(testSettings)
-    const middlewareSettingObj = testSettings
-
-    console.log('#### middlewareTable', JSON.stringify(middlewareTable, null, 2))
+    const middlewareSettingsMenuJson = JSON.stringify(mwSettings)
+    const middlewareSettingObj = mwSettings
 
     const projectNameArr = Object.keys(middlewareSettingObj)
 
@@ -261,13 +281,13 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
 
     projectNameArr.forEach((projectName, index) => {
       console.log('#### projectNameArr', projectName, index, typeof middlewareTable[index])
-      console.log('#### middlewareSettingObj', JSON.stringify(JSON.stringify(testSettings[projectName]), null, 2))
+      console.log('#### middlewareSettingObj', JSON.stringify(JSON.stringify(mwSettings[projectName]), null, 2))
       const middlewareRow = middlewareTable[index]
       console.log('#### forEach', middlewareRow.id, middlewareRow.middlewareProject)
       if (projectName === middlewareRow.middlewareProject) {
         console.log('#### if', projectName, '===', middlewareRow.middlewareProject, '# id', middlewareRow.id)
         patchMiddlewareSetting(middlewareRow.id, {
-          middlewareSettingMenu: JSON.stringify(testSettings[projectName])
+          middlewareSettingMenu: JSON.stringify(mwSettings[projectName])
         })
           .then(() => {
             state.set({ loading: false, errorMessage: '' })
@@ -276,6 +296,13 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
             state.set({ loading: false, errorMessage: e.message })
           })
       }
+    })
+
+    // Hit middleware setting-update webhook
+    console.log('#### #### #### middlewareApi ####', middlewareApiUrl, '####', middlewareApi)
+    const tenant = 'default' // TODO scope for MT
+    updateChat(tenant).then((response) => {
+      console.log('#### Middleware setting update:', response)
     })
   }
 
@@ -311,7 +338,7 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
       open={open}
     >
       {/* Dynamic Menu - Experimental */}
-      {Object.entries(testSettings).map(([projectName, categories]) => {
+      {Object.entries(mwSettings).map(([projectName, categories]) => {
         return (
           <div className="mt-6 grid grid-cols-2 gap-4" key={projectName}>
             <h3 className="col-span-full mb-4">{projectName}</h3>

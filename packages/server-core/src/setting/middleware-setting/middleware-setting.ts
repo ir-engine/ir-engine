@@ -24,24 +24,34 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  middlewareApiUrl,
   middlewareSettingMethods,
   middlewareSettingPath
 } from '@etherealengine/common/src/schemas/setting/middleware-setting.schema'
 import { Application } from '../../../declarations'
 import { updateAppConfig } from '../../updateAppConfig'
-import { MiddlewareSettingService } from './middleware-setting.class'
+import { MiddlewareApiService, MiddlewareSettingService } from './middleware-setting.class'
 import middlewareSettingDocs from './middleware-setting.docs'
 import hooks from './middleware-setting.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     [middlewareSettingPath]: MiddlewareSettingService
+    [middlewareApiUrl]: MiddlewareApiService
   }
 }
 
 export default (app: Application): void => {
   const options = {
     name: middlewareSettingPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  // Middleware API
+  const apiOptions = {
+    name: middlewareApiUrl,
     paginate: app.get('paginate'),
     Model: app.get('knexClient'),
     multi: true
@@ -55,10 +65,27 @@ export default (app: Application): void => {
     docs: middlewareSettingDocs
   })
 
+  // Middleware API
+  app.use(middlewareApiUrl, new MiddlewareApiService(apiOptions), {
+    // A list of all methods this service exposes externally
+    methods: middlewareSettingMethods,
+    // You can add additional custom events to be sent to middlewares here
+    events: [],
+    docs: middlewareSettingDocs
+  })
+
   const service = app.service(middlewareSettingPath)
   service.hooks(hooks)
 
   service.on('patched', () => {
+    updateAppConfig()
+  })
+
+  // Middleware API
+  const apiService = app.service(middlewareApiUrl)
+  apiService.hooks(hooks)
+
+  apiService.on('patched', () => {
     updateAppConfig()
   })
 }

@@ -27,6 +27,10 @@ import { Params } from '@feathersjs/feathers'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
+  MiddlewareApiType,
+  MiddlewareSettingApi,
+  MiddlewareSettingApiPatch,
+  MiddlewareSettingApiQuery,
   MiddlewareSettingData,
   MiddlewareSettingPatch,
   MiddlewareSettingQuery,
@@ -34,6 +38,9 @@ import {
 } from '@etherealengine/common/src/schemas/setting/middleware-setting.schema'
 
 export interface MiddlewareSettingParams extends KnexAdapterParams<MiddlewareSettingQuery> {}
+
+// Middleware API
+export interface MiddlewareApiParams extends KnexAdapterParams<MiddlewareSettingApiQuery> {}
 
 /**
  * A class for MiddlewareSetting service
@@ -43,3 +50,9 @@ export class MiddlewareSettingService<
   T = MiddlewareSettingType,
   ServiceParams extends Params = MiddlewareSettingParams
 > extends KnexService<MiddlewareSettingType, MiddlewareSettingData, MiddlewareSettingParams, MiddlewareSettingPatch> {}
+
+// Middleware API
+export class MiddlewareApiService<
+  T = MiddlewareApiType,
+  ServiceParams extends Params = MiddlewareApiParams
+> extends KnexService<MiddlewareApiType, MiddlewareSettingApi, MiddlewareApiParams, MiddlewareSettingApiPatch> {}

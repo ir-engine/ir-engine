@@ -27,7 +27,9 @@ import { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
+  MiddlewareApiDatabaseType,
   MiddlewareSettingDatabaseType,
+  middlewareApiUrl,
   middlewareSettingPath
 } from '@etherealengine/common/src/schemas/setting/middleware-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
@@ -87,55 +89,6 @@ export const middlewareSettingTemp = JSON.stringify({
   ]
 })
 
-/* Dynamic Menu Test */
-// export const middlewareSettingMenu = JSON.stringify({
-//   test: [
-//     {
-//       component: 'MiddlewareToggle',
-//       label: 'Dyn Toggle 0',
-//       value: true,
-//       action: 'mwHandleToggle'
-//     },
-//     {
-//       component: 'MiddlewareSelect',
-//       label: 'Dyn Select 0',
-//       value: ['opt0', 'opt1', 'opt2'],
-//       action: 'mwHandleSelect'
-//     },
-//     {
-//       component: 'MiddlewareTextarea',
-//       label: 'Textarea Label 0',
-//       value: 'Default Value',
-//       action: 'mwHandleTextarea'
-//     },
-//     {
-//       component: 'MiddlewareInput',
-//       label: 'Dyn Label 0',
-//       value: 'Default Value',
-//       action: 'mwHandleChange'
-//     },
-//     {
-//       component: 'MiddlewareInput',
-//       label: 'Dyn Label 1',
-//       value: 'Default Value',
-//       action: 'mwHandleChange'
-//     },
-//     {
-//       component: 'MiddlewareInput',
-//       label: 'Dyn Label 2',
-//       value: 'Default Value',
-//       action: 'mwHandleChange'
-//     },
-//     {
-//       component: 'MiddlewareInput',
-//       label: 'Dyn Label 3',
-//       value: 'Default Value',
-//       action: 'mwHandleChange'
-//     }
-//   ]
-// })
-/* Dynamic Menu Test */
-
 export const middlewareSettingMenu = JSON.stringify({})
 
 export const middlewareSettingSeedData = {
@@ -143,6 +96,13 @@ export const middlewareSettingSeedData = {
   middlewareProjectName: middlewareProjectName,
   middlewareSettingTemp: middlewareSettingTemp,
   middlewareSettingMenu: middlewareSettingMenu
+}
+
+// Middleware API
+export const middlewareSettingApiUrl = appConfig.middleware.mwApi // Need to pull env val for middleware base URL
+
+export const middlewareSettingApiSeedData = {
+  middlewareUrl: middlewareSettingApiUrl
 }
 
 export async function seed(knex: Knex): Promise<void> {
@@ -158,14 +118,25 @@ export async function seed(knex: Knex): Promise<void> {
     }))
   )
 
+  const apiSeedData: MiddlewareApiDatabaseType[] = await Promise.all(
+    [middlewareSettingApiSeedData].map(async (item) => ({
+      ...item,
+      id: uuidv4(),
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
+
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
     await knex(middlewareSettingPath).del()
 
     // Inserts seed entries
     await knex(middlewareSettingPath).insert(seedData)
+    await knex(middlewareApiUrl).insert(apiSeedData)
   } else {
     const existingData = await knex(middlewareSettingPath).count({ count: '*' })
+    const existingApiData = await knex(middlewareApiUrl).count({ count: '*' })
 
     if (existingData.length === 0 || existingData[0].count === 0) {
       for (const item of seedData) {
@@ -173,6 +144,14 @@ export async function seed(knex: Knex): Promise<void> {
       }
     } else {
       const existingRows = await knex(middlewareSettingPath).select<MiddlewareSettingDatabaseType[]>()
+    }
+
+    if (existingApiData.length === 0 || existingApiData[0].count === 0) {
+      for (const item of apiSeedData) {
+        await knex(middlewareApiUrl).insert(item)
+      }
+    } else {
+      const existingRows = await knex(middlewareApiUrl).select<MiddlewareApiDatabaseType[]>()
     }
   }
 }

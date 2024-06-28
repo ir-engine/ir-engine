@@ -397,6 +397,11 @@ const ipfs = {
   enabled: process.env.USE_IPFS
 }
 
+// Middleware API
+const middleware = {
+  mwApi: process.env.MIDDLEWARE_BASE
+}
+
 /**
  * Full config
  */
@@ -411,6 +416,7 @@ const config = {
   email,
   instanceserver,
   ipfs,
+  middleware,
   server,
   taskserver,
   redis,

@@ -232,6 +232,8 @@ export const clientSettingPath = 'client-setting'
 
 export const middlewareSettingPath = 'middleware-setting'
 
+export const middlewareApiUrl = 'middleware-api'
+
 export const redisSettingPath = 'redis-setting'
 
 export const chargebeeSettingPath = 'chargebee-setting'

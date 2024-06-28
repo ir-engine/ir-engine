@@ -28,6 +28,9 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
+  MiddlewareApiDatabaseType,
+  MiddlewareApiType,
+  MiddlewareSettingApiQuery,
   MiddlewareSettingDatabaseType,
   MiddlewareSettingQuery,
   MiddlewareSettingType
@@ -37,6 +40,13 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../../../common/src/utils/datetime-sql'
 
 export const middlewareDbToSchema = (rawData: MiddlewareSettingDatabaseType): MiddlewareSettingType => {
+  return {
+    ...rawData
+  }
+}
+
+// Middleware API
+export const middlewareApiDbToSchema = (rawData: MiddlewareApiDatabaseType): MiddlewareApiType => {
   return {
     ...rawData
   }
@@ -55,9 +65,45 @@ export const middlewareSettingResolver = resolve<MiddlewareSettingType, HookCont
   }
 )
 
+// Middleware API
+export const middlewareApiResolver = resolve<MiddlewareApiType, HookContext>(
+  {
+    createdAt: virtual(async (middlewareApi) => fromDateTimeSql(middlewareApi.createdAt)),
+    updatedAt: virtual(async (middlewareApi) => fromDateTimeSql(middlewareApi.updatedAt))
+  },
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return middlewareApiDbToSchema(rawData)
+    }
+  }
+)
+
 export const middlewareSettingExternalResolver = resolve<MiddlewareSettingType, HookContext>({})
 
+// Middleware API
+export const middlewareApiExternalResolver = resolve<MiddlewareApiType, HookContext>({})
+
 export const middlewareSettingDataResolver = resolve<MiddlewareSettingDatabaseType, HookContext>(
+  {
+    id: async () => {
+      return uuidv4()
+    },
+    createdAt: getDateTimeSql,
+    updatedAt: getDateTimeSql
+  },
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return {
+        ...rawData
+      }
+    }
+  }
+)
+
+// Middleware API
+export const middlewareApiDataResolver = resolve<MiddlewareApiType, HookContext>(
   {
     id: async () => {
       return uuidv4()
@@ -89,4 +135,22 @@ export const middlewareSettingPatchResolver = resolve<MiddlewareSettingType, Hoo
   }
 )
 
+// Middleware API
+export const middlewareApiPatchResolver = resolve<MiddlewareApiType, HookContext>(
+  {
+    updatedAt: getDateTimeSql
+  },
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return {
+        ...rawData
+      }
+    }
+  }
+)
+
 export const middlewareSettingQueryResolver = resolve<MiddlewareSettingQuery, HookContext>({})
+
+// Middleware API
+export const middlewareApiQueryResolver = resolve<MiddlewareSettingApiQuery, HookContext>({})

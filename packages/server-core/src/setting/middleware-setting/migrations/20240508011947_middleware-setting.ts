@@ -23,7 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { middlewareSettingPath } from '@etherealengine/common/src/schemas/setting/middleware-setting.schema'
+import {
+  middlewareApiUrl,
+  middlewareSettingPath
+} from '@etherealengine/common/src/schemas/setting/middleware-setting.schema'
 import type { Knex } from 'knex'
 
 /**
@@ -39,6 +42,7 @@ export async function up(knex: Knex): Promise<void> {
   }
 
   const tableExists = await knex.schema.hasTable(middlewareSettingPath)
+  const apiTableExists = await knex.schema.hasTable(middlewareApiUrl)
 
   if (tableExists === false) {
     await knex.schema.createTable(middlewareSettingPath, (table) => {
@@ -48,6 +52,15 @@ export async function up(knex: Knex): Promise<void> {
       table.string('middlewareProjectName', 255).notNullable()
       table.text('middlewareSettingTemp').nullable()
       table.text('middlewareSettingMenu').nullable()
+      table.dateTime('createdAt').notNullable()
+      table.dateTime('updatedAt').notNullable()
+    })
+  }
+  if (apiTableExists === false) {
+    await knex.schema.createTable(middlewareApiUrl, (table) => {
+      //@ts-ignore
+      table.uuid('id').collate('utf8mb4_bin').primary()
+      table.string('middlewareUrl', 255).notNullable()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
     })
@@ -63,9 +76,13 @@ export async function down(knex: Knex): Promise<void> {
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
   const tableExists = await trx.schema.hasTable(middlewareSettingPath)
+  const apiTableExists = await trx.schema.hasTable(middlewareApiUrl)
 
   if (tableExists === true) {
     await trx.schema.dropTable(middlewareSettingPath)
+  }
+  if (apiTableExists === true) {
+    await trx.schema.dropTable(middlewareApiUrl)
   }
 
   await trx.raw('SET FOREIGN_KEY_CHECKS=1')

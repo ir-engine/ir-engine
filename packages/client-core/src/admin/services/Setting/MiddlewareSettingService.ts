@@ -28,9 +28,12 @@ import { Paginated } from '@feathersjs/feathers'
 // import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
+  MiddlewareApiType,
+  MiddlewareSettingApiPatch,
   MiddlewareSettingPatch,
-  middlewareSettingPath,
-  MiddlewareSettingType
+  MiddlewareSettingType,
+  middlewareApiUrl,
+  middlewareSettingPath
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
@@ -46,6 +49,15 @@ export const AdminMiddlewareSettingsState = defineState({
   name: 'AdminMiddlewareSettingsState',
   initial: () => ({
     middleware: [] as Array<MiddlewareSettingType>,
+    updateNeeded: true
+  })
+})
+
+// Middleware API
+export const AdminMiddlewareApiState = defineState({
+  name: 'AdminMiddlewareApiState',
+  initial: () => ({
+    middleware: [] as Array<MiddlewareApiType>,
     updateNeeded: true
   })
 })
@@ -74,6 +86,36 @@ export const MiddlewareSettingService = {
     try {
       await Engine.instance.api.service(middlewareSettingPath).patch(id, data)
       getMutableState(AdminMiddlewareSettingsState).merge({ updateNeeded: true })
+    } catch (err) {
+      logger.error(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  }
+}
+
+// Middleware API
+export const MiddlewareApiService = {
+  fetchMiddlewareApi: async () => {
+    try {
+      await waitForClientAuthenticated()
+      const middlewareApi = (await Engine.instance.api.service(middlewareApiUrl).find()) as Paginated<MiddlewareApiType>
+
+      console.log('middlewareApi', middlewareApi)
+
+      // if (middlewareSettings.data[0].key8thWall) {
+      //   config.middleware.key8thWall = middlewareSettings.data[0].key8thWall
+      // }
+
+      getMutableState(AdminMiddlewareApiState).merge({ middleware: middlewareApi.data, updateNeeded: false })
+    } catch (err) {
+      logger.error(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  },
+  patchMiddlewareSetting: async (data: MiddlewareSettingApiPatch, id: string) => {
+    try {
+      await Engine.instance.api.service(middlewareApiUrl).patch(id, data)
+      getMutableState(AdminMiddlewareApiState).merge({ updateNeeded: true })
     } catch (err) {
       logger.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
