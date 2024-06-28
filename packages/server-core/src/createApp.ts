@@ -41,11 +41,9 @@ import healthcheck from 'koa-simple-healthcheck'
 import { pipeLogs } from '@etherealengine/common/src/logger'
 import { pipe } from '@etherealengine/common/src/utils/pipe'
 import { Engine, createEngine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { startTimer } from '@etherealengine/spatial/src/startTimer'
 
-import { ECSState } from '@etherealengine/ecs'
 import { Application } from '../declarations'
 import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
@@ -176,8 +174,6 @@ export const createFeathersKoaApp = (
   configurationPipe = serverPipe
 ): Application => {
   createEngine()
-  startTimer()
-  getState(ECSState).timer.start()
 
   const serverState = getMutableState(ServerState)
   serverState.serverMode.set(serverMode)
