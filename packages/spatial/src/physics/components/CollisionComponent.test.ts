@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   Entity,
   UndefinedEntity,
+  createEngine,
   createEntity,
   destroyEngine,
   getComponent,
@@ -33,7 +34,6 @@ import {
   setComponent
 } from '@etherealengine/ecs'
 import assert from 'assert'
-import { createEngine } from '../../initializeEngine'
 import { ColliderHitEvent } from '../types/PhysicsTypes'
 import { CollisionComponent } from './CollisionComponent'
 

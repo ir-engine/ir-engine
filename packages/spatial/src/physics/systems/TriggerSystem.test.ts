@@ -32,6 +32,7 @@ import {
   SystemUUID,
   UUIDComponent,
   UndefinedEntity,
+  createEngine,
   createEntity,
   destroyEngine,
   getComponent,
@@ -43,7 +44,6 @@ import {
 import { getMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '../../SpatialModule'
 import { setCallback } from '../../common/CallbackComponent'
-import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'

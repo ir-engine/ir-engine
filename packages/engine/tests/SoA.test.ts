@@ -26,10 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { proxifyQuaternion, proxifyVector3 } from '@etherealengine/spatial/src/common/proxies/createThreejsProxy'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 describe('Structure of Array Synchronization', () => {
