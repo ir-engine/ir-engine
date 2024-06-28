@@ -262,7 +262,7 @@ export const ClickPlacementSystem = defineSystem({
     let targetIntersection: { point: Vector3; normal: Vector3 } | null = null
 
     const viewerEntity = Engine.instance.viewerEntity
-    const mouseEntity = InputPointerComponent.getPointerForCanvas(viewerEntity)
+    const mouseEntity = InputPointerComponent.getPointersForCamera(viewerEntity)[0]
     if (!mouseEntity) return
 
     const buttons = InputComponent.getMergedButtons(viewerEntity)
