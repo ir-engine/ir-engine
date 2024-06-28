@@ -33,6 +33,7 @@ import {
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
+  removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -56,6 +57,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
@@ -69,16 +71,19 @@ import {
   toggleTransformSpace
 } from '../functions/transformFunctions'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorHelperState } from '../services/EditorHelperState'
+
+import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
+
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
+import { ClickPlacementState } from './ClickPlacementSystem'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 const raycaster = new Raycaster()
 const raycasterResults: Intersection<Object3D>[] = []
 
-const gizmoControlledQuery = defineQuery([TransformGizmoControlledComponent])
-let primaryClickAccum = 0
+// const gizmoControlledQuery = defineQuery([TransformGizmoControlledComponent])
+// let primaryClickAccum = 0
 
 const onKeyB = () => {
   getMutableState(ObjectGridSnapState).enabled.set(!getState(ObjectGridSnapState).enabled)
@@ -126,6 +131,15 @@ const onEscape = () => {
 
 const onKeyW = () => {
   setTransformMode(TransformMode.translate)
+}
+
+const onKeyP = () => {
+  const editorHelperState = getMutableState(EditorHelperState)
+  if (editorHelperState.placementMode.value === PlacementMode.CLICK) {
+    editorHelperState.placementMode.set(PlacementMode.DRAG)
+  } else {
+    editorHelperState.placementMode.set(PlacementMode.CLICK)
+  }
 }
 
 const onKeyE = () => {
@@ -251,8 +265,8 @@ const execute = () => {
   const buttons = InputComponent.getMergedButtonsForInputSources(inputSources)
 
   if (buttons.KeyB?.down) onKeyB()
-
   if (buttons.KeyE?.down) onKeyE()
+  if (buttons.KeyP?.down) onKeyP()
   if (buttons.KeyR?.down) onKeyR()
   if (buttons.KeyW?.down) onKeyW()
   if (buttons.KeyC?.down) onKeyC()
@@ -291,7 +305,7 @@ const execute = () => {
     }
   }
   if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
-    if (hasComponent(clickStartEntity, SourceComponent)) {
+    if (hasComponent(clickStartEntity, SourceComponent) && !getState(ClickPlacementState).placementEntity) {
       const selectedEntities = SelectionState.getSelectedEntities()
       const modelComponent = getAncestorWithComponent(clickStartEntity, ModelComponent)
       const ancestorModelEntity = modelComponent || clickStartEntity
@@ -321,16 +335,25 @@ const reactor = () => {
   }, [])
 
   useEffect(() => {
-    // set the active orbit camera to the main camera
-    setComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
-    setComponent(Engine.instance.cameraEntity, InputComponent)
-  }, [])
-
-  useEffect(() => {
     const infiniteGridHelperEntity = rendererState.infiniteGridHelperEntity.value
     if (!infiniteGridHelperEntity) return
     setComponent(infiniteGridHelperEntity, InfiniteGridComponent, { size: editorHelperState.translationSnap.value })
   }, [editorHelperState.translationSnap, rendererState.infiniteGridHelperEntity])
+
+  const viewerEntity = useMutableState(EngineState).viewerEntity.value
+
+  useEffect(() => {
+    if (!viewerEntity) return
+
+    // set the active orbit camera to the main camera
+    setComponent(viewerEntity, CameraOrbitComponent)
+    setComponent(viewerEntity, InputComponent)
+
+    return () => {
+      removeComponent(viewerEntity, CameraOrbitComponent)
+      removeComponent(viewerEntity, InputComponent)
+    }
+  }, [viewerEntity])
 
   return null
 }

@@ -36,12 +36,14 @@ import {
   useEntityContext
 } from '@etherealengine/ecs'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { Mesh, Object3D } from 'three'
 import {
   gizmoRotate,
   gizmoScale,
@@ -54,6 +56,33 @@ import {
   pickerTranslate,
   setupGizmo
 } from '../constants/GizmoPresets'
+
+const useTranslateRotateScaleEntities = () => {
+  const translate = useHookstate(createEntity)
+  const rotate = useHookstate(createEntity)
+  const scale = useHookstate(createEntity)
+
+  useEffect(() => {
+    return () => {
+      removeEntity(translate.value)
+      removeEntity(rotate.value)
+      removeEntity(scale.value)
+    }
+  }, [])
+
+  return {
+    translate: translate.value,
+    rotate: rotate.value,
+    scale: scale.value
+  }
+}
+
+const cleanupGizmo = (gizmoObj: Object3D) => {
+  for (const child of gizmoObj.children as Mesh[]) {
+    // Only dispose cloned geometry from setupGizmo
+    if (child.geometry) child.geometry.dispose()
+  }
+}
 
 export const TransformGizmoVisualComponent = defineComponent({
   name: 'TransformGizmoVisual',
@@ -92,21 +121,9 @@ export const TransformGizmoVisualComponent = defineComponent({
   reactor: function (props) {
     const gizmoVisualEntity = useEntityContext()
     const visualComponent = useComponent(gizmoVisualEntity, TransformGizmoVisualComponent)
-    const gizmo = {
-      translate: createEntity(),
-      rotate: createEntity(),
-      scale: createEntity()
-    }
-    const picker = {
-      translate: createEntity(),
-      rotate: createEntity(),
-      scale: createEntity()
-    }
-    const helper = {
-      translate: createEntity(),
-      rotate: createEntity(),
-      scale: createEntity()
-    }
+    const gizmo = useTranslateRotateScaleEntities()
+    const picker = useTranslateRotateScaleEntities()
+    const helper = useTranslateRotateScaleEntities()
 
     useEffect(() => {
       // Gizmo creation
@@ -157,11 +174,11 @@ export const TransformGizmoVisualComponent = defineComponent({
       return () => {
         for (const mode in TransformMode) {
           removeObjectFromGroup(gizmo[mode], gizmoObject[mode])
+          cleanupGizmo(gizmoObject[mode])
           removeObjectFromGroup(picker[mode], pickerObject[mode])
+          cleanupGizmo(pickerObject[mode])
           removeObjectFromGroup(helper[mode], helperObject[mode])
-          removeEntity(gizmo[mode])
-          removeEntity(picker[mode])
-          removeEntity(helper[mode])
+          cleanupGizmo(helperObject[mode])
         }
       }
     }, [])

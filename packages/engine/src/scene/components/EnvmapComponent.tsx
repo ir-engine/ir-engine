@@ -43,7 +43,7 @@ import {
 } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, useQuery } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -73,7 +73,9 @@ import {
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
+import { createReflectionProbeRenderTarget } from '../functions/reflectionProbeFunctions'
 import { EnvMapBakeComponent } from './EnvMapBakeComponent'
+import { ReflectionProbeComponent } from './ReflectionProbeComponent'
 
 const tempColor = new Color()
 
@@ -126,6 +128,8 @@ export const EnvmapComponent = defineComponent({
       entity
     )
 
+    const probeQuery = useQuery([ReflectionProbeComponent])
+
     useEffect(() => {
       updateEnvMapIntensity(mesh, component.envMapIntensity.value)
     }, [mesh, component.envMapIntensity])
@@ -158,6 +162,17 @@ export const EnvmapComponent = defineComponent({
         unload()
       }
     }, [component.type, component.envMapSourceColor])
+
+    useEffect(() => {
+      if (component.type.value !== EnvMapSourceType.Probes) return
+      if (!probeQuery.length) return
+      const [renderTexture, unload] = createReflectionProbeRenderTarget(entity, probeQuery)
+      component.envmap.set(renderTexture)
+      return () => {
+        unload()
+        component.envmap.set(null)
+      }
+    }, [component.type, probeQuery.length])
 
     useEffect(() => {
       if (!envMapTexture) return
@@ -197,7 +212,7 @@ export const EnvmapComponent = defineComponent({
     }, [component.type, component.envMapSourceURL])
 
     useEffect(() => {
-      if (!component.envmap.value) return
+      //if (!component.envmap.value) return
       updateEnvMap(mesh, component.envmap.value as Texture)
     }, [mesh, component.envmap])
 
@@ -248,11 +263,14 @@ export function updateEnvMap(obj: Mesh<any, any> | null, envmap: Texture | null)
   if (Array.isArray(obj.material)) {
     obj.material.forEach((mat: MeshStandardMaterial) => {
       if (mat instanceof MeshMatcapMaterial) return
-      mat.envMap = envmap!
+      mat.envMap = envmap
+      mat.needsUpdate = true
     })
   } else {
     if (obj.material instanceof MeshMatcapMaterial) return
-    obj.material.envMap = envmap!
+    const material = obj.material as MeshStandardMaterial
+    material.envMap = envmap
+    material.needsUpdate = true
   }
 }
 

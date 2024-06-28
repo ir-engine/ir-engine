@@ -26,12 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
-import {
-  EMAIL_REGEX,
-  INVITE_CODE_REGEX,
-  PHONE_REGEX,
-  USER_ID_REGEX
-} from '@etherealengine/common/src/constants/IdConstants'
+import { EMAIL_REGEX, INVITE_CODE_REGEX, PHONE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/regex'
 import {
   InviteCode,
   InviteData,

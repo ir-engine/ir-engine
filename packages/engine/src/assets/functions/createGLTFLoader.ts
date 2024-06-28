@@ -24,13 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRMLoaderPlugin } from '@pixiv/three-vrm'
-import { Group } from 'three'
+import { Group, WebGLRenderer } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Engine, getComponent } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { CachedImageLoadExtension } from '../loaders/gltf/extensions/CachedImageLoadExtension'
@@ -45,17 +43,20 @@ import { ResourceManagerLoadExtension } from '../loaders/gltf/extensions/Resourc
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { MeshoptDecoder } from '../loaders/gltf/meshopt_decoder.module'
-import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
+import { loadDRACODecoderNode, NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
   const ktxLoader = new KTX2Loader()
   ktxLoader.setTranscoderPath(getState(EngineState).publicPath + '/loader_decoders/basis/')
-  ktxLoader.detectSupport(getComponent(Engine.instance.viewerEntity, RendererComponent).renderer)
+  const renderer = new WebGLRenderer()
+  ktxLoader.detectSupport(renderer)
+  renderer.dispose()
   loader.setKTX2Loader(ktxLoader)
 }
 
 export const createGLTFLoader = (keepMaterials = false) => {
   const loader = new GLTFLoader()
+  if (isClient) initializeKTX2Loader(loader)
 
   if (isClient || keepMaterials) {
     loader.register((parser) => new GPUInstancingExtension(parser))
@@ -77,11 +78,13 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.setMeshoptDecoder(MeshoptDecoder)
 
   if (isClient) {
+    initializeKTX2Loader(loader)
     const dracoLoader = new DRACOLoader()
     dracoLoader.setDecoderPath(getState(EngineState).publicPath + '/loader_decoders/')
     dracoLoader.setWorkerLimit(1)
     loader.setDRACOLoader(dracoLoader)
   } else {
+    loadDRACODecoderNode()
     const dracoLoader = new NodeDRACOLoader()
     /* @ts-ignore */
     dracoLoader.preload = () => {}
