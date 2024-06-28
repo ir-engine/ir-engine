@@ -302,4 +302,4 @@ export const invalidationPath = 'invalidation'
 
 export const imageConvertPath = 'image-convert'
 
-export const zendeskAuthenticationPath = 'zendesk-authentication'
+export const zendeskPath = 'zendesk'

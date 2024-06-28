@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
-import { zendeskAuthenticationPath } from '@etherealengine/common/src/schema.type.module'
+import { zendeskPath } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { useEffect } from 'react'
@@ -37,7 +37,7 @@ declare global {
 }
 
 export const useZendesk = () => {
-  const zendeskMutation = useMutation(zendeskAuthenticationPath)
+  const zendeskMutation = useMutation(zendeskPath)
   const user = getMutableState(AuthState).user
   const authenticated = useHookstate(false)
   const initialized = useHookstate(() => {

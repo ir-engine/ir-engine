@@ -23,6 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const zendeskAuthenticationPath = 'zendesk-authentication'
+export const zendeskPath = 'zendesk'
 
-export const zendeskAuthenticationMethods = ['create'] as const
+export const zendeskMethods = ['create'] as const

@@ -23,10 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  zendeskAuthenticationMethods,
-  zendeskAuthenticationPath
-} from '@etherealengine/common/src/schemas/integrations/zendesk/zendesk.schema'
+import { zendeskMethods, zendeskPath } from '@etherealengine/common/src/schemas/integrations/zendesk/zendesk.schema'
 
 import { Application } from '../../../declarations'
 import { ZendeskAuthenticationService } from './zendesk.class'
@@ -35,19 +32,19 @@ import hooks from './zendesk.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    [zendeskAuthenticationPath]: ZendeskAuthenticationService
+    [zendeskPath]: ZendeskAuthenticationService
   }
 }
 
 export default (app: Application): void => {
-  app.use(zendeskAuthenticationPath, new ZendeskAuthenticationService(), {
+  app.use(zendeskPath, new ZendeskAuthenticationService(), {
     // A list of all methods this service exposes externally
-    methods: zendeskAuthenticationMethods,
+    methods: zendeskMethods,
     // You can add additional custom events to be sent to clients here
     events: [],
     docs: zendeskAuthenticationDocs
   })
 
-  const service = app.service(zendeskAuthenticationPath)
+  const service = app.service(zendeskPath)
   service.hooks(hooks)
 }
