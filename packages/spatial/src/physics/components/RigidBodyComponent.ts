@@ -90,8 +90,15 @@ export const RigidBodyComponent = defineComponent({
     if (typeof json.allowRolling === 'boolean') component.allowRolling.set(json.allowRolling)
     if (typeof json.canSleep === 'boolean') component.canSleep.set(json.canSleep)
     if (typeof json.gravityScale === 'number') component.gravityScale.set(json.gravityScale)
-    if (Array.isArray(json.enabledRotations) && json.enabledRotations.length === 3)
+    if (
+      Array.isArray(json.enabledRotations) &&
+      json.enabledRotations.length === 3 &&
+      typeof json.enabledRotations[0] === 'boolean' &&
+      typeof json.enabledRotations[1] === 'boolean' &&
+      typeof json.enabledRotations[2] === 'boolean'
+    ) {
       component.enabledRotations.set(json.enabledRotations)
+    }
   },
 
   toJSON: (entity, component) => {
@@ -133,12 +140,20 @@ export const RigidBodyComponent = defineComponent({
     }, [component.ccd])
 
     useImmediateEffect(() => {
-      Physics.lockRotations(entity, !component.allowRolling.value)
-    }, [component.allowRolling])
+      const value = component.allowRolling.value
+      /**
+       * @todo Change this back to `Physics.lockRotations( entity, !value )` when we update to Rapier >= 0.12.0
+       * https://github.com/dimforge/rapier.js/issues/282  */
+      Physics.setEnabledRotations(entity, [value, value, value])
+    }, [component.allowRolling.value])
 
+    /**
+     * @todo Should these be three useffects instead?
+     *       It wasn't triggering with just one, because the array reference never changed
+     */
     useImmediateEffect(() => {
       Physics.setEnabledRotations(entity, component.enabledRotations.value as [boolean, boolean, boolean])
-    }, [component.enabledRotations])
+    }, [component.enabledRotations[0].value, component.enabledRotations[1].value, component.enabledRotations[2].value])
 
     return null
   }
