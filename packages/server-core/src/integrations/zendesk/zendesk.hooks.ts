@@ -25,10 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import appConfig from '@etherealengine/server-core/src/appconfig'
 import { Application, HookContext } from '@feathersjs/feathers/lib/declarations'
-import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 import { sign } from 'jsonwebtoken'
-import { zendeskAuthenticationDataResolver } from './zendesk.resolver'
 
 const getZendeskToken = (context: HookContext<Application>) => {
   context.result = sign(
@@ -53,7 +51,7 @@ export default {
     all: [],
     find: [disallow()],
     get: [disallow()],
-    create: [schemaHooks.resolveData(zendeskAuthenticationDataResolver), getZendeskToken],
+    create: [getZendeskToken],
     update: [disallow()],
     patch: [disallow()],
     remove: [disallow()]
