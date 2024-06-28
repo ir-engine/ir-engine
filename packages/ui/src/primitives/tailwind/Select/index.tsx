@@ -161,7 +161,7 @@ const Select = <T extends OptionValueType>({
         <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2', menuClassname)}>
           {filteredOptions.value.map((option) => (
             <li
-              key={option.value}
+              key={option.label + option.value}
               value={option.value}
               className={twMerge(
                 'cursor-pointer px-4 py-2 text-theme-secondary',
