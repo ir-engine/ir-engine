@@ -32,14 +32,14 @@ import {
   SystemUUID,
   UUIDComponent,
   UndefinedEntity,
+  createEngine,
   createEntity,
   destroyEngine,
   getComponent,
   hasComponent,
   removeComponent,
   removeEntity,
-  setComponent,
-  startEngine
+  setComponent
 } from '@etherealengine/ecs'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '../../SpatialModule'
@@ -85,7 +85,7 @@ describe('TriggerSystem', () => {
   let physicsWorld: World | undefined = undefined
 
   beforeEach(async () => {
-    startEngine()
+    createEngine()
     await Physics.load()
     physicsWorld = Physics.createWorld()
     physicsWorld!.timestep = 1 / 60

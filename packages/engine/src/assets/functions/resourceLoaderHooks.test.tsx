@@ -28,7 +28,7 @@ import assert from 'assert'
 import React, { useEffect } from 'react'
 
 import { createEntity, destroyEngine } from '@etherealengine/ecs'
-import { startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { ResourceState } from '@etherealengine/spatial/src/resources/ResourceState'
 
@@ -44,7 +44,7 @@ describe('ResourceLoaderHooks', () => {
   overrideFileLoaderLoad()
 
   beforeEach(async () => {
-    startEngine()
+    createEngine()
     loadEmptyScene()
   })
 

@@ -32,7 +32,7 @@ import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine, destroyEngine, startEngine } from '@etherealengine/ecs/src/Engine'
+import { Engine, createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@etherealengine/network'
 import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'
@@ -52,7 +52,7 @@ import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 describe('moveAvatar function tests', () => {
   let sceneEntity: Entity
   beforeEach(async () => {
-    startEngine()
+    createEngine()
     initializeSpatialEngine()
     await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0

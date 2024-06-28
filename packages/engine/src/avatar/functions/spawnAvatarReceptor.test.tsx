@@ -31,7 +31,7 @@ import { Quaternion, Vector3 } from 'three'
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine, destroyEngine, startEngine } from '@etherealengine/ecs/src/Engine'
+import { Engine, createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { ReactorReconciler, applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@etherealengine/network'
 import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'
@@ -55,7 +55,7 @@ import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 describe('spawnAvatarReceptor', () => {
   let sceneEntity: Entity
   beforeEach(async () => {
-    startEngine()
+    createEngine()
     initializeSpatialEngine()
     await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0

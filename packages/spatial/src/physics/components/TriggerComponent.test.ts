@@ -27,14 +27,14 @@ import { World } from '@dimforge/rapier3d-compat'
 import {
   EntityUUID,
   UndefinedEntity,
+  createEngine,
   createEntity,
   destroyEngine,
   getComponent,
   removeComponent,
   removeEntity,
   serializeComponent,
-  setComponent,
-  startEngine
+  setComponent
 } from '@etherealengine/ecs'
 import { getMutableState } from '@etherealengine/hyperflux'
 import assert from 'assert'
@@ -92,7 +92,7 @@ describe('TriggerComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       testEntity = createEntity()
       setComponent(testEntity, TriggerComponent)
     })
@@ -112,7 +112,7 @@ describe('TriggerComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       testEntity = createEntity()
       setComponent(testEntity, TriggerComponent)
     })
@@ -156,7 +156,7 @@ describe('TriggerComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       await Physics.load()
       testEntity = createEntity()
       setComponent(testEntity, TriggerComponent)
@@ -178,7 +178,7 @@ describe('TriggerComponent', () => {
     let physicsWorld: World | undefined = undefined
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       await Physics.load()
       physicsWorld = Physics.createWorld()
       physicsWorld!.timestep = 1 / 60

@@ -29,7 +29,7 @@ import { Cache, Color, MathUtils } from 'three'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, UUIDComponent } from '@etherealengine/ecs'
-import { destroyEngine, Engine, startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine, destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
@@ -46,7 +46,7 @@ import { EditorControlFunctions } from './EditorControlFunctions'
 
 describe('EditorControlFunctions', () => {
   beforeEach(async () => {
-    startEngine()
+    createEngine()
     getMutableState(PhysicsState).physicsWorld.set({} as any)
     getMutableState(EngineState).isEditing.set(true)
     getMutableState(EngineState).isEditor.set(true)

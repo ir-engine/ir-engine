@@ -32,7 +32,7 @@ import sinon from 'sinon'
 import { destroyEngine } from '@etherealengine/ecs'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { EngineState } from '../EngineState'
 import { initializeSpatialEngine } from '../initializeEngine'
 import { PerformanceManager, PerformanceState } from './PerformanceState'
@@ -76,7 +76,7 @@ describe('PerformanceState', () => {
   })
 
   beforeEach(async () => {
-    startEngine()
+    createEngine()
     initializeSpatialEngine()
   })
 

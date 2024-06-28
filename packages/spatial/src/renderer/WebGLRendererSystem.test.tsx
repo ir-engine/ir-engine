@@ -34,7 +34,7 @@ import {
   getMutableComponent,
   setComponent
 } from '@etherealengine/ecs'
-import { startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
@@ -79,7 +79,7 @@ describe('WebGl Renderer System', () => {
   }
 
   beforeEach(() => {
-    startEngine()
+    createEngine()
 
     rootEntity = createEntity()
     getMutableState(EngineState).viewerEntity.set(rootEntity)

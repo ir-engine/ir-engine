@@ -28,7 +28,7 @@ import assert from 'assert'
 import { Cache, Color, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { defineComponent, EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
-import { destroyEngine, startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -54,7 +54,7 @@ const timeout = globalThis.setTimeout
 
 describe('GLTFState', () => {
   beforeEach(async () => {
-    startEngine()
+    createEngine()
 
     await Physics.load()
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())

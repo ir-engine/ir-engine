@@ -39,7 +39,7 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
-import { startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
@@ -101,7 +101,7 @@ describe('smoothKinematicBody', () => {
   let physicsWorld = undefined as World | undefined
 
   beforeEach(async () => {
-    startEngine()
+    createEngine()
     await Physics.load()
     physicsWorld = Physics.createWorld()
     physicsWorld.timestep = DeltaTime
@@ -326,7 +326,7 @@ describe('PhysicsSystem', () => {
     let physicsWorld = undefined as World | undefined
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       await Physics.load()
       physicsWorld = Physics.createWorld()
       physicsWorld!.timestep = 1 / 60

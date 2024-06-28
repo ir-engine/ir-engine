@@ -29,6 +29,7 @@ import { RigidBodyType, World } from '@dimforge/rapier3d-compat'
 import {
   SystemDefinitions,
   UndefinedEntity,
+  createEngine,
   createEntity,
   destroyEngine,
   getComponent,
@@ -36,8 +37,7 @@ import {
   removeComponent,
   removeEntity,
   serializeComponent,
-  setComponent,
-  startEngine
+  setComponent
 } from '@etherealengine/ecs'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { Vector3 } from 'three'
@@ -130,7 +130,7 @@ describe('RigidBodyComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       await Physics.load()
       testEntity = createEntity()
       setComponent(testEntity, RigidBodyComponent)
@@ -151,7 +151,7 @@ describe('RigidBodyComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       await Physics.load()
       testEntity = createEntity()
       setComponent(testEntity, RigidBodyComponent)
@@ -210,7 +210,7 @@ describe('RigidBodyComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       await Physics.load()
       testEntity = createEntity()
       setComponent(testEntity, RigidBodyComponent)
@@ -240,7 +240,7 @@ describe('RigidBodyComponent', () => {
     let physicsWorld: World | undefined = undefined
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       await Physics.load()
       physicsWorld = Physics.createWorld()
       physicsWorld!.timestep = 1 / 60
@@ -456,7 +456,7 @@ describe('RigidBodyComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       await Physics.load()
       testEntity = createEntity()
     })

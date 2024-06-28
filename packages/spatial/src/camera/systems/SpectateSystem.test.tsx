@@ -38,7 +38,7 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
-import { startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { PeerID, applyIncomingActions, dispatchAction, getState } from '@etherealengine/hyperflux'
 import {
   Network,
@@ -55,7 +55,7 @@ describe('SpectateSystem', async () => {
 
   describe('SpectateEntityState', async () => {
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       createMockNetwork()
       Engine.instance.store.defaultDispatchDelay = () => 0
       viewerEntity = createEntity()

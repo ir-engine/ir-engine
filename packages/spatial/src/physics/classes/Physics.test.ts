@@ -40,7 +40,7 @@ import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { ObjectDirection, Vector3_Zero } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
@@ -125,7 +125,7 @@ export const boxDynamicConfig = {
 
 describe('Physics : External API', () => {
   beforeEach(async () => {
-    startEngine()
+    createEngine()
     await Physics.load()
     const physicsWorld = Physics.createWorld()
     getMutableState(PhysicsState).physicsWorld.set(physicsWorld)
@@ -305,7 +305,7 @@ describe('Physics : External API', () => {
 describe('Physics : Rapier->ECS API', () => {
   describe('createWorld', () => {
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       await Physics.load()
     })
 
@@ -341,7 +341,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -413,7 +413,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -447,7 +447,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -483,7 +483,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -537,7 +537,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -587,7 +587,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -628,7 +628,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         physicsWorld!.timestep = 1 / 60
@@ -675,7 +675,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         physicsWorld!.timestep = 1 / 60
@@ -736,7 +736,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -806,7 +806,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -869,7 +869,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -970,7 +970,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1013,7 +1013,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1060,7 +1060,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1123,7 +1123,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1181,7 +1181,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1214,7 +1214,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1247,7 +1247,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1280,7 +1280,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1355,7 +1355,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1388,7 +1388,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1446,7 +1446,7 @@ describe('Physics : Rapier->ECS API', () => {
       let rootEntity = UndefinedEntity
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1565,7 +1565,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1614,7 +1614,7 @@ describe('Physics : Rapier->ECS API', () => {
       const rotation = new Quaternion(0.5, 0.4, 0.1, 0.0).normalize()
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1663,7 +1663,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1738,7 +1738,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1774,7 +1774,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         physicsWorld!.timestep = 1 / 60
@@ -1821,7 +1821,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         physicsWorld!.timestep = 1 / 60
@@ -1880,7 +1880,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1931,7 +1931,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -1973,7 +1973,7 @@ describe('Physics : Rapier->ECS API', () => {
       let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
@@ -2028,7 +2028,7 @@ describe('Physics : Rapier->ECS API', () => {
   describe('Collisions', () => {
     describe('createCollisionEventQueue', () => {
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
       })
 
@@ -2049,7 +2049,7 @@ describe('Physics : Rapier->ECS API', () => {
       let testEntity2 = UndefinedEntity
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         physicsWorld.timestep = 1 / 60
@@ -2284,7 +2284,7 @@ describe('Physics : Rapier->ECS API', () => {
       let testEntity2 = UndefinedEntity
 
       beforeEach(async () => {
-        startEngine()
+        createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
         physicsWorld.timestep = 1 / 60

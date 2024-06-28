@@ -34,14 +34,14 @@ import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { State, getState } from '@etherealengine/hyperflux'
 
-import { startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { Geometry } from '../../common/constants/Geometry'
 import { ResourceState } from '../../resources/ResourceState'
 import { MeshComponent, useMeshComponent } from './MeshComponent'
 
 describe('MeshComponent', () => {
   beforeEach(async () => {
-    startEngine()
+    createEngine()
   })
 
   afterEach(() => {

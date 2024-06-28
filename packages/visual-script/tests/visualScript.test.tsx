@@ -44,7 +44,7 @@ import {
   SystemDefinitions,
   UUIDComponent
 } from '@etherealengine/ecs'
-import { startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import {
   getOnAsyncExecuteSystemUUID,
   getOnExecuteSystemUUID,
@@ -101,7 +101,7 @@ describe.skip('visual Script', () => {
     })
 
   beforeEach(() => {
-    startEngine()
+    createEngine()
     initializeSpatialEngine()
     consoleSpy = sinon.spy(console, 'info')
     consoleErrorSpy = sinon.spy(console, 'error') // Spy on console.error

@@ -35,7 +35,7 @@ import {
   hasComponent,
   setComponent
 } from '@etherealengine/ecs'
-import { destroyEngine, startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
@@ -60,7 +60,7 @@ describe('PostProcessingComponent', () => {
   }
 
   beforeEach(() => {
-    startEngine()
+    createEngine()
 
     rootEntity = createEntity()
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)

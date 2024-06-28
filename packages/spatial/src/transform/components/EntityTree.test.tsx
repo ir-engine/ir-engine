@@ -29,7 +29,7 @@ import React, { useEffect } from 'react'
 
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { destroyEngine, startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { startReactor } from '@etherealengine/hyperflux'
@@ -71,7 +71,7 @@ function assertEntityHierarchy(name: string, entity: Entity, parent: Entity = Un
 
 describe('EntityTreeComponent', () => {
   beforeEach(() => {
-    startEngine()
+    createEngine()
   })
 
   afterEach(() => {
@@ -190,7 +190,7 @@ describe('EntityTreeFunctions', () => {
   let root: Entity
 
   beforeEach(() => {
-    startEngine()
+    createEngine()
 
     root = createEntity()
 
@@ -403,7 +403,7 @@ describe('EntityTreeFunctions', () => {
 
 describe('useTreeQuery', () => {
   beforeEach(() => {
-    startEngine()
+    createEngine()
   })
 
   afterEach(() => {
@@ -511,7 +511,7 @@ describe('useTreeQuery', () => {
 describe('useChildWithComponent', () => {
   // Run before every test case
   beforeEach(() => {
-    startEngine()
+    createEngine()
   })
   afterEach(() => {
     return destroyEngine()
@@ -642,7 +642,7 @@ describe('useChildWithComponent', () => {
 describe('useAncestorWithComponent', () => {
   // Run before every test case
   beforeEach(() => {
-    startEngine()
+    createEngine()
   })
   afterEach(() => {
     return destroyEngine()

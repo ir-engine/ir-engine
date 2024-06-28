@@ -33,7 +33,7 @@ import {
   getMutableComponent,
   setComponent
 } from '@etherealengine/ecs'
-import { startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
@@ -56,7 +56,7 @@ describe('FogSettingsComponent', () => {
   }
 
   beforeEach(() => {
-    startEngine()
+    createEngine()
 
     rootEntity = createEntity()
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)

@@ -31,7 +31,7 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, generateEntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { destroyEngine, Engine, startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine, destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { PeerID, ReactorReconciler } from '@etherealengine/hyperflux'
@@ -51,7 +51,7 @@ import { NetworkWorldUserStateSystem } from './NetworkUserState'
 
 describe('EntityNetworkState', () => {
   beforeEach(async () => {
-    startEngine()
+    createEngine()
     createMockNetwork()
     Engine.instance.store.defaultDispatchDelay = () => 0
     initializeSpatialEngine()

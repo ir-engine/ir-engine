@@ -30,13 +30,13 @@ import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/sr
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 
-import { startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { addObjectToGroup } from './GroupComponent'
 import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 
 describe('ObjectLayerComponent', () => {
   beforeEach(async () => {
-    startEngine()
+    createEngine()
   })
 
   afterEach(() => {

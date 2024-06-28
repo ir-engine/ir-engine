@@ -30,7 +30,7 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine, destroyEngine, startEngine } from '@etherealengine/ecs/src/Engine'
+import { Engine, createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import {
   PeerID,
@@ -60,7 +60,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
   let equippableSystem
   let sceneEntity: Entity
   beforeEach(async () => {
-    startEngine()
+    createEngine()
     await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())

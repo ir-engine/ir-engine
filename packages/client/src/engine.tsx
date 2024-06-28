@@ -30,7 +30,7 @@ import { API } from '@etherealengine/client-core/src/API'
 import { BrowserRouter, history } from '@etherealengine/client-core/src/common/services/RouterService'
 import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
 import { pipeLogs } from '@etherealengine/common/src/logger'
-import { Engine, startEngine } from '@etherealengine/ecs/src/Engine'
+import { Engine, createEngine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { startTimer } from '@etherealengine/spatial/src/startTimer'
@@ -43,7 +43,7 @@ const initializeLogs = async () => {
   pipeLogs(Engine.instance.api)
 }
 
-startEngine()
+createEngine()
 startTimer()
 getMutableState(EngineState).publicPath.set(
   // @ts-ignore

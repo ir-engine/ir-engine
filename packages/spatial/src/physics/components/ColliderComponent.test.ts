@@ -39,7 +39,7 @@ import {
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { World } from '@dimforge/rapier3d-compat'
-import { startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
 import { EntityTreeComponent, getAncestorWithComponent } from '../../transform/components/EntityTree'
@@ -86,7 +86,7 @@ describe('ColliderComponent', () => {
     let entity = UndefinedEntity
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       await Physics.load()
       getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
       entity = createEntity()
@@ -152,7 +152,7 @@ describe('ColliderComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       testEntity = createEntity()
       setComponent(testEntity, ColliderComponent)
     })
@@ -172,7 +172,7 @@ describe('ColliderComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       testEntity = createEntity()
       setComponent(testEntity, ColliderComponent)
     })
@@ -224,7 +224,7 @@ describe('ColliderComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       await Physics.load()
       testEntity = createEntity()
       setComponent(testEntity, ColliderComponent)
@@ -255,7 +255,7 @@ describe('ColliderComponent', () => {
     }
 
     beforeEach(async () => {
-      startEngine()
+      createEngine()
       await Physics.load()
       physicsWorld = Physics.createWorld()
       physicsWorld!.timestep = 1 / 60

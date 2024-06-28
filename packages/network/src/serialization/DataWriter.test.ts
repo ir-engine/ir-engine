@@ -30,7 +30,7 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { destroyEngine, Engine, startEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine, destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState, PeerID } from '@etherealengine/hyperflux'
@@ -62,7 +62,7 @@ import { createViewCursor, readFloat64, readUint32, readUint8, sliceViewCursor }
 
 describe('DataWriter', () => {
   beforeEach(() => {
-    startEngine()
+    createEngine()
     createMockNetwork()
     getMutableState(NetworkState).networkSchema[TransformSerialization.ID].set({
       read: TransformSerialization.readTransform,

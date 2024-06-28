@@ -30,7 +30,7 @@ import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { ECS } from '..'
 import { ECSState } from './ECSState'
-import { destroyEngine, startEngine } from './Engine'
+import { createEngine, destroyEngine } from './Engine'
 import { defineSystem } from './SystemFunctions'
 import { SimulationSystemGroup } from './SystemGroups'
 
@@ -51,7 +51,7 @@ const MockSystem = defineSystem({
 
 describe('SystemFunctions', () => {
   beforeEach(() => {
-    startEngine()
+    createEngine()
   })
 
   afterEach(() => {
