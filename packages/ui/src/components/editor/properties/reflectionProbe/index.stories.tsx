@@ -23,17 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const EnvMapSourceType = {
-  Skybox: 'Skybox' as const,
-  Bake: 'Bake' as const,
-  Default: 'Default' as const,
-  Texture: 'Texture' as const,
-  Color: 'Color' as const,
-  Probes: 'Probes' as const,
-  None: 'None' as const
-}
+import Component from './index'
 
-export const EnvMapTextureType = {
-  Cubemap: 'Cubemap' as const,
-  Equirectangular: 'Equirectangular' as const
+const argTypes = {}
+
+export default {
+  title: 'Editor/Properties/ReflectionProbe',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'ReflectionProbeNodeEditor',
+    jest: 'reflectionProbeNodeEditor.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
+export const Default = { args: {} }
