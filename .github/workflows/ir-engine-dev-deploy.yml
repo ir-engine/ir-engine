@@ -1,17 +1,33 @@
-name: IR Engine Dev Deployment
+name: Deploy IR Engine
 
 on:
+  pull_request:
   push:
-    branches: [dev]
+    branches: [dev, int, stg]
+    paths-ignore: 
+      - '**/*.md'
+      - '.*ignore'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Evironment to Deploy
+        required: true
+        type: choice
+        options: 
+        - dev
+        - int
+        - stg
+
+env:
+  TARGET_BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
 
 jobs:
-  remote-dispatch-dev-deploy:
+  remote-dispatch-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Remote Dispatch to Deploy Dev
-        id: check-secrets-webhook
+      - name: Send Remote Dispatch to Deploy IR-Engine
         run: |
           curl -H "Authorization: token ${{ secrets.IR_ORG_ACCESS_TOKEN }}" \
-              -H 'Accept: application/vnd.github.everest-preview+json' \
-              ${{ secrets.IR_ENGINE_OPS_API_URL }} \
-              -d '{"event_type": "deploy-dev"}'
+            -H 'Accept: application/vnd.github.everest-preview+json' \
+            ${{ secrets.IR_ENGINE_OPS_API_URL }} \
+            -d '{"event_type": "deploy-ir-engine", "client_payload": {"environment": "${{ env.TARGET_BRANCH_NAME }}"}}'
