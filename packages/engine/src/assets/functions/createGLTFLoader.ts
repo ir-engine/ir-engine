@@ -56,6 +56,7 @@ export const initializeKTX2Loader = (loader: GLTFLoader) => {
 
 export const createGLTFLoader = (keepMaterials = false) => {
   const loader = new GLTFLoader()
+  if (isClient) initializeKTX2Loader(loader)
 
   if (isClient || keepMaterials) {
     loader.register((parser) => new GPUInstancingExtension(parser))
