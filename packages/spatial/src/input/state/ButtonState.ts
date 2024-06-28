@@ -260,7 +260,7 @@ export type AnyAxis =
 export type ButtonStateMap<A extends Record<string, any>> = Partial<
   Record<AnyButton | keyof A, ButtonState | undefined>
 >
-export type AxisValueMap<A extends Record<string, any> = {}> = Partial<Record<AnyAxis | keyof A, number>>
+export type AxisValueMap<A extends Record<string, any>> = Partial<Record<AnyAxis | keyof A, number>>
 
 export const ButtonMapping = {
   '': MouseButton,

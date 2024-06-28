@@ -812,7 +812,11 @@ function updatePointerDragging(pointerEntity: Entity, event: PointerEvent) {
   }
 }
 
-function cleanupButton(key: string, buttons: ButtonStateMap<{}>, hasFocus: boolean) {
+function cleanupButton(
+  key: string,
+  buttons: ButtonStateMap<Partial<Record<string | number | symbol, ButtonState | undefined>>>,
+  hasFocus: boolean
+) {
   const button = buttons[key]
   if (button?.down) button.down = false
   if (button?.up || !hasFocus) delete buttons[key]
