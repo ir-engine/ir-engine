@@ -70,7 +70,13 @@ export const RouterState = defineState({
 export type CustomRoute = {
   route: string
   component: ReturnType<typeof lazy>
-  props: any
+  componentProps?: {
+    [x: string]: any
+  }
+  props?: {
+    [x: string]: any
+    exact?: boolean
+  }
 }
 
 /**
@@ -110,5 +116,5 @@ export const useCustomRoutes = () => {
     })
   }, [])
 
-  return customRoutes.get(NO_PROXY)
+  return customRoutes.get(NO_PROXY) as CustomRoute[]
 }

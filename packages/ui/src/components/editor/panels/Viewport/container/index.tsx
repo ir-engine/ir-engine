@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useEngineCanvas'
+import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, useComponent, useQuery } from '@etherealengine/ecs'
 import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
@@ -38,6 +38,7 @@ import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/Resour
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
@@ -123,8 +124,8 @@ const ViewPortPanelContainer = () => {
   const { sceneName, rootEntity } = useMutableState(EditorState)
 
   const { t } = useTranslation()
-  const clientSettingState = useMutableState(AdminClientSettingsState)
-  const [clientSetting] = clientSettingState?.client?.value || []
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettings = clientSettingQuery.data[0]
 
   const ref = React.useRef<HTMLDivElement>(null)
 
@@ -132,7 +133,7 @@ const ViewPortPanelContainer = () => {
 
   return (
     <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
-      <div className="z-10 flex gap-1 p-1">
+      <div className="z-10 flex gap-1 bg-theme-primary p-1">
         <TransformSpaceTool />
         <TransformPivotTool />
         <GridTool />
@@ -149,7 +150,7 @@ const ViewPortPanelContainer = () => {
         </>
       ) : (
         <div className="flex h-full w-full flex-col justify-center gap-2">
-          <img src={clientSetting.appTitle} className="block scale-[.8]" />
+          <img src={clientSettings?.appTitle} className="block scale-[.8]" />
           <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
         </div>
       )}
