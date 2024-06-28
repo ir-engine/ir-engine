@@ -55,11 +55,16 @@ export const ContextMenu = ({
         left: anchorEvent.clientX + 2,
         top: anchorEvent.clientY - 6
       } // default anchor position
-    : undefined
+    : {
+        left: 0,
+        top: 0
+      }
+
+  const anchorEl = anchorEvent?.currentTarget
 
   // Calculate the Y position of the context menu based on the menu height and space to the bottom of the viewport in order to avoid overflow
   const calculatePositionY = () => {
-    let positionY = anchorPosition ? anchorPosition.top - panel?.getBoundingClientRect().top! : 0
+    let positionY = anchorEl?.getBoundingClientRect().bottom! ?? anchorPosition.top
 
     if (open && menuRef.current) {
       const menuHeight = menuRef.current.offsetHeight
@@ -69,6 +74,16 @@ export const ContextMenu = ({
       if (offset < 0) {
         positionY = positionY + offset
       }
+
+      const viewportHeight = window.innerHeight
+
+      // Adjust Y position to avoid overflow
+      if (positionY + menuHeight > viewportHeight) {
+        positionY = viewportHeight - menuHeight - 10 // 10px for padding
+      }
+      if (positionY < 0) {
+        positionY = 10 // 10px for padding
+      }
     }
 
     return positionY
@@ -76,7 +91,7 @@ export const ContextMenu = ({
 
   // Calculate the X position of the context menu based on the menu width and space to the right of the panel in order to avoid overflow
   const calculatePositionX = () => {
-    let positionX = anchorPosition ? anchorPosition.left - panel?.getBoundingClientRect().left! : 0
+    let positionX = anchorEl?.getBoundingClientRect().left! ?? anchorPosition.left
 
     if (open && menuRef.current) {
       const menuWidth = menuRef.current.offsetWidth
@@ -85,6 +100,16 @@ export const ContextMenu = ({
       const offset = panel?.getBoundingClientRect().width! - (menuWidth + positionX)
       if (offset < 0) {
         positionX = positionX + offset
+      }
+
+      const viewportWidth = window.innerWidth
+
+      // Adjust X position to avoid overflow
+      if (positionX + menuWidth > viewportWidth) {
+        positionX = viewportWidth - menuWidth - 10 // 10px for padding
+      }
+      if (positionX < 0) {
+        positionX = 10 // 10px for padding
       }
     }
 
