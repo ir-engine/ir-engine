@@ -37,11 +37,14 @@ import './pages/mui.styles.scss' /** @todo Remove when MUI is removed */
 // @ts-ignore
 ;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
 
+const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
+const $location = lazy(() => import('@etherealengine/client/src/pages/location/location'))
+const $auth = lazy(() => import('@etherealengine/client/src/pages/auth/authRoutes'))
+
 const Engine = lazy(() => import('./engine'))
 
-/** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
-const AppPage = lazy(() => import('./pages/_app'))
-const TailwindPage = lazy(() => import('./pages/_app_tw'))
+const AppPage = lazy(() => import('./pages/AppPage'))
+const Router = lazy(() => import('./route/CustomRouter'))
 
 const App = () => {
   return (
@@ -54,7 +57,9 @@ const App = () => {
             path="/location/*"
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <AppPage route={'location'} />
+                <AppPage>
+                  <$location />
+                </AppPage>
               </Suspense>
             }
           />
@@ -63,17 +68,30 @@ const App = () => {
             path="/offline/*"
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <AppPage route={'offline'} />
+                <AppPage>
+                  <$offline />
+                </AppPage>
               </Suspense>
             }
           />
-          {/* This will become redundant and we can embed the TailwindPage directly */}
+          {/* This will become redundant and we can embed the AppPage directly */}
+          <Route
+            key="auth"
+            path="/auth/*"
+            element={
+              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                <$auth />
+              </Suspense>
+            }
+          />
           <Route
             key="default"
             path="/*"
             element={
               <Suspense>
-                <TailwindPage />
+                <AppPage>
+                  <Router />
+                </AppPage>
               </Suspense>
             }
           />

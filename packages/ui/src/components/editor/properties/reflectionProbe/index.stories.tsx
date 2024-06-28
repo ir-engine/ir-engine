@@ -23,37 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { lazy, Suspense } from 'react'
-import { useTranslation } from 'react-i18next'
+import Component from './index'
 
-import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+const argTypes = {}
 
-const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
-const $location = lazy(() => import('@etherealengine/client/src/pages/location/location'))
-
-/** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
-function RouterComp({ route }: { route: string }) {
-  const { t } = useTranslation()
-
-  let RouteElement
-
-  switch (route) {
-    case 'offline':
-      RouteElement = $offline
-      break
-    case 'location':
-      RouteElement = $location
-      break
-  }
-
-  return (
-    <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
-        <RouteElement />
-      </Suspense>
-    </ErrorBoundary>
-  )
+export default {
+  title: 'Editor/Properties/ReflectionProbe',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'ReflectionProbeNodeEditor',
+    jest: 'reflectionProbeNodeEditor.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
-
-export default RouterComp
+export const Default = { args: {} }

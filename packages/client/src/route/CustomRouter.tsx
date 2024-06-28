@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { lazy, Suspense } from 'react'
+import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
@@ -34,12 +34,10 @@ import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import $404 from '../pages/404'
 import $503 from '../pages/503'
 
-const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes'))
-
-function PublicRouter() {
+function CustomRouter() {
   const customRoutes = useCustomRoutes()
 
-  if (!/auth\/oauth/.test(location.pathname) && !customRoutes.length) {
+  if (!customRoutes.length) {
     return <LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />
   }
 
@@ -49,14 +47,20 @@ function PublicRouter() {
         fallback={<LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />}
       >
         <Routes>
-          <Route key={'custom'} path={'/*'} element={<$custom customRoutes={customRoutes} />} />
-          {customRoutes
-            .filter((c) => c.route === '/')
-            .map(({ component: Element, props }) => (
-              <Route key={'custom-index'} path={'/'} element={<Element {...props} />} />
-            ))}
+          {customRoutes.map((route, i) => {
+            const { route: r, component, props: p, componentProps } = route
+            const Element = component as any
+            return (
+              <Route
+                key={`custom-route-${i}`}
+                path={r === '/' ? '' : r.split('/')[1] === '' ? `${r}*` : `${r}/*`}
+                element={<Element {...componentProps} />}
+                {...p}
+              />
+            )
+          })}
           {/* if no index page has been provided, indicate this as obviously as possible */}
-          <Route key={'/503'} path={'/'} element={<$503 />} />
+          {!customRoutes.find((route) => route.route === '/') && <Route key={'/503'} path={'/'} element={<$503 />} />}
           <Route key={'404'} path="*" element={<$404 />} />
         </Routes>
       </Suspense>
@@ -64,4 +68,4 @@ function PublicRouter() {
   )
 }
 
-export default PublicRouter
+export default CustomRouter
