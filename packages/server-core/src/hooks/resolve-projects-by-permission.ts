@@ -23,14 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  ProjectPermissionType,
-  UserType,
-  projectPath,
-  projectPermissionPath
-} from '@etherealengine/common/src/schema.type.module'
+import { UserType, projectPath, projectPermissionPath } from '@etherealengine/common/src/schema.type.module'
 import { Forbidden } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
 import { Application, HookContext } from '../../declarations'
 /**
  * if project is not provided query the project permission table for all projects the user has permissions for.
@@ -42,12 +36,12 @@ export default () => {
   return async (context: HookContext<Application>) => {
     if (!context.params.query?.project) {
       const loggedInUser = context.params.user as UserType
-      const { data } = (await context.app.service(projectPermissionPath).find({
+      const data = await context.app.service(projectPermissionPath).find({
         query: {
-          userId: loggedInUser.id,
-          $limit: 1000 //idk what's a good number
-        }
-      })) as Paginated<ProjectPermissionType>
+          userId: loggedInUser.id
+        },
+        paginate: false
+      })
 
       if (data.length === 0) {
         console.error(`No Project permissions found. UserId: ${loggedInUser.id}`)
