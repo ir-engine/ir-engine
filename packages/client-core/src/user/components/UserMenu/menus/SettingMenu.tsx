@@ -192,7 +192,12 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   }
 
   return (
-    <Modal title={'Settings'} onClose={() => PopupMenuServices.showPopupMenu()} hideFooter className="bg-[#0E0F11]">
+    <Modal
+      title={'Settings'}
+      onClose={() => PopupMenuServices.showPopupMenu()}
+      hideFooter
+      className="absolute bg-[#0E0F11]"
+    >
       <div>
         <div className="mb-3 flex">
           {settingTabs.map((tab) => (
