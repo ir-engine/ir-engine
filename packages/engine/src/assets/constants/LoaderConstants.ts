@@ -29,8 +29,6 @@ export const DEFAULT_LOD_DISTANCES = Object.freeze({
   '2': 30
 })
 
-export const LODS_REGEXP = new RegExp(/^(.*)_LOD(\d+)$/)
-
 export const LOADER_STATUS = {
   LOADED: 0,
   LOADING: 1,

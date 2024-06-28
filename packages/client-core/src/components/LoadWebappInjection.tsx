@@ -23,15 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import config from '@etherealengine/common/src/config'
+import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-export const LoadWebappInjection = (props) => {
+export const LoadWebappInjection = (props: { children: React.ReactNode }) => {
   const { t } = useTranslation()
+
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettings = clientSettingQuery.data[0] ?? null
+  useEffect(() => {
+    config.client.key8thWall = clientSettings?.key8thWall
+    config.client.mediaSettings = clientSettings?.mediaSettings
+  }, [clientSettings])
 
   const projectComponents = useHookstate(null as null | any[])
 

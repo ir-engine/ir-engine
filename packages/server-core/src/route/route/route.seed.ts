@@ -50,10 +50,6 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         project: '@etherealengine/default-project',
-        route: '/auth'
-      },
-      {
-        project: '@etherealengine/default-project',
         route: '/studio'
       },
       {
