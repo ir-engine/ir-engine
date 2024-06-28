@@ -39,12 +39,12 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
-import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
 import { assertVecAllApproxNotEq, assertVecAnyApproxNotEq, assertVecApproxEq } from '../classes/Physics.test'
 import { ColliderComponent } from '../components/ColliderComponent'

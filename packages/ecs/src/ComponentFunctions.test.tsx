@@ -39,14 +39,14 @@ import {
   useComponent,
   useOptionalComponent
 } from './ComponentFunctions'
-import { destroyEngine, startEngine } from './Engine'
+import { createEngine, destroyEngine } from './Engine'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 import { createEntity, removeEntity } from './EntityFunctions'
 import { UUIDComponent } from './UUIDComponent'
 
 describe('ComponentFunctions', async () => {
   beforeEach(() => {
-    startEngine()
+    createEngine()
     ComponentMap.clear()
   })
 
@@ -309,7 +309,7 @@ describe('ComponentFunctions Hooks', async () => {
     let counter = 0
 
     beforeEach(() => {
-      startEngine()
+      createEngine()
       ComponentMap.clear()
       testEntity = createEntity()
     })
@@ -352,7 +352,7 @@ describe('ComponentFunctions Hooks', async () => {
     let counter = 0
 
     beforeEach(() => {
-      startEngine()
+      createEngine()
       ComponentMap.clear()
       testEntity = createEntity()
     })
@@ -402,7 +402,7 @@ describe('ComponentFunctions Hooks', async () => {
 
     it('returns different data when the entity is changed', async () => {
       // Initialize the isolated case
-      startEngine()
+      createEngine()
       ComponentMap.clear()
 
       // Initialize the dummy data
@@ -447,7 +447,7 @@ describe('ComponentFunctions Hooks', async () => {
 
     it('suspense should work', async () => {
       // Initialize the isolated case
-      startEngine()
+      createEngine()
       ComponentMap.clear()
 
       // Initialize the dummy data

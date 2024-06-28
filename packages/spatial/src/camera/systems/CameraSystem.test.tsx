@@ -41,6 +41,7 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { PeerID, applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux'
 import {
   Network,
@@ -50,7 +51,6 @@ import {
   NetworkWorldUserStateSystem
 } from '@etherealengine/network'
 import { createMockNetwork } from '../../../../network/tests/createMockNetwork'
-import { createEngine } from '../../initializeEngine'
 import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
 
