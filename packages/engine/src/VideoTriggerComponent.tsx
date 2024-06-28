@@ -116,10 +116,10 @@ export const VideoTriggerComponent = defineComponent({
           .startFromCurrentValues()
       }
 
-      setCallback(entity, 'onEnter', (triggerEntity: Entity, otherEntity: Entity) => {
+      setCallback(entity, 'onVideoTriggerEnter', (triggerEntity: Entity, otherEntity: Entity) => {
         Enter()
       })
-      setCallback(entity, 'onExit', (triggerEntity: Entity, otherEntity: Entity) => {
+      setCallback(entity, 'onVideoTriggerExit', (triggerEntity: Entity, otherEntity: Entity) => {
         Exit()
       })
 
@@ -130,8 +130,8 @@ export const VideoTriggerComponent = defineComponent({
       const triggerComp = getMutableComponent(entity, TriggerComponent)
       triggerComp.triggers.merge([
         {
-          onEnter: 'onEnter',
-          onExit: 'onExit',
+          onEnter: 'onVideoTriggerEnter',
+          onExit: 'onVideoTriggerExit',
           target: '' as EntityUUID
         }
       ])

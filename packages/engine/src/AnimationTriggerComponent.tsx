@@ -120,10 +120,10 @@ export const AnimationTriggerComponent = defineComponent({
         }
       }
 
-      setCallback(entity, 'onEnter', (triggerEntity: Entity, otherEntity: Entity) => {
+      setCallback(entity, 'onAnimationTriggerEnter', (triggerEntity: Entity, otherEntity: Entity) => {
         Enter()
       })
-      setCallback(entity, 'onExit', (triggerEntity: Entity, otherEntity: Entity) => {
+      setCallback(entity, 'onAnimationTriggerExit', (triggerEntity: Entity, otherEntity: Entity) => {
         Exit()
       })
 
@@ -134,8 +134,8 @@ export const AnimationTriggerComponent = defineComponent({
       const triggerComp = getMutableComponent(entity, TriggerComponent)
       triggerComp.triggers.merge([
         {
-          onEnter: 'onEnter',
-          onExit: 'onExit',
+          onEnter: 'onAnimationTriggerEnter',
+          onExit: 'onAnimationTriggerExit',
           target: '' as EntityUUID
         }
       ])

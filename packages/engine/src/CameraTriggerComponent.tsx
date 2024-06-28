@@ -157,10 +157,10 @@ export const CameraTriggerComponent = defineComponent({
         follow.enabled.set(true)
       }
 
-      setCallback(entity, 'onEnter', (triggerEntity: Entity, otherEntity: Entity) => {
+      setCallback(entity, 'onCameraTriggerEnter', (triggerEntity: Entity, otherEntity: Entity) => {
         Enter()
       })
-      setCallback(entity, 'onExit', (triggerEntity: Entity, otherEntity: Entity) => {
+      setCallback(entity, 'onCameraTriggerExit', (triggerEntity: Entity, otherEntity: Entity) => {
         Exit()
       })
 
@@ -171,8 +171,8 @@ export const CameraTriggerComponent = defineComponent({
       const triggerComp = getMutableComponent(entity, TriggerComponent)
       triggerComp.triggers.merge([
         {
-          onEnter: 'onEnter',
-          onExit: 'onExit',
+          onEnter: 'onCameraTriggerEnter',
+          onExit: 'onCameraTriggerExit',
           target: '' as EntityUUID
         }
       ])
