@@ -29,7 +29,7 @@ import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 
-import { createEngine } from '../../initializeEngine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { addObjectToGroup } from './GroupComponent'
 import { RenderOrderComponent } from './RenderOrderComponent'
 

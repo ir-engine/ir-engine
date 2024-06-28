@@ -28,7 +28,7 @@ import assert from 'assert'
 import React, { useEffect } from 'react'
 
 import { ComponentMap, defineComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
-import { destroyEngine, startEngine } from './Engine'
+import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
 import { createEntity, removeEntity } from './EntityFunctions'
 import { Query, defineQuery, useQuery } from './QueryFunctions'
@@ -72,7 +72,7 @@ describe('QueryFunctions', () => {
   let entity2 = UndefinedEntity
 
   beforeEach(() => {
-    startEngine()
+    createEngine()
     entity1 = createEntity()
     entity2 = createEntity()
   })
@@ -128,7 +128,7 @@ describe('QueryFunctions Hooks', async () => {
     let counter = 0
 
     beforeEach(() => {
-      startEngine()
+      createEngine()
       entity1 = createEntity()
       entity2 = createEntity()
     })
