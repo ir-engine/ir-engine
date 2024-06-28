@@ -37,7 +37,10 @@ import { LoadWebappInjection } from '@etherealengine/client-core/src/components/
 import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
 import { useAuthenticated } from '@etherealengine/client-core/src/user/services/AuthService'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-import Tailwind from './tailwind'
+
+import '../themes/base.css'
+import '../themes/components.css'
+import '../themes/utilities.css'
 
 const AppPage = (props: { children: React.ReactNode }) => {
   const { t } = useTranslation()
@@ -61,7 +64,6 @@ const AppPage = (props: { children: React.ReactNode }) => {
       <NotificationSnackbar />
       <LoadWebappInjection>{props.children}</LoadWebappInjection>
       <InviteToast />
-      <Tailwind />
       <Debug />
     </>
   )

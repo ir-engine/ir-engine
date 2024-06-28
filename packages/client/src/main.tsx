@@ -44,8 +44,6 @@ const $auth = lazy(() => import('@etherealengine/client/src/pages/auth/authRoute
 const Engine = lazy(() => import('./engine'))
 
 const AppPage = lazy(() => import('./pages/AppPage'))
-/** @todo we can import tailwind here immediately once mui is gone */
-const Tailwind = lazy(() => import('./pages/tailwind'))
 const Router = lazy(() => import('./route/CustomRouter'))
 
 const App = () => {
