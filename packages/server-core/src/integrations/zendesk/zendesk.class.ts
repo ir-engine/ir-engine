@@ -23,17 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ZendeskAuthenticationQuery, ZendeskAuthenticationType } from '@etherealengine/common/src/schema.type.module'
 import { Params } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { BaseService } from '../../BaseService'
 
-export interface ZendeskAuthenticationParams extends KnexAdapterParams<ZendeskAuthenticationQuery> {}
+export interface ZendeskAuthenticationParams extends KnexAdapterParams {}
 
 /**
  * A class for ZendeskAuthentication service
  */
 export class ZendeskAuthenticationService<
-  T = ZendeskAuthenticationType,
+  T = string,
   ServiceParams extends Params = ZendeskAuthenticationParams
-> extends BaseService<ZendeskAuthenticationType, void, ZendeskAuthenticationParams> {}
+> extends BaseService<string, void, ZendeskAuthenticationParams> {}

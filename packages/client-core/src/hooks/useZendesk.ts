@@ -37,7 +37,7 @@ declare global {
 }
 
 export const useZendesk = () => {
-  const locationMutation = useMutation(zendeskAuthenticationPath)
+  const zendeskMutation = useMutation(zendeskAuthenticationPath)
   const user = getMutableState(AuthState).user
   const authenticated = useHookstate(false)
   const initialized = useHookstate(() => {
@@ -49,7 +49,7 @@ export const useZendesk = () => {
     if (authenticated.value || config.client.zendesk.authenticationEnabled !== 'true') return
 
     window.zE('messenger', 'loginUser', function (callback: any) {
-      locationMutation.create().then(async (token) => {
+      zendeskMutation.create().then(async (token) => {
         authenticated.set(true)
         await callback(token)
       })
