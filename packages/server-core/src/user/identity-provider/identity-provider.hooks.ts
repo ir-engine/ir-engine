@@ -199,7 +199,7 @@ async function addScopes(context: HookContext<IdentityProviderService>) {
 }
 
 const addDevProjectPermissions = async (context: HookContext<IdentityProviderService>) => {
-  if (!isDev || (context.actualData as IdentityProviderType).type !== 'admin') return
+  if (!isDev || !(await checkScope(context.existingUser, 'admin', 'admin'))) return
 
   const user = context.existingUser as UserType
 

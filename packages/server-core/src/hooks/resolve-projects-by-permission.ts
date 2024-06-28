@@ -34,7 +34,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { Application, HookContext } from '../../declarations'
 /**
  * if project is not provided query the project permission table for all projects the user has permissions for.
- * Then add the projects to the $or of the query
+ * Then add the projects to the $in of the query
  * @param context
  * @returns
  */
@@ -54,12 +54,11 @@ export default () => {
         throw new Forbidden(`Project permissions not found`)
       }
 
+      context.params.query.project = { $in: [] }
+
       for (const projP of data) {
-        if (!context.params.query?.$or) {
-          context.params.query.$or = []
-        }
         const project = await context.app.service(projectPath).get(projP.projectId)
-        if (project !== undefined) context.params.query?.$or?.push({ project: project.name })
+        if (project !== undefined) context.params.query.project.$in.push(project.name)
       }
       return context
     }
