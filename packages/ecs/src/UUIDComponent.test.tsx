@@ -36,7 +36,7 @@ import {
   serializeComponent,
   setComponent
 } from './ComponentFunctions'
-import { destroyEngine, startEngine } from './Engine'
+import { createEngine, destroyEngine } from './Engine'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 import { createEntity, removeEntity } from './EntityFunctions'
 import { UUIDComponent } from './UUIDComponent'
@@ -48,7 +48,7 @@ describe('UUIDComponent', () => {
   let entity2 = UndefinedEntity
 
   beforeEach(() => {
-    startEngine()
+    createEngine()
     ComponentMap.clear()
     entity1 = createEntity()
     entity2 = createEntity()
@@ -199,7 +199,7 @@ describe('UUIDComponent Hooks', async () => {
     let counter = 0
 
     beforeEach(() => {
-      startEngine()
+      createEngine()
       ComponentMap.clear()
       entity1 = createEntity()
       entity2 = createEntity()

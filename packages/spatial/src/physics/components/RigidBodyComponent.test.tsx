@@ -29,6 +29,7 @@ import { RigidBodyType, World } from '@dimforge/rapier3d-compat'
 import {
   SystemDefinitions,
   UndefinedEntity,
+  createEngine,
   createEntity,
   destroyEngine,
   getComponent,
@@ -42,7 +43,6 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { Vector3 } from 'three'
 import { PhysicsSystem, TransformComponent } from '../../SpatialModule'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
-import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
 import {
   assertFloatApproxEq,
