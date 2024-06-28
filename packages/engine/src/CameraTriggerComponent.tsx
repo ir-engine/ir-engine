@@ -33,6 +33,7 @@ import {
   getComponent,
   getMutableComponent,
   hasComponent,
+  removeComponent,
   removeEntity,
   setComponent,
   useComponent,
@@ -42,6 +43,7 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
 import { Easing, Tween } from '@tweenjs/tween.js'
 import { useEffect } from 'react'
@@ -59,7 +61,8 @@ export const CameraTriggerComponent = defineComponent({
       theta: 0,
       phi: 0,
       distance: 10,
-      enterLerpDuration: 0
+      enterLerpDuration: 0,
+      hideAvatar: false
     }
   },
 
@@ -71,6 +74,7 @@ export const CameraTriggerComponent = defineComponent({
     if (typeof json.phi !== 'undefined') component.phi.set(json.phi)
     if (typeof json.distance !== 'undefined') component.distance.set(json.distance)
     if (typeof json.enterLerpDuration !== 'undefined') component.enterLerpDuration.set(json.enterLerpDuration)
+    if (typeof json.hideAvatar !== 'undefined') component.hideAvatar.set(json.hideAvatar)
   },
 
   toJSON(entity, component) {
@@ -80,7 +84,8 @@ export const CameraTriggerComponent = defineComponent({
       theta: component.theta.value,
       phi: component.phi.value,
       distance: component.distance.value,
-      enterLerpDuration: component.enterLerpDuration.value
+      enterLerpDuration: component.enterLerpDuration.value,
+      hideAvatar: component.hideAvatar.value
     }
   },
 
@@ -146,12 +151,19 @@ export const CameraTriggerComponent = defineComponent({
             mx.lookAt(direction, empty, upVector)
             cameraTransform.rotation.setFromRotationMatrix(mx)
           })
-          .onComplete(() => {})
+          .onComplete(() => {
+            if (component.hideAvatar.value) {
+              removeComponent(AvatarComponent.getSelfAvatarEntity(), VisibleComponent)
+            }
+          })
           .easing(Easing.Exponential.InOut)
           .start()
       }
 
       const Exit = () => {
+        if (!hasComponent(AvatarComponent.getSelfAvatarEntity(), VisibleComponent)) {
+          setComponent(AvatarComponent.getSelfAvatarEntity(), VisibleComponent)
+        }
         const avatarEntity = AvatarComponent.getSelfAvatarEntity()
         follow.targetEntity.set(avatarEntity)
         follow.enabled.set(true)

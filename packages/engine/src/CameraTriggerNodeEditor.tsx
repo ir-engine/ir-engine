@@ -31,6 +31,7 @@ import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 
 import { UUIDComponent, getComponent, useComponent } from '@etherealengine/ecs'
+import BooleanInput from '@etherealengine/editor/src/components/inputs/BooleanInput'
 import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import NumericInput from '@etherealengine/editor/src/components/inputs/NumericInput'
 import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
@@ -89,6 +90,12 @@ export const CameraTriggerNodeEditor: EditorComponentType = (props) => {
         <NumericInput
           value={component.enterLerpDuration.value}
           onChange={(val: number) => component.enterLerpDuration.set(val)}
+        />
+      </InputGroup>
+      <InputGroup name="HideAvatar" label={t('editor:properties.cameraTrigger.lbl-hideAvatar')}>
+        <BooleanInput
+          value={component.hideAvatar.value}
+          onChange={commitProperty(CameraTriggerComponent, 'hideAvatar')}
         />
       </InputGroup>
     </NodeEditor>

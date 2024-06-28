@@ -1054,7 +1054,7 @@
       "lbl-anglePhi": "Phi Angle",
       "lbl-distance": "Distance",
       "lbl-lerpDurationEnter": "Enter Lerp Duration",
-      "lbl-lerpDurationExit": "Exit Lerp Duration"
+      "lbl-hideAvatar": "Hide Avatar"
     },
     "videoTrigger": {
       "name": "Video Trigger",
