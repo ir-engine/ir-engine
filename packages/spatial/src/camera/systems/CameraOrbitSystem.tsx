@@ -35,8 +35,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   InputSystemGroup,
-  setComponent,
-  UndefinedEntity
+  setComponent
 } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
@@ -90,7 +89,7 @@ const execute = () => {
     // TODO: replace w/ EnabledComponent or DisabledComponent in query
     if (
       cameraOrbit.disabled.value ||
-      getState(InputState).capturingEntity !== UndefinedEntity ||
+      getState(InputState).capturingEntity !== cameraEid ||
       (cameraEid == Engine.instance.viewerEntity && !getState(EngineState).isEditing)
     )
       continue
@@ -98,11 +97,7 @@ const execute = () => {
     const buttons = InputComponent.getMergedButtons(cameraEid)
     const axes = InputComponent.getMergedAxes(cameraEid)
 
-    if (
-      buttons.PrimaryClick?.pressed &&
-      buttons.PrimaryClick?.dragging &&
-      getState(InputState).capturingEntity === UndefinedEntity
-    ) {
+    if (buttons.PrimaryClick?.pressed && buttons.PrimaryClick?.dragging) {
       InputState.setCapturingEntity(cameraEid)
       cameraOrbit.isOrbiting.set(true)
     }
