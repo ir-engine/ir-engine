@@ -41,6 +41,7 @@ import { t } from 'i18next'
 import { StyledEngineProvider } from '@mui/material/styles'
 import { LoadingCircle } from '../components/LoadingCircle'
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
+import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
 
 type Props = {
@@ -60,6 +61,7 @@ const LocationPage = ({ online }: Props) => {
   }
 
   AuthService.useAPIListeners()
+  LocationService.useLocationBanListeners()
 
   useLoadEngineWithScene()
 
