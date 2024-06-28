@@ -185,14 +185,14 @@ export default {
           (ctx: HookContext) => isAction('admin')(ctx) && checkScope('static_resource', 'read')(ctx),
           [],
           [
+            verifyScope('editor', 'write'),
             iffElse(
               hasProjectField,
               [
-                verifyScope('editor', 'write'),
                 resolveProjectId(),
                 verifyProjectPermission(['owner', 'editor', 'reviewer'])
               ],
-              [verifyScope('editor', 'write'), resolveProjectsByPermission()]
+              [resolveProjectsByPermission()]
             ) as any
           ]
         )
