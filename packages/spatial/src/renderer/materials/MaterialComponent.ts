@@ -93,6 +93,7 @@ export const MaterialStateComponent = defineComponent({
   },
 
   materialByHash: {} as Record<string, EntityUUID>,
+  assetSourceByMaterial: {} as Record<EntityUUID, string>,
 
   onSet: (entity, component, json) => {
     if (json?.material && component.material.value !== undefined) component.material.set(json.material)

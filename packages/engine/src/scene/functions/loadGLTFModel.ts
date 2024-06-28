@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isArray } from 'lodash'
 import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -51,13 +50,13 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SourceComponent } from '../components/SourceComponent'
-import { createMaterialInstance } from '../materials/functions/materialSourcingFunctions'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
@@ -345,18 +344,17 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     }
   }
 
+  if (!hasComponent(objEntity, MeshComponent)) {
+    setComponent(objEntity, Object3DComponent, obj)
+  }
+
   const material = mesh.material
   if (!material) return eJson
 
   const materials = Array.isArray(material) ? material : [material]
   materials.map((material) => {
-    const path = getOptionalComponent(rootEntity, ModelComponent)?.src ?? ''
-    createMaterialInstance(path, objEntity, material)
+    MaterialStateComponent.assetSourceByMaterial[material.uuid] = getComponent(rootEntity, ModelComponent).src
   })
-  mesh.material = isArray(mesh.material) ? materials : materials[0]
 
-  if (!hasComponent(objEntity, MeshComponent)) {
-    setComponent(objEntity, Object3DComponent, obj)
-  }
   return eJson
 }
