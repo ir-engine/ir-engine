@@ -91,12 +91,6 @@ export const CameraTriggerNodeEditor: EditorComponentType = (props) => {
           onChange={(val: number) => component.enterLerpDuration.set(val)}
         />
       </InputGroup>
-      <InputGroup name="ExitLerpDuration" label={t('editor:properties.cameraTrigger.lbl-lerpDurationExit')}>
-        <NumericInput
-          value={component.exitLerpDuration.value}
-          onChange={(val: number) => component.exitLerpDuration.set(val)}
-        />
-      </InputGroup>
     </NodeEditor>
   )
 }

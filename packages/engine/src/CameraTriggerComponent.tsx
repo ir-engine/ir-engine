@@ -59,8 +59,7 @@ export const CameraTriggerComponent = defineComponent({
       theta: 0,
       phi: 0,
       distance: 10,
-      enterLerpDuration: 0,
-      exitLerpDuration: 0
+      enterLerpDuration: 0
     }
   },
 
@@ -72,7 +71,6 @@ export const CameraTriggerComponent = defineComponent({
     if (typeof json.phi !== 'undefined') component.phi.set(json.phi)
     if (typeof json.distance !== 'undefined') component.distance.set(json.distance)
     if (typeof json.enterLerpDuration !== 'undefined') component.enterLerpDuration.set(json.enterLerpDuration)
-    if (typeof json.exitLerpDuration !== 'undefined') component.exitLerpDuration.set(json.exitLerpDuration)
   },
 
   toJSON(entity, component) {
@@ -82,16 +80,16 @@ export const CameraTriggerComponent = defineComponent({
       theta: component.theta.value,
       phi: component.phi.value,
       distance: component.distance.value,
-      enterLerpDuration: component.enterLerpDuration.value,
-      exitLerpDuration: component.exitLerpDuration.value
+      enterLerpDuration: component.enterLerpDuration.value
     }
   },
 
   reactor: () => {
     const entity = useEntityContext()
     const component = useComponent(entity, CameraTriggerComponent)
-    const follow = useComponent(Engine.instance.viewerEntity, FollowCameraComponent)
-    const cameraTransform = getComponent(Engine.instance.viewerEntity, TransformComponent)
+    const followEntity = Engine.instance.viewerEntity
+    const follow = useComponent(followEntity, FollowCameraComponent)
+    const cameraTransform = getComponent(followEntity, TransformComponent)
     const avatarTransform = getComponent(AvatarComponent.getSelfAvatarEntity(), TransformComponent)
 
     let prevCameraPostion = new Vector3()
@@ -141,12 +139,9 @@ export const CameraTriggerComponent = defineComponent({
           .stop()
           .to({ value: 1 }, 1000 * component.enterLerpDuration.value)
           .onUpdate(({ value }) => {
-            console.log('enter value = ' + value)
             const currentPosition = startPositon.lerp(endPosition, value)
             cameraTransform.position.set(currentPosition.x, currentPosition.y, currentPosition.z)
-
             const currentLookAtPosition = startLookAtPosition.lerp(endLookAtPosition, value)
-
             direction.copy(cameraTransform.position).sub(currentLookAtPosition).normalize()
             mx.lookAt(direction, empty, upVector)
             cameraTransform.rotation.setFromRotationMatrix(mx)
@@ -157,15 +152,8 @@ export const CameraTriggerComponent = defineComponent({
       }
 
       const Exit = () => {
-        follow.targetEntity.set(AvatarComponent.getSelfAvatarEntity())
-
-        cameraTransform.position.set(prevCameraPostion.x, prevCameraPostion.y, prevCameraPostion.z)
-        cameraTransform.rotation.set(
-          prevCamearRotation.x,
-          prevCamearRotation.y,
-          prevCamearRotation.z,
-          prevCamearRotation.w
-        )
+        const avatarEntity = AvatarComponent.getSelfAvatarEntity()
+        follow.targetEntity.set(avatarEntity)
         follow.enabled.set(true)
       }
 
