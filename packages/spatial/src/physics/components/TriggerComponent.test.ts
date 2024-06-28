@@ -33,13 +33,13 @@ import {
   removeComponent,
   removeEntity,
   serializeComponent,
-  setComponent
+  setComponent,
+  startEngine
 } from '@etherealengine/ecs'
 import { getMutableState } from '@etherealengine/hyperflux'
 import assert from 'assert'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
-import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
@@ -92,7 +92,7 @@ describe('TriggerComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      createEngine()
+      startEngine()
       testEntity = createEntity()
       setComponent(testEntity, TriggerComponent)
     })
@@ -112,7 +112,7 @@ describe('TriggerComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      createEngine()
+      startEngine()
       testEntity = createEntity()
       setComponent(testEntity, TriggerComponent)
     })
@@ -156,7 +156,7 @@ describe('TriggerComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      createEngine()
+      startEngine()
       await Physics.load()
       testEntity = createEntity()
       setComponent(testEntity, TriggerComponent)
@@ -178,7 +178,7 @@ describe('TriggerComponent', () => {
     let physicsWorld: World | undefined = undefined
 
     beforeEach(async () => {
-      createEngine()
+      startEngine()
       await Physics.load()
       physicsWorld = Physics.createWorld()
       physicsWorld!.timestep = 1 / 60

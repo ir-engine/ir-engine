@@ -38,12 +38,12 @@ import {
   hasComponent,
   removeComponent,
   removeEntity,
-  setComponent
+  setComponent,
+  startEngine
 } from '@etherealengine/ecs'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '../../SpatialModule'
 import { setCallback } from '../../common/CallbackComponent'
-import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
@@ -85,7 +85,7 @@ describe('TriggerSystem', () => {
   let physicsWorld: World | undefined = undefined
 
   beforeEach(async () => {
-    createEngine()
+    startEngine()
     await Physics.load()
     physicsWorld = Physics.createWorld()
     physicsWorld!.timestep = 1 / 60

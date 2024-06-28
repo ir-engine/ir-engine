@@ -30,10 +30,10 @@ import {
   destroyEngine,
   getComponent,
   removeEntity,
-  setComponent
+  setComponent,
+  startEngine
 } from '@etherealengine/ecs'
 import assert from 'assert'
-import { createEngine } from '../../initializeEngine'
 import { ColliderHitEvent } from '../types/PhysicsTypes'
 import { CollisionComponent } from './CollisionComponent'
 
@@ -50,7 +50,7 @@ describe('CollisionComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
-      createEngine()
+      startEngine()
       testEntity = createEntity()
       setComponent(testEntity, CollisionComponent)
     })
