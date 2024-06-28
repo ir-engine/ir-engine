@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { Box3, BufferGeometry, ColorRepresentation, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
-
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import {
   defineComponent,
@@ -39,16 +36,18 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugComponentUtils'
 import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { LineSegmentComponent } from '@etherealengine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { useEffect } from 'react'
+import { Box3, BufferGeometry, ColorRepresentation, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { ModelComponent } from './ModelComponent'
 
 function createBBoxGridGeometry(matrixWorld: Matrix4, bbox: Box3, density: number): BufferGeometry {
   const lineSegmentList: Vector3[] = []
@@ -138,15 +137,11 @@ export const BoundingBoxHelperComponent = defineComponent({
       const bbox = component.bbox.value
       const density = component.density.value
       setComponent(helper, LineSegmentComponent, {
-        name: 'bbox-line-segment',
+        name: 'bbox-line-segment-' + entity,
         geometry: createBBoxGridGeometry(new Matrix4().identity(), bbox, density),
         material: new LineBasicMaterial({ color: component.color.value }),
         layerMask: component.layerMask.value
       })
-
-      return () => {
-        removeComponent(helper, LineSegmentComponent)
-      }
     }, [])
 
     useDidMount(() => {
@@ -162,8 +157,9 @@ export const BoundingBoxHelperComponent = defineComponent({
     }, [component.color, lineSegment])
 
     useEffect(() => {
-      setComponent(helper, ObjectLayerMaskComponent, component.layerMask.value)
-    }, [component.layerMask])
+      if (!lineSegment) return
+      lineSegment.layerMask.set(component.layerMask.value)
+    }, [component.layerMask, lineSegment])
 
     return null
   }
@@ -187,9 +183,11 @@ export const ObjectGridSnapComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const engineState = useState(getMutableState(EngineState))
+    const modelComponent = useComponent(entity, ModelComponent)
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
 
     useEffect(() => {
+      if (!modelComponent.scene.value) return
       const originalPosition = new Vector3()
       const originalRotation = new Quaternion()
       const originalScale = new Vector3()
@@ -203,9 +201,11 @@ export const ObjectGridSnapComponent = defineComponent({
       const meshes: Mesh[] = []
       //iterate through children and update their transforms to reflect identity from parent
       iterateEntityNode(entity, (childEntity: Entity) => {
-        computeTransformMatrix(childEntity)
-        if (hasComponent(childEntity, MeshComponent)) {
-          meshes.push(getComponent(childEntity, MeshComponent))
+        if (hasComponent(childEntity, TransformComponent)) {
+          computeTransformMatrix(childEntity)
+          if (hasComponent(childEntity, MeshComponent)) {
+            meshes.push(getComponent(childEntity, MeshComponent))
+          }
         }
       })
       //compute bounding box
@@ -224,17 +224,19 @@ export const ObjectGridSnapComponent = defineComponent({
         rotation: originalRotation,
         scale: originalScale
       })
-      iterateEntityNode(entity, computeTransformMatrix)
+      iterateEntityNode(entity, computeTransformMatrix, (childEntity) => hasComponent(childEntity, TransformComponent))
       //set bounding box in component
-      setComponent(entity, ObjectGridSnapComponent, {
-        bbox
-      })
-    }, [])
+      snapComponent.bbox.set(bbox)
+    }, [modelComponent.scene])
 
     useEffect(() => {
       if (!engineState.isEditing.value) return
       const bbox = snapComponent.bbox.value
       setComponent(entity, BoundingBoxHelperComponent, { bbox })
+
+      return () => {
+        removeComponent(entity, BoundingBoxHelperComponent)
+      }
     }, [snapComponent.bbox, engineState.isEditing])
 
     return null
