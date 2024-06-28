@@ -51,12 +51,17 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { useTranslation } from 'react-i18next'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import exportGLTF from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import { FileType } from './FileBrowser/FileBrowserContentPanel'
 
-import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import { HiPlus } from 'react-icons/hi2'
+import { MdClose } from 'react-icons/md'
+import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
 const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity): Entity => {
   const entity = createEntity()
@@ -142,6 +147,7 @@ export default function ModelCompressionPanel({
   fileProperties: State<FileType>
   onRefreshDirectory: () => Promise<void>
 }) {
+  const { t } = useTranslation()
   const [compressionLoading, setCompressionLoading] = useState<boolean>(false)
   const [isClientside, setIsClientSide] = useState<boolean>(true)
   const [isIntegratedPrefab, setIsIntegratedPrefab] = useState<boolean>(true)
@@ -226,6 +232,7 @@ export default function ModelCompressionPanel({
     })
 
     lods.set(defaults)
+    console.log('lods', lods.get(NO_PROXY))
   }, [fileProperties.url])
 
   const handleLODSelect = (index) => {
@@ -258,5 +265,51 @@ export default function ModelCompressionPanel({
     PopoverState.hidePopupover()
   }
 
-  return <Modal onClose={handleClose}></Modal>
+  return (
+    <div className="w-[70vw] max-w-2xl rounded-xl bg-[#0E0F11]">
+      <div className="relative flex items-center justify-center px-8 py-3">
+        <Text className="leading-6">{t('editor:properties.model.transform.compress')}</Text>
+        <Button
+          variant="outline"
+          className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
+          startIcon={<MdClose />}
+          onClick={handleClose}
+        />
+      </div>
+      <div className="px-8 pb-6 pt-2 text-left">
+        <Text className="mb-6 font-semibold">{t('editor:properties.model.transform.lodLevels')}</Text>
+        <div className="mb-8 flex gap-x-4">
+          {lods.value.map((lod, index) => {
+            return (
+              <Button
+                key={index}
+                variant="transparent"
+                className={`rounded-none px-1 pb-4 text-sm font-medium ${
+                  selectedLODIndex === index ? 'border-b border-blue-primary text-blue-primary' : 'text-[#9CA0AA]'
+                }`}
+                onClick={() => handleLODSelect(index)}
+              >
+                {`LOD Level ${index + 1}`}
+              </Button>
+            )
+          })}
+          <Button
+            className="self-center rounded-md bg-[#162546] p-1 [&>*]:m-0"
+            variant="transparent"
+            onClick={handleLODAdd}
+          >
+            <HiPlus />
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-12 gap-x-6">
+          <div className="col-span-8">
+            <GLTFTransformProperties transformParms={lods[selectedLODIndex].params} onChange={() => {}} />
+          </div>
+
+          <div className="col-span-4"></div>
+        </div>
+      </div>
+    </div>
+  )
 }

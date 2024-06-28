@@ -47,7 +47,7 @@ export interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const Text = ({
-  fontFamily = 'Inter',
+  fontFamily = 'Figtree',
   fontSize = 'base',
   fontWeight = 'normal',
   className,
@@ -60,7 +60,7 @@ const Text = ({
 
   const twClassName = twMerge(
     'inline-block leading-normal',
-    `font-${fontWeight} font-[${fontFamily}] text-${fontSize} text-theme-${theme}`,
+    `font-${fontWeight} font-['${fontFamily}'] text-${fontSize} text-theme-${theme}`,
     className
   )
 
