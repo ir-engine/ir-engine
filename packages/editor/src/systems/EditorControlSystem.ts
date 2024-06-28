@@ -290,11 +290,24 @@ const execute = () => {
   }
 
   if (buttons.PrimaryClick?.pressed) {
+    let closestIntersection = {
+      entity: UndefinedEntity,
+      distance: Infinity
+    }
     if (buttons.PrimaryClick?.down) {
-      clickStartEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
+      for (const inputSourceEntity of inputSources) {
+        const intersection = InputSourceComponent.getClosesIntersection(inputSourceEntity)
+        if (intersection && intersection.distance < closestIntersection.distance) {
+          closestIntersection = intersection
+        }
+      }
+
+      clickStartEntity = closestIntersection.entity
       while (
-        !hasComponent(clickStartEntity, SourceComponent) &&
-        getOptionalComponent(clickStartEntity, EntityTreeComponent)?.parentEntity
+        getOptionalComponent(
+          getOptionalComponent(clickStartEntity, EntityTreeComponent)?.parentEntity || UndefinedEntity,
+          EntityTreeComponent
+        )?.parentEntity
       ) {
         clickStartEntity = getComponent(clickStartEntity, EntityTreeComponent).parentEntity!
       }

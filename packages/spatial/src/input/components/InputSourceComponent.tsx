@@ -118,6 +118,10 @@ export const InputSourceComponent = defineComponent({
     return getComponent(inputSourceEntity, InputSourceComponent).intersections[0]?.entity
   },
 
+  getClosesIntersection(inputSourceEntity: Entity) {
+    return getComponent(inputSourceEntity, InputSourceComponent).intersections[0]
+  },
+
   entitiesByInputSource: new WeakMap<XRInputSource, Entity>()
 })
 
