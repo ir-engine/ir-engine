@@ -1,7 +1,6 @@
 name: Deploy IR Engine
 
 on:
-  pull_request:
   push:
     branches: [dev, int, stg]
     paths-ignore: 
