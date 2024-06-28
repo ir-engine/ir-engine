@@ -178,7 +178,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
-  const openConvert = useHookstate(false)
 
   const openConfirm = useHookstate(false)
   const contentToDeletePath = useHookstate('')
@@ -515,13 +514,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   setOpenPropertiesModal={openProperties.set}
                   setFileProperties={fileProperties.set}
                   setOpenCompress={openCompress.set}
-                  setOpenConvert={openConvert.set}
                   dropItemsOnPanel={dropItemsOnPanel}
                   isFilesLoading={isLoading}
                   addFolder={createNewFolder}
                   isListView={isListView}
                   staticResourceModifiedDates={staticResourceModifiedDates.value}
                   isSelected={selectedFileKeys.value.includes(file.key)}
+                  refreshDirectory={refreshDirectory}
                 />
               ))}
             </>
