@@ -71,9 +71,12 @@ import {
   toggleTransformSpace
 } from '../functions/transformFunctions'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorHelperState } from '../services/EditorHelperState'
+
+import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
+
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
+import { ClickPlacementState } from './ClickPlacementSystem'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 const raycaster = new Raycaster()
@@ -128,6 +131,15 @@ const onEscape = () => {
 
 const onKeyW = () => {
   setTransformMode(TransformMode.translate)
+}
+
+const onKeyP = () => {
+  const editorHelperState = getMutableState(EditorHelperState)
+  if (editorHelperState.placementMode.value === PlacementMode.CLICK) {
+    editorHelperState.placementMode.set(PlacementMode.DRAG)
+  } else {
+    editorHelperState.placementMode.set(PlacementMode.CLICK)
+  }
 }
 
 const onKeyE = () => {
@@ -253,8 +265,8 @@ const execute = () => {
   const buttons = InputComponent.getMergedButtonsForInputSources(inputSources)
 
   if (buttons.KeyB?.down) onKeyB()
-
   if (buttons.KeyE?.down) onKeyE()
+  if (buttons.KeyP?.down) onKeyP()
   if (buttons.KeyR?.down) onKeyR()
   if (buttons.KeyW?.down) onKeyW()
   if (buttons.KeyC?.down) onKeyC()
@@ -293,7 +305,7 @@ const execute = () => {
     }
   }
   if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
-    if (hasComponent(clickStartEntity, SourceComponent)) {
+    if (hasComponent(clickStartEntity, SourceComponent) && !getState(ClickPlacementState).placementEntity) {
       const selectedEntities = SelectionState.getSelectedEntities()
       const modelComponent = getAncestorWithComponent(clickStartEntity, ModelComponent)
       const ancestorModelEntity = modelComponent || clickStartEntity
