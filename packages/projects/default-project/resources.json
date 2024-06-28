@@ -5,7 +5,7 @@
       "Model"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsanimationsdefault_skeleton.vrm-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsanimationsdefault_skeleton.vrm-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/animations/emotes.glb": {
@@ -21,7 +21,7 @@
       "Model"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsanimationslocomotion.glb-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsanimationslocomotion.glb-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/animations/optional/seated.fbx": {
@@ -37,7 +37,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsapartment_skybox.jpg-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsapartment_skybox.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/apartment-CubemapBake.png": {
@@ -53,7 +53,7 @@
       "Model"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsapartment.glb-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsapartment.glb-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/avatars/female_01.png": {
@@ -62,7 +62,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_01.png-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsavatarsfemale_01.png-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/avatars/female_01.vrm": {
@@ -80,7 +80,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_02.png-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsavatarsfemale_02.png-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/avatars/female_02.vrm": {
@@ -98,7 +98,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_03.png-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsavatarsfemale_03.png-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/avatars/female_03.vrm": {
@@ -109,7 +109,7 @@
     "dependencies": [
       "projects/default-project/assets/avatars/female_03.png"
     ],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_03.vrm-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsavatarsfemale_03.vrm-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_01.png": {
@@ -118,7 +118,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_01.png-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsavatarsmale_01.png-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_01.vrm": {
@@ -129,7 +129,7 @@
     "dependencies": [
       "projects/default-project/assets/avatars/male_01.png"
     ],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_01.vrm-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsavatarsmale_01.vrm-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_02.png": {
@@ -147,7 +147,7 @@
     "dependencies": [
       "projects/default-project/assets/avatars/male_02.png"
     ],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_02.vrm-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsavatarsmale_02.vrm-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_03.png": {
@@ -156,7 +156,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_03.png-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsavatarsmale_03.png-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_03.vrm": {
@@ -167,7 +167,7 @@
     "dependencies": [
       "projects/default-project/assets/avatars/male_03.png"
     ],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_03.vrm-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsavatarsmale_03.vrm-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/cloud.png": {
@@ -176,7 +176,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscloud.png-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetscloud.png-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/collisioncube.glb": {
@@ -185,7 +185,7 @@
       "Model"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscollisioncube.glb-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetscollisioncube.glb-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/controllers/left_controller.glb": {
@@ -194,7 +194,7 @@
       "Model"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscontrollersleft_controller.glb-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetscontrollersleft_controller.glb-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/controllers/left.glb": {
@@ -203,7 +203,7 @@
       "Model"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscontrollersleft.glb-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetscontrollersleft.glb-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/controllers/right_controller.glb": {
@@ -219,7 +219,7 @@
       "Model"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscontrollersright.glb-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetscontrollersright.glb-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/default-silhouette.svg": {
@@ -235,7 +235,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsdrop-shadow.png-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsdrop-shadow.png-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/galaxyTexture.jpg": {
@@ -244,7 +244,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsgalaxyTexture.jpg-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsgalaxyTexture.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/keycard.glb": {
@@ -253,7 +253,7 @@
       "Model"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetskeycard.glb-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetskeycard.glb-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/platform.glb": {
@@ -269,7 +269,7 @@
       "Model"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsportal_frame.glb-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsportal_frame.glb-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/3d-model.prefab.gltf": {
@@ -285,7 +285,7 @@
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsambient-light.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsambient-light.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/box-collider.prefab.gltf": {
@@ -294,7 +294,7 @@
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsbox-collider.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsbox-collider.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/cylinder-collider.prefab.gltf": {
@@ -303,7 +303,7 @@
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabscylinder-collider.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabscylinder-collider.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/directional-light.prefab.gltf": {
@@ -312,7 +312,7 @@
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsdirectional-light.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsdirectional-light.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/fog.prefab.gltf": {
@@ -321,7 +321,7 @@
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsfog.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsfog.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/geo.prefab.gltf": {
@@ -330,7 +330,7 @@
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsgeo.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsgeo.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/hemisphere-light.prefab.gltf": {
@@ -339,7 +339,7 @@
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabshemisphere-light.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabshemisphere-light.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/mesh-collider.prefab.gltf": {
@@ -355,7 +355,7 @@
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabspoint-light.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabspoint-light.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/postprocessing.prefab.gltf": {
@@ -364,7 +364,7 @@
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabspostprocessing.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabspostprocessing.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/skybox.prefab.gltf": {
@@ -373,7 +373,7 @@
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsskybox.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsskybox.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/sphere-collider.prefab.gltf": {
@@ -382,7 +382,7 @@
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabssphere-collider.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabssphere-collider.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/spot-light.prefab.gltf": {
@@ -391,7 +391,7 @@
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsspot-light.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsspot-light.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/text.prefab.gltf": {
@@ -400,7 +400,7 @@
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabstext.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabstext.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/sample_etc1s.ktx2": {
@@ -409,7 +409,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetssample_etc1s.ktx2-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetssample_etc1s.ktx2-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/SampleAudio.mp3": {
@@ -425,7 +425,7 @@
       "Video"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsSampleVideo.mp4-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsSampleVideo.mp4-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/sky_skybox.jpg": {
@@ -434,7 +434,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetssky_skybox.jpg-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetssky_skybox.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/Skybase.glb": {
@@ -443,7 +443,7 @@
       "Model"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsSkybase.glb-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsSkybase.glb-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/skyboxsun25deg/negx.jpg": {
@@ -452,7 +452,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degnegx.jpg-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsskyboxsun25degnegx.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/skyboxsun25deg/negy.jpg": {
@@ -468,7 +468,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degnegz.jpg-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsskyboxsun25degnegz.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/skyboxsun25deg/posx.jpg": {
@@ -477,7 +477,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degposx.jpg-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsskyboxsun25degposx.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/skyboxsun25deg/posy.jpg": {
@@ -486,7 +486,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degposy.jpg-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsskyboxsun25degposy.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/skyboxsun25deg/posz.jpg": {
@@ -502,7 +502,7 @@
       "Model"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetstest-equippable.glb-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetstest-equippable.glb-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/UV.png": {
@@ -511,7 +511,7 @@
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsUV.png-thumbnail.png",
+    "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsUV.png-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "public/scenes/apartment-New-EnvMap Bake.ktx2": {
