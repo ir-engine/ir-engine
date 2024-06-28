@@ -398,7 +398,6 @@ const AssetPanel = () => {
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
-          console.log(resources)
           // cast type due to temporary server-side pagination
           searchedStaticResources.set(resources as any as StaticResourceType[])
         })
