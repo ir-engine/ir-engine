@@ -55,6 +55,7 @@ import { CopyPasteFunctions } from '@etherealengine/editor/src/functions/CopyPas
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { cmdOrCtrlString } from '@etherealengine/editor/src/functions/utils'
+import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
@@ -185,6 +186,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const onClick = useCallback(
     (e: MouseEvent, node: HeirarchyTreeNodeType) => {
       if (e.detail === 1) {
+        // Exit click placement mode when anything in the hierarchy is selected
+        getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
         if (e.ctrlKey) {
           EditorControlFunctions.toggleSelection([getComponent(node.entity, UUIDComponent)])
           setSelectedNode(null)
