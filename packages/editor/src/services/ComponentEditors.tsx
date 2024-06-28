@@ -45,6 +45,7 @@ import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/compon
 import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
+import { ReflectionProbeComponent } from '@etherealengine/engine/src/scene/components/ReflectionProbeComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
@@ -125,6 +126,7 @@ import { CameraTriggerComponent } from '@etherealengine/engine/src/CameraTrigger
 import { VideoTriggerComponent } from '@etherealengine/engine/src/VideoTriggerComponent'
 import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import PlaylistNodeEditor from '@etherealengine/ui/src/components/editor/properties/playlist'
+import ReflectionProbeNodeEditor from '@etherealengine/ui/src/components/editor/properties/reflectionProbe'
 import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline/track'
 import SystemNodeEditor from '@etherealengine/ui/src/components/editor/properties/system'
 import TextNodeEditor from '@etherealengine/ui/src/components/editor/properties/text'
@@ -197,7 +199,8 @@ export const ComponentEditorsState = defineState({
       [LookAtComponent.name]: LookAtNodeEditor,
       [CameraTriggerComponent.name]: CameraTriggerNodeEditor,
       [VideoTriggerComponent.name]: VideoTriggerNodeEditor,
-      [AnimationTriggerComponent.name]: AnimationTriggerNodeEditor
+      [AnimationTriggerComponent.name]: AnimationTriggerNodeEditor,
+      [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor
     } as Record<string, EditorComponentType>
   }
 })

@@ -46,6 +46,7 @@ import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/compone
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
+import { ReflectionProbeComponent } from '@etherealengine/engine/src/scene/components/ReflectionProbeComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
@@ -120,7 +121,8 @@ export const ComponentShelfCategoriesState = defineState({
         ParticleSystemComponent,
         EnvmapComponent,
         SDFComponent,
-        PostProcessingComponent
+        PostProcessingComponent,
+        ReflectionProbeComponent
       ],
       Scripting: [SystemComponent, VisualScriptComponent],
       Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],

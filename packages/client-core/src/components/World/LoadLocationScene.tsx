@@ -88,6 +88,7 @@ export const useLoadLocation = (props: { locationName: string }) => {
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
   const sceneKey = `projects/${props.projectName}/${props.sceneName}`
   const assetID = useFind(staticResourcePath, { query: { key: sceneKey, type: 'scene' } })
+
   useEffect(() => {
     if (!props.sceneName || !props.projectName) return
     if (!assetID.data.length) return
