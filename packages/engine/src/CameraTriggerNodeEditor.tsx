@@ -27,19 +27,17 @@ import PanToolIcon from '@mui/icons-material/PanTool'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 
-import { UUIDComponent, getComponent, useComponent } from '@etherealengine/ecs'
+import { EntityUUID, useComponent } from '@etherealengine/ecs'
 import BooleanInput from '@etherealengine/editor/src/components/inputs/BooleanInput'
 import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import NumericInput from '@etherealengine/editor/src/components/inputs/NumericInput'
-import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
 import Vector3Input from '@etherealengine/editor/src/components/inputs/Vector3Input'
 import { NodeEditor } from '@etherealengine/editor/src/components/properties/NodeEditor'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
-import { TransformComponent } from '@etherealengine/spatial'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { NodeInput } from '@etherealengine/ui/src/components/editor/input/Node/index'
 import { CameraTriggerComponent } from './CameraTriggerComponent'
 
 const callbackQuery = defineQuery([CallbackComponent])
@@ -48,15 +46,6 @@ export const CameraTriggerNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const component = useComponent(props.entity, CameraTriggerComponent)
-
-  const availableTransforms = useQuery([TransformComponent]).map((entity) => {
-    const name = getComponent(entity, NameComponent)
-    const uuid = getComponent(entity, UUIDComponent)
-    return {
-      label: name,
-      value: uuid
-    }
-  })
 
   useEffect(() => {}, [])
 
@@ -67,11 +56,10 @@ export const CameraTriggerNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.cameraTrigger.description')}
     >
       <InputGroup name="LookAtEntity" label={t('editor:properties.cameraTrigger.lbl-lookAt')}>
-        <SelectInput
-          key={props.entity}
-          options={availableTransforms}
-          value={component.lookAtEntityUUID.value!}
-          onChange={commitProperty(CameraTriggerComponent, 'lookAtEntityUUID') as any}
+        <NodeInput
+          value={component.lookAtEntityUUID.value ?? ('' as EntityUUID)}
+          onRelease={commitProperty(CameraTriggerComponent, 'lookAtEntityUUID')}
+          onChange={commitProperty(CameraTriggerComponent, 'lookAtEntityUUID')}
         />
       </InputGroup>
       <InputGroup name="OffsetEntity" label={t('editor:properties.cameraTrigger.lbl-offset')}>
