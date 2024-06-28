@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector2 } from 'three'
 
-import { Entity } from '@etherealengine/ecs'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -131,7 +131,9 @@ const execute = () => {
     let { theta, phi } = getOptionalComponent(cameraEntity, TargetCameraRotationComponent) ?? follow
     let time = 0.3
 
-    if (buttons?.PrimaryClick?.pressed) InputState.setCapturingEntity(cameraEntity)
+    if (buttons?.PrimaryClick?.pressed && getState(InputState).capturingEntity === UndefinedEntity) {
+      InputState.setCapturingEntity(cameraEntity)
+    }
     if (buttons?.FollowCameraModeCycle?.down) onFollowCameraModeCycle(cameraEntity)
     if (buttons?.FollowCameraFirstPerson?.down) onFollowCameraFirstPerson(cameraEntity)
     if (buttons?.FollowCameraShoulderCam?.down) onFollowCameraShoulderCam(cameraEntity)
@@ -154,7 +156,9 @@ const execute = () => {
       }
     }
 
-    setTargetCameraRotation(cameraEntity, phi, theta, time)
+    if (getState(InputState).capturingEntity === cameraEntity) {
+      setTargetCameraRotation(cameraEntity, phi, theta, time)
+    }
     handleFollowCameraScroll(cameraEntity, axes, deltaSeconds)
   }
 }

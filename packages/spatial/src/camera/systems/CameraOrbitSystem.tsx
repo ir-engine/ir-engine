@@ -98,7 +98,11 @@ const execute = () => {
     const buttons = InputComponent.getMergedButtons(cameraEid)
     const axes = InputComponent.getMergedAxes(cameraEid)
 
-    if (buttons.PrimaryClick?.pressed && buttons.PrimaryClick?.dragging) {
+    if (
+      buttons.PrimaryClick?.pressed &&
+      buttons.PrimaryClick?.dragging &&
+      getState(InputState).capturingEntity === UndefinedEntity
+    ) {
       InputState.setCapturingEntity(cameraEid)
       cameraOrbit.isOrbiting.set(true)
     }
