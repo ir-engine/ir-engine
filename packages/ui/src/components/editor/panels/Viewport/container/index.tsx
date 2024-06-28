@@ -133,7 +133,7 @@ const ViewPortPanelContainer = () => {
 
   return (
     <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
-      <div className="z-10 flex gap-1 p-1">
+      <div className="z-10 flex gap-1 bg-theme-primary p-1">
         <TransformSpaceTool />
         <TransformPivotTool />
         <GridTool />
