@@ -83,7 +83,7 @@ export class Engine {
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
-export function startEngine() {
+export function createEngine() {
   if (Engine.instance) throw new Error('Store already exists')
   Engine.instance = new Engine()
   Engine.instance.store = bitECS.createWorld(

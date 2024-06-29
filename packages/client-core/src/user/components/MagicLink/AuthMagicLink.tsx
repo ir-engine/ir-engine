@@ -28,12 +28,11 @@ import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AuthService, AuthState } from '../../services/AuthService'
+import { AuthService } from '../../services/AuthService'
 
 interface Props {
   //auth: any
@@ -45,7 +44,6 @@ interface Props {
 
 const AuthMagicLink = ({ token, type, instanceId, path }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const user = useHookstate(getMutableState(AuthState)).user
   useEffect(() => {
     if (type === 'login') {
       let redirectSuccess = path ? `${path}` : null
@@ -54,10 +52,6 @@ const AuthMagicLink = ({ token, type, instanceId, path }: Props): JSX.Element =>
       AuthService.loginUserByJwt(token, redirectSuccess || '/', '/')
     } else if (type === 'connection') {
       AuthService.loginUserMagicLink(token, '/', '/')
-      // if (user !== null) {
-      //   AuthService.refreshConnections(user.id.value!)
-      // }
-      // window.location.href = '/profile-connections'
     }
   }, [])
 

@@ -44,6 +44,7 @@ import {
   SystemDefinitions,
   UUIDComponent
 } from '@etherealengine/ecs'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import {
   getOnAsyncExecuteSystemUUID,
   getOnExecuteSystemUUID,
@@ -54,7 +55,7 @@ import {
   VisualScriptDomain
 } from '@etherealengine/engine'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { createEngine, initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 
 import { GraphJSON, VisualScriptState } from '../src/VisualScriptModule'

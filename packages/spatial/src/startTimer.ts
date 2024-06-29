@@ -23,17 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const EnvMapSourceType = {
-  Skybox: 'Skybox' as const,
-  Bake: 'Bake' as const,
-  Default: 'Default' as const,
-  Texture: 'Texture' as const,
-  Color: 'Color' as const,
-  Probes: 'Probes' as const,
-  None: 'None' as const
-}
+import { ECSState, Timer, executeSystems } from '@etherealengine/ecs'
+import { getMutableState } from '@etherealengine/hyperflux'
+import { XRState } from './xr/XRState'
 
-export const EnvMapTextureType = {
-  Cubemap: 'Cubemap' as const,
-  Equirectangular: 'Equirectangular' as const
+export const startTimer = () => {
+  const timer = Timer((time, xrFrame) => {
+    getMutableState(XRState).xrFrame.set(xrFrame)
+    executeSystems(time)
+    getMutableState(XRState).xrFrame.set(null)
+  })
+  getMutableState(ECSState).timer.set(timer)
+  timer.start()
 }
