@@ -319,12 +319,21 @@ function enabledCcd(world: PhysicsWorld, entity: Entity, enabled: boolean) {
   rigidBody.enableCcd(enabled)
 }
 
+/**
+ * @note `lockRotations(entity, true)` is the exact same as `setEnabledRotations(entity, [ true, true, true ])`
+ * @warning
+ * Does not unlock in current version (0.11.2). Fixed in 0.12
+ * https://github.com/dimforge/rapier.js/issues/282#issuecomment-2177426589
+ */
 function lockRotations(world: PhysicsWorld, entity: Entity, lock: boolean) {
   const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.lockRotations(lock, false)
 }
 
+/**
+ * @note `setEnabledRotations(entity, [ true, true, true ])` is the exact same as `lockRotations(entity, true)`
+ */
 function setEnabledRotations(world: PhysicsWorld, entity: Entity, enabledRotations: [boolean, boolean, boolean]) {
   const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
@@ -402,7 +411,7 @@ function createColliderDesc(world: PhysicsWorld, entity: Entity, rootEntity: Ent
     case Shapes.Sphere:
       shape = ShapeType.Ball
       break
-    case Shapes.Box:
+    case Shapes.Box: /*fall-through*/
     case Shapes.Plane:
       shape = ShapeType.Cuboid
       break
@@ -556,7 +565,7 @@ function setTrigger(world: PhysicsWorld, entity: Entity, isTrigger: boolean) {
   if (!collider) return
   collider.setSensor(isTrigger)
   const colliderComponent = getComponent(entity, ColliderComponent)
-  // if we are a trigger, we need to update the collision groups to include the trigger group
+  // if we are a trigger, we need to update the interaction bits of the collision groups to include the trigger group
   const collisionLayer = isTrigger ? CollisionGroups.Trigger : colliderComponent.collisionLayer
   collider.setCollisionGroups(getInteractionGroups(collisionLayer, colliderComponent.collisionMask))
 }

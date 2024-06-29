@@ -33,12 +33,12 @@ import {
   getMutableComponent,
   setComponent
 } from '@etherealengine/ecs'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { Fog, FogExp2, MathUtils, ShaderChunk } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { createEngine } from '../../initializeEngine'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { RendererComponent } from '../WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './FogSettingsComponent'

@@ -221,7 +221,7 @@ const onImportAsset = async () => {
 
   if (projectName) {
     try {
-      await inputFileWithAddToScene({ projectName })
+      await inputFileWithAddToScene({ projectName, directoryPath: 'projects/' + projectName + '/assets/' })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
