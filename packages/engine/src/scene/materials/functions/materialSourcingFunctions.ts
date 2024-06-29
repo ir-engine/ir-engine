@@ -80,9 +80,10 @@ export const getMaterialsFromSource = (source: Entity) => {
 }
 
 /** Creates and uses a new material entity from a GLTF. If a material from the GLTF path already exists in-scene, uses preexisting entity instead. */
-export const createMaterialInstance = (path: string, sourceEntity: Entity, material: Material) => {
+export const createMaterialInstance = (sourceEntity: Entity, material: Material) => {
   //if we already have a material by the same name from the same source, use it instead
-  const entityFromHash = MaterialStateComponent.materialByHash[hashMaterial(path, material.name)]
+  const path = MaterialStateComponent.assetSourceByMaterial[material.uuid as EntityUUID]
+  const entityFromHash = path ? MaterialStateComponent.materialByHash[hashMaterial(path, material.name)] : ''
   setComponent(sourceEntity, MaterialInstanceComponent)
   const materialComponent = getMutableComponent(sourceEntity, MaterialInstanceComponent)
   const uuids = materialComponent.uuid.value
@@ -105,17 +106,16 @@ export const createMaterialInstance = (path: string, sourceEntity: Entity, mater
       material.customProgramCacheKey = () =>
         material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
     }
-    const materialEntity = createMaterialEntity(material, path)
+    const materialEntity = createMaterialEntity(material)
     const materialStateComponent = getMutableComponent(materialEntity, MaterialStateComponent)
     if (!materialStateComponent.instances.value) return
     materialStateComponent.instances.set([...materialStateComponent.instances.value, sourceEntity])
   }
 }
 
-export const createMaterialEntity = (material: Material, path?: string, user?: Entity) => {
+export const createMaterialEntity = (material: Material, user?: Entity) => {
   const materialEntity = createEntity()
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
-  if (path) setComponent(materialEntity, SourceComponent, path)
   const prototypeEntity = getPrototypeEntityFromName(material.userData.type || material.type)
   if (!prototypeEntity) throw new PrototypeNotFoundError(`Material prototype ${material.type} not found`)
   setComponent(materialEntity, MaterialStateComponent, {
@@ -143,9 +143,12 @@ export const createMaterialEntity = (material: Material, path?: string, user?: E
 
 export const removeMaterial = (entity: Entity) => {
   const name = getComponent(entity, NameComponent)
-  if (hasComponent(entity, SourceComponent)) {
-    const hash = hashMaterial(getComponent(entity, SourceComponent), name)
+  const uuid = getComponent(entity, UUIDComponent)
+  const source = MaterialStateComponent.assetSourceByMaterial[uuid]
+  if (source) {
+    const hash = hashMaterial(source, name)
     delete MaterialStateComponent.materialByHash[hash]
+    delete MaterialStateComponent.assetSourceByMaterial[uuid]
   }
   removeEntity(entity)
 }
@@ -156,23 +159,23 @@ export const getPrototypeEntityFromName = (name: string) =>
 
 /**Sets a name and source hash for a given material entity */
 export const setMaterialName = (entity: Entity, name: string) => {
-  const canHash = name !== '' && hasComponent(entity, SourceComponent)
+  const source = MaterialStateComponent.assetSourceByMaterial[getComponent(entity, UUIDComponent)]
+  const canHash = name !== '' && source
   if (name === '') name = 'Material'
   const materialComponent = getMutableComponent(entity, MaterialStateComponent)
   if (!materialComponent.material.value) return
   const oldName = getOptionalComponent(entity, NameComponent)
   if (oldName && canHash) {
-    const oldHash = hashMaterial(getComponent(entity, SourceComponent), oldName)
+    const oldHash = hashMaterial(source, oldName)
     const preexistingMaterial = MaterialStateComponent.materialByHash[oldHash]
     if (preexistingMaterial && preexistingMaterial === getComponent(entity, UUIDComponent)) {
       delete MaterialStateComponent.materialByHash[oldHash]
     }
   }
-
   setComponent(entity, NameComponent, name)
   ;(materialComponent.material.value as Material).name = name
   if (!canHash) return
-  const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
+  const newHash = hashMaterial(MaterialStateComponent.assetSourceByMaterial[getComponent(entity, UUIDComponent)], name)
   MaterialStateComponent.materialByHash[newHash] = getComponent(entity, UUIDComponent)
 }
 
