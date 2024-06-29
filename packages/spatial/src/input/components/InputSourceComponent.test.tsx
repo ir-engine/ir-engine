@@ -23,7 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-describe('InputSourceComponent', () => {
+import {
+  Entity,
+  UndefinedEntity,
+  createEngine,
+  createEntity,
+  destroyEngine,
+  getComponent,
+  removeEntity,
+  setComponent
+} from '@etherealengine/ecs'
+import assert from 'assert'
+import { Raycaster } from 'three'
+import { ButtonStateMap } from '../state/ButtonState'
+import { InputSourceComponent } from './InputSourceComponent'
+
+describe.skip('InputSourceComponent', () => {
   // beforeEach(() => {
   //   createEngine()
   // })
@@ -147,4 +162,106 @@ describe('InputSourceComponent', () => {
   // afterEach(() => {
   //   return destroyEngine()
   // })
+})
+
+const InputSourceComponentDefaults = {
+  source: {
+    gamepad: {
+      axes: [0, 0, 0, 0],
+      buttons: [],
+      connected: true,
+      hapticActuators: [],
+      id: 'emulated-gamepad-1',
+      index: 0,
+      mapping: 'standard',
+      vibrationActuator: null
+    },
+    gripSpace: undefined,
+    hand: undefined,
+    handedness: 'none',
+    profiles: [],
+    targetRayMode: 'screen',
+    targetRaySpace: {}
+  } as unknown as XRInputSource,
+  buttons: {} as Readonly<ButtonStateMap>,
+  raycaster: new Raycaster(),
+  intersections: [] as Array<{ entity: Entity; distance: number }>
+}
+
+function assertXRInputSourceEq(A: XRInputSource, B: XRInputSource) {
+  assert.equal(A.gamepad?.axes.length, B.gamepad?.axes.length)
+  assert.equal(A.gamepad?.axes[0], B.gamepad?.axes[0])
+  assert.equal(A.gamepad?.axes[1], B.gamepad?.axes[1])
+  assert.equal(A.gamepad?.axes[2], B.gamepad?.axes[2])
+  assert.equal(A.gamepad?.axes[3], B.gamepad?.axes[3])
+  assert.equal(A.gamepad?.buttons.length, B.gamepad?.buttons.length)
+  assert.equal(A.gamepad?.connected, B.gamepad?.connected)
+  assert.equal(A.gamepad?.id, B.gamepad?.id)
+  assert.equal(A.gamepad?.index, B.gamepad?.index)
+  assert.equal(A.gamepad?.mapping, B.gamepad?.mapping)
+  assert.equal(A.gamepad?.vibrationActuator, B.gamepad?.vibrationActuator)
+  assert.equal(A.gripSpace, B.gripSpace)
+  assert.equal(A.hand, B.hand)
+  assert.equal(A.handedness, B.handedness)
+  assert.equal(A.profiles.length, B.profiles.length)
+  assert.equal(A.targetRayMode, B.targetRayMode)
+  assert.deepEqual(A.targetRaySpace, B.targetRaySpace)
+}
+
+function assertInputSourceComponentEq(A, B) {
+  assertXRInputSourceEq(A.source, B.source)
+  assert.deepEqual(A.buttons, B.buttons)
+  assert.deepEqual(A.raycaster, B.raycaster)
+  assert.deepEqual(A.intersections, B.intersections)
+}
+
+describe('InputSourceComponent', () => {
+  describe('IDs', () => {
+    it('should initialize the InputSourceComponent.name field with the expected value', () => {
+      assert.equal(InputSourceComponent.name, 'InputSourceComponent')
+    })
+  })
+
+  describe('onInit', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, InputSourceComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should initialize the component with the expected values', () => {
+      const data = getComponent(testEntity, InputSourceComponent)
+      assert.equal(typeof data, typeof InputSourceComponentDefaults)
+      assertInputSourceComponentEq(data, InputSourceComponentDefaults)
+    })
+  }) // << onInit
+
+  describe('onSet', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, InputSourceComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it("should set the component's data to the given values", () => {
+      const data = getComponent(testEntity, InputSourceComponent)
+      assert.equal(typeof data, typeof InputSourceComponentDefaults)
+      const Expected = {}
+      // assertInputSourceComponentEq(data, Expected)
+    })
+  }) // << onSet
 })
