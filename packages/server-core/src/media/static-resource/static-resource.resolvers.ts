@@ -85,6 +85,7 @@ export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
       /** @todo optimize this */
       const thumbnailStaticResource = await context.app.service('static-resource').find({
         query: {
+          type: 'thumbnail',
           key: staticResource.thumbnailKey
         }
       })

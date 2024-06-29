@@ -51,6 +51,7 @@ import GizmoTool from '../tools/GizmoTool'
 import GridTool from '../tools/GridTool'
 import PlayModeTool from '../tools/PlayModeTool'
 import RenderModeTool from '../tools/RenderTool'
+import SceneHelpersTool from '../tools/SceneHelpersTool'
 import TransformPivotTool from '../tools/TransformPivotTool'
 import TransformSnapTool from '../tools/TransformSnapTool'
 import TransformSpaceTool from '../tools/TransformSpaceTool'
@@ -138,6 +139,7 @@ const ViewPortPanelContainer = () => {
         <TransformPivotTool />
         <GridTool />
         <TransformSnapTool />
+        <SceneHelpersTool />
         <div className="flex-1" />
         <RenderModeTool />
         <PlayModeTool />

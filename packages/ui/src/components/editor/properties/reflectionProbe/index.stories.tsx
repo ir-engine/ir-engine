@@ -23,12 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import Component from './index'
 
-import '../themes/base.css'
-import '../themes/components.css'
-import '../themes/utilities.css'
+const argTypes = {}
 
-export default function Tailwind() {
-  return <></>
+export default {
+  title: 'Editor/Properties/ReflectionProbe',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'ReflectionProbeNodeEditor',
+    jest: 'reflectionProbeNodeEditor.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
+export const Default = { args: {} }
