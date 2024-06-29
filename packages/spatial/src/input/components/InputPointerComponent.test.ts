@@ -132,7 +132,7 @@ describe('InputPointerComponent', () => {
 
     it('should return the entity that has an InputPointerComponent, which has the given canvas/camera entity assigned as its InputPointerComponent.canvasEntity', () => {
       removeComponent(testEntity, InputPointerComponent)
-      const Expected = { pointerId: 42, canvasEntity: createEntity() }
+      const Expected = { pointerId: PointerID, canvasEntity: createEntity() }
       setComponent(testEntity, InputPointerComponent, Expected)
       // Run and Check after
       const after = InputPointerComponent.getPointerForCanvas(Expected.canvasEntity)
