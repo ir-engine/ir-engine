@@ -57,6 +57,10 @@ import {
   TaskServerSettingType
 } from '@etherealengine/common/src/schemas/setting/task-server-setting.schema'
 
+import {
+  zendeskSettingPath,
+  ZendeskSettingType
+} from '@etherealengine/common/src/schemas/setting/zendesk-setting.schema'
 import appConfig from './appconfig'
 import logger from './ServerLogger'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
@@ -281,6 +285,22 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
+
+  const zendeskSettingPromise = knexClient
+    .select()
+    .from<ZendeskSettingType>(zendeskSettingPath)
+    .then(([dbZendesk]) => {
+      if (dbZendesk) {
+        appConfig.zendesk = {
+          ...appConfig.zendesk,
+          ...dbZendesk
+        }
+      }
+    })
+    .catch((e) => {
+      logger.error(e, `[updateAppConfig]: Failed to read zendesk setting: ${e.message}`)
+    })
+  promises.push(zendeskSettingPromise)
 
   await Promise.all(promises)
 }

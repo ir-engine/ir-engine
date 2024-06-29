@@ -135,6 +135,13 @@ else
   VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY
 fi
 
+if [ -z "$VITE_ZENDESK_AUTHENTICATION_ENABLED" ]
+then
+  VITE_ZENDESK_AUTHENTICATION_ENABLED=false
+else
+  VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED
+fi
+
 # ./generate-certs.sh
 
 docker start etherealengine_minikube_db
@@ -168,6 +175,7 @@ docker buildx build \
   --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
   --build-arg VITE_AVATURN_API=$VITE_AVATURN_API \
   --build-arg VITE_ZENDESK_ENABLED=$VITE_ZENDESK_ENABLED \
-  --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY .
+  --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY \
+  --build-arg VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED .
 
 #DOCKER_BUILDKIT=1 docker build -t etherealengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
