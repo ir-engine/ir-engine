@@ -356,5 +356,13 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     MaterialStateComponent.assetSourceByMaterial[material.uuid] = getComponent(rootEntity, ModelComponent).src
   })
 
+  if (!hasComponent(objEntity, MeshComponent)) {
+    setComponent(objEntity, Object3DComponent, obj)
+  }
+
+  delete mesh.userData['componentJson']
+  delete mesh.userData['gltfExtensions']
+  delete mesh.userData['useVisible']
+
   return eJson
 }
