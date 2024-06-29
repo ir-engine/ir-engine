@@ -245,7 +245,7 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
   }
 }
 
-const getTopParent = (entity: Entity) => {
+const findTopLevelParent = (entity: Entity) => {
   while (
     getOptionalComponent(
       getOptionalComponent(entity, EntityTreeComponent)?.parentEntity || UndefinedEntity,
@@ -257,7 +257,7 @@ const getTopParent = (entity: Entity) => {
   return entity
 }
 
-const getNextChild = (topLevelParent: Entity, child: Entity): Entity => {
+const findNextSelectionEntity = (topLevelParent: Entity, child: Entity): Entity => {
   // Check for adjacent child
   const childTree = getComponent(child, EntityTreeComponent)
   const parentTree = getComponent(childTree.parentEntity, EntityTreeComponent)
@@ -271,7 +271,7 @@ const getNextChild = (topLevelParent: Entity, child: Entity): Entity => {
   if (childTree.children.length) return childTree.children[0]
 
   if (childTree.parentEntity === topLevelParent || parentTree.parentEntity === topLevelParent) return topLevelParent
-  return getNextChild(topLevelParent, parentTree.parentEntity)
+  return findNextSelectionEntity(topLevelParent, parentTree.parentEntity)
 }
 
 const inputQuery = defineQuery([InputSourceComponent])
@@ -321,21 +321,22 @@ const execute = () => {
     }
     if (buttons.PrimaryClick?.down) {
       for (const inputSourceEntity of inputSources) {
-        const intersection = InputSourceComponent.getClosesIntersection(inputSourceEntity)
+        const intersection = InputSourceComponent.getClosestIntersection(inputSourceEntity)
         if (intersection && intersection.distance < closestIntersection.distance) {
           closestIntersection = intersection
         }
       }
 
       // Get top most parent entity that isn't the scene entity
-      const selectedParentEntity = getTopParent(closestIntersection.entity)
+      const selectedParentEntity = findTopLevelParent(closestIntersection.entity)
       // If entity is already selected set closest intersection, otherwise set top parent
       clickStartEntity = selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
 
+      /** @todo decide how we want selection to work with heirarchies */
       // Walks object heirarchy everytime a selected object is clicked again
-      // const prevParentEntity = getTopParent(clickStartEntity)
+      // const prevParentEntity = findTopLevelParent(clickStartEntity)
       // if (selectedParentEntity === prevParentEntity) {
-      //   clickStartEntity = getNextChild(prevParentEntity, clickStartEntity)
+      //   clickStartEntity = findNextSelectionEntity(prevParentEntity, clickStartEntity)
       // } else {
       //   clickStartEntity = selectedParentEntity
       // }
@@ -348,11 +349,13 @@ const execute = () => {
   if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
     if (hasComponent(clickStartEntity, SourceComponent) && !getState(ClickPlacementState).placementEntity) {
       const selectedEntities = SelectionState.getSelectedEntities()
-      const targetSelection = clickStartEntity
 
       //only update selection if the selection actually changed (prevents unnecessarily creating new transform gizmos in edit mode)
-      if (selectedEntities.length !== 1 || (selectedEntities.length === 1 && selectedEntities[0] !== targetSelection)) {
-        SelectionState.updateSelection([getComponent(targetSelection, UUIDComponent)])
+      if (
+        selectedEntities.length !== 1 ||
+        (selectedEntities.length === 1 && selectedEntities[0] !== clickStartEntity)
+      ) {
+        SelectionState.updateSelection([getComponent(clickStartEntity, UUIDComponent)])
       }
     }
   }
