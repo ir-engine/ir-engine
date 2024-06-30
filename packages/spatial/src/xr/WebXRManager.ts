@@ -43,7 +43,7 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { createAnimationLoop } from '@etherealengine/ecs'
+import { createAnimationLoop, ECSState } from '@etherealengine/ecs'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { XRState } from './XRState'
 
@@ -100,6 +100,9 @@ export const XRRendererState = defineState({
 })
 
 export function createWebXRManager(renderer: WebGLRenderer) {
+  const ecsState = getState(ECSState)
+  const { animation } = ecsState.timer
+
   const xrState = getState(XRState)
   const xrRendererState = getMutableState(XRRendererState)
 
@@ -305,22 +308,7 @@ export function createWebXRManager(renderer: WebGLRenderer) {
     }
   }
 
-  // Animation Loop
-
-  let onAnimationFrameCallback = null as typeof onAnimationFrame | null
-
-  function onAnimationFrame(time: number, frame: XRFrame) {
-    if (onAnimationFrameCallback) onAnimationFrameCallback(time, frame)
-  }
-
-  const animation = createAnimationLoop()
-
-  animation.setAnimationLoop(onAnimationFrame)
-
-  scope.setAnimationLoop = function (callback: typeof onAnimationFrame) {
-    onAnimationFrameCallback = callback
-  }
-
+  scope.setAnimationLoop = function () {}
   scope.dispose = function () {}
   scope.addEventListener = function (type: string, listener: EventListener) {}
   scope.hasEventListener = function (type: string, listener: EventListener) {}
