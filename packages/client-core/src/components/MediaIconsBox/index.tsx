@@ -35,7 +35,6 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import logger from '@etherealengine/common/src/logger'
-import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
 import { Engine } from '@etherealengine/ecs'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import {
@@ -43,9 +42,9 @@ import {
   PlaybackState,
   RecordingState
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { dispatchAction, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
-import { SpectateActions, SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
+import { SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
 import { endXRSession, requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
@@ -54,6 +53,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
 import { VrIcon } from '../../common/components/Icons/VrIcon'
+import { SearchParamState } from '../../common/services/RouterService'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -131,9 +131,13 @@ export const MediaIconsBox = () => {
   }
 
   const xrSessionActive = xrState.sessionActive.value
+
   const handleExitSpectatorClick = () => {
-    deleteSearchParams('spectate')
-    dispatchAction(SpectateActions.exitSpectate({ spectatorUserID: Engine.instance.userID }))
+    if (spectating) {
+      SearchParamState.set('spectate', none)
+    } else {
+      SearchParamState.set('spectate', 'true')
+    }
   }
 
   return (
@@ -237,19 +241,17 @@ export const MediaIconsBox = () => {
           icon={<Icon type="ViewInAr" />}
         />
       )}
-      {spectating && (
-        <button
-          type="button"
-          id="ExitSpectator"
-          title={t('user:menu.exitSpectate')}
-          className={styles.iconContainer}
-          onClick={handleExitSpectatorClick}
-          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-        >
-          Exit Spectate
-        </button>
-      )}
+      <button
+        type="button"
+        id="ExitSpectator"
+        title={t('user:menu.exitSpectate')}
+        className={styles.iconContainer}
+        onClick={handleExitSpectatorClick}
+        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+      >
+        {spectating ? 'Exit Spectate' : 'Enter Spectate'}
+      </button>
       {/* {recordScopes && (
         <>
           {recordingState.recordingID.value || playbackState.recordingID.value ? (

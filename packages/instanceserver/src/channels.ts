@@ -51,7 +51,7 @@ import {
   userPath,
   UserType
 } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, getComponent, getMutableComponent } from '@etherealengine/ecs'
+import { EntityUUID, getComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
@@ -74,7 +74,6 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 import './InstanceServerModule'
 
 import { initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
@@ -303,7 +302,6 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     const sceneUpdatedListener = async () => {
       const scene = await app.service(staticResourcePath).get(sceneId, { headers })
       const gltfEntity = GLTFSourceState.load(scene.url, scene.id as EntityUUID)
-      getMutableComponent(Engine.instance.viewerEntity, RendererComponent).scenes.merge([gltfEntity])
 
       /** @todo - quick hack to wait until scene has loaded */
       await new Promise<void>((resolve) => {
