@@ -27,6 +27,7 @@ import { World } from '@dimforge/rapier3d-compat'
 import {
   EntityUUID,
   UndefinedEntity,
+  createEngine,
   createEntity,
   destroyEngine,
   getComponent,
@@ -39,7 +40,6 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import assert from 'assert'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
-import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'

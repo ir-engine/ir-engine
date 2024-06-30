@@ -58,7 +58,7 @@ import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/ser
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
@@ -179,7 +179,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
-  const openConvert = useHookstate(false)
 
   const openConfirm = useHookstate(false)
   const contentToDeletePath = useHookstate('')
@@ -299,9 +298,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             try {
               const name = processFileName(file.name)
               await uploadToFeathersService(fileBrowserUploadPath, [file], {
-                project: projectName,
-                path: relativePath + name,
-                contentType: file.type
+                args: [
+                  {
+                    project: projectName,
+                    path: relativePath + name,
+                    contentType: file.type
+                  }
+                ]
               }).promise
             } catch (err) {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -359,11 +362,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
 
-  const showUploadAndDownloadButtons =
-    selectedDirectory.value.slice(1).startsWith('projects/' + orgName + '/') &&
-    !['projects' + (orgName ? `/${orgName}` : ''), 'projects/' + (orgName ? `/${orgName}/` : '')].includes(
-      selectedDirectory.value.slice(1)
-    )
+  const showDownloadButtons = selectedDirectory.value === '/projects/' + projectName + '/'
+  const showUploadButtons =
+    selectedDirectory.value.startsWith('/projects/' + projectName + '/public/') ||
+    selectedDirectory.value.startsWith('/projects/' + projectName + '/assets/')
   const showBackButton = selectedDirectory.value.split('/').length > props.originalPath.split('/').length
 
   const handleDownloadProject = async () => {
@@ -528,13 +530,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   setOpenPropertiesModal={openProperties.set}
                   setFileProperties={fileProperties.set}
                   setOpenCompress={openCompress.set}
-                  setOpenConvert={openConvert.set}
                   dropItemsOnPanel={dropItemsOnPanel}
                   isFilesLoading={isLoading}
                   addFolder={createNewFolder}
                   isListView={isListView}
                   staticResourceModifiedDates={staticResourceModifiedDates.value}
                   isSelected={selectedFileKeys.value.includes(file.key)}
+                  refreshDirectory={refreshDirectory}
                 />
               ))}
             </>
@@ -688,7 +690,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               startIcon={<FiDownload />}
               className="p-0"
               onClick={handleDownloadProject}
-              disabled={!showUploadAndDownloadButtons}
+              disabled={!showDownloadButtons}
             />
           </Tooltip>
         </div>
@@ -703,12 +705,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           id="uploadAssets"
           startIcon={<HiOutlinePlusCircle />}
           variant="transparent"
-          disabled={!showUploadAndDownloadButtons}
+          disabled={!showUploadButtons}
           rounded="none"
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
           size="small"
           onClick={() =>
-            inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+            inputFileWithAddToScene({ projectName, directoryPath: selectedDirectory.get(NO_PROXY).slice(1) })
               .then(refreshDirectory)
               .catch((err) => {
                 NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -758,6 +760,9 @@ export default function FilesPanelContainer() {
   }
 
   return (
-    <FileBrowserContentPanel originalPath={'/projects/' + originalPath + '/'} onSelectionChanged={onSelectionChanged} />
+    <FileBrowserContentPanel
+      originalPath={'/projects/' + originalPath + '/assets/'}
+      onSelectionChanged={onSelectionChanged}
+    />
   )
 }

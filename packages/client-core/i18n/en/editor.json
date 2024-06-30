@@ -1186,6 +1186,8 @@
       "uploadAssets": "Upload Assets",
       "search-placeholder": "Search folders",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
+      "file": "File",
+      "directory": "Directory",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
@@ -1214,6 +1216,12 @@
           "dateModified": "Date Modified",
           "size": "Size"
         }
+      },
+      "image-convert": {
+        "format": "Format",
+        "resize": "Resize",
+        "width": "Width",
+        "height": "Height"
       }
     },
     "scene-assets": {
