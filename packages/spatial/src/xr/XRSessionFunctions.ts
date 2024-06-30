@@ -80,16 +80,16 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
       isXREAL ? undefined : 'dom-overlay', // dom overlay crashes nreal
       'hit-test',
       'light-estimation',
-      'depth-sensing',
+      // 'depth-sensing', // TODO: crashes meta quest
       'anchors',
       'plane-detection',
       'mesh-detection',
       'camera-access'
     ].filter(Boolean),
-    depthSensing: {
-      usagePreference: ['cpu-optimized', 'gpu-optimized'],
-      dataFormatPreference: ['luminance-alpha', 'float32']
-    },
+    // depthSensing: {
+    //   usagePreference: ['cpu-optimized', 'gpu-optimized'],
+    //   dataFormatPreference: ['luminance-alpha', 'float32']
+    // },
     domOverlay: isXREAL ? undefined : { root: document.body }
   } as XRSessionInit
   const mode =
