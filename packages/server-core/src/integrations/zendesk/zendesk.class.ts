@@ -23,34 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Authentication from './authentication-setting/authentication-setting'
-import Aws from './aws-setting/aws-setting'
-import Chargebee from './chargebee-setting/chargebee-setting'
-import ClientSetting from './client-setting/client-setting'
-import Coil from './coil-setting/coil-setting'
-import Email from './email-setting/email-setting'
-import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
-import Helm from './helm-setting/helm-setting'
-import InstanceServer from './instance-server-setting/instance-server-setting'
-import ProjectServer from './project-setting/project-setting'
-import RedisSetting from './redis-setting/redis-setting'
-import ServerSetting from './server-setting/server-setting'
-import TaskServer from './task-server-setting/task-server-setting'
-import ZendeskSetting from './zendesk-setting/zendesk-setting'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
+import { BaseService } from '../../BaseService'
 
-export default [
-  ProjectServer,
-  ServerSetting,
-  ClientSetting,
-  InstanceServer,
-  Email,
-  FeatureFlagSetting,
-  Authentication,
-  Aws,
-  Chargebee,
-  Coil,
-  RedisSetting,
-  TaskServer,
-  Helm,
-  ZendeskSetting
-]
+export interface ZendeskAuthenticationParams extends KnexAdapterParams {}
+
+/**
+ * A class for ZendeskAuthentication service
+ */
+export class ZendeskAuthenticationService<
+  T = string,
+  ServiceParams extends Params = ZendeskAuthenticationParams
+> extends BaseService<string, void, ZendeskAuthenticationParams> {}

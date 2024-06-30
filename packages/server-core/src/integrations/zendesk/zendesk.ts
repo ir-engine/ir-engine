@@ -23,34 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Authentication from './authentication-setting/authentication-setting'
-import Aws from './aws-setting/aws-setting'
-import Chargebee from './chargebee-setting/chargebee-setting'
-import ClientSetting from './client-setting/client-setting'
-import Coil from './coil-setting/coil-setting'
-import Email from './email-setting/email-setting'
-import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
-import Helm from './helm-setting/helm-setting'
-import InstanceServer from './instance-server-setting/instance-server-setting'
-import ProjectServer from './project-setting/project-setting'
-import RedisSetting from './redis-setting/redis-setting'
-import ServerSetting from './server-setting/server-setting'
-import TaskServer from './task-server-setting/task-server-setting'
-import ZendeskSetting from './zendesk-setting/zendesk-setting'
+import { zendeskMethods, zendeskPath } from '@etherealengine/common/src/schemas/integrations/zendesk/zendesk.schema'
 
-export default [
-  ProjectServer,
-  ServerSetting,
-  ClientSetting,
-  InstanceServer,
-  Email,
-  FeatureFlagSetting,
-  Authentication,
-  Aws,
-  Chargebee,
-  Coil,
-  RedisSetting,
-  TaskServer,
-  Helm,
-  ZendeskSetting
-]
+import { Application } from '../../../declarations'
+import { ZendeskAuthenticationService } from './zendesk.class'
+import zendeskAuthenticationDocs from './zendesk.docs'
+import hooks from './zendesk.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [zendeskPath]: ZendeskAuthenticationService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(zendeskPath, new ZendeskAuthenticationService(), {
+    // A list of all methods this service exposes externally
+    methods: zendeskMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: zendeskAuthenticationDocs
+  })
+
+  const service = app.service(zendeskPath)
+  service.hooks(hooks)
+}
