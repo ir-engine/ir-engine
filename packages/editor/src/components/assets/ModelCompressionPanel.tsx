@@ -57,7 +57,9 @@ import exportGLTF from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import { FileType } from './FileBrowser/FileBrowserContentPanel'
 
+import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { HiPlus } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
@@ -175,7 +177,7 @@ export default function ModelCompressionPanel({
 
   const applyPreset = (preset: ModelTransformParameters) => {
     setSelectedPreset(preset)
-    setModalOpen(true)
+    PopoverState.showPopupover(<ConfirmDialog text="Would you like to apply this preset?" onSubmit={confirmPreset} />)
   }
 
   const confirmPreset = () => {
@@ -232,7 +234,6 @@ export default function ModelCompressionPanel({
     })
 
     lods.set(defaults)
-    console.log('lods', lods.get(NO_PROXY))
   }, [fileProperties.url])
 
   const handleLODSelect = (index) => {
@@ -266,7 +267,7 @@ export default function ModelCompressionPanel({
   }
 
   return (
-    <div className="w-[70vw] max-w-2xl rounded-xl bg-[#0E0F11]">
+    <div className="max-h-[80vh] w-[60vw] overflow-y-auto rounded-xl bg-[#0E0F11]">
       <div className="relative flex items-center justify-center px-8 py-3">
         <Text className="leading-6">{t('editor:properties.model.transform.compress')}</Text>
         <Button
@@ -302,12 +303,33 @@ export default function ModelCompressionPanel({
           </Button>
         </div>
 
-        <div className="grid grid-cols-12 gap-x-6">
-          <div className="col-span-8">
-            <GLTFTransformProperties transformParms={lods[selectedLODIndex].params} onChange={() => {}} />
-          </div>
+        <div className="my-8 flex items-center justify-around gap-x-1 overflow-x-auto rounded-lg border border-[#42454D] p-2">
+          {presetList.map((lodItem: LODVariantDescriptor, index) => (
+            <button
+              key={index}
+              className="text-nowrap rounded-full bg-[#2F3137] px-2 py-0.5"
+              onClick={() => applyPreset(lodItem.params)}
+            >
+              {lodItem.params.dst}
+            </button>
+          ))}
+          <button className="text-nowrap rounded bg-[#162546] px-3 py-2" onClick={() => savePresetList(false)}>
+            Save Preset
+          </button>
+        </div>
 
-          <div className="col-span-4"></div>
+        <div className="ml-[16.66%] w-4/6">
+          <GLTFTransformProperties transformParms={lods[selectedLODIndex].params} onChange={() => {}} />
+        </div>
+
+        <div className="flex justify-end px-8">
+          {compressionLoading ? (
+            <LoadingView spinnerOnly className="mx-0 h-12 w-12" />
+          ) : (
+            <Button variant="primary" onClick={compressContentInBrowser}>
+              {t('editor:properties.model.transform.compress')}
+            </Button>
+          )}
         </div>
       </div>
     </div>
