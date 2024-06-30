@@ -27,13 +27,16 @@ import { clone, debounce, isEmpty, last } from 'lodash'
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
+import {
+  staticResourcePath,
+  StaticResourceQuery,
+  StaticResourceType
+} from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { getState, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { getState, State, useHookstate } from '@etherealengine/hyperflux'
 import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -312,7 +315,6 @@ const AssetPanel = () => {
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
   const searchText = useHookstate('')
   const breadcrumbPath = useHookstate('')
-  const { projectName } = useMutableState(EditorState)
 
   const CategoriesList = () => {
     return (
@@ -369,30 +371,35 @@ const AssetPanel = () => {
 
   useEffect(() => {
     const staticResourcesFindApi = () => {
+      const tags = selectedCategory.value
+        ? [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
+        : []
+
       const query = {
         key: {
           $like: `%${searchText.value}%`
         },
-        type: 'asset',
-        project: projectName.value!,
+        type: {
+          $or: [{ type: 'file' }, { type: 'asset' }]
+        },
+        tags: selectedCategory.value
+          ? {
+              $or: tags.flatMap((tag) => [
+                { tags: { $like: `%${tag.toLowerCase()}%` } },
+                { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } }
+              ])
+            }
+          : undefined,
         $sort: { mimeType: 1 },
-        $limit: 10000
-      }
+        $paginate: false
+      } as StaticResourceQuery
 
-      if (selectedCategory.value) {
-        const tags = [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
-        query['tags'] = {
-          $or: tags.flatMap((tag) => [
-            { tags: { $like: `%${tag.toLowerCase()}%` } },
-            { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } }
-          ])
-        }
-      }
       Engine.instance.api
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
-          searchedStaticResources.set(resources.data)
+          // cast type due to temporary server-side pagination
+          searchedStaticResources.set(resources as any as StaticResourceType[])
         })
         .then(() => {
           loading.set(false)

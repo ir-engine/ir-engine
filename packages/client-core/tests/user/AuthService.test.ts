@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // import { AuthState, AuthAction, avatarFetchedReceptor } from '../../src/user/services/AuthService' // make browser globals defined
 
-// import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+// import { createEngine } from '@etherealengine/ecs/src/Engine'
 // import { getMutableState } from '@etherealengine/hyperflux
 // import { Downgraded } from '@etherealengine/hyperflux/functions/StateFunctions'
 

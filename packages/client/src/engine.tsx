@@ -30,12 +30,11 @@ import { API } from '@etherealengine/client-core/src/API'
 import { BrowserRouter, history } from '@etherealengine/client-core/src/common/services/RouterService'
 import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
 import { pipeLogs } from '@etherealengine/common/src/logger'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { Engine, createEngine } from '@etherealengine/ecs/src/Engine'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { startTimer } from '@etherealengine/spatial/src/startTimer'
 
-import { ECSState } from '@etherealengine/ecs'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { initializei18n } from './util'
 
@@ -45,7 +44,7 @@ const initializeLogs = async () => {
 }
 
 createEngine()
-getState(ECSState).timer.start()
+startTimer()
 getMutableState(EngineState).publicPath.set(
   // @ts-ignore
   import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL!.slice(0, -1) // remove trailing '/'

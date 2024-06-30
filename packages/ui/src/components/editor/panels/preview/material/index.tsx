@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useRef } from 'react'
-import { Mesh, SphereGeometry } from 'three'
+import { BufferAttribute, Mesh, SphereGeometry } from 'three'
 
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import {
@@ -63,7 +63,12 @@ export const MaterialPreviewCanvas = () => {
     setComponent(sceneEntity, VisibleComponent, true)
     const material = getMaterial(getState(MaterialSelectionState).selectedMaterial!)
     if (!material) return
-    addObjectToGroup(sceneEntity, new Mesh(new SphereGeometry(5, 32, 32), material))
+    const sphereMesh = new Mesh(new SphereGeometry(5, 32, 32), material)
+    sphereMesh.geometry.attributes['color'] = new BufferAttribute(
+      new Float32Array(sphereMesh.geometry.attributes.position.count * 3).fill(1),
+      3
+    )
+    addObjectToGroup(sceneEntity, sphereMesh)
     setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 })
     const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)
     orbitCamera.focusedEntities.set([sceneEntity])
