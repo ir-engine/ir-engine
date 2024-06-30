@@ -27,11 +27,9 @@ import { SnackbarKey, SnackbarProvider, VariantType, closeSnackbar } from 'notis
 import React, { CSSProperties, Fragment, useEffect, useRef } from 'react'
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { defineState, getState, useMutableState } from '@etherealengine/hyperflux'
 
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 const logger = multiLogger.child({ component: 'client-core:Notification' })
 
@@ -51,7 +49,7 @@ export const defaultAction = (key: SnackbarKey, content?: React.ReactNode) => {
   return (
     <Fragment>
       {content}
-      <IconButton onClick={() => closeSnackbar(key)} icon={<Icon type="Close" sx={{ color: 'white' }} />} />
+      <Icon onClick={() => closeSnackbar(key)} type={'Close'} />
     </Fragment>
   )
 }
@@ -67,7 +65,6 @@ export const NotificationService = {
     }
 
     const state = getState(NotificationState)
-    AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
     state.snackbar?.enqueueSnackbar(message, {
       variant: options.variant,
       action: NotificationActions[options.actionType ?? 'default']

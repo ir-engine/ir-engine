@@ -26,13 +26,15 @@ import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
-import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
 import { HookContext } from '../../../declarations'
 import checkScope from '../../hooks/check-scope'
 import collectAnalytics from '../../hooks/collect-analytics'
 import enableClientPagination from '../../hooks/enable-client-pagination'
+import isAction from '../../hooks/is-action'
 import resolveProjectId from '../../hooks/resolve-project-id'
+import resolveProjectsByPermission from '../../hooks/resolve-projects-by-permission'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
 import verifyScope from '../../hooks/verify-scope'
@@ -152,6 +154,23 @@ const getProjectName = async (context: HookContext<StaticResourceService>) => {
   return context
 }
 
+const hasProjectField = (context: HookContext<StaticResourceService>) => {
+  return context.params.query?.project != undefined
+}
+
+const isKeyPublic = (context: HookContext<StaticResourceService>) => {
+  if (context.method !== 'get') throw new BadRequest('isKeyPublic hook only works for get method')
+  const result = context.result as StaticResourceType
+
+  if (!result.project) return
+
+  const projectRelativeKey = result.key.replace(`projects/${result.project}/`, '')
+  if (!projectRelativeKey.startsWith('public/') && !projectRelativeKey.startsWith('assets/'))
+    throw new Forbidden('Cannot access this resource')
+
+  return context
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveResult(staticResourceResolver)]
@@ -163,27 +182,23 @@ export default {
       iff(
         isProvider('external'),
         iffElse(
-          checkScope('static_resource', 'read'),
+          (ctx: HookContext) => isAction('admin')(ctx) && checkScope('static_resource', 'read')(ctx),
           [],
-          [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])]
+          [
+            verifyScope('editor', 'write'),
+            iffElse(
+              hasProjectField,
+              [resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])],
+              [resolveProjectsByPermission()]
+            ) as any
+          ]
         )
       ),
       enableClientPagination() /** @todo we should either constrain this only for when type='scene' or remove it in favour of comprehensive front end pagination */,
       discardQuery('action', 'projectId'),
       collectAnalytics()
     ],
-    get: [
-      iff(
-        isProvider('external'),
-        iffElse(
-          checkScope('static_resource', 'read'),
-          [],
-          [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])]
-        )
-      ),
-      discardQuery('action', 'projectId'),
-      collectAnalytics()
-    ],
+    get: [collectAnalytics()],
     create: [
       ensureProject,
       iff(
@@ -251,7 +266,16 @@ export default {
   after: {
     all: [],
     find: [],
-    get: [],
+    get: [
+      iff(
+        isProvider('external'),
+        iffElse(
+          (ctx: HookContext) => checkScope('static_resource', 'read')(ctx) || verifyScope('editor', 'write')(ctx),
+          [],
+          [isKeyPublic]
+        )
+      )
+    ],
     create: [updateResourcesJson],
     update: [updateResourcesJson],
     patch: [updateResourcesJson],
