@@ -136,7 +136,7 @@ export const MediaIconsBox = () => {
     if (spectating) {
       SearchParamState.set('spectate', none)
     } else {
-      SearchParamState.set('spectate', 'true')
+      SearchParamState.set('spectate', '')
     }
   }
 
