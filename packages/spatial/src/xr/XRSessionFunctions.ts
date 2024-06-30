@@ -142,8 +142,8 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
   const transform = getComponent(cameraAttachedEntity, TransformComponent)
 
   /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */
-  worldOriginTransform.position.copy(transform.position)
-  worldOriginTransform.rotation.copy(transform.rotation).multiply(quat180y)
+  // worldOriginTransform.position.copy(transform.position)
+  // worldOriginTransform.rotation.copy(transform.rotation).multiply(quat180y)
 
   const onLocalFloorReset = (ev: XRReferenceSpaceEvent) => {
     /** @todo ev.transform is not yet implemented on the Quest browser */
