@@ -41,6 +41,7 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import {
   createMaterialPrototype,
+  materialPrototypeMatches,
   setMeshMaterial,
   updateMaterialPrototype
 } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
@@ -96,7 +97,7 @@ const MaterialEntityReactor = () => {
   }, [materialComponent.material])
 
   useEffect(() => {
-    if (materialComponent.prototypeEntity.value) updateMaterialPrototype(entity)
+    if (materialComponent.prototypeEntity.value && !materialPrototypeMatches(entity)) updateMaterialPrototype(entity)
   }, [materialComponent.prototypeEntity])
 
   useEffect(() => {

@@ -23,12 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
+import { BaseService } from '../../BaseService'
 
-import '../themes/base.css'
-import '../themes/components.css'
-import '../themes/utilities.css'
+export interface ZendeskAuthenticationParams extends KnexAdapterParams {}
 
-export default function Tailwind() {
-  return <></>
-}
+/**
+ * A class for ZendeskAuthentication service
+ */
+export class ZendeskAuthenticationService<
+  T = string,
+  ServiceParams extends Params = ZendeskAuthenticationParams
+> extends BaseService<string, void, ZendeskAuthenticationParams> {}
