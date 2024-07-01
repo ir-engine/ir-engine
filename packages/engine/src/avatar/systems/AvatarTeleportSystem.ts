@@ -58,7 +58,9 @@ import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/compon
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { ReferenceSpace, XRAction, XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -264,6 +266,8 @@ const reactor = () => {
   useEffect(() => {
     if (!cameraAttachedToAvatar.value) return
 
+    const originEntity = getState(EngineState).originEntity
+
     const lineGeometry = new BufferGeometry()
     lineGeometryVertices.fill(0)
     lineGeometryColors.fill(0.5)
@@ -277,6 +281,7 @@ const reactor = () => {
     const guidelineEntity = createEntity()
     addObjectToGroup(guidelineEntity, guideline)
     setComponent(guidelineEntity, NameComponent, 'Teleport Guideline')
+    setComponent(guidelineEntity, EntityTreeComponent, { parentEntity: originEntity })
 
     // The guide cursor at the end of the line
     const guideCursorGeometry = new RingGeometry(0.45, 0.5, 32)
@@ -290,6 +295,7 @@ const reactor = () => {
     const guideCursorEntity = createEntity()
     addObjectToGroup(guideCursorEntity, guideCursor)
     setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
+    setComponent(guideCursorEntity, EntityTreeComponent, { parentEntity: originEntity })
 
     const transition = createTransitionState(0.5)
 
