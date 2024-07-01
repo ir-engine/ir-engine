@@ -20,7 +20,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { v4 as uuidv4 } from 'uuid'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import {
@@ -104,15 +103,12 @@ export default function AddEditLocationModal({
       sceneId: scene.value,
       maxUsersPerInstance: maxUsers.value,
       locationSetting: {
-        id: uuidv4(),
         locationId: '' as LocationID,
         locationType: locationType.value,
         audioEnabled: audioEnabled.value,
         screenSharingEnabled: screenSharingEnabled.value,
         faceStreamingEnabled: false,
-        videoEnabled: videoEnabled.value,
-        createdAt: '',
-        updatedAt: ''
+        videoEnabled: videoEnabled.value
       },
       isLobby: false,
       isFeatured: false

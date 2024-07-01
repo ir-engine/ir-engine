@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { v4 as uuidv4 } from 'uuid'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
@@ -46,7 +45,6 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
-import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { NotificationService } from '../../../common/services/NotificationService'
 import styles from '../../old-styles/admin.module.scss'
@@ -190,15 +188,12 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
       sceneId: state.scene.value,
       maxUsersPerInstance: state.maxUsers.value,
       locationSetting: {
-        id: uuidv4(),
         locationId: '' as LocationID,
         locationType: state.type.value as 'private' | 'public' | 'showroom',
         audioEnabled: state.audioEnabled.value,
         screenSharingEnabled: state.screenSharingEnabled.value,
         faceStreamingEnabled: false, //state.faceStreamingEnabled.value,
-        videoEnabled: state.videoEnabled.value,
-        createdAt: toDateTimeSql(new Date()),
-        updatedAt: toDateTimeSql(new Date())
+        videoEnabled: state.videoEnabled.value
       },
       isLobby: false, //state.isLobby.value,
       isFeatured: false //state.isFeatured.value

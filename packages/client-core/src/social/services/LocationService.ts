@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers'
-import { v4 as uuidv4 } from 'uuid'
 
 import {
   locationBanPath,
@@ -50,7 +49,7 @@ export const LocationSeed: LocationType = {
   isLobby: false,
   isFeatured: false,
   locationSetting: {
-    id: uuidv4(),
+    id: '',
     locationId: '' as LocationID,
     audioEnabled: false,
     screenSharingEnabled: false,

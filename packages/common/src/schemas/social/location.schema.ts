@@ -35,7 +35,7 @@ import { dataValidator, queryValidator } from '../validators'
 import { locationAdminDataSchema, locationAdminSchema } from './location-admin.schema'
 import { locationAuthorizedUserSchema } from './location-authorized-user.schema'
 import { locationBanSchema } from './location-ban.schema'
-import { locationSettingSchema } from './location-setting.schema'
+import { locationSettingDataSchema, locationSettingSchema } from './location-setting.schema'
 
 export const locationPath = 'location'
 
@@ -89,8 +89,7 @@ export const locationDatabaseProperties = Type.Pick(locationSchema, [
   'slugifiedName',
   'isLobby',
   'isFeatured',
-  'maxUsersPerInstance',
-  'locationSetting'
+  'maxUsersPerInstance'
 ])
 
 export const locationDataSchema = Type.Intersect(
@@ -103,7 +102,8 @@ export const locationDataSchema = Type.Intersect(
             format: 'uuid'
           })
         ),
-        locationAdmin: Type.Optional(Type.Ref(locationAdminDataSchema))
+        locationAdmin: Type.Optional(Type.Ref(locationAdminDataSchema)),
+        locationSetting: Type.Ref(locationSettingDataSchema)
       },
       { additionalProperties: false }
     )

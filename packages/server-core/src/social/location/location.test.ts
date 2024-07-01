@@ -67,15 +67,12 @@ describe('location.test', () => {
         sceneId: scene.data[0].id,
         maxUsersPerInstance: 20,
         locationSetting: {
-          id: uuidv4(),
           locationType: 'public',
           audioEnabled: true,
           videoEnabled: true,
           faceStreamingEnabled: false,
           screenSharingEnabled: false,
-          locationId: '' as LocationID,
-          createdAt: '',
-          updatedAt: ''
+          locationId: '' as LocationID
         },
         isLobby: false,
         isFeatured: false
