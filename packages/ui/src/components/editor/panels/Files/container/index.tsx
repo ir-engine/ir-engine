@@ -469,12 +469,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const staticResourceModifiedDates = useHookstate<Record<string, string>>({})
 
     useEffect(() => {
+      if (staticResourceData.status !== 'success') return
       const modifiedDates: Record<string, string> = {}
       staticResourceData.data.forEach((data) => {
         modifiedDates[data.key] = new Date(data.updatedAt).toLocaleString()
       })
       staticResourceModifiedDates.set(modifiedDates)
-    }, [staticResourceData.data])
+    }, [staticResourceData.status])
 
     const handleFileBrowserItemClick = (e: React.MouseEvent, currentFile: FileDataType) => {
       e.stopPropagation()
