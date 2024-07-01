@@ -61,7 +61,7 @@ export interface UserSettingDatabaseType extends Omit<UserSettingType, 'themeMod
 }
 
 // Schema for creating new entries
-export const userSettingDataSchema = Type.Pick(userSettingSchema, ['userId'], {
+export const userSettingDataSchema = Type.Partial(userSettingSchema, {
   $id: 'UserSettingData'
 })
 export interface UserSettingData extends Static<typeof userSettingDataSchema> {}
