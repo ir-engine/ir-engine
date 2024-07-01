@@ -74,7 +74,7 @@ export const FollowCameraComponent = defineComponent({
     // }
 
     const cameraRays = [] as Vector3[]
-    const rayConeAngle = Math.PI / 6
+    const rayConeAngle = Math.PI / 12
     const camRayCastClock = new Clock()
     const camRayCastCache = {
       maxDistance: -1,
