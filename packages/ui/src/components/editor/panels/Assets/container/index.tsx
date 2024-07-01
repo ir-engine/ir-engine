@@ -487,7 +487,7 @@ const AssetPanel = () => {
   }
 
   const refreshDirectory = async () => {
-    assetsQuery.refetch()
+    await assetsQuery.refetch()
   }
 
   return (
