@@ -23,19 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FeatureFlag, featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { useEffect } from 'react'
 
 export const FeatureFlagsState = defineState({
   name: 'ee.engine.FeatureFlagsState',
-  initial: {} as Record<FeatureFlag, boolean>,
-  enabled(flagName: FeatureFlag) {
+  initial: {} as Record<string, boolean>,
+  enabled(flagName: string) {
     const state = getMutableState(FeatureFlagsState)[flagName].value
     return typeof state === 'boolean' ? state : true
   },
-  useEnabled(flagName: FeatureFlag) {
+  useEnabled(flagName: string) {
     const state = useHookstate(getMutableState(FeatureFlagsState)[flagName]).value
     return typeof state === 'boolean' ? state : true
   },
