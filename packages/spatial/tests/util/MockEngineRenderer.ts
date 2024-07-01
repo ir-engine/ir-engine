@@ -23,18 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import './patchNodeForWebXREmulator'
+
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
 import { EffectComposer } from 'postprocessing'
 import { EngineRenderer } from '../../src/renderer/WebGLRendererSystem'
+import { createWebXRManager } from '../../src/xr/WebXRManager'
 import { MockEventListener } from './MockEventListener'
 
 class MockRenderer {
+  cancelAnimationFrame = () => {}
   setAnimationLoop = () => {}
+  animation = {
+    start: () => {},
+    stop: () => {},
+    setAnimationLoop: () => {},
+    setContext: () => {}
+  }
   domElement = new MockEventListener()
   setPixelRatio = () => {}
+  getRenderTarget = () => {}
   getSize = () => 0
-  getContext = () => {}
+  getContext = () => {
+    return {
+      getContextAttributes: () => {
+        return {
+          xrCompatible: true
+        }
+      },
+      viewport: () => {}
+    } as Partial<WebGL2RenderingContext>
+  }
   getPixelRatio = () => 1
   dispose = () => {}
 }
@@ -54,5 +74,6 @@ export class MockEngineRenderer extends EngineRenderer {
       dispose: () => {}
     } as unknown as EffectComposer
     this.needsResize = false
+    this.xrManager = createWebXRManager(this.renderer)
   }
 }
