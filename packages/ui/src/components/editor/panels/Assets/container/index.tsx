@@ -31,7 +31,6 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import {
   StaticResourceQuery,
   StaticResourceType,
-  fileBrowserPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -41,7 +40,6 @@ import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/as
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -322,12 +320,6 @@ const AssetPanel = () => {
   const searchText = useHookstate('')
   const breadcrumbPath = useHookstate('')
   const originalPath = useMutableState(EditorState).projectName.value
-
-  const assetsQuery = useFind(fileBrowserPath, {
-    query: {
-      directory: 'assets/'
-    }
-  })
 
   const CategoriesList = () => {
     return (
