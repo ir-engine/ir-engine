@@ -264,7 +264,7 @@ export class FileBrowserService
         const arr = await response.arrayBuffer()
         data.body = Buffer.from(arr)
       } catch (error) {
-        throw new Error('Invalid URL ' + url)
+        throw new Error('Invalid URL ' + url + error)
       }
     }
 
