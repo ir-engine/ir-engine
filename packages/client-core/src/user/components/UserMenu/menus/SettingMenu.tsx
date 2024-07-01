@@ -108,11 +108,10 @@ const SettingMenu = (): JSX.Element => {
     admin: userSettings?.themeModes?.admin ?? defaultThemeModes.admin
   }
 
-  const handleChangeUserThemeMode = (event) => {
+  const handleChangeUserThemeMode = (mode, event) => {
     if (!userSettings) return
-    const { name, value } = event.target
 
-    const settings: UserSettingPatch = { themeModes: { ...themeModes, [name]: value } }
+    const settings: UserSettingPatch = { themeModes: { ...themeModes, [mode]: event } }
     AuthService.updateUserSettings(userSettings.id, settings)
   }
 
@@ -220,7 +219,7 @@ const SettingMenu = (): JSX.Element => {
                       value={themeModes[mode]}
                       className="w-full"
                       inputClassName="rounded-lg overflow-hidden"
-                      onChange={(e) => handleChangeUserThemeMode(e)}
+                      onChange={(val) => handleChangeUserThemeMode(mode, val)}
                       options={colorModesMenu}
                     />
                   </InputGroup>
