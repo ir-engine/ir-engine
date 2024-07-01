@@ -28,7 +28,7 @@ import { twMerge } from 'tailwind-merge'
 import ClickAwayListener from './ClickAwayListener'
 
 type ContextMenuProps = {
-  anchorEvent: null | React.MouseEvent<HTMLElement>
+  anchorEvent: undefined | React.MouseEvent<HTMLElement>
   panelId: string
   anchorPosition?: undefined | { left: number; top: number }
   onClose: () => void
