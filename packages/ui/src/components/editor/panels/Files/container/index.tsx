@@ -689,7 +689,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
 
         <Button
-          id="uploadAssets"
+          id="uploadFiles"
           startIcon={<HiOutlinePlusCircle />}
           variant="transparent"
           disabled={!showUploadButtons}
@@ -704,7 +704,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               })
           }
         >
-          {t('editor:layout.filebrowser.uploadAssets')}
+          {t('editor:layout.filebrowser.uploadFiles')}
         </Button>
       </div>
       {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}

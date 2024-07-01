@@ -27,16 +27,21 @@ import { clone, debounce, isEmpty, last } from 'lodash'
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import {
-  staticResourcePath,
   StaticResourceQuery,
-  StaticResourceType
+  StaticResourceType,
+  fileBrowserPath,
+  staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
+import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
+import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { getState, State, useHookstate } from '@etherealengine/hyperflux'
+import { State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -66,6 +71,7 @@ type Category = {
   isLeaf: boolean
   depth: number
 }
+
 const AssetsPreviewContext = createContext({ onAssetSelectionChanged: (props: AssetSelectionChangePropsType) => {} })
 
 const generateAssetsBreadcrumb = (categories: Category[], target: string) => {
@@ -315,6 +321,14 @@ const AssetPanel = () => {
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
   const searchText = useHookstate('')
   const breadcrumbPath = useHookstate('')
+  const originalPath = useMutableState(EditorState).projectName.value
+
+  console.log(`ORIGPATH: ${originalPath}`)
+  const assetsQuery = useFind(fileBrowserPath, {
+    query: {
+      directory: 'assets/'
+    }
+  })
 
   const CategoriesList = () => {
     return (
@@ -473,8 +487,8 @@ const AssetPanel = () => {
     // TODO: add settings functionality
   }
 
-  const handleUpdateAsset = () => {
-    // TODO: add upload asset functionality
+  const refreshDirectory = async () => {
+    assetsQuery.refetch()
   }
 
   return (
@@ -529,7 +543,16 @@ const AssetPanel = () => {
           rounded="none"
           className="h-full whitespace-nowrap bg-[#375DAF] px-2"
           size="small"
-          onClick={handleUpdateAsset}
+          onClick={() =>
+            inputFileWithAddToScene({
+              projectName: originalPath as string,
+              directoryPath: `projects/${originalPath}/assets/`
+            })
+              .then(refreshDirectory)
+              .catch((err) => {
+                NotificationService.dispatchNotify(err.message, { variant: 'error' })
+              })
+          }
         >
           {t('editor:layout.filebrowser.uploadAssets')}
         </Button>
