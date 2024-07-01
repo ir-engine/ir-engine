@@ -44,9 +44,9 @@ import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
 import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
-import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import { SelectOptionsType } from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
+import Menu from '../../../../common/components/Menu'
 import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
@@ -187,13 +187,7 @@ const SettingMenu = (): JSX.Element => {
   }
 
   return (
-    <Modal
-      title={'Settings'}
-      onClose={() => PopupMenuServices.showPopupMenu()}
-      hideFooter
-      className="bg-[#0E0F11]"
-      isPopover={true}
-    >
+    <Menu title={'Settings'} open onClose={() => PopupMenuServices.showPopupMenu()}>
       <div>
         <div className="mb-3 flex">
           {settingTabs.map((tab) => (
@@ -483,7 +477,7 @@ const SettingMenu = (): JSX.Element => {
           </>
         )}
       </div>
-    </Modal>
+    </Menu>
   )
 }
 
