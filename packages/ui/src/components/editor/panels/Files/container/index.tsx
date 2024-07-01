@@ -48,14 +48,15 @@ import {
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
 import { FilePropertiesPanel } from '@etherealengine/editor/src/components/assets/FileBrowser/FilePropertiesPanel'
 import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
-import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { bytesToSize, unique } from '@etherealengine/editor/src/functions/utils'
+import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
+import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
@@ -106,7 +107,7 @@ export type FileType = {
   url: string
 }
 
-const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
+function fileConsistsOfContentType(file: FileDataType, contentType: string): boolean {
   if (file.isFolder) {
     return contentType.startsWith('image')
   } else {
@@ -176,7 +177,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
-  const openConvert = useHookstate(false)
 
   const openConfirm = useHookstate(false)
   const contentToDeletePath = useHookstate('')
@@ -248,6 +248,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         contentType: params.type,
         size: params.size
       })
+      const editorHelperState = getState(EditorHelperState)
+      if (editorHelperState.placementMode === PlacementMode.CLICK) {
+        getMutableState(ClickPlacementState).selectedAsset.set(params.url)
+      }
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
       changeDirectoryByPath(newPath)
@@ -269,7 +273,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         moveContent(data.fullName, data.fullName, data.path, path, false)
       }
     } else {
-      const relativePath = folder.replace('projects/' + projectName + '/', '')
+      const relativePath = folder.replace('projects/' + projectName + '/', '').replace(/^\//gi, '')
       await Promise.all(
         data.files.map(async (file) => {
           const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
@@ -280,9 +284,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             try {
               const name = processFileName(file.name)
               await uploadToFeathersService(fileBrowserUploadPath, [file], {
-                project: projectName,
-                path: relativePath + name,
-                contentType: file.type
+                args: [
+                  {
+                    project: projectName,
+                    path: relativePath + name,
+                    contentType: file.type
+                  }
+                ]
               }).promise
             } catch (err) {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -340,11 +348,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
 
-  const showUploadAndDownloadButtons =
-    selectedDirectory.value.slice(1).startsWith('projects/' + orgName + '/') &&
-    !['projects' + (orgName ? `/${orgName}` : ''), 'projects/' + (orgName ? `/${orgName}/` : '')].includes(
-      selectedDirectory.value.slice(1)
-    )
+  const showDownloadButtons = selectedDirectory.value === '/projects/' + projectName + '/'
+  const showUploadButtons =
+    selectedDirectory.value.startsWith('/projects/' + projectName + '/public/') ||
+    selectedDirectory.value.startsWith('/projects/' + projectName + '/assets/')
   const showBackButton = selectedDirectory.value.split('/').length > props.originalPath.split('/').length
 
   const handleDownloadProject = async () => {
@@ -448,12 +455,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const staticResourceModifiedDates = useHookstate<Record<string, string>>({})
 
     useEffect(() => {
+      if (staticResourceData.status !== 'success') return
       const modifiedDates: Record<string, string> = {}
       staticResourceData.data.forEach((data) => {
         modifiedDates[data.key] = new Date(data.updatedAt).toLocaleString()
       })
       staticResourceModifiedDates.set(modifiedDates)
-    }, [staticResourceData.data])
+    }, [staticResourceData.status])
 
     const handleFileBrowserItemClick = (e: React.MouseEvent, currentFile: FileDataType) => {
       e.stopPropagation()
@@ -509,13 +517,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   setOpenPropertiesModal={openProperties.set}
                   setFileProperties={fileProperties.set}
                   setOpenCompress={openCompress.set}
-                  setOpenConvert={openConvert.set}
                   dropItemsOnPanel={dropItemsOnPanel}
                   isFilesLoading={isLoading}
                   addFolder={createNewFolder}
                   isListView={isListView}
                   staticResourceModifiedDates={staticResourceModifiedDates.value}
                   isSelected={selectedFileKeys.value.includes(file.key)}
+                  refreshDirectory={refreshDirectory}
                 />
               ))}
             </>
@@ -669,7 +677,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               startIcon={<FiDownload />}
               className="p-0"
               onClick={handleDownloadProject}
-              disabled={!showUploadAndDownloadButtons}
+              disabled={!showDownloadButtons}
             />
           </Tooltip>
         </div>
@@ -684,12 +692,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           id="uploadAssets"
           startIcon={<HiOutlinePlusCircle />}
           variant="transparent"
-          disabled={!showUploadAndDownloadButtons}
+          disabled={!showUploadButtons}
           rounded="none"
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
           size="small"
           onClick={() =>
-            inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+            inputFileWithAddToScene({ projectName, directoryPath: selectedDirectory.get(NO_PROXY).slice(1) })
               .then(refreshDirectory)
               .catch((err) => {
                 NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -706,13 +714,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <DropArea />
         </DndWrapper>
       </div>
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model') && (
-        <ModelCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
-          onRefreshDirectory={refreshDirectory}
-        />
-      )}
 
       {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
         <ImageCompressionPanel
@@ -746,6 +747,9 @@ export default function FilesPanelContainer() {
   }
 
   return (
-    <FileBrowserContentPanel originalPath={'/projects/' + originalPath + '/'} onSelectionChanged={onSelectionChanged} />
+    <FileBrowserContentPanel
+      originalPath={'/projects/' + originalPath + '/assets/'}
+      onSelectionChanged={onSelectionChanged}
+    />
   )
 }

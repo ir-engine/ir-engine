@@ -113,9 +113,8 @@ const usePrefabShelfCategories = (search: string) => {
     return getState(PrefabShelfState)
   }
 
-  const searchRegExp = new RegExp(search, 'gi')
-
-  return getState(PrefabShelfState).filter(({ name }) => !!name.match(searchRegExp)?.length)
+  const searchString = search.toLowerCase()
+  return getState(PrefabShelfState).filter(({ name }) => name.toLowerCase().includes(searchString))
 }
 
 export function PrefabList() {

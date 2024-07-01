@@ -42,6 +42,7 @@ import {
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
 
+import { startTimer } from '@etherealengine/spatial/src/startTimer'
 import channels from './channels'
 import { setupSocketFunctions } from './SocketFunctions'
 
@@ -69,6 +70,8 @@ export const instanceServerPipe = pipe(configureOpenAPI(), configurePrimus(true)
 
 export const start = async (): Promise<Application> => {
   const app = createFeathersKoaApp(ServerMode.Instance, instanceServerPipe)
+  startTimer()
+
   const serverState = getMutableState(ServerState)
 
   const agonesSDK = new AgonesSDK()

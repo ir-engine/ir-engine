@@ -45,10 +45,11 @@ import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
 
 import { AssetType } from '@etherealengine/common/src/constants/AssetType'
-import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/regex'
+
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { ResourcesJson } from '@etherealengine/common/src/interfaces/ResourcesJson'
+import { ResourcesJson, ResourceType } from '@etherealengine/common/src/interfaces/ResourcesJson'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
@@ -1635,6 +1636,15 @@ const migrateResourcesJson = (projectName: string, resourceJsonPath: string) => 
   if (newManifest) fs.writeFileSync(resourceJsonPath, Buffer.from(JSON.stringify(newManifest, null, 2)))
 }
 
+const getResourceType = (key: string, resource?: ResourceType) => {
+  // TODO: figure out a better way of handling thumbnails rather than by convention
+  if (key.startsWith('public/thumbnails') || key.endsWith('.thumbnail.jpg')) return 'thumbnail'
+  if (!resource) return 'file'
+  if (resource.type) return resource.type
+  if (resource.tags) return 'asset'
+  return 'file'
+}
+
 const staticResourceClasses = [
   AssetType.Audio,
   AssetType.Image,
@@ -1734,7 +1744,7 @@ export const uploadLocalProjectToProvider = async (
       const hash = createStaticResourceHash(fileResult)
       const stats = await getStats(fileResult, contentType)
       const resourceInfo = resourcesJson?.[filePathRelative]
-      const type = isScene ? 'scene' : resourceInfo?.type ? resourceInfo?.type : resourceInfo?.tags ? 'asset' : 'file' // assume if it has already been given tag metadata that it is an asset
+      const type = isScene ? 'scene' : getResourceType(filePathRelative, resourceInfo!)
       const thumbnailKey =
         resourceInfo?.thumbnailKey ?? (isScene ? key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg' : undefined)
 
