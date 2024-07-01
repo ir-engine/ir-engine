@@ -181,6 +181,7 @@ export function Timer(update: TimerUpdateCallback, serverTickRate = 60) {
   }
 
   return {
+    animation,
     start: start,
     stop: stop,
     clear: clear

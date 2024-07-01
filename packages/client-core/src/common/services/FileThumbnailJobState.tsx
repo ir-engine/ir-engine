@@ -106,13 +106,24 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
     .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '')
     .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
-  await uploadToFeathersService(fileBrowserUploadPath, [file], {
-    fileName: file.name,
-    project: projectName,
-    path: 'public/thumbnails/' + file.name,
-    contentType: file.type
-  }).promise
-  await Engine.instance.api.service(staticResourcePath).patch(staticResourceId, { thumbnailKey, thumbnailMode })
+  const pathname = new URL(
+    await uploadToFeathersService(fileBrowserUploadPath, [file], {
+      args: [
+        {
+          fileName: file.name,
+          project: projectName,
+          path: 'public/thumbnails/' + file.name,
+          contentType: file.type,
+          type: 'thumbnail',
+          thumbnailKey,
+          thumbnailMode
+        }
+      ]
+    }).promise
+  ).pathname
+  await Engine.instance.api
+    .service(staticResourcePath)
+    .patch(staticResourceId, { thumbnailKey: pathname.slice(1), thumbnailMode })
 }
 
 const seenThumbnails = new Set<string>()

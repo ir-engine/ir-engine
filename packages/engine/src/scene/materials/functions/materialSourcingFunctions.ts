@@ -116,7 +116,7 @@ export const createMaterialEntity = (material: Material, path?: string, user?: E
   const materialEntity = createEntity()
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
   if (path) setComponent(materialEntity, SourceComponent, path)
-  const prototypeEntity = getPrototypeEntityFromName(material.type)
+  const prototypeEntity = getPrototypeEntityFromName(material.userData.type || material.type)
   if (!prototypeEntity) throw new PrototypeNotFoundError(`Material prototype ${material.type} not found`)
   setComponent(materialEntity, MaterialStateComponent, {
     material,
