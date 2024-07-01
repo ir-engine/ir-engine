@@ -51,6 +51,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { UUIDComponent } from '@etherealengine/ecs'
+import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection, PI, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { NameComponent } from '../../common/NameComponent'
@@ -375,9 +376,6 @@ const execute = () => {
       sortedIntersections.length === 0 &&
       !hasComponent(sourceEid, InputPointerComponent)
     ) {
-      let closestEntity = UndefinedEntity
-      let closestDistanceSquared = Infinity
-
       //use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
       const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID) //would prefer a better way to do this
       const inputSourceEntity =
@@ -392,20 +390,35 @@ const execute = () => {
           const inputComponent = getComponent(inputEntity, InputComponent)
 
           TransformComponent.getWorldPosition(inputEntity, worldPosInputComponent)
-
           const distSquared = worldPosInputSourceComponent.distanceToSquared(worldPosInputComponent)
 
           //closer than our current closest AND within inputSource's activation distance
-          if (
-            distSquared < closestDistanceSquared &&
-            inputComponent.activationDistance * inputComponent.activationDistance > distSquared
-          ) {
-            closestDistanceSquared = distSquared
-            closestEntity = inputEntity
+          if (inputComponent.activationDistance * inputComponent.activationDistance > distSquared) {
+            //using this object type out of convenience (intersectionsData is also guaranteed empty in this flow)
+            intersectionData.add({ entity: inputEntity, distance: distSquared }) //keeping it as distSquared for now to avoid extra square root calls
           }
         }
-        if (closestEntity !== UndefinedEntity) {
-          sortedIntersections.push({ entity: closestEntity, distance: Math.sqrt(closestDistanceSquared) })
+        const closestEntities = Array.from(intersectionData)
+        if (closestEntities.length > 0) {
+          if (closestEntities.length === 1) {
+            sortedIntersections.push({
+              entity: closestEntities[0].entity,
+              distance: Math.sqrt(closestEntities[0].distance)
+            })
+          } else {
+            //sort if more than 1 entry
+            closestEntities.sort((a, b) => {
+              //prioritize anything with an InteractableComponent if otherwise equal
+              const aNum = hasComponent(a.entity, InteractableComponent) ? -1 : 0
+              const bNum = hasComponent(b.entity, InteractableComponent) ? -1 : 0
+              //aNum - bNum : 0 if equal, -1 if a has tag and b doesn't, 1 if a doesnt have tag and b does
+              return Math.sign(a.distance - b.distance) + (aNum - bNum)
+            })
+            sortedIntersections.push({
+              entity: closestEntities[0].entity,
+              distance: Math.sqrt(closestEntities[0].distance)
+            })
+          }
         }
       }
     }
