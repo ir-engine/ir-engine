@@ -40,7 +40,7 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { Heuristic, VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
-import { getState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { getState, NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -140,13 +140,11 @@ export const createLODVariants = async (
 }
 
 export default function ModelCompressionPanel({
-  openCompress,
-  fileProperties,
-  onRefreshDirectory
+  selectedFile,
+  refreshDirectory
 }: {
-  openCompress: State<boolean>
-  fileProperties: State<FileType>
-  onRefreshDirectory: () => Promise<void>
+  selectedFile: FileType
+  refreshDirectory: () => Promise<void>
 }) {
   const { t } = useTranslation()
   const compressionLoading = useHookstate(false)
@@ -166,9 +164,8 @@ export default function ModelCompressionPanel({
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
     await compressModel()
-    await onRefreshDirectory()
+    await refreshDirectory()
     compressionLoading.set(false)
-    openCompress.set(false)
   }
 
   const applyPreset = (preset: ModelTransformParameters) => {
@@ -209,8 +206,9 @@ export default function ModelCompressionPanel({
 
   const deletePreset = (event: React.MouseEvent, idx: number) => {
     event.stopPropagation()
-    presetList.set(presetList.value.filter((_, i) => i !== idx))
-    localStorage.setItem('presets', JSON.stringify(presetList))
+    presetList[idx].set(none)
+    // presetList.set(presetList.value.filter((_, i) => i !== idx))
+    localStorage.setItem('presets', JSON.stringify(presetList.value))
   }
 
   const handleRemoveLOD = (idx: number) => {
@@ -221,7 +219,7 @@ export default function ModelCompressionPanel({
   }
 
   useEffect(() => {
-    const fullSrc = fileProperties.url.value
+    const fullSrc = selectedFile.url
     const fileName = fullSrc.split('/').pop()!.split('.').shift()!
 
     const defaults = defaultLODs.map((defaultLOD) => {
@@ -234,7 +232,7 @@ export default function ModelCompressionPanel({
     })
 
     lods.set(defaults)
-  }, [fileProperties.url])
+  }, [selectedFile.url])
 
   const handleAddLOD = () => {
     const params = JSON.parse(JSON.stringify(lods[selectedLODIndex.value].params.value)) as ModelTransformParameters

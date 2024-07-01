@@ -25,11 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import {
   FilesViewModeSettings,
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
+import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
@@ -48,6 +50,7 @@ import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { FileType } from '../container'
 import { FileIcon } from '../icon'
 import DeleteFileModal from './DeleteFileModal'
 import ImageConvertModal from './ImageConvertModal'
@@ -210,6 +213,15 @@ type FileBrowserItemType = {
   staticResourceModifiedDates: Record<string, string>
   isSelected: boolean
   refreshDirectory: () => Promise<void>
+}
+
+function fileConsistsOfContentType(file: FileDataType, contentType: string): boolean {
+  if (file.isFolder) {
+    return contentType.startsWith('image')
+  } else {
+    const guessedType: string = CommonKnownContentTypes[file.type]
+    return guessedType?.startsWith(contentType)
+  }
 }
 
 export function FileBrowserItem({
@@ -404,7 +416,19 @@ export function FileBrowserItem({
         <Button variant="outline" size="small" fullWidth onClick={viewAssetProperties}>
           {t('editor:layout.filebrowser.viewAssetProperties')}
         </Button>
-        <Button variant="outline" size="small" fullWidth onClick={viewCompress}>
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          disabled={!fileConsistsOfContentType(item, 'model')}
+          onClick={() => {
+            if (fileConsistsOfContentType(item, 'model')) {
+              PopoverState.showPopupover(
+                <ModelCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
+              )
+            }
+          }}
+        >
           {t('editor:layout.filebrowser.compress')}
         </Button>
         <Button
