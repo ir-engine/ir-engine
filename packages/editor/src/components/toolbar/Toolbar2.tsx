@@ -169,6 +169,7 @@ export default function Toolbar() {
       </div>
       <ContextMenu
         anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
+        anchorEl={anchorEvent && anchorEvent.value?.currentTarget}
         anchorPosition={anchorPosition.value}
         panelId="toolbar-menu"
         onClose={() => anchorEvent.set(null)}

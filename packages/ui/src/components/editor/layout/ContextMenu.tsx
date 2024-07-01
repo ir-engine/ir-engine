@@ -33,6 +33,7 @@ type ContextMenuProps = {
   anchorPosition?: undefined | { left: number; top: number }
   onClose: () => void
   className?: string
+  anchorEl?: object
 }
 
 export const ContextMenu = ({
@@ -41,11 +42,14 @@ export const ContextMenu = ({
   panelId,
   anchorPosition: propAnchorPosition,
   onClose,
-  className
+  className,
+  ...prop
 }: React.PropsWithChildren<ContextMenuProps>) => {
   const [open, setOpen] = React.useState(false)
   const panel = document.getElementById(panelId)
   const menuRef = useRef<HTMLDivElement | null>(null)
+
+  const { anchorEl } = prop
 
   // use custom anchorPosition if explicity provided, otherwise use default anchor position when anchorEvent is defined
   const anchorPosition = propAnchorPosition
@@ -59,8 +63,6 @@ export const ContextMenu = ({
         left: 0,
         top: 0
       }
-
-  const anchorEl = anchorEvent?.currentTarget
 
   // Calculate the Y position of the context menu based on the menu height and space to the bottom of the viewport in order to avoid overflow
   const calculatePositionY = () => {
