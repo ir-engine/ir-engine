@@ -36,6 +36,7 @@ import * as instanceServerSeed from './instance-server-setting/instance-server-s
 import * as redisSeed from './redis-setting/redis-setting.seed'
 import * as serverSeed from './server-setting/server-setting.seed'
 import * as taskServerSeed from './task-server-setting/task-server-setting.seed'
+import * as zendeskSeed from './zendesk-setting/zendesk-setting.seed'
 
 export const settingSeeds: Array<KnexSeed> = [
   authenticationSeed,
@@ -48,5 +49,7 @@ export const settingSeeds: Array<KnexSeed> = [
   emailSeed,
   redisSeed,
   awsSeed,
-  helmSeed
+  helmSeed,
+  zendeskSeed,
+  zendeskSeed
 ]
