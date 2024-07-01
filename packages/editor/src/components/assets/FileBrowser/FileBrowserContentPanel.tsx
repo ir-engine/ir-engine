@@ -75,7 +75,6 @@ import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
 import ImageCompressionPanel from '../ImageCompressionPanel'
 import ImageConvertPanel from '../ImageConvertPanel'
-import ModelCompressionPanel from '../ModelCompressionPanel'
 import styles from '../styles.module.scss'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from './FileBrowserGrid'
 import { FilesViewModeSettings, FilesViewModeState, availableTableColumns } from './FileBrowserState'
@@ -688,14 +687,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           openConvert={openConvert}
           fileProperties={fileProperties.value}
           convertProperties={convertProperties}
-          onRefreshDirectory={refreshDirectory}
-        />
-      )}
-
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model') && (
-        <ModelCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
           onRefreshDirectory={refreshDirectory}
         />
       )}
