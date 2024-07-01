@@ -24,25 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { RenderPass } from 'postprocessing'
-import { AmbientLight, MeshBasicMaterial, MeshNormalMaterial } from 'three'
+import { MeshBasicMaterial, MeshNormalMaterial } from 'three'
 
 import { Engine, getComponent } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 
-import { EditorState } from '../../../../editor/src/services/EditorServices'
-import { iterateEntityNode } from '../../transform/components/EntityTree'
 import { RendererState } from '../RendererState'
 import { RendererComponent } from '../WebGLRendererSystem'
-import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
-import { setVisibleComponent } from '../components/VisibleComponent'
 import { RenderModes } from '../constants/RenderModes'
 
 /**
  * Change render mode of the renderer
  * @param mode Mode which will be set to renderer
  */
-
-const tempAmbientLight = new AmbientLight()
 
 export function changeRenderMode() {
   const renderMode = getState(RendererState).renderMode
@@ -57,18 +51,6 @@ export function changeRenderMode() {
     case RenderModes.UNLIT:
     case RenderModes.LIT:
     case RenderModes.SHADOW:
-      iterateEntityNode(getState(EditorState).rootEntity, (entity, index) => {
-        const groups = getComponent(entity, GroupComponent)
-        for (const group of groups) {
-          if ((group as any).isLight) {
-            setVisibleComponent(group.entity, renderMode !== RenderModes.UNLIT)
-          }
-        }
-      })
-      renderMode === RenderModes.UNLIT
-        ? addObjectToGroup(getState(EditorState).rootEntity, tempAmbientLight)
-        : removeObjectFromGroup(getState(EditorState).rootEntity, tempAmbientLight)
-
       renderPass.overrideMaterial = null!
       break
     case RenderModes.WIREFRAME:
