@@ -54,6 +54,7 @@ import { initialAuthState, initialOAuthConnectedState } from '../../../../common
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthService, AuthState } from '../../../services/AuthService'
+import { AvatarService } from '../../../services/AvatarService'
 import { useUserHasAccessHook } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
@@ -178,7 +179,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
       // @ts-ignore
-      AuthService.updateUsername(userId, name)
+      AvatarService.updateUsername(userId, name)
     }
   }
   const handleInputChange = (e) => emailPhone.set(e.target.value)

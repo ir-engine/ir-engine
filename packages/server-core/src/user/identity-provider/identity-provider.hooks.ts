@@ -44,6 +44,7 @@ import {
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 
+import { projectPath, projectPermissionPath, UserType } from '@etherealengine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import appConfig from '../../appconfig'
 import persistData from '../../hooks/persist-data'
@@ -197,6 +198,31 @@ async function addScopes(context: HookContext<IdentityProviderService>) {
   }
 }
 
+const addDevProjectPermissions = async (context: HookContext<IdentityProviderService>) => {
+  if (!isDev || !(await checkScope(context.existingUser, 'admin', 'admin'))) return
+
+  const user = context.existingUser as UserType
+
+  const projects = await context.app.service(projectPath).find({ paginate: false })
+
+  const staticResourcePermission = await context.app.service(scopePath).find({
+    query: {
+      userId: user.id,
+      type: 'static_resource:write' as ScopeType
+    }
+  })
+
+  if (staticResourcePermission.total > 0) {
+    for (const project of projects) {
+      await context.app.service(projectPermissionPath).create({
+        projectId: project.id,
+        userId: user.id,
+        type: 'owner'
+      })
+    }
+  }
+}
+
 async function createAccessToken(context: HookContext<IdentityProviderService>) {
   if (!(context.result as IdentityProviderType).accessToken) {
     ;(context.result as IdentityProviderType).accessToken = await context.app
@@ -248,7 +274,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [addScopes, createAccessToken],
+    create: [addScopes, addDevProjectPermissions, createAccessToken],
     update: [],
     patch: [],
     remove: []

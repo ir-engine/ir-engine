@@ -56,11 +56,12 @@ export const initializeKTX2Loader = (loader: GLTFLoader) => {
 
 export const createGLTFLoader = (keepMaterials = false) => {
   const loader = new GLTFLoader()
+  if (isClient) initializeKTX2Loader(loader)
 
   if (isClient || keepMaterials) {
     loader.register((parser) => new GPUInstancingExtension(parser))
     loader.register((parser) => new HubsLightMapExtension(parser))
-    loader.register((parser) => new EEMaterialImporterExtension(parser))
+    loader.registerFirst((parser) => new EEMaterialImporterExtension(parser))
   } else {
     loader.register((parser) => new RemoveMaterialsExtension(parser))
   }

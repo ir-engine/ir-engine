@@ -33,6 +33,7 @@ type ContextMenuProps = {
   anchorPosition?: undefined | { left: number; top: number }
   onClose: () => void
   className?: string
+  anchorEl?: HTMLElement
 }
 
 export const ContextMenu = ({
@@ -41,18 +42,36 @@ export const ContextMenu = ({
   panelId,
   anchorPosition: propAnchorPosition,
   onClose,
-  className
+  className,
+  ...prop
 }: React.PropsWithChildren<ContextMenuProps>) => {
   const [open, setOpen] = React.useState(false)
   const panel = document.getElementById(panelId)
   const menuRef = useRef<HTMLDivElement | null>(null)
 
+  const { anchorEl } = prop
+
   const [isScrollable, setIsScrollable] = useState(false)
   const parentRect = panel?.getBoundingClientRect()
 
+  // use custom anchorPosition if explicity provided, otherwise use default anchor position when anchorEvent is defined
+  const anchorPosition = propAnchorPosition
+    ? propAnchorPosition
+    : anchorEvent
+    ? {
+        left: anchorEvent.clientX + 2,
+        top: anchorEvent.clientY - 6
+      } // default anchor position
+    : undefined
+
   // Calculate the Y position of the context menu based on the menu height and space to the bottom of the viewport in order to avoid overflow
   const calculatePositionY = () => {
-    let positionY = anchorEvent?.currentTarget.getBoundingClientRect().bottom! ?? 0
+    let positionY = anchorPosition
+      ? anchorPosition.top - panel?.getBoundingClientRect().top!
+      : anchorEl
+      ? anchorEl.getBoundingClientRect().bottom!
+      : 0
+    // let positionY =
 
     if (open && menuRef.current) {
       const menuHeight = menuRef.current.offsetHeight
@@ -73,7 +92,11 @@ export const ContextMenu = ({
 
   // Calculate the X position of the context menu based on the menu width and space to the right of the panel in order to avoid overflow
   const calculatePositionX = () => {
-    let positionX = anchorEvent?.currentTarget.getBoundingClientRect().left! ?? 0
+    let positionX = anchorPosition
+      ? anchorPosition.left - panel?.getBoundingClientRect().left!
+      : anchorEl
+      ? anchorEl.getBoundingClientRect().left!
+      : 0
 
     if (open && menuRef.current) {
       const menuWidth = menuRef.current.offsetWidth
