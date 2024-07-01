@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ChangeEvent, useCallback } from 'react'
+import React from 'react'
 
 import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { State } from '@etherealengine/hyperflux'
@@ -86,33 +86,11 @@ function TextParam({
 }
 
 export default function GLTFTransformProperties({
-  transformParms,
-  onChange
+  transformParms
 }: {
   transformParms: State<ModelTransformParameters>
-  onChange: (transformParms: ModelTransformParameters) => void
 }) {
   const { t } = useTranslation()
-  const onChangeTransformParm = useCallback((scope: State<any>) => {
-    return (value: typeof scope.value) => {
-      scope.set(value)
-      onChange(JSON.parse(JSON.stringify(transformParms.value)))
-    }
-  }, [])
-
-  const onChangeTransformStringParm = useCallback((scope: State<any>) => {
-    return (e: ChangeEvent<HTMLInputElement>) => {
-      scope.set(e.target.value)
-    }
-  }, [])
-
-  const onChangeParameter = useCallback(
-    (scope: State<any>, key: string) => (val: any) => {
-      scope[key].set(val)
-      onChange(JSON.parse(JSON.stringify(transformParms.value)))
-    },
-    []
-  )
 
   return (
     transformParms && (

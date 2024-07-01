@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Group, LoaderUtils } from 'three'
 
 import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
@@ -39,7 +39,7 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { Heuristic, VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
-import { getState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { getState, NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -150,74 +150,69 @@ export default function ModelCompressionPanel({
   onRefreshDirectory: () => Promise<void>
 }) {
   const { t } = useTranslation()
-  const [compressionLoading, setCompressionLoading] = useState<boolean>(false)
-  const [isClientside, setIsClientSide] = useState<boolean>(true)
-  const [isIntegratedPrefab, setIsIntegratedPrefab] = useState<boolean>(true)
-  const [selectedLODIndex, setSelectedLODIndex] = useState<number>(0)
-  const [modalOpen, setModalOpen] = useState<boolean>(false)
-  const [selectedPreset, setSelectedPreset] = useState<ModelTransformParameters>(defaultParams)
-  const [presetList, setPresetList] = useState<LODVariantDescriptor[]>(LODList)
+  const compressionLoading = useHookstate(false)
+  const selectedLODIndex = useHookstate(0)
+  const selectedPreset = useHookstate(defaultParams)
+  const presetList = useHookstate(LODList)
 
   useEffect(() => {
     const presets = localStorage.getItem('presets')
     if (presets !== null) {
-      setPresetList(JSON.parse(presets))
+      presetList.set(JSON.parse(presets))
     }
   }, [])
 
   const lods = useHookstate<LODVariantDescriptor[]>([])
 
   const compressContentInBrowser = async () => {
-    setCompressionLoading(true)
+    compressionLoading.set(true)
     await compressModel()
     await onRefreshDirectory()
-    setCompressionLoading(false)
+    compressionLoading.set(false)
     openCompress.set(false)
   }
 
   const applyPreset = (preset: ModelTransformParameters) => {
-    setSelectedPreset(preset)
-    PopoverState.showPopupover(<ConfirmDialog text="Would you like to apply this preset?" onSubmit={confirmPreset} />)
+    selectedPreset.set(JSON.parse(JSON.stringify(preset))) // to avoid hookstate-102
+    PopoverState.showPopupover(
+      <ConfirmDialog text={t('editor:properties.model.transform.applyPresetConfirmation')} onSubmit={confirmPreset} />
+    )
   }
 
   const confirmPreset = () => {
-    const lod = lods[selectedLODIndex].get(NO_PROXY)
+    const lod = lods[selectedLODIndex.value].get(NO_PROXY)
     const src = lod.params.src
     const dst = lod.params.dst
     const modelFormat = lod.params.modelFormat
     const uri = lod.params.resourceUri
 
-    const presetParams = JSON.parse(JSON.stringify(selectedPreset)) as ModelTransformParameters
+    const presetParams = JSON.parse(JSON.stringify(selectedPreset.value)) as ModelTransformParameters
     presetParams.src = src
     presetParams.dst = dst
     presetParams.modelFormat = modelFormat
     presetParams.resourceUri = uri
 
-    lods[selectedLODIndex].params.set(presetParams)
-
-    setModalOpen(false)
+    lods[selectedLODIndex.value].params.set(presetParams)
   }
 
   const savePresetList = (deleting: boolean) => {
     if (!deleting) {
-      setPresetList([...presetList, lods[selectedLODIndex].value as LODVariantDescriptor])
+      presetList.merge([JSON.parse(JSON.stringify(lods[selectedLODIndex.value].value))]) // to avoid hookstate-102
     }
     localStorage.setItem('presets', JSON.stringify(presetList))
   }
 
   const compressModel = async () => {
     const modelSrc = fileProperties.url.value
-    const clientside = isClientside
-    const exportCombined = isIntegratedPrefab
+    const clientside = true
+    const exportCombined = true
 
     const heuristic = Heuristic.BUDGET
     await createLODVariants(lods.value as LODVariantDescriptor[], clientside, heuristic, exportCombined)
   }
 
   const deletePreset = (idx: number) => {
-    const newList = [...presetList]
-    newList.splice(idx, 1)
-    setPresetList(newList)
+    presetList[idx].set(none)
   }
 
   useEffect(() => {
@@ -237,13 +232,13 @@ export default function ModelCompressionPanel({
   }, [fileProperties.url])
 
   const handleLODSelect = (index) => {
-    setSelectedLODIndex(Math.min(index, lods.length - 1))
+    selectedLODIndex.set(Math.min(index, lods.length - 1))
   }
 
   const handleLODAdd = () => {
-    const params = JSON.parse(JSON.stringify(lods[selectedLODIndex].params.value)) as ModelTransformParameters
+    const params = JSON.parse(JSON.stringify(lods[selectedLODIndex.value].params.value)) as ModelTransformParameters
     const suffix = '-LOD' + lods.length
-    params.dst = params.dst.replace(lods[selectedLODIndex].suffix.value, suffix)
+    params.dst = params.dst.replace(lods[selectedLODIndex.value].suffix.value, suffix)
     lods.merge([
       {
         params: params,
@@ -251,7 +246,7 @@ export default function ModelCompressionPanel({
         variantMetadata: {}
       }
     ])
-    setSelectedLODIndex(lods.length - 1)
+    selectedLODIndex.set(lods.length - 1)
   }
 
   const handleLodRemove = () => {
@@ -259,7 +254,7 @@ export default function ModelCompressionPanel({
       lods.pop()
       return lods
     })
-    setSelectedLODIndex(Math.min(selectedLODIndex, lods.length - 1))
+    selectedLODIndex.set((v) => Math.min(v, lods.length - 1))
   }
 
   const handleClose = () => {
@@ -286,7 +281,7 @@ export default function ModelCompressionPanel({
                 key={index}
                 variant="transparent"
                 className={`rounded-none px-1 pb-4 text-sm font-medium ${
-                  selectedLODIndex === index ? 'border-b border-blue-primary text-blue-primary' : 'text-[#9CA0AA]'
+                  selectedLODIndex.value === index ? 'border-b border-blue-primary text-blue-primary' : 'text-[#9CA0AA]'
                 }`}
                 onClick={() => handleLODSelect(index)}
               >
@@ -304,7 +299,7 @@ export default function ModelCompressionPanel({
         </div>
 
         <div className="my-8 flex items-center justify-around gap-x-1 overflow-x-auto rounded-lg border border-[#42454D] p-2">
-          {presetList.map((lodItem: LODVariantDescriptor, index) => (
+          {presetList.value.map((lodItem: LODVariantDescriptor, index) => (
             <button
               key={index}
               className="text-nowrap rounded-full bg-[#2F3137] px-2 py-0.5"
@@ -314,16 +309,16 @@ export default function ModelCompressionPanel({
             </button>
           ))}
           <button className="text-nowrap rounded bg-[#162546] px-3 py-2" onClick={() => savePresetList(false)}>
-            Save Preset
+            {t('editor:properties.model.transform.savePreset')}
           </button>
         </div>
 
         <div className="ml-[16.66%] w-4/6">
-          <GLTFTransformProperties transformParms={lods[selectedLODIndex].params} onChange={() => {}} />
+          <GLTFTransformProperties transformParms={lods[selectedLODIndex.value].params} />
         </div>
 
         <div className="flex justify-end px-8">
-          {compressionLoading ? (
+          {compressionLoading.value ? (
             <LoadingView spinnerOnly className="mx-0 h-12 w-12" />
           ) : (
             <Button variant="primary" onClick={compressContentInBrowser}>

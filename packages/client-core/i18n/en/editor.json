@@ -471,6 +471,8 @@
       "transform": {
         "lodLevels": "LOD Levels",
         "compress": "Compress",
+        "applyPresetConfirmation": "Would you like to apply this preset?",
+        "savePreset": "Save Preset",
         "useDraco": "Use DRACO Mesh Compression",
         "useMeshopt": "Use Meshoptimizer",
         "useQuantization": "Use Mesh Quantization",
