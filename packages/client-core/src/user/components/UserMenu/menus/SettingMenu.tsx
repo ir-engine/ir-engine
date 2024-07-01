@@ -76,11 +76,7 @@ export const ShadowMapResolutionOptions: SelectOptionsType[] = [
 
 const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 
-type Props = {
-  isPopover?: boolean
-}
-
-const SettingMenu = ({ isPopover }: Props): JSX.Element => {
+const SettingMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useMutableState(RendererState)
   const audioState = useMutableState(AudioState)
@@ -196,7 +192,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
       title={'Settings'}
       onClose={() => PopupMenuServices.showPopupMenu()}
       hideFooter
-      className="absolute bg-[#0E0F11]"
+      className="bg-[#0E0F11]"
+      isPopover={true}
     >
       <div>
         <div className="mb-3 flex">
