@@ -30,6 +30,7 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
@@ -69,9 +70,9 @@ const reactor = () => {
   const { t } = useTranslation()
   InviteService.useAPIListeners()
 
-  const emotesEnabled = FeatureFlagsState.useEnabled('ir.client.menu.emote')
-  const avaturnEnabled = FeatureFlagsState.useEnabled('ir.client.menu.avaturn')
-  const rpmEnabled = FeatureFlagsState.useEnabled('ir.client.menu.readyPlayerMe')
+  const emotesEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.Emote)
+  const avaturnEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.Avaturn)
+  const rpmEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.ReadyPlayerMe)
 
   useEffect(() => {
     const FaceRetouchingNatural = lazy(() => import('@mui/icons-material/FaceRetouchingNatural'))
