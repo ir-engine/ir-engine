@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers'
+import i18n from 'i18next'
 
 import {
   AvatarID,
@@ -31,13 +32,21 @@ import {
   AvatarType,
   staticResourcePath,
   StaticResourceType,
-  uploadAssetPath
+  uploadAssetPath,
+  UserID,
+  UserName,
+  userPath,
+  UserType
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AvatarState as AvatarNetworkState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/ecs'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
+import { NotificationService } from '../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../util/upload'
+import { AuthState } from './AuthService'
 
 export const AVATAR_PAGE_LIMIT = 100
 
@@ -159,5 +168,14 @@ export const AvatarService = {
     } catch (err) {
       return null
     }
+  },
+
+  async updateUsername(userId: UserID, name: UserName) {
+    const { name: updatedName } = (await Engine.instance.api
+      .service(userPath)
+      .patch(userId, { name: name })) as UserType
+    NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
+    getMutableState(AuthState).user.merge({ name: updatedName })
+    dispatchAction(AvatarNetworkAction.setName({ entityUUID: (userId + '_avatar') as EntityUUID, name: updatedName }))
   }
 }

@@ -38,6 +38,10 @@ import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
 import { useAuthenticated } from '@etherealengine/client-core/src/user/services/AuthService'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
+import '../themes/base.css'
+import '../themes/components.css'
+import '../themes/utilities.css'
+
 const AppPage = (props: { children: React.ReactNode }) => {
   const { t } = useTranslation()
   const isLoggedIn = useAuthenticated()
@@ -52,7 +56,7 @@ const AppPage = (props: { children: React.ReactNode }) => {
   useThemeProvider()
 
   if (!isLoggedIn) {
-    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingRoutes')} />
+    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingApp')} />
   }
 
   return (

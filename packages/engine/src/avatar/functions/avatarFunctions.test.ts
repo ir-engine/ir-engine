@@ -33,7 +33,7 @@
 // import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 // import { addComponent, getComponent, setComponent } from '@etherealengine/ecs/srcComponentFunctions'
 // import { createEntity } from '@etherealengine/ecs/srcEntityFunctions'
-// import { createEngine } from '../../initializeEngine'
+// import { createEngine } from '@etherealengine/ecs/src/Engine'
 // import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 // import { setTransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 // import { AnimationManager } from '../AnimationManager'
