@@ -339,6 +339,7 @@ export const Profile = ({ user }) => {
   const { avatar } = user
   const anchorPosition = useHookstate({ left: 0, top: 0 })
   const anchorEvent = useHookstate<any>(null)
+  const anchorEl = useHookstate<any>(null)
 
   return (
     <>
@@ -358,13 +359,14 @@ export const Profile = ({ user }) => {
           className="-mr-1 border-0 bg-transparent p-0"
           onClick={(event) => {
             anchorPosition.set({ left: event.clientX, top: event.clientY })
-            anchorEvent.set({ ...event, currentTarget: event.currentTarget })
+            anchorEvent.set(event)
+            anchorEl.set(event.currentTarget)
           }}
         />
       </div>
       <ContextMenu
         anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
-        // anchorPosition={anchorPosition.value}
+        anchorEl={anchorEl.value}
         panelId="profile-menu"
         onClose={() => anchorEvent.set(null)}
       >
