@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { v4 as uuidv4 } from 'uuid'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
@@ -189,7 +190,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
       sceneId: state.scene.value,
       maxUsersPerInstance: state.maxUsers.value,
       locationSetting: {
-        id: '',
+        id: uuidv4(),
         locationId: '' as LocationID,
         locationType: state.type.value as 'private' | 'public' | 'showroom',
         audioEnabled: state.audioEnabled.value,

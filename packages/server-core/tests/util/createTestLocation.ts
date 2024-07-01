@@ -45,7 +45,7 @@ export const createTestLocation = async (app: Application, params = { isInternal
       sceneId: scene.data[0].id,
       maxUsersPerInstance: 20,
       locationSetting: {
-        id: '',
+        id: uuidv4(),
         locationType: 'public',
         audioEnabled: true,
         videoEnabled: true,
