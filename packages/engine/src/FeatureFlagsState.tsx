@@ -31,11 +31,11 @@ import { useEffect } from 'react'
 export const FeatureFlagsState = defineState({
   name: 'ee.engine.FeatureFlagsState',
   initial: {} as Record<string, boolean>,
-  enabled<FlagName extends string>(flagName: FlagName) {
+  enabled(flagName: string) {
     const state = getMutableState(FeatureFlagsState)[flagName].value
     return typeof state === 'boolean' ? state : true
   },
-  useEnabled<FlagName extends string>(flagName: FlagName) {
+  useEnabled(flagName: string) {
     const state = useHookstate(getMutableState(FeatureFlagsState)[flagName]).value
     return typeof state === 'boolean' ? state : true
   },

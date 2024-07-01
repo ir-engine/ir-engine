@@ -48,3 +48,24 @@ export function insertAfterString(source: string, searchTerm: string, addition: 
     '\n'
   )
 }
+
+/**
+ * Method used to get all leaf node strings from an object.
+ * https://stackoverflow.com/a/63100031/2077741
+ * @param arg
+ * @returns
+ */
+export function getAllStrings(arg: any) {
+  if (typeof arg === 'string') {
+    return [arg]
+  }
+
+  // handle wrong types and null
+  if (typeof arg !== 'object' || !arg) {
+    return []
+  }
+
+  return Object.keys(arg).reduce((acc, key) => {
+    return [...acc, ...getAllStrings(arg[key])]
+  }, [])
+}
