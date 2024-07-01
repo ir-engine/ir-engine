@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
+import { twMerge } from 'tailwind-merge'
 import { Group, LoaderUtils } from 'three'
 
 import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
@@ -39,7 +40,7 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { Heuristic, VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
-import { getState, NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
+import { getState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -61,7 +62,7 @@ import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDia
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import { HiPlus } from 'react-icons/hi2'
+import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
@@ -123,15 +124,13 @@ export const createLODVariants = async (
     const variant = createTempEntity('LOD Variant', result)
     setComponent(variant, ModelComponent, { src: modelSrc })
     setComponent(variant, VariantComponent, {
-      levels: lods.map((lod, lodIndex) => {
-        return {
-          src: `${LoaderUtils.extractUrlBase(lod.params.src)}${lod.params.dst}.${lod.params.modelFormat}`,
-          metadata: {
-            ...lod.variantMetadata,
-            ...transformMetadata[lodIndex]
-          }
+      levels: lods.map((lod, lodIndex) => ({
+        src: `${LoaderUtils.extractUrlBase(lod.params.src)}${lod.params.dst}.${lod.params.modelFormat}`,
+        metadata: {
+          ...lod.variantMetadata,
+          ...transformMetadata[lodIndex]
         }
-      }),
+      })),
       heuristic
     })
 
@@ -153,7 +152,7 @@ export default function ModelCompressionPanel({
   const compressionLoading = useHookstate(false)
   const selectedLODIndex = useHookstate(0)
   const selectedPreset = useHookstate(defaultParams)
-  const presetList = useHookstate(LODList)
+  const presetList = useHookstate(structuredClone(LODList))
 
   useEffect(() => {
     const presets = localStorage.getItem('presets')
@@ -173,7 +172,7 @@ export default function ModelCompressionPanel({
   }
 
   const applyPreset = (preset: ModelTransformParameters) => {
-    selectedPreset.set(JSON.parse(JSON.stringify(preset))) // to avoid hookstate-102
+    selectedPreset.set(JSON.parse(JSON.stringify(preset)))
     PopoverState.showPopupover(
       <ConfirmDialog text={t('editor:properties.model.transform.applyPresetConfirmation')} onSubmit={confirmPreset} />
     )
@@ -195,15 +194,12 @@ export default function ModelCompressionPanel({
     lods[selectedLODIndex.value].params.set(presetParams)
   }
 
-  const savePresetList = (deleting: boolean) => {
-    if (!deleting) {
-      presetList.merge([JSON.parse(JSON.stringify(lods[selectedLODIndex.value].value))]) // to avoid hookstate-102
-    }
-    localStorage.setItem('presets', JSON.stringify(presetList))
+  const savePresetList = () => {
+    presetList.merge([JSON.parse(JSON.stringify(lods[selectedLODIndex.value].value))])
+    localStorage.setItem('presets', JSON.stringify(presetList.value))
   }
 
   const compressModel = async () => {
-    const modelSrc = fileProperties.url.value
     const clientside = true
     const exportCombined = true
 
@@ -211,8 +207,17 @@ export default function ModelCompressionPanel({
     await createLODVariants(lods.value as LODVariantDescriptor[], clientside, heuristic, exportCombined)
   }
 
-  const deletePreset = (idx: number) => {
-    presetList[idx].set(none)
+  const deletePreset = (event: React.MouseEvent, idx: number) => {
+    event.stopPropagation()
+    presetList.set(presetList.value.filter((_, i) => i !== idx))
+    localStorage.setItem('presets', JSON.stringify(presetList))
+  }
+
+  const handleRemoveLOD = (idx: number) => {
+    lods.set((currentLods) => currentLods.filter((_, i) => i !== idx))
+    if (selectedLODIndex.value >= lods.length) {
+      selectedLODIndex.set(lods.length - 1)
+    }
   }
 
   useEffect(() => {
@@ -231,11 +236,7 @@ export default function ModelCompressionPanel({
     lods.set(defaults)
   }, [fileProperties.url])
 
-  const handleLODSelect = (index) => {
-    selectedLODIndex.set(Math.min(index, lods.length - 1))
-  }
-
-  const handleLODAdd = () => {
+  const handleAddLOD = () => {
     const params = JSON.parse(JSON.stringify(lods[selectedLODIndex.value].params.value)) as ModelTransformParameters
     const suffix = '-LOD' + lods.length
     params.dst = params.dst.replace(lods[selectedLODIndex.value].suffix.value, suffix)
@@ -249,18 +250,6 @@ export default function ModelCompressionPanel({
     selectedLODIndex.set(lods.length - 1)
   }
 
-  const handleLodRemove = () => {
-    lods.set((lods) => {
-      lods.pop()
-      return lods
-    })
-    selectedLODIndex.set((v) => Math.min(v, lods.length - 1))
-  }
-
-  const handleClose = () => {
-    PopoverState.hidePopupover()
-  }
-
   return (
     <div className="max-h-[80vh] w-[60vw] overflow-y-auto rounded-xl bg-[#0E0F11]">
       <div className="relative flex items-center justify-center px-8 py-3">
@@ -269,30 +258,38 @@ export default function ModelCompressionPanel({
           variant="outline"
           className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
           startIcon={<MdClose />}
-          onClick={handleClose}
+          onClick={() => PopoverState.hidePopupover()}
         />
       </div>
       <div className="px-8 pb-6 pt-2 text-left">
         <Text className="mb-6 font-semibold">{t('editor:properties.model.transform.lodLevels')}</Text>
         <div className="mb-8 flex gap-x-4">
-          {lods.value.map((lod, index) => {
-            return (
+          {lods.value.map((_lod, index) => (
+            <span key={index} className="flex items-center">
               <Button
-                key={index}
                 variant="transparent"
                 className={`rounded-none px-1 pb-4 text-sm font-medium ${
                   selectedLODIndex.value === index ? 'border-b border-blue-primary text-blue-primary' : 'text-[#9CA0AA]'
                 }`}
-                onClick={() => handleLODSelect(index)}
+                onClick={() => selectedLODIndex.set(Math.min(index, lods.length - 1))}
               >
-                {`LOD Level ${index + 1}`}
+                {t('editor:properties.model.transform.lodLevelNumber', { index: index + 1 })}
               </Button>
-            )
-          })}
+              {selectedLODIndex.value !== index && (
+                <Button
+                  className={twMerge('m-0 p-0 pb-1')}
+                  variant="transparent"
+                  onClick={() => handleRemoveLOD(index)}
+                  startIcon={<HiXMark />}
+                  title="remove"
+                />
+              )}
+            </span>
+          ))}
           <Button
             className="self-center rounded-md bg-[#162546] p-1 [&>*]:m-0"
             variant="transparent"
-            onClick={handleLODAdd}
+            onClick={handleAddLOD}
           >
             <HiPlus />
           </Button>
@@ -300,17 +297,27 @@ export default function ModelCompressionPanel({
 
         <div className="my-8 flex items-center justify-around gap-x-1 overflow-x-auto rounded-lg border border-[#42454D] p-2">
           {presetList.value.map((lodItem: LODVariantDescriptor, index) => (
-            <button
+            <Button
               key={index}
+              variant="transparent"
               className="text-nowrap rounded-full bg-[#2F3137] px-2 py-0.5"
               onClick={() => applyPreset(lodItem.params)}
+              endIcon={
+                !LODList.find((l) => l.params.dst === lodItem.params.dst) && (
+                  <HiXMark onClick={(event) => deletePreset(event, index)} />
+                )
+              }
             >
               {lodItem.params.dst}
-            </button>
+            </Button>
           ))}
-          <button className="text-nowrap rounded bg-[#162546] px-3 py-2" onClick={() => savePresetList(false)}>
+          <Button
+            variant="transparent"
+            className="text-nowrap rounded bg-[#162546] px-3 py-2"
+            onClick={() => savePresetList()}
+          >
             {t('editor:properties.model.transform.savePreset')}
-          </button>
+          </Button>
         </div>
 
         <div className="ml-[16.66%] w-4/6">

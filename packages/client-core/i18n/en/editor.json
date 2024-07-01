@@ -470,6 +470,7 @@
       "lbl-interactionType": "Interaction Type",
       "transform": {
         "lodLevels": "LOD Levels",
+        "lodLevelNumber": "LOD Level {{index}}",
         "compress": "Compress",
         "applyPresetConfirmation": "Would you like to apply this preset?",
         "savePreset": "Save Preset",
