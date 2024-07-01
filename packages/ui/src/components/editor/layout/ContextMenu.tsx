@@ -45,13 +45,15 @@ export const ContextMenu = ({
   className,
   ...prop
 }: React.PropsWithChildren<ContextMenuProps>) => {
-  const [open, setOpen] = React.useState(false)
-  const panel = document.getElementById(panelId)
-  const menuRef = useRef<HTMLDivElement | null>(null)
-
   const { anchorEl } = prop
 
+  const [open, setOpen] = React.useState(false)
   const [isScrollable, setIsScrollable] = useState(false)
+
+  const panel = document.getElementById(panelId)
+
+  const menuRef = useRef<HTMLDivElement | null>(null)
+
   const parentRect = panel?.getBoundingClientRect()
 
   // use custom anchorPosition if explicity provided, otherwise use default anchor position when anchorEvent is defined
@@ -74,6 +76,11 @@ export const ContextMenu = ({
 
     if (open && menuRef.current) {
       const menuHeight = menuRef.current.offsetHeight
+      // if the panel height is less than the menu height plus the menu pos y offset, we need to move the menu up
+      const offset = panel?.getBoundingClientRect().height! - (menuHeight + positionY)
+      if (offset < 0) {
+        positionY = positionY + offset
+      }
 
       const viewportHeight = window.innerHeight
 
@@ -100,6 +107,12 @@ export const ContextMenu = ({
     if (open && menuRef.current) {
       const menuWidth = menuRef.current.offsetWidth
       const viewportWidth = window.innerWidth
+
+      // if the panel width is less than the menu width plus the menu pos x offset, we need to move the menu left
+      const offset = panel?.getBoundingClientRect().width! - (menuWidth + positionX)
+      if (offset < 0) {
+        positionX = positionX + offset
+      }
 
       // Adjust X position to avoid overflow
       if (positionX + menuWidth > viewportWidth) {

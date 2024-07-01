@@ -79,9 +79,11 @@ export const ShadowMapResolutionOptions: InputMenuItem[] = [
   }
 ]
 const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
+
 type Props = {
   isPopover?: boolean
 }
+
 const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useMutableState(RendererState)
@@ -106,20 +108,24 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const hasAdminAccess = userHasAccess('admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
   const themeSettings = { ...defaultThemeSettings, ...clientSettings?.themeSettings }
+
   const themeModes = {
     client: userSettings?.themeModes?.client ?? defaultThemeModes.client,
     studio: userSettings?.themeModes?.studio ?? defaultThemeModes.studio,
     admin: userSettings?.themeModes?.admin ?? defaultThemeModes.admin
   }
+
   const handleChangeUserThemeMode = (event) => {
     if (!userSettings) return
     const { name, value } = event.target
     const settings: UserSettingPatch = { themeModes: { ...themeModes, [name]: value } }
     AuthService.updateUserSettings(userSettings.id, settings)
   }
+
   const handleChangeInvertRotationAndMoveSticks = () => {
     getMutableState(AvatarInputSettingsState).invertRotationAndMoveSticks.set((value) => !value)
   }
+
   useLayoutEffect(() => {
     if (firstRender.current) {
       firstRender.current = false
@@ -130,11 +136,13 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const handleTabChange = (newValue: string) => {
     selectedTab.set(newValue)
   }
+
   const settingTabs = [
     { value: 'general', label: t('user:usermenu.setting.general') },
     { value: 'audio', label: t('user:usermenu.setting.audio') },
     { value: 'graphics', label: t('user:usermenu.setting.graphics') }
   ]
+
   const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
     if (mode === 'admin' && !hasAdminAccess) {
       return false
@@ -164,18 +172,22 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
       value: el
     }
   })
+
   const handleQualityLevelChange = (value) => {
     rendererState.qualityLevel.set(value)
     rendererState.automatic.set(false)
   }
+
   const handlePostProcessingCheckbox = () => {
     rendererState.usePostProcessing.set(!rendererState.usePostProcessing.value)
     rendererState.automatic.set(false)
   }
+
   const handleShadowCheckbox = () => {
     rendererState.useShadows.set(!rendererState.useShadows.value)
     rendererState.automatic.set(false)
   }
+
   const handleAutomaticCheckbox = () => {
     rendererState.automatic.set(!rendererState.automatic.value)
   }

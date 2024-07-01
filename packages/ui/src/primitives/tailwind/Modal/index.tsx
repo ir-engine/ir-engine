@@ -46,7 +46,6 @@ export interface ModalProps {
   submitButtonText?: string
   onClose?: (isHeader: boolean) => void
   onSubmit?: () => void
-  variant?: string
 }
 
 export const ModalHeader = ({
@@ -129,8 +128,7 @@ const Modal = ({
   submitButtonText,
   closeButtonDisabled,
   submitButtonDisabled,
-  showCloseButton = true,
-  variant
+  showCloseButton = true
 }: ModalProps) => {
   const twClassName = twMerge('relative z-50 max-h-[80vh] w-full bg-theme-surface-main', className)
   return (
