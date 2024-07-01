@@ -30,8 +30,8 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { FeatureFlagSettingType, featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { getAllStringValueNodes } from '@etherealengine/common/src/utils/getAllStringValueNodes'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { getAllStrings } from '@etherealengine/spatial/src/common/functions/string'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import { useHookstate } from '@hookstate/core'
 
@@ -45,7 +45,7 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
 
   useEffect(() => {
     if (featureFlagSettings.status === 'success') {
-      const defaultTypes = getAllStrings(FeatureFlags)
+      const defaultTypes = getAllStringValueNodes(FeatureFlags)
       const missingTypes = defaultTypes.filter(
         (type) =>
           !featureFlagSettings.data.find(

@@ -24,27 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /**
- * Inserts a string before the first occurrence of the search term
- * @param source
- * @param searchTerm
- * @param addition
+ * Method used to get all leaf node strings from an object.
+ * https://stackoverflow.com/a/63100031/2077741
+ * @param obj
  * @returns
  */
-export function insertBeforeString(source: string, searchTerm: string, addition: string): string {
-  const position = source.indexOf(searchTerm)
-  return [source.slice(0, position), addition, source.slice(position)].join('\n')
-}
+export function getAllStringValueNodes(obj: any) {
+  if (typeof obj === 'string') {
+    return [obj]
+  }
 
-/**
- * Inserts a string after the first occurrence of the search term
- * @param source
- * @param searchTerm
- * @param addition
- * @returns
- */
-export function insertAfterString(source: string, searchTerm: string, addition: string): string {
-  const position = source.indexOf(searchTerm)
-  return [source.slice(0, position + searchTerm.length), addition, source.slice(position + searchTerm.length)].join(
-    '\n'
-  )
+  // handle wrong types and null
+  if (typeof obj !== 'object' || !obj) {
+    return []
+  }
+
+  return Object.keys(obj).reduce((acc, key) => {
+    return [...acc, ...getAllStringValueNodes(obj[key])]
+  }, [])
 }
