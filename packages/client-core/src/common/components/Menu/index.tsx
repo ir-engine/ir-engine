@@ -83,7 +83,7 @@ const Menu = ({
   const dialogContent = (
     <>
       {(showBackButton || title || header || showCloseButton) && (
-        <DialogTitle className={styles.dialogTitle}>
+        <DialogTitle className="flex items-center bg-[#0E0F11] px-3 py-4">
           <span>
             {showBackButton && <IconButton icon={<Icon type="ArrowBack" />} sx={{ mr: 1 }} onClick={onBack} />}
 
@@ -106,7 +106,9 @@ const Menu = ({
         </DialogTitle>
       )}
 
-      <DialogContent sx={{ margin: contentMargin }}>{children}</DialogContent>
+      <DialogContent sx={{ margin: contentMargin }} className="bg-[#0E0F11]">
+        {children}
+      </DialogContent>
 
       {(showDefaultActions || actions) && (
         <DialogActions className={styles.dialogActions}>
