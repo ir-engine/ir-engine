@@ -47,7 +47,7 @@ export interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const Text = ({
-  fontFamily = 'Figtree',
+  fontFamily = 'Inter',
   fontSize = 'base',
   fontWeight = 'normal',
   className,
