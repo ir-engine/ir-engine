@@ -64,31 +64,31 @@ export default function ManageUserPermissionModal({ project }: { project: Projec
     }
   })
 
-  const handleCreatePermission = async () => {
+  const handleCreatePermission = () => {
     if (!userInviteCode.value) {
       userInviteCodeError.set(t('admin:components.project.inviteCodeCantEmpty'))
       return
     }
     try {
-      await ProjectService.createPermission(userInviteCode.value, project.id, 'reviewer')
+      ProjectService.createPermission(userInviteCode.value, project.id, 'reviewer')
       projectPermissionsFindQuery.refetch()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 
-  const handlePatchPermission = async (permission: ProjectPermissionType) => {
+  const handlePatchPermission = (permission: ProjectPermissionType) => {
     try {
-      await ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'user' : 'owner')
+      ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'user' : 'owner')
       projectPermissionsFindQuery.refetch()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 
-  const handleRemovePermission = async (id: string) => {
+  const handleRemovePermission = (id: string) => {
     try {
-      await ProjectService.removePermission(id)
+      ProjectService.removePermission(id)
       projectPermissionsFindQuery.refetch()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

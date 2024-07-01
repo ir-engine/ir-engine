@@ -72,26 +72,29 @@ export default function ProjectTable() {
     }
   })
 
-  const handleEnabledChange = async (project: ProjectType) => {
-    await ProjectService.setEnabled(project.id, !project.enabled)
+  const handleEnabledChange = (project: ProjectType) => {
+    ProjectService.setEnabled(project.id, !project.enabled)
     projectQuery.refetch()
   }
 
   const RowActions = ({ project }: { project: ProjectType }) => {
     const handleProjectUpdate = async () => {
       const projectUpdateStatus = getMutableState(ProjectUpdateState)[project.name].value
-      await ProjectService.uploadProject({
-        sourceURL: projectUpdateStatus.sourceURL,
-        destinationURL: projectUpdateStatus.destinationURL,
-        name: project.name,
-        reset: true,
-        commitSHA: projectUpdateStatus.selectedSHA,
-        sourceBranch: projectUpdateStatus.selectedBranch,
-        updateType: projectUpdateStatus.updateType,
-        updateSchedule: projectUpdateStatus.updateSchedule
-      }).catch((err) => {
+
+      try {
+        ProjectService.uploadProject({
+          sourceURL: projectUpdateStatus.sourceURL,
+          destinationURL: projectUpdateStatus.destinationURL,
+          name: project.name,
+          reset: true,
+          commitSHA: projectUpdateStatus.selectedSHA,
+          sourceBranch: projectUpdateStatus.selectedBranch,
+          updateType: projectUpdateStatus.updateType,
+          updateSchedule: projectUpdateStatus.updateSchedule
+        })
+      } catch (err) {
         NotificationService.dispatchNotify(err.message, { variant: 'error' })
-      })
+      }
       PopoverState.hidePopupover()
     }
 
@@ -121,8 +124,8 @@ export default function ProjectTable() {
                 text={`${t('admin:components.project.confirmPushProjectToGithub')}? ${project.name} - ${
                   project.repositoryPath
                 }`}
-                onSubmit={async () => {
-                  await ProjectService.pushProject(project.id)
+                onSubmit={() => {
+                  ProjectService.pushProject(project.id)
                 }}
               />
             )
@@ -151,8 +154,8 @@ export default function ProjectTable() {
             PopoverState.showPopupover(
               <ConfirmDialog
                 text={`${t('admin:components.project.confirmProjectInvalidate')} '${project.name}'?`}
-                onSubmit={async () => {
-                  await ProjectService.invalidateProjectCache(project.name)
+                onSubmit={() => {
+                  ProjectService.invalidateProjectCache(project.name)
                 }}
               />
             )
@@ -176,8 +179,12 @@ export default function ProjectTable() {
             PopoverState.showPopupover(
               <ConfirmDialog
                 text={`${t('admin:components.project.confirmProjectDelete')} '${project.name}'?`}
-                onSubmit={async () => {
-                  await ProjectService.removeProject(project.id).catch((err) => logger.error(err))
+                onSubmit={() => {
+                  try {
+                    ProjectService.removeProject(project.id)
+                  } catch (err) {
+                    logger.error(err)
+                  }
                 }}
               />
             )

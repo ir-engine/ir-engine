@@ -70,14 +70,14 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
 
   const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name]).value
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     try {
       if (existingProject && changeDestination) {
-        if (inputProject) await ProjectService.setRepositoryPath(inputProject.id, projectUpdateStatus.destinationURL)
+        if (inputProject) ProjectService.setRepositoryPath(inputProject.id, projectUpdateStatus.destinationURL)
         handleClose()
       } else if (projectUpdateStatus.sourceURL) {
         processing.set(true)
-        await ProjectService.uploadProject({
+        ProjectService.uploadProject({
           sourceURL: projectUpdateStatus.sourceURL,
           destinationURL: projectUpdateStatus.destinationURL,
           name: projectUpdateStatus.projectName,

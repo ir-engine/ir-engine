@@ -110,11 +110,11 @@ export default function UpdateEngineModal() {
     }
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     modalProcessing.set(true)
     errors.set(getDefaultErrors())
     try {
-      await ProjectService.updateEngine(
+      ProjectService.updateEngine(
         selectedCommitTag.value,
         updateProjects.value,
         Object.keys(projectUpdateStatus.value).map((name) => {

@@ -65,7 +65,7 @@ export default function ProjectTopMenu() {
   const handleSubmit = async () => {
     const projectUpdateStatus = getMutableState(ProjectUpdateState)['tempProject'].get(NO_PROXY)
     try {
-      await ProjectService.uploadProject({
+      ProjectService.uploadProject({
         sourceURL: projectUpdateStatus.sourceURL,
         destinationURL: projectUpdateStatus.destinationURL,
         name: projectUpdateStatus.projectName,

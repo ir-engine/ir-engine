@@ -24,7 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import {
+  ProjectBranchType,
+  ProjectCheckUnfetchedCommitType,
+  ProjectCommitType,
+  ProjectType
+} from '@etherealengine/common/src/schema.type.module'
 import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
 export const ProjectUpdateState = defineState({
@@ -127,7 +132,7 @@ export const ProjectUpdateService = {
   setCommitData: (projectName: string, data: ProjectCommitType[]) => {
     updateProjectField({ projectName, fieldName: 'commitData', value: data })
   },
-  mergeCommitData: (projectName: string, data: ProjectCommitType) => {
+  mergeCommitData: (projectName: string, data: ProjectCommitType | ProjectCheckUnfetchedCommitType) => {
     const state = getMutableState(ProjectUpdateState)
     if (state[projectName] && state[projectName]['commitData']) {
       const field = state[projectName]['commitData']
