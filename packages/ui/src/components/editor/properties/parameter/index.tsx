@@ -25,6 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { Fragment } from 'react'
 
+import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelCaseToSpacedString'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import { generateDefaults } from '@etherealengine/spatial/src/renderer/materials/constants/DefaultArgs'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import BooleanInput from '../../input/Boolean'
@@ -99,7 +101,7 @@ export default function ParameterInput({
       {Object.entries(_defaults).map(([k, parms]: [string, any]) => {
         const compKey = `${entity}-${k}`
         return (
-          <InputGroup key={compKey} name={k} label={k}>
+          <InputGroup key={compKey} name={k} label={camelCaseToSpacedString(capitalizeFirstLetter(k))}>
             {(() => {
               switch (parms.type) {
                 case 'boolean':
