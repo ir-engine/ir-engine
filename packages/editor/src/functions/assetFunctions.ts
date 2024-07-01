@@ -37,6 +37,7 @@ import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/
 import { Heuristic } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { getState } from '@etherealengine/hyperflux'
 
+import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { createLODVariants } from '../components/assets/ModelCompressionPanel'
 import { LODVariantDescriptor } from '../constants/GLTFPresets'
@@ -52,8 +53,8 @@ export const inputFileWithAddToScene = async ({
   projectName,
   directoryPath
 }: {
-  projectName?: string
-  directoryPath?: string
+  projectName: string
+  directoryPath: string
 }): Promise<null> =>
   new Promise((resolve, reject) => {
     const el = document.createElement('input')
@@ -102,9 +103,13 @@ export const inputFileWithAddToScene = async ({
               files.map(
                 (file) =>
                   uploadToFeathersService(fileBrowserUploadPath, [file], {
-                    project: projectName,
-                    path: directoryPath.replace('projects/' + projectName + '/', '') + file.name,
-                    contentType: file.type
+                    args: [
+                      {
+                        project: projectName,
+                        path: directoryPath.replace('projects/' + projectName + '/', '') + file.name,
+                        contentType: file.type
+                      }
+                    ]
                   }).promise
               )
             )
@@ -122,11 +127,12 @@ export const inputFileWithAddToScene = async ({
         }
       } catch (err) {
         reject(err)
+      } finally {
+        el.remove()
       }
     }
 
     el.click()
-    el.remove()
   })
 
 export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], onProgress?) => {
@@ -135,12 +141,14 @@ export const uploadProjectFiles = (projectName: string, files: File[], paths: st
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
     const fileDirectory = paths[i].replace('projects/' + projectName + '/', '')
-    const filePath = (fileDirectory.endsWith('/') ? fileDirectory : fileDirectory + '/') + file.name
+    const filePath = fileDirectory ? pathJoin(fileDirectory, file.name) : file.name
     promises.push(
       uploadToFeathersService(
         fileBrowserUploadPath,
         [file],
-        { project: projectName, path: filePath, contentType: '' },
+        {
+          args: [{ project: projectName, path: filePath, contentType: '' }]
+        },
         onProgress
       )
     )

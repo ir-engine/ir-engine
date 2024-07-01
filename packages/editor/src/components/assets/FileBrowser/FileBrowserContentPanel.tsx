@@ -23,17 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import AddIcon from '@mui/icons-material/Add'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import AutorenewIcon from '@mui/icons-material/Autorenew'
-import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
-import DownloadIcon from '@mui/icons-material/Download'
-import SettingsIcon from '@mui/icons-material/Settings'
-import { Breadcrumbs, Link, Popover, TablePagination } from '@mui/material'
-import React, { useEffect, useRef } from 'react'
-import { useDrop } from 'react-dnd'
-import { useTranslation } from 'react-i18next'
-
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
 import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
@@ -41,8 +30,8 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
 import {
-  archiverPath,
   FileBrowserContentType,
+  archiverPath,
   fileBrowserPath,
   fileBrowserUploadPath,
   staticResourcePath
@@ -56,7 +45,7 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { useValidProjectForFileBrowser } from '@etherealengine/ui/src/components/editor/panels/Files/container'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -64,9 +53,21 @@ import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import AddIcon from '@mui/icons-material/Add'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import AutorenewIcon from '@mui/icons-material/Autorenew'
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
+import DownloadIcon from '@mui/icons-material/Download'
+import SettingsIcon from '@mui/icons-material/Settings'
+import { Breadcrumbs, Link, Popover, TablePagination } from '@mui/material'
+import React, { useEffect, useRef } from 'react'
+import { useDrop } from 'react-dnd'
+import { useTranslation } from 'react-i18next'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
+import { EditorHelperState, PlacementMode } from '../../../services/EditorHelperState'
+import { ClickPlacementState } from '../../../systems/ClickPlacementSystem'
 import BooleanInput from '../../inputs/BooleanInput'
 import InputGroup from '../../inputs/InputGroup'
 import StringInput from '../../inputs/StringInput'
@@ -74,10 +75,9 @@ import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
 import ImageCompressionPanel from '../ImageCompressionPanel'
 import ImageConvertPanel from '../ImageConvertPanel'
-import ModelCompressionPanel from '../ModelCompressionPanel'
 import styles from '../styles.module.scss'
-import { canDropItemOverFolder, FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
-import { availableTableColumns, FilesViewModeSettings, FilesViewModeState } from './FileBrowserState'
+import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from './FileBrowserGrid'
+import { FilesViewModeSettings, FilesViewModeState, availableTableColumns } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
 import { FilePropertiesPanel } from './FilePropertiesPanel'
 
@@ -209,6 +209,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         contentType: params.type,
         size: params.size
       })
+      const editorHelperState = getState(EditorHelperState)
+      if (editorHelperState.placementMode === PlacementMode.CLICK) {
+        getMutableState(ClickPlacementState).selectedAsset.set(params.url)
+      }
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
       changeDirectoryByPath(newPath)
@@ -246,9 +250,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             try {
               const name = processFileName(file.name)
               await uploadToFeathersService(fileBrowserUploadPath, [file], {
-                project: projectName,
-                path: relativePath + name,
-                contentType: file.type
+                args: [
+                  {
+                    project: projectName,
+                    path: relativePath + name,
+                    contentType: file.type
+                  }
+                ]
               }).promise
             } catch (err) {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -318,10 +326,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const showBackButton = selectedDirectory.value !== originalPath
 
   const handleDownloadProject = async () => {
-    const url = selectedDirectory.value
     const data = await Engine.instance.api
       .service(archiverPath)
-      .get(null, { query: { directory: url } })
+      .get(null, { query: { project: projectName } })
       .catch((err: Error) => {
         NotificationService.dispatchNotify(err.message, { variant: 'warning' })
         return null
@@ -634,7 +641,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <ToolButton
             tooltip={t('editor:layout.filebrowser.uploadAssets')}
             onClick={async () => {
-              await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+              await inputFileWithAddToScene({ projectName, directoryPath: selectedDirectory.value })
                 .then(refreshDirectory)
                 .catch((err) => {
                   NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -680,14 +687,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           openConvert={openConvert}
           fileProperties={fileProperties.value}
           convertProperties={convertProperties}
-          onRefreshDirectory={refreshDirectory}
-        />
-      )}
-
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model') && (
-        <ModelCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
           onRefreshDirectory={refreshDirectory}
         />
       )}

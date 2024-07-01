@@ -114,8 +114,10 @@ export class FileBrowserService
     let result = await storageProvider.listFolderContent(directory)
     Object.entries(params.query).forEach(([key, value]) => {
       if (value['$like']) {
-        const searchString = value['$like'].replace(/%/g, '')
-        result = result.filter((item) => item[key].includes(searchString))
+        result = result.filter(
+          (item) =>
+            (item[key] as string).search(new RegExp((value['$like'] as string).replaceAll('%', ''), 'gi')) !== -1
+        )
       }
     })
 
@@ -192,8 +194,10 @@ export class FileBrowserService
     const storageProvider = getStorageProvider(storageProviderName)
 
     /** @todo future proofing for when projects include orgname */
-    if (!data.oldPath.startsWith('projects/' + data.oldProject)) throw new Error('Not allowed to access this directory')
-    if (!data.newPath.startsWith('projects/' + data.newProject)) throw new Error('Not allowed to access this directory')
+    if (!data.oldPath.startsWith('projects/' + data.oldProject))
+      throw new Error('Not allowed to access this directory ' + data.oldPath + ' ' + data.oldProject)
+    if (!data.newPath.startsWith('projects/' + data.newProject))
+      throw new Error('Not allowed to access this directory ' + data.newPath + ' ' + data.newProject)
 
     const oldDirectory = data.oldPath.split('/').slice(0, -1).join('/')
     const newDirectory = data.newPath.split('/').slice(0, -1).join('/')
@@ -264,7 +268,7 @@ export class FileBrowserService
       }
     }
 
-    validateSceneName(data.path)
+    if (data.type === 'scene') validateSceneName(data.path)
 
     let key = path.join('projects', data.project, data.path)
     if (data.unique) {

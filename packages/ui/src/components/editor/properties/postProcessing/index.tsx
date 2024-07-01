@@ -129,7 +129,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
             min={effectSettingState.min}
             max={effectSettingState.max}
             step={effectSettingState.step}
-            value={effectSettingState.value}
+            value={effectSettingValue}
             onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
             onRelease={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
           />
@@ -140,7 +140,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <BooleanInput
             onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
-            value={effectSettingState.value}
+            value={effectSettingValue}
           />
         )
         break
@@ -158,7 +158,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           <SelectInput
             options={BlendFunctionSelect}
             onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
-            value={effectSettingState.value}
+            value={effectSettingValue}
           />
         )
         break
@@ -168,7 +168,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           <SelectInput
             options={VignetteTechniqueSelect}
             onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
-            value={effectSettingState.value}
+            value={effectSettingValue}
           />
         )
         break
@@ -202,7 +202,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
       case PropertyTypes.Color:
         renderVal = (
           <ColorInput
-            value={new Color(effectSettingState.value)}
+            value={new Color(effectSettingValue)}
             onChange={(value) =>
               commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)('#' + value)
             }
@@ -215,7 +215,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           <SelectInput
             options={KernelSizeSelect}
             onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
-            value={effectSettingState.value}
+            value={effectSettingValue}
           />
         )
         break
@@ -224,7 +224,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           <SelectInput
             options={EdgeDetectionMode}
             onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
-            value={effectSettingState.value}
+            value={effectSettingValue}
           />
         )
         break
@@ -234,7 +234,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           <SelectInput
             options={PredicationMode}
             onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
-            value={effectSettingState.value}
+            value={effectSettingValue}
           />
         )
         break
@@ -264,7 +264,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   }
 
   const renderEffects = () => {
-    const items = Object.keys(PostProcessingEffectState).map((effect) => {
+    const items = Object.keys(getState(PostProcessingEffectState)).map((effect) => {
       return (
         <div className="py-1" key={effect}>
           <Checkbox

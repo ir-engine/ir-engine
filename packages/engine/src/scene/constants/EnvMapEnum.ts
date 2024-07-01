@@ -29,6 +29,7 @@ export const EnvMapSourceType = {
   Default: 'Default' as const,
   Texture: 'Texture' as const,
   Color: 'Color' as const,
+  Probes: 'Probes' as const,
   None: 'None' as const
 }
 

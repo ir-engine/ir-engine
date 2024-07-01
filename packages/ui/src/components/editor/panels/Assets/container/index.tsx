@@ -27,13 +27,17 @@ import { clone, debounce, isEmpty, last } from 'lodash'
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
+import {
+  staticResourcePath,
+  StaticResourceQuery,
+  StaticResourceType
+} from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { getState, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { getState, State, useHookstate } from '@etherealengine/hyperflux'
+import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import {
@@ -53,7 +57,6 @@ import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
-import { ContextMenu } from '../../../layout/ContextMenu'
 import { FileIcon } from '../../Files/icon'
 
 type Category = {
@@ -98,13 +101,12 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const { t } = useTranslation()
 
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
+  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
-    setAnchorEl(event.currentTarget)
+    setAnchorEvent(event)
     setAnchorPosition({
       top: event.clientY,
       left: event.clientX
@@ -112,8 +114,8 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   }
 
   const handleClose = () => {
-    setAnchorEl(null)
-    setAnchorPosition({ left: 0, top: 0 })
+    setAnchorEvent(undefined)
+    setAnchorPosition(undefined)
   }
 
   const { onAssetSelectionChanged } = useContext(AssetsPreviewContext)
@@ -153,11 +155,13 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
       <span className="mb-[5px] h-[70px] w-[70px] text-[70px]">
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
-      <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
+
+      <Tooltip title={t(name)} direction="bottom">
+        <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
+      </Tooltip>
 
       <ContextMenu
-        open={open}
-        anchorEl={anchorEl}
+        anchorEvent={anchorEvent}
         panelId={'asset-browser-panel'}
         anchorPosition={anchorPosition}
         onClose={handleClose}
@@ -311,7 +315,6 @@ const AssetPanel = () => {
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
   const searchText = useHookstate('')
   const breadcrumbPath = useHookstate('')
-  const { projectName } = useMutableState(EditorState)
 
   const CategoriesList = () => {
     return (
@@ -368,30 +371,35 @@ const AssetPanel = () => {
 
   useEffect(() => {
     const staticResourcesFindApi = () => {
+      const tags = selectedCategory.value
+        ? [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
+        : []
+
       const query = {
         key: {
           $like: `%${searchText.value}%`
         },
-        type: 'asset',
-        project: projectName.value!,
+        type: {
+          $or: [{ type: 'file' }, { type: 'asset' }]
+        },
+        tags: selectedCategory.value
+          ? {
+              $or: tags.flatMap((tag) => [
+                { tags: { $like: `%${tag.toLowerCase()}%` } },
+                { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } }
+              ])
+            }
+          : undefined,
         $sort: { mimeType: 1 },
-        $limit: 10000
-      }
+        $paginate: false
+      } as StaticResourceQuery
 
-      if (selectedCategory.value) {
-        const tags = [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
-        query['tags'] = {
-          $or: tags.flatMap((tag) => [
-            { tags: { $like: `%${tag.toLowerCase()}%` } },
-            { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } }
-          ])
-        }
-      }
       Engine.instance.api
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
-          searchedStaticResources.set(resources.data)
+          // cast type due to temporary server-side pagination
+          searchedStaticResources.set(resources as any as StaticResourceType[])
         })
         .then(() => {
           loading.set(false)

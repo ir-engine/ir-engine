@@ -142,6 +142,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
     rendererComponent.csm.set(csm)
     return () => {
       csm.dispose()
+      if (!hasComponent(rendererEntity, RendererComponent)) return
       rendererComponent.csm.set(null)
     }
   }, [directionalLightComponent.castShadow])

@@ -205,7 +205,7 @@ export const StatFunctions = {
 
 export const regenerateProjectResourcesJson = async (app: Application, projectName: string) => {
   const resources: StaticResourceType[] = await app.service(staticResourcePath).find({
-    query: { project: projectName },
+    query: { project: projectName, type: { $ne: 'thumbnail' } },
     paginate: false
   })
   if (resources.length === 0) return
@@ -225,8 +225,14 @@ export const regenerateProjectResourcesJson = async (app: Application, projectNa
     ])
   )
 
+  const sortedResourcesJson = Object.fromEntries(
+    Object.entries(resourcesJson).sort(([a], [b]) => {
+      return a.localeCompare(b)
+    })
+  )
+
   const key = `projects/${projectName}/resources.json`
-  const body = Buffer.from(JSON.stringify(resourcesJson, null, 2))
+  const body = Buffer.from(JSON.stringify(sortedResourcesJson, null, 2))
 
   const storageProvider = getStorageProvider()
 
@@ -252,6 +258,7 @@ export const regenerateProjectResourcesJson = async (app: Application, projectNa
 export const patchSingleProjectResourcesJson = async (app: Application, id: string) => {
   // refetch resource since after hooks have not run resolvers yet to parse strings into objects
   const resource = (await app.service(staticResourcePath).get(id)) as StaticResourceType
+  if (resource.type === 'thumbnail') return
 
   const projectName = resource.project
 

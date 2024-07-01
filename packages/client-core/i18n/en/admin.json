@@ -524,7 +524,9 @@
         "add": "Add",
         "noSettingsMessage": "No settings available",
         "lastUpdatedBy": "Last updated by user id: {{userId}}",
-        "duplicateKey": "'Duplicate keys cannot exists"
+        "duplicateKey": "Duplicate keys cannot exist",
+        "keyName": "Key Name",
+        "value": "Value"
       },
       "server": {
         "header": "Server",
@@ -546,7 +548,13 @@
         "processInterval": "Process Interval"
       },
 
-      "plugins": "Plugins"
+      "plugins": "Plugins",
+      "zendesk": {
+        "header": "Zendesk",
+        "subtitle": "Edit Zendesk Settings"
+      }, 
+      "keyName": "key Name",
+      "kid": "Key Id"
     },
     "avatar": {
       "columns": {

@@ -26,17 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import {
-  AdminClientSettingsState,
-  ClientSettingService
-} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import {
   AppThemeState,
   getAppTheme,
   useAppThemeName
 } from '@etherealengine/client-core/src/common/services/AppThemeState'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { ClientThemeOptionsType, clientSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
 export interface ThemeContextProps {
   theme: string
@@ -52,10 +49,10 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
   const authState = useMutableState(AuthState)
   const selfUser = authState.user
 
-  const clientSettingState = useMutableState(AdminClientSettingsState)
-
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSetting = clientSettingQuery.data[0]
   const appTheme = useMutableState(AppThemeState)
-  const [clientSetting] = clientSettingState?.client?.get(NO_PROXY) || []
+
   const clientThemeSettings = useHookstate({} as Record<string, ClientThemeOptionsType>)
 
   const currentThemeName = useAppThemeName()
@@ -72,8 +69,7 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     if (clientSetting) {
       clientThemeSettings.set(clientSetting?.themeSettings)
     }
-    if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
-  }, [clientSettingState?.updateNeeded?.value])
+  }, [clientSetting])
 
   useEffect(() => {
     updateTheme()

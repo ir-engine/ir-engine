@@ -79,7 +79,7 @@ const Select = <T extends OptionValueType>({
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
   const showOptions = useHookstate(false)
-  const filteredOptions = useHookstate(options)
+  const filteredOptions = useHookstate(JSON.parse(JSON.stringify(options)))
   const selectLabel = useHookstate('')
 
   useClickOutside(ref, () => showOptions.set(false))
@@ -90,7 +90,7 @@ const Select = <T extends OptionValueType>({
   }, [currentValue, options])
 
   useEffect(() => {
-    filteredOptions.set(options)
+    filteredOptions.set(JSON.parse(JSON.stringify(options)))
   }, [options])
 
   const toggleDropdown = () => {
@@ -161,7 +161,7 @@ const Select = <T extends OptionValueType>({
         <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2', menuClassname)}>
           {filteredOptions.value.map((option) => (
             <li
-              key={option.value}
+              key={option.label + option.value}
               value={option.value}
               className={twMerge(
                 'cursor-pointer px-4 py-2 text-theme-secondary',

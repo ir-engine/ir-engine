@@ -30,6 +30,7 @@ import {
   CubeTexture,
   DataTexture,
   EquirectangularReflectionMapping,
+  Material,
   Mesh,
   MeshMatcapMaterial,
   MeshStandardMaterial,
@@ -37,33 +38,31 @@ import {
   RGBAFormat,
   SRGBColorSpace,
   Texture,
+  Uniform,
   Vector3
 } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, useQuery } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
-  getOptionalMutableComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import {
-  MaterialComponent,
-  MaterialComponents,
-  pluginByName
-} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { createDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
 
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { setPlugin } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import {
   envmapParsReplaceLambert,
@@ -74,7 +73,9 @@ import {
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
+import { createReflectionProbeRenderTarget } from '../functions/reflectionProbeFunctions'
 import { EnvMapBakeComponent } from './EnvMapBakeComponent'
+import { ReflectionProbeComponent } from './ReflectionProbeComponent'
 
 const tempColor = new Color()
 
@@ -127,6 +128,8 @@ export const EnvmapComponent = defineComponent({
       entity
     )
 
+    const probeQuery = useQuery([ReflectionProbeComponent])
+
     useEffect(() => {
       updateEnvMapIntensity(mesh, component.envMapIntensity.value)
     }, [mesh, component.envMapIntensity])
@@ -159,6 +162,17 @@ export const EnvmapComponent = defineComponent({
         unload()
       }
     }, [component.type, component.envMapSourceColor])
+
+    useEffect(() => {
+      if (component.type.value !== EnvMapSourceType.Probes) return
+      if (!probeQuery.length) return
+      const [renderTexture, unload] = createReflectionProbeRenderTarget(entity, probeQuery)
+      component.envmap.set(renderTexture)
+      return () => {
+        unload()
+        component.envmap.set(null)
+      }
+    }, [component.type, probeQuery.length])
 
     useEffect(() => {
       if (!envMapTexture) return
@@ -198,7 +212,7 @@ export const EnvmapComponent = defineComponent({
     }, [component.type, component.envMapSourceURL])
 
     useEffect(() => {
-      if (!component.envmap.value) return
+      //if (!component.envmap.value) return
       updateEnvMap(mesh, component.envmap.value as Texture)
     }, [mesh, component.envmap])
 
@@ -225,7 +239,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const { envmapEntity, bakeEntity } = props
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
   const group = useComponent(envmapEntity, GroupComponent)
-  const uuid = useComponent(envmapEntity, MaterialComponent[MaterialComponents.Instance]).uuid
+  const uuid = useComponent(envmapEntity, MaterialInstanceComponent).uuid
   const [envMaptexture, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
   useEffect(() => {
     const texture = envMaptexture
@@ -249,11 +263,14 @@ export function updateEnvMap(obj: Mesh<any, any> | null, envmap: Texture | null)
   if (Array.isArray(obj.material)) {
     obj.material.forEach((mat: MeshStandardMaterial) => {
       if (mat instanceof MeshMatcapMaterial) return
-      mat.envMap = envmap!
+      mat.envMap = envmap
+      mat.needsUpdate = true
     })
   } else {
     if (obj.material instanceof MeshMatcapMaterial) return
-    obj.material.envMap = envmap!
+    const material = obj.material as MeshStandardMaterial
+    material.envMap = envmap
+    material.needsUpdate = true
   }
 }
 
@@ -269,42 +286,56 @@ export const updateEnvMapIntensity = (obj: Mesh<any, any> | null, intensity: num
   }
 }
 
-export type BoxProjectionParameters = {
-  cubeMapSize: Vector3
-  cubeMapPos: Vector3
-}
-
-export const BoxProjectionPlugin = {
-  id: 'BoxProjectionPlugin',
-  compile: (shader, renderer) => {
-    const pluginEntity = pluginByName[BoxProjectionPlugin.id]
-    const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
-    if (!plugin) return
-
-    const shaderType = shader.shaderType
-    const isPhysical = shaderType === 'MeshStandardMaterial' || shaderType === 'MeshPhysicalMaterial'
-    const isSupported = isPhysical || shaderType === 'MeshLambertMaterial' || shaderType === 'MeshPhongMaterial'
-    if (!isSupported) return
-
-    if (isPhysical) {
-      if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
-        shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
-      shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
-      shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <envmap_physical_pars_fragment>',
-        envmapPhysicalParsReplace
-      )
-    } else {
-      shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_pars_fragment>', envmapParsReplaceLambert)
-      shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
+export const BoxProjectionPlugin = defineComponent({
+  name: 'BoxProjectionPlugin',
+  onInit: (entity) => {
+    return {
+      cubeMapSize: new Uniform(new Vector3()),
+      cubeMapPos: new Uniform(new Vector3())
     }
+  },
+  onSet: (entity, component, json) => {
+    if (json?.cubeMapSize) component.cubeMapSize.set(json.cubeMapSize)
+    if (json?.cubeMapPos) component.cubeMapPos.set(json.cubeMapPos)
+  },
+  reactor: () => {
+    const entity = useEntityContext()
 
-    applyPluginShaderParameters(pluginEntity, shader, {
-      cubeMapSize: new Vector3(0, 0, 0),
-      cubeMapPos: new Vector3(0, 0, 0)
+    useEffect(() => {
+      const materialComponent = getComponent(entity, MaterialStateComponent)
+
+      const callback = (shader, renderer) => {
+        const plugin = getComponent(entity, BoxProjectionPlugin)
+
+        shader.uniforms.cubeMapSize = plugin.cubeMapSize
+        shader.uniforms.cubeMapPos = plugin.cubeMapPos
+
+        const shaderType = (shader as any).shaderType
+        const isPhysical = shaderType === 'MeshStandardMaterial' || shaderType === 'MeshPhysicalMaterial'
+        const isSupported = isPhysical || shaderType === 'MeshLambertMaterial' || shaderType === 'MeshPhongMaterial'
+        if (!isSupported) return
+
+        if (isPhysical) {
+          if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
+            shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
+          shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
+          shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <envmap_physical_pars_fragment>',
+            envmapPhysicalParsReplace
+          )
+        } else {
+          shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <envmap_pars_fragment>',
+            envmapParsReplaceLambert
+          )
+          shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
+        }
+      }
+
+      setPlugin(materialComponent.material as Material, callback)
     })
   }
-}
+})
 
 const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
   const bakeComponent = getComponent(entity, EnvMapBakeComponent)
@@ -312,14 +343,10 @@ const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
     const child = target as Mesh<any, MeshStandardMaterial>
     if (!child.material || child.type == 'VFXBatch') return
 
-    const pluginEntity = pluginByName[BoxProjectionPlugin.id]
     const materialEntity = UUIDComponent.getEntityByUUID(child.material.uuid as EntityUUID)
-    setComponent(materialEntity, MaterialComponent[MaterialComponents.State], { pluginEntities: [pluginEntity] })
-    getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters[
-      getComponent(materialEntity, NameComponent)
-    ].set({
-      cubeMapSize: { value: bakeComponent.bakeScale },
-      cubeMapPos: { value: bakeComponent.bakePositionOffset }
+    setComponent(materialEntity, BoxProjectionPlugin, {
+      cubeMapPos: new Uniform(bakeComponent.bakePositionOffset),
+      cubeMapSize: new Uniform(bakeComponent.bakeScale)
     })
   }
 }

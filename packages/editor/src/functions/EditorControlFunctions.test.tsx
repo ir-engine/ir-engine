@@ -29,7 +29,7 @@ import { Cache, Color, MathUtils } from 'three'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, UUIDComponent } from '@etherealengine/ecs'
-import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { createEngine, destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
@@ -37,15 +37,12 @@ import { SplineComponent } from '@etherealengine/engine/src/scene/components/Spl
 import { applyIncomingActions, getMutableState, getState } from '@etherealengine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
-
-const timeout = globalThis.setTimeout
 
 describe('EditorControlFunctions', () => {
   beforeEach(async () => {
@@ -56,13 +53,9 @@ describe('EditorControlFunctions', () => {
     Engine.instance.userID = 'user' as UserID
     await Physics.load()
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
-    // patch setTimeout to run the callback immediately
-    // @ts-ignore
-    globalThis.setTimeout = (fn) => fn()
   })
 
   afterEach(() => {
-    globalThis.setTimeout = timeout
     return destroyEngine()
   })
 

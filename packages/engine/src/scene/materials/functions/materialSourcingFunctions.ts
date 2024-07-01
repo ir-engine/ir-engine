@@ -27,6 +27,7 @@ import { Material } from 'three'
 
 import {
   createEntity,
+  defineQuery,
   Entity,
   EntityUUID,
   getComponent,
@@ -37,17 +38,13 @@ import {
   setComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
-import { ComponentType } from '@etherealengine/ecs/src/ComponentFunctions'
-import { State } from '@etherealengine/hyperflux'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
-  materialByHash,
-  materialByName,
-  MaterialComponent,
-  MaterialComponents,
-  pluginByName,
-  prototypeByName
+  MaterialInstanceComponent,
+  MaterialPlugins,
+  MaterialPrototypeComponent,
+  MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 
@@ -72,8 +69,8 @@ export const getMaterialsFromSource = (source: Entity) => {
   childEntities.push(source)
   const materials = {} as Record<EntityUUID, Entity>
   for (const entity of childEntities) {
-    if (hasComponent(entity, MaterialComponent[MaterialComponents.Instance])) {
-      const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.Instance])
+    if (hasComponent(entity, MaterialInstanceComponent)) {
+      const materialComponent = getComponent(entity, MaterialInstanceComponent)
       for (const mat of materialComponent.uuid!) {
         materials[mat] = entity
       }
@@ -85,17 +82,19 @@ export const getMaterialsFromSource = (source: Entity) => {
 /** Creates and uses a new material entity from a GLTF. If a material from the GLTF path already exists in-scene, uses preexisting entity instead. */
 export const createMaterialInstance = (path: string, sourceEntity: Entity, material: Material) => {
   //if we already have a material by the same name from the same source, use it instead
-  const entityFromHash = materialByHash[hashMaterial(path, material.name)]
-  setComponent(sourceEntity, MaterialComponent[MaterialComponents.Instance])
-  const materialComponent = getMutableComponent(sourceEntity, MaterialComponent[MaterialComponents.Instance]) as State<
-    ComponentType<(typeof MaterialComponent)[0]>
-  >
+  const entityFromHash = MaterialStateComponent.materialByHash[hashMaterial(path, material.name)]
+  setComponent(sourceEntity, MaterialInstanceComponent)
+  const materialComponent = getMutableComponent(sourceEntity, MaterialInstanceComponent)
   const uuids = materialComponent.uuid.value
-  if (!uuids) return
-  const t = typeof materialComponent
 
   if (entityFromHash) {
     materialComponent.uuid.set([...uuids, entityFromHash])
+    const materialStateComponent = getMutableComponent(
+      UUIDComponent.getEntityByUUID(entityFromHash),
+      MaterialStateComponent
+    )
+    materialStateComponent.instances.set([...materialStateComponent.instances.value, sourceEntity])
+
     return entityFromHash
   }
   const newUUID = material.uuid as EntityUUID
@@ -107,104 +106,80 @@ export const createMaterialInstance = (path: string, sourceEntity: Entity, mater
         material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
     }
     const materialEntity = createMaterialEntity(material, path)
-    const materialEntityComponent = getMutableComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-    if (!materialEntityComponent.instances.value) return
-    materialEntityComponent.instances.set([...materialEntityComponent.instances.value, sourceEntity])
+    const materialStateComponent = getMutableComponent(materialEntity, MaterialStateComponent)
+    if (!materialStateComponent.instances.value) return
+    materialStateComponent.instances.set([...materialStateComponent.instances.value, sourceEntity])
   }
 }
 
-export const createMaterialEntity = (material: Material, path: string, user?: Entity) => {
+export const createMaterialEntity = (material: Material, path?: string, user?: Entity) => {
   const materialEntity = createEntity()
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
-  setComponent(materialEntity, SourceComponent, path)
-  const prototypeEntity = prototypeByName[material.type]
-  setComponent(materialEntity, MaterialComponent[MaterialComponents.State], {
+  if (path) setComponent(materialEntity, SourceComponent, path)
+  const prototypeEntity = getPrototypeEntityFromName(material.userData.type || material.type)
+  if (!prototypeEntity) throw new PrototypeNotFoundError(`Material prototype ${material.type} not found`)
+  setComponent(materialEntity, MaterialStateComponent, {
     material,
     prototypeEntity,
     parameters: Object.fromEntries(
-      Object.keys(
-        extractDefaults(
-          getComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype]).prototypeArguments
-        )
-      ).map((k) => [k, material[k]])
-    ),
-    instances: user != undefined ? [user] : [],
-    pluginEntities: material.userData.plugins
-      ? material.userData.plugins.map((plugin: MaterialExtensionPluginType) => pluginByName[plugin.id])
-      : []
-  })
-  if (material.userData?.plugins) {
-    for (const pluginEntity of getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-      .pluginEntities!) {
-      getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters[
-        getComponent(materialEntity, NameComponent)
-      ].set(
-        material.userData.plugins.find(
-          (plugin: MaterialExtensionPluginType) => plugin.id === getComponent(pluginEntity, NameComponent)
-        ).parameters
+      Object.keys(extractDefaults(getComponent(prototypeEntity, MaterialPrototypeComponent).prototypeArguments)).map(
+        (k) => [k, material[k]]
       )
-    }
-  }
+    ),
+    instances: user != undefined ? [user] : []
+  })
+  if (material.userData?.plugins)
+    material.userData.plugins.map((plugin: MaterialExtensionPluginType) => {
+      if (!plugin) return
+      setComponent(materialEntity, MaterialPlugins[plugin.id])
+      const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin.id])
+      for (const [k, v] of Object.entries(plugin.uniforms)) {
+        if (v) pluginComponent[k].value = v
+      }
+    })
   setMaterialName(materialEntity, material.name)
   return materialEntity
 }
 
 export const removeMaterial = (entity: Entity) => {
   const name = getComponent(entity, NameComponent)
-  const hash = hashMaterial(getComponent(entity, SourceComponent), name)
-  delete materialByHash[hash]
-  delete materialByName[name]
+  if (hasComponent(entity, SourceComponent)) {
+    const hash = hashMaterial(getComponent(entity, SourceComponent), name)
+    delete MaterialStateComponent.materialByHash[hash]
+  }
   removeEntity(entity)
 }
 
-export const getPrototypeConstructorFromName = (name: string) => {
-  const prototypeEntity = prototypeByName[name]
-  if (!prototypeEntity) return null
-  return getComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype]).prototypeConstructor!
-}
+const prototypeQuery = defineQuery([MaterialPrototypeComponent])
+export const getPrototypeEntityFromName = (name: string) =>
+  prototypeQuery().find((entity) => getComponent(entity, NameComponent) === name)
 
-/**Sets a unique name and source hash for a given material entity */
+/**Sets a name and source hash for a given material entity */
 export const setMaterialName = (entity: Entity, name: string) => {
+  const canHash = name !== '' && hasComponent(entity, SourceComponent)
   if (name === '') name = 'Material'
-  const materialComponent = getMutableComponent(entity, MaterialComponent[MaterialComponents.State])
+  const materialComponent = getMutableComponent(entity, MaterialStateComponent)
   if (!materialComponent.material.value) return
   const oldName = getOptionalComponent(entity, NameComponent)
-  if (oldName) {
+  if (oldName && canHash) {
     const oldHash = hashMaterial(getComponent(entity, SourceComponent), oldName)
-    const preexistingMaterial = materialByHash[oldHash]
+    const preexistingMaterial = MaterialStateComponent.materialByHash[oldHash]
     if (preexistingMaterial && preexistingMaterial === getComponent(entity, UUIDComponent)) {
-      delete materialByHash[oldHash]
-      delete materialByName[oldName]
+      delete MaterialStateComponent.materialByHash[oldHash]
     }
   }
 
-  if (materialByName[name]) {
-    name = uniqueSuffix(name)
-  }
-
-  const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
   setComponent(entity, NameComponent, name)
   ;(materialComponent.material.value as Material).name = name
-  materialByHash[newHash] = getComponent(entity, UUIDComponent)
-  materialByName[name] = getComponent(entity, UUIDComponent)
-}
-
-const uniqueSuffix = (name: string) => {
-  let i = 1
-  while (materialByName[`${name}${i}`]) i++
-  return `${name}${i}`
+  if (!canHash) return
+  const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
+  MaterialStateComponent.materialByHash[newHash] = getComponent(entity, UUIDComponent)
 }
 
 export const injectMaterialDefaults = (materialUUID: EntityUUID) => {
-  const material = getOptionalComponent(
-    UUIDComponent.getEntityByUUID(materialUUID),
-    MaterialComponent[MaterialComponents.State]
-  )
+  const material = getOptionalComponent(UUIDComponent.getEntityByUUID(materialUUID), MaterialStateComponent)
   if (!material?.prototypeEntity) return
-  const prototype = getComponent(
-    material.prototypeEntity,
-    MaterialComponent[MaterialComponents.Prototype]
-  ).prototypeArguments
+  const prototype = getComponent(material.prototypeEntity, MaterialPrototypeComponent).prototypeArguments
   if (!prototype) return
   return Object.fromEntries(
     Object.entries(prototype).map(([k, v]: [string, any]) => [k, { ...v, default: material.parameters![k] }])
