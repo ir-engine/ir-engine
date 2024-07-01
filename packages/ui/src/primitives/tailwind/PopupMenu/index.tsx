@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
@@ -32,11 +32,6 @@ import ClickawayListener from '../ClickawayListener'
 
 const PopupMenu = () => {
   const popoverElement = useHookstate(getMutableState(PopoverState).elements)
-
-  useEffect(() => {
-    console.log('PopLength: ', popoverElement.length)
-  }, [popoverElement])
-
   return (
     <>
       {popoverElement.get(NO_PROXY).map((element, idx) => {
