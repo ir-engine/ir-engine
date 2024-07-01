@@ -29,12 +29,11 @@ import {
   UUIDComponent,
   createEntity,
   defineComponent,
-  getMutableComponent,
-  hasComponent,
   removeEntity,
   setComponent,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  useOptionalComponent
 } from '@etherealengine/ecs'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
@@ -42,7 +41,6 @@ import { TweenComponent } from '@etherealengine/spatial/src/transform/components
 import { Easing, Tween } from '@tweenjs/tween.js'
 import { useEffect } from 'react'
 import { MediaComponent } from './scene/components/MediaComponent'
-import { VideoComponent } from './scene/components/VideoComponent'
 
 export const VideoTriggerComponent = defineComponent({
   name: 'VideoTriggerComponent',
@@ -77,22 +75,21 @@ export const VideoTriggerComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const component = useComponent(entity, VideoTriggerComponent)
-    const videoEnity = UUIDComponent.getEntityByUUID(component.videoEntityUUID.value as EntityUUID)
-    const video = getMutableComponent(videoEnity, VideoComponent)
     const mediaEnity = UUIDComponent.getEntityByUUID(component.mediaEntityUUID.value as EntityUUID)
-    const media = getMutableComponent(mediaEnity, MediaComponent)
+    const media = useOptionalComponent(mediaEnity, MediaComponent)
     const tween = createTween({ value: 0.0001 }).onUpdate(({ value }) => {
-      media.volume.set(value)
+      media?.volume.set(value)
     })
     let targetVolume: number
+    const triggerComp = useOptionalComponent(entity, TriggerComponent)
 
     useEffect(() => {
       const Enter = () => {
         if (component.resetEnter.value) {
-          media.seekTime.set(0)
-          media.forceSeekTime.set({ force: true })
+          media?.seekTime.set(0)
+          media?.forceSeekTime.set({ force: true })
         }
-        media.paused.set(false)
+        media?.paused.set(false)
         tween
           .stop()
           .to({ value: targetVolume }, 1000)
@@ -106,10 +103,10 @@ export const VideoTriggerComponent = defineComponent({
           .stop()
           .to({ value: 0 }, 1000)
           .onComplete(() => {
-            media.paused.set(true)
+            media?.paused.set(true)
             if (component.resetExit.value) {
-              media.seekTime.set(0)
-              media.forceSeekTime.set({ force: true })
+              media?.seekTime.set(0)
+              media?.forceSeekTime.set({ force: true })
             }
           })
           .easing(Easing.Exponential.Out)
@@ -122,12 +119,12 @@ export const VideoTriggerComponent = defineComponent({
       setCallback(entity, 'onVideoTriggerExit', (triggerEntity: Entity, otherEntity: Entity) => {
         Exit()
       })
+    }, [])
 
-      if (!hasComponent(entity, TriggerComponent)) {
-        setComponent(entity, TriggerComponent)
+    useEffect(() => {
+      if (!triggerComp) {
+        return
       }
-
-      const triggerComp = getMutableComponent(entity, TriggerComponent)
       triggerComp.triggers.merge([
         {
           onEnter: 'onVideoTriggerEnter',
@@ -135,10 +132,15 @@ export const VideoTriggerComponent = defineComponent({
           target: '' as EntityUUID
         }
       ])
+    }, [triggerComp])
 
+    useEffect(() => {
+      if (!media) {
+        return
+      }
       targetVolume = media.volume.value
       media.volume.set(0)
-    }, [])
+    }, [media])
 
     return null
   }

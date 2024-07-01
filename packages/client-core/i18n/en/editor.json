@@ -866,7 +866,8 @@
       "lbl-onexit": "On Exit",
       "lbl-showHelper": "Show Helper Mesh",
       "ph-errorNode": "Error missing node.",
-      "ph-selectNode": "Select node..."
+      "ph-selectNode": "Select node...",
+      "lbl-addRigidBody": "Add RigidBody..."
     },
     "video": {
       "name": "Video",

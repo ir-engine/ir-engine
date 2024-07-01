@@ -30,13 +30,16 @@ import { useTranslation } from 'react-i18next'
 import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 
-import { UUIDComponent, getComponent, useComponent } from '@etherealengine/ecs'
+import { UUIDComponent, getComponent, hasComponent, useComponent } from '@etherealengine/ecs'
 import BooleanInput from '@etherealengine/editor/src/components/inputs/BooleanInput'
 import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
 import { NodeEditor } from '@etherealengine/editor/src/components/properties/NodeEditor'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
+import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
+import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { VideoTriggerComponent } from './VideoTriggerComponent'
 import { MediaComponent } from './scene/components/MediaComponent'
 import { VideoComponent } from './scene/components/VideoComponent'
@@ -66,7 +69,12 @@ export const VideoTriggerNodeEditor: EditorComponentType = (props) => {
     }
   })
 
-  useEffect(() => {}, [])
+  useEffect(() => {
+    if (!hasComponent(props.entity, TriggerComponent)) {
+      const nodes = SelectionState.getSelectedEntities()
+      EditorControlFunctions.addOrRemoveComponent(nodes, TriggerComponent, true)
+    }
+  }, [])
 
   return (
     <NodeEditor
