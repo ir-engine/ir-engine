@@ -56,8 +56,7 @@ describe('identity-provider.service', () => {
 
     const createdIdentityProvider = await app.service(identityProviderPath).create({
       type,
-      token,
-      userId: '' as UserID
+      token
     })
 
     providers.push(createdIdentityProvider)

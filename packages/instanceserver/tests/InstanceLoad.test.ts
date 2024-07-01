@@ -28,7 +28,7 @@ import assert from 'assert'
 import { ChildProcess } from 'child_process'
 import { v4 as uuidv4 } from 'uuid'
 
-import { identityProviderPath, locationPath, UserID } from '@etherealengine/common/src/schema.type.module'
+import { identityProviderPath, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { getState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
@@ -65,8 +65,7 @@ describe('InstanceLoad', () => {
 
     const createdIdentityProvider = await app.service(identityProviderPath).create({
       type,
-      token,
-      userId: '' as UserID
+      token
     })
 
     const skyStationScene = await app.service(locationPath).find({

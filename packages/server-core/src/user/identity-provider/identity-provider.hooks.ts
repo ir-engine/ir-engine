@@ -106,14 +106,14 @@ async function checkOnlyIdentityProvider(context: HookContext<IdentityProviderSe
 /* (BEFORE) CREATE HOOKS */
 
 async function validateAuthParams(context: HookContext<IdentityProviderService>) {
-  let userId = (context.actualData as IdentityProviderData).userId
+  let userId
 
   if (context.params.authentication) {
     const authResult = await context.app.service('authentication').strategies.jwt.authenticate!(
       { accessToken: context.params.authentication.accessToken },
       {}
     )
-    userId = userId || authResult[appConfig.authentication.entity]?.userId
+    userId = (context.actualData as IdentityProviderData).userId || authResult[appConfig.authentication.entity]?.userId
   }
 
   if (!userId) {

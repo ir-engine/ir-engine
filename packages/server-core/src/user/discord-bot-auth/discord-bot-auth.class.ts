@@ -32,7 +32,7 @@ import {
   identityProviderPath,
   IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { UserID, userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -66,8 +66,7 @@ export class DiscordBotAuthService implements ServiceInterface<UserType, KnexAda
       } else {
         const ipCreation = await this.app.service(identityProviderPath).create({
           token: token,
-          type: 'discord',
-          userId: '' as UserID
+          type: 'discord'
         })
         return this.app.service(userPath).get(ipCreation.userId)
       }

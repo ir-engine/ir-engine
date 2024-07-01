@@ -61,9 +61,7 @@ export const identityProviderSchema = Type.Object(
     accountIdentifier: Type.Optional(Type.String()),
     oauthToken: Type.Optional(Type.String()),
     type: StringEnum(identityProviderTypes),
-    userId: TypedString<UserID>({
-      format: 'uuid'
-    }),
+    userId: TypedString<UserID>(),
     accessToken: Type.Optional(Type.String()),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -73,13 +71,30 @@ export const identityProviderSchema = Type.Object(
 export interface IdentityProviderType extends Static<typeof identityProviderSchema> {}
 
 // Schema for creating new entries
-export const identityProviderDataSchema = Type.Pick(
-  identityProviderSchema,
-  ['token', 'accountIdentifier', 'oauthToken', 'type', 'userId'],
-  {
-    $id: 'IdentityProviderData'
-  }
+export const identityProviderDataProperties = Type.Pick(identityProviderSchema, [
+  'token',
+  'accountIdentifier',
+  'oauthToken',
+  'type'
+])
+
+export const identityProviderDataSchema = Type.Intersect(
+  [
+    identityProviderDataProperties,
+    Type.Object(
+      {
+        userId: Type.Optional(
+          TypedString<UserID>({
+            format: 'uuid'
+          })
+        )
+      },
+      { additionalProperties: false }
+    )
+  ],
+  { $id: 'IdentityProviderData' }
 )
+
 export interface IdentityProviderData extends Static<typeof identityProviderDataSchema> {}
 
 // Schema for updating existing entries

@@ -168,8 +168,7 @@ async function _resetToGuestToken(options = { reset: true }) {
   }
   const newProvider = await Engine.instance.api.service(identityProviderPath).create({
     type: 'guest',
-    token: uuidv4(),
-    userId: '' as UserID
+    token: uuidv4()
   })
   const accessToken = newProvider.accessToken!
   console.log(`Created new guest accessToken: ${accessToken}`)
@@ -466,8 +465,7 @@ export const AuthService = {
     try {
       const identityProvider: any = await Engine.instance.api.service(identityProviderPath).create({
         token: form.email,
-        type: 'password',
-        userId: '' as UserID
+        type: 'password'
       })
       authState.authUser.merge({ identityProvider })
       window.location.href = '/auth/confirm'
@@ -551,8 +549,7 @@ export const AuthService = {
     try {
       const identityProvider = await Engine.instance.api.service(identityProviderPath).create({
         token: form.email,
-        type: 'password',
-        userId: '' as UserID
+        type: 'password'
       })
       return AuthService.loadUserData(identityProvider.userId)
     } catch (err) {
