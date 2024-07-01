@@ -34,7 +34,7 @@ export const PhysicsState = defineState({
   initial: () => {
     return {
       physicsSubsteps: 1,
-      physicsWorld: null! as PhysicsWorld,
+      physicsWorld: null as null | PhysicsWorld,
       physicsCollisionEventQueue: null! as EventQueue,
       // used to ignore raycast hits for an entity the camera is attached to
       cameraAttachedRigidbodyEntity: UndefinedEntity,

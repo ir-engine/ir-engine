@@ -133,6 +133,7 @@ const raycastComponentData = {
 
 const onSecondaryClick = () => {
   const { physicsWorld } = getState(PhysicsState)
+  if (!physicsWorld) return
   const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position

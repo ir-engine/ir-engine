@@ -37,13 +37,22 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, getState, matches, useHookstate } from '@etherealengine/hyperflux'
+import {
+  getMutableState,
+  getState,
+  matches,
+  useHookstate,
+  useImmediateEffect,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 
+import { World } from '@dimforge/rapier3d-compat'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
 import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
@@ -102,6 +111,13 @@ export const AvatarControllerComponent = defineComponent({
     const avatarControllerComponent = useComponent(entity, AvatarControllerComponent)
     const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
     const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
+    const physicsWorld = useMutableState(PhysicsState).physicsWorld
+
+    useImmediateEffect(() => {
+      const world = physicsWorld.value as World | null
+      if (!world) return
+      Physics.createCharacterController(entity, world, {})
+    }, [physicsWorld])
 
     useEffect(() => {
       setAvatarColliderTransform(entity)

@@ -27,8 +27,9 @@ import { useEffect, useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
 
 import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 
+import { World } from '@dimforge/rapier3d-compat'
 import { useAncestorWithComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
@@ -83,21 +84,23 @@ export const ColliderComponent = defineComponent({
     const component = useComponent(entity, ColliderComponent)
     const transform = useComponent(entity, TransformComponent)
     const rigidbodyEntity = useAncestorWithComponent(entity, RigidBodyComponent)
+    const physicsWorld = useMutableState(PhysicsState).physicsWorld
 
     useEffect(() => {
       if (!rigidbodyEntity) return
 
-      const physicsWorld = getState(PhysicsState).physicsWorld
+      const world = physicsWorld.value as World | null
+      if (!world) return
 
       const colliderDesc = Physics.createColliderDesc(entity, rigidbodyEntity)
       if (!colliderDesc) return
 
-      Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
+      Physics.attachCollider(world, colliderDesc, rigidbodyEntity, entity)
 
       return () => {
-        Physics.removeCollider(physicsWorld, entity)
+        Physics.removeCollider(world, entity)
       }
-    }, [component.shape, rigidbodyEntity, transform.scale])
+    }, [component.shape, rigidbodyEntity, physicsWorld, transform.scale])
 
     useLayoutEffect(() => {
       Physics.setMass(entity, component.mass.value)

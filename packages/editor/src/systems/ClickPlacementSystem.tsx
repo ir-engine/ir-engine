@@ -244,6 +244,8 @@ export const ClickPlacementSystem = defineSystem({
     const clickState = getState(ClickPlacementState)
     const placementEntity = clickState.placementEntity
     if (!placementEntity) return
+    const physicsWorld = getState(PhysicsState).physicsWorld
+    if (!physicsWorld) return
 
     //@todo: fix type of `typeof GroupComponent`
     const sceneObjects: any[] = []
@@ -255,8 +257,6 @@ export const ClickPlacementSystem = defineSystem({
     //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const pointerScreenRaycaster = new Raycaster()
-
-    const physicsWorld = getState(PhysicsState).physicsWorld
 
     let intersectEntity: Entity = UndefinedEntity
     let targetIntersection: { point: Vector3; normal: Vector3 } | null = null

@@ -64,6 +64,7 @@ export const autopilotSetPosition = (entity: Entity) => {
   if (avatarControllerComponent.gamepadLocalInput.lengthSq() > 0) return
 
   const { physicsWorld } = getState(PhysicsState)
+  if (!physicsWorld) return
 
   const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
   if (!inputPointerEntity) return

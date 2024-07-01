@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Easing, Tween } from '@tweenjs/tween.js'
-import { useEffect } from 'react'
 import { AdditiveBlending, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
+import { World } from '@dimforge/rapier3d-compat'
 import {
   defineComponent,
   getComponent,
@@ -36,16 +36,16 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getState } from '@etherealengine/hyperflux'
-import { ObjectDirection, Vector3_Right, Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { ObjectDirection, Vector3_Right, Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { AvatarCollisionMask, CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
@@ -70,8 +70,12 @@ export const SpawnEffectComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
+    const physicsWorld = useMutableState(PhysicsState).physicsWorld
 
-    useEffect(() => {
+    useImmediateEffect(() => {
+      const world = physicsWorld.value as World | null
+      if (!world) return
+
       const effectComponent = getComponent(entity, SpawnEffectComponent)
       const sourceTransform = getComponent(effectComponent.sourceEntity, TransformComponent)
       /** Copy transform but do not attach to avatar */
@@ -80,7 +84,7 @@ export const SpawnEffectComponent = defineComponent({
       setComponent(entity, VisibleComponent, true)
       /** cast ray to move this downward to be on the ground */
       downwardGroundRaycast.origin.copy(sourceTransform.position)
-      const hits = Physics.castRay(getState(PhysicsState).physicsWorld, downwardGroundRaycast)
+      const hits = Physics.castRay(world, downwardGroundRaycast)
       if (hits.length) {
         transform.position.y = hits[0].position.y
       }
@@ -96,7 +100,7 @@ export const SpawnEffectComponent = defineComponent({
           removeEntity(lightEntity)
         }
       }
-    }, [])
+    }, [physicsWorld])
 
     return null
   },

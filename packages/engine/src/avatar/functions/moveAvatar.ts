@@ -88,8 +88,8 @@ let beganFalling = false
 
 export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   const xrFrame = getState(XRState).xrFrame
-
-  if (!entity || (!xrFrame && !additionalMovement)) return
+  const physicWorld = getState(PhysicsState).physicsWorld
+  if (!entity || (!xrFrame && !additionalMovement) || !physicWorld) return
 
   const colliderEntity = getComponent(entity, AvatarColliderComponent).colliderEntity
   const bodyCollider = getComponent(colliderEntity, ColliderComponent)
@@ -153,7 +153,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   avatarGroundRaycast.origin.copy(rigidbody.targetKinematicPosition)
   avatarGroundRaycast.groups = avatarCollisionGroups
   avatarGroundRaycast.origin.y += avatarGroundRaycastDistanceOffset
-  const groundHits = Physics.castRay(getState(PhysicsState).physicsWorld, avatarGroundRaycast)
+  const groundHits = Physics.castRay(physicWorld, avatarGroundRaycast)
   controller.isInAir = true
 
   if (groundHits.length) {
