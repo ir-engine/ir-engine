@@ -23,32 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { useEffect } from 'react'
-
-export const FeatureFlagsState = defineState({
-  name: 'ee.engine.FeatureFlagsState',
-  initial: {} as Record<string, boolean>,
-  enabled(flagName: string) {
-    const state = getMutableState(FeatureFlagsState)[flagName].value
-    return typeof state === 'boolean' ? state : true
-  },
-  useEnabled(flagName: string) {
-    const state = useHookstate(getMutableState(FeatureFlagsState)[flagName]).value
-    return typeof state === 'boolean' ? state : true
-  },
-  reactor: () => {
-    const featureFlagQuery = useFind(featureFlagSettingPath)
-
-    useEffect(() => {
-      const data = featureFlagQuery.data
-      getMutableState(FeatureFlagsState).merge(
-        Object.fromEntries(data.map(({ flagName, flagValue }) => [flagName, flagValue]))
-      )
-    }, [featureFlagQuery.data])
-
-    return null
+/**
+ * Method used to get all leaf node strings from an object.
+ * https://stackoverflow.com/a/63100031/2077741
+ * @param obj
+ * @returns
+ */
+export function getAllStringValueNodes(obj: any) {
+  if (typeof obj === 'string') {
+    return [obj]
   }
-})
+
+  // handle wrong types and null
+  if (typeof obj !== 'object' || !obj) {
+    return []
+  }
+
+  return Object.keys(obj).reduce((acc, key) => {
+    return [...acc, ...getAllStringValueNodes(obj[key])]
+  }, [])
+}
