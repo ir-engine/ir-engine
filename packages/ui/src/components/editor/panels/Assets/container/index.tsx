@@ -323,7 +323,6 @@ const AssetPanel = () => {
   const breadcrumbPath = useHookstate('')
   const originalPath = useMutableState(EditorState).projectName.value
 
-  console.log(`ORIGPATH: ${originalPath}`)
   const assetsQuery = useFind(fileBrowserPath, {
     query: {
       directory: 'assets/'
