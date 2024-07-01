@@ -486,10 +486,6 @@ const AssetPanel = () => {
     // TODO: add settings functionality
   }
 
-  const refreshDirectory = async () => {
-    await assetsQuery.refetch()
-  }
-
   return (
     <>
       <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
@@ -547,7 +543,7 @@ const AssetPanel = () => {
               projectName: originalPath as string,
               directoryPath: `projects/${originalPath}/assets/`
             })
-              .then(refreshDirectory)
+              .then(handleRefresh)
               .catch((err) => {
                 NotificationService.dispatchNotify(err.message, { variant: 'error' })
               })
