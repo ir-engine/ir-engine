@@ -29,9 +29,13 @@ import { MeshBasicMaterial, MeshNormalMaterial } from 'three'
 import { Engine, getComponent } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 
-import { RenderModes } from '../constants/RenderModes'
+import { EditorState } from '../../../../editor/src/services/EditorServices'
+import { iterateEntityNode } from '../../transform/components/EntityTree'
 import { RendererState } from '../RendererState'
 import { RendererComponent } from '../WebGLRendererSystem'
+import { GroupComponent } from '../components/GroupComponent'
+import { setVisibleComponent } from '../components/VisibleComponent'
+import { RenderModes } from '../constants/RenderModes'
 
 /**
  * Change render mode of the renderer
@@ -60,24 +64,20 @@ export function changeRenderMode() {
     (p) => p.name === 'RenderPass'
   ) as any
   const renderPass: RenderPass = passes ? passes[0] : undefined
-
   if (!renderPass) return
 
   switch (renderMode) {
     case RenderModes.UNLIT:
-      // See above comment
-      // iterateObject3D(Engine.instance.scene, (obj: Light) => {
-      //   if (obj.isLight && obj.visible) {
-      //     obj.userData.editor_disabled = true
-      //     obj.visible = false
-      //   }
-      // })
-      renderPass.overrideMaterial = null!
-      break
     case RenderModes.LIT:
-      renderPass.overrideMaterial = null!
-      break
     case RenderModes.SHADOW:
+      iterateEntityNode(getState(EditorState).rootEntity, (entity, index) => {
+        const groups = getComponent(entity, GroupComponent)
+        for (const group of groups) {
+          if ((group as any).isLight && !(group as any).isAmbientLight) {
+            setVisibleComponent(group.entity, renderMode !== RenderModes.UNLIT)
+          }
+        }
+      })
       renderPass.overrideMaterial = null!
       break
     case RenderModes.WIREFRAME:
