@@ -56,6 +56,12 @@ export const locationSettingSchema = Type.Object(
 )
 export interface LocationSettingType extends Static<typeof locationSettingSchema> {}
 
+// Schema for creating new entries
+export const locationSettingDataSchema = Type.Partial(locationSettingSchema, {
+  $id: 'LocationSettingData'
+})
+export interface LocationSettingData extends Static<typeof locationSettingDataSchema> {}
+
 // Schema for updating existing entries
 export const locationSettingPatchSchema = Type.Partial(locationSettingSchema, {
   $id: 'LocationSettingPatch'
@@ -83,6 +89,6 @@ export const locationSettingQuerySchema = Type.Intersect(
 export interface LocationSettingQuery extends Static<typeof locationSettingQuerySchema> {}
 
 export const locationSettingValidator = /* @__PURE__ */ getValidator(locationSettingSchema, dataValidator)
-export const locationSettingDataValidator = /* @__PURE__ */ getValidator(locationSettingSchema, dataValidator)
+export const locationSettingDataValidator = /* @__PURE__ */ getValidator(locationSettingDataSchema, dataValidator)
 export const locationSettingPatchValidator = /* @__PURE__ */ getValidator(locationSettingPatchSchema, dataValidator)
 export const locationSettingQueryValidator = /* @__PURE__ */ getValidator(locationSettingQuerySchema, queryValidator)

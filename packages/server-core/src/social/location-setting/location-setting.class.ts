@@ -27,6 +27,7 @@ import type { Params } from '@feathersjs/feathers'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
+  LocationSettingData,
   LocationSettingPatch,
   LocationSettingQuery,
   LocationSettingType
@@ -37,4 +38,4 @@ export interface LocationSettingParams extends KnexAdapterParams<LocationSetting
 export class LocationSettingService<
   T = LocationSettingType,
   ServiceParams extends Params = LocationSettingParams
-> extends KnexService<LocationSettingType, LocationSettingType, LocationSettingParams, LocationSettingPatch> {}
+> extends KnexService<LocationSettingType, LocationSettingData, LocationSettingParams, LocationSettingPatch> {}
