@@ -33,7 +33,7 @@ type ContextMenuProps = {
   anchorPosition?: undefined | { left: number; top: number }
   onClose: () => void
   className?: string
-  anchorEl?: object
+  anchorEl?: HTMLElement
 }
 
 export const ContextMenu = ({
@@ -59,14 +59,16 @@ export const ContextMenu = ({
         left: anchorEvent.clientX + 2,
         top: anchorEvent.clientY - 6
       } // default anchor position
-    : {
-        left: 0,
-        top: 0
-      }
+    : undefined
 
   // Calculate the Y position of the context menu based on the menu height and space to the bottom of the viewport in order to avoid overflow
   const calculatePositionY = () => {
-    let positionY = anchorEl ? anchorEl.getBoundingClientRect().bottom! : anchorPosition.top
+    let positionY = anchorPosition
+      ? anchorPosition.top - panel?.getBoundingClientRect().top!
+      : anchorEl
+      ? anchorEl.getBoundingClientRect().bottom!
+      : 0
+    // let positionY =
 
     if (open && menuRef.current) {
       const menuHeight = menuRef.current.offsetHeight
@@ -93,7 +95,11 @@ export const ContextMenu = ({
 
   // Calculate the X position of the context menu based on the menu width and space to the right of the panel in order to avoid overflow
   const calculatePositionX = () => {
-    let positionX = anchorEl ? anchorEl.getBoundingClientRect().left! : anchorPosition.left
+    let positionX = anchorPosition
+      ? anchorPosition.left - panel?.getBoundingClientRect().left!
+      : anchorEl
+      ? anchorEl.getBoundingClientRect().left!
+      : 0
 
     if (open && menuRef.current) {
       const menuWidth = menuRef.current.offsetWidth
