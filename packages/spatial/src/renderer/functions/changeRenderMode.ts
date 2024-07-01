@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { RenderPass } from 'postprocessing'
-import { MeshBasicMaterial, MeshNormalMaterial } from 'three'
+import { AmbientLight, MeshBasicMaterial, MeshNormalMaterial } from 'three'
 
 import { Engine, getComponent } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
@@ -33,7 +33,7 @@ import { EditorState } from '../../../../editor/src/services/EditorServices'
 import { iterateEntityNode } from '../../transform/components/EntityTree'
 import { RendererState } from '../RendererState'
 import { RendererComponent } from '../WebGLRendererSystem'
-import { GroupComponent } from '../components/GroupComponent'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
 import { setVisibleComponent } from '../components/VisibleComponent'
 import { RenderModes } from '../constants/RenderModes'
 
@@ -41,24 +41,11 @@ import { RenderModes } from '../constants/RenderModes'
  * Change render mode of the renderer
  * @param mode Mode which will be set to renderer
  */
+
+const tempAmbientLight = new AmbientLight()
+
 export function changeRenderMode() {
   const renderMode = getState(RendererState).renderMode
-
-  // revert any changes made by a render mode
-  switch (renderMode) {
-    case RenderModes.UNLIT:
-      // Not currently working, will be replaced with custom renderer in the future
-
-      // iterateObject3D(Engine.instance.scene, (obj: Light) => {
-      //   if (obj.isLight && obj.userData.editor_disabled) {
-      //     delete obj.userData.editor_disabled
-      //     obj.visible = true
-      //   }
-      // })
-      break
-    default:
-      break
-  }
 
   const passes = getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.passes.filter(
     (p) => p.name === 'RenderPass'
@@ -73,11 +60,15 @@ export function changeRenderMode() {
       iterateEntityNode(getState(EditorState).rootEntity, (entity, index) => {
         const groups = getComponent(entity, GroupComponent)
         for (const group of groups) {
-          if ((group as any).isLight && !(group as any).isAmbientLight) {
+          if ((group as any).isLight) {
             setVisibleComponent(group.entity, renderMode !== RenderModes.UNLIT)
           }
         }
       })
+      renderMode === RenderModes.UNLIT
+        ? addObjectToGroup(getState(EditorState).rootEntity, tempAmbientLight)
+        : removeObjectFromGroup(getState(EditorState).rootEntity, tempAmbientLight)
+
       renderPass.overrideMaterial = null!
       break
     case RenderModes.WIREFRAME:
