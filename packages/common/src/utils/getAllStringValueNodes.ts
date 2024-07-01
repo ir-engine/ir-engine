@@ -23,29 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+/**
+ * Method used to get all leaf node strings from an object.
+ * https://stackoverflow.com/a/63100031/2077741
+ * @param obj
+ * @returns
+ */
+export function getAllStringValueNodes(obj: any) {
+  if (typeof obj === 'string') {
+    return [obj]
+  }
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+  // handle wrong types and null
+  if (typeof obj !== 'object' || !obj) {
+    return []
+  }
 
-import ClickawayListener from '../ClickawayListener'
-
-const PopupMenu = () => {
-  const popoverElement = useHookstate(getMutableState(PopoverState).elements)
-  return (
-    <>
-      {popoverElement.get(NO_PROXY).map((element, idx) => {
-        return (
-          <div key={idx} className="block">
-            <ClickawayListener>{element ?? undefined}</ClickawayListener>
-          </div>
-        )
-      })}
-    </>
-  )
+  return Object.keys(obj).reduce((acc, key) => {
+    return [...acc, ...getAllStringValueNodes(obj[key])]
+  }, [])
 }
-PopupMenu.displayName = 'PopupMenu'
-
-PopupMenu.defaultProps = {}
-
-export default PopupMenu

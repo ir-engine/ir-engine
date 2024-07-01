@@ -23,29 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-
-import ClickawayListener from '../ClickawayListener'
-
-const PopupMenu = () => {
-  const popoverElement = useHookstate(getMutableState(PopoverState).elements)
-  return (
-    <>
-      {popoverElement.get(NO_PROXY).map((element, idx) => {
-        return (
-          <div key={idx} className="block">
-            <ClickawayListener>{element ?? undefined}</ClickawayListener>
-          </div>
-        )
-      })}
-    </>
-  )
+export const FeatureFlags = {
+  Client: {
+    Menu: {
+      Social: 'ir.client.menu.social',
+      Emote: 'ir.client.menu.emote',
+      Avaturn: 'ir.client.menu.avaturn',
+      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe'
+    }
+  }
 }
-PopupMenu.displayName = 'PopupMenu'
-
-PopupMenu.defaultProps = {}
-
-export default PopupMenu
