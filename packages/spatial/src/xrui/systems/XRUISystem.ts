@@ -52,8 +52,6 @@ const inputSourceQuery = defineQuery([InputSourceComponent])
 // to the appropriate child Web3DLayer, and finally (back) to the
 // DOM to dispatch an event on the intended DOM target
 const redirectDOMEvent = (evt: PointerEvent) => {
-  evt.detail
-
   for (const entity of visibleInteractableXRUIQuery()) {
     const layer = getComponent(entity, XRUIComponent)
     const inputSources = InputComponent.getInputSourceEntities(entity)
