@@ -35,11 +35,16 @@ import BooleanInput from '@etherealengine/editor/src/components/inputs/BooleanIn
 import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
 import { NodeEditor } from '@etherealengine/editor/src/components/properties/NodeEditor'
-import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
+import {
+  EditorComponentType,
+  commitProperty,
+  updateProperty
+} from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
 import { VideoTriggerComponent } from './VideoTriggerComponent'
 import { MediaComponent } from './scene/components/MediaComponent'
 import { VideoComponent } from './scene/components/VideoComponent'
@@ -106,6 +111,17 @@ export const VideoTriggerNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="ResetOnExit" label={t('editor:properties.videoTrigger.lbl-resetExit')}>
         <BooleanInput value={component.resetExit.value} onChange={commitProperty(VideoTriggerComponent, 'resetExit')} />
+      </InputGroup>
+
+      <InputGroup name="TargetAudioVolume" label={t('editor:properties.videoTrigger.lbl-tagetAudioVolume')}>
+        <Slider
+          min={0}
+          max={100}
+          step={1}
+          value={component.targetAudioVolume.value}
+          onChange={updateProperty(VideoTriggerComponent, 'targetAudioVolume')}
+          onRelease={() => commitProperty(VideoTriggerComponent, 'targetAudioVolume')}
+        />
       </InputGroup>
     </NodeEditor>
   )

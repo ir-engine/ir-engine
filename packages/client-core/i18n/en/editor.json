@@ -1063,7 +1063,8 @@
       "lbl-video":"Video",
       "lbl-media":"Media",
       "lbl-resetEnter":"Reset on Enter",
-      "lbl-resetExit":"Reset on Exit"
+      "lbl-resetExit":"Reset on Exit",
+      "lbl-tagetAudioVolume":"Target Audio Volume"
     },
     "animationTrigger": {
       "name": "Animation Trigger",

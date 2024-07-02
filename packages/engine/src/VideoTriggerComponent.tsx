@@ -29,6 +29,7 @@ import {
   UUIDComponent,
   createEntity,
   defineComponent,
+  getOptionalComponent,
   removeEntity,
   setComponent,
   useComponent,
@@ -40,7 +41,7 @@ import { TriggerComponent } from '@etherealengine/spatial/src/physics/components
 import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
 import { Easing, Tween } from '@tweenjs/tween.js'
 import { useEffect } from 'react'
-import { MediaComponent } from './scene/components/MediaComponent'
+import { MediaComponent, MediaElementComponent } from './scene/components/MediaComponent'
 
 export const VideoTriggerComponent = defineComponent({
   name: 'VideoTriggerComponent',
@@ -51,7 +52,8 @@ export const VideoTriggerComponent = defineComponent({
       videoEntityUUID: null as EntityUUID | null,
       mediaEntityUUID: null as EntityUUID | null,
       resetEnter: false,
-      resetExit: false
+      resetExit: false,
+      targetAudioVolume: 1
     }
   },
 
@@ -61,6 +63,7 @@ export const VideoTriggerComponent = defineComponent({
     if (typeof json.mediaEntityUUID !== 'undefined') component.mediaEntityUUID.set(json.mediaEntityUUID)
     if (typeof json.resetEnter !== 'undefined') component.resetEnter.set(json.resetEnter)
     if (typeof json.resetExit !== 'undefined') component.resetExit.set(json.resetExit)
+    if (typeof json.targetAudioVolume !== 'undefined') component.targetAudioVolume.set(json.targetAudioVolume)
   },
 
   toJSON(entity, component) {
@@ -68,7 +71,8 @@ export const VideoTriggerComponent = defineComponent({
       videoEntityUUID: component.videoEntityUUID.value,
       mediaEntityUUID: component.mediaEntityUUID.value,
       resetEnter: component.resetEnter.value,
-      resetExit: component.resetExit.value
+      resetExit: component.resetExit.value,
+      targetAudioVolume: component.targetAudioVolume.value
     }
   },
 
@@ -77,36 +81,44 @@ export const VideoTriggerComponent = defineComponent({
     const component = useComponent(entity, VideoTriggerComponent)
     const mediaEnity = UUIDComponent.getEntityByUUID(component.mediaEntityUUID.value as EntityUUID)
     const media = useOptionalComponent(mediaEnity, MediaComponent)
+    const mediaElement = getOptionalComponent(mediaEnity, MediaElementComponent)?.element as HTMLMediaElement
     const tween = createTween({ value: 0.0001 }).onUpdate(({ value }) => {
       media?.volume.set(value)
     })
-    let targetVolume: number
+
     const triggerComp = useOptionalComponent(entity, TriggerComponent)
 
     useEffect(() => {
       const Enter = () => {
-        if (component.resetEnter.value) {
-          media?.seekTime.set(0)
-          media?.forceSeekTime.set({ force: true })
+        if (!media) {
+          return
         }
-        media?.paused.set(false)
+        if (component.resetEnter.value) {
+          media.seekTime.set(0)
+          media.forceSeekTime.set({ force: true })
+        }
+        media.volume.set(0)
+        media.paused.set(false)
         tween
           .stop()
-          .to({ value: targetVolume }, 1000)
+          .to({ value: component.targetAudioVolume.value }, 1000)
           .onComplete(() => {})
           .easing(Easing.Exponential.In)
           .startFromCurrentValues()
       }
 
       const Exit = () => {
+        if (!media) {
+          return
+        }
         tween
           .stop()
           .to({ value: 0 }, 1000)
           .onComplete(() => {
-            media?.paused.set(true)
+            media.paused.set(true)
             if (component.resetExit.value) {
-              media?.seekTime.set(0)
-              media?.forceSeekTime.set({ force: true })
+              media.seekTime.set(0)
+              media.forceSeekTime.set({ force: true })
             }
           })
           .easing(Easing.Exponential.Out)
@@ -133,14 +145,6 @@ export const VideoTriggerComponent = defineComponent({
         }
       ])
     }, [triggerComp])
-
-    useEffect(() => {
-      if (!media) {
-        return
-      }
-      targetVolume = media.volume.value
-      media.volume.set(0)
-    }, [media])
 
     return null
   }
