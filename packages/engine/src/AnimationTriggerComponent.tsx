@@ -103,7 +103,6 @@ export const AnimationTriggerComponent = defineComponent({
           animation.time.set(0)
         } else {
           animation.paused.set(true)
-          animation.forceStop.set({})
         }
       }
 
@@ -116,7 +115,6 @@ export const AnimationTriggerComponent = defineComponent({
           animation.time.set(0)
         } else {
           animation.paused.set(true)
-          animation.forceStop.set({})
         }
       }
 
