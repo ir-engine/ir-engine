@@ -241,9 +241,8 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
   }, [installedProjects])
 
   const refreshGithubRepoAccess = () => {
-    ProjectService.refreshGithubRepoAccess().then(() => {
-      projectFindQuery.refetch()
-    })
+    ProjectService.refreshGithubRepoAccess()
+    projectFindQuery.refetch()
   }
 
   // TODO: Implement tutorial #7257
