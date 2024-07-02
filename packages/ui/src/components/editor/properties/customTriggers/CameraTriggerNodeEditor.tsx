@@ -30,14 +30,17 @@ import { useTranslation } from 'react-i18next'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 
-import { EntityUUID, useComponent } from '@etherealengine/ecs'
+import { EntityUUID, hasComponent, useComponent } from '@etherealengine/ecs'
 import BooleanInput from '@etherealengine/editor/src/components/inputs/BooleanInput'
 import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import NumericInput from '@etherealengine/editor/src/components/inputs/NumericInput'
 import Vector3Input from '@etherealengine/editor/src/components/inputs/Vector3Input'
 import { NodeEditor } from '@etherealengine/editor/src/components/properties/NodeEditor'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
+import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
+import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { CameraTriggerComponent } from '@etherealengine/engine/src/CameraTriggerComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { NodeInput } from '@etherealengine/ui/src/components/editor/input/Node/index'
 
 const callbackQuery = defineQuery([CallbackComponent])
@@ -47,7 +50,12 @@ export const CameraTriggerNodeEditor: EditorComponentType = (props) => {
 
   const component = useComponent(props.entity, CameraTriggerComponent)
 
-  useEffect(() => {}, [])
+  useEffect(() => {
+    if (!hasComponent(props.entity, TriggerComponent)) {
+      const nodes = SelectionState.getSelectedEntities()
+      EditorControlFunctions.addOrRemoveComponent(nodes, TriggerComponent, true)
+    }
+  }, [])
 
   return (
     <NodeEditor

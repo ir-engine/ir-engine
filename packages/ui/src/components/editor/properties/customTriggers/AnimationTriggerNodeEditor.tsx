@@ -30,16 +30,19 @@ import { useTranslation } from 'react-i18next'
 import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 
-import { UUIDComponent, getComponent, getOptionalComponent, useComponent } from '@etherealengine/ecs'
+import { UUIDComponent, getComponent, getOptionalComponent, hasComponent, useComponent } from '@etherealengine/ecs'
 import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
 import { NodeEditor } from '@etherealengine/editor/src/components/properties/NodeEditor'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
+import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
+import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { AnimationTriggerComponent } from '@etherealengine/engine/src/AnimationTriggerComponent'
 import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { useState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 
 export enum LoopType {
   LoopOnce,
@@ -71,7 +74,12 @@ export const AnimationTriggerNodeEditor: EditorComponentType = (props) => {
     }
   })
 
-  useEffect(() => {}, [])
+  useEffect(() => {
+    if (!hasComponent(props.entity, TriggerComponent)) {
+      const nodes = SelectionState.getSelectedEntities()
+      EditorControlFunctions.addOrRemoveComponent(nodes, TriggerComponent, true)
+    }
+  }, [])
 
   useEffect(() => {
     animationOptions.set([{ label: 'None', value: -1 }])

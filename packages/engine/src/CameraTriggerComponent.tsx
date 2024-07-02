@@ -176,10 +176,6 @@ export const CameraTriggerComponent = defineComponent({
         Exit()
       })
 
-      if (!hasComponent(entity, TriggerComponent)) {
-        setComponent(entity, TriggerComponent)
-      }
-
       const triggerComp = getMutableComponent(entity, TriggerComponent)
       triggerComp.triggers.merge([
         {

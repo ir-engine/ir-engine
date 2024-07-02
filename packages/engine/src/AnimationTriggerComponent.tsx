@@ -29,8 +29,6 @@ import {
   UUIDComponent,
   defineComponent,
   getMutableComponent,
-  hasComponent,
-  setComponent,
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
@@ -124,10 +122,6 @@ export const AnimationTriggerComponent = defineComponent({
       setCallback(entity, 'onAnimationTriggerExit', (triggerEntity: Entity, otherEntity: Entity) => {
         Exit()
       })
-
-      if (!hasComponent(entity, TriggerComponent)) {
-        setComponent(entity, TriggerComponent)
-      }
 
       const triggerComp = getMutableComponent(entity, TriggerComponent)
       triggerComp.triggers.merge([
