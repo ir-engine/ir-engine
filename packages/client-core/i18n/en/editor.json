@@ -27,6 +27,7 @@
   "lbl-return": "Return",
   "loadingScenes": "Loading Scenes",
   "loadingScenesWithProgress": "Scene Loading... {{progress}}% ({{assetsLeft}} assets left)",
+  "help": "Help",
   "menubar": {
     "newScene": "New Scene",
     "saveScene": "Save Scene",
