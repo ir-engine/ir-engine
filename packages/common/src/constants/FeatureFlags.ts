@@ -33,8 +33,14 @@ export const FeatureFlags = {
       ReadyPlayerMe: 'ir.client.menu.readyPlayerMe'
     },
     Admin: {
+      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
       Avatars: {
-        Upload: 'ir.client.admin.avatars.upload'
+        Upload: 'ir.client.menu.avatars.upload'
+      }
+    },
+    Location: {
+      Menu: {
+        MotionCapture: 'ir.client.location.menu.motionCapture'
       }
     },
     DebugMode: 'ir.client.debugMode'
