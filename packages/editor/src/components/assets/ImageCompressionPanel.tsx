@@ -140,9 +140,9 @@ export default function ImageCompressionPanel({
   }
 
   return (
-    <div className="max-h-[80vh] w-[35vw] overflow-y-auto rounded-xl bg-[#0E0F11]">
+    <div className="max-h-[80vh] w-[680px] overflow-y-auto rounded-xl bg-[#0E0F11]">
       <div className="relative mb-3 flex items-center justify-center px-8 py-3">
-        <Text className="leading-6">
+        <Text className="leading-6" fontFamily="Figtree">
           {t('editor:properties.model.transform.compressImage', { name: selectedFile.fullName })}
         </Text>
         <Button
@@ -239,6 +239,7 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.qualityTooltip')}
             >
               <Slider
+                className="bg-[#191B1F] [&::-moz-range-track]:bg-[#191B1F]"
                 width={160}
                 value={compressProperties.quality.value}
                 onChange={compressProperties.quality.set}
@@ -257,6 +258,7 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.compressionLevelTooltip')}
             >
               <Slider
+                className="bg-[#191B1F] [&::-moz-range-track]:bg-[#191B1F]"
                 width={160}
                 value={compressProperties.compressionLevel.value}
                 onChange={compressProperties.compressionLevel.set}
