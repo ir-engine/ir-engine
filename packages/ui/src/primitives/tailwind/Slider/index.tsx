@@ -59,7 +59,7 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
   const gradientPercent = Math.round(((value - min) / (max - min)) * 100)
 
   const sliderStyle = {
-    background: `linear-gradient(to right, #214AA6 ${gradientPercent}%, #214AA6 ${gradientPercent}%)`
+    background: `linear-gradient(to right, #214AA6 ${gradientPercent}%, #111113 ${gradientPercent}%)`
   }
 
   return (
@@ -69,7 +69,7 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
         max={max}
         value={value}
         onChange={handleInputChange}
-        onBlur={() => onRelease(value)}
+        onBlur={() => onRelease && onRelease(value)}
         className="h-8 w-14 rounded bg-neutral-900 text-center font-['Figtree'] text-sm font-normal leading-[21px] text-neutral-400"
       />
       <input
@@ -78,15 +78,13 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
         max={max}
         value={value}
         onChange={handleChange}
-        onPointerUp={() => onRelease(value)}
+        onPointerUp={() => onRelease && onRelease(value)}
         step={step}
         type="range"
         style={sliderStyle}
         className={twMerge(
-          `w-[${width}px] h-8 cursor-pointer appearance-none overflow-hidden rounded bg-[#111113] from-[#214AA6] via-[#214AA6] focus:outline-none
-
-          disabled:pointer-events-none
-          disabled:opacity-50
+          `w-[${width}px] h-8 cursor-pointer appearance-none overflow-hidden rounded bg-[#111113] focus:outline-none
+          disabled:pointer-events-none disabled:opacity-50
           [&::-moz-range-progress]:bg-[#214AA6]
           [&::-moz-range-thumb]:h-full
           [&::-moz-range-thumb]:w-4
