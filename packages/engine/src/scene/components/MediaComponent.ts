@@ -138,7 +138,7 @@ export const MediaComponent = defineComponent({
       playMode: PlayMode.loop as PlayMode,
       isMusic: false,
       seekTime: 0,
-      forceSeekTime: { force: false },
+      forceSeekTime: { force: false }, //added to force a reaction, since the media's current time and seek time are not synced and setting the seek time to its current value does not react
       /**@deprecated */
       paths: [] as string[],
       // runtime props
