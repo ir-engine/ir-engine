@@ -38,6 +38,7 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { UseMutationReturnType } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -268,9 +269,9 @@ export const InviteService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  declineInvite: async (invite: InviteType) => {
+  declineInvite: async (invite: InviteType, inviteMutation: UseMutationReturnType<typeof invitePath>) => {
     try {
-      await Engine.instance.api.service(invitePath).remove(invite.id)
+      inviteMutation.remove(invite.id)
       getMutableState(InviteState).receivedUpdateNeeded.set(true)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

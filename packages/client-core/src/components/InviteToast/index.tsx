@@ -26,11 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UserName } from '@etherealengine/common/src/schema.type.module'
+import { UserName, invitePath } from '@etherealengine/common/src/schema.type.module'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import { Button } from '@etherealengine/editor/src/components/inputs/Button'
 import { useMutableState } from '@etherealengine/hyperflux'
 
+import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { InviteService, InviteState } from '../../social/services/InviteService'
 import { AuthState } from '../../user/services/AuthService'
 import styles from './index.module.scss'
@@ -41,6 +42,7 @@ const InviteToast = () => {
   const newestInvite =
     inviteState.receivedInvites.total.value > 0 ? inviteState.receivedInvites.invites[0].value : ({} as any)
   const { t } = useTranslation()
+  const inviteMutation = useMutation(invitePath)
 
   useEffect(() => {
     if (inviteState.receivedUpdateNeeded.value && authState.isLoggedIn.value)
@@ -52,7 +54,7 @@ const InviteToast = () => {
   }
 
   const declineInvite = (invite) => {
-    InviteService.declineInvite(invite)
+    InviteService.declineInvite(invite, inviteMutation)
   }
   return (
     <div
