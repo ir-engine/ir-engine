@@ -99,7 +99,7 @@ export const InputComponent = defineComponent({
 
   onSet(entity, component, json) {
     if (!json) return
-    if (typeof json.inputSinks === 'object') component.inputSinks.set(json.inputSinks)
+    if (Array.isArray(json.inputSinks)) component.inputSinks.set(json.inputSinks)
     if (typeof json.highlight === 'boolean') component.highlight.set(json.highlight)
     if (json.activationDistance) component.activationDistance.set(json.activationDistance)
     if (typeof json.grow === 'boolean') component.grow.set(json.grow)
