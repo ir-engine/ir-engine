@@ -113,7 +113,7 @@ export function updateGamepadInput(eid: Entity) {
 
   if (!gamepad) return
   const gamepadButtons = gamepad.buttons
-  if (gamepadButtons) {
+  if (gamepadButtons.length) {
     const pointer = getOptionalComponent(eid, InputPointerComponent)
     const xrTransform = getOptionalComponent(eid, TransformComponent)
 
@@ -281,7 +281,7 @@ const execute = () => {
       TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
       inputRay.set(inputRaycast.origin, inputRaycast.direction)
       raycaster.set(inputRaycast.origin, inputRaycast.direction)
-      raycaster.layers.enable(ObjectLayers.Default)
+      raycaster.layers.enable(ObjectLayers.Scene)
 
       const inputState = getState(InputState)
       const isEditing = getState(EngineState).isEditing
