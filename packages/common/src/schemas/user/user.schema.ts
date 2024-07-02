@@ -64,9 +64,7 @@ export const userSchema = Type.Object(
     name: TypedString<UserName>(),
     isGuest: Type.Boolean(),
     inviteCode: Type.Optional(TypedString<InviteCode>()),
-    avatarId: TypedString<AvatarID>({
-      format: 'uuid'
-    }),
+    avatarId: TypedString<AvatarID>(),
     avatar: Type.Ref(avatarDataSchema),
     userSetting: Type.Ref(userSettingSchema),
     apiKey: Type.Ref(userApiKeySchema),
