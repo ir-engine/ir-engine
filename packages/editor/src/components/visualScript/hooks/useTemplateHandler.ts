@@ -22,7 +22,6 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { uniqueId } from 'lodash'
 import { useMemo } from 'react'
 import { Edge, Node } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
@@ -35,7 +34,7 @@ import { useVisualScriptFlow } from './useVisualScriptFlow'
 
 type selectionHandler = ReturnType<typeof useSelectionHandler>
 type visualScriptFlow = ReturnType<typeof useVisualScriptFlow>
-
+let templateCounter = 1
 export const useTemplateHandler = ({
   selectedNodes,
   selectedEdges,
@@ -50,7 +49,7 @@ export const useTemplateHandler = ({
 
   const createGraphTemplate = (nodes: Node[], edges: Edge[]): GraphTemplate => ({
     id: uuidv4(),
-    name: uniqueId('New template '),
+    name: 'New template ' + templateCounter++,
     nodes,
     edges
   })
@@ -83,6 +82,7 @@ export const useTemplateHandler = ({
 
   const handleDeleteTemplate = (deleteTemplate: GraphTemplate) => {
     try {
+      templateCounter--
       visualScriptState.templates.set((currentTemplates) =>
         currentTemplates.filter((template) => template.id !== deleteTemplate.id)
       )
