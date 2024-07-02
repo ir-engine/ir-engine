@@ -76,7 +76,7 @@ export const ShadowMapResolutionOptions: SelectOptionsType[] = [
 
 const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 
-const SettingMenu = (): JSX.Element => {
+const SettingMenu2 = (): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useMutableState(RendererState)
   const audioState = useMutableState(AudioState)
@@ -481,4 +481,4 @@ const SettingMenu = (): JSX.Element => {
   )
 }
 
-export default SettingMenu
+export default SettingMenu2
