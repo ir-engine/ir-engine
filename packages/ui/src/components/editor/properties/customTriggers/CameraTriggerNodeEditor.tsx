@@ -31,17 +31,22 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 
 import { EntityUUID, hasComponent, useComponent } from '@etherealengine/ecs'
-import BooleanInput from '@etherealengine/editor/src/components/inputs/BooleanInput'
-import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
-import NumericInput from '@etherealengine/editor/src/components/inputs/NumericInput'
-import Vector3Input from '@etherealengine/editor/src/components/inputs/Vector3Input'
-import { NodeEditor } from '@etherealengine/editor/src/components/properties/NodeEditor'
-import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
+
+import {
+  EditorComponentType,
+  commitProperty,
+  updateProperty
+} from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { CameraTriggerComponent } from '@etherealengine/engine/src/CameraTriggerComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { NodeInput } from '@etherealengine/ui/src/components/editor/input/Node/index'
+import BooleanInput from '../../input/Boolean'
+import InputGroup from '../../input/Group'
+import NumericInput from '../../input/Numeric'
+import Vector3Input from '../../input/Vector3'
+import NodeEditor from '../nodeEditor'
 
 const callbackQuery = defineQuery([CallbackComponent])
 
@@ -71,21 +76,38 @@ export const CameraTriggerNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="OffsetEntity" label={t('editor:properties.cameraTrigger.lbl-offset')}>
-        <Vector3Input value={component.offset.value} onChange={commitProperty(CameraTriggerComponent, 'offset')} />
+        <Vector3Input
+          value={component.offset.value}
+          onChange={updateProperty(CameraTriggerComponent, 'offset')}
+          onRelease={commitProperty(CameraTriggerComponent, 'offset')}
+        />
       </InputGroup>
       <InputGroup name="ThetaAngle" label={t('editor:properties.cameraTrigger.lbl-angleTheta')}>
-        <NumericInput value={component.theta.value} onChange={(val: number) => component.theta.set(val)} />
+        <NumericInput
+          value={component.theta.value}
+          onChange={updateProperty(CameraTriggerComponent, 'theta')}
+          onRelease={commitProperty(CameraTriggerComponent, 'theta')}
+        />
       </InputGroup>
       <InputGroup name="PhiAngle" label={t('editor:properties.cameraTrigger.lbl-anglePhi')}>
-        <NumericInput value={component.phi.value} onChange={(val: number) => component.phi.set(val)} />
+        <NumericInput
+          value={component.phi.value}
+          onChange={updateProperty(CameraTriggerComponent, 'phi')}
+          onRelease={commitProperty(CameraTriggerComponent, 'phi')}
+        />
       </InputGroup>
       <InputGroup name="Distance" label={t('editor:properties.cameraTrigger.lbl-distance')}>
-        <NumericInput value={component.distance.value} onChange={(val: number) => component.distance.set(val)} />
+        <NumericInput
+          value={component.distance.value}
+          onChange={updateProperty(CameraTriggerComponent, 'distance')}
+          onRelease={commitProperty(CameraTriggerComponent, 'distance')}
+        />
       </InputGroup>
       <InputGroup name="EnterLerpDuration" label={t('editor:properties.cameraTrigger.lbl-lerpDurationEnter')}>
         <NumericInput
           value={component.enterLerpDuration.value}
-          onChange={(val: number) => component.enterLerpDuration.set(val)}
+          onChange={updateProperty(CameraTriggerComponent, 'enterLerpDuration')}
+          onRelease={commitProperty(CameraTriggerComponent, 'enterLerpDuration')}
         />
       </InputGroup>
       <InputGroup name="HideAvatar" label={t('editor:properties.cameraTrigger.lbl-hideAvatar')}>
