@@ -65,7 +65,7 @@ export const autopilotSetPosition = (entity: Entity) => {
 
   const { physicsWorld } = getState(PhysicsState)
 
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
 
