@@ -83,7 +83,7 @@ describe('project-check-source-destination-match.test', () => {
     await app.service(identityProviderPath).create(
       {
         type: 'github',
-        token: `test-token-${Math.round(Math.random() * 1000)}`,
+        token: uuidv4(),
         userId: testUser.id
       },
       getParams()
