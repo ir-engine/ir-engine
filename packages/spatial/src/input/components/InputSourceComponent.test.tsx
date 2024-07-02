@@ -46,6 +46,10 @@ import { ButtonStateMap } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 import { InputSourceComponent } from './InputSourceComponent'
 
+/** @note Intersection types used, but not exported or declared, by InputSourceComponent */
+type Intersection = { entity: Entity; distance: number }
+type IntersectionList = Array<Intersection>
+
 describe.skip('InputSourceComponent', () => {
   // beforeEach(() => {
   //   createEngine()
@@ -602,9 +606,6 @@ describe('InputSourceComponent', () => {
   }) // << getPreferredInputSource
 
   describe('getClosestIntersectedEntity', () => {
-    type Intersection = { entity: Entity; distance: number }
-    type IntersectionList = Array<Intersection>
-
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
@@ -618,7 +619,7 @@ describe('InputSourceComponent', () => {
       return destroyEngine()
     })
 
-    it('should return the entity stored at slot 0 of the InputSourceComponent.intersections array of entities', () => {
+    it('should return the entity stored at slot 0 of the InputSourceComponent.intersections list', () => {
       const Expected = [
         { entity: createEntity(), distance: 10_000 },
         { entity: createEntity(), distance: 46 & 2 }
@@ -628,6 +629,31 @@ describe('InputSourceComponent', () => {
       assert.equal(result, Expected[0].entity)
     })
   }) // << getClosestIntersectedEntity
+
+  describe('getClosestIntersection', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, InputSourceComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should return the intersection stored at slot 0 of the InputSourceComponent.intersections list', () => {
+      const Expected = [
+        { entity: createEntity(), distance: 10_000 },
+        { entity: createEntity(), distance: 46 & 2 }
+      ] as IntersectionList
+      getMutableComponent(testEntity, InputSourceComponent).intersections.set(Expected)
+      const result = InputSourceComponent.getClosestIntersection(testEntity)
+      assert.deepEqual(result, Expected[0])
+    })
+  })
 
   /**
   // @todo Is testing the contents of this WeakMap needed?
