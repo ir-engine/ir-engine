@@ -53,7 +53,6 @@ import persistData from '../../hooks/persist-data'
 import persistQuery from '../../hooks/persist-query'
 import verifyScope from '../../hooks/verify-scope'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import { userAvatarDataResolver } from '../user-avatar/user-avatar.resolvers'
 import { UserService } from './user.class'
 import {
   userDataResolver,
@@ -226,14 +225,7 @@ const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
       })
 
       if (existingUserAvatar.data.length === 0) {
-        const userAvatarData = await userAvatarDataResolver.resolve(
-          {
-            userId: item.id,
-            avatarId: item.avatarId
-          },
-          context
-        )
-        await context.app.service(userAvatarPath).create(userAvatarData)
+        await context.app.service(userAvatarPath).create({ userId: item.id, avatarId: item.avatarId })
       } else if (existingUserAvatar.data[0].avatarId !== item.avatarId) {
         await context.app.service(userAvatarPath).patch(existingUserAvatar.data[0].id, {
           avatarId: item.avatarId
