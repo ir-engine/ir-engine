@@ -108,17 +108,14 @@ describe('location.test', () => {
       updatedAt: await getDateTimeSql()
     })
 
-    const locationData = JSON.parse(JSON.stringify(locations[0]))
-    delete locationData.locationBans
-    delete locationData.locationAuthorizedUsers
-    delete locationData.locationAdmin
-    delete locationData.createdAt
-    delete locationData.updatedAt
-    delete locationData.sceneAsset
+    locationSetting.audioEnabled = true
+    locationSetting.videoEnabled = true
+    locationSetting.faceStreamingEnabled = false
+    locationSetting.screenSharingEnabled = false
 
     const item = (await app
       .service(locationPath)
-      .patch(locations[0].id, { ...locationData, name: newName, locationSetting })) as any as LocationType
+      .patch(locations[0].id, { name: newName, locationSetting })) as any as LocationType
 
     assert.ok(item)
     assert.equal(item.name, newName)
