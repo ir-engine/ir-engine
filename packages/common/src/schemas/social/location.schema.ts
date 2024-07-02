@@ -137,9 +137,7 @@ export const locationQuerySchema = Type.Intersect(
         $like: Type.String()
       },
       sceneId: {
-        $like: Type.String({
-          format: 'uuid'
-        })
+        $like: Type.String()
       }
     }),
     // Add additional query properties here
