@@ -35,15 +35,13 @@ import { XRAction } from './XRState'
 /** haptic typings are currently incomplete */
 
 declare global {
-  interface Gamepad {
-    /** @deprecated - old meta quest API */
-    hapticActuators?: Array<{
-      /**
-       * @param value A double representing the intensity of the pulse. This can vary depending on the hardware type, but generally takes a value between 0.0 (no intensity) and 1.0 (full intensity).
-       * @param duration A double representing the duration of the pulse, in milliseconds.
-       */
-      pulse: (value: number, duration: number) => void
-    }>
+  interface GamepadHapticActuator {
+    /**
+     * @deprecated - old meta quest API
+     * @param value A double representing the intensity of the pulse. This can vary depending on the hardware type, but generally takes a value between 0.0 (no intensity) and 1.0 (full intensity).
+     * @param duration A double representing the duration of the pulse, in milliseconds.
+     */
+    pulse: (value: number, duration: number) => void
   }
 }
 
