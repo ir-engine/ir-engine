@@ -30,11 +30,10 @@ import { API } from '@etherealengine/client-core/src/API'
 import { BrowserRouter, history } from '@etherealengine/client-core/src/common/services/RouterService'
 import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
 import { pipeLogs } from '@etherealengine/common/src/logger'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { initializeBrowser } from '@etherealengine/engine/src/initializeBrowser'
+import { Engine, createEngine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { startTimer } from '@etherealengine/spatial/src/startTimer'
 
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { initializei18n } from './util'
@@ -44,13 +43,13 @@ const initializeLogs = async () => {
   pipeLogs(Engine.instance.api)
 }
 
-createEngine(document.getElementById('engine-renderer-canvas') as HTMLCanvasElement)
+createEngine()
+startTimer()
 getMutableState(EngineState).publicPath.set(
   // @ts-ignore
   import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL!.slice(0, -1) // remove trailing '/'
 )
 initializei18n()
-initializeBrowser()
 API.createAPI()
 initializeLogs()
 

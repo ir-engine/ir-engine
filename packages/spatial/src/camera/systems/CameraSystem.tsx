@@ -39,6 +39,7 @@ import {
 import { defineState, getMutableState, none, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkObjectOwnedTag, WorldNetworkAction } from '@etherealengine/network'
 
+import { EngineState } from '../../EngineState'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
@@ -125,5 +126,8 @@ export const CameraSystem = defineSystem({
   uuid: 'ee.engine.CameraSystem',
   insert: { with: AnimationSystemGroup },
   execute,
-  reactor
+  reactor: () => {
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <CameraReactor />
+  }
 })

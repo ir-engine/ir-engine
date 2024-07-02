@@ -144,7 +144,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const prototypeName = useHookstate('')
   //workaround for useComponent NameComponent causing rerenders every frame
   const materialName = useHookstate(getComponent(entity, NameComponent))
-  prototypeName.set(material.type)
+  prototypeName.set(material.userData.type || material.type)
 
   useEffect(() => {
     clearThumbs().then(createThumbnails).then(checkThumbs)
@@ -222,12 +222,12 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       <br />
       <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
         <SelectInput
-          value={prototypeName.value}
+          value={prototypeEntity}
           options={prototypes}
           onChange={(prototypeEntity: Entity) => {
             if (materialComponent.prototypeEntity.value)
               materialComponent.prototypeEntity.set(prototypeEntity as Entity)
-            prototypeName.set(getComponent(prototypeEntity as Entity, NameComponent))
+            prototypeName.set(materialComponent.material.value.userData.type)
           }}
         />
       </InputGroup>

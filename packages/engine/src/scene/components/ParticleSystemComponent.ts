@@ -94,7 +94,9 @@ export const ParticleState = defineState({
     // Three.quarks checks if the top level parent is not scene to tell if an emitter is ready for disposal
     // Mocking parent so the batchRenderer doesn't dispose emitters, emitters are already being disposed of reactively in ParticleSystemComponent
     batchRenderer.parent = {
-      type: 'Scene'
+      type: 'Scene',
+      remove: () => {},
+      removeFromParent: () => {}
     } as Object3D
 
     return {

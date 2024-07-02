@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { WebGLRenderer } from 'three'
-
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 
 const performance: Performance = isClient ? window.performance : require('perf_hooks').performance
@@ -52,7 +50,11 @@ export function profile(): () => number {
   }
 }
 
-export function Timer(update: TimerUpdateCallback, renderer?: WebGLRenderer, serverTickRate = 60) {
+export function Timer(update: TimerUpdateCallback, serverTickRate = 60) {
+  const animation = 'requestAnimationFrame' in self ? createAnimationLoop() : createServerLoop(serverTickRate)
+
+  animation.setContext(self)
+
   let debugTick = 0
 
   const newEngineTicks = {
@@ -74,7 +76,6 @@ export function Timer(update: TimerUpdateCallback, renderer?: WebGLRenderer, ser
   let nextTpsReportTime = 0
   let timerRuns = 0
   let prevTimerRuns = 0
-  let serverLoop = null as ServerLoop | null
 
   function onFrame(time: number, xrFrame: XRFrame | null) {
     timerRuns += 1
@@ -165,23 +166,14 @@ export function Timer(update: TimerUpdateCallback, renderer?: WebGLRenderer, ser
   }
 
   function start() {
-    if (renderer) {
-      renderer.setAnimationLoop(onFrame)
-    } else {
-      const _update = () => {
-        onFrame(nowMilliseconds(), null)
-      }
-      serverLoop = new ServerLoop(_update, serverTickRate).start()
-    }
+    animation.setAnimationLoop(onFrame)
+    animation.start()
     tpsReset()
   }
 
   function stop() {
-    if (renderer) {
-      renderer.setAnimationLoop(null)
-    } else {
-      serverLoop?.stop()
-    }
+    animation.setAnimationLoop(null)
+    animation.stop()
   }
 
   function clear() {
@@ -189,6 +181,7 @@ export function Timer(update: TimerUpdateCallback, renderer?: WebGLRenderer, ser
   }
 
   return {
+    animation,
     start: start,
     stop: stop,
     clear: clear
@@ -311,5 +304,64 @@ export class ServerLoop {
   stop(): ServerLoop {
     this._running = false
     return this
+  }
+}
+
+export function createServerLoop(serverTickRate: number) {
+  let serverLoop = null as null | ServerLoop
+  let onFrame = null as null | ((time: number, frame: XRFrame) => void)
+  return {
+    start: function () {
+      const _update = () => {
+        if (onFrame) onFrame(nowMilliseconds(), null!)
+      }
+      serverLoop = new ServerLoop(_update, serverTickRate).start()
+    },
+    stop: function () {
+      serverLoop?.stop()
+    },
+    setAnimationLoop: function (callback) {
+      onFrame = callback
+    },
+    setContext: function () {
+      // do nothing
+    }
+  }
+}
+
+export function createAnimationLoop() {
+  let context = null as any
+  let isAnimating = false
+  let animationLoop = null as null | ((time: number, frame: XRFrame) => void)
+  let requestId = null
+
+  function onAnimationFrame(time, frame) {
+    requestId = context.requestAnimationFrame(onAnimationFrame)
+    animationLoop!(time, frame)
+  }
+
+  return {
+    start: function () {
+      if (isAnimating === true) return
+      if (animationLoop === null) return
+
+      requestId = context.requestAnimationFrame(onAnimationFrame)
+
+      isAnimating = true
+    },
+
+    stop: function () {
+      context.cancelAnimationFrame(requestId)
+
+      isAnimating = false
+    },
+
+    setAnimationLoop: function (callback) {
+      animationLoop = callback
+    },
+
+    setContext: function (value) {
+      context = value
+    }
   }
 }

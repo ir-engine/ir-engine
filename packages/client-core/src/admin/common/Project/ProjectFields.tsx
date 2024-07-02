@@ -233,8 +233,8 @@ const ProjectFields = ({
       ProjectUpdateService.setSourceProjectName(project.name, '')
       return
     }
-    const valueRegex = new RegExp(`^${value}`, 'g')
-    let matchingCommit = commitData.find((data) => valueRegex.test(data.commitSHA))
+
+    let matchingCommit = commitData.find((data) => data.commitSHA.startsWith(value))
     if (!matchingCommit) {
       const commitResponse = (await ProjectService.checkUnfetchedCommit({
         url: projectUpdateStatus.value.sourceURL,
@@ -251,7 +251,7 @@ const ProjectFields = ({
             resolve(null)
           }, 100)
         })
-        matchingCommit = commitData.find((data) => valueRegex.test(data.commitSHA))
+        matchingCommit = commitData.find((data) => data.commitSHA.startsWith(value))
       }
     }
     ProjectUpdateService.setSourceProjectName(project.name, matchingCommit?.projectName || '')

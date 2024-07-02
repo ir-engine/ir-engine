@@ -25,11 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import {
   FilesViewModeSettings,
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
+import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
@@ -47,8 +49,11 @@ import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { FileType } from '../container'
 import { FileIcon } from '../icon'
 import DeleteFileModal from './DeleteFileModal'
+import ImageConvertModal from './ImageConvertModal'
 import RenameFileModal from './RenameFileModal'
 
 export const canDropItemOverFolder = (folderName: string) =>
@@ -66,7 +71,6 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
   }
   const { t } = useTranslation()
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
-  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
   return (
     <div className="table-container">
       <table className="w-full">
@@ -160,6 +164,8 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const { projectName } = useMutableState(EditorState)
   const staticResource = useFind(staticResourcePath, { query: { key: props.item.key, project: projectName.value! } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
+  const { t } = useTranslation()
+
   return (
     <div
       className={`flex h-32 w-28 cursor-pointer flex-col items-center text-center ${
@@ -183,7 +189,10 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
           color="text-[#375DAF]"
         />
       </div>
-      <div className="text-secondary mb-2 line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
+
+      <Tooltip title={t(props.item.fullName)} direction="bottom">
+        <div className="text-secondary line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
+      </Tooltip>
     </div>
   )
 }
@@ -195,7 +204,6 @@ type FileBrowserItemType = {
   setFileProperties: any
   setOpenPropertiesModal: any
   setOpenCompress: any
-  setOpenConvert: any
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
@@ -204,6 +212,16 @@ type FileBrowserItemType = {
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
   isSelected: boolean
+  refreshDirectory: () => Promise<void>
+}
+
+function fileConsistsOfContentType(file: FileDataType, contentType: string): boolean {
+  if (file.isFolder) {
+    return contentType.startsWith('image')
+  } else {
+    const guessedType: string = CommonKnownContentTypes[file.type]
+    return guessedType?.startsWith(contentType)
+  }
 }
 
 export function FileBrowserItem({
@@ -213,7 +231,6 @@ export function FileBrowserItem({
   setOpenPropertiesModal,
   setFileProperties,
   setOpenCompress,
-  setOpenConvert,
   projectName,
   onClick,
   dropItemsOnPanel,
@@ -221,13 +238,13 @@ export function FileBrowserItem({
   addFolder,
   isListView,
   staticResourceModifiedDates,
-  isSelected
+  isSelected,
+  refreshDirectory
 }: FileBrowserItemType) {
   const { t } = useTranslation()
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const fileService = useMutation(fileBrowserPath)
-
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
@@ -299,12 +316,6 @@ export function FileBrowserItem({
   const viewCompress = () => {
     setFileProperties(item)
     setOpenCompress(true)
-    handleClose()
-  }
-
-  const viewConvert = () => {
-    setFileProperties(item)
-    setOpenConvert(true)
     handleClose()
   }
 
@@ -405,10 +416,30 @@ export function FileBrowserItem({
         <Button variant="outline" size="small" fullWidth onClick={viewAssetProperties}>
           {t('editor:layout.filebrowser.viewAssetProperties')}
         </Button>
-        <Button variant="outline" size="small" fullWidth onClick={viewCompress}>
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          disabled={!fileConsistsOfContentType(item, 'model')}
+          onClick={() => {
+            if (fileConsistsOfContentType(item, 'model')) {
+              PopoverState.showPopupover(
+                <ModelCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
+              )
+            }
+          }}
+        >
           {t('editor:layout.filebrowser.compress')}
         </Button>
-        <Button variant="outline" size="small" fullWidth onClick={viewConvert}>
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          onClick={() =>
+            PopoverState.showPopupover(<ImageConvertModal file={item} refreshDirectory={refreshDirectory} />)
+          }
+          disabled={!(['jpg', 'png', 'webp'].includes(item.type) || item.isFolder)}
+        >
           {t('editor:layout.filebrowser.convert')}
         </Button>
       </ContextMenu>

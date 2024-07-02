@@ -28,7 +28,6 @@ import { useParams } from 'react-router-dom'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { useNetwork } from '@etherealengine/client-core/src/components/World/EngineHooks'
-import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -60,7 +59,6 @@ const NotifyRecordingErrorSystem = defineSystem({
 
 export const CaptureLocation = () => {
   const locationState = useMutableState(LocationState)
-  useRemoveEngineCanvas()
 
   const params = useParams()
 

@@ -136,6 +136,10 @@
       "info-translate": "Translate objects by a unit of measurement.",
       "info-rotate": "Rotate objects by a specific degrees."
     },
+    "placement": {
+      "click": "Point & Click Placement",
+      "drag": "Drag & Drop Placement"
+    },
     "command": {
       "translate": "Translate",
       "rotate": "Rotate",
@@ -216,7 +220,8 @@
       "lbl-bake": "Envmap Bake",
       "lbl-textureType": "Texture Type",
       "lbl-textureUrl": "Texture URL",
-      "lbl-intensity": "Envmap Intensity"
+      "lbl-intensity": "Envmap Intensity",
+      "bake-reflection-probes": "Bake Probes"
     },
     "trigger": {
       "name": "Trigger",
@@ -464,14 +469,18 @@
       "lbl-interactionText": "Interaction Text",
       "lbl-interactionType": "Interaction Type",
       "transform": {
+        "lodLevels": "LOD Levels",
+        "lodLevelNumber": "LOD Level {{index}}",
         "compress": "Compress",
+        "applyPresetConfirmation": "Would you like to apply this preset?",
+        "savePreset": "Save Preset",
         "useDraco": "Use DRACO Mesh Compression",
         "useMeshopt": "Use Meshoptimizer",
         "useQuantization": "Use Mesh Quantization",
         "textureFormat": "Image Format",
         "modelFormat": "Model Format",
-        "resourceUri": "Resource URI",
-        "dst": "File Name",
+        "resourceUri": "Resource URL",
+        "dst": "File name",
         "resampleAnimations": "Resample Animations",
         "maxTextureSize": "Max Texture Size",
         "simplifyRatio": "Simplify Ratio",
@@ -757,6 +766,11 @@
       "lbl-trebleMultiplier": "Treble Multiplier",
       "lbl-midMultiplier": "Mid Multiplier"
     },
+    "reflectionProbe": {
+      "name": "Reflection Probe",
+      "description": "A reflection probe that captures the environment and uses it for reflection.",
+      "src": "Source"
+    },
     "renderSettings": {
       "name": "Render Settings",
       "description": "Customise the scene renderer settings",
@@ -934,7 +948,7 @@
       "lbl-torusknot": "Torus Knot"
     },
     "portal": {
-      "name":"Portal",
+      "name": "Portal",
       "lbl-portal": "Linked Portal",
       "lbl-redirect": "Use Page Redirect",
       "description": "A Portal to teleport players to specified location",
@@ -1173,8 +1187,11 @@
       "convert": "Convert",
       "downloadProject": "Download Project",
       "uploadAssets": "Upload Assets",
+      "uploadFiles": "Upload Files",
       "search-placeholder": "Search folders",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
+      "file": "File",
+      "directory": "Directory",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
@@ -1203,6 +1220,12 @@
           "dateModified": "Date Modified",
           "size": "Size"
         }
+      },
+      "image-convert": {
+        "format": "Format",
+        "resize": "Resize",
+        "width": "Width",
+        "height": "Height"
       }
     },
     "scene-assets": {

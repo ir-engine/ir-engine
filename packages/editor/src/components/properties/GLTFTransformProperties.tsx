@@ -23,406 +23,271 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
-import React, { useCallback } from 'react'
+import React from 'react'
 
-import {
-  ImageTransformParameters,
-  ModelTransformParameters
-} from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { State } from '@etherealengine/hyperflux'
+import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
+import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
+import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
+import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import { useTranslation } from 'react-i18next'
+import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+import { twMerge } from 'tailwind-merge'
 
-import BooleanInput from '../inputs/BooleanInput'
-import InputGroup from '../inputs/InputGroup'
-import NumericInput from '../inputs/NumericInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import ParameterInput from '../inputs/ParameterInput'
-import SelectInput from '../inputs/SelectInput'
-import StringInput from '../inputs/StringInput'
-import CollapsibleBlock from '../layout/CollapsibleBlock'
-import PaginatedList from '../layout/PaginatedList'
+function CheckBoxParam({ label, state }: { label: string; state: State<boolean> }) {
+  return (
+    <div className={twMerge('my-2.5 grid grid-cols-4 items-center gap-x-2')}>
+      <div className="col-span-1 col-start-2 text-right">
+        <Text fontSize="xs">{label}</Text>
+      </div>
+
+      <div className="col-span-2 col-start-3">
+        <Checkbox
+          value={state.value}
+          onChange={() => {
+            state.set((v) => !v)
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function TextParam({
+  label,
+  state,
+  parseFunction = (value: string) => value
+}: {
+  label: string
+  state: State<string | number>
+  parseFunction?: (value: string) => string | number
+}) {
+  return (
+    <div className="my-1 grid grid-cols-4 items-center gap-x-2">
+      <div className="col-span-1 col-start-2 text-right">
+        <Text fontWeight="medium" fontSize="xs">
+          {label}
+        </Text>
+      </div>
+
+      <div className="col-span-2 col-start-3">
+        <Input
+          className="py-0 text-xs text-[#9CA0AA]"
+          value={state.value}
+          onChange={(e) => {
+            state.set(parseFunction(e.target.value))
+          }}
+        />
+      </div>
+    </div>
+  )
+}
 
 export default function GLTFTransformProperties({
-  transformParms,
-  onChange
+  transformParms
 }: {
   transformParms: State<ModelTransformParameters>
-  onChange: (transformParms: ModelTransformParameters) => void
 }) {
-  const onChangeTransformParm = useCallback((scope: State<any>) => {
-    return (value: typeof scope.value) => {
-      scope.set(value)
-      onChange(JSON.parse(JSON.stringify(transformParms.value)))
-    }
-  }, [])
-
-  const onChangeTransformStringParm = useCallback((scope: State<any>) => {
-    return (value: string) => {
-      scope.set(value)
-    }
-  }, [])
-
-  const onChangeParameter = useCallback(
-    (scope: State<any>, key: string) => (val: any) => {
-      scope[key].set(val)
-      onChange(JSON.parse(JSON.stringify(transformParms.value)))
-    },
-    []
-  )
+  const { t } = useTranslation()
 
   return (
-    <>
-      <div
-        style={{
-          margin: '2rem',
-          padding: '1rem',
-          color: 'var(--textColor)'
-        }}
-      >
-        <InputGroup name="dst" label={t('editor:properties.model.transform.dst')}>
-          <StringInput value={transformParms.dst.value} onChange={onChangeTransformStringParm(transformParms.dst)} />
-        </InputGroup>
-        <InputGroup name="resource uri" label={t('editor:properties.model.transform.resourceUri')}>
-          <StringInput
-            value={transformParms.resourceUri.value}
-            onChange={onChangeTransformStringParm(transformParms.resourceUri)}
-          />
-        </InputGroup>
-      </div>
-      <hr />
-      <div
-        style={{
-          margin: '2rem',
-          padding: '1rem',
-          color: 'var(--textColor)'
-        }}
-      >
-        <InputGroup name="Model Format" label={t('editor:properties.model.transform.modelFormat')}>
-          <SelectInput
-            value={transformParms.modelFormat.value}
-            onChange={onChangeTransformParm(transformParms.modelFormat)}
-            options={[
-              { label: 'glB', value: 'glb' },
-              { label: 'glTF', value: 'gltf' }
-            ]}
-          />
-        </InputGroup>
-        <InputGroup name="Split" label={t('editor:properties.model.transform.split')}>
-          <BooleanInput value={transformParms.split.value} onChange={onChangeTransformParm(transformParms.split)} />
-        </InputGroup>
-        <InputGroup name="Combine materials" label={t('editor:properties.model.transform.combineMaterials')}>
-          <BooleanInput
-            value={transformParms.combineMaterials.value}
-            onChange={onChangeTransformParm(transformParms.combineMaterials)}
-          />
-        </InputGroup>
-        <InputGroup name="Instance" label={t('editor:properties.model.transform.instance')}>
-          <BooleanInput
-            value={transformParms.instance.value}
-            onChange={onChangeTransformParm(transformParms.instance)}
-          />
-        </InputGroup>
-
-        <InputGroup name="Remove Duplicates" label={t('editor:properties.model.transform.removeDuplicates')}>
-          <BooleanInput value={transformParms.dedup.value} onChange={onChangeTransformParm(transformParms.dedup)} />
-        </InputGroup>
-        <InputGroup name="Flatten Scene Graph" label={t('editor:properties.model.transform.flatten')}>
-          <BooleanInput value={transformParms.flatten.value} onChange={onChangeTransformParm(transformParms.flatten)} />
-        </InputGroup>
-        <InputGroup name="Join Meshes" label={t('editor:properties.model.transform.join')}>
-          <BooleanInput
-            value={transformParms.join.enabled.value}
-            onChange={onChangeTransformParm(transformParms.join.enabled)}
-          />
-        </InputGroup>
-        {transformParms.join.enabled.value && (
-          <>
-            <ParameterInput
-              entity={`${transformParms}-join`}
-              values={transformParms.join.options.value}
-              onChange={onChangeParameter.bind({}, transformParms.join.options)}
-            />
-          </>
-        )}
-        <InputGroup name="Palette" label={t('editor:properties.model.transform.palette')}>
-          <BooleanInput
-            value={transformParms.palette.enabled.value}
-            onChange={onChangeTransformParm(transformParms.palette.enabled)}
-          />
-        </InputGroup>
-        {transformParms.palette.enabled.value && (
-          <>
-            <ParameterInput
-              entity={`${transformParms}-palette`}
-              values={transformParms.palette.options.value}
-              onChange={onChangeParameter.bind({}, transformParms.palette.options)}
-            />
-          </>
-        )}
-        <InputGroup name="Prune Unused" label={t('editor:properties.model.transform.pruneUnused')}>
-          <BooleanInput value={transformParms.prune.value} onChange={onChangeTransformParm(transformParms.prune)} />
-        </InputGroup>
-
-        <InputGroup name="Reorder" label={t('editor:properties.model.transform.reorder')}>
-          <BooleanInput value={transformParms.reorder.value} onChange={onChangeTransformParm(transformParms.reorder)} />
-        </InputGroup>
-        <InputGroup name="Weld Vertices" label={t('editor:properties.model.transform.weldVertices')}>
-          <BooleanInput
-            value={transformParms.weld.enabled.value}
-            onChange={onChangeTransformParm(transformParms.weld.enabled)}
-          />
-        </InputGroup>
-        {transformParms.weld.enabled.value && (
-          <>
-            <NumericInputGroup
-              name="Weld Threshold"
-              label={t('editor:properties.model.transform.weldThreshold')}
-              value={transformParms.weld.tolerance.value}
-              onChange={onChangeTransformParm(transformParms.weld.tolerance)}
-              min={0}
-              max={1}
-            />
-          </>
-        )}
-        <InputGroup name="Resample Animations" label={t('editor:properties.model.transform.resampleAnimations')}>
-          <BooleanInput
-            value={transformParms.resample.value}
-            onChange={onChangeTransformParm(transformParms.resample)}
-          />
-        </InputGroup>
-        <InputGroup name="Use Meshoptimizer" label={t('editor:properties.model.transform.useMeshoptimizer')}>
-          <BooleanInput
-            value={transformParms.meshoptCompression.enabled.value}
-            onChange={onChangeTransformParm(transformParms.meshoptCompression.enabled)}
-          />
-        </InputGroup>
-        <InputGroup name="Use DRACO Compression" label={t('editor:properties.model.transform.useDraco')}>
-          <BooleanInput
-            value={transformParms.dracoCompression.enabled.value}
-            onChange={onChangeTransformParm(transformParms.dracoCompression.enabled)}
-          />
-        </InputGroup>
-        {transformParms.dracoCompression.enabled.value && (
-          <>
-            <ParameterInput
-              entity={`${transformParms}-draco-compression`}
-              values={transformParms.dracoCompression.options.value}
-              onChange={onChangeParameter.bind({}, transformParms.dracoCompression.options)}
-            />
-          </>
-        )}
-        <InputGroup name="Texture Format" label={t('editor:properties.model.transform.textureFormat')}>
-          <SelectInput
-            value={transformParms.textureFormat.value}
-            onChange={onChangeTransformParm(transformParms.textureFormat)}
-            options={[
-              { label: 'Default', value: 'default' },
-              { label: 'JPG', value: 'jpg' },
-              { label: 'KTX2', value: 'ktx2' },
-              { label: 'PNG', value: 'png' },
-              { label: 'WebP', value: 'webp' }
-            ]}
-          />
-        </InputGroup>
-        <NumericInputGroup
-          name="Max Texture Size"
-          label={t('editor:properties.model.transform.maxTextureSize')}
-          value={transformParms.maxTextureSize.value}
-          onChange={onChangeTransformParm(transformParms.maxTextureSize)}
-          max={16384}
-          min={64}
-        />
-        <NumericInputGroup
-          name="Simplify Ratio"
-          label={t('editor:properties.model.transform.simplifyRatio')}
-          value={transformParms.simplifyRatio.value}
-          onChange={onChangeTransformParm(transformParms.simplifyRatio)}
-          max={1.0}
-          min={0.0}
-        />
-        <NumericInputGroup
-          name="Simplify Error Threshold"
-          label={t('editor:properties.model.transform.simplifyErrorThreshold')}
-          value={transformParms.simplifyErrorThreshold.value}
-          onChange={onChangeTransformParm(transformParms.simplifyErrorThreshold)}
-          max={1.0}
-          min={0.0}
-        />
-        <InputGroup name="Flip Y" label={t('editor:properties.model.transform.flipY')}>
-          <BooleanInput value={transformParms.flipY.value} onChange={onChangeTransformParm(transformParms.flipY)} />
-        </InputGroup>
-        <InputGroup name="Linear" label={t('editor:properties.model.transform.linear')}>
-          <BooleanInput value={transformParms.linear.value} onChange={onChangeTransformParm(transformParms.linear)} />
-        </InputGroup>
-        <InputGroup name="Mipmaps" label={t('editor:properties.model.transform.mipmaps')}>
-          <BooleanInput value={transformParms.mipmap.value} onChange={onChangeTransformParm(transformParms.mipmap)} />
-        </InputGroup>
-        {transformParms.textureFormat.value === 'ktx2' && (
-          <>
-            <InputGroup
-              name="Texture Compression Type"
-              label={t('editor:properties.model.transform.textureCompressionType')}
+    transformParms && (
+      <>
+        <div className="mb-6 grid grid-cols-4 gap-2 border-b border-theme-primary pb-6">
+          <div className="col-span-1 flex flex-col justify-around gap-y-2">
+            <Text
+              fontSize="xs"
+              fontWeight="medium"
+              className="block px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
+              style={{
+                textWrap: 'nowrap' // tailwind class is not working
+              }}
             >
-              <SelectInput
-                value={transformParms.textureCompressionType.value}
-                onChange={onChangeTransformParm(transformParms.textureCompressionType)}
+              {t('editor:properties.model.transform.dst')}
+            </Text>
+            <Text
+              fontSize="xs"
+              fontWeight="medium"
+              className="px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
+              style={{
+                textWrap: 'nowrap' // tailwind class is not working
+              }}
+            >
+              {t('editor:properties.model.transform.resourceUri')}
+            </Text>
+          </div>
+          <div className="col-span-3 flex flex-col justify-around gap-y-2">
+            <Input
+              value={transformParms.dst.value}
+              onChange={(e) => {
+                transformParms.dst.set(e.target.value)
+              }}
+              className="px-2 py-0.5 font-['Figtree'] text-sm text-[#9CA0AA]"
+            />
+            <Input
+              value={transformParms.resourceUri.value}
+              onChange={(e) => {
+                transformParms.resourceUri.set(e.target.value)
+              }}
+              className="px-2 py-0.5 font-['Figtree'] text-sm text-[#9CA0AA]"
+            />
+          </div>
+        </div>
+
+        <Accordion
+          title="Materials"
+          expandIcon={<HiPlusSmall />}
+          shrinkIcon={<HiMinus />}
+          titleFontSize="sm"
+          className="mb-2 rounded bg-theme-highlight p-2"
+        >
+          <div className="my-1 grid grid-cols-4 items-center gap-x-2">
+            <div className="col-span-1 col-start-2 text-right">
+              <Text fontWeight="medium" fontSize="xs">
+                {t('editor:properties.model.transform.textureFormat')}
+              </Text>
+            </div>
+
+            <div className="col-span-2 col-start-3">
+              <Select
+                inputClassName="text-[#9CA0AA] text-xs py-0"
+                options={[
+                  { label: 'Default', value: 'default' },
+                  { label: 'JPG', value: 'jpg' },
+                  { label: 'KTX2', value: 'ktx2' },
+                  { label: 'PNG', value: 'png' },
+                  { label: 'WebP', value: 'webp' }
+                ]}
+                onChange={(value) => {
+                  // @ts-ignore
+                  transformParms.textureFormat.set(value)
+                }}
+                currentValue={transformParms.textureFormat.value}
+              />
+            </div>
+          </div>
+
+          <TextParam
+            label={t('editor:properties.model.transform.maxTextureSize')}
+            state={transformParms.maxTextureSize}
+            parseFunction={parseInt}
+          />
+
+          <TextParam
+            label={t('editor:properties.model.transform.simplifyRatio')}
+            state={transformParms.simplifyRatio}
+            parseFunction={parseFloat}
+          />
+
+          <TextParam
+            label={t('editor:properties.model.transform.simplifyErrorThreshold')}
+            state={transformParms.simplifyErrorThreshold}
+            parseFunction={parseFloat}
+          />
+
+          <div className="my-1 grid grid-cols-4 items-center gap-x-2">
+            <div className="col-span-1 col-start-2 text-right">
+              <Text fontWeight="medium" fontSize="xs">
+                {t('editor:properties.model.transform.textureCompressionType')}
+              </Text>
+            </div>
+
+            <div className="col-span-2 col-start-3">
+              <Select
+                inputClassName="text-[#9CA0AA] text-xs py-0"
                 options={[
                   { label: 'UASTC', value: 'uastc' },
                   { label: 'ETC1', value: 'etc1' }
                 ]}
+                onChange={(value) => {
+                  // @ts-ignore
+                  transformParms.textureCompressionType.set(value)
+                }}
+                currentValue={transformParms.textureCompressionType.value}
               />
-            </InputGroup>
-            <NumericInputGroup
-              name="KTX2 Quality"
-              label={t('editor:properties.model.transform.ktx2Quality')}
-              value={transformParms.textureCompressionQuality.value}
-              onChange={onChangeTransformParm(transformParms.textureCompressionQuality)}
-              max={255}
-              min={1}
-              smallStep={1}
-              mediumStep={1}
-              largeStep={2}
-            />
-            {transformParms.textureCompressionType.value === 'uastc' && (
-              <>
-                <InputGroup name="UASTC Level" label={t('editor:properties.model.transform.uastcLevel')}>
-                  <NumericInput
-                    value={transformParms.uastcLevel.value}
-                    onChange={onChangeTransformParm(transformParms.uastcLevel)}
-                    max={4}
-                    min={0}
-                    smallStep={1}
-                    mediumStep={1}
-                    largeStep={1}
-                  />
-                </InputGroup>
-              </>
-            )}
-            {transformParms.textureCompressionType.value === 'etc1' && (
-              <>
-                <NumericInputGroup
-                  name="Compression Level"
-                  label={t('editor:properties.model.transform.etc1Level')}
-                  value={transformParms.compLevel.value}
-                  onChange={onChangeTransformParm(transformParms.compLevel)}
-                  min={1}
-                  max={5}
-                  smallStep={1}
-                  mediumStep={1}
-                  largeStep={1}
-                />
-                <InputGroup name="Max Codebooks" label={t('editor:properties.model.transform.maxCodebooks')}>
-                  <BooleanInput
-                    value={transformParms.maxCodebooks.value}
-                    onChange={onChangeTransformParm(transformParms.maxCodebooks)}
-                  />
-                </InputGroup>
-              </>
-            )}
-          </>
-        )}
-        <CollapsibleBlock label={t('editor:properties.model.transform.resourceOverrides')}>
-          <PaginatedList
-            list={transformParms.resources.images}
-            element={(image: State<ImageTransformParameters>) => {
-              return (
-                <>
-                  <div style={{ width: '100%' }}>
-                    <InputGroup name="Resource" label={image.resourceId.value}>
-                      <BooleanInput value={image.enabled.value} onChange={onChangeTransformParm(image.enabled)} />
-                    </InputGroup>
-                  </div>
-                  {image.enabled.value && (
-                    <div style={{ width: '100%' }}>
-                      <BooleanInput
-                        value={image.parameters.textureFormat.enabled.value}
-                        onChange={onChangeTransformParm(image.parameters.textureFormat.enabled)}
-                      />
-                      <InputGroup name="Texture Format" label={t('editor:properties.model.transform.textureFormat')}>
-                        {image.parameters.textureFormat.enabled.value && (
-                          <SelectInput
-                            value={image.parameters.textureFormat.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.textureFormat.parameters)}
-                            options={[
-                              { label: 'Default', value: 'default' },
-                              { label: 'JPG', value: 'jpg' },
-                              { label: 'KTX2', value: 'ktx2' },
-                              { label: 'PNG', value: 'png' },
-                              { label: 'WebP', value: 'webp' }
-                            ]}
-                          />
-                        )}
-                      </InputGroup>
-                      <BooleanInput
-                        value={image.parameters.maxTextureSize.enabled.value}
-                        onChange={onChangeTransformParm(image.parameters.maxTextureSize.enabled)}
-                      />
-                      <InputGroup name="Max Texture Size" label={t('editor:properties.model.transform.maxTextureSize')}>
-                        {image.parameters.maxTextureSize.enabled.value && (
-                          <NumericInput
-                            value={image.parameters.maxTextureSize.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.maxTextureSize.parameters)}
-                            max={4096}
-                            min={64}
-                          />
-                        )}
-                      </InputGroup>
-                      <BooleanInput
-                        value={image.parameters.textureCompressionType.enabled.value}
-                        onChange={onChangeTransformParm(image.parameters.textureCompressionType.enabled)}
-                      />
-                      <InputGroup
-                        name="Texture Compression Type"
-                        label={t('editor:properties.model.transform.textureCompressionType')}
-                      >
-                        {image.parameters.textureCompressionType.enabled.value && (
-                          <SelectInput
-                            value={image.parameters.textureCompressionType.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.textureCompressionType.parameters)}
-                            options={[
-                              { label: 'UASTC', value: 'uastc' },
-                              { label: 'ETC1', value: 'etc1' }
-                            ]}
-                          />
-                        )}
-                      </InputGroup>
-                      <BooleanInput
-                        value={image.parameters.textureCompressionQuality.enabled.value}
-                        onChange={onChangeTransformParm(image.parameters.textureCompressionQuality.enabled)}
-                      />
-                      <InputGroup name="KTX2 Quality" label={t('editor:properties.model.transform.ktx2Quality')}>
-                        {image.parameters.textureCompressionQuality.enabled.value && (
-                          <NumericInput
-                            value={image.parameters.textureCompressionQuality.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.textureCompressionQuality.parameters)}
-                            max={255}
-                            min={1}
-                            smallStep={1}
-                            mediumStep={1}
-                            largeStep={2}
-                          />
-                        )}
-                      </InputGroup>
-                      <BooleanInput
-                        value={image.parameters.flipY.enabled.value}
-                        onChange={onChangeTransformParm(image.parameters.flipY.enabled)}
-                      />
-                      <InputGroup name="Flip Y" label={t('editor:properties.model.transform.flipY')}>
-                        {image.parameters.flipY.enabled.value && (
-                          <BooleanInput
-                            value={image.parameters.flipY.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.flipY.parameters)}
-                          />
-                        )}
-                      </InputGroup>
-                    </div>
-                  )}
-                </>
-              )
-            }}
+            </div>
+          </div>
+
+          <TextParam
+            label={t('editor:properties.model.transform.ktx2Quality')}
+            state={transformParms.textureCompressionQuality}
+            parseFunction={parseFloat}
           />
-        </CollapsibleBlock>
-      </div>
-    </>
+
+          <CheckBoxParam label={t('editor:properties.model.transform.split')} state={transformParms.split} />
+
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.combineMaterials')}
+            state={transformParms.combineMaterials}
+          />
+
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.palette')}
+            state={transformParms.palette.enabled}
+          />
+
+          <CheckBoxParam label={t('editor:properties.model.transform.flipY')} state={transformParms.flipY} />
+
+          <CheckBoxParam label={t('editor:properties.model.transform.linear')} state={transformParms.linear} />
+
+          <CheckBoxParam label={t('editor:properties.model.transform.mipmaps')} state={transformParms.mipmap} />
+        </Accordion>
+
+        <Accordion
+          title="Meshes"
+          expandIcon={<HiPlusSmall />}
+          shrinkIcon={<HiMinus />}
+          titleFontSize="sm"
+          className="mb-2 rounded bg-theme-highlight p-2"
+        >
+          <CheckBoxParam label={t('editor:properties.model.transform.instance')} state={transformParms.instance} />
+
+          <CheckBoxParam label={t('editor:properties.model.transform.join')} state={transformParms.join.enabled} />
+
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.weldVertices')}
+            state={transformParms.weld.enabled}
+          />
+
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.useMeshoptimizer')}
+            state={transformParms.meshoptCompression.enabled}
+          />
+
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.useDraco')}
+            state={transformParms.dracoCompression.enabled}
+          />
+        </Accordion>
+
+        <Accordion
+          title="Scene"
+          expandIcon={<HiPlusSmall />}
+          shrinkIcon={<HiMinus />}
+          titleFontSize="sm"
+          className="mb-2 rounded bg-theme-highlight p-2"
+        >
+          <CheckBoxParam label={t('editor:properties.model.transform.removeDuplicates')} state={transformParms.dedup} />
+          <CheckBoxParam label={t('editor:properties.model.transform.flatten')} state={transformParms.flatten} />
+          <CheckBoxParam label={t('editor:properties.model.transform.pruneUnused')} state={transformParms.prune} />
+          <CheckBoxParam label={t('editor:properties.model.transform.reorder')} state={transformParms.reorder} />
+        </Accordion>
+
+        <Accordion
+          title="Animation"
+          expandIcon={<HiPlusSmall />}
+          shrinkIcon={<HiMinus />}
+          titleFontSize="sm"
+          className="mb-2 rounded bg-theme-highlight p-2"
+        >
+          <CheckBoxParam
+            label={t('editor:properties.model.transform.resampleAnimations')}
+            state={transformParms.resample}
+          />
+        </Accordion>
+      </>
+    )
   )
 }

@@ -31,12 +31,12 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, generateEntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { createEngine, destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { PeerID, ReactorReconciler } from '@etherealengine/hyperflux'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 
 import { createMockNetwork } from '../tests/createMockNetwork'
 import { Network, NetworkTopics } from './Network'
@@ -54,6 +54,7 @@ describe('EntityNetworkState', () => {
     createEngine()
     createMockNetwork()
     Engine.instance.store.defaultDispatchDelay = () => 0
+    initializeSpatialEngine()
   })
 
   afterEach(() => {

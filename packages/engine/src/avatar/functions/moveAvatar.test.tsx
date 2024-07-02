@@ -32,12 +32,12 @@ import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { Engine, createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@etherealengine/network'
 import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
@@ -53,6 +53,7 @@ describe('moveAvatar function tests', () => {
   let sceneEntity: Entity
   beforeEach(async () => {
     createEngine()
+    initializeSpatialEngine()
     await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())

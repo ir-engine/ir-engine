@@ -31,13 +31,13 @@ import { Object3D, Scene } from 'three'
 
 import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import config from '@etherealengine/common/src/config'
+import { STATIC_ASSET_REGEX } from '@etherealengine/common/src/regex'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import ErrorPopUp from '@etherealengine/editor/src/components/popup/ErrorPopUp'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
 import { exportRelativeGLTF } from '@etherealengine/editor/src/functions/exportGLTF'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { updateModelResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
 import { recursiveHipsLookup } from '@etherealengine/engine/src/avatar/AvatarBoneMatching'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
@@ -67,10 +67,10 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const editorState = getState(EditorState)
   const projectState = getState(ProjectState)
   const loadedProjects = useState(() => projectState.projects.map((project) => project.name))
-  const srcProject = useState(() => pathResolver().exec(modelComponent.src.value)?.[1] ?? editorState.projectName!)
+  const srcProject = useState(() => STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[1] ?? editorState.projectName!)
 
   const getRelativePath = useCallback(() => {
-    const relativePath = pathResolver().exec(modelComponent.src.value)?.[2]
+    const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[2]
     if (!relativePath) {
       return 'assets/new-model'
     } else {

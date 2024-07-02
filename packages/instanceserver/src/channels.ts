@@ -74,6 +74,7 @@ import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/
 
 import './InstanceServerModule'
 
+import { initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
@@ -274,6 +275,8 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   Engine.instance.userID = hostId
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
   HyperFlux.store.forwardingTopics.add(topic)
+
+  initializeSpatialEngine()
 
   await setupIPs()
   const network = await initializeNetwork(app, hostId, Engine.instance.store.peerID, topic)
