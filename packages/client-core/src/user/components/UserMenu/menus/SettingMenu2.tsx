@@ -46,6 +46,7 @@ import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
 import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
 import { SelectOptionsType } from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Menu from '../../../../common/components/Menu'
 import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -86,7 +87,6 @@ const SettingMenu2 = (): JSX.Element => {
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
   const inputState = useMutableState(InputState)
   const preferredHand = inputState.preferredHand.value
-  const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const firstRender = useRef(true)
   const xrSupportedModes = useMutableState(XRState).supportedSessionModes
   const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
@@ -113,10 +113,6 @@ const SettingMenu2 = (): JSX.Element => {
 
     const settings: UserSettingPatch = { themeModes: { ...themeModes, [mode]: event } }
     AuthService.updateUserSettings(userSettings.id, settings)
-  }
-
-  const handleChangeInvertRotationAndMoveSticks = () => {
-    getMutableState(AvatarInputSettingsState).invertRotationAndMoveSticks.set((value) => !value)
   }
 
   useLayoutEffect(() => {
@@ -188,295 +184,279 @@ const SettingMenu2 = (): JSX.Element => {
 
   return (
     <Menu title={'Settings'} open onClose={() => PopupMenuServices.showPopupMenu()}>
-      <div>
-        <div className="mb-3 flex">
-          {settingTabs.map((tab) => (
-            <div className={`${tab.value === selectedTab.value ? 'border-b-2 border-[#6B7280]' : ''} p-2`}>
-              <button
-                className={`p-2 ${tab.value === selectedTab.value ? 'text-[#214AA6]' : 'text-[#6B7280]'}`}
-                onClick={() => handleTabChange(tab.value)}
-              >
-                {tab.label}
-              </button>
-            </div>
-          ))}
-        </div>
-        {selectedTab.value === 'general' && selfUser && (
-          <>
-            <div className="mb-5 mt-1">{t('user:usermenu.setting.themes')}</div>
-            <div className="mb-4 flex justify-between">
-              {accessibleThemeModes.map((mode, index) => (
-                <div className="flex-1" key={index}>
-                  <InputGroup name="Type" label="">
-                    <SelectInput
-                      label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
-                      value={themeModes[mode]}
-                      className="w-full"
-                      inputClassName="rounded-lg overflow-hidden"
-                      onChange={(val) => handleChangeUserThemeMode(mode, val)}
-                      options={colorModesMenu}
-                    />
-                  </InputGroup>
+      <div className="mb-3 flex">
+        {settingTabs.map((tab) => (
+          <div className={`${tab.value === selectedTab.value ? 'border-b-2 border-[#6B7280]' : ''} p-2`}>
+            <button
+              className={`p-2 ${tab.value === selectedTab.value ? 'text-[#214AA6]' : 'text-[#6B7280]'}`}
+              onClick={() => handleTabChange(tab.value)}
+            >
+              {tab.label}
+            </button>
+          </div>
+        ))}
+      </div>
+      {selectedTab.value === 'general' && selfUser && (
+        <>
+          <div className="mb-5 mt-1">{t('user:usermenu.setting.themes')}</div>
+          <div className="mb-4 flex justify-between">
+            {accessibleThemeModes.map((mode, index) => (
+              <div className="flex-1" key={index}>
+                <InputGroup name="Type" label="">
+                  <SelectInput
+                    label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
+                    value={themeModes[mode]}
+                    className="w-full"
+                    inputClassName="rounded-lg overflow-hidden"
+                    onChange={(val) => handleChangeUserThemeMode(mode, val)}
+                    options={colorModesMenu}
+                  />
+                </InputGroup>
+              </div>
+            ))}
+          </div>
+
+          {xrSupported && (
+            <>
+              <div className="my-1 items-center">{t('user:usermenu.setting.xrusersetting')}</div>
+
+              <div className="grid">
+                <div className="grid">
+                  <SelectInput
+                    label={t('user:usermenu.setting.lbl-left-control-scheme')}
+                    value={leftAxesControlScheme}
+                    options={controlSchemesMenu}
+                    onChange={(event) =>
+                      getMutableState(AvatarInputSettingsState).leftAxesControlScheme.set(controlSchemesMenu[event])
+                    }
+                  />
                 </div>
-              ))}
-            </div>
+                <div className="grid">
+                  <SelectInput
+                    label={t('user:usermenu.setting.lbl-right-control-scheme')}
+                    value={rightAxesControlScheme}
+                    options={controlSchemesMenu}
+                    onChange={(event) =>
+                      getMutableState(AvatarInputSettingsState).rightAxesControlScheme.set(
+                        AvatarAxesControlScheme[event]
+                      )
+                    }
+                  />
+                </div>
+                <div className="grid">
+                  <SelectInput
+                    label={t('user:usermenu.setting.lbl-preferred-hand')}
+                    value={preferredHand}
+                    options={handOptionsMenu}
+                    onChange={(event) => getMutableState(InputState).preferredHand.set(handOptionsMenu[event])}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Controls Helptext */}
+          <>
+            <div className="mb-5 mt-1">{t('user:usermenu.setting.controls')}</div>
+
+            {!isMobile && !xrSupported && (
+              <>
+                <div className="m-2 rounded-md bg-[#191B1F]">
+                  <img src="/static/Desktop_Tutorial_Keyboard.png" alt="Desktop Controls" className="m-auto" />
+                </div>
+                <div className="flex">
+                  <div className="m-2 flex-1 rounded-md bg-[#191B1F]">
+                    <img src="/static/Controller_Tutorial.png" alt="Controller Controls" className="m-auto" />
+                  </div>
+                  <div className="m-2 flex-1 rounded-md bg-[#191B1F]">
+                    <img src="/static/Desktop_Tutorial_Mouse.png" alt="Controller Controls" className="m-auto" />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {isMobile && (
+              <img
+                className={`${styles.row} ${styles.tutorialImage}`}
+                src="/static/Mobile_Tutorial.png"
+                alt="Mobile Controls"
+              />
+            )}
 
             {xrSupported && (
-              <>
-                <div className="my-1 items-center">{t('user:usermenu.setting.xrusersetting')}</div>
-
-                <div className="grid">
-                  <div className="grid">
-                    <SelectInput
-                      label={t('user:usermenu.setting.lbl-left-control-scheme')}
-                      value={leftAxesControlScheme}
-                      options={controlSchemesMenu}
-                      onChange={(event) =>
-                        getMutableState(AvatarInputSettingsState).leftAxesControlScheme.set(controlSchemesMenu[event])
-                      }
-                    />
-                  </div>
-                  <div className="grid">
-                    <SelectInput
-                      label={t('user:usermenu.setting.lbl-right-control-scheme')}
-                      value={rightAxesControlScheme}
-                      options={controlSchemesMenu}
-                      onChange={(event) =>
-                        getMutableState(AvatarInputSettingsState).rightAxesControlScheme.set(
-                          AvatarAxesControlScheme[event]
-                        )
-                      }
-                    />
-                  </div>
-                  <div className="grid">
-                    <SelectInput
-                      label={t('user:usermenu.setting.lbl-preferred-hand')}
-                      value={preferredHand}
-                      options={handOptionsMenu}
-                      onChange={(event) => getMutableState(InputState).preferredHand.set(handOptionsMenu[event])}
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Controls Helptext */}
-            <>
-              <div className="mb-5 mt-1">{t('user:usermenu.setting.controls')}</div>
-
-              {!isMobile && !xrSupported && (
-                <>
-                  <div className="m-2 rounded-md bg-[#191B1F]">
-                    <img src="/static/Desktop_Tutorial_Keyboard.png" alt="Desktop Controls" className="m-auto" />
-                  </div>
-                  <div className="flex">
-                    <div className="m-2 flex-1 rounded-md bg-[#191B1F]">
-                      <img src="/static/Controller_Tutorial.png" alt="Controller Controls" className="m-auto" />
-                    </div>
-                    <div className="m-2 flex-1 rounded-md bg-[#191B1F]">
-                      <img src="/static/Desktop_Tutorial_Mouse.png" alt="Controller Controls" className="m-auto" />
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {isMobile && (
-                <img
-                  className={`${styles.row} ${styles.tutorialImage}`}
-                  src="/static/Mobile_Tutorial.png"
-                  alt="Mobile Controls"
-                />
-              )}
-
-              {xrSupported && (
-                <img
-                  className={`${styles.row} ${styles.tutorialImage}`}
-                  src="/static/XR_Tutorial.png"
-                  alt="XR Controls"
-                />
-              )}
-            </>
-
-            {/* Windows-specific Graphics/Performance Optimization Helptext */}
-            {windowsPerformanceHelp && (
-              <>
-                <div>{t('user:usermenu.setting.windowsPerformanceHelp')}</div>
-
-                <div>
-                  If you're experiencing performance issues, and you're running on a machine with Nvidia graphics, try
-                  the following.
-                </div>
-
-                <div>Open the Nvidia Control Panel, select Chrome, make sure "High Performance" is selected.</div>
-
-                <img className={styles.row} src="/static/Nvidia_control_panel1.png" alt="Nvidia Control Panel" />
-
-                <div>In settings for Windows 10/11, search for the 'Graphics' preference on AMD/Nvidia for Chrome.</div>
-
-                <img className={styles.row} src="/static/Nvidia_windows_prefs.png" alt="Nvidia Windows Preferences" />
-              </>
+              <img
+                className={`${styles.row} ${styles.tutorialImage}`}
+                src="/static/XR_Tutorial.png"
+                alt="XR Controls"
+              />
             )}
           </>
-        )}
 
-        {selectedTab.value === 'audio' && (
-          <div>
-            {chromeDesktop && (
-              <div className="py-2 text-xs">
-                {t('user:usermenu.setting.chromeAEC')}
-                <br />
-                <b>
-                  <u>chrome://flags/#chrome-wide-echo-cancellation</u>
-                </b>
-              </div>
-            )}
+          {/* Windows-specific Graphics/Performance Optimization Helptext */}
+          {windowsPerformanceHelp && (
+            <>
+              <Text>{t('user:usermenu.setting.windowsPerformanceHelp')}</Text>
 
-            <InputGroup name="Type" label={t('user:usermenu.setting.use-positional-media')} className="justify-start">
-              <BooleanInput
-                value={audioState.positionalMedia.value}
-                onChange={(value: boolean) => {
-                  getMutableState(AudioState).positionalMedia.set(value)
-                }}
-              />
-            </InputGroup>
+              <Text>
+                If you're experiencing performance issues, and you're running on a machine with Nvidia graphics, try the
+                following.
+              </Text>
 
-            {/* <Button
-              type="expander"
-              open={openOtherAudioSettings}
-              sx={{ justifyContent: 'center', margin: 1.5 }}
-              onClick={() => setOpenOtherAudioSettings(!openOtherAudioSettings)}
-              >
-              {t('user:usermenu.setting.other-audio-setting')}
-            </Button> */}
+              <Text>Open the Nvidia Control Panel, select Chrome, make sure "High Performance" is selected.</Text>
 
-            {/* <Collapse in={openOtherAudioSettings} timeout="auto" unmountOnExit>
-              <> */}
-            <InputGroup name="Type" label={t('user:usermenu.setting.lbl-volume')} className="justify-start">
-              <Slider
-                max={1}
-                min={0}
-                step={0.01}
-                value={audioState.masterVolume.value}
-                onChange={(value: number) => {
-                  getMutableState(AudioState).masterVolume.set(value)
-                }}
-                onRelease={() => {}}
-              />
-            </InputGroup>
-            <InputGroup name="Type" label={t('user:usermenu.setting.lbl-microphone')} className="justify-start">
-              <Slider
-                max={1}
-                min={0}
-                step={0.01}
-                value={audioState.microphoneGain.value}
-                onChange={(value: number) => {
-                  getMutableState(AudioState).microphoneGain.set(value)
-                }}
-                onRelease={() => {}}
-              />
-            </InputGroup>
-            <InputGroup name="Type" label={t('user:usermenu.setting.lbl-media-instance')} className="justify-start">
-              <Slider
-                max={1}
-                min={0}
-                step={0.01}
-                value={audioState.mediaStreamVolume.value}
-                onChange={(value: number) => {
-                  getMutableState(AudioState).mediaStreamVolume.set(value)
-                }}
-                onRelease={() => {}}
-              />
-            </InputGroup>
-            <InputGroup name="Type" label={t('user:usermenu.setting.lbl-notification')} className="justify-start">
-              <Slider
-                max={1}
-                min={0}
-                step={0.01}
-                value={audioState.notificationVolume.value}
-                onChange={(value: number) => {
-                  getMutableState(AudioState).notificationVolume.set(value)
-                }}
-                onRelease={() => {}}
-              />
-            </InputGroup>
-            <InputGroup name="Type" label={t('user:usermenu.setting.lbl-sound-effect')} className="justify-start">
-              <Slider
-                max={1}
-                min={0}
-                step={0.01}
-                value={audioState.soundEffectsVolume.value}
-                onChange={(value: number) => {
-                  getMutableState(AudioState).soundEffectsVolume.set(value)
-                }}
-                onRelease={() => {}}
-              />
-            </InputGroup>
-            <InputGroup
-              name="Type"
-              label={t('user:usermenu.setting.lbl-background-music-volume')}
-              className="justify-start"
-            >
-              <Slider
-                max={1}
-                min={0}
-                step={0.01}
-                value={audioState.backgroundMusicVolume.value}
-                onChange={(value: number) => {
-                  getMutableState(AudioState).backgroundMusicVolume.set(value)
-                }}
-                onRelease={() => {}}
-              />
-            </InputGroup>
-            {/* </>
-            </Collapse> */}
-          </div>
-        )}
+              <img className={styles.row} src="/static/Nvidia_control_panel1.png" alt="Nvidia Control Panel" />
 
-        {/* Graphics Settings */}
-        {selectedTab.value === 'graphics' && (
-          <>
-            <InputGroup name="Type" label={t('user:usermenu.setting.lbl-quality')} className="justify-start">
-              <Slider
-                max={5}
-                min={0}
-                step={1}
-                value={rendererState.qualityLevel.value}
-                onChange={handleQualityLevelChange}
-                onRelease={() => {}}
-              />
-            </InputGroup>
+              <Text>In settings for Windows 10/11, search for the 'Graphics' preference on AMD/Nvidia for Chrome.</Text>
 
-            <div className="grid py-4">
-              <div className="grid">
-                <InputGroup name="Type" label={t('user:usermenu.setting.lbl-pp')} className="justify-start">
-                  <BooleanInput onChange={handlePostProcessingCheckbox} value={rendererState.usePostProcessing.value} />
-                </InputGroup>
-              </div>
+              <img className={styles.row} src="/static/Nvidia_windows_prefs.png" alt="Nvidia Windows Preferences" />
+            </>
+          )}
+        </>
+      )}
 
-              <div className="grid">
-                <InputGroup name="Type" label={t('user:usermenu.setting.lbl-shadow')} className="justify-start">
-                  <BooleanInput onChange={handleShadowCheckbox} value={rendererState.useShadows.value} />
-                </InputGroup>
-              </div>
+      {selectedTab.value === 'audio' && (
+        <>
+          {chromeDesktop && (
+            <div className="py-2 text-xs">
+              {t('user:usermenu.setting.chromeAEC')}
+              <br />
+              <b>
+                <u>chrome://flags/#chrome-wide-echo-cancellation</u>
+              </b>
+            </div>
+          )}
 
-              <div className="grid">
-                <InputGroup name="Type" label={t('user:usermenu.setting.lbl-automatic')} className="justify-start">
-                  <BooleanInput onChange={handleAutomaticCheckbox} value={rendererState.automatic.value} />
-                </InputGroup>
-              </div>
+          <InputGroup name="Type" label={t('user:usermenu.setting.use-positional-media')} className="justify-start">
+            <BooleanInput
+              value={audioState.positionalMedia.value}
+              onChange={(value: boolean) => {
+                getMutableState(AudioState).positionalMedia.set(value)
+              }}
+            />
+          </InputGroup>
+          <InputGroup name="Type" label={t('user:usermenu.setting.lbl-volume')} className="justify-start">
+            <Slider
+              max={1}
+              min={0}
+              step={0.01}
+              value={audioState.masterVolume.value}
+              onChange={(value: number) => {
+                getMutableState(AudioState).masterVolume.set(value)
+              }}
+              onRelease={() => {}}
+            />
+          </InputGroup>
+          <InputGroup name="Type" label={t('user:usermenu.setting.lbl-microphone')} className="justify-start">
+            <Slider
+              max={1}
+              min={0}
+              step={0.01}
+              value={audioState.microphoneGain.value}
+              onChange={(value: number) => {
+                getMutableState(AudioState).microphoneGain.set(value)
+              }}
+              onRelease={() => {}}
+            />
+          </InputGroup>
+          <InputGroup name="Type" label={t('user:usermenu.setting.lbl-media-instance')} className="justify-start">
+            <Slider
+              max={1}
+              min={0}
+              step={0.01}
+              value={audioState.mediaStreamVolume.value}
+              onChange={(value: number) => {
+                getMutableState(AudioState).mediaStreamVolume.set(value)
+              }}
+              onRelease={() => {}}
+            />
+          </InputGroup>
+          <InputGroup name="Type" label={t('user:usermenu.setting.lbl-notification')} className="justify-start">
+            <Slider
+              max={1}
+              min={0}
+              step={0.01}
+              value={audioState.notificationVolume.value}
+              onChange={(value: number) => {
+                getMutableState(AudioState).notificationVolume.set(value)
+              }}
+              onRelease={() => {}}
+            />
+          </InputGroup>
+          <InputGroup name="Type" label={t('user:usermenu.setting.lbl-sound-effect')} className="justify-start">
+            <Slider
+              max={1}
+              min={0}
+              step={0.01}
+              value={audioState.soundEffectsVolume.value}
+              onChange={(value: number) => {
+                getMutableState(AudioState).soundEffectsVolume.set(value)
+              }}
+              onRelease={() => {}}
+            />
+          </InputGroup>
+          <InputGroup
+            name="Type"
+            label={t('user:usermenu.setting.lbl-background-music-volume')}
+            className="justify-start"
+          >
+            <Slider
+              max={1}
+              min={0}
+              step={0.01}
+              value={audioState.backgroundMusicVolume.value}
+              onChange={(value: number) => {
+                getMutableState(AudioState).backgroundMusicVolume.set(value)
+              }}
+              onRelease={() => {}}
+            />
+          </InputGroup>
+        </>
+      )}
+
+      {/* Graphics Settings */}
+      {selectedTab.value === 'graphics' && (
+        <>
+          <InputGroup name="Type" label={t('user:usermenu.setting.lbl-quality')} className="justify-start">
+            <Slider
+              max={5}
+              min={0}
+              step={1}
+              value={rendererState.qualityLevel.value}
+              onChange={handleQualityLevelChange}
+              onRelease={() => {}}
+            />
+          </InputGroup>
+
+          <div className="grid py-4">
+            <div className="grid">
+              <InputGroup name="Type" label={t('user:usermenu.setting.lbl-pp')} className="justify-start">
+                <BooleanInput onChange={handlePostProcessingCheckbox} value={rendererState.usePostProcessing.value} />
+              </InputGroup>
             </div>
 
-            {rendererState.useShadows.value && (
-              <SelectInput
-                label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
-                value={rendererState.shadowMapResolution.value}
-                options={ShadowMapResolutionOptions}
-                onChange={(event) => rendererState.shadowMapResolution.set(ShadowMapResolutionOptions[event])}
-              />
-            )}
-          </>
-        )}
-      </div>
+            <div className="grid">
+              <InputGroup name="Type" label={t('user:usermenu.setting.lbl-shadow')} className="justify-start">
+                <BooleanInput onChange={handleShadowCheckbox} value={rendererState.useShadows.value} />
+              </InputGroup>
+            </div>
+
+            <div className="grid">
+              <InputGroup name="Type" label={t('user:usermenu.setting.lbl-automatic')} className="justify-start">
+                <BooleanInput onChange={handleAutomaticCheckbox} value={rendererState.automatic.value} />
+              </InputGroup>
+            </div>
+          </div>
+
+          {rendererState.useShadows.value && (
+            <SelectInput
+              label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
+              value={rendererState.shadowMapResolution.value}
+              options={ShadowMapResolutionOptions}
+              onChange={(event) => rendererState.shadowMapResolution.set(ShadowMapResolutionOptions[event])}
+            />
+          )}
+        </>
+      )}
     </Menu>
   )
 }
