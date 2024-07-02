@@ -115,6 +115,17 @@ export const removePlugin = (material: Material, callback) => {
   if (pluginIndex !== undefined) material.plugins?.splice(pluginIndex, 1)
 }
 
+export const materialPrototypeMatches = (materialEntity: Entity) => {
+  const materialComponent = getComponent(materialEntity, MaterialStateComponent)
+  const prototypeEntity = materialComponent.prototypeEntity
+  if (!prototypeEntity) return false
+  const prototypeComponent = getComponent(prototypeEntity, MaterialPrototypeComponent)
+  const prototypeName = Object.keys(prototypeComponent.prototypeConstructor)[0]
+  const material = materialComponent.material
+  const materialType = material.userData.type || material.type
+  return materialType === prototypeName
+}
+
 /**Updates the material entity's threejs material prototype to match its
  * current prototype entity */
 export const updateMaterialPrototype = (materialEntity: Entity) => {

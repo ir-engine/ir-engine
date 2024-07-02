@@ -24,7 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
+import { zendeskPath } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { useEffect } from 'react'
 import { AuthState } from '../user/services/AuthService'
 
@@ -35,51 +37,88 @@ declare global {
 }
 
 export const useZendesk = () => {
+  const zendeskMutation = useMutation(zendeskPath)
   const user = getMutableState(AuthState).user
-  const initalized = useHookstate(() => {
+  const authenticated = useHookstate(false)
+  const initialized = useHookstate(() => {
     const zendeskScript = document.getElementById(`ze-snippet`) as HTMLScriptElement
     return !!zendeskScript
   })
+  const isWidgetVisible = useHookstate(false)
 
-  const initalize = () => {
-    if (initalized.value || !config.client.zendeskKey) return
+  const authenticateUser = () => {
+    if (authenticated.value || config.client.zendesk.authenticationEnabled !== 'true') return
+
+    window.zE('messenger', 'loginUser', function (callback: any) {
+      zendeskMutation.create().then(async (token) => {
+        authenticated.set(true)
+        await callback(token)
+      })
+    })
+  }
+
+  const initialize = () => {
+    if (initialized.value || !config.client.zendesk.key) return
     const script = document.createElement('script')
     script.id = 'ze-snippet'
     script.async = true
-    script.src = `https://static.zdassets.com/ekr/snippet.js?key=${config.client.zendeskKey}`
+    script.src = `https://static.zdassets.com/ekr/snippet.js?key=${config.client.zendesk.key}`
     document.body.appendChild(script)
-    initalized.set(true)
+    initialized.set(true)
+
+    script.addEventListener('load', () => {
+      if ('zE' in window) {
+        hideWidget()
+        authenticateUser()
+      }
+      window.zE('messenger:on', 'close', () => {
+        hideWidget()
+      })
+      window.zE('messenger:on', 'open', function () {
+        showWidget()
+      })
+    })
   }
 
   useEffect(() => {
-    if (config.client.zendeskEnabled !== 'true') return
+    if (config.client.zendesk.enabled !== 'true') return
 
-    if (!user.isGuest.value && !initalized.value) {
-      initalize()
-    } else if (!user.isGuest.value && initalized.value) {
-      showWidget()
-    } else if (user.isGuest.value && initalized.value) {
-      hideWidget()
+    if (!user.isGuest.value && !initialized.value) {
+      initialize()
+    } else if (!user.isGuest.value && initialized.value) {
+      authenticateUser()
+    } else if (user.isGuest.value && initialized.value) {
+      closeChat()
+      window.zE('messenger', 'logoutUser')
     }
   }, [user.value])
 
   const hideWidget = () => {
-    if (initalized.value) return
+    if (!initialized.value) return
     window.zE('messenger', 'hide')
+    isWidgetVisible.set(false)
   }
   const showWidget = () => {
-    if (initalized.value) return
+    if (!initialized.value) return
     window.zE('messenger', 'show')
+    isWidgetVisible.set(true)
   }
   const openChat = () => {
-    if (initalized.value) return
+    if (!initialized.value) return
     window.zE('messenger', 'open')
   }
 
+  const closeChat = () => {
+    if (!initialized.value) return
+    window.zE('messenger', 'close')
+  }
+
   return {
-    initialized: initalized.value,
+    initialized: initialized.value,
+    isWidgetVisible: isWidgetVisible.value,
     hideWidget,
     showWidget,
-    openChat
+    openChat,
+    closeChat
   }
 }

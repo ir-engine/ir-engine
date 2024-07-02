@@ -27,17 +27,13 @@ import { BoxGeometry, Group, Mesh, MeshNormalMaterial } from 'three'
 
 import {
   createEntity,
-  ECSState,
-  executeSystems,
   getComponent,
   getMutableComponent,
   removeEntity,
   setComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
-import { Engine, startEngine } from '@etherealengine/ecs/src/Engine'
 import { EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { Timer } from '@etherealengine/ecs/src/Timer'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from './camera/components/CameraComponent'
@@ -53,22 +49,6 @@ import { PerformanceManager } from './renderer/PerformanceState'
 import { RendererComponent } from './renderer/WebGLRendererSystem'
 import { EntityTreeComponent } from './transform/components/EntityTree'
 import { TransformComponent } from './transform/components/TransformComponent'
-import { XRState } from './xr/XRState'
-
-/**
- * Creates a new instance of the engine and engine renderer. This initializes all properties and state for the engine,
- * adds action receptors and creates a new world.
- * @returns {Engine}
- */
-export const createEngine = () => {
-  startEngine()
-  const timer = Timer((time, xrFrame) => {
-    getMutableState(XRState).xrFrame.set(xrFrame)
-    executeSystems(time)
-    getMutableState(XRState).xrFrame.set(null)
-  })
-  getMutableState(ECSState).timer.set(timer)
-}
 
 export const initializeSpatialEngine = (canvas?: HTMLCanvasElement) => {
   const originEntity = createEntity()

@@ -144,7 +144,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const prototypeName = useHookstate('')
   //workaround for useComponent NameComponent causing rerenders every frame
   const materialName = useHookstate(getComponent(entity, NameComponent))
-  prototypeName.set(material.userData.type ?? material.type)
+  prototypeName.set(material.userData.type || material.type)
 
   useEffect(() => {
     clearThumbs().then(createThumbnails).then(checkThumbs)

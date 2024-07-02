@@ -194,8 +194,10 @@ export class FileBrowserService
     const storageProvider = getStorageProvider(storageProviderName)
 
     /** @todo future proofing for when projects include orgname */
-    if (!data.oldPath.startsWith('projects/' + data.oldProject)) throw new Error('Not allowed to access this directory')
-    if (!data.newPath.startsWith('projects/' + data.newProject)) throw new Error('Not allowed to access this directory')
+    if (!data.oldPath.startsWith('projects/' + data.oldProject))
+      throw new Error('Not allowed to access this directory ' + data.oldPath + ' ' + data.oldProject)
+    if (!data.newPath.startsWith('projects/' + data.newProject))
+      throw new Error('Not allowed to access this directory ' + data.newPath + ' ' + data.newProject)
 
     const oldDirectory = data.oldPath.split('/').slice(0, -1).join('/')
     const newDirectory = data.newPath.split('/').slice(0, -1).join('/')
@@ -262,7 +264,7 @@ export class FileBrowserService
         const arr = await response.arrayBuffer()
         data.body = Buffer.from(arr)
       } catch (error) {
-        throw new Error('Invalid URL ' + url)
+        throw new Error('Failure in fetching source URL: ' + url + 'Error: ' + error)
       }
     }
 

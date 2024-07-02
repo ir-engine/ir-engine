@@ -23,13 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Object3D, Ray } from 'three'
+export const zendeskPath = 'zendesk'
 
-import { defineState } from '@etherealengine/hyperflux'
-
-export const XRUIState = defineState({
-  name: 'XRUIState',
-  initial: () => ({
-    interactionRays: [] as Array<Ray | Object3D>
-  })
-})
+export const zendeskMethods = ['create'] as const

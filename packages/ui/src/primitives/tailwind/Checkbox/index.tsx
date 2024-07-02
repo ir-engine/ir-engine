@@ -53,7 +53,8 @@ const Checkbox = ({ className, containerClassName, label, value, onChange, disab
         className={twMerge(
           'grid h-4 w-4 place-items-center rounded border border-theme-primary',
           value ? 'bg-blue-primary' : 'bg-theme-surfaceInput',
-          disabled ? 'cursor-not-allowed opacity-50' : ''
+          disabled ? 'cursor-not-allowed opacity-50' : '',
+          className
         )}
       >
         {value && <HiCheck className="h-3 w-3 text-white" />}

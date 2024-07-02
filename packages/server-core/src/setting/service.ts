@@ -36,6 +36,7 @@ import ProjectServer from './project-setting/project-setting'
 import RedisSetting from './redis-setting/redis-setting'
 import ServerSetting from './server-setting/server-setting'
 import TaskServer from './task-server-setting/task-server-setting'
+import ZendeskSetting from './zendesk-setting/zendesk-setting'
 
 export default [
   ProjectServer,
@@ -50,5 +51,6 @@ export default [
   Coil,
   RedisSetting,
   TaskServer,
-  Helm
+  Helm,
+  ZendeskSetting
 ]
