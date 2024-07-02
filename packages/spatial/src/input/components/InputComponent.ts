@@ -46,16 +46,39 @@ import { EngineState } from '../../EngineState'
 
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { getAncestorWithComponent, isAncestor } from '../../transform/components/EntityTree'
-import { ButtonState, ButtonStateMap, KeyboardButton, MouseButton, XRStandardGamepadButton } from '../state/ButtonState'
+import {
+  AnyAxis,
+  AnyButton,
+  AxisMapping,
+  AxisValueMap,
+  ButtonStateMap,
+  KeyboardButton,
+  MouseButton,
+  MouseScroll,
+  XRStandardGamepadAxes,
+  XRStandardGamepadButton
+} from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 import { InputSinkComponent } from './InputSinkComponent'
 import { InputSourceComponent } from './InputSourceComponent'
 
 export type InputAlias = Record<string, (string | number)[]>
 
-export const DefaultInputAlias = {
-  Interact: [MouseButton.PrimaryClick, XRStandardGamepadButton.Trigger, KeyboardButton.KeyE]
-}
+export const DefaultButtonAlias = {
+  Interact: [MouseButton.PrimaryClick, XRStandardGamepadButton.XRStandardGamepadTrigger, KeyboardButton.KeyE],
+  FollowCameraModeCycle: [KeyboardButton.KeyV],
+  FollowCameraFirstPerson: [KeyboardButton.KeyF],
+  FollowCameraShoulderCam: [KeyboardButton.KeyC]
+} satisfies Record<string, Array<AnyButton>>
+
+export const DefaultAxisAlias = {
+  FollowCameraZoomScroll: [
+    MouseScroll.VerticalScroll,
+    XRStandardGamepadAxes.XRStandardGamepadThumbstickY,
+    XRStandardGamepadAxes.XRStandardGamepadTouchpadY
+  ],
+  FollowCameraShoulderCamScroll: [MouseScroll.HorizontalScroll]
+} satisfies Record<string, Array<AnyAxis>>
 
 export const InputComponent = defineComponent({
   name: 'InputComponent',
@@ -76,7 +99,7 @@ export const InputComponent = defineComponent({
 
   onSet(entity, component, json) {
     if (!json) return
-    if (typeof json.inputSinks === 'object') component.inputSinks.set(json.inputSinks)
+    if (Array.isArray(json.inputSinks)) component.inputSinks.set(json.inputSinks)
     if (typeof json.highlight === 'boolean') component.highlight.set(json.highlight)
     if (json.activationDistance) component.activationDistance.set(json.activationDistance)
     if (typeof json.grow === 'boolean') component.grow.set(json.grow)
@@ -124,32 +147,32 @@ export const InputComponent = defineComponent({
     }, [])
   },
 
-  getMergedButtons<AliasType extends InputAlias = typeof DefaultInputAlias>(
+  getMergedButtons<AliasType extends InputAlias = typeof DefaultButtonAlias>(
     entityContext: Entity,
-    inputAlias: AliasType = DefaultInputAlias as unknown as AliasType
+    inputAlias: AliasType = DefaultButtonAlias as unknown as AliasType
   ) {
     const inputSourceEntities = InputComponent.getInputSourceEntities(entityContext)
     return InputComponent.getMergedButtonsForInputSources(inputSourceEntities, inputAlias)
   },
 
-  getMergedAxes<AliasType extends InputAlias = typeof DefaultInputAlias>(
+  getMergedAxes<AliasType extends InputAlias = typeof DefaultAxisAlias>(
     entityContext: Entity,
-    inputAlias: AliasType = DefaultInputAlias as unknown as AliasType
+    inputAlias: AliasType = DefaultAxisAlias as unknown as AliasType
   ) {
     const inputSourceEntities = InputComponent.getInputSourceEntities(entityContext)
     return InputComponent.getMergedAxesForInputSources(inputSourceEntities, inputAlias)
   },
 
-  getMergedButtonsForInputSources<AliasType extends InputAlias = typeof DefaultInputAlias>(
+  getMergedButtonsForInputSources<AliasType extends InputAlias = typeof DefaultButtonAlias>(
     inputSourceEntities: Entity[],
-    inputAlias: AliasType = DefaultInputAlias as unknown as AliasType
+    inputAlias: AliasType = DefaultButtonAlias as unknown as AliasType
   ) {
     const buttons = Object.assign(
-      {} as ButtonStateMap,
+      {},
       ...inputSourceEntities.map((eid) => {
         return getComponent(eid, InputSourceComponent).buttons
       })
-    ) as ButtonStateMap & Partial<Record<keyof AliasType, ButtonState>>
+    ) as ButtonStateMap<AliasType>
 
     for (const key of Object.keys(inputAlias)) {
       const k = key as keyof AliasType
@@ -159,34 +182,36 @@ export const InputComponent = defineComponent({
     return buttons
   },
 
-  getMergedAxesForInputSources<AliasType extends InputAlias = typeof DefaultInputAlias>(
+  getMergedAxesForInputSources<AliasType extends InputAlias = typeof DefaultAxisAlias>(
     inputSourceEntities: Entity[],
-    inputAlias: AliasType = DefaultInputAlias as unknown as AliasType
+    inputAlias: AliasType = DefaultAxisAlias as unknown as AliasType
   ) {
     const axes = {
       0: 0,
       1: 0,
       2: 0,
       3: 0
-    } as Record<string | number, number>
+    } as any
 
     for (const eid of inputSourceEntities) {
       const inputSource = getComponent(eid, InputSourceComponent)
       if (inputSource.source.gamepad?.axes) {
+        const mapping = AxisMapping[inputSource.source.gamepad.mapping]
         for (let i = 0; i < 4; i++) {
           const newAxis = inputSource.source.gamepad.axes[i] ?? 0
-          axes[i] = getLargestMagnitudeNumber(axes[i], newAxis)
+          axes[i] = getLargestMagnitudeNumber(axes[i] ?? 0, newAxis)
+          axes[mapping[i]] = axes[i]
         }
       }
     }
 
     for (const key of Object.keys(inputAlias)) {
-      axes[key] = inputAlias[key].reduce<number>((prev, alias) => {
-        return getLargestMagnitudeNumber(prev, axes[alias])
+      axes[key as any] = inputAlias[key].reduce<number>((prev, alias) => {
+        return getLargestMagnitudeNumber(prev, axes[alias] ?? 0)
       }, 0)
     }
 
-    return axes
+    return axes as AxisValueMap<AliasType>
   },
 
   useHasFocus() {

@@ -98,8 +98,14 @@ export const BoundingBoxComponent = defineComponent({
 })
 
 export const updateBoundingBox = (entity: Entity) => {
-  const box = getComponent(entity, BoundingBoxComponent).box
+  const boxComponent = getOptionalComponent(entity, BoundingBoxComponent)
 
+  if (!boxComponent) {
+    console.error('BoundingBoxComponent not found in updateBoundingBox')
+    return
+  }
+
+  const box = boxComponent.box
   box.makeEmpty()
 
   const callback = (child: Entity) => {
