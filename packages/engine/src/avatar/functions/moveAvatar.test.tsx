@@ -175,7 +175,7 @@ describe('moveAvatar function tests', () => {
     await act(() => rerender(tag))
 
     /* mock */
-    getState(PhysicsState).physicsWorld.timestep = 1 / 2
+    getState(PhysicsState).physicsWorld!.timestep = 1 / 2
 
     dispatchAction(
       AvatarNetworkAction.spawn({
@@ -241,7 +241,7 @@ describe('moveAvatar function tests', () => {
 
     /* run */
     applyGamepadInput(entity)
-    const physicsWorld = getState(PhysicsState).physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld!
     physicsWorld.step()
     applyGamepadInput(entity)
     physicsWorld.step()

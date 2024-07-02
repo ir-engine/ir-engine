@@ -137,7 +137,7 @@ describe('Physics : External API', () => {
   })
 
   it('should create & remove rigidBody', async () => {
-    const physicsWorld = getState(PhysicsState).physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld!
 
     const entity = createEntity()
     setComponent(entity, TransformComponent)
@@ -177,7 +177,7 @@ describe('Physics : External API', () => {
   })
 
   it('should generate a collision event', async () => {
-    const physicsWorld = getState(PhysicsState).physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld!
 
     const entity1 = createEntity()
     const entity2 = createEntity()
@@ -237,7 +237,7 @@ describe('Physics : External API', () => {
   })
 
   it('should generate a trigger event', async () => {
-    const physicsWorld = getState(PhysicsState).physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld!
 
     const entity1 = createEntity()
     const entity2 = createEntity()

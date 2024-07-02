@@ -61,7 +61,8 @@ export default function checkPositionIsValid(
   raycastComponentData.direction.copy(raycastDirection)
   raycastComponentData.origin.copy(position)
   raycastComponentData.groups = interactionGroups
-  const hits = Physics.castRay(getState(PhysicsState).physicsWorld, raycastComponentData)
+  const physicsWorld = getState(PhysicsState).physicsWorld
+  const hits = physicsWorld ? Physics.castRay(physicsWorld, raycastComponentData) : []
 
   let positionValid = false
   let raycastHit = null as RaycastHit | null
