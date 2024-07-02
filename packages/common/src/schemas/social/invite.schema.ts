@@ -92,22 +92,35 @@ export interface InviteDatabaseType extends Omit<InviteType, 'spawnDetails'> {
 }
 
 // Schema for creating new entries
-export const inviteDataSchema = Type.Pick(
-  inviteSchema,
+export const inviteDataProperties = Type.Pick(inviteSchema, [
+  'token',
+  'identityProviderType',
+  'passcode',
+  'targetObjectId',
+  'deleteOnUse',
+  'makeAdmin',
+  'spawnType',
+  'spawnDetails',
+  'timed',
+  'inviteeId',
+  'inviteType',
+  'startTime',
+  'endTime'
+])
+
+export const inviteDataSchema = Type.Intersect(
   [
-    'token',
-    'identityProviderType',
-    'passcode',
-    'targetObjectId',
-    'deleteOnUse',
-    'makeAdmin',
-    'spawnType',
-    'spawnDetails',
-    'timed',
-    'inviteeId',
-    'inviteType',
-    'startTime',
-    'endTime'
+    inviteDataProperties,
+    Type.Object(
+      {
+        userId: Type.Optional(
+          TypedString<UserID>({
+            format: 'uuid'
+          })
+        )
+      },
+      { additionalProperties: false }
+    )
   ],
   {
     $id: 'InviteData'
