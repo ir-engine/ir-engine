@@ -61,9 +61,9 @@ const ensureUserThemeModes = () => {
     const { app, result } = context
     const clientSettings = await app.service(clientSettingPath).find()
     if (clientSettings && clientSettings.data.length > 0) {
-      result.themeModes = clientSettings.data[0].themeModes
-
-      await app.service(userSettingPath).patch(result.id, result)
+      context.result = await app
+        .service(userSettingPath)
+        .patch(result.id, { themeModes: clientSettings.data[0].themeModes })
     }
 
     return context
