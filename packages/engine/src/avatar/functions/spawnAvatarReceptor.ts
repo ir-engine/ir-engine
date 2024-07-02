@@ -60,8 +60,7 @@ import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFM
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarColliderComponent, AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { eyeOffset } from '../systems/AvatarTransparencySystem'
+import { AvatarColliderComponent, AvatarControllerComponent, eyeOffset } from '../components/AvatarControllerComponent'
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const entity = UUIDComponent.getEntityByUUID(entityUUID)

@@ -241,7 +241,7 @@ export const ClickPlacementSystem = defineSystem({
   execute: () => {
     const editorHelperState = getState(EditorHelperState)
     if (editorHelperState.placementMode !== PlacementMode.CLICK) return
-    const clickState = getState(ClickPlacementState)
+    const clickState = getMutableState(ClickPlacementState)
     const placementEntity = clickState.placementEntity
     if (!placementEntity) return
     const physicsWorld = getState(PhysicsState).physicsWorld
@@ -262,7 +262,7 @@ export const ClickPlacementSystem = defineSystem({
     let targetIntersection: { point: Vector3; normal: Vector3 } | null = null
 
     const viewerEntity = Engine.instance.viewerEntity
-    const mouseEntity = InputPointerComponent.getPointerForCanvas(viewerEntity)
+    const mouseEntity = InputPointerComponent.getPointersForCamera(viewerEntity)[0]
     if (!mouseEntity) return
 
     const buttons = InputComponent.getMergedButtons(viewerEntity)
@@ -271,14 +271,14 @@ export const ClickPlacementSystem = defineSystem({
     const zoom = axes[MouseScroll.VerticalScroll]
 
     if (buttons.SecondaryClick?.pressed) {
-      clickState.maxDistance -= zoom
+      clickState.maxDistance.set(clickState.maxDistance.value - zoom)
     }
 
     if (buttons.KeyE?.up) {
-      clickState.yawOffset += Math.PI / 4
+      clickState.yawOffset.set(clickState.yawOffset.value + Math.PI / 4)
     }
     if (buttons.KeyQ?.up) {
-      clickState.yawOffset -= Math.PI / 4
+      clickState.yawOffset.set(clickState.yawOffset.value - Math.PI / 4)
     }
     if (buttons.PrimaryClick?.up) {
       clickListener()
@@ -292,7 +292,7 @@ export const ClickPlacementSystem = defineSystem({
     const cameraPosition = pointerScreenRaycaster.ray.origin
     const cameraDirection = pointerScreenRaycaster.ray.direction
     const physicsIntersection = physicsWorld.castRayAndGetNormal(new Ray(cameraPosition, cameraDirection), 1000, false)
-    if (physicsIntersection && physicsIntersection.toi < clickState.maxDistance) {
+    if (physicsIntersection && physicsIntersection.toi < clickState.maxDistance.value) {
       const intersectPosition = cameraPosition
         .clone()
         .add(cameraDirection.clone().multiplyScalar(physicsIntersection.toi))
@@ -311,7 +311,7 @@ export const ClickPlacementSystem = defineSystem({
     //if (intersect.length === 0 && !targetIntersection) return
     for (let i = 0; i < intersect.length; i++) {
       const intersected = intersect[i]
-      if (intersected.distance > clickState.maxDistance) continue
+      if (intersected.distance > clickState.maxDistance.value) continue
       if (isPlacementDescendant(intersected.object.entity)) continue
       targetIntersection = {
         point: intersected.point,
@@ -321,16 +321,16 @@ export const ClickPlacementSystem = defineSystem({
     }
 
     if (!targetIntersection) {
-      const point = cameraPosition.clone().add(cameraDirection.clone().multiplyScalar(clickState.maxDistance))
+      const point = cameraPosition.clone().add(cameraDirection.clone().multiplyScalar(clickState.maxDistance.value))
       targetIntersection = { point, normal: new Vector3(0, 1, 0) }
     }
     const position = targetIntersection.point
     let rotation = new Quaternion().setFromUnitVectors(new Vector3(), targetIntersection.normal ?? new Vector3(0, 1, 0))
     const offset = new Quaternion().setFromEuler(
-      new Euler(clickState.pitchOffset, clickState.yawOffset, clickState.rollOffset)
+      new Euler(clickState.pitchOffset.value, clickState.yawOffset.value, clickState.rollOffset.value)
     )
     rotation = offset.multiply(rotation)
-    setComponent(placementEntity, TransformComponent, { position, rotation })
+    setComponent(placementEntity.value, TransformComponent, { position, rotation })
   }
 })
 

@@ -57,6 +57,8 @@ import { CameraComponent } from '../../../../spatial/src/camera/components/Camer
 import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
 
+export const eyeOffset = 0.25
+
 export const AvatarControllerComponent = defineComponent({
   name: 'AvatarControllerComponent',
 
@@ -125,7 +127,8 @@ export const AvatarControllerComponent = defineComponent({
       const cameraEntity = avatarControllerComponent.cameraEntity.value
       if (cameraEntity && entityExists(cameraEntity) && hasComponent(cameraEntity, FollowCameraComponent)) {
         const cameraComponent = getComponent(cameraEntity, FollowCameraComponent)
-        cameraComponent.offset.set(0, avatarComponent.eyeHeight.value, 0)
+        cameraComponent.firstPersonOffset.set(0, avatarComponent.eyeHeight.value, eyeOffset)
+        cameraComponent.thirdPersonOffset.set(0, avatarComponent.eyeHeight.value, 0)
       }
     }, [avatarComponent.avatarHeight, camera.near])
 
