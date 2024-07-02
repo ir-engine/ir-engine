@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { Fragment } from 'react'
+import React from 'react'
 
 import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelCaseToSpacedString'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
@@ -97,7 +97,7 @@ export default function ParameterInput({
 13: "list"
 14: "entity"*/
   return (
-    <Fragment>
+    <>
       {Object.entries(_defaults).map(([k, parms]: [string, any]) => {
         const compKey = `${entity}-${k}`
         return (
@@ -122,18 +122,10 @@ export default function ParameterInput({
                 case 'vec3':
                 case 'vec4':
                   return (
-                    <Fragment>
-                      {typeof values[k]?.map === 'function' &&
-                        (values[k] as number[]).map((arrayVal, idx) => {
-                          return (
-                            <NumericInput
-                              key={`${compKey}-${idx}`}
-                              value={arrayVal}
-                              onChange={setArgsArrayProp(k, idx)}
-                            />
-                          )
-                        })}
-                    </Fragment>
+                    typeof values[k]?.map === 'function' &&
+                    (values[k] as number[]).map((arrayVal, idx) => (
+                      <NumericInput key={`${compKey}-${idx}`} value={arrayVal} onChange={setArgsArrayProp(k, idx)} />
+                    ))
                   )
                 case 'select':
                   return (
@@ -159,6 +151,6 @@ export default function ParameterInput({
           </InputGroup>
         )
       })}
-    </Fragment>
+    </>
   )
 }
