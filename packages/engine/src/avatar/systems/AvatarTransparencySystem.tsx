@@ -53,7 +53,6 @@ import React, { useEffect } from 'react'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 
 const headDithering = 0
 const cameraDithering = 1
@@ -91,25 +90,12 @@ const execute = () => {
   }
 }
 
-export const eyeOffset = 0.25
-
 export const AvatarTransparencySystem = defineSystem({
   uuid: 'AvatarTransparencySystem',
   execute,
   insert: { with: PresentationSystemGroup },
   reactor: () => {
     const selfEid = AvatarComponent.useSelfAvatarEntity()
-    const hasDecapComponent = !!useOptionalComponent(selfEid, AvatarHeadDecapComponent)
-    const hasFollowCamera = !!useOptionalComponent(Engine.instance.viewerEntity, FollowCameraComponent)
-    useEffect(() => {
-      const followCamera = getOptionalComponent(Engine.instance.viewerEntity, FollowCameraComponent)
-      if (!followCamera) return
-      const prevOffsetZ = followCamera.offset.z
-      followCamera.offset.setZ(eyeOffset)
-      return () => {
-        followCamera.offset.setZ(prevOffsetZ)
-      }
-    }, [hasFollowCamera, hasDecapComponent, selfEid])
 
     const avatarQuery = useQuery([AvatarComponent])
 
