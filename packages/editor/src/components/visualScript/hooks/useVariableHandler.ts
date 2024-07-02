@@ -22,7 +22,6 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { uniqueId } from 'lodash'
 import { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -31,14 +30,14 @@ import { VariableJSON } from '@etherealengine/visual-script'
 import { useVisualScriptFlow } from './useVisualScriptFlow'
 
 type visualScriptFlow = ReturnType<typeof useVisualScriptFlow>
-
+let variableCounter = 1
 export const useVariableHandler = ({
   variables,
   setVariables
 }: Pick<visualScriptFlow, 'variables' | 'setVariables'>) => {
   const createVariable = (): VariableJSON => ({
     id: uuidv4(),
-    name: uniqueId('variable '),
+    name: 'variable ' + variableCounter++,
     valueTypeName: 'string',
     initialValue: ''
   })
@@ -67,6 +66,7 @@ export const useVariableHandler = ({
 
   const handleDeleteVariable = (deleteVariable: VariableJSON) => {
     try {
+      variableCounter--
       setVariables((currentVariables) => currentVariables.filter((variable) => variable.id !== deleteVariable.id))
     } catch (error) {
       console.error('Error deleting variable:', error)
