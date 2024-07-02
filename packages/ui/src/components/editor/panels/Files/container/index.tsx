@@ -348,7 +348,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
 
-  const showDownloadButtons = selectedDirectory.value === '/projects/' + projectName + '/'
+  const showDownloadButtons = selectedDirectory.value.startsWith('/projects/' + projectName + '/')
   const showUploadButtons =
     selectedDirectory.value.startsWith('/projects/' + projectName + '/public/') ||
     selectedDirectory.value.startsWith('/projects/' + projectName + '/assets/')
