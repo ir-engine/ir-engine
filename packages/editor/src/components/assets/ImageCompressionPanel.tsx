@@ -23,11 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
 import React from 'react'
 
-import Button from '@etherealengine/client-core/src/common/components/Button'
-import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
@@ -35,17 +32,21 @@ import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
 } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { State, useHookstate } from '@etherealengine/hyperflux'
-import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
-import BooleanInput from '../inputs/BooleanInput'
-import CompoundNumericInput from '../inputs/CompoundNumericInput'
-import InputGroup from '../inputs/InputGroup'
-import SelectInput from '../inputs/SelectInput'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
+import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
+import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
+import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import { useTranslation } from 'react-i18next'
+import { MdClose } from 'react-icons/md'
 import { FileType } from './FileBrowser/FileBrowserContentPanel'
-import styles from './styles.module.scss'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },
@@ -62,29 +63,28 @@ const UASTCFlagOptions = [
 ]
 
 export default function ImageCompressionPanel({
-  openCompress,
-  fileProperties,
-  onRefreshDirectory
+  selectedFile,
+  refreshDirectory
 }: {
-  openCompress: State<boolean>
-  fileProperties: State<FileType>
-  onRefreshDirectory: () => Promise<void>
+  selectedFile: FileType
+  refreshDirectory: () => Promise<void>
 }) {
+  const { t } = useTranslation()
   const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const compressionLoading = useHookstate(false)
 
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
 
-    const props = fileProperties.value
-    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
+    compressProperties.src.set(
+      selectedFile.type === 'folder' ? `${selectedFile.url}/${selectedFile.key}` : selectedFile.url
+    )
 
-    const compressor = compressImage
-    await compressor()
-    await onRefreshDirectory()
+    await compressImage()
+    await refreshDirectory()
 
     compressionLoading.set(false)
-    openCompress.set(false)
+    PopoverState.hidePopupover()
   }
 
   const compressImage = async () => {
@@ -117,10 +117,9 @@ export default function ImageCompressionPanel({
       uastcZstandard: compressProperties.uastcZstandard.value
     })
 
-    const props = fileProperties.value
-    const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
-    const path = props.key.replace(/(.*\/).*/, '$1')
-    const projectName = props.key.split('/')[1] // TODO: support projects with / in the name
+    const newFileName = selectedFile.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
+    const path = selectedFile.key.replace(/(.*\/).*/, '$1')
+    const projectName = selectedFile.key.split('/')[1] // TODO: support projects with / in the name
     const relativePath = path.replace('projects/' + projectName + '/', '')
 
     const file = new File([data], newFileName, { type: 'image/ktx2' })
@@ -141,94 +140,125 @@ export default function ImageCompressionPanel({
   }
 
   return (
-    <Menu
-      open={openCompress.value}
-      onClose={() => openCompress.set(false)}
-      showCloseButton={true}
-      maxWidth={'lg'}
-      header={fileProperties.value.name}
-      actions={
-        <>
-          {!compressionLoading.value ? (
-            <Button type="gradient" className={styles.horizontalCenter} onClick={compressContentInBrowser}>
-              {t('editor:properties.model.transform.compress') as string}
-            </Button>
-          ) : (
-            <CircularProgress style={{ margin: '1rem auto' }} className={styles.horizontalCenter} />
-          )}
-        </>
-      }
-    >
-      <InputGroup name="fileType" label={fileProperties.value?.isFolder ? 'Directory' : 'File'}>
-        <Typography variant="body2">{t('editor:properties.model.transform.compress') as string}</Typography>
-      </InputGroup>
+    <div className="max-h-[80vh] w-[35vw] overflow-y-auto rounded-xl bg-[#0E0F11]">
+      <div className="relative flex items-center justify-center px-8 py-3">
+        <Text className="leading-6">{t('editor:properties.model.transform.compressImage')}</Text>
+        <Button
+          variant="outline"
+          className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
+          startIcon={<MdClose />}
+          onClick={() => PopoverState.hidePopupover()}
+        />
+      </div>
 
-      <div>
+      <div className="mx-auto grid w-1/2 gap-y-2">
         <InputGroup
+          className="justify-start"
+          labelClassName="w-20 text-[#D3D5D9]"
+          infoClassName="text-[#D3D5D9]"
           name="mode"
           label={t('editor:properties.model.transform.mode')}
           info={t('editor:properties.model.transform.modeTooltip')}
         >
-          <SelectInput
+          <Select
+            inputClassName="px-2 py-0.5 text-[#9CA0AA] text-sm"
             options={[
               { label: 'ETC1S', value: 'ETC1S' },
               { label: 'UASTC', value: 'UASTC' }
             ]}
-            value={compressProperties.mode.value}
+            currentValue={compressProperties.mode.value}
             onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
           />
         </InputGroup>
         <InputGroup
+          className="justify-start"
+          labelClassName="w-20 text-[#D3D5D9]"
+          infoClassName="text-[#D3D5D9]"
           name="flipY"
           label={t('editor:properties.model.transform.flipY')}
           info={t('editor:properties.model.transform.flipYTooltip')}
         >
-          <BooleanInput value={compressProperties.flipY.value} onChange={compressProperties.flipY.set} />
+          <BooleanInput
+            className="bg-[#141619]"
+            value={compressProperties.flipY.value}
+            onChange={compressProperties.flipY.set}
+          />
         </InputGroup>
         <InputGroup
+          className="justify-start"
+          labelClassName="w-20 text-[#D3D5D9]"
+          infoClassName="text-[#D3D5D9]"
           name="linear"
           label={t('editor:properties.model.transform.srgb')}
           info={t('editor:properties.model.transform.srgbTooltip')}
         >
-          <BooleanInput value={compressProperties.srgb.value} onChange={compressProperties.srgb.set} />
+          <BooleanInput
+            className="bg-[#141619]"
+            value={compressProperties.srgb.value}
+            onChange={compressProperties.srgb.set}
+          />
         </InputGroup>
         <InputGroup
+          className="justify-start"
+          labelClassName="w-20 text-[#D3D5D9]"
+          infoClassName="text-[#D3D5D9]"
           name="mipmaps"
           label={t('editor:properties.model.transform.mipmaps')}
           info={t('editor:properties.model.transform.mipmapsTooltip')}
         >
-          <BooleanInput value={compressProperties.mipmaps.value} onChange={compressProperties.mipmaps.set} />
+          <BooleanInput
+            className="bg-[#141619]"
+            value={compressProperties.mipmaps.value}
+            onChange={compressProperties.mipmaps.set}
+          />
         </InputGroup>
         <InputGroup
+          className="justify-start"
+          labelClassName="w-20 text-[#D3D5D9]"
+          infoClassName="text-[#D3D5D9]"
           name="normalMap"
           label={t('editor:properties.model.transform.normalMap')}
           info={t('editor:properties.model.transform.normalMapTooltip')}
         >
-          <BooleanInput value={compressProperties.normalMap.value} onChange={compressProperties.normalMap.set} />
+          <BooleanInput
+            className="bg-[#141619]"
+            value={compressProperties.normalMap.value}
+            onChange={compressProperties.normalMap.set}
+          />
         </InputGroup>
         {compressProperties.mode.value === 'ETC1S' && (
           <>
             <InputGroup
+              className="justify-start"
+              labelClassName="w-20 text-[#D3D5D9]"
+              infoClassName="text-[#D3D5D9]"
               name="quality"
               label={t('editor:properties.model.transform.quality')}
               info={t('editor:properties.model.transform.qualityTooltip')}
             >
-              <CompoundNumericInput
+              <Slider
+                width={160}
                 value={compressProperties.quality.value}
                 onChange={compressProperties.quality.set}
+                onRelease={compressProperties.quality.set}
                 min={1}
                 max={255}
                 step={1}
               />
             </InputGroup>
             <InputGroup
+              className="justify-start"
+              labelClassName="w-20 text-[#D3D5D9]"
+              infoClassName="text-[#D3D5D9]"
               name="compressionLevel"
               label={t('editor:properties.model.transform.compressionLevel')}
               info={t('editor:properties.model.transform.compressionLevelTooltip')}
             >
-              <CompoundNumericInput
+              <Slider
+                width={160}
                 value={compressProperties.compressionLevel.value}
                 onChange={compressProperties.compressionLevel.set}
+                onRelease={compressProperties.compressionLevel.set}
                 min={0}
                 max={6}
                 step={1}
@@ -239,6 +269,9 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'UASTC' && (
           <>
             <InputGroup
+              className="justify-start"
+              labelClassName="w-20 text-[#D3D5D9]"
+              infoClassName="text-[#D3D5D9]"
               name="uastcFlags"
               label={t('editor:properties.model.transform.uastcFlags')}
               info={t('editor:properties.model.transform.uastcFlagsTooltip')}
@@ -250,11 +283,15 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
+              className="justify-start"
+              labelClassName="w-20 text-[#D3D5D9]"
+              infoClassName="text-[#D3D5D9]"
               name="uastcZstandard"
               label={t('editor:properties.model.transform.uastcZstandard')}
               info={t('editor:properties.model.transform.uastcZstandardTooltip')}
             >
               <BooleanInput
+                className="bg-[#141619]"
                 value={compressProperties.uastcZstandard.value}
                 onChange={compressProperties.uastcZstandard.set}
               />
@@ -262,6 +299,16 @@ export default function ImageCompressionPanel({
           </>
         )}
       </div>
-    </Menu>
+
+      <div className="mb-6 flex justify-end px-8">
+        {compressionLoading.value ? (
+          <LoadingView spinnerOnly className="mx-0 h-12 w-12" />
+        ) : (
+          <Button variant="primary" onClick={compressContentInBrowser}>
+            {t('editor:properties.model.transform.compress')}
+          </Button>
+        )}
+      </div>
+    </div>
   )
 }
