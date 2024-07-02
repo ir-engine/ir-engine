@@ -472,7 +472,7 @@
         "lodLevels": "LOD Levels",
         "lodLevelNumber": "LOD Level {{index}}",
         "compress": "Compress",
-        "compressImage": "Compress Image",
+        "compressImage": "Compress Image ({{name}})",
         "applyPresetConfirmation": "Would you like to apply this preset?",
         "savePreset": "Save Preset",
         "useDraco": "Use DRACO Mesh Compression",
