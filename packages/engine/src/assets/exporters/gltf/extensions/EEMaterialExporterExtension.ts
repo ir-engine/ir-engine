@@ -98,11 +98,11 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
         if ((material[k] as CubeTexture).isCubeTexture) return //for skipping environment maps which cause errors
         const texture = material[k] as Texture
         if (texture.source.data && this.matCache.has(texture.source.data)) {
-          argEntry.contents = this.matCache.get(texture)
+          argEntry.contents = this.matCache.get(texture.source.data)
         } else {
           const mapDef = {
             index: this.writer.processTexture(texture),
-            texCoord: k === 'lightMap' ? 1 : 0
+            texCoord: texture.channel
           }
           this.writer.options.flipY && (texture.repeat.y *= -1)
           this.writer.applyTextureTransform(mapDef, texture)
