@@ -447,8 +447,8 @@ export function MediaReactor() {
       if (isHLS(path)) {
         setupHLS(entity, path).then((hls) => {
           mediaElementState.hls.set(hls)
+          mediaElementState.hls.value!.attachMedia(mediaElementState.element.value as HTMLMediaElement)
         })
-        mediaElementState.hls.value!.attachMedia(mediaElementState.element.value as HTMLMediaElement)
       } else {
         mediaElementState.element.src.set(path)
       }
