@@ -286,7 +286,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
 
   const xrLightProbeEntity = useHookstate(getMutableState(XRLightProbeState).directionalLightEntity)
 
-  const activeLightEntity = useHookstate(UndefinedEntity)
+  const activeLightEntity = useHookstate(UUIDComponent.getEntityByUUID(renderSettingsComponent.primaryLight.value))
 
   //const rendererState = useMutableState(RendererState)
 
@@ -314,7 +314,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
     }
 
     activeLightEntity.set(UndefinedEntity)
-  }, [xrLightProbeEntity.value, renderSettingsComponent.primaryLight.value])
+  }, [xrLightProbeEntity.value, renderSettingsComponent.primaryLight])
 
   if (!renderSettingsComponent.csm.value) return null
 
@@ -322,6 +322,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
 
   return (
     <EntityCSMReactor
+      key={activeLightEntity.value}
       entity={activeLightEntity.value}
       rendererEntity={rendererEntity}
       renderSettingsEntity={renderSettingsEntity}
