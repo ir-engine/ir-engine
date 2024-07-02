@@ -124,7 +124,7 @@ export const ComponentShelfCategoriesState = defineState({
       ],
       Scripting: [SystemComponent, VisualScriptComponent],
       Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
-      Misc: [
+      Visual: [
         EnvMapBakeComponent,
         ScenePreviewCameraComponent,
         SkyboxComponent,
@@ -134,6 +134,7 @@ export const ComponentShelfCategoriesState = defineState({
         ScreenshareTargetComponent,
         LookAtComponent
       ]
+      // Ecommerce: [ECommerceComponent]
     } as Record<string, Component[]>
   }
 })
