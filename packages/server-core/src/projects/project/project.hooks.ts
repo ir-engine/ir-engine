@@ -73,7 +73,6 @@ import verifyScope from '../../hooks/verify-scope'
 import { createExecutorJob } from '../../k8s-job-helper'
 import logger from '../../ServerLogger'
 import { useGit } from '../../util/gitHelperFunctions'
-import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
   deleteProjectFilesInStorageProvider,
@@ -428,15 +427,9 @@ const createProjectPermission = async (context: HookContext<ProjectService>) => 
   const result = (Array.isArray(context.result) ? context.result : [context.result]) as ProjectType[]
 
   if (context.params?.user?.id) {
-    const projectPermissionData = await projectPermissionDataResolver.resolve(
-      {
-        userId: context.params.user.id,
-        projectId: result[0].id,
-        type: 'owner'
-      },
-      context as any
-    )
-    return context.app.service(projectPermissionPath).create(projectPermissionData)
+    return context.app
+      .service(projectPermissionPath)
+      .create({ projectId: result[0].id, userId: context.params.user.id, type: 'owner' })
   }
   return context
 }
