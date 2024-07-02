@@ -24,10 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getState } from '@etherealengine/hyperflux'
 import type { WebContainer3D } from '@etherealengine/xrui'
-
-import { XRUIState } from '../XRUIState'
 
 export const XRUIComponent = defineComponent({
   name: 'XRUIComponent',
@@ -39,7 +36,6 @@ export const XRUIComponent = defineComponent({
   onSet: (entity, component, json: WebContainer3D) => {
     if (typeof json !== 'undefined') {
       component.set(json)
-      json.interactionRays = getState(XRUIState).interactionRays
     }
   },
 
