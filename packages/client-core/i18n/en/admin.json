@@ -548,7 +548,13 @@
         "processInterval": "Process Interval"
       },
 
-      "plugins": "Plugins"
+      "plugins": "Plugins",
+      "zendesk": {
+        "header": "Zendesk",
+        "subtitle": "Edit Zendesk Settings"
+      }, 
+      "keyName": "key Name",
+      "kid": "Key Id"
     },
     "avatar": {
       "columns": {
