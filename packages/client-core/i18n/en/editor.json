@@ -1187,6 +1187,7 @@
       "convert": "Convert",
       "downloadProject": "Download Project",
       "uploadAssets": "Upload Assets",
+      "uploadFiles": "Upload Files",
       "search-placeholder": "Search folders",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
