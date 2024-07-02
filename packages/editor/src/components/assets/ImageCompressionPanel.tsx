@@ -127,9 +127,13 @@ export default function ImageCompressionPanel({
 
     try {
       await uploadToFeathersService(fileBrowserUploadPath, [file], {
-        project: projectName,
-        path: relativePath + file.name,
-        contentType: file.type
+        args: [
+          {
+            project: projectName,
+            path: relativePath + file.name,
+            contentType: file.type
+          }
+        ]
       }).promise
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

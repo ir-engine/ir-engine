@@ -34,7 +34,8 @@ import {
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { ReactorReconciler } from '@etherealengine/hyperflux'
 
-import { createEngine, initializeSpatialEngine } from '../../initializeEngine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
+import { initializeSpatialEngine } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { InputComponent } from './InputComponent'
 

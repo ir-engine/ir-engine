@@ -28,8 +28,8 @@ import assert from 'assert'
 import React, { useEffect } from 'react'
 
 import { createEntity, destroyEngine } from '@etherealengine/ecs'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { getState, useHookstate } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { ResourceState } from '@etherealengine/spatial/src/resources/ResourceState'
 
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
