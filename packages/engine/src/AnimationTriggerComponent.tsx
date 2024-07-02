@@ -36,9 +36,9 @@ import {
 } from '@etherealengine/ecs'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import { LoopType } from '@etherealengine/ui/src/components/editor/properties/customTriggers/AnimationTriggerNodeEditor'
 import { useEffect } from 'react'
 import { AnimationActionLoopStyles, LoopOnce, LoopPingPong, LoopRepeat } from 'three'
-import { LoopType } from './AnimationTriggerNodeEditor'
 import { LoopAnimationComponent } from './avatar/components/LoopAnimationComponent'
 
 const LoopTypeLookup = (index: LoopType) => {

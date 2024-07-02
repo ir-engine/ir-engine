@@ -37,8 +37,8 @@ import NumericInput from '@etherealengine/editor/src/components/inputs/NumericIn
 import Vector3Input from '@etherealengine/editor/src/components/inputs/Vector3Input'
 import { NodeEditor } from '@etherealengine/editor/src/components/properties/NodeEditor'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
+import { CameraTriggerComponent } from '@etherealengine/engine/src/CameraTriggerComponent'
 import { NodeInput } from '@etherealengine/ui/src/components/editor/input/Node/index'
-import { CameraTriggerComponent } from './CameraTriggerComponent'
 
 const callbackQuery = defineQuery([CallbackComponent])
 

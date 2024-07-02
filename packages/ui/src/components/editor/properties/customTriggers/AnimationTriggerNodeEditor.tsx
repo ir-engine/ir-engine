@@ -35,11 +35,11 @@ import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
 import { NodeEditor } from '@etherealengine/editor/src/components/properties/NodeEditor'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
+import { AnimationTriggerComponent } from '@etherealengine/engine/src/AnimationTriggerComponent'
+import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
+import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { useState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { AnimationTriggerComponent } from './AnimationTriggerComponent'
-import { AnimationComponent } from './avatar/components/AnimationComponent'
-import { LoopAnimationComponent } from './avatar/components/LoopAnimationComponent'
 
 export enum LoopType {
   LoopOnce,

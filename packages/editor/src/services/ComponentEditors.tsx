@@ -138,9 +138,9 @@ import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/prope
 import NewVolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric/new'
 import { EditorComponentType } from '../components/properties/Util'
 
-import { AnimationTriggerNodeEditor } from '@etherealengine/engine/src/AnimationTriggerNodeEditor'
-import { CameraTriggerNodeEditor } from '@etherealengine/engine/src/CameraTriggerNodeEditor'
-import { VideoTriggerNodeEditor } from '@etherealengine/engine/src/VideoTriggerNodeEditor'
+import { AnimationTriggerNodeEditor } from '@etherealengine/ui/src/components/editor/properties/customTriggers/AnimationTriggerNodeEditor'
+import { CameraTriggerNodeEditor } from '@etherealengine/ui/src/components/editor/properties/customTriggers/CameraTriggerNodeEditor'
+import { VideoTriggerNodeEditor } from '@etherealengine/ui/src/components/editor/properties/customTriggers/VideoTriggerNodeEditor'
 
 export const ComponentEditorsState = defineState({
   name: 'ee.editor.ComponentEditorsState',

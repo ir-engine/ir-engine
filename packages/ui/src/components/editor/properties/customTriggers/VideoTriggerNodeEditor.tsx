@@ -42,12 +42,12 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { VideoTriggerComponent } from '@etherealengine/engine/src/VideoTriggerComponent'
+import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
-import { VideoTriggerComponent } from './VideoTriggerComponent'
-import { MediaComponent } from './scene/components/MediaComponent'
-import { VideoComponent } from './scene/components/VideoComponent'
 
 const callbackQuery = defineQuery([CallbackComponent])
 
