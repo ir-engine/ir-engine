@@ -39,7 +39,7 @@ import { VisualScriptPanelTab } from '@etherealengine/ui/src/components/editor/p
 import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
-import { DockLayout, DockMode, LayoutData } from 'rc-dock'
+import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import Toolbar from '../components/toolbar/Toolbar2'
@@ -52,7 +52,9 @@ import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
 import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { EntityUUID } from '@etherealengine/ecs'
+import { FeatureFlagsState } from '@etherealengine/engine'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import 'rc-dock/dist/rc-dock.css'
@@ -85,7 +87,7 @@ const onEditorError = (error) => {
   )
 }
 
-const defaultLayout: LayoutData = {
+const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => ({
   dockbox: {
     mode: 'horizontal' as DockMode,
     children: [
@@ -97,7 +99,12 @@ const defaultLayout: LayoutData = {
             tabs: [ViewportPanelTab]
           },
           {
-            tabs: [ScenePanelTab, FilesPanelTab, AssetsPanelTab, VisualScriptPanelTab]
+            tabs: [
+              ScenePanelTab,
+              FilesPanelTab,
+              AssetsPanelTab,
+              flags.visualScriptPanelEnabled ? VisualScriptPanelTab : ({} as TabData)
+            ]
           }
         ]
       },
@@ -115,7 +122,7 @@ const defaultLayout: LayoutData = {
       }
     ]
   }
-}
+})
 
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, uiAddons } = useMutableState(EditorState)
@@ -130,6 +137,8 @@ const EditorContainer = () => {
 
   const { initialized, isWidgetVisible, openChat } = useZendesk()
   const { t } = useTranslation()
+
+  const visualScriptPanelEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Editor.Panel.VisualScript)
 
   useEffect(() => {
     const scene = sceneQuery[0]
@@ -168,7 +177,7 @@ const EditorContainer = () => {
               <DockContainer>
                 <DockLayout
                   ref={dockPanelRef}
-                  defaultLayout={defaultLayout}
+                  defaultLayout={defaultLayout({ visualScriptPanelEnabled })}
                   style={{ position: 'absolute', left: 5, top: 45, right: 5, bottom: 5 }}
                 />
               </DockContainer>

@@ -29,8 +29,19 @@ export const FeatureFlags = {
       Social: 'ir.client.menu.social',
       Emote: 'ir.client.menu.emote',
       Avaturn: 'ir.client.menu.avaturn',
-      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
-      NPC: 'ir.client.menu.npc'
+      NPC: 'ir.client.menu.npc',
+      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe'
+    },
+    Admin: {
+      Avatars: {
+        Upload: 'ir.client.admin.avatars.upload'
+      }
+    },
+    DebugMode: 'ir.client.debugMode'
+  },
+  Editor: {
+    Panel: {
+      VisualScript: 'ir.editor.panel.visualScript'
     }
   }
 }

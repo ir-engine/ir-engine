@@ -41,6 +41,8 @@ import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
+import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
 import { getCanvasBlob } from '../../../common/utils'
 
 const getDefaultErrors = () => ({
@@ -72,6 +74,8 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
   const isThumbnailSet = useHookstate(
     !!(avatarAssets.source.value === 'file' ? avatarAssets.thumbnail.value : avatarAssets.thumbnailURL.value)
   )
+
+  const uploadAvatarEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Admin.Avatars.Upload)
 
   useEffect(() => {
     if (avatarAssets.source.value === 'url') {
@@ -240,10 +244,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
         />
         <Radios
           value={avatarAssets.source.value}
-          options={[
-            { label: 'URL', value: 'url' },
-            { label: 'File', value: 'file' }
-          ]}
+          options={[{ label: 'URL', value: 'url' }, uploadAvatarEnabled && ({ label: 'File', value: 'file' } as any)]}
           horizontal
           className="w-fit"
           onChange={(value) => avatarAssets.source.set(value)}
