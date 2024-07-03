@@ -483,7 +483,7 @@ export function controlUpdate(gizmoEntity: Entity) {
 
 function pointerHover(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
@@ -509,7 +509,7 @@ function pointerHover(gizmoEntity) {
 
 function pointerDown(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointer = getComponent(inputPointerEntity, InputPointerComponent)
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
@@ -768,7 +768,7 @@ function applyPivotRotation(entity, pivotToOriginMatrix, originToPivotMatrix, ro
 
 function pointerMove(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointer = getComponent(inputPointerEntity, InputPointerComponent)
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
@@ -901,7 +901,7 @@ function pointerMove(gizmoEntity) {
 
 function pointerUp(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointer = getComponent(inputPointerEntity, InputPointerComponent)
 
