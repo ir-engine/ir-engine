@@ -44,6 +44,7 @@ export const useZendesk = () => {
     const zendeskScript = document.getElementById(`ze-snippet`) as HTMLScriptElement
     return !!zendeskScript
   })
+  const isWidgetVisible = useHookstate(false)
 
   const authenticateUser = () => {
     if (authenticated.value || config.client.zendesk.authenticationEnabled !== 'true') return
@@ -64,10 +65,18 @@ export const useZendesk = () => {
     script.src = `https://static.zdassets.com/ekr/snippet.js?key=${config.client.zendesk.key}`
     document.body.appendChild(script)
     initialized.set(true)
+
     script.addEventListener('load', () => {
       if ('zE' in window) {
+        hideWidget()
         authenticateUser()
       }
+      window.zE('messenger:on', 'close', () => {
+        hideWidget()
+      })
+      window.zE('messenger:on', 'open', function () {
+        showWidget()
+      })
     })
   }
 
@@ -77,11 +86,9 @@ export const useZendesk = () => {
     if (!user.isGuest.value && !initialized.value) {
       initialize()
     } else if (!user.isGuest.value && initialized.value) {
-      showWidget()
       authenticateUser()
     } else if (user.isGuest.value && initialized.value) {
       closeChat()
-      hideWidget()
       window.zE('messenger', 'logoutUser')
     }
   }, [user.value])
@@ -89,10 +96,12 @@ export const useZendesk = () => {
   const hideWidget = () => {
     if (!initialized.value) return
     window.zE('messenger', 'hide')
+    isWidgetVisible.set(false)
   }
   const showWidget = () => {
     if (!initialized.value) return
     window.zE('messenger', 'show')
+    isWidgetVisible.set(true)
   }
   const openChat = () => {
     if (!initialized.value) return
@@ -106,6 +115,7 @@ export const useZendesk = () => {
 
   return {
     initialized: initialized.value,
+    isWidgetVisible: isWidgetVisible.value,
     hideWidget,
     showWidget,
     openChat,

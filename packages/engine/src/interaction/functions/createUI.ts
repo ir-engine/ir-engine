@@ -52,7 +52,7 @@ export function createUI(entity: Entity, uiMessage: string, isInteractable = tru
     color: new Color('#B9B9B9'),
     transmission: 1,
     roughness: 0.5,
-    opacity: 0.95,
+    opacity: 1,
     transparent: true,
     side: DoubleSide
   })
