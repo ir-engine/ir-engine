@@ -43,6 +43,7 @@ import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine, UUIDComponent } from '@etherealengine/ecs'
 import {
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -50,7 +51,7 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem, useExecute } from '@etherealengine/ecs/src/SystemFunctions'
@@ -86,6 +87,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
@@ -399,7 +401,12 @@ const updateDropShadowTransforms = () => {
   }
 }
 
+const directionalLightQuery = defineQuery([DirectionalLightComponent])
+const renderSettingsQuery = defineQuery([RenderSettingsComponent])
 const rendererQuery = defineQuery([RendererComponent])
+
+// Store UUIDs in a map because getComponent isn't available on exit query
+const directionalLightMap = new Map<Entity, EntityUUID>()
 
 const execute = () => {
   if (!isClient) return
@@ -408,6 +415,36 @@ const execute = () => {
   if (!useShadows) {
     updateDropShadowTransforms()
     return
+  }
+
+  for (const entity of directionalLightQuery.enter()) {
+    const uuid = getComponent(entity, UUIDComponent)
+    directionalLightMap.set(entity, uuid)
+  }
+
+  for (const entity of directionalLightQuery.exit()) {
+    const uuid = directionalLightMap.get(entity)
+    if (!uuid) continue
+
+    // CSM directional lights should be their own component
+    for (const renderSettingsEntity of renderSettingsQuery()) {
+      const renderSettings = getComponent(renderSettingsEntity, RenderSettingsComponent)
+      if (renderSettings.primaryLight === uuid) {
+        getMutableComponent(renderSettingsEntity, RenderSettingsComponent).merge({
+          csm: false,
+          primaryLight: '' as EntityUUID
+        })
+
+        const viewerEntity = getState(EngineState).viewerEntity
+        if (!viewerEntity) break
+        getComponent(viewerEntity, RendererComponent).csm?.dispose()
+        getMutableComponent(viewerEntity, RendererComponent).merge({
+          csm: null,
+          csmHelper: null
+        })
+      }
+    }
+    directionalLightMap.delete(entity)
   }
 
   for (const entity of rendererQuery()) {
