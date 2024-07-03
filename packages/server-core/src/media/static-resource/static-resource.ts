@@ -83,29 +83,23 @@ export default (app: Application): void => {
             projectNames.push(item.project)
           }
         })
-      } else {
-        if (data.project && data.type === 'scene') {
-          projectNames.push(data.project)
-        }
+      } else if (data.project && data.type === 'scene') {
+        projectNames.push(data.project)
       }
 
-      const projectIds: string[] = []
-      for (const projectName of projectNames) {
-        const projectId = await app.service(projectPath).find({
-          query: {
-            name: projectName
-          }
-        })
-        if (projectId.total === 1) {
-          projectIds.push(projectId.data[0].id)
-        }
-      }
+      const projects = await app.service(projectPath).find({
+        query: {
+          name: { $in: projectNames },
+          $select: ['id']
+        },
+        paginate: false
+      })
 
       const targetIds: string[] = []
-      for (const projectId of projectIds) {
+      for (const project of projects) {
         const projectOwners = await app.service(projectPermissionPath).find({
           query: {
-            projectId: projectId,
+            projectId: project.id,
             type: 'owner'
           },
           paginate: false
@@ -113,18 +107,18 @@ export default (app: Application): void => {
         projectOwners.forEach((permission) => {
           targetIds.push(permission.userId)
         })
-
-        const projectReadScopes = await app.service(scopePath).find({
-          query: {
-            type: 'projects:read' as ScopeType
-          },
-          paginate: false
-        })
-
-        projectReadScopes.forEach((scope) => {
-          targetIds.push(scope.userId)
-        })
       }
+
+      const projectReadScopes = await app.service(scopePath).find({
+        query: {
+          type: 'projects:read' as ScopeType
+        },
+        paginate: false
+      })
+
+      projectReadScopes.forEach((scope) => {
+        targetIds.push(scope.userId)
+      })
 
       const uniqueUserIds = _.uniq(targetIds)
       return Promise.all(uniqueUserIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
