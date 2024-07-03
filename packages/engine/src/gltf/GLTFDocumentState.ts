@@ -65,14 +65,39 @@ export const GLTFNodeState = defineState({
   },
 
   useMutableNode(entity: Entity): GLTF.INode | undefined {
-    const nodeState = useHookstate(getMutableState(GLTFNodeState))
-    const source = useOptionalComponent(entity, SourceComponent)?.value
-    const uuid = useOptionalComponent(entity, UUIDComponent)?.value
-    if (!source) return
-    if (!uuid) return
-    const nodeLookup = nodeState.value[source][uuid]
-    if (!nodeLookup) return
-    return getState(GLTFDocumentState)[source].nodes?.[nodeLookup.nodeIndex]
+    try {
+      const nodeState = useHookstate(getMutableState(GLTFNodeState))
+      const source = useOptionalComponent(entity, SourceComponent)?.value
+      const uuid = useOptionalComponent(entity, UUIDComponent)?.value
+
+      if (!source || !uuid) {
+        console.warn('useMutableNode: Missing source or UUID for entity', entity)
+        return undefined
+      }
+
+      const sourceNodes = nodeState.value[source]
+      if (!sourceNodes) {
+        console.warn(`useMutableNode: No nodes found for source "${source}"`)
+        return undefined
+      }
+
+      const nodeLookup = sourceNodes[uuid]
+      if (!nodeLookup) {
+        console.warn(`useMutableNode: No node lookup found for UUID "${uuid}"`)
+        return undefined
+      }
+
+      const gltfDocument = getState(GLTFDocumentState)[source]
+      if (!gltfDocument || !gltfDocument.nodes) {
+        console.warn(`useMutableNode: No GLTF document or nodes found for source "${source}"`)
+        return undefined
+      }
+
+      return gltfDocument.nodes[nodeLookup.nodeIndex]
+    } catch (error) {
+      console.error('Error in useMutableNode:', error)
+      return undefined
+    }
   },
 
   convertGltfToNodeDictionary: (gltf: GLTF.IGLTF) => {
