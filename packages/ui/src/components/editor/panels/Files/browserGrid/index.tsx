@@ -161,7 +161,8 @@ type FileGridItemProps = {
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
-  const projectName = props.item.key.match(/projects\/([^/]+)\//)?.[1] ?? useMutableState(EditorState).projectName.value
+  const editorState = useMutableState(EditorState)
+  const projectName = props.item.key.match(/projects\/([^/]+)\//)?.[1] ?? editorState.projectName.value
   const staticResource = useFind(staticResourcePath, { query: { key: props.item.key, project: projectName! } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
   const { t } = useTranslation()
