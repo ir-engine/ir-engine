@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -41,6 +41,12 @@ const GridTool = () => {
   const onToggleGridVisible = () => {
     rendererState.gridVisibility.set(!rendererState.gridVisibility.value)
   }
+
+  useEffect(() => {
+    if (!rendererState.gridVisibility.value) {
+      rendererState.gridVisibility.set(true)
+    }
+  }, [])
 
   return (
     <div className="flex items-center bg-theme-surfaceInput">
