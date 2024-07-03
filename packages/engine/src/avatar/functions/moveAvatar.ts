@@ -197,6 +197,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
 
   if (isCameraAttachedToAvatar)
     updateReferenceSpaceFromAvatarMovement(entity, finalAvatarMovement.subVectors(computedMovement, viewerMovement))
+  else updateLocalAvatarPosition(entity)
 }
 
 export const updateReferenceSpaceFromAvatarMovement = (entity: Entity, movement: Vector3) => {
