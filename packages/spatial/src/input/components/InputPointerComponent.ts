@@ -25,15 +25,31 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector2 } from 'three'
 
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { defineComponent, defineQuery, Entity, getComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { defineState, getState } from '@etherealengine/hyperflux'
+
+/**
+ * @description
+ * Type alias for CameraPointer hashes.
+ * Strings of this type Hash should be created with `InputPointerState.createCameraPointerHash(entity, pointerID)` */
+export type CameraPointerHash = OpaqueType<'CameraPointerHash'> & string
 
 export const InputPointerState = defineState({
   name: 'InputPointerState',
   initial() {
     return {
-      pointers: new Map<string, Entity>()
+      pointers: new Map<CameraPointerHash, Entity>()
     }
+  },
+
+  /**
+   * @description
+   *  Creates a string ID (aka hash) for the given `@param camera` and `@param pointer`,
+   *  with the format expected by the Keys of  `InputPointerState.pointers` Map.
+   * @warning Remember to call `.value` before sending the data into this function if you are getting them from a Component. */
+  createCameraPointerHash(camera: Entity, pointer: number): CameraPointerHash {
+    return `canvas-${camera}.pointer-${pointer}` as CameraPointerHash
   }
 })
 
@@ -53,12 +69,15 @@ export const InputPointerComponent = defineComponent({
   onSet(entity, component, args: { pointerId: number; cameraEntity: Entity }) {
     component.pointerId.set(args.pointerId)
     component.cameraEntity.set(args.cameraEntity)
-    const pointerHash = `canvas-${args.cameraEntity}.pointer-${args.pointerId}`
+    const pointerHash = InputPointerState.createCameraPointerHash(args.cameraEntity, args.pointerId)
     getState(InputPointerState).pointers.set(pointerHash, entity)
   },
 
   onRemove(entity, component) {
-    const pointerHash = `canvas-${component.cameraEntity.value}.pointer-${component.pointerId.value}`
+    const pointerHash = InputPointerState.createCameraPointerHash(
+      component.cameraEntity.value,
+      component.pointerId.value
+    )
     getState(InputPointerState).pointers.delete(pointerHash)
   },
 
@@ -66,8 +85,9 @@ export const InputPointerComponent = defineComponent({
     return pointerQuery().filter((entity) => getComponent(entity, InputPointerComponent).cameraEntity === cameraEntity)
   },
 
+  // should return UndefinedEntity when value does not exist
   getPointerByID(cameraEntity: Entity, pointerId: number) {
-    const pointerHash = `canvas-${cameraEntity}.pointer-${pointerId}`
+    const pointerHash = InputPointerState.createCameraPointerHash(cameraEntity, pointerId)
     return getState(InputPointerState).pointers.get(pointerHash) ?? UndefinedEntity
   }
 })

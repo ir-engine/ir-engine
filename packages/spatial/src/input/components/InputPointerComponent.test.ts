@@ -37,7 +37,7 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import assert from 'assert'
 import { Vector2 } from 'three'
-import { InputPointerComponent, InputPointerState } from './InputPointerComponent'
+import { CameraPointerHash, InputPointerComponent, InputPointerState } from './InputPointerComponent'
 
 const InputPointerComponentDefaults = {
   pointerId: -1 as number,
@@ -46,6 +46,22 @@ const InputPointerComponentDefaults = {
   movement: new Vector2(),
   cameraEntity: UndefinedEntity
 }
+
+describe('CameraPointerHash', () => {
+  it('should be possible to cast a CameraPointerHash value into a string', () => {
+    const Expected = 'canvas-42.pointer-21'
+    const hash = InputPointerState.createCameraPointerHash(42 as Entity, 21) as string
+    assert.equal(typeof hash, typeof Expected)
+    assert.equal(hash, Expected)
+  })
+
+  it('should be possible to get a CameraPointerHash value from a string by type casting', () => {
+    const Expected = 'canvas-42.pointer-21' as CameraPointerHash
+    const hash = InputPointerState.createCameraPointerHash(42 as Entity, 21)
+    assert.equal(typeof hash, typeof Expected)
+    assert.equal(hash, Expected)
+  })
+})
 
 describe('InputPointerState', () => {
   describe('IDs', () => {
@@ -68,6 +84,17 @@ describe('InputPointerState', () => {
       assert.equal(typeof result, typeof Expected)
       assert.equal(typeof result.pointers, typeof Expected.pointers)
       assert.equal(result.pointers.entries.length, Expected.pointers.entries.length)
+    })
+  })
+
+  describe('createCameraPointerHash', () => {
+    it('should create a hash ID with the expected shape', () => {
+      const Camera = 42 as Entity
+      const Pointer = 21
+      const Expected = `canvas-${Camera}.pointer-${Pointer}`
+      const result = InputPointerState.createCameraPointerHash(Camera, Pointer)
+      assert.equal(result as typeof Expected, Expected)
+      assert.equal(typeof result, typeof Expected as CameraPointerHash)
     })
   })
 })
@@ -143,17 +170,45 @@ describe('InputPointerComponent', () => {
         pointerId: DummyPointerID,
         cameraEntity: DummyEntity
       }
-      const ExpectedHash = `canvas-${PointerData.cameraEntity}.pointer-${PointerData.pointerId}`
+      const ExpectedHash = InputPointerState.createCameraPointerHash(PointerData.cameraEntity, PointerData.pointerId)
       setComponent(testEntity, InputPointerComponent, PointerData)
       const result = getState(InputPointerState).pointers.get(ExpectedHash)
       assert.equal(result, testEntity)
     })
   }) // << onSet
 
+  describe('onRemove', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(() => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should remove the camera entity from the InputPointerState.pointers Map', () => {
+      const DummyPointerID = 123
+      const DummyEntity = 456 as Entity
+      const PointerData = {
+        ...InputPointerComponentDefaults,
+        pointerId: DummyPointerID,
+        cameraEntity: DummyEntity
+      }
+      const ExpectedHash = InputPointerState.createCameraPointerHash(PointerData.cameraEntity, PointerData.pointerId)
+      setComponent(testEntity, InputPointerComponent, PointerData)
+      removeComponent(testEntity, InputPointerComponent)
+      const result = getState(InputPointerState).pointers.get(ExpectedHash)
+      assert.equal(result, undefined)
+    })
+  }) // << onRemove
+
   describe('getPointersForCamera', () => {
     const PointerID = 42
     let testEntity = UndefinedEntity
-    let cameraEntity = UndefinedEntity
 
     beforeEach(async () => {
       createEngine()
@@ -166,7 +221,6 @@ describe('InputPointerComponent', () => {
 
     afterEach(() => {
       removeEntity(testEntity)
-      removeEntity(cameraEntity)
       return destroyEngine()
     })
 
@@ -180,6 +234,18 @@ describe('InputPointerComponent', () => {
     })
   }) // << getPointersForCamera
 
-  // describe("onRemove", () => {})
-  // describe("getPointerByID", () => {})
+  describe('getPointerByID', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(() => {
+      testEntity = createEntity()
+      createEngine()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+    // it("", () => {})
+  }) // << getPointerByID
 })
