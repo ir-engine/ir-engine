@@ -28,20 +28,12 @@ import { MathUtils } from 'three'
 
 import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import {
-  defineActionQueue,
-  dispatchAction,
-  getMutableState,
-  getState,
-  removeActionQueue,
-  startReactor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadAxes, XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { XRAction, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 import { WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@etherealengine/spatial/src/xrui/Widgets'
@@ -55,8 +47,6 @@ export function createAnchorWidget() {
   const ui = createXRUI(AnchorWidgetUI)
   removeComponent(ui.entity, VisibleComponent)
   const xrState = getMutableState(XRState)
-
-  const xrSessionQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
   const widget: Widget = {
     ui,
@@ -108,9 +98,7 @@ export function createAnchorWidget() {
         }
       }
     },
-    cleanup: async () => {
-      removeActionQueue(xrSessionQueue)
-    }
+    cleanup: async () => {}
   }
 
   const id = Widgets.registerWidget(ui.entity, widget)

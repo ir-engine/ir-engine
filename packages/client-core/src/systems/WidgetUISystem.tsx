@@ -87,6 +87,7 @@ const WidgetUISystemState = defineState({
 
 const createWidgetMenus = () => {
   createAnchorWidget()
+  // createAvatarModeWidget()
   // createRecordingsWidget()
   // createHeightAdjustmentWidget
   // createMediaWidget
