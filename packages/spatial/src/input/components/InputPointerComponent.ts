@@ -85,7 +85,6 @@ export const InputPointerComponent = defineComponent({
     return pointerQuery().filter((entity) => getComponent(entity, InputPointerComponent).cameraEntity === cameraEntity)
   },
 
-  // should return UndefinedEntity when value does not exist
   getPointerByID(cameraEntity: Entity, pointerId: number) {
     const pointerHash = InputPointerState.createCameraPointerHash(cameraEntity, pointerId)
     return getState(InputPointerState).pointers.get(pointerHash) ?? UndefinedEntity

@@ -61,14 +61,14 @@ describe('CameraPointerHash', () => {
     assert.equal(typeof hash, typeof Expected)
     assert.equal(hash, Expected)
   })
-})
+}) // << CameraPointerHash
 
 describe('InputPointerState', () => {
   describe('IDs', () => {
     it('should initialize the InputPointerComponent.name field with the expected value', () => {
       assert.equal(InputPointerState.name, 'InputPointerState')
     })
-  })
+  }) // << IDs
 
   describe('initial', () => {
     beforeEach(() => {
@@ -85,7 +85,7 @@ describe('InputPointerState', () => {
       assert.equal(typeof result.pointers, typeof Expected.pointers)
       assert.equal(result.pointers.entries.length, Expected.pointers.entries.length)
     })
-  })
+  }) // << initial
 
   describe('createCameraPointerHash', () => {
     it('should create a hash ID with the expected shape', () => {
@@ -96,15 +96,15 @@ describe('InputPointerState', () => {
       assert.equal(result as typeof Expected, Expected)
       assert.equal(typeof result, typeof Expected as CameraPointerHash)
     })
-  })
-})
+  }) // << createCameraPointerHash
+}) // << InputPointerState
 
 describe('InputPointerComponent', () => {
   describe('IDs', () => {
     it('should initialize the InputPointerComponent.name field with the expected value', () => {
       assert.equal(InputPointerComponent.name, 'InputPointerComponent')
     })
-  })
+  }) // << IDs
 
   describe('onInit', () => {
     const PointerID = 42
@@ -238,14 +238,33 @@ describe('InputPointerComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(() => {
-      testEntity = createEntity()
       createEngine()
+      testEntity = createEntity()
     })
 
     afterEach(() => {
       removeEntity(testEntity)
       return destroyEngine()
     })
-    // it("", () => {})
+
+    it('should return UndefinedEntity when value does not exist', () => {
+      const Expected = UndefinedEntity
+      const Camera = 42 as Entity
+      const Pointer = 21
+      const DummyData = { cameraEntity: Camera, pointerId: Pointer }
+      // setComponent(testEntity, InputPointerComponent, DummyData)  // Do not set the component, so the InputPointerState Map is empty
+      const result = InputPointerComponent.getPointerByID(Camera, Pointer)
+      assert.equal(result, Expected)
+    })
+
+    it('should return the entity stored at CameraPointerHash(cameraEntity, pointerId)', () => {
+      const Expected = testEntity
+      const Camera = 42 as Entity
+      const Pointer = 21
+      const DummyData = { cameraEntity: Camera, pointerId: Pointer }
+      setComponent(testEntity, InputPointerComponent, DummyData)
+      const result = InputPointerComponent.getPointerByID(Camera, Pointer)
+      assert.equal(result, Expected)
+    })
   }) // << getPointerByID
 })
