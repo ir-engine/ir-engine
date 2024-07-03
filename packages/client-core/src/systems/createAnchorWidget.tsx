@@ -79,7 +79,7 @@ export function createAnchorWidget() {
         if (inputComponent.source.gamepad?.mapping !== 'xr-standard') continue
         if (inputComponent.source.handedness !== preferredHand) continue
 
-        const buttonInputPressed = inputComponent.buttons[XRStandardGamepadButton.Trigger]?.down
+        const buttonInputPressed = inputComponent.buttons[XRStandardGamepadButton.XRStandardGamepadTrigger]?.down
 
         if (buttonInputPressed) {
           xrState.scenePlacementMode.set('placed')
@@ -88,8 +88,8 @@ export function createAnchorWidget() {
 
         const { deltaSeconds } = getState(ECSState)
 
-        const xAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.ThumbstickX]
-        const yAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.ThumbstickY]
+        const xAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.XRStandardGamepadThumbstickX]
+        const yAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.XRStandardGamepadThumbstickY]
 
         const xDelta = xAxisInput * Math.PI * deltaSeconds
         getMutableState(XRState).sceneRotationOffset.set((currentValue) => currentValue + xDelta)
@@ -99,8 +99,8 @@ export function createAnchorWidget() {
           xrState.sceneScaleTarget.set((currentValue) => MathUtils.clamp(currentValue + yDelta, 0.01, 0.2))
         }
 
-        const strickButtonPressed = inputComponent.buttons[XRStandardGamepadButton.Stick]?.down
-        if (strickButtonPressed) {
+        const stickButtonPressed = inputComponent.buttons[XRStandardGamepadButton.XRStandardGamepadStick]?.down
+        if (stickButtonPressed) {
           xrState.sceneScaleAutoMode.set(!xrState.sceneScaleAutoMode.value)
           if (!xrState.sceneScaleAutoMode.value) {
             xrState.sceneScaleTarget.set(0.2)

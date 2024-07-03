@@ -125,7 +125,7 @@ const execute = () => {
     const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
     const keys = inputSource.buttons
     if (inputSource.source.gamepad?.mapping === 'xr-standard') {
-      if (keys[XRStandardGamepadButton.ButtonA]?.down)
+      if (keys[XRStandardGamepadButton.XRStandardGamepadButtonA]?.down)
         toggleWidgetsMenu(inputSource.source.handedness === 'left' ? 'right' : 'left')
     }
     /** @todo allow non HMDs to access the widget menu too */

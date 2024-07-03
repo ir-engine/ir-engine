@@ -52,9 +52,13 @@ import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
+import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
 import { EntityUUID } from '@etherealengine/ecs'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import 'rc-dock/dist/rc-dock.css'
+import { useTranslation } from 'react-i18next'
+import { IoHelpCircleOutline } from 'react-icons/io5'
 import { setCurrentEditorScene } from '../functions/sceneFunctions'
 import './Editor2Container.css'
 
@@ -126,6 +130,9 @@ const EditorContainer = () => {
 
   const viewerEntity = useMutableState(EngineState).viewerEntity.value
 
+  const { initialized, isWidgetVisible, openChat } = useZendesk()
+  const { t } = useTranslation()
+
   useEffect(() => {
     const scene = sceneQuery[0]
     if (!scene || !viewerEntity) return
@@ -177,6 +184,17 @@ const EditorContainer = () => {
         </DndWrapper>
       </div>
       <PopupMenu />
+      {!isWidgetVisible && initialized && (
+        <Button
+          rounded="partial"
+          size="small"
+          className="absolute bottom-5 right-5 z-10"
+          startIcon={<IoHelpCircleOutline fontSize={20} />}
+          onClick={openChat}
+        >
+          {t('editor:help')}
+        </Button>
+      )}
     </main>
   )
 }
