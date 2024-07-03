@@ -158,10 +158,10 @@ export const FollowCameraComponent = defineComponent({
     const follow = useComponent(entity, FollowCameraComponent)
 
     useEffect(() => {
-      const follow = getComponent(entity, FollowCameraComponent)
+      const followCamera = getComponent(entity, FollowCameraComponent)
       setComponent(entity, ComputedTransformComponent, {
-        referenceEntities: [follow.targetEntity],
-        computeFunction: () => computeCameraFollow(entity, follow.targetEntity)
+        referenceEntities: [followCamera.targetEntity],
+        computeFunction: () => computeCameraFollow(entity, followCamera.targetEntity)
       })
 
       return () => {
@@ -374,33 +374,33 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
 const updateCameraTargetRotation = (cameraEntity: Entity) => {
   if (!cameraEntity) return
-  const follow = getComponent(cameraEntity, FollowCameraComponent)
+  const followCamera = getComponent(cameraEntity, FollowCameraComponent)
   const target = getOptionalComponent(cameraEntity, TargetCameraRotationComponent)
   if (!target) return
 
   const epsilon = 0.001
 
-  target.phi = Math.min(follow.maxPhi, Math.max(follow.minPhi, target.phi))
+  target.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, target.phi))
 
-  if (Math.abs(target.phi - follow.phi) < epsilon && Math.abs(target.theta - follow.theta) < epsilon) {
-    removeComponent(follow.targetEntity, TargetCameraRotationComponent)
+  if (Math.abs(target.phi - followCamera.phi) < epsilon && Math.abs(target.theta - followCamera.theta) < epsilon) {
+    removeComponent(followCamera.targetEntity, TargetCameraRotationComponent)
     return
   }
 
   const delta = getState(ECSState).deltaSeconds
-  if (!follow.locked) {
-    follow.phi = smoothDamp(follow.phi, target.phi, target.phiVelocity, target.time, delta)
-    follow.theta = smoothDamp(follow.theta, target.theta, target.thetaVelocity, target.time, delta)
+  if (!followCamera.locked) {
+    followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
+    followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
   }
 }
 
 const cameraLayerQuery = defineQuery([VisibleComponent, ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
 
 const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
-  const follow = getComponent(cameraEntity, FollowCameraComponent)
+  const followCamera = getComponent(cameraEntity, FollowCameraComponent)
 
   // Cache the raycast result for 0.1 seconds
-  const raycastProps = follow.raycastProps
+  const raycastProps = followCamera.raycastProps
   const { camRayCastCache, camRayCastClock, cameraRays, rayConeAngle } = raycastProps
   if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < raycastProps.rayFrequency) {
     return camRayCastCache
@@ -417,13 +417,13 @@ const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
   createConeOfVectors(targetToCamVec, cameraRays, rayConeAngle)
 
-  let maxDistance = Math.min(follow.thirdPersonMaxDistance, raycastProps.rayLength)
+  let maxDistance = Math.min(followCamera.thirdPersonMaxDistance, raycastProps.rayLength)
 
   // Check hit with mid ray
   raycaster.layers.set(ObjectLayers.Camera) // Ignore avatars
   // @ts-ignore - todo figure out why typescript freaks out at this
   raycaster.firstHitOnly = true // three-mesh-bvh setting
-  raycaster.far = follow.thirdPersonMaxDistance
+  raycaster.far = followCamera.thirdPersonMaxDistance
   raycaster.set(target, targetToCamVec.normalize())
   const hits = raycaster.intersectObjects(sceneObjects, false)
 

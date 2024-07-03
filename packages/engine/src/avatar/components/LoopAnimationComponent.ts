@@ -72,6 +72,7 @@ export const LoopAnimationComponent = defineComponent({
       zeroSlopeAtStart: true,
       zeroSlopeAtEnd: true,
       weight: 1,
+
       // internal
       _action: null as AnimationAction | null
     }

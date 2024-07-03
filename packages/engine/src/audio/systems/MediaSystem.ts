@@ -113,8 +113,16 @@ const execute = () => {
     setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     setCallback(entity, StandardCallbacks.RESET, () => {
       media.paused.set(!media.autoplay.value)
-      media.seekTime.set(0)
-      media.forceSeekTime.set({ force: true })
+
+      //using to force the react to update the seek time if already set to 0
+      //due to media's seekTime is not being updated with the media elements current time
+      let seekTime = media.seekTime.value
+      if (seekTime == 0) {
+        seekTime = 0.000001
+      } else {
+        seekTime = 0
+      }
+      media.seekTime.set(seekTime)
     })
   }
 

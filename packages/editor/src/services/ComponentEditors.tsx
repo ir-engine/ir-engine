@@ -110,6 +110,7 @@ import MountPointNodeEditor from '@etherealengine/ui/src/components/editor/prope
 import ParticleSystemNodeEditor from '@etherealengine/ui/src/components/editor/properties/particle'
 import PortalNodeEditor from '@etherealengine/ui/src/components/editor/properties/portal'
 import PostProcessingSettingsEditor from '@etherealengine/ui/src/components/editor/properties/postProcessing'
+import ReflectionProbeNodeEditor from '@etherealengine/ui/src/components/editor/properties/reflectionProbe'
 import RenderSettingsEditor from '@etherealengine/ui/src/components/editor/properties/render'
 import RigidBodyComponentEditor from '@etherealengine/ui/src/components/editor/properties/rigidBody'
 import ScenePreviewCameraNodeEditor from '@etherealengine/ui/src/components/editor/properties/scene/previewCamera'
@@ -123,7 +124,6 @@ import SplineNodeEditor from '@etherealengine/ui/src/components/editor/propertie
 
 import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import PlaylistNodeEditor from '@etherealengine/ui/src/components/editor/properties/playlist'
-import ReflectionProbeNodeEditor from '@etherealengine/ui/src/components/editor/properties/reflectionProbe'
 import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline/track'
 import SystemNodeEditor from '@etherealengine/ui/src/components/editor/properties/system'
 import TextNodeEditor from '@etherealengine/ui/src/components/editor/properties/text'

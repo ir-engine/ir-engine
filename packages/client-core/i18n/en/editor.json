@@ -1050,36 +1050,6 @@
       "lbl-performerURL": "Performer URL",
       "lbl-asset": "Asset",
       "assets": "Assets"
-    },
-    "cameraTrigger": {
-      "name": "Camera Trigger",
-      "description": "Camera Trigger Component",
-      "lbl-lookAt": "Look At",
-      "lbl-offset": "Offset",
-      "lbl-lockCamera": "Lock Camera",
-      "lbl-angleTheta": "Theta Angle",
-      "lbl-anglePhi": "Phi Angle",
-      "lbl-distance": "Distance",
-      "lbl-lerpDurationEnter": "Enter Lerp Duration",
-      "lbl-hideAvatar": "Hide Avatar"
-    },
-    "videoTrigger": {
-      "name": "Video Trigger",
-      "description": "Video Trigger Component",
-      "lbl-video":"Video",
-      "lbl-media":"Media",
-      "lbl-resetEnter":"Reset on Enter",
-      "lbl-resetExit":"Reset on Exit",
-      "lbl-tagetAudioVolume":"Target Audio Volume"
-    },
-    "animationTrigger": {
-      "name": "Animation Trigger",
-      "description": "Animation Trigger Component",
-      "lbl-animation":"Animation",
-      "lbl-enterAnimation":"Enter Animation Clip",
-      "lbl-exitAnimation":"Exit Animation Clip",
-      "lbl-enterLoop":"Enter Loop Type",
-      "lbl-exitLoop":"Exit Loop Type"
     }
   },
   "projects": {
