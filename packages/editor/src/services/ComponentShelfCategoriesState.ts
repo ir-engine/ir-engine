@@ -124,7 +124,7 @@ export const ComponentShelfCategoriesState = defineState({
       ],
       Scripting: [SystemComponent, VisualScriptComponent],
       Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
-      Visual: [
+      Misc: [
         EnvMapBakeComponent,
         ScenePreviewCameraComponent,
         SkyboxComponent,
