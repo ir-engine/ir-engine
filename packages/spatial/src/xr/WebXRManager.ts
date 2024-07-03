@@ -43,6 +43,7 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { createAnimationLoop, ECSState } from '@etherealengine/ecs'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { XRState } from './XRState'
 
@@ -99,6 +100,9 @@ export const XRRendererState = defineState({
 })
 
 export function createWebXRManager(renderer: WebGLRenderer) {
+  const ecsState = getState(ECSState)
+  const { animation } = ecsState.timer
+
   const xrState = getState(XRState)
   const xrRendererState = getMutableState(XRRendererState)
 
@@ -304,61 +308,15 @@ export function createWebXRManager(renderer: WebGLRenderer) {
     }
   }
 
-  // Animation Loop
-
-  let onAnimationFrameCallback = null as typeof onAnimationFrame | null
-
-  function onAnimationFrame(time: number, frame: XRFrame) {
-    if (onAnimationFrameCallback) onAnimationFrameCallback(time, frame)
-  }
-
-  const animation = createWebGLAnimation()
-
-  animation.setAnimationLoop(onAnimationFrame)
-
-  scope.setAnimationLoop = function (callback: typeof onAnimationFrame) {
-    onAnimationFrameCallback = callback
-  }
+  scope.setAnimationLoop = function () {}
+  scope.dispose = function () {}
+  scope.addEventListener = function (type: string, listener: EventListener) {}
+  scope.hasEventListener = function (type: string, listener: EventListener) {}
+  scope.removeEventListener = function (type: string, listener: EventListener) {}
+  scope.dispatchEvent = function (event: Event) {}
 
   return scope
 }
 
-function createWebGLAnimation() {
-  let context = null as any
-  let isAnimating = false
-  let animationLoop = null as null | ((time: number, frame: XRFrame) => void)
-  let requestId = null
-
-  function onAnimationFrame(time, frame) {
-    requestId = context.requestAnimationFrame(onAnimationFrame)
-    animationLoop!(time, frame)
-  }
-
-  return {
-    start: function () {
-      if (isAnimating === true) return
-      if (animationLoop === null) return
-
-      requestId = context.requestAnimationFrame(onAnimationFrame)
-
-      isAnimating = true
-    },
-
-    stop: function () {
-      context.cancelAnimationFrame(requestId)
-
-      isAnimating = false
-    },
-
-    setAnimationLoop: function (callback) {
-      animationLoop = callback
-    },
-
-    setContext: function (value) {
-      context = value
-    }
-  }
-}
-
 export type WebXRManager = ReturnType<typeof createWebXRManager>
-export type WebGLAnimation = ReturnType<typeof createWebGLAnimation>
+export type WebGLAnimation = ReturnType<typeof createAnimationLoop>

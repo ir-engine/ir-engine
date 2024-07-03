@@ -197,6 +197,7 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         material[k] = v
       }
     })
+    material.needsUpdate = true
   }
 }
 const overwriteLookdevObject = (

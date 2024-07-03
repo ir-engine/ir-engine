@@ -27,12 +27,19 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
+  middlewareSettingApiQueryValidator,
+  middlewareSettingApiValidator,
   middlewareSettingDataValidator,
   middlewareSettingPatchValidator,
   middlewareSettingQueryValidator
 } from '@etherealengine/common/src/schemas/setting/middleware-setting.schema'
 import verifyScope from '../../hooks/verify-scope'
 import {
+  middlewareApiDataResolver,
+  middlewareApiExternalResolver,
+  middlewareApiPatchResolver,
+  middlewareApiQueryResolver,
+  middlewareApiResolver,
   middlewareSettingDataResolver,
   middlewareSettingExternalResolver,
   middlewareSettingPatchResolver,
@@ -43,29 +50,29 @@ import {
 export default {
   around: {
     all: [
-      schemaHooks.resolveExternal(middlewareSettingExternalResolver),
-      schemaHooks.resolveResult(middlewareSettingResolver)
+      schemaHooks.resolveExternal(middlewareSettingExternalResolver, middlewareApiExternalResolver),
+      schemaHooks.resolveResult(middlewareSettingResolver, middlewareApiResolver)
     ]
   },
 
   before: {
     all: [
       iff(isProvider('external'), verifyScope('admin', 'admin')),
-      () => schemaHooks.validateQuery(middlewareSettingQueryValidator),
-      schemaHooks.resolveQuery(middlewareSettingQueryResolver)
+      () => schemaHooks.validateQuery(middlewareSettingQueryValidator, middlewareSettingApiQueryValidator),
+      schemaHooks.resolveQuery(middlewareSettingQueryResolver, middlewareApiQueryResolver)
     ],
     find: [iff(isProvider('external'), verifyScope('settings', 'read'))],
     get: [iff(isProvider('external'), verifyScope('settings', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('settings', 'write')),
-      () => schemaHooks.validateData(middlewareSettingDataValidator),
-      schemaHooks.resolveData(middlewareSettingDataResolver)
+      () => schemaHooks.validateData(middlewareSettingDataValidator, middlewareSettingApiValidator),
+      schemaHooks.resolveData(middlewareSettingDataResolver, middlewareApiDataResolver)
     ],
     update: [iff(isProvider('external'), verifyScope('settings', 'write'))],
     patch: [
       iff(isProvider('external'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(middlewareSettingPatchValidator),
-      schemaHooks.resolveData(middlewareSettingPatchResolver)
+      schemaHooks.resolveData(middlewareSettingPatchResolver, middlewareApiPatchResolver)
     ],
     remove: [iff(isProvider('external'), verifyScope('settings', 'write'))]
   },

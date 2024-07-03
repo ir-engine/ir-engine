@@ -76,6 +76,7 @@ export const FeathersState = defineState({
         QueryHash,
         {
           fetch: () => void
+          query: any
           response: unknown
           status: 'pending' | 'success' | 'error'
           error: string
@@ -118,11 +119,13 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   const service = Engine.instance.api.service(serviceName)
   const state = useMutableState(FeathersState)
 
-  const queryId = `${method.substring(0, 1)}:${hashObject({
+  const queryParams = {
     serviceName,
     method,
     args
-  })}` as QueryHash
+  }
+
+  const queryId = `${method.substring(0, 1)}:${hashObject(queryParams)}` as QueryHash
 
   const fetch = () => {
     if (method === 'get' && !args) {
@@ -159,6 +162,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       state[serviceName].merge({
         [queryId]: {
           fetch,
+          query: queryParams,
           response: null,
           status: 'pending',
           error: ''

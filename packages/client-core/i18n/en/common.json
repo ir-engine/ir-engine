@@ -29,6 +29,7 @@
     "loadingClient": "Loading client...",
     "authenticating": "Authenticating...",
     "starting": "Starting...",
+    "loadingApp": "Loading app...",
     "loadingLocation": "Loading locations...",
     "loadingProjects": "Loading projects...",
     "loadingEngine": "Loading engine...",

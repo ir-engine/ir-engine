@@ -416,7 +416,7 @@ export const setCameraZoom = makeFlowNodeDefinition({
   triggered: ({ read, commit }) => {
     const entity = Engine.instance.cameraEntity
     const zoom = read<number>('zoom')
-    setComponent(entity, FollowCameraComponent, { zoomLevel: zoom })
+    setComponent(entity, FollowCameraComponent, { targetDistance: zoom })
     commit('flow')
   }
 })

@@ -45,6 +45,7 @@ import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/compon
 import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
+import { ReflectionProbeComponent } from '@etherealengine/engine/src/scene/components/ReflectionProbeComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
@@ -109,6 +110,7 @@ import MountPointNodeEditor from '@etherealengine/ui/src/components/editor/prope
 import ParticleSystemNodeEditor from '@etherealengine/ui/src/components/editor/properties/particle'
 import PortalNodeEditor from '@etherealengine/ui/src/components/editor/properties/portal'
 import PostProcessingSettingsEditor from '@etherealengine/ui/src/components/editor/properties/postProcessing'
+import ReflectionProbeNodeEditor from '@etherealengine/ui/src/components/editor/properties/reflectionProbe'
 import RenderSettingsEditor from '@etherealengine/ui/src/components/editor/properties/render'
 import RigidBodyComponentEditor from '@etherealengine/ui/src/components/editor/properties/rigidBody'
 import ScenePreviewCameraNodeEditor from '@etherealengine/ui/src/components/editor/properties/scene/previewCamera'
@@ -187,7 +189,8 @@ export const ComponentEditorsState = defineState({
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor,
-      [LookAtComponent.name]: LookAtNodeEditor
+      [LookAtComponent.name]: LookAtNodeEditor,
+      [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor
     } as Record<string, EditorComponentType>
   }
 })

@@ -33,6 +33,7 @@ export type * from './schemas/cluster/build-status.schema'
 export type * from './schemas/cluster/logs-api.schema'
 export type * from './schemas/cluster/migrations-info.schema'
 export type * from './schemas/cluster/pods.schema'
+export type * from './schemas/integrations/zendesk/zendesk.schema'
 export type * from './schemas/matchmaking/match-instance.schema'
 export type * from './schemas/matchmaking/match-user.schema'
 export type * from './schemas/media/archiver.schema'
@@ -81,6 +82,7 @@ export type * from './schemas/setting/project-setting.schema'
 export type * from './schemas/setting/redis-setting.schema'
 export type * from './schemas/setting/server-setting.schema'
 export type * from './schemas/setting/task-server-setting.schema'
+export type * from './schemas/setting/zendesk-setting.schema'
 export type * from './schemas/social/channel-user.schema'
 export type * from './schemas/social/channel.schema'
 export type * from './schemas/social/invite-code-lookup.schema'
@@ -233,6 +235,8 @@ export const clientSettingPath = 'client-setting'
 
 export const middlewareSettingPath = 'middleware-setting'
 
+export const middlewareApiUrl = 'middleware-api'
+
 export const redisSettingPath = 'redis-setting'
 
 export const chargebeeSettingPath = 'chargebee-setting'
@@ -246,6 +250,8 @@ export const authenticationSettingPath = 'authentication-setting'
 export const analyticsPath = 'analytics'
 
 export const serverSettingPath = 'server-setting'
+
+export const zendeskSettingPath = 'zendesk-setting'
 
 export const scopeTypePath = 'scope-type'
 
@@ -302,3 +308,5 @@ export const uploadAssetPath = 'upload-asset'
 export const invalidationPath = 'invalidation'
 
 export const imageConvertPath = 'image-convert'
+
+export const zendeskPath = 'zendesk'

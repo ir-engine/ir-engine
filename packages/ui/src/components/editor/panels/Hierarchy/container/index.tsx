@@ -55,16 +55,17 @@ import { CopyPasteFunctions } from '@etherealengine/editor/src/functions/CopyPas
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { cmdOrCtrlString } from '@etherealengine/editor/src/functions/utils'
+import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import { PopoverPosition } from '@mui/material'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import { HierarchyPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
-import ContextMenu from '../../../layout/ContextMenu'
 import Popover from '../../../layout/Popover'
 import { PopoverContext } from '../../../util/PopoverContext'
 import ElementList from '../../Properties/elementList'
@@ -82,8 +83,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const { sceneURL, rootEntityUUID, index } = props
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
+  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
   const [anchorPositionPop, setAnchorPositionPop] = React.useState<undefined | PopoverPosition>(undefined)
 
   const [prevClickedNode, setPrevClickedNode] = useState<HeirarchyTreeNodeType | null>(null)
@@ -173,17 +173,12 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     event.stopPropagation()
 
     setContextSelectedItem(item)
-    setAnchorEl(event.currentTarget)
-    setAnchorPosition({
-      left: event.clientX + 2,
-      top: event.clientY - 6
-    })
+    setAnchorEvent(event)
   }
 
   const handleClose = () => {
     setContextSelectedItem(undefined)
-    setAnchorEl(null)
-    setAnchorPosition({ left: 0, top: 0 })
+    setAnchorEvent(undefined)
   }
 
   const onMouseDown = useCallback((e: React.MouseEvent, node: HeirarchyTreeNodeType) => {}, [])
@@ -191,6 +186,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const onClick = useCallback(
     (e: MouseEvent, node: HeirarchyTreeNodeType) => {
       if (e.detail === 1) {
+        // Exit click placement mode when anything in the hierarchy is selected
+        getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
         if (e.ctrlKey) {
           EditorControlFunctions.toggleSelection([getComponent(node.entity, UUIDComponent)])
           setSelectedNode(null)
@@ -497,13 +494,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
       <div id="heirarchy-panel" className="h-5/6 overflow-hidden">
         <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
       </div>
-      <ContextMenu
-        open={!!anchorEl}
-        anchorEl={anchorEl}
-        panelId={'heirarchy-panel'}
-        anchorPosition={anchorPosition}
-        onClose={handleClose}
-      >
+      <ContextMenu anchorEvent={anchorEvent} panelId={'heirarchy-panel'} onClose={handleClose}>
         <Button
           fullWidth
           size="small"

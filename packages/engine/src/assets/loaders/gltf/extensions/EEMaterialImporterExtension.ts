@@ -28,14 +28,13 @@ import matches from 'ts-matches'
 
 import { getComponent, UUIDComponent } from '@etherealengine/ecs'
 import {
-  MaterialComponent,
-  MaterialComponents,
+  MaterialPrototypeComponent,
   MaterialPrototypeObjectConstructor,
-  prototypeByName
+  MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
 import {
-  getPrototypeConstructorFromName,
+  getPrototypeEntityFromName,
   injectMaterialDefaults,
   PrototypeNotFoundError
 } from '../../../../scene/materials/functions/materialSourcingFunctions'
@@ -57,7 +56,10 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     const eeMaterial: EEMaterialExtensionType = materialDef.extensions[this.name] as any
     let constructor: MaterialPrototypeObjectConstructor | null = null
     try {
-      constructor = getPrototypeConstructorFromName(eeMaterial.prototype)
+      constructor = getComponent(
+        getPrototypeEntityFromName(eeMaterial.prototype)!,
+        MaterialPrototypeComponent
+      ).prototypeConstructor
     } catch (e) {
       if (e instanceof PrototypeNotFoundError) {
         console.warn('prototype ' + eeMaterial.prototype + ' not found')
@@ -91,18 +93,14 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
         }
       }
     }
-    const materialComponent = getComponent(
-      UUIDComponent.getEntityByUUID(extension.uuid),
-      MaterialComponent[MaterialComponents.State]
-    )
+    const materialComponent = getComponent(UUIDComponent.getEntityByUUID(extension.uuid), MaterialStateComponent)
     let foundPrototype = false
     if (materialComponent) {
-      foundPrototype = !!materialComponent.prototypeConstructor
+      foundPrototype = !!materialComponent.prototypeEntity
       injectMaterialDefaults(extension.uuid)
     } else {
       try {
-        getComponent(prototypeByName[extension.prototype], MaterialComponent[MaterialComponents.Prototype])
-          .prototypeArguments
+        getComponent(getPrototypeEntityFromName(extension.prototype)!, MaterialPrototypeComponent).prototypeArguments
         foundPrototype = true
       } catch (e) {
         if (e instanceof PrototypeNotFoundError) {

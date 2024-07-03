@@ -25,9 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID } from '@etherealengine/ecs'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
@@ -46,7 +44,6 @@ import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import Toolbar from '../components/toolbar/Toolbar2'
-import { setCurrentEditorScene } from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
@@ -55,7 +52,14 @@ import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
+import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
+import { EntityUUID } from '@etherealengine/ecs'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import 'rc-dock/dist/rc-dock.css'
+import { useTranslation } from 'react-i18next'
+import { IoHelpCircleOutline } from 'react-icons/io5'
+import { setCurrentEditorScene } from '../functions/sceneFunctions'
 import './Editor2Container.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
@@ -124,15 +128,20 @@ const EditorContainer = () => {
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => PopoverState.showPopupover(<SaveSceneDialog />))
 
+  const viewerEntity = useMutableState(EngineState).viewerEntity.value
+
+  const { initialized, isWidgetVisible, openChat } = useZendesk()
+  const { t } = useTranslation()
+
   useEffect(() => {
     const scene = sceneQuery[0]
-    if (!scene) return
+    if (!scene || !viewerEntity) return
 
     projectName.set(scene.project!)
     sceneName.set(scene.key.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-    return setCurrentEditorScene(scene.url, scene.id as EntityUUID)
-  }, [sceneQuery[0]?.key])
+    return setCurrentEditorScene(sceneQuery[0].url, sceneAssetID.value as EntityUUID)
+  }, [viewerEntity, sceneQuery[0]?.key])
 
   useEffect(() => {
     return () => {
@@ -145,8 +154,6 @@ const EditorContainer = () => {
       onEditorError(errorState.value)
     }
   }, [errorState])
-
-  useRemoveEngineCanvas()
 
   return (
     <main className="pointer-events-auto">
@@ -177,6 +184,17 @@ const EditorContainer = () => {
         </DndWrapper>
       </div>
       <PopupMenu />
+      {!isWidgetVisible && initialized && (
+        <Button
+          rounded="partial"
+          size="small"
+          className="absolute bottom-5 right-5 z-10"
+          startIcon={<IoHelpCircleOutline fontSize={20} />}
+          onClick={openChat}
+        >
+          {t('editor:help')}
+        </Button>
+      )}
     </main>
   )
 }

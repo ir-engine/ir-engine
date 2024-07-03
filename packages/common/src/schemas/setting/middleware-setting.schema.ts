@@ -30,6 +30,9 @@ import { dataValidator, queryValidator } from '../validators'
 
 export const middlewareSettingPath = 'middleware-setting'
 
+// Middleware API
+export const middlewareApiUrl = 'middleware-api'
+
 export const middlewareSettingMethods = ['get', 'find', 'create', 'patch', 'remove', 'update'] as const
 
 // Main data model schema
@@ -49,6 +52,20 @@ export const middlewareSettingSchema = Type.Object(
 )
 export interface MiddlewareSettingType extends Static<typeof middlewareSettingSchema> {}
 
+// API data model schema
+export const middlewareApiSchema = Type.Object(
+  {
+    id: Type.String({
+      format: 'uuid'
+    }),
+    middlewareUrl: Type.String(),
+    createdAt: Type.String({ format: 'date-time' }),
+    updatedAt: Type.String({ format: 'date-time' })
+  },
+  { $id: 'MiddlewareSetting', additionalProperties: false }
+)
+export interface MiddlewareApiType extends Static<typeof middlewareApiSchema> {}
+
 export interface MiddlewareSettingDatabaseType
   extends Omit<
     MiddlewareSettingType,
@@ -58,6 +75,11 @@ export interface MiddlewareSettingDatabaseType
   middlewareProjectName: string
   middlewareSettingTemp: string
   middlewareSettingMenu: string
+}
+
+// Middleware API
+export interface MiddlewareApiDatabaseType extends Omit<MiddlewareApiType, 'middlewareUrl'> {
+  middlewareUrl: string
 }
 
 // Schema for creating new entries
@@ -70,11 +92,23 @@ export const middlewareSettingDataSchema = Type.Pick(
 )
 export interface MiddlewareSettingData extends Static<typeof middlewareSettingDataSchema> {}
 
+// Middleware API
+export const middlewareSettingApiSchema = Type.Pick(middlewareSettingSchema, ['middlewareUrl'], {
+  $id: 'MiddlewareSettingApi'
+})
+export interface MiddlewareSettingApi extends Static<typeof middlewareSettingApiSchema> {}
+
 // Schema for updating existing entries
 export const middlewareSettingPatchSchema = Type.Partial(middlewareSettingSchema, {
   $id: 'MiddlewareSettingPatch'
 })
 export interface MiddlewareSettingPatch extends Static<typeof middlewareSettingPatchSchema> {}
+
+// Middleware API
+export const middlewareSettingApiPatchSchema = Type.Partial(middlewareSettingApiSchema, {
+  $id: 'MiddlewareSettingApiPatch'
+})
+export interface MiddlewareSettingApiPatch extends Static<typeof middlewareSettingApiPatchSchema> {}
 
 // Schema for allowed query properties
 export const middlewareSettingQueryProperties = Type.Pick(middlewareSettingSchema, ['id'])
@@ -88,9 +122,33 @@ export const middlewareSettingQuerySchema = Type.Intersect(
 )
 export interface MiddlewareSettingQuery extends Static<typeof middlewareSettingQuerySchema> {}
 
+// Middleware API
+export const middlewareSettingApiQueryProperties = Type.Pick(middlewareSettingApiSchema, ['id'])
+export const middlewareSettingApiQuerySchema = Type.Intersect(
+  [
+    querySyntax(middlewareSettingApiQueryProperties),
+    // Add additional query properties here
+    Type.Object({}, { additionalProperties: false })
+  ],
+  { additionalProperties: false }
+)
+export interface MiddlewareSettingApiQuery extends Static<typeof middlewareSettingApiQuerySchema> {}
+//
+
 export const middlewareSettingDataValidator = /* @__PURE__ */ getValidator(middlewareSettingDataSchema, dataValidator)
 export const middlewareSettingPatchValidator = /* @__PURE__ */ getValidator(middlewareSettingPatchSchema, dataValidator)
 export const middlewareSettingQueryValidator = /* @__PURE__ */ getValidator(
   middlewareSettingQuerySchema,
+  queryValidator
+)
+
+// Middleware API
+export const middlewareSettingApiValidator = /* @__PURE__ */ getValidator(middlewareSettingApiSchema, dataValidator)
+export const middlewareSettingApiPatchValidator = /* @__PURE__ */ getValidator(
+  middlewareSettingApiPatchSchema,
+  dataValidator
+)
+export const middlewareSettingApiQueryValidator = /* @__PURE__ */ getValidator(
+  middlewareSettingApiQuerySchema,
   queryValidator
 )

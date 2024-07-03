@@ -52,8 +52,10 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
+import { useZendesk } from '../../../../hooks/useZendesk'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthService, AuthState } from '../../../services/AuthService'
+import { AvatarService } from '../../../services/AvatarService'
 import { useUserHasAccessHook } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
@@ -92,6 +94,8 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
   const hasAdminAccess = useUserHasAccessHook('admin:admin')
   const avatarThumbnail = useUserAvatarThumbnail(userId)
+
+  const { initialized, openChat } = useZendesk()
 
   useEffect(() => {
     if (authSetting) {
@@ -178,7 +182,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
       // @ts-ignore
-      AuthService.updateUsername(userId, name)
+      AvatarService.updateUsername(userId, name)
     }
   }
   const handleInputChange = (e) => emailPhone.set(e.target.value)
@@ -417,6 +421,43 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               }
               onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Settings)}
             />
+          )}
+          {!isGuest && initialized && (
+            <IconButton
+              background="var(--textColor)"
+              sx={{
+                width: '110px',
+                height: '45px',
+                marginTop: '1rem',
+                borderRadius: '10px'
+              }}
+              icon={
+                <>
+                  <Icon
+                    type="Help"
+                    sx={{
+                      display: 'block',
+                      width: '30%',
+                      height: '100%',
+                      margin: 'auto',
+                      color: 'var(--inputBackground)'
+                    }}
+                  />
+                  <Text
+                    align="center"
+                    sx={{
+                      width: '100%',
+                      marginLeft: '4px',
+                      fontSize: '12px',
+                      color: 'var(--inputBackground)'
+                    }}
+                  >
+                    {t('user:usermenu.profile.helpChat')}
+                  </Text>
+                </>
+              }
+              onClick={openChat}
+            ></IconButton>
           )}
         </Box>
 

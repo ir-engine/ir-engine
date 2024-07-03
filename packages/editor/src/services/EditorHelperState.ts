@@ -36,6 +36,11 @@ import {
 import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 import { EditorMode, EditorModeType } from '../constants/EditorModeTypes'
 
+export enum PlacementMode {
+  DRAG,
+  CLICK
+}
+
 export const EditorHelperState = defineState({
   name: 'EditorHelperState',
   initial: () => ({
@@ -47,7 +52,8 @@ export const EditorHelperState = defineState({
     gridSnap: SnapMode.Grid as SnapModeType,
     translationSnap: 0.5,
     rotationSnap: 10,
-    scaleSnap: 0.1
+    scaleSnap: 0.1,
+    placementMode: PlacementMode.DRAG
   }),
   extension: syncStateWithLocalStorage(['snapMode', 'translationSnap', 'rotationSnap', 'scaleSnap'])
 })
