@@ -23,9 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CameraFadeBlackEffectSystem } from './systems/CameraFadeBlackEffectSystem'
-import { CameraOrbitSystem } from './systems/CameraOrbitSystem'
-import { CameraSystem } from './systems/CameraSystem'
-import { FollowCameraInputSystem } from './systems/FollowCameraInputSystem'
-
-export default { CameraFadeBlackEffectSystem, CameraSystem, CameraOrbitSystem, FollowCameraInputSystem }
+export const FeatureFlags = {
+  Client: {
+    Menu: {
+      Social: 'ir.client.menu.social',
+      Emote: 'ir.client.menu.emote',
+      Avaturn: 'ir.client.menu.avaturn',
+      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe'
+    }
+  }
+}

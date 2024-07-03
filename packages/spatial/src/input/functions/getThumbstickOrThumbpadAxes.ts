@@ -23,37 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-
-import { FollowCameraComponent } from '../components/FollowCameraComponent'
-import { CameraMode } from '../types/CameraMode'
-
-type SwitchCameraModeProps = {
-  cameraMode: CameraMode
-  pointerLock?: boolean
-}
-
-let changeTimeout: any = undefined
-export const switchCameraMode = (
-  cameraEntity: Entity,
-  args: SwitchCameraModeProps = { pointerLock: false, cameraMode: CameraMode.ThirdPerson },
-  force = false
-): void => {
-  if (!force) {
-    if (changeTimeout !== undefined) return
-    changeTimeout = setTimeout(() => {
-      clearTimeout(changeTimeout)
-      changeTimeout = undefined
-    }, 250)
-  }
-
-  const cameraFollow = getOptionalComponent(cameraEntity, FollowCameraComponent)
-  if (!cameraFollow) return
-  cameraFollow.mode = args.cameraMode
-
-  if (cameraFollow.mode === CameraMode.FirstPerson) {
-    cameraFollow.phi = 0
-    cameraFollow.locked = true
-  }
+/**
+ * On 'xr-standard' mapping, get thumbstick input [2,3], fallback to thumbpad input [0,1]
+ * On 'standard' mapping, get thumbstick input [0,1]
+ */
+export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, handedness: XRHandedness, deadZone = 0.05) {
+  const gamepad = inputSource.gamepad
+  const axes = gamepad!.axes
+  const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' || handedness === 'right' ? 2 : 0
+  const xAxis = Math.abs(axes[axesIndex]) > deadZone ? axes[axesIndex] : 0
+  const zAxis = Math.abs(axes[axesIndex + 1]) > deadZone ? axes[axesIndex + 1] : 0
+  return [xAxis, zAxis] as [number, number]
 }

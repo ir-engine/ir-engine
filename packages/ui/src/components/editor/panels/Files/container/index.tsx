@@ -48,7 +48,6 @@ import {
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
 import { FilePropertiesPanel } from '@etherealengine/editor/src/components/assets/FileBrowser/FilePropertiesPanel'
 import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
-import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
@@ -108,7 +107,7 @@ export type FileType = {
   url: string
 }
 
-const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
+function fileConsistsOfContentType(file: FileDataType, contentType: string): boolean {
   if (file.isFolder) {
     return contentType.startsWith('image')
   } else {
@@ -349,7 +348,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
 
-  const showDownloadButtons = selectedDirectory.value === '/projects/' + projectName + '/'
+  const showDownloadButtons = selectedDirectory.value.startsWith('/projects/' + projectName + '/')
   const showUploadButtons =
     selectedDirectory.value.startsWith('/projects/' + projectName + '/public/') ||
     selectedDirectory.value.startsWith('/projects/' + projectName + '/assets/')
@@ -456,12 +455,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const staticResourceModifiedDates = useHookstate<Record<string, string>>({})
 
     useEffect(() => {
+      if (staticResourceData.status !== 'success') return
       const modifiedDates: Record<string, string> = {}
       staticResourceData.data.forEach((data) => {
         modifiedDates[data.key] = new Date(data.updatedAt).toLocaleString()
       })
       staticResourceModifiedDates.set(modifiedDates)
-    }, [staticResourceData.data])
+    }, [staticResourceData.status])
 
     const handleFileBrowserItemClick = (e: React.MouseEvent, currentFile: FileDataType) => {
       e.stopPropagation()
@@ -689,7 +689,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
 
         <Button
-          id="uploadAssets"
+          id="uploadFiles"
           startIcon={<HiOutlinePlusCircle />}
           variant="transparent"
           disabled={!showUploadButtons}
@@ -704,7 +704,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               })
           }
         >
-          {t('editor:layout.filebrowser.uploadAssets')}
+          {t('editor:layout.filebrowser.uploadFiles')}
         </Button>
       </div>
       {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}
@@ -714,13 +714,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <DropArea />
         </DndWrapper>
       </div>
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model') && (
-        <ModelCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
-          onRefreshDirectory={refreshDirectory}
-        />
-      )}
 
       {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
         <ImageCompressionPanel
