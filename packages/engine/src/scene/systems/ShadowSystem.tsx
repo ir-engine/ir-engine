@@ -196,46 +196,6 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   )
 }
 
-const PlainCSMReactor = (props: { rendererEntity: Entity }) => {
-  const { rendererEntity } = props
-  const rendererComponent = useComponent(rendererEntity, RendererComponent)
-  const shadowMapResolution = useHookstate(getMutableState(RendererState).shadowMapResolution)
-
-  useEffect(() => {
-    const csm = new CSM({
-      shadowMapSize: shadowMapResolution.value
-    })
-
-    rendererComponent.csm.set(csm)
-
-    return () => {
-      csm.dispose()
-      rendererComponent.csm.set(null)
-    }
-  }, [])
-
-  useEffect(() => {
-    const csm = rendererComponent.csm.get(NO_PROXY) as CSM | null
-    if (!csm) return
-
-    for (const light of csm.lights) {
-      light.shadow.mapSize.setScalar(shadowMapResolution.value)
-      light.shadow.camera.updateProjectionMatrix()
-      light.shadow.map?.dispose()
-      light.shadow.map = null as any
-      light.shadow.needsUpdate = true
-    }
-  }, [rendererComponent.csm, shadowMapResolution])
-
-  return (
-    <QueryReactor
-      Components={[ShadowComponent, GroupComponent]}
-      ChildEntityReactor={EntityChildCSMReactor}
-      props={{ rendererEntity: rendererEntity }}
-    />
-  )
-}
-
 const EntityChildCSMReactor = (props: { rendererEntity: Entity }) => {
   const entity = useEntityContext()
   const { rendererEntity } = props
@@ -316,9 +276,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
     activeLightEntity.set(UndefinedEntity)
   }, [xrLightProbeEntity.value, renderSettingsComponent.primaryLight])
 
-  if (!renderSettingsComponent.csm.value) return null
-
-  if (!activeLightEntity.value) return <PlainCSMReactor rendererEntity={rendererEntity} key={rendererEntity} />
+  if (!renderSettingsComponent.csm.value || !activeLightEntity.value) return null
 
   return (
     <EntityCSMReactor

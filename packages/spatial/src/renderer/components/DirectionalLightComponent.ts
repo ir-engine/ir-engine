@@ -28,6 +28,8 @@ import { BufferGeometry, Color, DirectionalLight, Float32BufferAttribute } from 
 
 import {
   defineComponent,
+  getComponent,
+  getMutableComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -36,12 +38,18 @@ import {
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches, useMutableState } from '@etherealengine/hyperflux'
 
+import { EntityUUID, UUIDComponent, defineQuery } from '@etherealengine/ecs'
+import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { useDisposable } from '../../resources/resourceHooks'
-import { useUpdateLight } from '../functions/useUpdateLight'
+import { getAncestorWithComponent } from '../../transform/components/EntityTree'
 import { RendererState } from '../RendererState'
+import { RendererComponent } from '../WebGLRendererSystem'
+import { useUpdateLight } from '../functions/useUpdateLight'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { LineSegmentComponent } from './LineSegmentComponent'
+
+const renderSettingsQuery = defineQuery([RenderSettingsComponent])
 
 const size = 1
 const lightPlaneGeometry = new BufferGeometry()
@@ -149,8 +157,25 @@ export const DirectionalLightComponent = defineComponent({
     useEffect(() => {
       directionalLightComponent.light.set(light)
       addObjectToGroup(entity, light)
+      const uuid = getComponent(entity, UUIDComponent)
       return () => {
         removeObjectFromGroup(entity, light)
+
+        // CSM directional lights should be their own component
+        for (const renderSettingsEntity of renderSettingsQuery()) {
+          const renderSettings = getComponent(renderSettingsEntity, RenderSettingsComponent)
+          if (renderSettings.primaryLight === uuid) {
+            getMutableComponent(renderSettingsEntity, RenderSettingsComponent).merge({
+              csm: false,
+              primaryLight: '' as EntityUUID
+            })
+
+            /** @todo should be a better way to do this */
+            const rendererEntity = getAncestorWithComponent(renderSettingsEntity, RendererComponent)
+            getComponent(rendererEntity, RendererComponent).csm?.dispose()
+            getMutableComponent(rendererEntity, RendererComponent).csm.set(null)
+          }
+        }
       }
     }, [])
 
