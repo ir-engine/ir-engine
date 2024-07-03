@@ -40,6 +40,7 @@ import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean
 import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
 import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
@@ -143,7 +144,7 @@ export default function ImageCompressionPanel({
     <div className="max-h-[80vh] w-[680px] overflow-y-auto rounded-xl bg-[#0E0F11]">
       <div className="relative mb-3 flex items-center justify-center px-8 py-3">
         <Text className="leading-6" fontFamily="Figtree">
-          {t('editor:properties.model.transform.compressImage', { name: selectedFile.fullName })}
+          {t('editor:properties.model.transform.compressImage')}
         </Text>
         <Button
           variant="outline"
@@ -155,7 +156,16 @@ export default function ImageCompressionPanel({
 
       <div className="mx-auto grid w-1/2 gap-y-2">
         <InputGroup
-          className="justify-start"
+          className="w-full justify-start"
+          labelClassName="w-24 text-[#D3D5D9]"
+          name="mode"
+          label={t('editor:properties.model.transform.dst')}
+        >
+          <Input className="border-[#42454D] bg-[#141619] px-2 py-1.5" value={selectedFile.name} disabled />
+        </InputGroup>
+        <div className="w-full border border-[#2B2C30]" />
+        <InputGroup
+          className="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="mode"
@@ -163,6 +173,7 @@ export default function ImageCompressionPanel({
           info={t('editor:properties.model.transform.modeTooltip')}
         >
           <Select
+            className="w-full"
             inputClassName="px-2 py-0.5 text-[#9CA0AA] text-sm"
             options={[
               { label: 'ETC1S', value: 'ETC1S' },
@@ -173,7 +184,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="justify-start"
+          className="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="flipY"
@@ -187,7 +198,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="justify-start"
+          className="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="linear"
@@ -201,7 +212,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="justify-start"
+          className="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="mipmaps"
@@ -215,7 +226,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="justify-start"
+          className="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="normalMap"
@@ -231,7 +242,7 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'ETC1S' && (
           <>
             <InputGroup
-              className="justify-start"
+              className="w-full justify-start"
               labelClassName="w-20 text-[#D3D5D9]"
               infoClassName="text-[#D3D5D9]"
               name="quality"
@@ -250,7 +261,7 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
-              className="justify-start"
+              className="w-full justify-start"
               labelClassName="w-20 text-[#D3D5D9]"
               infoClassName="text-[#D3D5D9]"
               name="compressionLevel"
@@ -273,7 +284,7 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'UASTC' && (
           <>
             <InputGroup
-              className="justify-start"
+              className="w-full justify-start"
               labelClassName="w-20 text-[#D3D5D9]"
               infoClassName="text-[#D3D5D9]"
               name="uastcFlags"
@@ -281,13 +292,14 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.uastcFlagsTooltip')}
             >
               <SelectInput
+                className="w-full"
                 options={UASTCFlagOptions}
                 value={compressProperties.uastcFlags.value}
                 onChange={(val: number) => compressProperties.uastcFlags.set(val)}
               />
             </InputGroup>
             <InputGroup
-              className="justify-start"
+              className="w-full justify-start"
               labelClassName="w-20 text-[#D3D5D9]"
               infoClassName="text-[#D3D5D9]"
               name="uastcZstandard"
