@@ -138,7 +138,6 @@ export const MediaComponent = defineComponent({
       playMode: PlayMode.loop as PlayMode,
       isMusic: false,
       seekTime: 0,
-      forceSeekTime: { force: false }, //added to force a reaction, since the media's current time and seek time are not synced and setting the seek time to its current value does not react
       /**@deprecated */
       paths: [] as string[],
       // runtime props
@@ -314,7 +313,7 @@ export function MediaReactor() {
       setTime(mediaElement.element, media.seekTime.value)
       if (!mediaElement.element.paused.value) mediaElement.element.value.play() // if not paused, start play again
     },
-    [media.seekTime, media.forceSeekTime, mediaElement]
+    [media.seekTime, mediaElement]
   )
 
   useEffect(

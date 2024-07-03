@@ -121,9 +121,6 @@ import SkyboxNodeEditor from '@etherealengine/ui/src/components/editor/propertie
 import SpawnPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline'
 
-import { AnimationTriggerComponent } from '@etherealengine/engine/src/AnimationTriggerComponent'
-import { CameraTriggerComponent } from '@etherealengine/engine/src/CameraTriggerComponent'
-import { VideoTriggerComponent } from '@etherealengine/engine/src/VideoTriggerComponent'
 import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import PlaylistNodeEditor from '@etherealengine/ui/src/components/editor/properties/playlist'
 import ReflectionProbeNodeEditor from '@etherealengine/ui/src/components/editor/properties/reflectionProbe'
@@ -137,10 +134,6 @@ import VisualScriptNodeEditor from '@etherealengine/ui/src/components/editor/pro
 import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric'
 import NewVolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric/new'
 import { EditorComponentType } from '../components/properties/Util'
-
-import { AnimationTriggerNodeEditor } from '@etherealengine/ui/src/components/editor/properties/customTriggers/AnimationTriggerNodeEditor'
-import { CameraTriggerNodeEditor } from '@etherealengine/ui/src/components/editor/properties/customTriggers/CameraTriggerNodeEditor'
-import { VideoTriggerNodeEditor } from '@etherealengine/ui/src/components/editor/properties/customTriggers/VideoTriggerNodeEditor'
 
 export const ComponentEditorsState = defineState({
   name: 'ee.editor.ComponentEditorsState',
@@ -197,9 +190,6 @@ export const ComponentEditorsState = defineState({
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor,
       [LookAtComponent.name]: LookAtNodeEditor,
-      [CameraTriggerComponent.name]: CameraTriggerNodeEditor,
-      [VideoTriggerComponent.name]: VideoTriggerNodeEditor,
-      [AnimationTriggerComponent.name]: AnimationTriggerNodeEditor,
       [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor
     } as Record<string, EditorComponentType>
   }
