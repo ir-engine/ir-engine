@@ -43,7 +43,7 @@ const InputPointerComponentDefaults = {
   position: new Vector2(),
   lastPosition: new Vector2(),
   movement: new Vector2(),
-  canvasEntity: UndefinedEntity
+  cameraEntity: UndefinedEntity
 }
 
 describe('InputPointerComponent', () => {
@@ -56,21 +56,21 @@ describe('InputPointerComponent', () => {
   describe('onInit', () => {
     const PointerID = 42
     let testEntity = UndefinedEntity
-    let canvasEntity = UndefinedEntity
+    let cameraEntity = UndefinedEntity
 
     beforeEach(async () => {
       createEngine()
-      canvasEntity = createEntity()
+      cameraEntity = createEntity()
       testEntity = createEntity()
       setComponent(testEntity, InputPointerComponent, {
         pointerId: InputPointerComponentDefaults.pointerId,
-        canvasEntity: InputPointerComponentDefaults.canvasEntity
+        cameraEntity: InputPointerComponentDefaults.cameraEntity
       })
     })
 
     afterEach(() => {
       removeEntity(testEntity)
-      removeEntity(canvasEntity)
+      removeEntity(cameraEntity)
       return destroyEngine()
     })
 
@@ -100,43 +100,43 @@ describe('InputPointerComponent', () => {
       const Expected = {
         ...InputPointerComponentDefaults,
         pointerId: DummyPointerID,
-        canvasEntity: DummyEntity
+        cameraEntity: DummyEntity
       }
       setComponent(testEntity, InputPointerComponent, Expected)
       const after = getComponent(testEntity, InputPointerComponent)
       assert.deepEqual(after, Expected)
       assert.equal(after.pointerId, DummyPointerID)
-      assert.equal(after.canvasEntity, DummyEntity)
+      assert.equal(after.cameraEntity, DummyEntity)
     })
   }) // << onSet
 
-  describe('getPointerForCanvas', () => {
+  describe('getPointersForCamera', () => {
     const PointerID = 42
     let testEntity = UndefinedEntity
-    let canvasEntity = UndefinedEntity
+    let cameraEntity = UndefinedEntity
 
     beforeEach(async () => {
       createEngine()
       testEntity = createEntity()
       setComponent(testEntity, InputPointerComponent, {
         pointerId: InputPointerComponentDefaults.pointerId,
-        canvasEntity: InputPointerComponentDefaults.canvasEntity
+        cameraEntity: InputPointerComponentDefaults.cameraEntity
       })
     })
 
     afterEach(() => {
       removeEntity(testEntity)
-      removeEntity(canvasEntity)
+      removeEntity(cameraEntity)
       return destroyEngine()
     })
 
-    it('should return the entity that has an InputPointerComponent, which has the given canvas/camera entity assigned as its InputPointerComponent.canvasEntity', () => {
+    it('should return the entity that has an InputPointerComponent, which has the given canvas/camera entity assigned as its InputPointerComponent.cameraEntity', () => {
       removeComponent(testEntity, InputPointerComponent)
-      const Expected = { pointerId: PointerID, canvasEntity: createEntity() }
+      const Expected = { pointerId: PointerID, cameraEntity: createEntity() }
       setComponent(testEntity, InputPointerComponent, Expected)
       // Run and Check after
-      const after = InputPointerComponent.getPointerForCanvas(Expected.canvasEntity)
+      const after = InputPointerComponent.getPointersForCamera(Expected.cameraEntity)
       assert.equal(after, testEntity)
     })
-  }) // << getPointerForCanvas
+  }) // << getPointersForCamera
 })
