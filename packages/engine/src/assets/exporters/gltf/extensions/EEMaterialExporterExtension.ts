@@ -101,14 +101,14 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
           argEntry.contents = this.matCache.get(texture.source.data)
         } else {
           const mapDef = {
-            index: this.writer.processTexture(texture),
-            texCoord: texture.channel
+            index: this.writer.processTexture(texture)
           }
-          this.writer.options.flipY && (texture.repeat.y *= -1)
-          this.writer.applyTextureTransform(mapDef, texture)
+          this.matCache.set(texture.source.data, { ...mapDef })
           argEntry.contents = mapDef
-          this.matCache.set(texture.source.data, mapDef)
         }
+        argEntry.contents.texCoord = texture.channel
+        this.writer.options.flipY && (texture.repeat.y *= -1)
+        this.writer.applyTextureTransform(argEntry.contents, texture)
       }
       result[k] = argEntry
     })
