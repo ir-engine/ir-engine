@@ -34,7 +34,7 @@ export const SourceComponent = defineComponent({
 
   onInit: (entity) => '',
 
-  onSet: (entity, component, src) => {
+  onSet: (entity, component, {}: {}) => {
     if (typeof src !== 'string') throw new Error('SourceComponent expects a non-empty string')
 
     component.set(src)

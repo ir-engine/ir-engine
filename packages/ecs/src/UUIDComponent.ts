@@ -42,6 +42,8 @@ export const UUIDComponent = defineComponent({
 
     if (component.value === uuid) return
 
+    uuid.replace(/[^a-fA-F0-9-]/g, '')
+
     // throw error if uuid is already in use
     const currentEntity = UUIDComponent.getEntityByUUID(uuid)
     if (currentEntity !== UndefinedEntity && currentEntity !== entity) {
