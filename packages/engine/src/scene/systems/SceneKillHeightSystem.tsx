@@ -41,7 +41,7 @@ import {
   RigidBodyComponent,
   RigidBodyFixedTagComponent
 } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { updateReferenceSpaceFromAvatarMovement } from '../../avatar/functions/moveAvatar'
@@ -63,6 +63,7 @@ const execute = () => {
     return Math.min(min, getComponent(entity, SceneSettingsComponent).sceneKillHeight)
   }, DefaultKillHeight)
   const killableEntities = heightKillApplicableQuery()
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
 
   for (const entity of killableEntities) {
     const rigidBodyPosition = getComponent(entity, RigidBodyComponent).position
@@ -77,7 +78,6 @@ const execute = () => {
       })
       TransformComponent.dirtyTransforms[entity] = true
 
-      const { isCameraAttachedToAvatar } = getState(XRControlsState)
       if (!isCameraAttachedToAvatar) continue
 
       //@TODO see if we can implicitly update the reference space when the avatar teleports

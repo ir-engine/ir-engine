@@ -46,7 +46,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { defineState, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
 import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
@@ -56,7 +56,7 @@ import { InputSourceComponent } from '@etherealengine/spatial/src/input/componen
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { ReferenceSpace, XRAction, XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { ReferenceSpace, XRAction, XRState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
@@ -152,7 +152,7 @@ let fadeBackInAccumulator = -1
 let visibleSegments = 2
 
 const execute = () => {
-  const { isCameraAttachedToAvatar } = getState(XRControlsState)
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
   if (!isCameraAttachedToAvatar) return
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
 
@@ -262,9 +262,10 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const cameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
+  const cameraAttachedToAvatar = XRState.useCameraAttachedToAvatar()
+
   useEffect(() => {
-    if (!cameraAttachedToAvatar.value) return
+    if (!cameraAttachedToAvatar) return
 
     const originEntity = getState(EngineState).originEntity
 

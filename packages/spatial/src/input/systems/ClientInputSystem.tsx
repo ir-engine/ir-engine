@@ -69,7 +69,7 @@ import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComp
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
-import { XRControlsState, XRState } from '../../xr/XRState'
+import { XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
@@ -220,6 +220,8 @@ const quat = new Quaternion()
 const execute = () => {
   const capturedEntity = getMutableState(InputState).capturingEntity.value
   InputState.setCapturingEntity(UndefinedEntity, true)
+
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
 
   for (const eid of inputs())
     if (getComponent(eid, InputComponent).inputSources.length)
@@ -380,8 +382,7 @@ const execute = () => {
     ) {
       //use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
       const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID) //would prefer a better way to do this
-      const inputSourceEntity =
-        getState(XRControlsState).isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
+      const inputSourceEntity = isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
 
       if (inputSourceEntity !== UndefinedEntity) {
         TransformComponent.getWorldPosition(inputSourceEntity, worldPosInputSourceComponent)

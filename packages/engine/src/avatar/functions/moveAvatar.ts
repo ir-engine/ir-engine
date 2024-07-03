@@ -50,7 +50,7 @@ import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functi
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '@etherealengine/spatial/src/transform/updateWorldOrigin'
-import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { preloadedAnimations } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -100,7 +100,8 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
   desiredMovement.copy(Vector3_Zero)
 
-  const { isMovementControlsEnabled, isCameraAttachedToAvatar } = getState(XRControlsState)
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
+  const isMovementControlsEnabled = XRState.isMovementControlsEnabled
 
   if (isCameraAttachedToAvatar) {
     const viewerPose = xrState.viewerPose
@@ -358,7 +359,7 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
   rigidBody.targetKinematicPosition.add(translation)
   rigidBody.targetKinematicRotation.multiply(rotation)
 
-  const { isCameraAttachedToAvatar } = getState(XRControlsState)
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
   if (isCameraAttachedToAvatar) {
     const avatarTransform = getComponent(entity, TransformComponent)
     const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
@@ -429,7 +430,7 @@ const _updateLocalAvatarRotationAttachedMode = (entity: Entity) => {
 }
 
 export const updateLocalAvatarRotation = (entity: Entity) => {
-  if (getState(XRControlsState).isCameraAttachedToAvatar) {
+  if (XRState.isCameraAttachedToAvatar) {
     _updateLocalAvatarRotationAttachedMode(entity)
   } else {
     const deltaSeconds = getState(ECSState).deltaSeconds
@@ -466,7 +467,7 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3, force = 
     const newPosition = raycastHit ? (raycastHit.position as Vector3) : targetPosition
     rigidbody.targetKinematicPosition.copy(newPosition)
     rigidbody.position.copy(newPosition)
-    const { isCameraAttachedToAvatar } = getState(XRControlsState)
+    const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
     if (isCameraAttachedToAvatar)
       updateReferenceSpaceFromAvatarMovement(entity, new Vector3().subVectors(newPosition, transform.position))
   } else {

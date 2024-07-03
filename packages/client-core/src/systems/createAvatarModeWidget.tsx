@@ -29,7 +29,7 @@ import { Vector3 } from 'three'
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { dispatchAction, getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 import { WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@etherealengine/spatial/src/xrui/Widgets'
@@ -55,6 +55,7 @@ export function createAvatarModeWidget() {
       const avatarEntity = AvatarComponent.getSelfAvatarEntity()
       const currentParent = getComponent(avatarEntity, EntityTreeComponent).parentEntity
       if (currentParent === getState(EngineState).localFloorEntity) {
+        getMutableState(XRState).avatarCameraMode.set('auto')
         const uuid = Engine.instance.userID as any as EntityUUID
         const parentUUID = getState(EntityNetworkState)[uuid].parentUUID
         const parentEntity = UUIDComponent.getEntityByUUID(parentUUID)
@@ -62,6 +63,7 @@ export function createAvatarModeWidget() {
         respawnAvatar(avatarEntity)
         iterateEntityNode(avatarEntity, computeTransformMatrix)
       } else {
+        getMutableState(XRState).avatarCameraMode.set('attached')
         setComponent(avatarEntity, EntityTreeComponent, { parentEntity: getState(EngineState).localFloorEntity })
         teleportAvatar(avatarEntity, new Vector3(), true)
         iterateEntityNode(avatarEntity, computeTransformMatrix)
@@ -71,13 +73,13 @@ export function createAvatarModeWidget() {
   }
 
   /** for testing */
-  // globalThis.toggle = widget.onOpen
+  globalThis.toggle = widget.onOpen
 
   const id = Widgets.registerWidget(ui.entity, widget)
 
   const reactor = startReactor(() => {
     const xrState = useHookstate(getMutableState(XRState))
-    const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar).value
+    const isCameraAttachedToAvatar = XRState.useCameraAttachedToAvatar()
     const widgetEnabled =
       xrState.sessionMode.value === 'immersive-ar' &&
       xrState.scenePlacementMode.value === 'placed' &&

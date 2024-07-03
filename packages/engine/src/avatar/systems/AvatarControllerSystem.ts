@@ -36,14 +36,14 @@ import {
   setComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction } from '@etherealengine/hyperflux'
 import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { TransformComponent, TransformSystem } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { DistanceFromLocalClientComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { getDistanceSquaredFromTarget } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -67,7 +67,7 @@ const execute = () => {
   }
 
   /** @todo non-immersive camera should utilize isCameraAttachedToAvatar */
-  if (!getState(XRControlsState).isCameraAttachedToAvatar)
+  if (!XRState.isCameraAttachedToAvatar)
     for (const entity of controlledEntities) {
       const controller = getComponent(entity, AvatarControllerComponent)
       const followCamera = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)

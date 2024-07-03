@@ -41,7 +41,7 @@ import {
   XRLeftHandComponent,
   XRRightHandComponent
 } from '@etherealengine/spatial/src/xr/XRComponents'
-import { ReferenceSpace, XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { ReferenceSpace, XRState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -149,7 +149,7 @@ export const applyInputSourcePoseToIKTargets = (userID: UserID) => {
     return
   }
 
-  const { isCameraAttachedToAvatar } = getState(XRControlsState)
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
 
   /** Head */
   if (isCameraAttachedToAvatar && ikTargetHead) {

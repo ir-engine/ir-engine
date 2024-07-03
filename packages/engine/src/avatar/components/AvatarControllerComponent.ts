@@ -37,10 +37,10 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, getState, matches, useHookstate } from '@etherealengine/hyperflux'
+import { getState, matches } from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
-import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
@@ -102,7 +102,7 @@ export const AvatarControllerComponent = defineComponent({
     const entity = useEntityContext()
     const avatarComponent = useComponent(entity, AvatarComponent)
     const avatarControllerComponent = useComponent(entity, AvatarControllerComponent)
-    const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
+    const isCameraAttachedToAvatar = XRState.useCameraAttachedToAvatar()
     const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
     const world = Physics.useWorld(entity)
 
@@ -128,7 +128,7 @@ export const AvatarControllerComponent = defineComponent({
     }, [avatarComponent.avatarHeight, camera.near])
 
     useEffect(() => {
-      if (isCameraAttachedToAvatar.value) {
+      if (isCameraAttachedToAvatar) {
         const controller = getComponent(entity, AvatarControllerComponent)
         removeComponent(controller.cameraEntity, FollowCameraComponent)
       } else {

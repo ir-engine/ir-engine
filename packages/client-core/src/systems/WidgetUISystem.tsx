@@ -64,6 +64,7 @@ import {
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import React from 'react'
 import { createAnchorWidget } from './createAnchorWidget'
+import { createAvatarModeWidget } from './createAvatarModeWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
 const widgetLeftMenuGripOffset = new Vector3(0.08, 0, -0.05)
@@ -87,7 +88,7 @@ const WidgetUISystemState = defineState({
 
 const createWidgetMenus = () => {
   createAnchorWidget()
-  // createAvatarModeWidget()
+  createAvatarModeWidget()
   // createRecordingsWidget()
   // createHeightAdjustmentWidget
   // createMediaWidget

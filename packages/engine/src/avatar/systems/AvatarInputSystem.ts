@@ -51,7 +51,7 @@ import { RigidBodyFixedTagComponent } from '@etherealengine/spatial/src/physics/
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
@@ -201,7 +201,8 @@ const execute = () => {
   const controller = getComponent(selfAvatarEntity, AvatarControllerComponent)
 
   const xrState = getState(XRState)
-  const { isCameraAttachedToAvatar, isMovementControlsEnabled } = getState(XRControlsState)
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
+  const isMovementControlsEnabled = XRState.isMovementControlsEnabled
 
   if (!isMovementControlsEnabled) return
 
