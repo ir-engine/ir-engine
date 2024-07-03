@@ -122,6 +122,8 @@ export const FollowCameraComponent = defineComponent({
       phi: 10,
       minPhi: cameraSettings.minPhi,
       maxPhi: cameraSettings.maxPhi,
+      locked: false,
+      enabled: true,
       shoulderSide: FollowCameraShoulderSide.Left,
       raycastProps,
       accumulatedZoomTriggerDebounceTime: -1,
@@ -193,7 +195,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const cameraTransform = getComponent(cameraEntity, TransformComponent)
   const targetTransform = getComponent(referenceEntity, TransformComponent)
 
-  if (!targetTransform || !follow) return
+  if (!targetTransform || !follow || !follow?.enabled) return
 
   // Limit the pitch
   follow.phi = Math.min(follow.maxPhi, Math.max(follow.minPhi, follow.phi))
@@ -386,8 +388,10 @@ const updateCameraTargetRotation = (cameraEntity: Entity) => {
   }
 
   const delta = getState(ECSState).deltaSeconds
-  followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
-  followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
+  if (!followCamera.locked) {
+    followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
+    followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
+  }
 }
 
 const cameraLayerQuery = defineQuery([VisibleComponent, ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
