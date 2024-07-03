@@ -139,7 +139,7 @@ export const PerformanceState = defineState({
   name: 'PerformanceState',
 
   initial: () => ({
-    enabled: true,
+    enabled: false,
 
     isMobileGPU: false,
     gpuTier: 3 as PerformanceTier,
@@ -189,26 +189,26 @@ export const PerformanceState = defineState({
     }
 
     useEffect(() => {
+      performanceState.enabled.set(!engineState.isEditing.value && engineSettings.automatic.value)
+    }, [engineState.isEditing, engineSettings.automatic])
+
+    useEffect(() => {
       recreateEMA()
     }, [performanceState.targetFPS])
 
     useEffect(() => {
-      if (engineState.isEditing.value) return
+      if (!performanceState.enabled.value) return
 
       const performanceTier = performanceState.gpuTier.value
       const settings = tieredSettings[performanceTier]
       engineSettings.merge(settings.engine)
       renderSettings.merge(settings.render)
-    }, [performanceState.gpuTier])
+    }, [performanceState.gpuTier, performanceState.enabled])
 
     useEffect(() => {
       recreateEMA()
       performanceState.performanceSmoothingAccum.set(0)
     }, [performanceState.gpuPerformanceOffset, performanceState.cpuPerformanceOffset])
-
-    useEffect(() => {
-      performanceState.enabled.set(!engineState.isEditing.value && engineSettings.automatic.value)
-    }, [engineState.isEditing, engineSettings.automatic])
   }
 })
 
@@ -419,11 +419,7 @@ const decrementCPUPerformance = () => {
   )
 }
 
-const buildPerformanceState = async (
-  renderer: EngineRenderer,
-  onFinished: () => void,
-  override?: GetGPUTier['override']
-) => {
+const buildPerformanceState = async (renderer: EngineRenderer, override?: GetGPUTier['override']) => {
   const performanceState = getMutableState(PerformanceState)
   const gpuTier = await getGPUTier({
     glContext: renderer.renderContext,
@@ -432,7 +428,7 @@ const buildPerformanceState = async (
     mobileTiers: [0, 15, 30, 45, 60, 75],
     override
   })
-  let tier = gpuTier.tier
+  let tier = gpuTier.type === 'FALLBACK' ? performanceState.gpuTier.value : gpuTier.tier
   performanceState.isMobileGPU.set(!!gpuTier.isMobile)
   if (gpuTier.gpu) performanceState.gpu.set(gpuTier.gpu)
   if (gpuTier.device) performanceState.device.set(gpuTier.device)
@@ -460,7 +456,6 @@ const buildPerformanceState = async (
   }
 
   performanceState.gpuTier.set(tier as PerformanceTier)
-  onFinished()
 }
 
 export const PerformanceManager = {

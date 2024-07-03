@@ -24,31 +24,41 @@ Ethereal Engine. All Rights Reserved.
 */
 import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
-import {
-  staticResourceDataValidator,
-  staticResourcePatchValidator,
-  staticResourcePath,
-  staticResourceQueryValidator
-} from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
 import { HookContext } from '../../../declarations'
 import checkScope from '../../hooks/check-scope'
+import collectAnalytics from '../../hooks/collect-analytics'
+import enableClientPagination from '../../hooks/enable-client-pagination'
+import isAction from '../../hooks/is-action'
 import resolveProjectId from '../../hooks/resolve-project-id'
+import resolveProjectsByPermission from '../../hooks/resolve-projects-by-permission'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../storageprovider/storageprovider'
+import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
+import { patchSingleProjectResourcesJson, removeProjectResourcesJson } from './static-resource-helper'
 import { StaticResourceService } from './static-resource.class'
 import {
   staticResourceDataResolver,
-  staticResourceExternalResolver,
   staticResourcePatchResolver,
-  staticResourceQueryResolver,
   staticResourceResolver
 } from './static-resource.resolvers'
+
+const ensureProject = async (context: HookContext<StaticResourceService>) => {
+  if (!context.data || !(context.method === 'create' || context.method === 'update')) {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data = Array.isArray(context.data) ? context.data : [context.data]
+
+  for (const item of data)
+    if (item.key?.startsWith('projects/') && !item.project)
+      throw new BadRequest('Project is required for project resources')
+}
 
 /**
  * Ensure static-resource with the specified id exists and user is creator of the resource
@@ -66,6 +76,61 @@ const ensureResource = async (context: HookContext<StaticResourceService>) => {
   if (resource.key) {
     const storageProvider = getStorageProvider()
     await storageProvider.deleteResources([resource.key])
+  }
+}
+
+const createHashIfNeeded = async (context: HookContext<StaticResourceService>) => {
+  if (!context.data || !(context.method === 'create' || context.method === 'update')) {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  if (Array.isArray(context.data)) throw new BadRequest('Batch create is not supported')
+
+  const data = context.data
+
+  if (!data.key) throw new BadRequest('key is required')
+
+  if (!data.hash) {
+    const storageProvider = getStorageProvider()
+    const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(data.key)!
+    if (!(await storageProvider.doesExist(file, directory))) throw new BadRequest('File could not be found')
+    const result = await storageProvider.getObject(data.key)
+    const hash = createStaticResourceHash(result.Body)
+    context.data.hash = hash
+  }
+}
+
+const updateResourcesJson = async (context: HookContext<StaticResourceService>) => {
+  if (!context.method || !(context.method === 'create' || context.method === 'update' || context.method === 'patch'))
+    throw new BadRequest('[updateResourcesJson] Only create, update, patch methods are supported')
+
+  if (!context.result) throw new BadRequest('[updateResourcesJson] Result not found')
+
+  const ignoreResourcesJson = context.params?.ignoreResourcesJson
+  if (ignoreResourcesJson) return
+
+  const results =
+    'data' in context.result ? context.result.data : Array.isArray(context.result) ? context.result : [context.result]
+
+  for (const result of results) {
+    await patchSingleProjectResourcesJson(context.app, result.id)
+  }
+}
+
+const removeResourcesJson = async (context: HookContext<StaticResourceService>) => {
+  if (!context.method || context.method !== 'remove')
+    throw new BadRequest('[removeResourcesJson] Only remove method is supported')
+
+  if (!context.result) throw new BadRequest('[removeResourcesJson] Result not found')
+
+  const ignoreResourcesJson = context.params?.ignoreResourcesJson
+  if (ignoreResourcesJson) return
+
+  const results =
+    'data' in context.result ? context.result.data : Array.isArray(context.result) ? context.result : [context.result]
+
+  for (const result of results) {
+    await removeProjectResourcesJson(context.app, result)
   }
 }
 
@@ -89,33 +154,53 @@ const getProjectName = async (context: HookContext<StaticResourceService>) => {
   return context
 }
 
+const hasProjectField = (context: HookContext<StaticResourceService>) => {
+  return context.params.query?.project != undefined
+}
+
+const isKeyPublic = (context: HookContext<StaticResourceService>) => {
+  if (context.method !== 'get') throw new BadRequest('isKeyPublic hook only works for get method')
+  const result = context.result as StaticResourceType
+
+  if (!result.project) return
+
+  const projectRelativeKey = result.key.replace(`projects/${result.project}/`, '')
+  if (!projectRelativeKey.startsWith('public/') && !projectRelativeKey.startsWith('assets/'))
+    throw new Forbidden('Cannot access this resource')
+
+  return context
+}
+
 export default {
   around: {
-    all: [
-      schemaHooks.resolveExternal(staticResourceExternalResolver),
-      schemaHooks.resolveResult(staticResourceResolver)
-    ]
+    all: [schemaHooks.resolveResult(staticResourceResolver)]
   },
 
   before: {
-    all: [
-      () => schemaHooks.validateQuery(staticResourceQueryValidator),
-      schemaHooks.resolveQuery(staticResourceQueryResolver)
-    ],
+    all: [],
     find: [
       iff(
         isProvider('external'),
         iffElse(
-          checkScope('static_resource', 'read'),
+          (ctx: HookContext) => isAction('admin')(ctx) && checkScope('static_resource', 'read')(ctx),
           [],
-          [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])]
+          [
+            verifyScope('editor', 'write'),
+            iffElse(
+              hasProjectField,
+              [resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])],
+              [resolveProjectsByPermission()]
+            ) as any
+          ]
         )
       ),
+      enableClientPagination() /** @todo we should either constrain this only for when type='scene' or remove it in favour of comprehensive front end pagination */,
       discardQuery('action', 'projectId'),
       collectAnalytics()
     ],
-    get: [disallow('external')],
+    get: [collectAnalytics()],
     create: [
+      ensureProject,
       iff(
         isProvider('external'),
         iffElse(
@@ -125,10 +210,27 @@ export default {
         )
       ),
       setLoggedinUserInBody('userId'),
-      () => schemaHooks.validateData(staticResourceDataValidator),
-      schemaHooks.resolveData(staticResourceDataResolver)
+      // schemaHooks.validateData(staticResourceDataValidator),
+      discardQuery('projectId'),
+      schemaHooks.resolveData(staticResourceDataResolver),
+      createHashIfNeeded
     ],
-    update: [disallow()],
+    update: [
+      ensureProject,
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('static_resource', 'write'),
+          [],
+          [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor'])]
+        )
+      ),
+      setLoggedinUserInBody('userId'),
+      // schemaHooks.validateData(staticResourceDataValidator),
+      discardQuery('projectId'),
+      schemaHooks.resolveData(staticResourceDataResolver),
+      createHashIfNeeded
+    ],
     patch: [
       iff(
         isProvider('external'),
@@ -138,7 +240,8 @@ export default {
           [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor'])]
         )
       ),
-      () => schemaHooks.validateData(staticResourcePatchValidator),
+      // schemaHooks.validateData(staticResourcePatchValidator),
+      discardQuery('projectId'),
       schemaHooks.resolveData(staticResourcePatchResolver)
     ],
     remove: [
@@ -163,11 +266,20 @@ export default {
   after: {
     all: [],
     find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    get: [
+      iff(
+        isProvider('external'),
+        iffElse(
+          (ctx: HookContext) => checkScope('static_resource', 'read')(ctx) || verifyScope('editor', 'write')(ctx),
+          [],
+          [isKeyPublic]
+        )
+      )
+    ],
+    create: [updateResourcesJson],
+    update: [updateResourcesJson],
+    patch: [updateResourcesJson],
+    remove: [removeResourcesJson]
   },
 
   error: {

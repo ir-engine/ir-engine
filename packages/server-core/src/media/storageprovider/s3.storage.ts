@@ -59,26 +59,24 @@ import { Options, Upload } from '@aws-sdk/lib-storage'
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
-import { reject } from 'lodash'
 import { Client } from 'minio'
-import fetch from 'node-fetch'
 import { buffer } from 'node:stream/consumers'
 import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
 import { PassThrough, Readable } from 'stream'
 
 import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
+
 import {
-  assetsRegex,
-  projectPublicRegex,
-  projectRegex,
-  projectThumbnailsRegex
-} from '@etherealengine/common/src/constants/ProjectKeyConstants'
+  ASSETS_REGEX,
+  PROJECT_PUBLIC_REGEX,
+  PROJECT_REGEX,
+  PROJECT_THUMBNAIL_REGEX
+} from '@etherealengine/common/src/regex'
+
 import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 
 import config from '../../appconfig'
-import { getCacheDomain } from './getCacheDomain'
-import { getCachedURL } from './getCachedURL'
 import {
   PutObjectParams,
   SignedURLResponse,
@@ -116,7 +114,10 @@ const awsPath = './.aws/s3'
 const credentialsPath = `${awsPath}/credentials`
 
 export const getACL = (key: string) =>
-  projectRegex.test(key) && !projectPublicRegex.test(key) && !projectThumbnailsRegex.test(key) && !assetsRegex.test(key)
+  PROJECT_REGEX.test(key) &&
+  !PROJECT_PUBLIC_REGEX.test(key) &&
+  !PROJECT_THUMBNAIL_REGEX.test(key) &&
+  !ASSETS_REGEX.test(key)
     ? ObjectCannedACL.private
     : ObjectCannedACL.public_read
 
@@ -180,6 +181,16 @@ export class S3Provider implements StorageProviderInterface {
           secretKey: config.aws.s3.secretAccessKey
         })
       : undefined
+
+  getCacheDomain(internal?: boolean): string {
+    if (config.server.storageProviderExternalEndpoint && config.kubernetes.enabled && internal)
+      return config.aws.s3.staticResourceBucket
+        ? `${config.server.storageProviderExternalEndpoint.replace('http://', '').replace('https://', '')}/${
+            config.aws.s3.staticResourceBucket
+          }`
+        : config.server.storageProviderExternalEndpoint.replace('http://', '').replace('https://', '')
+    return this.cacheDomain
+  }
 
   /**
    * Domain address of S3 cache.
@@ -274,10 +285,14 @@ export class S3Provider implements StorageProviderInterface {
    * Get the object from cache.
    * @param key Key of object.
    */
-  async getCachedObject(key: string): Promise<StorageObjectInterface> {
-    const cacheDomain = getCacheDomain(this, true)
-    const data = await fetch(getCachedURL(key, cacheDomain))
-    return { Body: Buffer.from(await data.arrayBuffer()), ContentType: (await data.headers.get('content-type')) || '' }
+  getCachedURL(key: string, internal?: boolean): string {
+    const cacheDomain = this.getCacheDomain(internal)
+
+    if (config.server.storageProvider === 's3' && config.aws.s3.s3DevMode === 'local') {
+      return `https://${cacheDomain}${key.startsWith('/') ? '' : '/'}${key}`
+    }
+
+    return new URL(key, 'https://' + cacheDomain).href
   }
 
   /**
@@ -322,8 +337,8 @@ export class S3Provider implements StorageProviderInterface {
    * @param data Storage object to be added.
    * @param params Parameters of the add request.
    */
-  async putObject(data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<any> {
-    if (!data.Key) return
+  async putObject(data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<boolean> {
+    if (!data.Key) return false
     // key should not contain '/' at the begining
     const key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
 
@@ -360,14 +375,16 @@ export class S3Provider implements StorageProviderInterface {
           console.log(progress)
           // if (params.onProgress) params.onProgress(progress.loaded, progress.total)
         })
-        return upload.done()
+        await upload.done()
+        return true
       } catch (err) {
-        reject(err)
+        return false
       }
     } else if (config.aws.s3.s3DevMode === 'local') {
-      return await this.minioClient?.putObject(args.Bucket, args.Key, args.Body, {
+      await this.minioClient?.putObject(args.Bucket, args.Key, args.Body, {
         'Content-Type': args.ContentType
       })
+      return true
     } else if (data.Body?.length > MULTIPART_CUTOFF_SIZE) {
       const multiPartStartArgs = {
         Bucket: this.bucket,
@@ -428,14 +445,16 @@ export class S3Provider implements StorageProviderInterface {
       }
       try {
         const completeCommand = new CompleteMultipartUploadCommand(completeUploadArgs)
-        return this.provider.send(completeCommand)
+        await this.provider.send(completeCommand)
+        return true
       } catch (err) {
         console.error('Error in complete', err)
         throw err
       }
     } else {
       const command = new PutObjectCommand(args)
-      return this.provider.send(command)
+      await this.provider.send(command)
+      return true
     }
   }
 

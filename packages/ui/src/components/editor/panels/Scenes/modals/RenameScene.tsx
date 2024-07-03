@@ -28,22 +28,31 @@ import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 
-import { AssetType } from '@etherealengine/common/src/schema.type.module'
+import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
+import isValidSceneName from '@etherealengine/common/src/utils/validateSceneName'
 import { renameScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Input from '../../../../../primitives/tailwind/Input'
 import Modal from '../../../../../primitives/tailwind/Modal'
 
-export default function RenameSceneModal({ sceneName, scene }: { sceneName: string; scene: AssetType }) {
+type Props = { sceneName: string; scene: StaticResourceType; refetch: () => void }
+
+export default function RenameSceneModal({ sceneName, refetch, scene }: Props) {
   const { t } = useTranslation()
   const newSceneName = useHookstate(sceneName)
+  const inputError = useHookstate('')
 
   const handleSubmit = async () => {
-    const currentURL = scene.assetURL
+    if (!isValidSceneName(newSceneName.value)) {
+      inputError.set(t('editor:errors.invalidSceneName'))
+      return
+    }
+    const currentURL = scene.key
     const newURL = currentURL.replace(currentURL.split('/').pop()!, newSceneName.value + '.gltf')
-    const newData = await renameScene(scene.id, newURL, scene.projectName)
-    getMutableState(EditorState).scenePath.set(newData.assetURL)
+    const newData = await renameScene(scene, newURL, scene.project!)
+    refetch()
+    getMutableState(EditorState).scenePath.set(newData[0].key)
     PopoverState.hidePopupover()
   }
 
@@ -54,7 +63,12 @@ export default function RenameSceneModal({ sceneName, scene }: { sceneName: stri
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
     >
-      <Input value={newSceneName.value} onChange={(event) => newSceneName.set(event.target.value)} />
+      <Input
+        value={newSceneName.value}
+        onChange={(event) => newSceneName.set(event.target.value)}
+        description={t('editor:dialog.saveNewScene.info-name')}
+        error={inputError.value}
+      />
     </Modal>
   )
 }

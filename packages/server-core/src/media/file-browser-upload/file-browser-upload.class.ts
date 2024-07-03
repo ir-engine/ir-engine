@@ -38,26 +38,29 @@ export interface FileBrowserUploadParams extends KnexAdapterParams {
 /**
  * A class for File Browser Upload service
  */
-export class FileBrowserUploadService implements ServiceInterface<string[], FileBrowserUploadParams> {
+export class FileBrowserUploadService implements ServiceInterface<string[], any, FileBrowserUploadParams> {
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
 
-  async create(data: any, params: FileBrowserUploadParams) {
-    if (typeof data.args === 'string') data.args = JSON.parse(data.args)
-
-    const result = (await Promise.all(
-      params.files.map((file) =>
-        this.app.service(fileBrowserPath).patch(null, {
-          fileName: data.fileName,
-          path: data.path,
-          body: file.buffer as Buffer,
-          contentType: file.mimetype
+  async create(rawData: { args: string }, params: FileBrowserUploadParams) {
+    const data = typeof rawData.args === 'string' ? JSON.parse(rawData.args) : rawData.args
+    const result = (
+      await Promise.all(
+        params.files.map((file, i) => {
+          const args = data[i]
+          return this.app.service(fileBrowserPath).patch(null, {
+            ...args,
+            project: args.project,
+            path: args.path,
+            body: file.buffer as Buffer,
+            contentType: file.mimetype
+          })
         })
       )
-    )) as string[]
+    ).map((result) => result.url)
 
     // Clear params otherwise all the files and auth details send back to client as  response
     for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]

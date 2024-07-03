@@ -63,8 +63,7 @@ import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFM
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarColliderComponent, AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { eyeOffset } from '../systems/AvatarTransparencySystem'
+import { AvatarColliderComponent, AvatarControllerComponent, eyeOffset } from '../components/AvatarControllerComponent'
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
@@ -84,9 +83,8 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, FrustumCullCameraComponent)
 
   setComponent(entity, EnvmapComponent, {
-    type: EnvMapSourceType.Bake,
-    envMapIntensity: 0.5,
-    envMapSourceEntityUUID: getComponent(getComponent(entity, EntityTreeComponent).parentEntity, UUIDComponent)
+    type: EnvMapSourceType.Skybox,
+    envMapIntensity: 0.5
   })
 
   setComponent(entity, AvatarComponent)

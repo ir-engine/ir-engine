@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { STATIC_ASSET_REGEX } from '@etherealengine/common/src/regex'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import exportModelGLTF from '@etherealengine/engine/src/assets/functions/exportModelGLTF'
-import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
 
 import { uploadProjectFiles } from './assetFunctions'
 
 export default async function exportGLTF(entity: Entity, path: string) {
-  const [, pName, fileName] = pathResolver().exec(path)!
+  const [, pName, fileName] = STATIC_ASSET_REGEX.exec(path)!
   return exportRelativeGLTF(entity, pName, fileName)
 }
 
@@ -46,6 +46,6 @@ export async function exportRelativeGLTF(entity: Entity, projectName: string, re
   })
   const blob = isGLTF ? [JSON.stringify(gltf, null, 2)] : [gltf]
   const file = new File(blob, relativePath)
-  const urls = await Promise.all(uploadProjectFiles(projectName, [file], [`projects/${projectName}`]).promises)
+  const urls = await Promise.all(uploadProjectFiles(projectName, [file], [``]).promises)
   console.log('exported model data to ', ...urls)
 }

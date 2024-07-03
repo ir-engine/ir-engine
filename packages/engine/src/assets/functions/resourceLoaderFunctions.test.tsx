@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { createEntity, destroyEngine } from '@etherealengine/ecs'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { getState } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import {
   ResourceManager,
   ResourceState,

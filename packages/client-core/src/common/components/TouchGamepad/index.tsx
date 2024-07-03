@@ -62,7 +62,7 @@ const handleStop = () => {
 
 const buttonsConfig: Array<{ button: AnyButton; label: React.ReactElement }> = [
   {
-    button: XRStandardGamepadButton.Trigger,
+    button: XRStandardGamepadButton.XRStandardGamepadTrigger,
     label: <Icon type="TouchApp" />
   }
 ]

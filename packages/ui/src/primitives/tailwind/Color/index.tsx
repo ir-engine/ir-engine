@@ -22,7 +22,6 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
 import { ColorResult } from '@uiw/color-convert'
 import SketchPicker from '@uiw/react-color-sketch'
 import React from 'react'
@@ -34,6 +33,7 @@ import Text from '../Text'
 interface ColorInputProp {
   value: Color
   onChange: (color: Color) => void
+  onRelease?: (color: Color) => void
   disabled?: boolean
   isValueAsInteger?: boolean
   className?: string
@@ -44,6 +44,7 @@ interface ColorInputProp {
 export function ColorInput({
   value,
   onChange,
+  onRelease,
   disabled,
   className,
   textClassName,
@@ -55,7 +56,6 @@ export function ColorInput({
     const color = new Color(result.hex)
     onChange(color)
   }
-
   return (
     <div
       className={twMerge(
@@ -66,17 +66,20 @@ export function ColorInput({
     >
       <div
         tabIndex={0}
-        className={`group h-5 w-5 rounded border border-black focus:border-theme-primary`}
+        className={`group h-5 w-5 cursor-pointer rounded border border-black focus:border-theme-primary`}
         style={{ backgroundColor: hexColor }}
       >
         <SketchPicker
           className={twMerge(
-            'absolute z-10 mt-5 scale-0 bg-theme-surface-main group-hover:scale-100 group-focus:scale-100',
+            'absolute z-10 mt-5 scale-0 bg-theme-surface-main focus-within:scale-100 group-focus:scale-100',
             sketchPickerClassName
           )}
           color={hexColor}
           onChange={handleChange}
           disableAlpha={true}
+          onPointerLeave={() => {
+            onRelease && onRelease(value)
+          }}
         />
       </div>
       <Text fontFamily="Figtree" fontSize="xs" className={textClassName}>

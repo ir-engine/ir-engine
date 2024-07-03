@@ -46,11 +46,6 @@ export type ManifestJson = {
    */
   thumbnail?: string
   /**
-   * project-relative path for scene GLTF files
-   * @example ["public/scenes/default.gltf"]
-   */
-  scenes?: string[]
-  /**
    * The dependencies of this project. Specify other projects that are to be installed alongside this one.
    * @todo
    * @example { "orgname/reponame": "0.1.2" }

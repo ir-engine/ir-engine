@@ -50,6 +50,7 @@ import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transfor
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -60,14 +61,16 @@ import { createMaterialInstance } from '../materials/functions/materialSourcingF
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
-export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
+export const parseECSData = (userData: Record<string, any>): ComponentJsonType[] => {
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
-
+  const keysToRemove: string[] = []
+  const data = [...Object.entries(userData)]
   for (const [key, value] of data) {
     const parts = key.split('.')
     if (parts.length > 1) {
       if (parts[0] === 'xrengine') {
+        keysToRemove.push(key)
         const componentExists = ComponentMap.has(parts[1])
         const _toLoad = componentExists ? components : prefabs
         if (typeof _toLoad[parts[1]] === 'undefined') {
@@ -81,6 +84,11 @@ export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
         }
       }
     }
+  }
+
+  // remove keys that have been processed as they will be exported in different format
+  for (const key of keysToRemove) {
+    delete userData[key]
   }
 
   const result: ComponentJsonType[] = []
@@ -106,7 +114,7 @@ export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
 }
 
 export const createObjectEntityFromGLTF = (obj3d: Object3D): ComponentJsonType[] => {
-  return parseECSData(Object.entries(obj3d.userData))
+  return parseECSData(obj3d.userData)
 }
 
 export const parseObjectComponentsFromGLTF = (
@@ -286,14 +294,18 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   const findColliderData = (obj: Object3D) => {
     if (
+      hasComponent(obj.entity, ColliderComponent) ||
       Object.keys(obj.userData).find(
         (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
       )
     ) {
       return true
     } else if (obj.parent) {
-      return Object.keys(obj.parent.userData).some(
-        (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+      return (
+        hasComponent(obj.parent.entity, ColliderComponent) ||
+        Object.keys(obj.parent.userData).some(
+          (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+        )
       )
     }
     return false
@@ -346,5 +358,10 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   if (!hasComponent(objEntity, MeshComponent)) {
     setComponent(objEntity, Object3DComponent, obj)
   }
+
+  delete mesh.userData['componentJson']
+  delete mesh.userData['gltfExtensions']
+  delete mesh.userData['useVisible']
+
   return eJson
 }

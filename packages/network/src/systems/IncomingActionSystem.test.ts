@@ -28,9 +28,9 @@ import assert, { strictEqual } from 'assert'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { createEngine, destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { ActionRecipients, applyIncomingActions, getMutableState, getState } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { SpawnObjectActions } from '@etherealengine/spatial/src/transform/SpawnObjectActions'
 
 import { createMockNetwork } from '../../tests/createMockNetwork'
@@ -44,6 +44,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       return getState(ECSState).simulationTime
     }
     createMockNetwork()
+    initializeSpatialEngine()
   })
 
   afterEach(() => {

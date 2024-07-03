@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 export type * from './schemas/analytics/analytics.schema'
 export type * from './schemas/assets/asset-library.schema'
-export type * from './schemas/assets/asset.schema'
 export type * from './schemas/assets/model-transform.schema'
 export type * from './schemas/bot/bot-command.schema'
 export type * from './schemas/bot/bot.schema'
@@ -34,6 +33,7 @@ export type * from './schemas/cluster/build-status.schema'
 export type * from './schemas/cluster/logs-api.schema'
 export type * from './schemas/cluster/migrations-info.schema'
 export type * from './schemas/cluster/pods.schema'
+export type * from './schemas/integrations/zendesk/zendesk.schema'
 export type * from './schemas/matchmaking/match-instance.schema'
 export type * from './schemas/matchmaking/match-user.schema'
 export type * from './schemas/media/archiver.schema'
@@ -62,7 +62,6 @@ export type * from './schemas/projects/project-permission-type.schema'
 export type * from './schemas/projects/project-permission.schema'
 export type * from './schemas/projects/project.schema'
 export type * from './schemas/projects/projects.schema'
-export type * from './schemas/projects/scene-data.schema'
 export type * from './schemas/recording/recording-resource-upload.schema'
 export type * from './schemas/recording/recording-resource.schema'
 export type * from './schemas/recording/recording.schema'
@@ -82,6 +81,7 @@ export type * from './schemas/setting/project-setting.schema'
 export type * from './schemas/setting/redis-setting.schema'
 export type * from './schemas/setting/server-setting.schema'
 export type * from './schemas/setting/task-server-setting.schema'
+export type * from './schemas/setting/zendesk-setting.schema'
 export type * from './schemas/social/channel-user.schema'
 export type * from './schemas/social/channel.schema'
 export type * from './schemas/social/invite-code-lookup.schema'
@@ -246,6 +246,8 @@ export const analyticsPath = 'analytics'
 
 export const serverSettingPath = 'server-setting'
 
+export const zendeskSettingPath = 'zendesk-setting'
+
 export const scopeTypePath = 'scope-type'
 
 export const scopePath = 'scope'
@@ -262,8 +264,6 @@ export const projectPath = 'project'
 
 export const projectsPath = 'projects'
 
-export const assetPath = 'asset'
-
 export const builderInfoPath = 'builder-info'
 
 export const projectCheckSourceDestinationMatchPath = 'project-check-source-destination-match'
@@ -275,8 +275,6 @@ export const botCommandPath = 'bot-command'
 export const projectPermissionTypePath = 'project-permission-type'
 
 export const projectDestinationCheckPath = 'project-destination-check'
-
-export const sceneDataPath = 'scene-data'
 
 export const spawnPointPath = 'spawn-point'
 
@@ -301,3 +299,7 @@ export const migrationsInfoPath = 'knex_migrations'
 export const uploadAssetPath = 'upload-asset'
 
 export const invalidationPath = 'invalidation'
+
+export const imageConvertPath = 'image-convert'
+
+export const zendeskPath = 'zendesk'

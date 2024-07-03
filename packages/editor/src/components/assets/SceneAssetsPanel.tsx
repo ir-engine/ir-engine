@@ -1,4 +1,3 @@
-/* eslint-disable no-case-declarations */
 /*
 CPAL-1.0 License
 
@@ -36,7 +35,7 @@ import { useTranslation } from 'react-i18next'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { getState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import { DockContainer } from '../EditorContainer'
 import StringInput from '../inputs/StringInput'
@@ -46,7 +45,6 @@ import { FileIcon } from './FileBrowser/FileIcon'
 
 import { AssetsPanelCategories } from './AssetsPanelCategories'
 
-import { EditorState } from '../../services/EditorServices'
 import styles from './styles.module.scss'
 
 const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
@@ -125,7 +123,6 @@ const SceneAssetsPanel = () => {
   const searchText = useHookstate('')
   const searchTimeoutCancelRef = useRef<(() => void) | null>(null)
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
-  const { projectName } = useMutableState(EditorState)
 
   const AssetCategory = useCallback(
     (props: {
@@ -190,10 +187,9 @@ const SceneAssetsPanel = () => {
   useEffect(() => {
     const staticResourcesFindApi = () => {
       const query = {
-        key: { $like: `%${searchText.value}%` || undefined },
+        key: { $like: `%${searchText.value}%` },
         $sort: { mimeType: 1 },
-        $limit: 10000,
-        project: projectName.value!
+        $limit: 10000
       }
 
       if (selectedCategory.value) {

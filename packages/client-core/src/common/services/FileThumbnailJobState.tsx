@@ -63,8 +63,6 @@ import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/sy
 import React, { useEffect } from 'react'
 import { Color, Euler, MathUtils, Matrix4, Quaternion, Scene, Sphere, Vector3 } from 'three'
 
-import config from '@etherealengine/common/src/config'
-import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -101,24 +99,31 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
   return Promise.resolve(canvas)
 }
 
-const uploadThumbnail = async (key: string, projectName: string, staticResourceId: string, blob: Blob | null) => {
+const uploadThumbnail = async (src: string, projectName: string, staticResourceId: string, blob: Blob | null) => {
   if (!blob) return
-  const thumbnailType = 'automatic'
-  const thumbnailKey = `${decodeURI(key.replace(/^.*?\/projects\//, ''))
+  const thumbnailMode = 'automatic'
+  const thumbnailKey = `${decodeURI(src.replace(/^.*?\/projects\//, ''))
     .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '')
     .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
-  const path = `projects/${projectName}/thumbnails`
-  const upload: Promise<string[]> = uploadToFeathersService(fileBrowserUploadPath, [file], {
-    fileName: file.name,
-    path,
-    contentType: ''
-  }).promise
-  const thumbnailURL = (await upload)[0]
-  await Engine.instance.api.service(staticResourcePath).patch(staticResourceId, { thumbnailURL, thumbnailType })
-  const urlPrefixRegex = new RegExp(`^${config.client.fileServer}\/`)
-  const resourceKey = key.replace(urlPrefixRegex, '')
-  await Engine.instance.api.service(projectResourcesPath).patch(staticResourceId, { project: projectName })
+  const pathname = new URL(
+    await uploadToFeathersService(fileBrowserUploadPath, [file], {
+      args: [
+        {
+          fileName: file.name,
+          project: projectName,
+          path: 'public/thumbnails/' + file.name,
+          contentType: file.type,
+          type: 'thumbnail',
+          thumbnailKey,
+          thumbnailMode
+        }
+      ]
+    }).promise
+  ).pathname
+  await Engine.instance.api
+    .service(staticResourcePath)
+    .patch(staticResourceId, { thumbnailKey: pathname.slice(1), thumbnailMode })
 }
 
 const seenThumbnails = new Set<string>()
@@ -144,13 +149,13 @@ export const FileThumbnailJobState = defineState({
             return
           }
           const resource = resources.data[0]
-          if (resource.thumbnailURL != null) {
+          if (resource.thumbnailKey != null) {
             return
           }
           getMutableState(FileThumbnailJobState).merge([
             {
               key: url,
-              project: resource.project,
+              project: resource.project!,
               id: resource.id
             }
           ])
@@ -201,13 +206,13 @@ export const FileThumbnailJobState = defineState({
           return
         }
         const resource = resources.data[0]
-        if (!forceRegenerate && resource.thumbnailURL != null) {
+        if (!forceRegenerate && resource.thumbnailKey != null) {
           return
         }
         getMutableState(FileThumbnailJobState).merge([
           {
             key: url,
-            project: resource.project,
+            project: resource.project!,
             id: resource.id
           }
         ])

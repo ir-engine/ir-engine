@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { DirectionalLight, SpotLight, Vector3 } from 'three'
 
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
-
-import { TransformSystem } from '../../transform/TransformModule'
+import { TransformSystem } from '../../transform/systems/TransformSystem'
 
 export const useUpdateLight = (light: DirectionalLight | SpotLight) => {
   useExecute(

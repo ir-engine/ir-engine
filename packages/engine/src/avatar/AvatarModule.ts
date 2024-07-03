@@ -28,7 +28,6 @@ import { AvatarState } from './state/AvatarNetworkState'
 import { AnimationSystem } from './systems/AnimationSystem'
 import { AvatarAnimationSystem } from './systems/AvatarAnimationSystem'
 import { AvatarAutopilotSystem } from './systems/AvatarAutopilotSystem'
-import { AvatarCameraInputSystem } from './systems/AvatarCameraInputSystem'
 import { AvatarControllerSystem } from './systems/AvatarControllerSystem'
 import { AvatarInputSystem } from './systems/AvatarInputSystem'
 import { AvatarLoadingSystem } from './systems/AvatarLoadingSystem'
@@ -36,14 +35,12 @@ import { AvatarMovementSystem } from './systems/AvatarMovementSystem'
 import { AvatarTeleportSystem } from './systems/AvatarTeleportSystem'
 import { AvatarTransparencySystem } from './systems/AvatarTransparencySystem'
 import { ReferenceSpaceTransformSystem } from './systems/ReferenceSpaceTransformSystem'
-import { TransparencyDitheringSystem } from './systems/TransparencyDitheringSystem'
 
 export default {
   AvatarState,
   AnimationSystem,
   AvatarAnimationSystem,
   AvatarAutopilotSystem,
-  AvatarCameraInputSystem,
   AvatarControllerSystem,
   AvatarIKTargetState,
   AvatarInputSystem,
@@ -51,6 +48,5 @@ export default {
   AvatarMovementSystem,
   AvatarTeleportSystem,
   AvatarTransparencySystem,
-  ReferenceSpaceTransformSystem,
-  TransparencyDitheringSystem
+  ReferenceSpaceTransformSystem
 }

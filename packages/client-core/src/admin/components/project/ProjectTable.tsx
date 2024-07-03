@@ -40,7 +40,7 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
-import { projectPath, projectPermissionPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import { projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
@@ -69,13 +69,6 @@ export default function ProjectTable() {
       $sort: {
         name: 1
       }
-    }
-  })
-
-  const projectPermissionsFindQuery = useFind(projectPermissionPath, {
-    query: {
-      projectId: activeProjectId?.value,
-      paginate: false
     }
   })
 
@@ -144,9 +137,7 @@ export default function ProjectTable() {
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
             activeProjectId.set(project.id)
-            PopoverState.showPopupover(
-              <ManageUserPermissionModal project={project} projectPermissions={projectPermissionsFindQuery.data} />
-            )
+            PopoverState.showPopupover(<ManageUserPermissionModal project={project} />)
           }}
         >
           {t('admin:components.project.actions.access')}

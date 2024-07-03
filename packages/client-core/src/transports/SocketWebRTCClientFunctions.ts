@@ -92,7 +92,6 @@ import {
   webcamVideoDataChannelType
 } from '@etherealengine/network'
 
-import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import {
@@ -797,9 +796,8 @@ export async function configureMediaTransports(mediaTypes: string[]): Promise<bo
 }
 
 const getCodecEncodings = (service: string) => {
-  const clientSettingState = getState(AdminClientSettingsState).client[0]
-  const settings =
-    service === 'video' ? clientSettingState.mediaSettings.video : clientSettingState.mediaSettings.screenshare
+  const mediaSettings = config.client.mediaSettings
+  const settings = service === 'video' ? mediaSettings.video : mediaSettings.screenshare
   let codec, encodings
   if (settings) {
     switch (settings.codec) {
@@ -869,7 +867,6 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
 
 export async function createCamAudioProducer(network: SocketWebRTCClientNetwork): Promise<void> {
   const channelConnectionState = getState(MediaInstanceState)
-  const clientSettingState = getState(AdminClientSettingsState)
   const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
   const channelId = currentChannelInstanceConnection.channelId
   const mediaStreamState = getMutableState(MediaStreamState)
@@ -893,8 +890,8 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
 
     try {
       const codecOptions = { ...VideoConstants.CAM_AUDIO_CODEC_OPTIONS }
-      if (clientSettingState.client?.[0]?.mediaSettings?.audio)
-        codecOptions.opusMaxAverageBitrate = clientSettingState.client[0].mediaSettings.audio.maxBitrate * 1000
+      const mediaSettings = config.client.mediaSettings
+      if (mediaSettings?.audio) codecOptions.opusMaxAverageBitrate = mediaSettings.audio.maxBitrate * 1000
 
       // Create a new transport for audio and start producing
       let produceInProgress = false
@@ -1183,8 +1180,8 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   )
 
   const channelConnectionState = getState(MediaInstanceState)
-  const clientSettingState = getState(AdminClientSettingsState).client[0]
-  const screenshareSettings = clientSettingState.mediaSettings.screenshare
+  const mediaSettings = config.client.mediaSettings
+  const screenshareSettings = mediaSettings.screenshare
   const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
   const channelId = currentChannelInstanceConnection.channelId
 
