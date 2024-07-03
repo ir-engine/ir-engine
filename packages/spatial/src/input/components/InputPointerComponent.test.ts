@@ -34,9 +34,10 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
 import assert from 'assert'
 import { Vector2 } from 'three'
-import { InputPointerComponent } from './InputPointerComponent'
+import { InputPointerComponent, InputPointerState } from './InputPointerComponent'
 
 const InputPointerComponentDefaults = {
   pointerId: -1 as number,
@@ -45,6 +46,31 @@ const InputPointerComponentDefaults = {
   movement: new Vector2(),
   cameraEntity: UndefinedEntity
 }
+
+describe('InputPointerState', () => {
+  describe('IDs', () => {
+    it('should initialize the InputPointerComponent.name field with the expected value', () => {
+      assert.equal(InputPointerState.name, 'InputPointerState')
+    })
+  })
+
+  describe('initial', () => {
+    beforeEach(() => {
+      createEngine()
+    })
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    it('should start with the expected default values', () => {
+      const Expected = { pointers: new Map<string, Entity>() }
+      const result = getState(InputPointerState)
+      assert.equal(typeof result, typeof Expected)
+      assert.equal(typeof result.pointers, typeof Expected.pointers)
+      assert.equal(result.pointers.entries.length, Expected.pointers.entries.length)
+    })
+  })
+})
 
 describe('InputPointerComponent', () => {
   describe('IDs', () => {
@@ -108,6 +134,20 @@ describe('InputPointerComponent', () => {
       assert.equal(after.pointerId, DummyPointerID)
       assert.equal(after.cameraEntity, DummyEntity)
     })
+
+    it('should set the entity into the InputPointerState with the expected hash id', () => {
+      const DummyPointerID = 123
+      const DummyEntity = 456 as Entity
+      const PointerData = {
+        ...InputPointerComponentDefaults,
+        pointerId: DummyPointerID,
+        cameraEntity: DummyEntity
+      }
+      const ExpectedHash = `canvas-${PointerData.cameraEntity}.pointer-${PointerData.pointerId}`
+      setComponent(testEntity, InputPointerComponent, PointerData)
+      const result = getState(InputPointerState).pointers.get(ExpectedHash)
+      assert.equal(result, testEntity)
+    })
   }) // << onSet
 
   describe('getPointersForCamera', () => {
@@ -139,4 +179,7 @@ describe('InputPointerComponent', () => {
       assert.equal(after, testEntity)
     })
   }) // << getPointersForCamera
+
+  // describe("onRemove", () => {})
+  // describe("getPointerByID", () => {})
 })
