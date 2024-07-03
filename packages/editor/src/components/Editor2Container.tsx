@@ -130,7 +130,7 @@ const EditorContainer = () => {
 
   const viewerEntity = useMutableState(EngineState).viewerEntity.value
 
-  const { isWidgetVisible, openChat } = useZendesk()
+  const { initialized, isWidgetVisible, openChat } = useZendesk()
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -184,14 +184,13 @@ const EditorContainer = () => {
         </DndWrapper>
       </div>
       <PopupMenu />
-      {!isWidgetVisible && (
+      {!isWidgetVisible && initialized && (
         <Button
           rounded="partial"
           size="small"
           className="absolute bottom-5 right-5 z-10"
           startIcon={<IoHelpCircleOutline fontSize={20} />}
           onClick={openChat}
-          hidden={true}
         >
           {t('editor:help')}
         </Button>
