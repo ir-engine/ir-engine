@@ -42,6 +42,7 @@ import config from '@etherealengine/common/src/config'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine, UUIDComponent } from '@etherealengine/ecs'
 import {
+  ComponentType,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -57,7 +58,16 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ec
 import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem, useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { defineState, getMutableState, getState, hookstate, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import {
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  hookstate,
+  NO_PROXY,
+  State,
+  useHookstate
+} from '@etherealengine/hyperflux'
 import { Vector3_Back } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import {
   createPriorityQueue,
@@ -88,11 +98,15 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
+import { GLTFNodeState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
+import { GLTFSnapshotState } from '../../gltf/GLTFState'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
+import { SourceComponent } from '../components/SourceComponent'
 import { SceneObjectSystem } from './SceneObjectSystem'
 
 export const ShadowSystemState = defineState({
@@ -437,6 +451,19 @@ const execute = () => {
           csm: false,
           primaryLight: '' as EntityUUID
         })
+        if (getState(EngineState).isEditing) {
+          const source = getComponent(renderSettingsEntity, SourceComponent)
+          const node = GLTFNodeState.getMutableNode(renderSettingsEntity)
+          const renderSettingsExt = node.extensions[RenderSettingsComponent.jsonID] as State<
+            ComponentType<typeof RenderSettingsComponent>
+          >
+          renderSettingsExt.merge({
+            csm: false,
+            primaryLight: '' as EntityUUID
+          })
+          const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(source)
+          dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
+        }
       }
     }
     directionalLightMap.delete(entity)
