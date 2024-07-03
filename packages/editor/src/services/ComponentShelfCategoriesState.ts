@@ -134,7 +134,6 @@ export const ComponentShelfCategoriesState = defineState({
         ScreenshareTargetComponent,
         LookAtComponent
       ]
-      // Ecommerce: [ECommerceComponent]
     } as Record<string, Component[]>
   }
 })
