@@ -220,7 +220,6 @@ function fileConsistsOfContentType(file: FileDataType, contentType: string): boo
     return contentType.startsWith('image')
   } else {
     const guessedType: string = CommonKnownContentTypes[file.type]
-    console.log('debug1 file', file, 'and guessed type', guessedType)
     return guessedType?.startsWith(contentType)
   }
 }
