@@ -26,15 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { UUIDComponent } from '@etherealengine/ecs'
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SpawnPoseState } from '@etherealengine/spatial'
-import { switchCameraMode } from '@etherealengine/spatial/src/camera/functions/switchCameraMode'
-import { CameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
+import { FollowCameraMode } from '@etherealengine/spatial/src/camera/types/FollowCameraMode'
 
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { PortalComponent, PortalState } from '../components/PortalComponent'
@@ -46,7 +46,7 @@ const reactor = () => {
     const activePortalEntity = activePortalEntityState.value
     if (!activePortalEntity) return
     const activePortal = getComponent(activePortalEntity, PortalComponent)
-    switchCameraMode(Engine.instance.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
+    getMutableComponent(Engine.instance.cameraEntity, FollowCameraComponent).mode.set(FollowCameraMode.ShoulderCam)
     const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
     AvatarControllerComponent.captureMovement(selfAvatarEntity, activePortalEntity)
 
