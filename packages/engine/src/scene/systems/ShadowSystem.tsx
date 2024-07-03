@@ -48,7 +48,8 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
@@ -87,7 +88,6 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
@@ -121,15 +121,16 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   const rendererComponent = useComponent(rendererEntity, RendererComponent)
   const renderSettingsComponent = useComponent(renderSettingsEntity, RenderSettingsComponent)
 
-  const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
+  const directionalLightComponent = useOptionalComponent(entity, DirectionalLightComponent)
   const shadowMapResolution = useHookstate(getMutableState(RendererState).shadowMapResolution)
 
-  const directionalLight = directionalLightComponent.light.get(NO_PROXY) as DirectionalLight
+  const directionalLight =
+    directionalLightComponent && (directionalLightComponent.light.get(NO_PROXY) as DirectionalLight)
 
   const csm = rendererComponent.csm.get(NO_PROXY) as CSM | null
 
   useEffect(() => {
-    if (!directionalLightComponent.value) return
+    if (!directionalLight) return
     if (!directionalLightComponent.castShadow.value) return
     const csm = new CSM({
       light: directionalLight as DirectionalLight,
@@ -146,12 +147,12 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
       if (!hasComponent(rendererEntity, RendererComponent)) return
       rendererComponent.csm.set(null)
     }
-  }, [directionalLightComponent.castShadow])
+  }, [directionalLightComponent?.castShadow])
 
   /** Must run after scene object system to ensure source light is not lit */
   useExecute(
     () => {
-      if (!directionalLightComponent.castShadow.value) return
+      if (!directionalLight || !directionalLightComponent.castShadow.value) return
       directionalLight.visible = false
     },
     { after: SceneObjectSystem }
@@ -159,6 +160,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
 
   useEffect(() => {
     if (!csm) return
+    if (!directionalLight) return
     if (!directionalLightComponent.castShadow.value) return
 
     csm.shadowBias = directionalLight.shadow.bias
@@ -175,12 +177,12 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   }, [
     rendererComponent.csm,
     shadowMapResolution,
-    directionalLightComponent.shadowBias,
-    directionalLightComponent.intensity,
-    directionalLightComponent.color,
-    directionalLightComponent.castShadow,
-    directionalLightComponent.shadowRadius,
-    directionalLightComponent.cameraFar
+    directionalLightComponent?.shadowBias,
+    directionalLightComponent?.intensity,
+    directionalLightComponent?.color,
+    directionalLightComponent?.castShadow,
+    directionalLightComponent?.shadowRadius,
+    directionalLightComponent?.cameraFar
   ])
 
   useEffect(() => {
@@ -433,14 +435,6 @@ const execute = () => {
         getMutableComponent(renderSettingsEntity, RenderSettingsComponent).merge({
           csm: false,
           primaryLight: '' as EntityUUID
-        })
-
-        const viewerEntity = getState(EngineState).viewerEntity
-        if (!viewerEntity) break
-        getComponent(viewerEntity, RendererComponent).csm?.dispose()
-        getMutableComponent(viewerEntity, RendererComponent).merge({
-          csm: null,
-          csmHelper: null
         })
       }
     }
