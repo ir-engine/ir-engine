@@ -271,17 +271,6 @@ export default function ModelCompressionPanel({
     selectedLODIndex.set(lods.length - 1)
   }
 
-  let title: string
-  let fileTypeText: string
-  if (selectedFiles.length === 1) {
-    const file = selectedFiles[0]
-    title = file.name
-    fileTypeText = file.isFolder ? 'Directory' : 'File'
-  } else {
-    title = selectedFiles.length + ' Items'
-    fileTypeText = 'Multiple Selection'
-  }
-
   return (
     <div className="max-h-[80vh] w-[60vw] overflow-y-auto rounded-xl bg-[#0E0F11]">
       <div className="relative flex items-center justify-center px-8 py-3">

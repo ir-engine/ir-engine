@@ -36,7 +36,6 @@ import {
   fileBrowserUploadPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
@@ -45,9 +44,16 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import {
+  ImmutableArray,
+  NO_PROXY,
+  getMutableState,
+  getState,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { useValidProjectForFileBrowser } from '@etherealengine/ui/src/components/editor/panels/Files/container'
+import { filesConsistOfContentType, useValidProjectForFileBrowser } from '@etherealengine/ui/src/components/editor/panels/Files/container'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
@@ -73,13 +79,13 @@ import InputGroup from '../../inputs/InputGroup'
 import StringInput from '../../inputs/StringInput'
 import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
-import ImageCompressionPanel from '../ImageCompressionPanel'
 import ImageConvertPanel from '../ImageConvertPanel'
 import styles from '../styles.module.scss'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from './FileBrowserGrid'
 import { FilesViewModeSettings, FilesViewModeState, availableTableColumns } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
 import { FilePropertiesPanel } from './FilePropertiesPanel'
+import ImageCompressionPanel from '../ImageCompressionPanel'
 
 type FileBrowserContentPanelProps = {
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
@@ -99,15 +105,6 @@ export const FILES_PAGE_LIMIT = 100
 
 type FileType = FileDataType
 
-const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
-  if (file.isFolder) {
-    return contentType.startsWith('image')
-  } else {
-    const guessedType: string = CommonKnownContentTypes[file.type]
-    return guessedType?.startsWith(contentType)
-  }
-}
-
 export function isFileDataType(value: any): value is FileDataType {
   return value && value.key
 }
@@ -123,7 +120,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const selectedDirectory = useHookstate(originalPath)
   const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
   const nestingDirectory = useHookstate('projects')
-  const fileProperties = useHookstate<FileType | null>(null)
+  const fileProperties = useHookstate<FileType[]>([])
 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
@@ -673,17 +670,17 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </DndWrapper>
       </div>
 
-      {openConvert.value && fileProperties.value && (
+      {openConvert.value && fileProperties.value.length > 0 && (
         <ImageConvertPanel
           openConvert={openConvert}
-          fileProperties={fileProperties.value}
+          fileProperties={fileProperties.value?.[0]}
           convertProperties={convertProperties}
           onRefreshDirectory={refreshDirectory}
         />
       )}
 
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
-        <ImageCompressionPanel selectedFile={fileProperties.value} refreshDirectory={refreshDirectory} />
+      {openCompress.value && fileProperties.value && filesConsistOfContentType(fileProperties.value, 'image') && (
+        <ImageCompressionPanel selectedFiles={fileProperties.value} refreshDirectory={refreshDirectory} />
       )}
 
       {openProperties.value && fileProperties.value && (

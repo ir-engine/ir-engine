@@ -151,7 +151,7 @@ export const createStaticResourceDigest = (staticResources: ImmutableArray<Stati
   return digest
 }
 
-const filesConsistOfContentType = function (files: ImmutableArray<FileType>, contentType: string): boolean {
+export const filesConsistOfContentType = function (files: ImmutableArray<FileType>, contentType: string): boolean {
   return files.every((file) => {
     if (file.isFolder) {
       return contentType.startsWith('image')
