@@ -23,18 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
+import { Popover } from '@mui/material'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UUIDComponent } from '@etherealengine/ecs'
-import { useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { Component, ComponentJSONIDMap, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { Popover } from '@mui/material'
-import { ComponentEditorsState } from '../../functions/ComponentEditors'
+import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+
+import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
@@ -60,8 +59,14 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   const { t } = useTranslation()
 
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
-  useHookstate(getMutableState(ComponentEditorsState).keys).value
-  const components = useAllComponents(entity).filter((c) => !!getState(ComponentEditorsState)[c.name])
+  const componentEditors = useHookstate(getMutableState(ComponentEditorsState)).get(NO_PROXY)
+  const node = useHookstate(GLTFNodeState.getMutableNode(entity))
+  const components: Component[] = []
+  for (const jsonID of Object.keys(node.extensions.value!)) {
+    const component = ComponentJSONIDMap.get(jsonID)!
+    if (!componentEditors[component.name]) continue
+    components.push(component)
+  }
 
   const open = !!anchorEl.value
 
@@ -81,7 +86,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
       <Popover
         id={open ? 'add-component-popover' : undefined}
         open={open}
-        anchorEl={anchorEl.value}
+        anchorEl={anchorEl.value as HTMLButtonElement}
         onClose={() => anchorEl.set(null)}
         anchorOrigin={{
           vertical: 'center',
@@ -107,6 +112,13 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   )
 }
 
+const NodeEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => {
+  const entity = UUIDComponent.useEntityByUUID(props.entityUUID)
+  const node = GLTFNodeState.useMutableNode(entity)
+  if (!node) return null
+  return <EntityEditor entityUUID={props.entityUUID} multiEdit={props.multiEdit} />
+}
+
 /**
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
  */
@@ -115,6 +127,8 @@ export const PropertiesPanelContainer = () => {
   const lockedNode = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const multiEdit = selectedEntities.length > 1
   const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
+
+  const entity = UUIDComponent.useEntityByUUID(uuid)
 
   const { t } = useTranslation()
   const materialUUID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
@@ -128,8 +142,8 @@ export const PropertiesPanelContainer = () => {
     >
       {materialUUID ? (
         <MaterialEditor materialUUID={materialUUID} />
-      ) : uuid ? (
-        <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
+      ) : entity ? (
+        <NodeEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (
         <div
           style={{

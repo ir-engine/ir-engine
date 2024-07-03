@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AwsCloudFrontType, AwsSmsType, awsSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
-import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
+import { AwsCloudFrontType, awsSettingPath, AwsSmsType } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 
 const SMS_PROPERTIES = {
@@ -248,7 +248,7 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
       </div>
 
       <div className="grid grid-cols-8 gap-6">
-        <Button size="small" className="bg-theme-highlight text-primary col-span-1" fullWidth onClick={handleCancel}>
+        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
           {t('admin:components.common.reset')}
         </Button>
         <Button size="small" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>

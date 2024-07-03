@@ -28,9 +28,11 @@ import knex, { Knex } from 'knex'
 import { isDev } from '@etherealengine/common/src/config'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 import { delay } from '@etherealengine/spatial/src/common/functions/delay'
+
 import { Application } from '../declarations'
-import multiLogger from './ServerLogger'
 import { seeder } from './seeder'
+import multiLogger from './ServerLogger'
+
 const config = require('../knexfile')
 
 const logger = multiLogger.child({ component: 'server-core:mysql' })
@@ -119,14 +121,28 @@ export default (app: Application): void => {
           await checkLock(knexClient, 0)
 
           logger.info('Knex migration rollback started')
-          await knexClient.migrate.rollback(config.migrations, true)
+
+          const allTables = (
+            await db.raw(
+              `select table_name from information_schema.tables where table_schema = '${appConfig.db.database}'`
+            )
+          )[0].map((table) => table.table_name)
+
+          const trx = await knexClient.transaction()
+          await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+          for (const table of allTables) {
+            await trx.schema.dropTableIfExists(table)
+          }
+
+          await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+          await trx.commit()
+
+          // await knexClient.migrate.rollback(config.migrations, true)
           logger.info('Knex migration rollback ended')
         }
 
-        const tableCount = await db.raw(
-          `select table_schema as etherealengine,count(*) as tables from information_schema.tables where table_type = \'BASE TABLE\' and table_schema not in (\'information_schema\', \'sys\', \'performance_schema\', \'mysql\') group by table_schema order by table_schema;`
-        )
-        const prepareDb = process.env.PREPARE_DATABASE === 'true' || (isDev && tableCount[0] && !tableCount[0][0])
+        const prepareDb = process.env.PREPARE_DATABASE === 'true'
 
         if (forceRefresh || appConfig.testEnabled || prepareDb) {
           // We are running our migrations here, so that tables above in db tree are create 1st using sequelize.

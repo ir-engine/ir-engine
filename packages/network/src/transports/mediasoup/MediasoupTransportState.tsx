@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useLayoutEffect } from 'react'
+
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
-  PeerID,
-  Validator,
   defineAction,
   defineState,
   getMutableState,
@@ -35,9 +35,12 @@ import {
   matches,
   matchesPeerID,
   none,
-  useHookstate
+  PeerID,
+  useHookstate,
+  useMutableState,
+  Validator
 } from '@etherealengine/hyperflux'
-import React, { useLayoutEffect } from 'react'
+
 import { Network } from '../../Network'
 import { NetworkActions, NetworkState } from '../../NetworkState'
 
@@ -180,7 +183,7 @@ export const MediasoupTransportState = defineState({
   },
 
   reactor: () => {
-    const networkIDs = useHookstate(getMutableState(MediasoupTransportState))
+    const networkIDs = useMutableState(MediasoupTransportState)
     return (
       <>
         {networkIDs.keys.map((id: InstanceID) => (

@@ -32,7 +32,10 @@ import { MessageContainer } from '@etherealengine/ui/src/components/Chat/Message
 import './index.css'
 
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
+
 import '@etherealengine/engine/src/EngineModule'
+
+import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
@@ -43,6 +46,7 @@ export const initializeEngineForChat = async () => {
 
 export function ChatPage() {
   AuthService.useAPIListeners()
+  LocationService.useLocationBanListeners()
 
   useEffect(() => {
     initializeEngineForChat()

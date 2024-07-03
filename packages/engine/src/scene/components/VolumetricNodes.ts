@@ -23,20 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Tween } from '@tweenjs/tween.js'
+
 import { getMutableComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
 import { NodeCategory, makeFlowNodeDefinition } from '@etherealengine/visual-script'
-import { Tween } from '@tweenjs/tween.js'
 
 /**
  * playVolumetric: Play / pause volumetric video
  */
 export const playVolumetric = makeFlowNodeDefinition({
   typeName: 'engine/media/volumetric/playVolumetric',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Play Volumetric',
   in: {
     flow: 'flow',
@@ -59,7 +60,7 @@ export const playVolumetric = makeFlowNodeDefinition({
  */
 export const setVolumetricTime = makeFlowNodeDefinition({
   typeName: 'engine/media/volumetric/setVolumetricTime',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Set Volumetric Time',
   in: {
     flow: 'flow',
@@ -82,7 +83,7 @@ export const setVolumetricTime = makeFlowNodeDefinition({
  */
 export const fadeVolumetricAudioVolume = makeFlowNodeDefinition({
   typeName: 'engine/media/volumetric/fadeVolumetricVolume',
-  category: NodeCategory.Effect,
+  category: NodeCategory.Engine,
   label: 'Fade Volumetric Volume',
   in: {
     flow: 'flow',

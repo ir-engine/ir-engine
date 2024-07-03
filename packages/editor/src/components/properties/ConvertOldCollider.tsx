@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React from 'react'
+
 import { Entity, getComponent, getOptionalComponent, hasComponent, setComponent } from '@etherealengine/ecs'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
@@ -32,10 +34,10 @@ import { OldShapeTypes } from '@etherealengine/spatial/src/physics/types/Physics
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import {
-  findAncestorWithComponent,
+  getAncestorWithComponent,
   iterateEntityNode
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import React from 'react'
+
 import { Button } from '../inputs/Button'
 
 const convert = (entity: Entity, hierarchy: boolean) => {
@@ -45,7 +47,7 @@ const convert = (entity: Entity, hierarchy: boolean) => {
   )!
 
   const rigidbodyType = objWithMetadata?.userData?.['xrengine.collider.bodyType'] ?? 'static'
-  const modelEntity = findAncestorWithComponent(entity, ModelComponent)!
+  const modelEntity = getAncestorWithComponent(entity, ModelComponent)!
   setComponent(modelEntity, RigidBodyComponent, {
     type: rigidbodyType
   })
@@ -55,42 +57,46 @@ const convert = (entity: Entity, hierarchy: boolean) => {
     objWithMetadata.userData[`xrengine.${RigidBodyComponent.jsonID}.shape`] = rigidbodyType
   }
 
-  iterateEntityNode(entity, (child) => {
-    const childWithMetadata = getComponent(child, GroupComponent)?.find(
-      (obj) =>
-        !!obj.userData['type'] ||
-        !!obj.userData['xrengine.collider.type'] ||
-        !!obj.userData['xrengine.collider.shapeType'] ||
-        !!obj.userData['xrengine.collider.isTrigger'] ||
-        !!obj.userData['shapeType'] ||
-        !!obj.userData['isTrigger']
-    )
-    if (!childWithMetadata && !hierarchy) return
+  iterateEntityNode(
+    entity,
+    (child) => {
+      const childWithMetadata = getComponent(child, GroupComponent)?.find(
+        (obj) =>
+          !!obj.userData['type'] ||
+          !!obj.userData['xrengine.collider.type'] ||
+          !!obj.userData['xrengine.collider.shapeType'] ||
+          !!obj.userData['xrengine.collider.isTrigger'] ||
+          !!obj.userData['shapeType'] ||
+          !!obj.userData['isTrigger']
+      )
+      if (!childWithMetadata && !hierarchy) return
 
-    const mesh = getOptionalComponent(child, MeshComponent)
-    if (!mesh) return
+      const mesh = getOptionalComponent(child, MeshComponent)
+      if (!mesh) return
 
-    const shape =
-      OldShapeTypes[
-        mesh.userData['xrengine.collider.type'] ??
-          mesh.userData['xrengine.collider.shapeType'] ??
-          mesh.userData['shapeType'] ??
-          mesh.userData['type']
-      ] ?? 'box'
-    delete mesh.userData['type']
-    delete mesh.userData['shapeType']
+      const shape =
+        OldShapeTypes[
+          mesh.userData['xrengine.collider.type'] ??
+            mesh.userData['xrengine.collider.shapeType'] ??
+            mesh.userData['shapeType'] ??
+            mesh.userData['type']
+        ] ?? 'box'
+      delete mesh.userData['type']
+      delete mesh.userData['shapeType']
 
-    //mesh.userData[`xrengine.${ColliderComponent.jsonID}.shape`] = shape
-    setComponent(child, ColliderComponent, { shape })
+      //mesh.userData[`xrengine.${ColliderComponent.jsonID}.shape`] = shape
+      setComponent(child, ColliderComponent, { shape })
 
-    const isTrigger = mesh.userData['isTrigger'] ?? mesh.userData['xrengine.collider.isTrigger'] ?? false
-    if (isTrigger === true || isTrigger === 'true') {
-      setComponent(child, TriggerComponent)
-      delete mesh.userData['isTrigger']
-      delete mesh.userData['xrengine.collider.isTrigger']
-      //mesh.userData[`xrengine.${TriggerComponent.jsonID}`] = true
-    }
-  })
+      const isTrigger = mesh.userData['isTrigger'] ?? mesh.userData['xrengine.collider.isTrigger'] ?? false
+      if (isTrigger === true || isTrigger === 'true') {
+        setComponent(child, TriggerComponent)
+        delete mesh.userData['isTrigger']
+        delete mesh.userData['xrengine.collider.isTrigger']
+        //mesh.userData[`xrengine.${TriggerComponent.jsonID}`] = true
+      }
+    },
+    (e) => hasComponent(e, GroupComponent)
+  )
 }
 
 const detectOldColliders = (entity: Entity) => {
@@ -108,7 +114,7 @@ const detectOldColliders = (entity: Entity) => {
 }
 
 export const ConvertOldCollider = (props: { entity: Entity }) => {
-  const modelEntity = findAncestorWithComponent(props.entity, ModelComponent)
+  const modelEntity = getAncestorWithComponent(props.entity, ModelComponent)
   if (!modelEntity) return <></>
 
   const needsConversion = detectOldColliders(props.entity)

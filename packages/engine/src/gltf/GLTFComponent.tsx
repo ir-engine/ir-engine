@@ -23,27 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { GLTF } from '@gltf-transform/core'
+import React, { useEffect } from 'react'
+
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import {
-  Entity,
   defineComponent,
+  Entity,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   useComponent,
   useEntityContext,
   useQuery
 } from '@etherealengine/ecs'
 import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
-import { GLTF } from '@gltf-transform/core'
-import React, { useEffect } from 'react'
+
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { SceneJsonType } from '../scene/types/SceneTypes'
+import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
-import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 
 export const GLTFComponent = defineComponent({
   name: 'GLTFComponent',
@@ -121,6 +124,14 @@ const onProgress: (event: ProgressEvent) => void = (event) => {
 
 const useGLTFDocument = (url: string, entity: Entity) => {
   const state = useComponent(entity, GLTFComponent)
+  const sourceComponent = useComponent(entity, SourceComponent)
+
+  useEffect(() => {
+    const source = sourceComponent.value
+    return () => {
+      dispatchAction(GLTFSnapshotAction.unload({ source }))
+    }
+  }, [])
 
   useEffect(() => {
     if (!url) return
@@ -128,60 +139,58 @@ const useGLTFDocument = (url: string, entity: Entity) => {
     const abortController = new AbortController()
     const signal = abortController.signal
 
+    const onSuccess = (data: string | ArrayBuffer | GLTF.IGLTF) => {
+      if (signal.aborted) return
+
+      const textDecoder = new TextDecoder()
+      let json: GLTF.IGLTF | SceneJsonType
+
+      if (typeof data === 'string') {
+        json = JSON.parse(data)
+      } else if (data instanceof ArrayBuffer) {
+        const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
+
+        if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
+          try {
+            /** TODO we will need to refactor and persist this */
+            state.extensions.merge({ [EXTENSIONS.KHR_BINARY_GLTF]: new GLTFBinaryExtension(data) })
+          } catch (error) {
+            if (onError) onError(error)
+            return
+          }
+
+          json = JSON.parse(state.extensions.value[EXTENSIONS.KHR_BINARY_GLTF].content)
+        } else {
+          json = JSON.parse(textDecoder.decode(data))
+        }
+      } else {
+        json = data
+      }
+
+      /** Migrate old scene json format */
+      if ('entities' in json && 'root' in json) {
+        json = migrateSceneJSONToGLTF(json)
+      }
+
+      dispatchAction(
+        GLTFSnapshotAction.createSnapshot({
+          source: getComponent(entity, SourceComponent),
+          data: parseStorageProviderURLs(JSON.parse(JSON.stringify(json)))
+        })
+      )
+    }
+
     const loader = new FileLoader()
 
     loader.setResponseType('arraybuffer')
     loader.setRequestHeader({})
     loader.setWithCredentials(false)
 
-    loader.load(
-      url,
-      function (data: string | ArrayBuffer | GLTF.IGLTF) {
-        if (signal.aborted) return
+    loader.load(url, onSuccess, onProgress, onError, signal)
 
-        const textDecoder = new TextDecoder()
-        let json: GLTF.IGLTF | SceneJsonType
-
-        if (typeof data === 'string') {
-          json = JSON.parse(data)
-        } else if (data instanceof ArrayBuffer) {
-          const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
-
-          if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
-            try {
-              /** TODO we will need to refactor and persist this */
-              state.extensions.merge({ [EXTENSIONS.KHR_BINARY_GLTF]: new GLTFBinaryExtension(data) })
-            } catch (error) {
-              if (onError) onError(error)
-              return
-            }
-
-            json = JSON.parse(state.extensions.value[EXTENSIONS.KHR_BINARY_GLTF].content)
-          } else {
-            json = JSON.parse(textDecoder.decode(data))
-          }
-        } else {
-          json = data
-        }
-
-        /** Migrate old scene json format */
-        if ('entities' in json && 'root' in json) {
-          json = migrateSceneJSONToGLTF(json)
-        }
-
-        dispatchAction(
-          GLTFSnapshotAction.createSnapshot({
-            source: getComponent(entity, SourceComponent),
-            data: parseStorageProviderURLs(json)
-          })
-        )
-      },
-      onProgress,
-      onError,
-      signal
-    )
     return () => {
       abortController.abort()
+      if (!hasComponent(entity, GLTFComponent)) return
       state.merge({
         extensions: {}
       })

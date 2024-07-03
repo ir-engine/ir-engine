@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { MeshLambertMaterial as Lambert } from 'three'
-import { MaterialPrototypeDefinition } from '../MaterialComponent'
+
 import { BasicArgs, EmissiveMapArgs, EnvMapArgs } from '../constants/BasicArgs'
 import { BoolArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 
 export const MeshLambertArguments = {
   ...BasicArgs,
@@ -40,5 +41,14 @@ export const MeshLambertMaterial: MaterialPrototypeDefinition = {
   prototypeConstructor: Lambert,
   arguments: MeshLambertArguments
 }
+
+// export const MeshLambertMaterial = defineComponent({
+//   name: 'MeshLambertMaterial',
+//   onInit: (entity) => {
+//     return {
+//       material: new Lambert()
+//     }
+//   },
+// })
 
 export default MeshLambertMaterial

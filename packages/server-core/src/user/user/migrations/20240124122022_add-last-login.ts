@@ -23,27 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import type { Knex } from 'knex'
+
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const lastLoginColumnExists = await trx.schema.hasColumn(userPath, 'lastLogin')
+  const lastLoginColumnExists = await knex.schema.hasColumn(userPath, 'lastLogin')
 
   if (!lastLoginColumnExists) {
-    await trx.schema.alterTable(userPath, async (table) => {
+    await knex.schema.alterTable(userPath, async (table) => {
       table.dateTime('lastLogin').nullable()
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -51,17 +50,15 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const lastLoginColumnExists = await trx.schema.hasColumn(userPath, 'lastLogin')
+  const lastLoginColumnExists = await knex.schema.hasColumn(userPath, 'lastLogin')
 
   if (lastLoginColumnExists) {
-    await trx.schema.alterTable(userPath, async (table) => {
+    await knex.schema.alterTable(userPath, async (table) => {
       table.dropColumn('lastLogin')
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

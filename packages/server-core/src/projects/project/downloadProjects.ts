@@ -27,17 +27,11 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
-import {
-  assetsRegex,
-  projectPublicRegex,
-  rootGLTFRegex,
-  rootImageRegex,
-  rootSceneJsonRegex
-} from '@etherealengine/common/src/constants/ProjectKeyConstants'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
-import logger from '../../ServerLogger'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import logger from '../../ServerLogger'
 
 /**
  * Downloads a specific project to the local file system from the storage provider cache
@@ -47,6 +41,8 @@ import { getStorageProvider } from '../../media/storageprovider/storageprovider'
  * @returns {Promise<boolean>}
  */
 export const download = async (projectName: string, storageProviderName?: string) => {
+  if (projectName === 'default-project') return
+
   const storageProvider = getStorageProvider(storageProviderName)
   try {
     logger.info(`[ProjectLoader]: Installing project "${projectName}"...`)
@@ -54,11 +50,7 @@ export const download = async (projectName: string, storageProviderName?: string
 
     files = files.filter(
       (file) =>
-        !assetsRegex.test(file) &&
-        !projectPublicRegex.test(file) &&
-        !rootImageRegex.test(file) &&
-        !rootSceneJsonRegex.test(file) &&
-        !rootGLTFRegex.test(file)
+        !file.startsWith(`/projects/${projectName}/assets/`) && !file.startsWith(`/projects/${projectName}/public/`)
     )
     logger.info('[ProjectLoader]: Found files:' + files)
 
@@ -108,6 +100,4 @@ export const download = async (projectName: string, storageProviderName?: string
     logger.error(e, errorMsg)
     throw e
   }
-
-  return true
 }

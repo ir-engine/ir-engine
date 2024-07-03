@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { uniqueId } from 'lodash'
+import { useEffect } from 'react'
+
 import {
   Component,
   ComponentMap,
@@ -31,20 +34,19 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineSystem, destroySystem, SystemUUID } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import {
-  NodeCategory,
-  NodeDefinition,
   makeEventNodeDefinition,
   makeFlowNodeDefinition,
-  makeFunctionNodeDefinition
+  makeFunctionNodeDefinition,
+  NodeCategory,
+  NodeDefinition
 } from '@etherealengine/visual-script'
-import { uniqueId } from 'lodash'
-import { useEffect } from 'react'
-import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
+
+import { EnginetoNodetype, getSocketType, NodetoEnginetype } from './commonHelper'
 
 const skipComponents = [
   TransformComponent.name, // already implemented
@@ -97,7 +99,7 @@ export function registerComponentSetters() {
     }
     const node = makeFlowNodeDefinition({
       typeName: `engine/component/${componentName}/set`,
-      category: NodeCategory.Action,
+      category: NodeCategory.Engine,
       label: `set ${componentName}`,
       in: {
         flow: 'flow',
@@ -142,7 +144,7 @@ export function registerComponentGetters() {
     }
     const node = makeFunctionNodeDefinition({
       typeName: `engine/component/${componentName}/get`,
-      category: NodeCategory.Query,
+      category: NodeCategory.Engine,
       label: `get ${componentName}`,
       in: {
         entity: 'entity'
@@ -195,7 +197,7 @@ export function registerComponentListeners() {
 
     const node = makeEventNodeDefinition({
       typeName: `engine/component/${componentName}/use`,
-      category: NodeCategory.Event,
+      category: NodeCategory.Engine,
       label: `use ${componentName}`,
       in: {
         entity: 'entity'

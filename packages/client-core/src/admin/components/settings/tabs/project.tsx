@@ -23,10 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { forwardRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { ProjectSettingType, projectPath } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { loadConfigForProject } from '@etherealengine/projects/loadConfigForProject'
+import { ProjectSettingType, projectPath, projectSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
@@ -34,9 +37,8 @@ import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import React, { forwardRef, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
+import { HiTrash, HiUser } from 'react-icons/hi2'
 
 const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
@@ -44,70 +46,34 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     loading: false,
     errorMessage: ''
   })
-  const projectState = useHookstate(getMutableState(ProjectState))
+
+  const errorMessage = state.errorMessage.value.includes('project_setting_projectid_key_unique')
+    ? t('admin:components.setting.project.duplicateKey')
+    : state.errorMessage.value
+  const projectState = useMutableState(ProjectState)
   const projects = projectState.projects
-  const settings = useHookstate<Array<ProjectSettingType> | []>([])
+
+  const displayedSettings = useHookstate<ProjectSettingType[]>([])
+  const originalSettings = useHookstate<ProjectSettingType[]>([])
   const selectedProjectId = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
   const project = useGet(projectPath, selectedProjectId.value, { query: { $select: ['settings'] } })
-  const patchProjectSetting = useMutation(projectPath).patch
-  const tSettings = JSON.parse(JSON.stringify(settings.value))
+
+  const {
+    create: createProjectSetting,
+    patch: patchProjectSetting,
+    remove: removeProjectSetting
+  } = useMutation(projectSettingPath)
 
   useEffect(() => {
     ProjectService.fetchProjects()
   }, [])
 
   useEffect(() => {
-    if (selectedProjectId.value) {
-      resetSettingsFromSchema()
+    if (project.data && project.data.settings) {
+      originalSettings.set(JSON.parse(JSON.stringify(project.data.settings)))
+      displayedSettings.set(originalSettings.value.slice())
     }
-  }, [selectedProjectId])
-
-  useEffect(() => {
-    if (!project.data?.settings || !project.data?.settings.length) {
-      return
-    }
-
-    const tempSettings = JSON.parse(JSON.stringify(settings.value))
-    for (const [index, setting] of tempSettings.entries()) {
-      const savedSetting = project.data.settings.filter((item) => item.key === setting.key)
-      if (savedSetting.length > 0) {
-        tempSettings[index].value = savedSetting[0].value
-      }
-    }
-    settings.set(tempSettings)
-  }, [project.data?.settings])
-
-  const resetSettingsFromSchema = async () => {
-    const projectName = projects.value.filter((proj) => proj.id === selectedProjectId.value)
-    const projectConfig = projectName?.length > 0 && (await loadConfigForProject(projectName[0].name))
-
-    if (projectConfig && projectConfig?.settings) {
-      const tempSetting = [] as ProjectSettingType[]
-
-      for (const setting of projectConfig.settings) {
-        tempSetting.push({ key: setting.key, value: '' })
-      }
-
-      settings.set(tempSetting)
-    } else {
-      settings.set([])
-    }
-  }
-
-  const handleCancel = () => {
-    resetSettingsFromSchema()
-  }
-
-  const handleSubmit = () => {
-    state.loading.set(true)
-    patchProjectSetting(selectedProjectId.value, { settings: settings.value })
-      .then(() => {
-        state.set({ loading: false, errorMessage: '' })
-      })
-      .catch((err) => {
-        state.set({ loading: false, errorMessage: err.message })
-      })
-  }
+  }, [project])
 
   const projectsMenu = projects.value.map((el) => {
     return {
@@ -116,8 +82,81 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     }
   })
 
-  const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    settings[index].nested('value').set(e.target.value)
+  const handleSettingsVisibilityChange = (setting: ProjectSettingType, index: number) => {
+    displayedSettings[index].set({
+      ...setting,
+      type: displayedSettings[index].value.type === 'private' ? 'public' : 'private'
+    })
+  }
+
+  const handleSettingsKeyChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setting: ProjectSettingType,
+    index: number
+  ) => {
+    displayedSettings[index].set({ ...setting, key: e.target.value })
+  }
+
+  const handleSettingsValueChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setting: ProjectSettingType,
+    index: number
+  ) => {
+    displayedSettings[index].set({ ...setting, value: e.target.value })
+  }
+
+  const handleSaveSetting = async (setting: ProjectSettingType) => {
+    try {
+      state.loading.set(true)
+      await patchProjectSetting(
+        setting.id,
+        {
+          key: setting.key,
+          value: setting.value,
+          type: setting.type
+        },
+        {
+          query: {
+            projectId: selectedProjectId.value
+          }
+        }
+      )
+      state.set({ loading: false, errorMessage: '' })
+      project.refetch()
+    } catch (err) {
+      state.set({ loading: false, errorMessage: err.message })
+    }
+  }
+
+  const handleAddSetting = async () => {
+    try {
+      state.loading.set(true)
+      await createProjectSetting({
+        projectId: selectedProjectId.value,
+        key: '',
+        value: '',
+        type: 'private'
+      })
+      state.set({ loading: false, errorMessage: '' })
+      project.refetch()
+    } catch (err) {
+      state.set({ loading: false, errorMessage: err.message })
+    }
+  }
+
+  const handleRemoveSetting = async (setting: ProjectSettingType) => {
+    try {
+      state.loading.set(true)
+      await removeProjectSetting(setting.id, {
+        query: {
+          projectId: selectedProjectId.value
+        }
+      })
+      state.set({ loading: false, errorMessage: '' })
+      project.refetch()
+    } catch (err) {
+      state.set({ loading: false, errorMessage: err.message })
+    }
   }
 
   return (
@@ -137,48 +176,73 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
         className="mb-8 mt-6 max-w-[50%]"
       />
 
-      {settings?.length > 0 ? (
+      {selectedProjectId.value && (
         <>
-          {settings.value.map((setting: ProjectSettingType, index: number) => (
-            <div className="mb-3 grid grid-cols-2 gap-2" key={index}>
-              <Input className="col-span-1" label="Key Name" disabled value={setting.key} />
+          {displayedSettings.value.map((setting: ProjectSettingType, index: number) => (
+            <div className="my-2 flex flex-row items-end gap-2" key={index}>
               <Input
-                className="col-span-1"
-                label="Value"
+                containerClassname="w-1/4"
+                label={t('admin:components.setting.project.keyName')}
+                value={setting.key}
+                endComponent={
+                  <Button
+                    className="text-primary mr-1 rounded py-1"
+                    variant={setting.type === 'private' ? 'danger' : 'success'}
+                    size="small"
+                    onClick={() => handleSettingsVisibilityChange(setting, index)}
+                  >
+                    {setting.type}
+                  </Button>
+                }
+                onChange={(e) => handleSettingsKeyChange(e, setting, index)}
+              />
+              <Input
+                containerClassname="w-1/4"
+                label={t('admin:components.setting.project.value')}
                 value={setting.value || ''}
-                onChange={(e) => handleSettingsChange(e, index)}
+                endComponent={
+                  setting.userId && (
+                    <Tooltip
+                      title={t('admin:components.setting.project.lastUpdatedBy', { userId: setting.userId })}
+                      direction="left"
+                    >
+                      <HiUser className="mr-2" />
+                    </Tooltip>
+                  )
+                }
+                onChange={(e) => handleSettingsValueChange(e, setting, index)}
+              />
+              <Button
+                className="text-primary mb-[2px] ml-1 rounded"
+                variant="outline"
+                size="small"
+                title={t('admin:components.common.save')}
+                onClick={() => handleSaveSetting(setting)}
+              >
+                {t('admin:components.common.save')}
+              </Button>
+              <Button
+                className="mb-1 px-0"
+                rounded="full"
+                variant="transparent"
+                title={t('admin:components.common.delete')}
+                onClick={() => handleRemoveSetting(setting)}
+                startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
               />
             </div>
           ))}
-          <div className="mb-3 grid grid-cols-8 gap-2">
-            <Button
-              size="small"
-              className="bg-theme-highlight text-primary col-span-1"
-              fullWidth
-              onClick={handleCancel}
-            >
-              {t('admin:components.setting.project.clear')}
-            </Button>
-            <Button
-              size="small"
-              className="col-span-1"
-              fullWidth
-              onClick={handleSubmit}
-              startIcon={state.loading.value && <LoadingView spinnerOnly className="h-8 w-8" />}
-            >
-              {t('admin:components.setting.project.submit')}
-            </Button>
-          </div>
+          <Button
+            onClick={handleAddSetting}
+            startIcon={state.loading.value && <LoadingView spinnerOnly className="h-8 w-8" />}
+          >
+            {t('admin:components.setting.project.add')}
+          </Button>
         </>
-      ) : (
-        <Text component="h3" className="text-red-700">
-          {t('admin:components.setting.project.noSettingsMessage')}
-        </Text>
       )}
 
-      {state.errorMessage.value && (
+      {errorMessage && (
         <Text component="h3" className="text-red-700">
-          {state.errorMessage.value}
+          {errorMessage}
         </Text>
       )}
     </Accordion>

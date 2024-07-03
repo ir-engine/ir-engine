@@ -34,22 +34,23 @@ import {
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
+  ShaderMaterial,
   SphereGeometry,
   SRGBColorSpace,
   Texture,
   Vector2
 } from 'three'
 
-import { Engine, EntityUUID } from '@etherealengine/ecs'
-
 import config from '@etherealengine/common/src/config'
 import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
+import { Engine, EntityUUID } from '@etherealengine/ecs'
 import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+
+import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AssetClass } from '../../assets/enum/AssetClass'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
@@ -119,6 +120,19 @@ export function getTextureSize(texture: Texture | CompressedTexture | null, size
   return size.set(width, height)
 }
 
+export function resizeVideoMesh(mesh: Mesh<any, ShaderMaterial>) {
+  if (!mesh.material.uniforms.map?.value) return
+
+  const { width, height } = getTextureSize(mesh.material.uniforms.map.value as Texture | CompressedTexture)
+
+  if (!width || !height) return
+
+  const ratio = (height || 1) / (width || 1)
+  const _width = Math.min(1.0, 1.0 / ratio)
+  const _height = Math.min(1.0, ratio)
+  mesh.scale.set(_width, _height, 1)
+}
+
 export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
   if (!mesh.material.map) return
 
@@ -163,7 +177,7 @@ export function ImageReactor() {
     }
 
     const assetType = AssetLoader.getAssetClass(image.source.value)
-    if (assetType !== AssetClass.Image) {
+    if (assetType !== AssetType.Image) {
       addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
     }
   }, [image.source])
@@ -199,7 +213,7 @@ export function ImageReactor() {
         case ImageProjection.Flat:
         default:
           mesh.geometry.set(flippedTexture ? PLANE_GEO() : PLANE_GEO_FLIPPED())
-          resizeImageMesh(mesh.value)
+          resizeImageMesh(mesh.value as Mesh<PlaneGeometry, MeshBasicMaterial>)
       }
     },
     [mesh.material.map, image.projection]

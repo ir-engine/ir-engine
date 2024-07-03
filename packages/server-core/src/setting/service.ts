@@ -29,18 +29,23 @@ import Chargebee from './chargebee-setting/chargebee-setting'
 import ClientSetting from './client-setting/client-setting'
 import Coil from './coil-setting/coil-setting'
 import Email from './email-setting/email-setting'
+import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
 import Helm from './helm-setting/helm-setting'
 import InstanceServer from './instance-server-setting/instance-server-setting'
 import MiddlewareSetting from './middleware-setting/middleware-setting'
+import ProjectServer from './project-setting/project-setting'
 import RedisSetting from './redis-setting/redis-setting'
 import ServerSetting from './server-setting/server-setting'
 import TaskServer from './task-server-setting/task-server-setting'
+import ZendeskSetting from './zendesk-setting/zendesk-setting'
 
 export default [
+  ProjectServer,
   ServerSetting,
   ClientSetting,
   InstanceServer,
   Email,
+  FeatureFlagSetting,
   Authentication,
   Aws,
   Chargebee,
@@ -48,5 +53,6 @@ export default [
   RedisSetting,
   TaskServer,
   Helm,
-  MiddlewareSetting
+  MiddlewareSetting,
+  ZendeskSetting
 ]

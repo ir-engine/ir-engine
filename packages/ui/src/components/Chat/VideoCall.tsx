@@ -23,6 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { t } from 'i18next'
+import { Resizable } from 're-resizable'
+import React, { useEffect, useRef } from 'react'
+import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
+
 import { useMediaWindows } from '@etherealengine/client-core/src/components/UserMediaWindows'
 import {
   PeerMediaChannelState,
@@ -44,10 +49,6 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { PeerID, State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { t } from 'i18next'
-import { Resizable } from 're-resizable'
-import React, { useEffect, useRef } from 'react'
-import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
 
 export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => {
   const { peerID, type } = props

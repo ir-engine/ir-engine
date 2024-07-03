@@ -23,13 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { t } from 'i18next'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci'
+import { HiMiniClipboardDocumentList } from 'react-icons/hi2'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
-import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { toDateTimeSql, toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Label from '@etherealengine/ui/src/primitives/tailwind/Label'
@@ -39,12 +45,7 @@ import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
-import { useHookstate } from '@hookstate/core'
-import { t } from 'i18next'
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci'
-import { HiMiniClipboardDocumentList } from 'react-icons/hi2'
+
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 
@@ -145,13 +146,7 @@ export default function AddEditProjectModal({
     if (projectCommit.projectVersion) label += ` -- Project Ver. ${projectCommit.projectVersion}`
     if (projectCommit.engineVersion) label += ` -- Engine Ver. ${projectCommit.engineVersion}`
     if (projectCommit.datetime) {
-      const datetime = new Date(projectCommit.datetime).toLocaleString('en-us', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric'
-      })
+      const datetime = toDisplayDateTime(projectCommit.datetime)
       label += ` -- Pushed ${datetime}`
     }
     return {
@@ -174,8 +169,8 @@ export default function AddEditProjectModal({
       ProjectUpdateService.setSourceProjectName(project.name, '')
       return
     }
-    const valueRegex = new RegExp(`^${commitValue}`, 'g')
-    let matchingCommit = commitData.find((data) => valueRegex.test(data.commitSHA))
+
+    let matchingCommit = commitData.find((data) => data.commitSHA.startsWith(commitValue))
     if (!matchingCommit) {
       const commitResponse = (await ProjectService.checkUnfetchedCommit({
         url: projectUpdateStatus.value.sourceURL,
@@ -192,7 +187,7 @@ export default function AddEditProjectModal({
             resolve(null)
           }, 100)
         })
-        matchingCommit = commitData.find((data) => valueRegex.test(data.commitSHA))
+        matchingCommit = commitData.find((data) => data.commitSHA.startsWith(commitValue))
       }
     }
     ProjectUpdateService.setSourceProjectName(project.name, matchingCommit?.projectName || '')
@@ -527,7 +522,7 @@ export default function AddEditProjectModal({
           projectUpdateStatus.value?.selectedSHA.length > 0 &&
           projectUpdateStatus.value?.commitData.length > 0 &&
           !matchesEngineVersion && (
-            <div className="bg-theme-bannerInformative flex items-center justify-center gap-3 rounded-lg p-4">
+            <div className="flex items-center justify-center gap-3 rounded-lg bg-theme-bannerInformative p-4">
               <div>
                 <CiWarning className="h-5 w-5 bg-transparent" />
               </div>

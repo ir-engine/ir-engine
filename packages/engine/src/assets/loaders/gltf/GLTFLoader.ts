@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { GLTF as GLTFDocument } from '@gltf-transform/core'
 import {
   AnimationClip,
   Camera,
@@ -38,7 +39,7 @@ import {
 } from 'three'
 
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
-import { GLTF as GLTFDocument } from '@gltf-transform/core'
+
 import { FileLoader } from '../base/FileLoader'
 import { Loader } from '../base/Loader'
 import { DRACOLoader } from './DRACOLoader'
@@ -59,8 +60,8 @@ import {
   GLTFMaterialsUnlitExtension,
   GLTFMaterialsVolumeExtension,
   GLTFMeshGpuInstancing,
-  GLTFMeshQuantizationExtension,
   GLTFMeshoptCompression,
+  GLTFMeshQuantizationExtension,
   GLTFTextureAVIFExtension,
   GLTFTextureBasisUExtension,
   GLTFTextureTransformExtension,
@@ -247,6 +248,14 @@ export class GLTFLoader extends Loader {
     return this
   }
 
+  registerFirst(callback) {
+    if (this.pluginCallbacks.indexOf(callback) === -1) {
+      this.pluginCallbacks.unshift(callback)
+    }
+
+    return this
+  }
+
   register(callback) {
     if (this.pluginCallbacks.indexOf(callback) === -1) {
       this.pluginCallbacks.push(callback)
@@ -359,7 +368,7 @@ export interface GLTF {
     extensions?: any
     extras?: any
   }
-  parser: GLTFParser
+  parser?: GLTFParser
   userData: any
 }
 

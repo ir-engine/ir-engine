@@ -23,6 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { forwardRef } from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+
 import {
   helmBuilderVersionPath,
   helmMainVersionPath,
@@ -35,9 +39,6 @@ import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import React, { forwardRef } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
@@ -124,7 +125,7 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
         />
 
         <div className="col-span-1 mt-6 grid grid-cols-4 gap-6">
-          <Button size="small" className="bg-theme-highlight text-primary col-span-1" onClick={handleCancel} fullWidth>
+          <Button size="small" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
             {t('admin:components.common.reset')}
           </Button>
 

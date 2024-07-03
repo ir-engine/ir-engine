@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+
 import { HookContext } from '../../declarations'
 
 // TODO: Make one hook by combine this with "set-loggedin-user-in-body"

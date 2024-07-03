@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+
 import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
 import {
   defineState,
   getMutableState,
   getState,
   syncStateWithLocalStorage,
-  useHookstate
+  useMutableState
 } from '@etherealengine/hyperflux'
-
-import { useEffect } from 'react'
 
 /**
  * All values ranged from 0 to 1
@@ -57,16 +57,16 @@ export const AudioState = defineState({
     soundEffectsVolume: 1,
     backgroundMusicVolume: 0.5
   }),
+  extension: syncStateWithLocalStorage([
+    'masterVolume',
+    'microphoneGain',
+    'positionalMedia',
+    'mediaStreamVolume',
+    'notificationVolume',
+    'soundEffectsVolume',
+    'backgroundMusicVolume'
+  ]),
   onCreate: () => {
-    syncStateWithLocalStorage(AudioState, [
-      'masterVolume',
-      'microphoneGain',
-      'positionalMedia',
-      'mediaStreamVolume',
-      'notificationVolume',
-      'soundEffectsVolume',
-      'backgroundMusicVolume'
-    ])
     //FIXME do this more gracefully than a hard setTimeout
     setTimeout(() => {
       getMutableState(MediaSettingsState).immersiveMedia.set(getState(AudioState).positionalMedia)
@@ -75,7 +75,7 @@ export const AudioState = defineState({
 })
 
 export const useAudioState = () => {
-  const audioState = useHookstate(getMutableState(AudioState))
+  const audioState = useMutableState(AudioState)
 
   useEffect(() => {
     const AudioContext = globalThis.AudioContext || globalThis.webkitAudioContext

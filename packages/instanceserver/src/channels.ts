@@ -27,56 +27,58 @@ import { Paginated } from '@feathersjs/feathers/lib'
 
 import '@feathersjs/transport-commons'
 
-import commonConfig from '@etherealengine/common/src/config'
 import { decode } from 'jsonwebtoken'
 
 import {
   ChannelID,
+  channelPath,
   ChannelType,
+  channelUserPath,
   ChannelUserType,
+  identityProviderPath,
   IdentityProviderType,
+  instanceAttendancePath,
   InstanceData,
   InstanceID,
+  instancePath,
   InstanceType,
   LocationID,
-  UserID,
-  UserKickType,
-  UserType,
-  assetPath,
-  channelPath,
-  channelUserPath,
-  identityProviderPath,
-  instanceAttendancePath,
-  instancePath,
   locationPath,
+  staticResourcePath,
+  UserID,
   userKickPath,
-  userPath
+  UserKickType,
+  userPath,
+  UserType
 } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, getComponent, getMutableComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, HyperFlux, Identifiable, State } from '@etherealengine/hyperflux'
 import {
+  addNetwork,
   NetworkConnectionParams,
   NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
-  addNetwork,
   updatePeers
 } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
+import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
-import config from '@etherealengine/server-core/src/appconfig'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+
 import './InstanceServerModule'
+
+import { initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
-import { SocketWebRTCServerNetwork, getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
+import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
 
@@ -274,6 +276,8 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
   HyperFlux.store.forwardingTopics.add(topic)
 
+  initializeSpatialEngine()
+
   await setupIPs()
   const network = await initializeNetwork(app, hostId, Engine.instance.store.peerID, topic)
 
@@ -297,9 +301,8 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     if (!sceneId) throw new Error('No sceneId provided')
 
     const sceneUpdatedListener = async () => {
-      const scene = await app.service(assetPath).get(sceneId, { headers })
-      const sceneURL = scene.assetURL
-      const gltfEntity = GLTFSourceState.load(commonConfig.client.fileServer + '/' + sceneURL, scene.id as EntityUUID)
+      const scene = await app.service(staticResourcePath).get(sceneId, { headers })
+      const gltfEntity = GLTFSourceState.load(scene.url, scene.id as EntityUUID)
       getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
 
       /** @todo - quick hack to wait until scene has loaded */
@@ -313,13 +316,16 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
       })
     }
 
-    app.service(assetPath).on('updated', sceneUpdatedListener)
+    app.service(staticResourcePath).on('updated', sceneUpdatedListener)
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')
   }
 
-  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCServerNetwork>
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<
+    SocketWebRTCServerNetwork,
+    Identifiable
+  >
   networkState.ready.set(true)
 
   getMutableState(InstanceServerState).ready.set(true)

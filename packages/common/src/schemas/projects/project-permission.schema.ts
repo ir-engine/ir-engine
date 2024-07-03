@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+
 import { TypedString } from '../../types/TypeboxUtils'
 import { InviteCode, UserID, userSchema } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
@@ -46,6 +47,9 @@ export const projectPermissionSchema = Type.Object(
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
+    createdBy: TypedString<UserID>({
+      format: 'uuid'
+    }),
     type: Type.String(),
     user: Type.Ref(userSchema),
     createdAt: Type.String({ format: 'date-time' }),
@@ -55,8 +59,10 @@ export const projectPermissionSchema = Type.Object(
 )
 export interface ProjectPermissionType extends Static<typeof projectPermissionSchema> {}
 
+export interface ProjectPermissionDatabaseType extends Omit<ProjectPermissionType, 'user'> {}
+
 // Schema for creating new entries
-export const projectPermissionDataProperties = Type.Partial(projectPermissionSchema)
+export const projectPermissionDataProperties = Type.Pick(projectPermissionSchema, ['projectId', 'userId', 'type'])
 
 export const projectPermissionDataSchema = Type.Intersect(
   [
@@ -73,7 +79,7 @@ export const projectPermissionDataSchema = Type.Intersect(
 export interface ProjectPermissionData extends Static<typeof projectPermissionDataSchema> {}
 
 // Schema for updating existing entries
-export const projectPermissionPatchSchema = Type.Partial(projectPermissionSchema, {
+export const projectPermissionPatchSchema = Type.Pick(projectPermissionSchema, ['type'], {
   $id: 'ProjectPermissionPatch'
 })
 export interface ProjectPermissionPatch extends Static<typeof projectPermissionPatchSchema> {}
@@ -83,13 +89,19 @@ export const projectPermissionQueryProperties = Type.Pick(projectPermissionSchem
   'id',
   'projectId',
   'userId',
+  'createdBy',
   'type'
 ])
 export const projectPermissionQuerySchema = Type.Intersect(
   [
     querySyntax(projectPermissionQueryProperties),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        project: Type.Optional(Type.String())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

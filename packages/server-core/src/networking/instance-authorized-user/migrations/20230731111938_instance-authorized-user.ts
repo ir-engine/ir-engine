@@ -54,13 +54,12 @@ export async function up(knex: Knex): Promise<void> {
     }
   }
 
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
   if (!tableExists && !oldNamedTableExists) {
     // Added transaction here in order to ensure both below queries run on same pool.
     // https://github.com/knex/knex/issues/218#issuecomment-56686210
 
-    await trx.schema.createTable(instanceAuthorizedUserPath, (table) => {
+    await knex.schema.createTable(instanceAuthorizedUserPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
@@ -80,8 +79,7 @@ export async function up(knex: Knex): Promise<void> {
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -89,15 +87,13 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(instanceAuthorizedUserPath)
+  const tableExists = await knex.schema.hasTable(instanceAuthorizedUserPath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(instanceAuthorizedUserPath)
+    await knex.schema.dropTable(instanceAuthorizedUserPath)
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

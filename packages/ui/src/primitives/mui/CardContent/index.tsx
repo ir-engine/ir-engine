@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { CardContentProps, CardContent as MuiCardContent } from '@mui/material'
 import React from 'react'
 
 import CardMedia from '@etherealengine/ui/src/primitives/mui/CardMedia'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-
-import { CardContentProps, CardContent as MuiCardContent } from '@mui/material'
 
 const CardContent = (props: CardContentProps) => <MuiCardContent {...props} />
 

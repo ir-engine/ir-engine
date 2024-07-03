@@ -36,14 +36,12 @@ Ethereal Engine. All Rights Reserved.
  */
 
 import { Params, Query } from '@feathersjs/feathers'
-import { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
 
 import { ServiceTypes } from '@etherealengine/common/declarations'
-import { NO_PROXY, State, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import React from 'react'
+import { defineState, getState, NO_PROXY, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 export type Methods = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
 
@@ -78,15 +76,16 @@ export const FeathersState = defineState({
         QueryHash,
         {
           fetch: () => void
+          query: any
           response: unknown
           status: 'pending' | 'success' | 'error'
-          error: ''
+          error: string
         }
       >
     >,
 
   reactor: () => {
-    const feathersState = useHookstate(getMutableState(FeathersState))
+    const feathersState = useMutableState(FeathersState)
     return (
       <>
         {feathersState.keys.map((serviceName: keyof ServiceTypes) => (
@@ -118,16 +117,24 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   ...args: Args
 ) => {
   const service = Engine.instance.api.service(serviceName)
-  const state = useHookstate(getMutableState(FeathersState))
+  const state = useMutableState(FeathersState)
 
-  const queryId = `${method.substring(0, 1)}:${hashObject({
+  const queryParams = {
     serviceName,
     method,
     args
-  })}` as QueryHash
+  }
+
+  const queryId = `${method.substring(0, 1)}:${hashObject(queryParams)}` as QueryHash
 
   const fetch = () => {
-    if (method === 'get' && !args[0]) return
+    if (method === 'get' && !args) {
+      state[serviceName][queryId].merge({
+        status: 'error',
+        error: 'Get method requires an id or query object'
+      })
+      return
+    }
     state[serviceName][queryId].merge({
       status: 'pending',
       error: ''
@@ -150,12 +157,12 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   }
 
   useLayoutEffect(() => {
-    if (method === 'get' && !args[0]) return
     if (!state.get(NO_PROXY)[serviceName]) state[serviceName].set({})
     if (!state.get(NO_PROXY)[serviceName][queryId]) {
       state[serviceName].merge({
         [queryId]: {
           fetch,
+          query: queryParams,
           response: null,
           status: 'pending',
           error: ''

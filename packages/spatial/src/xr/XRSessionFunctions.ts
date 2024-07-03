@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { Quaternion, Vector3 } from 'three'
 
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+
 import { Vector3_Zero } from '../common/constants/MathConstants'
 import { isSafari } from '../common/functions/isMobile'
 import { PhysicsState } from '../physics/state/PhysicsState'
@@ -81,16 +81,16 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
       isXREAL ? undefined : 'dom-overlay', // dom overlay crashes nreal
       'hit-test',
       'light-estimation',
-      'depth-sensing',
+      // 'depth-sensing', // TODO: crashes meta quest
       'anchors',
       'plane-detection',
       'mesh-detection',
       'camera-access'
     ].filter(Boolean),
-    depthSensing: {
-      usagePreference: ['cpu-optimized', 'gpu-optimized'],
-      dataFormatPreference: ['luminance-alpha', 'float32']
-    },
+    // depthSensing: {
+    //   usagePreference: ['cpu-optimized', 'gpu-optimized'],
+    //   dataFormatPreference: ['luminance-alpha', 'float32']
+    // },
     domOverlay: isXREAL ? undefined : { root: document.body }
   } as XRSessionInit
   const mode =

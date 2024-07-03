@@ -23,11 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FC, useEffect } from 'react'
-import { AnimationMixer, Group, Scene } from 'three'
-
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-
 import { QueryReactor, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
@@ -39,25 +34,32 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { NO_PROXY, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import {
   EntityTreeComponent,
-  removeEntityNodeRecursively
+  iterateEntityNode,
+  removeEntityNodeRecursively,
+  useAncestorWithComponent
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
-import React from 'react'
-import { AssetType } from '../../assets/enum/AssetType'
+import React, { FC, useEffect } from 'react'
+import { AnimationMixer, Group, Scene } from 'three'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
+import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
+import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
+import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToGLTF'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
@@ -76,10 +78,9 @@ export const ModelComponent = defineComponent({
       cameraOcclusion: true,
       /** optional, only for bone matchable avatars */
       convertToVRM: false,
-      // internal
-      assetTypeOverride: null as null | AssetType,
       scene: null as Group | null,
-      asset: null as VRM | GLTF | null
+      asset: null as VRM | GLTF | null,
+      dereference: false
     }
   },
 
@@ -108,11 +109,16 @@ export const ModelComponent = defineComponent({
 function ModelReactor() {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
+  const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState))
+  const modelSceneID = getModelSceneID(entity)
 
-  const [gltf, error] = useGLTF(modelComponent.src.value, entity, {
-    forceAssetType: modelComponent.assetTypeOverride.value,
-    ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
-  })
+  const [gltf, error] = useGLTF(modelComponent.src.value, entity)
+
+  useEffect(() => {
+    const occlusion = modelComponent.cameraOcclusion.value
+    if (!occlusion) ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
+    else ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
+  }, [modelComponent.cameraOcclusion])
 
   useEffect(() => {
     if (!error) return
@@ -151,7 +157,7 @@ function ModelReactor() {
 
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!
-    const asset = model.asset as GLTF | null
+    const asset = model.asset as GLTF | VRM | null
     if (!asset) return
 
     const group = getOptionalComponent(entity, GroupComponent)
@@ -176,17 +182,19 @@ function ModelReactor() {
 
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
-
-    SceneState.loadScene(uuid, {
-      scene: {
-        entities: loadedJsonHierarchy,
-        root: getComponent(entity, UUIDComponent),
-        version: 0
-      },
-      name: '',
-      project: '',
-      thumbnailUrl: ''
-    })
+    const sceneJson: SceneJsonType = {
+      entities: loadedJsonHierarchy,
+      root: getComponent(entity, UUIDComponent),
+      version: 0
+    }
+    const sceneGLTF = convertSceneJSONToGLTF(sceneJson)
+    dispatchAction(
+      GLTFSnapshotAction.createSnapshot({
+        source: uuid,
+        data: sceneGLTF
+      })
+    )
+    getMutableState(GLTFSourceState)[uuid].set(entity)
 
     const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
 
@@ -204,14 +212,36 @@ function ModelReactor() {
       })
     }
     return () => {
-      SceneState.unloadScene(uuid, false)
-      const children = getOptionalComponent(entity, EntityTreeComponent)?.children
-      if (!children) return
-      for (const child of children) {
-        removeEntityNodeRecursively(child)
+      getMutableState(GLTFSourceState)[uuid].set(none)
+
+      // If model hasn't been dereferenced unload and remove children
+      if (getState(GLTFSnapshotState)[uuid]) {
+        dispatchAction(GLTFSnapshotAction.unload({ source: uuid }))
+        for (const childUUID in loadedJsonHierarchy) {
+          const entity = UUIDComponent.getEntityByUUID(childUUID as EntityUUID)
+          if (entity) {
+            removeEntityNodeRecursively(entity)
+          }
+        }
       }
     }
   }, [modelComponent.scene])
+
+  useEffect(() => {
+    if (!modelComponent.scene.value) return
+    if (!modelComponent.dereference.value) return
+    if (!gltfDocumentState[modelSceneID].value) return
+    const modelUUID = getComponent(entity, UUIDComponent)
+    const sourceID = getModelSceneID(entity)
+    const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+    if (!parentEntity) return
+    const parentUUID = getComponent(parentEntity, UUIDComponent)
+    const parentSource = getComponent(parentEntity, SourceComponent)
+    iterateEntityNode(entity, (entity) => {
+      setComponent(entity, SourceComponent, parentSource)
+    })
+    GLTFSnapshotState.injectSnapshot(modelUUID, sourceID, parentUUID, parentSource)
+  }, [modelComponent.dereference, gltfDocumentState[modelSceneID]])
 
   return null
 }
@@ -222,11 +252,10 @@ function ModelReactor() {
  * @returns
  */
 export const useMeshOrModel = (entity: Entity) => {
-  const meshComponent = useOptionalComponent(entity, MeshComponent)
-  const modelComponent = useOptionalComponent(entity, ModelComponent)
-  const sourceComponent = useOptionalComponent(entity, SourceComponent)
-  const isEntityHierarchyOrMesh = (!sourceComponent && !!meshComponent) || !!modelComponent
-  return isEntityHierarchyOrMesh
+  const isModel = !!useOptionalComponent(entity, ModelComponent)
+  const isChildOfModel = !!useAncestorWithComponent(entity, ModelComponent)
+  const hasMesh = !!useOptionalComponent(entity, MeshComponent)
+  return isModel && !isChildOfModel && hasMesh
 }
 
 export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {

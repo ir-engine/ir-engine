@@ -23,26 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import DeblurIcon from '@mui/icons-material/Deblur'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
+import { getOptionalMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { Heuristic, VariantComponent, VariantLevel } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import { State, getState, useHookstate } from '@etherealengine/hyperflux'
-
-import DeblurIcon from '@mui/icons-material/Deblur'
-
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 import { loadResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { Heuristic, VariantComponent, VariantLevel } from '@etherealengine/engine/src/scene/components/VariantComponent'
+import { getState, State, useHookstate } from '@etherealengine/hyperflux'
 import {
   ResourceManager,
   ResourceState,
   ResourceStatus,
   ResourceType
 } from '@etherealengine/spatial/src/resources/ResourceState'
+
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -52,7 +51,7 @@ import SelectInput from '../inputs/SelectInput'
 import Center from '../layout/Center'
 import PaginatedList from '../layout/PaginatedList'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperties, commitProperty } from './Util'
+import { commitProperties, commitProperty, EditorComponentType } from './Util'
 
 const buildBudgetVariantMetadata = (
   level: VariantLevel,
@@ -73,7 +72,6 @@ const buildBudgetVariantMetadata = (
     src,
     ResourceType.GLTF,
     UndefinedEntity,
-    {},
     () => {
       const metadata = getState(ResourceState).resources[src].metadata as { verts: number; textureWidths: number[] }
       const maxTextureSize = metadata.textureWidths ? Math.max(...metadata.textureWidths) : 0
@@ -97,11 +95,12 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
   const { t } = useTranslation()
   const entity = props.entity
   const variantComponent = useComponent(entity, VariantComponent)
-  const modelComponent = useComponent(entity, ModelComponent)
   const previewIndex = useHookstate(0)
 
   const setPreview = (index: number) => {
     previewIndex.set(index)
+    const modelComponent = getOptionalMutableComponent(entity, ModelComponent)
+    if (!modelComponent) return
     modelComponent.src.set(variantComponent.levels[index].src.value)
   }
 
@@ -269,7 +268,7 @@ export const BudgetVariantNodeEditor = (props: {
     lastSrc.set(src)
 
     const assetType = AssetLoader.getAssetType(src)
-    if (assetType !== AssetType.glB && assetType !== AssetType.glTF) return
+    if (assetType !== AssetExt.GLB && assetType !== AssetExt.GLTF) return
 
     const controller = new AbortController()
     buildBudgetVariantMetadata(level.value, controller.signal, (maxTextureSize: number, vertexCount: number) => {
@@ -318,3 +317,5 @@ export const BudgetVariantNodeEditor = (props: {
 }
 
 VariantNodeEditor.iconComponent = DeblurIcon
+
+export default VariantNodeEditor

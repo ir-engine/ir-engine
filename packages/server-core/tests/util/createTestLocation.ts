@@ -23,16 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LocationID, assetPath, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { v4 as uuidv4 } from 'uuid'
+
+import { LocationID, locationPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+
 import { Application } from '../../declarations'
 
 export const createTestLocation = async (app: Application, params = { isInternal: true } as any) => {
   const name = `Test Location ${uuidv4()}`
 
-  const scene = await app.service(assetPath).find({
+  const scene = await app.service(staticResourcePath).find({
     query: {
-      assetURL: 'projects/default-project/public/scenes/default.gltf'
+      key: 'projects/default-project/public/scenes/default.gltf'
     }
   })
 

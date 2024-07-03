@@ -23,27 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import type { Knex } from 'knex'
+
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(projectPath)
+  const tableExists = await knex.schema.hasTable(projectPath)
 
   if (tableExists === true) {
-    await trx.schema.alterTable(projectPath, (table) => {
+    await knex.schema.alterTable(projectPath, (table) => {
       table.unique(['name'])
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -51,14 +50,13 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(projectPath)
+  const tableExists = await knex.schema.hasTable(projectPath)
 
   if (tableExists === true) {
     try {
-      await trx.schema.alterTable(projectPath, (table) => {
+      await knex.schema.alterTable(projectPath, (table) => {
         table.dropUnique(['name'])
       })
     } catch (err) {
@@ -66,6 +64,5 @@ export async function down(knex: Knex): Promise<void> {
     }
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

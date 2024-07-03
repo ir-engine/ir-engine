@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 // spawnPose is temporary - just so portals work for now - will be removed in favor of instanceserver-instanceserver communication
 import { Quaternion, Vector3 } from 'three'
 
+import { AvatarID, InviteCode } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { dispatchAction } from '@etherealengine/hyperflux'
 import { Action, PeerID } from '@etherealengine/hyperflux/functions/ActionFunctions'
-
-import { AvatarID, InviteCode } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
+
 import { ikTargets } from '../../avatar/animation/Util'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 

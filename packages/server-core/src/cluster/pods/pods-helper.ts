@@ -23,23 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors/lib'
 import * as k8s from '@kubernetes/client-node'
-
-import { LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { getState } from '@etherealengine/hyperflux'
 
 import {
   PodsType,
   ServerContainerInfoType,
   ServerPodInfoType
 } from '@etherealengine/common/src/schemas/cluster/pods.schema'
-import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { ChannelType, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
-import { BadRequest } from '@feathersjs/errors/lib'
+import { instancePath, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { channelPath, ChannelType } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { locationPath, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
+import { getState } from '@etherealengine/hyperflux'
+
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
-import config from '../../appconfig'
 
 export const getServerInfo = async (app: Application) => {
   const serverInfo: PodsType[] = []
@@ -100,6 +100,14 @@ export const getServerInfo = async (app: Application) => {
         app
       )
       serverInfo.push(projectUpdatePods)
+
+      const jobsPods = await getPodsData(
+        `etherealengine/release=${config.server.releaseName},etherealengine/isJob=true`,
+        'jobs',
+        'Jobs',
+        app
+      )
+      serverInfo.push(jobsPods)
     }
 
     // if (k8AgonesClient) {

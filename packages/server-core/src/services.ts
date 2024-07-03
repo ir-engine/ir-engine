@@ -33,6 +33,7 @@ import AnalyticsServices from './analytics/services'
 import AssetServices from './assets/services'
 import BotService from './bot/services'
 import ClusterServices from './cluster/services'
+import IntegrationServices from './integrations/services'
 import MatchMakingServices from './matchmaking/services'
 import MediaServices from './media/services'
 import NetworkingServices from './networking/services'
@@ -61,7 +62,7 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
       })
       .filter((hasServices) => !!hasServices)
       .map((servicesDir) => {
-        return require(`../../projects/projects/${servicesDir}`).default
+        return require(`../../projects/projects/${servicesDir}`).default as (app: Application) => void
       })
       .flat()
   : []
@@ -81,10 +82,12 @@ export default (app: Application): void => {
     ...SettingService,
     ...RouteService,
     ...RecordingServices,
-    ...installedProjects,
     ...MatchMakingServices,
-    ...WorldServices
-  ].forEach((service) => {
-    app.configure(service)
-  })
+    ...WorldServices,
+    ...IntegrationServices
+  ]
+    .concat(...installedProjects)
+    .forEach((service) => {
+      app.configure(service)
+    })
 }

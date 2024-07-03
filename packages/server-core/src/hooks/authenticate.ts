@@ -24,15 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as authentication from '@feathersjs/authentication'
+import { NotAuthenticated } from '@feathersjs/errors'
 import { HookContext, NextFunction, Paginated } from '@feathersjs/feathers'
-
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
-import { UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { Octokit } from '@octokit/rest'
 import { AsyncLocalStorage } from 'async_hooks'
 import { isProvider } from 'feathers-hooks-common'
+
+import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+
+import { decode, JwtPayload } from 'jsonwebtoken'
+import { Application } from '../../declarations'
 import config from '../appconfig'
-import { Application } from './../../declarations'
 
 const { authenticate } = authentication.hooks
 
@@ -61,6 +65,26 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
       asyncLocalStorage.enterWith({ user: context.params.user })
     }
 
+    return next()
+  }
+
+  if (context.arguments[1]?.token && context.path === 'project' && context.method === 'update') {
+    const appId = config.authentication.oauth.github.appId ? parseInt(config.authentication.oauth.github.appId) : null
+    const token = context.arguments[1].token
+    const jwtDecoded = decode(token)! as JwtPayload
+    if (jwtDecoded.iss == null || parseInt(jwtDecoded.iss) !== appId)
+      throw new NotAuthenticated('Invalid app credentials')
+    const octokit = new Octokit({ auth: token })
+    let appResponse
+    try {
+      appResponse = await octokit.rest.apps.getAuthenticated()
+    } catch (err) {
+      throw new NotAuthenticated('Invalid app credentials')
+    }
+    if (appResponse.data.id !== appId) throw new NotAuthenticated('App ID of JWT does not match installed App ID')
+    context.params.appJWT = token
+    context.params.signedByAppJWT = true
+    delete context.arguments[1].token
     return next()
   }
 

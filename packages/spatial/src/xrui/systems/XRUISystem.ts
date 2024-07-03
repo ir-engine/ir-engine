@@ -24,27 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color } from 'three'
-
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { WebContainer3D } from '@etherealengine/xrui'
-
-import { getComponent, getMutableComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { InputComponent } from '../../input/components/InputComponent'
-import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { XRStandardGamepadButton } from '../../input/state/ButtonState'
-import { InputState } from '../../input/state/InputState'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { XRState } from '../../xr/XRState'
+import { BufferGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, getMutableComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { WebContainer3D } from '@etherealengine/xrui'
+
+import { InputComponent } from '../../input/components/InputComponent'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
-import { XRUIState } from '../XRUIState'
-import { PointerComponent } from '../components/PointerComponent'
+import { PointerComponent, PointerObject } from '../components/PointerComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
 
 const hitColor = new Color(0x00e6e6)
@@ -57,10 +51,11 @@ const inputSourceQuery = defineQuery([InputSourceComponent])
 // redirect DOM events from the canvas, to the 3D scene,
 // to the appropriate child Web3DLayer, and finally (back) to the
 // DOM to dispatch an event on the intended DOM target
-const redirectDOMEvent = (evt) => {
+const redirectDOMEvent = (evt: PointerEvent) => {
   for (const entity of visibleInteractableXRUIQuery()) {
     const layer = getComponent(entity, XRUIComponent)
-    const inputSources = getComponent(entity, InputComponent).inputSources
+    const inputSources = InputComponent.getInputSourceEntities(entity)
+    // const inputSources = getComponent(entity, InputComponent).inputSources
     if (!inputSources.length) continue
     const inputSource = getComponent(inputSources[0], InputSourceComponent) // assume only one input source per XRUI
     if (inputSource.intersections.length && inputSource.intersections[0].entity !== entity) continue // only handle events for the first intersection
@@ -68,7 +63,7 @@ const redirectDOMEvent = (evt) => {
     const raycaster = inputSource.raycaster
     const hit = layer.hitTest(raycaster.ray)
     if (hit && hit.intersection.object.visible) {
-      hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
+      hit.target.dispatchEvent(new (evt.constructor as any)(evt.type, evt))
       hit.target.focus()
       return
     }
@@ -77,8 +72,8 @@ const redirectDOMEvent = (evt) => {
 
 const updateControllerRayInteraction = (entity: Entity, xruiEntities: Entity[]) => {
   const pointerComponentState = getMutableComponent(entity, PointerComponent)
-  const pointer = pointerComponentState.pointer.value
-  const cursor = pointerComponentState.cursor.value
+  const pointer = pointerComponentState.pointer.value as PointerObject
+  const cursor = pointerComponentState.cursor.value as Mesh<BufferGeometry, MeshBasicMaterial>
 
   let hit = null! as ReturnType<typeof WebContainer3D.prototype.hitTest>
 
@@ -134,17 +129,6 @@ const updateClickEventsForController = (entity: Entity) => {
 const execute = () => {
   if (!isClient) return
 
-  const xruiState = getState(XRUIState)
-  const xrFrame = getState(XRState).xrFrame
-
-  /** Update the objects to use for intersection tests */
-  const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
-  if (xrFrame && xruiState.interactionRays[0] === pointerScreenRaycaster.ray)
-    xruiState.interactionRays = [...PointerComponent.getPointers(), pointerScreenRaycaster.ray] // todo, replace pointerScreenRaycaster with input sources
-
-  if (!xrFrame && xruiState.interactionRays[0] !== pointerScreenRaycaster.ray)
-    xruiState.interactionRays = [pointerScreenRaycaster.ray]
-
   const interactableXRUIEntities = visibleInteractableXRUIQuery()
 
   const inputSourceEntities = inputSourceQuery()
@@ -167,7 +151,7 @@ const execute = () => {
     if (!pointer) continue
 
     if (
-      buttons[XRStandardGamepadButton.Trigger]?.down &&
+      buttons.XRStandardGamepadTrigger?.down &&
       (inputSource.handedness === 'left' || inputSource.handedness === 'right')
     )
       updateClickEventsForController(pointerEntity)
@@ -222,10 +206,6 @@ const reactor = () => {
     document.body.addEventListener('click', redirectDOMEvent)
     document.body.addEventListener('contextmenu', redirectDOMEvent)
     document.body.addEventListener('dblclick', redirectDOMEvent)
-
-    const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
-
-    getMutableState(XRUIState).interactionRays.set([pointerScreenRaycaster.ray])
 
     return () => {
       document.body.removeEventListener('pointerdown', redirectDOMEvent)

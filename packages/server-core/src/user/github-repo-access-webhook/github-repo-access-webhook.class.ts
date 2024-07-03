@@ -23,19 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NotAuthenticated } from '@feathersjs/errors'
 import { Paginated, ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import crypto from 'crypto'
 
 import { serverSettingPath, ServerSettingType } from '@etherealengine/common/src/schemas/setting/server-setting.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/common/src/schemas/user/github-repo-access-refresh.schema'
-
 import {
   identityProviderPath,
   IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { NotAuthenticated } from '@feathersjs/errors'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
 
 export interface GithubRepoAccessWebhookParams extends KnexAdapterParams {}

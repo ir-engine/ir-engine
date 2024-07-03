@@ -23,18 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act, render } from '@testing-library/react'
+import assert from 'assert'
+import React from 'react'
+import sinon from 'sinon'
 import { BoxGeometry, Color, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { State, getState } from '@etherealengine/hyperflux'
-import { act, render } from '@testing-library/react'
-import assert from 'assert'
-import React from 'react'
-import sinon from 'sinon'
+
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { Geometry } from '../../common/constants/Geometry'
-import { createEngine } from '../../initializeEngine'
 import { ResourceState } from '../../resources/ResourceState'
 import { MeshComponent, useMeshComponent } from './MeshComponent'
 

@@ -25,13 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schema.type.module'
+import {
+  locationBanPath,
+  LocationID,
+  locationPath,
+  LocationType,
+  UserID,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { locationBanPath, UserID } from '@etherealengine/common/src/schema.type.module'
+import { useEffect } from 'react'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
+import { AuthState } from '../../user/services/AuthService'
 
 export const LocationSeed: LocationType = {
   id: '' as LocationID,
@@ -39,6 +47,7 @@ export const LocationSeed: LocationType = {
   slugifiedName: '',
   maxUsersPerInstance: 10,
   sceneId: '',
+  projectId: '',
   sceneAsset: {} as any,
   isLobby: false,
   isFeatured: false,
@@ -178,5 +187,23 @@ export const LocationService = {
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
+  },
+  useLocationBanListeners: () => {
+    useEffect(() => {
+      const locationBanCreatedListener = async (params) => {
+        const selfUser = getState(AuthState).user
+        const currentLocation = getState(LocationState).currentLocation.location
+        const locationBan = params.locationBan
+        if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
+          const userId = selfUser.id ?? ''
+          const user = await Engine.instance.api.service(userPath).get(userId)
+          getMutableState(AuthState).merge({ user })
+        }
+      }
+      Engine.instance.api.service(locationBanPath).on('created', locationBanCreatedListener)
+      return () => {
+        Engine.instance.api.service(locationBanPath).off('created', locationBanCreatedListener)
+      }
+    }, [])
   }
 }

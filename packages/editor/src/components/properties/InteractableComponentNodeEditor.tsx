@@ -23,6 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import PanToolIcon from '@mui/icons-material/PanTool'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -43,10 +47,9 @@ import { InteractableComponent } from '@etherealengine/engine/src/interaction/co
 import { useState } from '@etherealengine/hyperflux'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import PanToolIcon from '@mui/icons-material/PanTool'
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 
 type OptionsType = Array<{
   callbacks: Array<{
@@ -69,6 +72,10 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
 
   useEffect(() => {
     const options = [] as OptionsType
+
+    if (!hasComponent(props.entity, InputComponent)) {
+      EditorControlFunctions.addOrRemoveComponent([props.entity], InputComponent, true)
+    }
 
     const entityCallbacks = getOptionalComponent(props.entity, CallbackComponent)
     if (entityCallbacks) {
@@ -164,7 +171,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
                   key={props.entity}
                   value={callback.target.value ?? 'Self'}
                   onChange={commitProperty(InteractableComponent, `callbacks.${index}.target` as any)}
-                  options={targets.value}
+                  options={targets.value as OptionsType}
                   disabled={props.multiEdit}
                 />
               </InputGroup>
@@ -182,7 +189,14 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
                     key={props.entity}
                     value={callback.callbackID.value!}
                     onChange={commitProperty(InteractableComponent, `callbacks.${index}.callbackID` as any)}
-                    options={targetOption?.callbacks ? targetOption.callbacks : []}
+                    options={
+                      targetOption?.callbacks
+                        ? (targetOption.callbacks as Array<{
+                            label: string
+                            value: string
+                          }>)
+                        : []
+                    }
                     disabled={props.multiEdit || !target}
                   />
                 )}

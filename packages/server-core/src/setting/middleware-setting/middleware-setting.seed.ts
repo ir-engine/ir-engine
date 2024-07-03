@@ -27,16 +27,23 @@ import { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
+  MiddlewareApiDatabaseType,
   MiddlewareSettingDatabaseType,
+  middlewareApiUrl,
   middlewareSettingPath
 } from '@etherealengine/common/src/schemas/setting/middleware-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
-/* Dynamic Menu - Experimental */
-export const middlewareSettingMenu = JSON.stringify({
-  Dynamic0: [
+// Test DB Entry
+export const middlewareProject = ''
+
+// Test DB Entry
+export const middlewareProjectName = ''
+
+export const middlewareSettingTemp = JSON.stringify({
+  Scene: [
     {
       component: 'MiddlewareToggle',
       label: 'Dyn Toggle 0',
@@ -66,9 +73,7 @@ export const middlewareSettingMenu = JSON.stringify({
       label: 'Dyn Label 1',
       value: 'Default Value',
       action: 'mwHandleChange'
-    }
-  ],
-  Dynamic1: [
+    },
     {
       component: 'MiddlewareInput',
       label: 'Dyn Label 2',
@@ -83,13 +88,21 @@ export const middlewareSettingMenu = JSON.stringify({
     }
   ]
 })
-/* Dynamic Menu - Experimental */
+
+export const middlewareSettingMenu = JSON.stringify({})
 
 export const middlewareSettingSeedData = {
-  middlewareSettingMenu: process.env.MIDDLEWARE_MENU || middlewareSettingMenu,
-  conf0: process.env.CONF0 || 'Test Value',
-  conf1: process.env.CONF1 || 'Test Value',
-  conf2: process.env.CONF2 || 'Test Value'
+  middlewareProject: middlewareProject,
+  middlewareProjectName: middlewareProjectName,
+  middlewareSettingTemp: middlewareSettingTemp,
+  middlewareSettingMenu: middlewareSettingMenu
+}
+
+// Middleware API
+export const middlewareSettingApiUrl = appConfig.middleware.mwApi // Need to pull env val for middleware base URL
+
+export const middlewareSettingApiSeedData = {
+  middlewareUrl: middlewareSettingApiUrl
 }
 
 export async function seed(knex: Knex): Promise<void> {
@@ -105,22 +118,40 @@ export async function seed(knex: Knex): Promise<void> {
     }))
   )
 
+  const apiSeedData: MiddlewareApiDatabaseType[] = await Promise.all(
+    [middlewareSettingApiSeedData].map(async (item) => ({
+      ...item,
+      id: uuidv4(),
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
+
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
     await knex(middlewareSettingPath).del()
 
     // Inserts seed entries
     await knex(middlewareSettingPath).insert(seedData)
+    await knex(middlewareApiUrl).insert(apiSeedData)
   } else {
     const existingData = await knex(middlewareSettingPath).count({ count: '*' })
+    const existingApiData = await knex(middlewareApiUrl).count({ count: '*' })
 
     if (existingData.length === 0 || existingData[0].count === 0) {
       for (const item of seedData) {
         await knex(middlewareSettingPath).insert(item)
       }
     } else {
-      // If data already exists, we need to make sure any newly added column i.e. appleTouchIcon, etc gets default value populated
       const existingRows = await knex(middlewareSettingPath).select<MiddlewareSettingDatabaseType[]>()
+    }
+
+    if (existingApiData.length === 0 || existingApiData[0].count === 0) {
+      for (const item of apiSeedData) {
+        await knex(middlewareApiUrl).insert(item)
+      }
+    } else {
+      const existingRows = await knex(middlewareApiUrl).select<MiddlewareApiDatabaseType[]>()
     }
   }
 }

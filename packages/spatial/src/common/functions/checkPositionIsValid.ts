@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
+
 import { Physics } from '../../physics/classes/Physics'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'

@@ -31,21 +31,20 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { getCanvasBlob } from '@etherealengine/client-core/src/common/utils'
 import config from '@etherealengine/common/src/config'
+import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@etherealengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { isAvaturn } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
-import { UserMenus } from '../../../UserUISystem'
-
-import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
-import { isAvaturn } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { AvatarService } from '../../../services/AvatarService'
-import { PopupMenuServices } from '../PopupMenuService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
+import { PopupMenuServices } from '../PopupMenuService'
 
 enum LoadingState {
   None,
@@ -95,7 +94,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
       setAvatarName(avatarIdRegexExec ? avatarIdRegexExec[1] : generateAvatarId())
 
       try {
-        const assetType = AssetLoader.getAssetType(url) ?? isAvaturn(url) ? AssetType.glB : null
+        const assetType = AssetLoader.getAssetType(url) ?? isAvaturn(url) ? AssetExt.GLB : null
         if (assetType) {
           const res = await fetch(url)
           const data = await res.blob()

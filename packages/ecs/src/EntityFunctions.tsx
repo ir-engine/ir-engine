@@ -28,13 +28,12 @@ import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 import { HyperFlux } from '@etherealengine/hyperflux'
+
 import { removeAllComponents } from './ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 
 export const createEntity = (): Entity => {
-  let entity = bitECS.addEntity(HyperFlux.store)
-  if (entity === 0) entity = bitECS.addEntity(HyperFlux.store) // always discard entity 0 since we do a lot of `if (entity)` checks
-  return entity as Entity
+  return bitECS.addEntity(HyperFlux.store) as Entity
 }
 
 export const removeEntity = (entity: Entity) => {

@@ -23,9 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import LockIcon from '@mui/icons-material/Lock'
+import UnlockIcon from '@mui/icons-material/LockOpen'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Entity, EntityUUID } from '@etherealengine/ecs'
 import {
   getOptionalComponent,
   hasComponent,
@@ -33,14 +36,11 @@ import {
   setComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-
-import { Entity, EntityUUID } from '@etherealengine/ecs'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import LockIcon from '@mui/icons-material/Lock'
-import UnlockIcon from '@mui/icons-material/LockOpen'
+
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
@@ -68,7 +68,7 @@ const visibleInputGroupStyle = {
 
 export const CoreNodeEditor = (props: { entity: Entity }) => {
   const { t } = useTranslation()
-  const editorState = useHookstate(getMutableState(EditorState))
+  const editorState = useMutableState(EditorState)
 
   const exportAsGLTF = () => {
     setComponent(props.entity, ModelComponent)

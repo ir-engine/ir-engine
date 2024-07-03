@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import { QRCodeSVG } from 'qrcode.react'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -34,20 +33,20 @@ import InputCheck from '@etherealengine/client-core/src/common/components/InputC
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/regex'
+import { InviteCode, InviteData } from '@etherealengine/common/src/schema.type.module'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { isShareAvailable } from '@etherealengine/spatial/src/common/functions/DetectFeatures'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { InviteCode, InviteData } from '@etherealengine/common/src/schema.type.module'
 import { InviteService } from '../../../../social/services/InviteService'
 import { AuthState } from '../../../services/AuthService'
-import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
+import { PopupMenuServices } from '../PopupMenuService'
 
 const logger = multiLogger.child({ component: 'client-core:ShareMenu' })
 
@@ -56,8 +55,7 @@ export const useShareMenuHooks = ({ refLink }) => {
   const [token, setToken] = React.useState('')
   const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
   const [shareLink, setShareLink] = useState('')
-  const engineState = useHookstate(getMutableState(EngineState))
-  const selfUser = useHookstate(getMutableState(AuthState)).user
+  const selfUser = useMutableState(AuthState).user.value
 
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(refLink.current.value)
@@ -101,10 +99,10 @@ export const useShareMenuHooks = ({ refLink }) => {
 
     if (isSpectatorMode) {
       sendData.spawnType = 'spectate'
-      sendData.spawnDetails = { spectate: selfUser.id.value }
-    } else if (selfUser?.inviteCode.value) {
+      sendData.spawnDetails = { spectate: selfUser.id }
+    } else if (selfUser?.inviteCode) {
       sendData.spawnType = 'inviteCode'
-      sendData.spawnDetails = { inviteCode: selfUser.inviteCode.value }
+      sendData.spawnDetails = { inviteCode: selfUser.inviteCode }
     }
 
     InviteService.sendInvite(sendData, inviteCode)
@@ -118,8 +116,8 @@ export const useShareMenuHooks = ({ refLink }) => {
   const getInviteLink = () => {
     const location = new URL(window.location as any)
     const params = new URLSearchParams(location.search)
-    if (selfUser?.inviteCode.value != null) {
-      params.set('inviteCode', selfUser.inviteCode.value)
+    if (selfUser?.inviteCode != null) {
+      params.set('inviteCode', selfUser.inviteCode)
       location.search = params.toString()
       return location.toString()
     } else {
@@ -130,7 +128,7 @@ export const useShareMenuHooks = ({ refLink }) => {
   const getSpectateModeUrl = () => {
     const location = new URL(window.location as any)
     const params = new URLSearchParams(location.search)
-    params.set('spectate', selfUser.id.value)
+    params.set('spectate', selfUser.id)
     params.delete('inviteCode')
     location.search = params.toString()
     return location.toString()
@@ -159,7 +157,7 @@ export const useShareMenuHooks = ({ refLink }) => {
 const ShareMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
-  const engineState = useHookstate(getMutableState(EngineState))
+  const engineState = useMutableState(EngineState)
   const {
     copyLinkToClipboard,
     shareOnApps,

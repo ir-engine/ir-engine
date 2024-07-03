@@ -27,6 +27,7 @@ import React, { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
+
 import Button from '../Button'
 import LoadingView from '../LoadingView'
 import Text from '../Text'
@@ -35,7 +36,8 @@ export interface ModalProps {
   title?: string
   hideFooter?: boolean
   className?: string
-  children: ReactNode
+  rawChildren?: ReactNode
+  children?: ReactNode
   submitLoading?: boolean
   showCloseButton?: boolean
   closeButtonDisabled?: boolean
@@ -56,7 +58,7 @@ export const ModalHeader = ({
 }) => {
   // sticky top-0 z-10 bg-theme-surface-main
   return (
-    <div className="border-b-theme-primary relative flex items-center justify-center border-b px-6 py-5">
+    <div className="relative flex items-center justify-center border-b border-b-theme-primary px-6 py-5">
       {title && <Text>{title}</Text>}
       <Button
         variant="outline"
@@ -89,9 +91,13 @@ export const ModalFooter = ({
 }) => {
   const { t } = useTranslation()
   return (
-    <div className="border-t-theme-primary grid grid-flow-col border-t px-6 py-5">
+    <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
       {showCloseButton && (
-        <Button variant="outline" disabled={closeButtonDisabled} onClick={() => onCancel && onCancel(false)}>
+        <Button
+          className="bg-[#162546] font-['Figtree']"
+          disabled={closeButtonDisabled}
+          onClick={() => onCancel && onCancel(false)}
+        >
           {closeButtonText || t('common:components.cancel')}
         </Button>
       )}
@@ -100,7 +106,7 @@ export const ModalFooter = ({
           endIcon={submitLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
           disabled={submitButtonDisabled || submitLoading}
           onClick={onSubmit}
-          className="place-self-end"
+          className="place-self-end font-['Figtree']"
         >
           {submitButtonText || t('common:components.confirm')}
         </Button>
@@ -114,6 +120,7 @@ const Modal = ({
   onClose,
   onSubmit,
   hideFooter,
+  rawChildren,
   children,
   className,
   submitLoading,
@@ -123,12 +130,14 @@ const Modal = ({
   submitButtonDisabled,
   showCloseButton = true
 }: ModalProps) => {
-  const twClassName = twMerge('relative z-50 max-h-[80vh] w-full', className)
+  const twClassName = twMerge('relative z-50 max-h-[80vh] w-full bg-theme-surface-main', className)
   return (
     <div className={twClassName}>
-      <div className="bg-theme-surface-main relative rounded-lg shadow">
+      <div className="relative rounded-lg shadow">
         {onClose && <ModalHeader title={title} onClose={onClose} />}
-        <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>
+        {rawChildren && rawChildren}
+        {children && <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>}
+
         {!hideFooter && (
           <ModalFooter
             closeButtonText={closeButtonText}

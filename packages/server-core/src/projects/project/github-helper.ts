@@ -24,22 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
 import { Octokit } from '@octokit/rest'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import fetch from 'node-fetch'
 import path from 'path'
 
-import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-import {
-  AudioFileTypes,
-  BinaryFileTypes,
-  ImageFileTypes,
-  ModelFileTypes,
-  VideoFileTypes,
-  VolumetricFileTypes
-} from '@etherealengine/engine/src/assets/constants/fileTypes'
-
+import { GITHUB_PER_PAGE } from '@etherealengine/common/src/constants/GitHubConstants'
+import { GITHUB_URL_REGEX } from '@etherealengine/common/src/regex'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
@@ -49,14 +42,23 @@ import {
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
-import { Paginated } from '@feathersjs/feathers'
+import {
+  AudioFileTypes,
+  BinaryFileTypes,
+  ImageFileTypes,
+  ModelFileTypes,
+  VideoFileTypes,
+  VolumetricFileTypes
+} from '@etherealengine/engine/src/assets/constants/fileTypes'
+
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
+import { createExecutorJob } from '../../k8s-job-helper'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { useGit } from '../../util/gitHelperFunctions'
-import { createExecutorJob, getProjectPushJobBody } from './project-helper'
+import { getProjectPushJobBody } from './project-helper'
 import { ProjectParams } from './project.class'
 
 // 30 MB. GitHub's documentation says that the blob upload cutoff is 50MB, but in testing some files that were around
@@ -66,9 +68,12 @@ const TOKEN_REGEX = /"RemoteAuth ([0-9a-zA-Z-_]+)"/
 const OID_REGEX = /oid sha256:([0-9a-fA-F]{64})/
 const PUSH_TIMEOUT = 60 * 10 //10 minute timeout on GitHub push jobs completing or failing
 
-export const getAuthenticatedRepo = async (token: string, repositoryPath: string) => {
+export const getAuthenticatedRepo = async (token: string, repositoryPath: string, isInstallationToken = false) => {
   try {
     if (!/.git$/.test(repositoryPath)) repositoryPath = repositoryPath + '.git'
+    if (isInstallationToken) {
+      return repositoryPath.replace('https://', `https://oauth2:${token}@`)
+    }
     const user = await getUser(token)
     return repositoryPath.replace('https://', `https://${user.data.login}:${token}@`)
   } catch (error) {
@@ -202,9 +207,9 @@ export const pushProject = async (
 
     const githubPathRegexExec = GITHUB_URL_REGEX.exec(repoPath)
     if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
-    const split = githubPathRegexExec[2].split('/')
+    const split = githubPathRegexExec[1].split('/')
     const owner = split[0]
-    const repo = split[1].replace('.git', '')
+    const repo = split[1]
 
     if (githubIdentityProvider.data.length === 0 || !githubIdentityProvider.data[0].oauthToken)
       throw new Forbidden('You must log out and log back in with Github to refresh the token, and then try again.')
@@ -317,7 +322,7 @@ const uploadToRepo = async (
   filePaths: string[],
   org: string,
   repo: string,
-  branch = `master`,
+  branch = `main`,
   project: ProjectType,
   token: string,
   app: Application
@@ -415,7 +420,7 @@ const uploadToRepo = async (
     })
   }
 }
-export const getCurrentCommit = async (octo: Octokit, org: string, repo: string, branch = 'master') => {
+export const getCurrentCommit = async (octo: Octokit, org: string, repo: string, branch = 'main') => {
   try {
     await octo.repos.getBranch({ owner: org, repo, branch })
   } catch (err) {
@@ -461,14 +466,14 @@ export const getGithubOwnerRepo = (url: string) => {
       error: 'invalidUrl',
       text: 'Project URL is not a valid GitHub URL, or the GitHub repo is private'
     }
-  const split = githubPathRegexExec[2].split('/')
+  const split = githubPathRegexExec[1].split('/')
   if (!split[0] || !split[1])
     return {
       error: 'invalidUrl',
       text: 'Project URL is not a valid GitHub URL, or the GitHub repo is private'
     }
   const owner = split[0]
-  const repo = split[1].replace('.git', '')
+  const repo = split[1]
   return {
     owner,
     repo
@@ -628,7 +633,7 @@ const createNewCommit = async (
     })
   ).data
 
-const setBranchToCommit = (octo: Octokit, org: string, repo: string, branch = `master`, commitSha: string) =>
+const setBranchToCommit = (octo: Octokit, org: string, repo: string, branch = `main`, commitSha: string) =>
   octo.git.updateRef({
     owner: org,
     repo,

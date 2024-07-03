@@ -23,20 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import appRootPath from 'app-root-path'
 import assert from 'assert'
+import { ChildProcess } from 'child_process'
+import { v4 as uuidv4 } from 'uuid'
 
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-
-import { UserID, identityProviderPath, locationPath } from '@etherealengine/common/src/schema.type.module'
+import { identityProviderPath, locationPath, UserID } from '@etherealengine/common/src/schema.type.module'
+import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { getState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { Application } from '@etherealengine/server-core/declarations'
-import appRootPath from 'app-root-path'
-import { ChildProcess } from 'child_process'
-import { v4 as uuidv4 } from 'uuid'
+
 import { StartTestFileServer } from '../../server-core/src/createFileServer'
-import { InstanceServerState } from '../src/InstanceServerState'
 import { onConnection } from '../src/channels'
+import { InstanceServerState } from '../src/InstanceServerState'
 import { start } from '../src/start'
 
 describe('InstanceLoad', () => {

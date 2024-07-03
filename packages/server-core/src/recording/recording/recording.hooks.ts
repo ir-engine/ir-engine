@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
@@ -32,9 +33,8 @@ import {
   recordingPath,
   recordingQueryValidator
 } from '@etherealengine/common/src/schemas/recording/recording.schema'
-
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { NotFound } from '@feathersjs/errors'
+
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'

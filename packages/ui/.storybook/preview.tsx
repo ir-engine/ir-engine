@@ -23,15 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
+import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
 import { Description, Primary, Stories, Subtitle, Title } from '@storybook/addon-docs'
 import { Preview } from '@storybook/react'
 import React, { lazy } from 'react'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 import { withRouter } from 'storybook-addon-react-router-v6'
-
-import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
 import '../../client/src/themes/base.css'
 import '../../client/src/themes/components.css'
 import '../../client/src/themes/utilities.css'
+
 const Engine = lazy(() => import('@etherealengine/client/src/engine'))
 
 export const decorators = [
@@ -40,7 +43,16 @@ export const decorators = [
     return (
       <Engine>
         <ThemeProvider>
-          <Story />
+          <DndProvider backend={HTML5Backend}>
+            <MetaTags>
+              <link
+                href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap"
+                rel="stylesheet"
+                type="text/css"
+              />
+            </MetaTags>
+            <Story />
+          </DndProvider>
         </ThemeProvider>
       </Engine>
     )

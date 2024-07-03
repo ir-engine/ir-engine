@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { DrawingUtils } from '@mediapipe/tasks-vision'
 import classNames from 'classnames'
 import hark from 'hark'
 import { t } from 'i18next'
@@ -41,26 +42,32 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { UserName, clientSettingPath, userPath } from '@etherealengine/common/src/schema.type.module'
+import { useExecute } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
+import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { NO_PROXY, PeerID, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  PeerID,
+  State,
+  getMutableState,
+  getState,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
+import { NetworkState, VideoConstants } from '@etherealengine/network'
+import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
-
-import { UserName, userPath } from '@etherealengine/common/src/schema.type.module'
-import { useExecute } from '@etherealengine/ecs'
-import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { NetworkState, VideoConstants } from '@etherealengine/network'
-import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
-import { DrawingUtils } from '@mediapipe/tasks-vision'
-import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
+
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -130,7 +137,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     audioProducerGlobalMute,
     videoElement,
     audioElement
-  } = peerMediaChannelState.value
+  } = peerMediaChannelState.value as PeerMediaStreamInterface
 
   const audioTrackClones = useHookstate<any[]>([])
   const videoTrackClones = useHookstate<any[]>([])
@@ -145,12 +152,12 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const resumeVideoOnUnhide = useRef<boolean>(false)
   const resumeAudioOnUnhide = useRef<boolean>(false)
 
-  const audioState = useHookstate(getMutableState(AudioState))
+  const audioState = useMutableState(AudioState)
 
   const _volume = useHookstate(1)
 
-  const selfUser = useHookstate(getMutableState(AuthState).user).get(NO_PROXY)
-  const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
+  const selfUser = useMutableState(AuthState).user.get(NO_PROXY)
+  const currentLocation = useMutableState(LocationState).currentLocation.location
   const enableGlobalMute =
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
@@ -166,19 +173,19 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const isScreen = type === 'screen'
   const userId = isSelf ? selfUser?.id : mediaNetwork?.peers?.[peerID]?.userId
 
-  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
-  const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))
+  const mediaStreamState = useMutableState(MediaStreamState)
+  const mediaSettingState = useMutableState(MediaSettingsState)
   const rendered = !mediaSettingState.immersiveMedia.value
 
   useEffect(() => {
     if (peerMediaChannelState.videoStream.value?.track)
       videoTrackId.set(peerMediaChannelState.videoStream.value.track.id)
-  }, [peerMediaChannelState.videoStream])
+  }, [peerMediaChannelState.videoStream.value?.track?.id])
 
   useEffect(() => {
     if (peerMediaChannelState.audioStream.value?.track)
       audioTrackId.set(peerMediaChannelState.audioStream.value.track.id)
-  }, [peerMediaChannelState.audioStream])
+  }, [peerMediaChannelState.audioStream.value?.track?.id])
 
   useEffect(() => {
     function onUserInteraction() {
@@ -276,6 +283,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
         }
       }, 100)
     }
+    if (isSelf && videoProducerPaused && videoStream != null && videoElement != null)
+      videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
   }, [videoProducerPaused])
 
   useEffect(() => {
@@ -476,10 +485,13 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
 
-  const { videoElement, audioElement } = peerMediaChannelState.value
+  const { videoElement, audioElement } = peerMediaChannelState.value as PeerMediaStreamInterface
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()
+
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSetting = clientSettingQuery.data[0]
 
   useDrawMocapLandmarks(videoElement, canvasCtxRef, canvasRef, peerID)
 
@@ -507,8 +519,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     const encodings = videoStream.rtpParameters.encodings
 
     const immersiveMedia = getMutableState(MediaSettingsState).immersiveMedia
-    const clientSettingState = getMutableState(AdminClientSettingsState)
-    const { maxResolution } = clientSettingState.client[0].mediaSettings.video.value
+    const { maxResolution } = clientSetting.mediaSettings.video
     const resolution = VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
     if (isPiP || immersiveMedia.value) {
       let maxLayer

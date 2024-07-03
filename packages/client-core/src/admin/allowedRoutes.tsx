@@ -27,8 +27,8 @@ import { t } from 'i18next'
 import React, { Suspense } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 
-import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
-import { useHookstate } from '@hookstate/core'
+import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
+
 import { Redirect } from '../common/components/Redirect'
 import { LoadingCircle } from '../components/LoadingCircle'
 import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'
@@ -37,7 +37,7 @@ const AllowedRoutes = () => {
   const location = useLocation()
   const { pathname } = location
 
-  const allowedRoutes = useHookstate(getMutableState(AllowedAdminRoutesState))
+  const allowedRoutes = useMutableState(AllowedAdminRoutesState)
 
   const path = pathname.split('/')[2]
 

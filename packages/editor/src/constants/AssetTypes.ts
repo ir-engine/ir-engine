@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
 import { NativeTypes } from 'react-dnd-html5-backend'
-
-import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 
 /**
  * ItemTypes object containing types of items used.
@@ -35,27 +34,29 @@ import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 export const ItemTypes = {
   File: NativeTypes.FILE,
   Folder: 'folder',
-  Audios: [AssetType.MP3, 'mpeg', 'audio/mpeg'],
-  Images: [AssetType.PNG, AssetType.JPEG, 'jpg', 'gif', AssetType.KTX2, 'image/png', 'image/jpeg', 'image/ktx2'],
+  Audios: [AssetExt.MP3, 'mpeg', 'audio/mpeg'],
+  Images: [AssetExt.PNG, AssetExt.JPEG, 'jpg', 'gif', AssetExt.KTX2, 'image/png', 'image/jpeg', 'image/ktx2'],
   Models: [
-    AssetType.glB,
+    AssetExt.GLB,
     'model/glb',
-    AssetType.glTF,
+    AssetExt.GLTF,
     'model/gltf',
-    AssetType.FBX,
+    AssetExt.FBX,
     'model/fbx',
-    AssetType.USDZ,
+    AssetExt.USDZ,
     'model/usdz',
-    AssetType.VRM,
+    AssetExt.VRM,
     'model/vrm'
   ],
-  Scripts: ['tsx', AssetType.TS, 'jsx', 'js', AssetType.Script],
-  Videos: [AssetType.MP4, AssetType.M3U8, 'video/mp4', AssetType.MKV],
+  Scripts: ['tsx', 'ts', 'jsx', 'js', 'script'],
+  Videos: [AssetExt.MP4, AssetExt.M3U8, 'video/mp4', AssetExt.MKV],
   Volumetrics: ['manifest'],
-  Text: [AssetType.PlainText, 'txt'],
+  Text: ['text', 'txt'],
   ECS: ['scene.json'],
   Node: 'Node',
   Material: 'Material',
+  Lookdev: 'Lookdev',
+  Prefab: 'Prefab',
   Component: 'Component'
 }
 

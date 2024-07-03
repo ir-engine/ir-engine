@@ -25,49 +25,50 @@ Ethereal Engine. All Rights Reserved.
 
 import { t } from 'i18next'
 import React from 'react'
+import { Box3, Vector3 } from 'three'
 
 import { getOptionalComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
-import { CameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
-
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { FollowCameraMode } from '@etherealengine/spatial/src/camera/types/FollowCameraMode'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { Box3, Vector3 } from 'three'
+
 import { Button } from '../inputs/Button'
 import { InputGroup } from '../inputs/InputGroup'
 import { NumericInputGroup } from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
+import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
 
 /** Types copied from Camera Modes of engine. */
 const cameraModeSelect = [
   {
     label: 'First Person',
-    value: CameraMode.FirstPerson
+    value: FollowCameraMode.FirstPerson
   },
   {
     label: 'Shoulder Cam',
-    value: CameraMode.ShoulderCam
+    value: FollowCameraMode.ShoulderCam
   },
   {
     label: 'Third Person',
-    value: CameraMode.ThirdPerson
+    value: FollowCameraMode.ThirdPerson
   },
   {
     label: 'Top Down',
-    value: CameraMode.TopDown
-  },
-  {
-    label: 'Strategic',
-    value: CameraMode.Strategic
-  },
-  {
-    label: 'Dynamic',
-    value: CameraMode.Dynamic
+    value: FollowCameraMode.TopDown
   }
+  // These are not currently defined or implemented:
+  // {
+  //   label: 'Strategic',
+  //   value: FollowCameraMode.Strategic
+  // },
+  // {
+  //   label: 'Dynamic',
+  //   value: FollowCameraMode.Dynamic
+  // }
 ]
 
 /** Types copied from Camera Modes of engine. */

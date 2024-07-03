@@ -23,7 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { InputSystemGroup, SystemDefinitions, SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs'
+import { startCase } from 'lodash'
+import matches from 'ts-matches'
+
+import { defineSystem, destroySystem, InputSystemGroup, SystemDefinitions, SystemUUID } from '@etherealengine/ecs'
 import {
   Action,
   ActionDefinitions,
@@ -33,13 +36,12 @@ import {
   removeActionQueue
 } from '@etherealengine/hyperflux'
 import {
-  NodeCategory,
-  NodeDefinition,
   makeEventNodeDefinition,
-  makeFlowNodeDefinition
+  makeFlowNodeDefinition,
+  NodeCategory,
+  NodeDefinition
 } from '@etherealengine/visual-script'
-import { startCase } from 'lodash'
-import matches from 'ts-matches'
+
 import { NodetoEnginetype } from './commonHelper'
 
 const skipAction = ['']
@@ -152,7 +154,7 @@ export function registerActionConsumers() {
 
     const node = makeEventNodeDefinition({
       typeName: `action/${namePath}/${dispatchName}/consume`,
-      category: NodeCategory.Event,
+      category: NodeCategory.Action,
       label: `on ${namePath} ${dispatchName}`,
       in: {
         system: (_, graph) => {

@@ -29,11 +29,19 @@ import { useParams } from 'react-router-dom'
 import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
 import { useLoadLocation, useLoadScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { ThemeContextProvider } from '@etherealengine/client/src/pages/themeContext'
+import { useMutableState } from '@etherealengine/hyperflux'
+
+import '@etherealengine/client-core/src/util/GlobalStyle.css'
 
 import './LocationModule'
 
+import { t } from 'i18next'
+
+import { StyledEngineProvider } from '@mui/material/styles'
+import { LoadingCircle } from '../components/LoadingCircle'
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
+import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
 
 type Props = {
@@ -42,7 +50,7 @@ type Props = {
 
 const LocationPage = ({ online }: Props) => {
   const params = useParams()
-  const ready = useHookstate(getMutableState(LoadingUISystemState).ready)
+  const ready = useMutableState(LoadingUISystemState).ready
 
   useNetwork({ online })
 
@@ -53,13 +61,18 @@ const LocationPage = ({ online }: Props) => {
   }
 
   AuthService.useAPIListeners()
+  LocationService.useLocationBanListeners()
 
   useLoadEngineWithScene()
 
   return (
     <>
-      {/* {!ready.value && <LoadingCircle message={t('common:loader.loadingEngine')} />} */}
-      <LocationIcons />
+      <ThemeContextProvider>
+        <StyledEngineProvider injectFirst>
+          {!ready.value && <LoadingCircle message={t('common:loader.loadingEngine')} />}
+          <LocationIcons />
+        </StyledEngineProvider>
+      </ThemeContextProvider>
     </>
   )
 }

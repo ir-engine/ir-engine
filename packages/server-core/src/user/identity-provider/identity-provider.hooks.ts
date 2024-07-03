@@ -23,28 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  IdentityProviderData,
-  IdentityProviderType,
-  identityProviderDataValidator,
-  identityProviderPatchValidator,
-  identityProviderPath,
-  identityProviderQueryValidator
-} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
-import appConfig from '../../appconfig'
+import { random } from 'lodash'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { scopeTypePath } from '@etherealengine/common/src/schemas/scope/scope-type.schema'
-import { ScopeType, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { scopePath, ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import {
+  IdentityProviderData,
+  identityProviderDataValidator,
+  identityProviderPatchValidator,
+  identityProviderPath,
+  identityProviderQueryValidator,
+  IdentityProviderType
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
-import { random } from 'lodash'
+
+import { projectPath, projectPermissionPath, UserType } from '@etherealengine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
+import appConfig from '../../appconfig'
 import persistData from '../../hooks/persist-data'
 import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
 import { IdentityProviderService } from './identity-provider.class'
@@ -196,6 +198,31 @@ async function addScopes(context: HookContext<IdentityProviderService>) {
   }
 }
 
+const addDevProjectPermissions = async (context: HookContext<IdentityProviderService>) => {
+  if (!isDev || !(await checkScope(context.existingUser, 'admin', 'admin'))) return
+
+  const user = context.existingUser as UserType
+
+  const projects = await context.app.service(projectPath).find({ paginate: false })
+
+  const staticResourcePermission = await context.app.service(scopePath).find({
+    query: {
+      userId: user.id,
+      type: 'static_resource:write' as ScopeType
+    }
+  })
+
+  if (staticResourcePermission.total > 0) {
+    for (const project of projects) {
+      await context.app.service(projectPermissionPath).create({
+        projectId: project.id,
+        userId: user.id,
+        type: 'owner'
+      })
+    }
+  }
+}
+
 async function createAccessToken(context: HookContext<IdentityProviderService>) {
   if (!(context.result as IdentityProviderType).accessToken) {
     ;(context.result as IdentityProviderType).accessToken = await context.app
@@ -247,7 +274,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [addScopes, createAccessToken],
+    create: [addScopes, addDevProjectPermissions, createAccessToken],
     update: [],
     patch: [],
     remove: []

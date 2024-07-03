@@ -23,8 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ComponentJSONIDMap } from '@etherealengine/ecs/src/ComponentFunctions'
 import { GLTF } from '@gltf-transform/core'
+
+import { ComponentJSONIDMap } from '@etherealengine/ecs/src/ComponentFunctions'
+
+import { UUIDComponent, generateEntityUUID } from '@etherealengine/ecs'
 import { ComponentJsonType } from '../../../../scene/types/SceneTypes'
 import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
@@ -57,7 +60,15 @@ export default class EEECSImporterExtension extends ImporterExtension implements
         if (!component) {
           continue
         }
-
+        //@todo: comprehensive solution to loading the same file multiple times
+        if (component === UUIDComponent) {
+          const uuid = ecsExtensions[jsonID]
+          //check if uuid already exists
+          if (UUIDComponent.entitiesByUUIDState[uuid]?.value) {
+            //regenerate uuid if it already exists
+            ecsExtensions[jsonID] = generateEntityUUID()
+          }
+        }
         const compData = ecsExtensions[jsonID]
         componentJson.push({
           name: jsonID,

@@ -32,7 +32,8 @@ export const RadioRoot = ({
   onChange,
   selected,
   className,
-  disabled
+  disabled,
+  description
 }: {
   label: string
   value: string | number
@@ -40,26 +41,30 @@ export const RadioRoot = ({
   selected: boolean
   className?: string
   disabled?: boolean
+  description?: string
 }) => {
-  const twClassname = twMerge('flex items-center', className)
+  const twClassname = twMerge('flex flex-col gap-2', className)
   return (
     <div className={twClassname}>
-      <input
-        type="radio"
-        checked={selected}
-        value={value}
-        name={label}
-        onChange={onChange}
-        disabled={disabled}
-        className="text-blue-primary focus:ring-blue-primary checked:border-blue-primary shrink-0 rounded-full border-gray-200 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:focus:ring-offset-gray-800"
-      />
-      <label
-        onClick={() => onChange({ target: { value } } as any)}
-        htmlFor={label}
-        className="text-theme-primary ml-2 cursor-pointer align-bottom text-sm font-medium"
-      >
-        {label}
-      </label>
+      <div className="flex items-center">
+        <input
+          type="radio"
+          checked={selected}
+          value={value}
+          name={label}
+          onChange={onChange}
+          disabled={disabled}
+          className="shrink-0 rounded-full border-gray-200 text-blue-primary checked:border-blue-primary focus:ring-blue-primary disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:focus:ring-offset-gray-800"
+        />
+        <label
+          onClick={() => onChange({ target: { value } } as any)}
+          htmlFor={label}
+          className="ml-2 cursor-pointer align-bottom text-sm font-medium text-theme-primary"
+        >
+          {label}
+        </label>
+      </div>
+      {description && <div className="ml-5 text-sm text-theme-primary">{description}</div>}
     </div>
   )
 }
@@ -75,7 +80,7 @@ const Radio = <T extends OptionValueType>({
   disabled
 }: {
   value: T
-  options: { label: string; value: T }[]
+  options: { label: string; value: T; description?: string }[]
   onChange: (value: T) => void
   className?: string
   horizontal?: boolean
@@ -83,7 +88,7 @@ const Radio = <T extends OptionValueType>({
 }) => {
   return (
     <div className={twMerge(`grid gap-6 ${horizontal ? 'grid-flow-col' : ''}`, className)}>
-      {options.map(({ label, value: optionValue }) => (
+      {options.map(({ label, value: optionValue, description }) => (
         <RadioRoot
           key={label}
           selected={value === optionValue}
@@ -91,6 +96,7 @@ const Radio = <T extends OptionValueType>({
           value={optionValue}
           onChange={(event) => onChange(event.target.value as T)}
           disabled={disabled}
+          description={description}
         />
       ))}
     </div>

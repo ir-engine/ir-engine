@@ -24,18 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  InputSystemGroup,
-  Query,
-  SystemUUID,
   defineQuery,
   defineSystem,
   destroySystem,
   getComponent,
-  removeQuery
+  InputSystemGroup,
+  Query,
+  removeQuery,
+  SystemUUID
 } from '@etherealengine/ecs'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { StandardGamepadAxes, XRStandardGamepadAxes } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { Choices, NodeCategory, makeEventNodeDefinition } from '@etherealengine/visual-script'
+import { Choices, makeEventNodeDefinition, NodeCategory } from '@etherealengine/visual-script'
 
 let systemCounter = 0
 
@@ -51,7 +51,7 @@ const initialState = (): State => ({
 // very 3D specific.
 export const OnAxis = makeEventNodeDefinition({
   typeName: 'engine/axis/use',
-  category: NodeCategory.Event,
+  category: NodeCategory.Engine,
   label: 'Use Axis',
   in: {
     axis: (_, graphApi) => {

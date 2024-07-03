@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import knex from 'knex'
-
-import { clientDbToSchema } from '../../server-core/src/setting/client-setting/client-setting.resolvers'
-
 import { ClientSettingDatabaseType, clientSettingPath } from '../../common/src/schemas/setting/client-setting.schema'
+
+import knex from 'knex'
+import { clientDbToSchema } from '../../server-core/src/setting/client-setting/client-setting.resolvers'
 
 export const getClientSetting = async () => {
   const knexClient = knex({
@@ -48,7 +47,7 @@ export const getClientSetting = async () => {
     .then(([dbClient]) => {
       const dbClientConfig = clientDbToSchema(dbClient) || {
         logo: './logo.svg',
-        title: 'Ethereal Engine',
+        title: 'IR Engine',
         url: 'https://local.etherealengine.org',
         releaseName: 'local',
         siteDescription: 'Connected Worlds for Everyone',

@@ -23,21 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { assetPath, spawnPointPath } from '@etherealengine/common/src/schema.type.module'
 import type { Knex } from 'knex'
+
+import { spawnPointPath } from '@etherealengine/common/src/schema.type.module'
+
+const assetPath = 'asset'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(spawnPointPath)
+  const tableExists = await knex.schema.hasTable(spawnPointPath)
 
   if (tableExists === false) {
-    await trx.schema.createTable(spawnPointPath, (table) => {
+    await knex.schema.createTable(spawnPointPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
@@ -52,8 +54,7 @@ export async function up(knex: Knex): Promise<void> {
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -61,15 +62,13 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(spawnPointPath)
+  const tableExists = await knex.schema.hasTable(spawnPointPath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(spawnPointPath)
+    await knex.schema.dropTable(spawnPointPath)
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import type { Knex } from 'knex'
+
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 
 /**
  * @param { import("knex").Knex } knex
@@ -33,22 +34,22 @@ import type { Knex } from 'knex'
 export async function up(knex: Knex): Promise<void> {
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  let tableExists = await trx.schema.hasTable(userPath)
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  let tableExists = await knex.schema.hasTable(userPath)
 
   if (tableExists) {
-    const hasIdColum = await trx.schema.hasColumn(userPath, 'id')
-    const hasAvatarIdColumn = await trx.schema.hasColumn(userPath, 'avatarId')
+    const hasIdColum = await knex.schema.hasColumn(userPath, 'id')
+    const hasAvatarIdColumn = await knex.schema.hasColumn(userPath, 'avatarId')
     if (!(hasIdColum && hasAvatarIdColumn)) {
-      await trx.schema.dropTable(userPath)
+      await knex.schema.dropTable(userPath)
       tableExists = false
     }
   }
 
   if (tableExists === false) {
-    await trx.schema.createTable(userPath, (table) => {
+    await knex.schema.createTable(userPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('name', 255).notNullable()
@@ -64,8 +65,7 @@ export async function up(knex: Knex): Promise<void> {
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -73,15 +73,13 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(userPath)
+  const tableExists = await knex.schema.hasTable(userPath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(userPath)
+    await knex.schema.dropTable(userPath)
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

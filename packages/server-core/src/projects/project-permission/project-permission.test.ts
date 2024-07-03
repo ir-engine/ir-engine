@@ -28,22 +28,22 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
 
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-
 import {
-  ProjectPermissionType,
-  projectPermissionPath
+  projectPermissionPath,
+  ProjectPermissionType
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { ScopeType, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { scopePath, ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
-import { InviteCode, UserID, UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { InviteCode, UserID, UserName, userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-const newProjectName1 = 'ProjectTest_test_project_name_1'
+const newProjectName1 = 'projecttest_test_project_name_1'
 
 const cleanup = async (app: Application) => {
   const project1Dir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName1}/`)
@@ -196,14 +196,15 @@ describe('project-permission.test', () => {
         project1Permission2 = await app.service(projectPermissionPath).create(
           {
             projectId: project1.id,
-            userId: user2.id
+            userId: user2.id,
+            type: 'editor'
           },
           params
         )
         assert.ok(project1Permission2)
         assert.strictEqual(project1Permission2.userId, user2.id)
         assert.strictEqual(project1Permission2.projectId, project1.id)
-        assert.strictEqual(project1Permission2.type, 'user')
+        assert.strictEqual(project1Permission2.type, 'editor')
       })
 
       it('should return the same project-permission if another create request for a project/user combination is made', async function () {
@@ -216,7 +217,8 @@ describe('project-permission.test', () => {
         const duplicate = await app.service(projectPermissionPath).create(
           {
             projectId: project1.id,
-            userId: user2.id
+            userId: user2.id,
+            type: 'editor'
           },
           params
         )
@@ -237,7 +239,8 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).create(
               {
                 projectId: 'abcdefg',
-                userId: user2.id
+                userId: user2.id,
+                type: 'editor'
               },
               params
             )
@@ -259,7 +262,8 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).create(
               {
                 projectId: project1.id,
-                userId: 'abcdefg' as UserID
+                userId: 'abcdefg' as UserID,
+                type: 'editor'
               },
               params
             )
@@ -281,7 +285,8 @@ describe('project-permission.test', () => {
             const res = await app.service(projectPermissionPath).create(
               {
                 projectId: project1.id,
-                userId: user3.id
+                userId: user3.id,
+                type: 'editor'
               },
               params
             )
@@ -303,7 +308,8 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).create(
               {
                 projectId: project1.id,
-                userId: user3.id
+                userId: user3.id,
+                type: 'editor'
               },
               params
             )
@@ -353,8 +359,6 @@ describe('project-permission.test', () => {
         const update = (await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
-            projectId: project1.id,
-            userId: 'abcdefg' as UserID,
             type: 'owner'
           }
           // params
@@ -374,13 +378,11 @@ describe('project-permission.test', () => {
         const update = (await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
-            projectId: project1.id,
-            userId: user2.id,
-            type: 'user'
+            type: 'editor'
           },
           params
         )) as any as ProjectPermissionType
-        assert.strictEqual(update.type, 'user')
+        assert.strictEqual(update.type, 'editor')
         assert.strictEqual(update.userId, user2.id)
       })
 
@@ -397,8 +399,6 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).patch(
               project1Permission2.id,
               {
-                projectId: project1.id,
-                userId: user3.id,
                 type: ''
               },
               params
@@ -427,8 +427,6 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).patch(
               project1Permission2.id,
               {
-                projectId: project1.id,
-                userId: user3.id,
                 type: ''
               },
               params

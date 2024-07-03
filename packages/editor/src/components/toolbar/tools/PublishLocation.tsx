@@ -23,17 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Button } from '@mui/material'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import LocationDrawer, {
   LocationDrawerMode
 } from '@etherealengine/client-core/src/admin/common/Location/LocationDrawer'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { locationPath } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { Button } from '@mui/material'
-import { useTranslation } from 'react-i18next'
+
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { useProjectPermissions } from '@etherealengine/client-core/src/user/useUserProjectPermission'
 import { EditorState } from '../../../services/EditorServices'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -45,8 +47,12 @@ export const PublishLocation = () => {
   const scenePath = useHookstate(getMutableState(EditorState).scenePath)
 
   const drawerMode = useHookstate<LocationDrawerMode>(LocationDrawerMode.Create)
+
   const user = useHookstate(getMutableState(AuthState).user)
-  const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
+  const hasLocationWriteScope = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
+  const permission = useProjectPermissions(getMutableState(EditorState).projectName.value!)
+
+  const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
 
   const existingLocation = useFind(locationPath, {
     query: {
@@ -81,7 +87,7 @@ export const PublishLocation = () => {
           <Button
             onClick={handleOpenLocationDrawer}
             className={styles.toolButton}
-            disabled={!sceneID.value || !hasWriteAccess}
+            disabled={!sceneID.value || !hasPublishAccess}
           >
             {t(`editor:toolbar.publishLocation.title`)}
           </Button>

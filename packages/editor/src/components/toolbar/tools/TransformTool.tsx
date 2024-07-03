@@ -23,56 +23,87 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
 import HeightIcon from '@mui/icons-material/Height'
 import OpenWithIcon from '@mui/icons-material/OpenWith'
 import SyncIcon from '@mui/icons-material/Sync'
 
+import AdsClickIcon from '@mui/icons-material/AdsClick'
+import SwipeRightIcon from '@mui/icons-material/SwipeRight'
+
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { useMutableState } from '@etherealengine/hyperflux'
+
 import { setTransformMode } from '../../../functions/transformFunctions'
-import { EditorHelperState } from '../../../services/EditorHelperState'
+import { EditorHelperState, PlacementMode } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const TransformTool = () => {
   const { t } = useTranslation()
 
-  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+  const editorHelperState = useMutableState(EditorHelperState)
   const transformMode = editorHelperState.transformMode.value
 
   return (
-    <InfoTooltip title={t('editor:toolbar.gizmo.description')} placement="right">
+    <>
       <div className={styles.toolbarInputGroup}>
-        <InfoTooltip title={t('editor:toolbar.gizmo.translate')} placement="bottom">
+        <InfoTooltip title={t('editor:toolbar.placement.click')} placement="bottom">
           <button
-            className={styles.toolButton + ' ' + (transformMode === TransformMode.translate ? styles.selected : '')}
-            onClick={() => setTransformMode(TransformMode.translate)}
+            className={
+              styles.toolButton +
+              ' ' +
+              (editorHelperState.placementMode.value === PlacementMode.CLICK ? styles.selected : '')
+            }
+            onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
           >
-            <OpenWithIcon fontSize="small" />
+            <AdsClickIcon fontSize="small" />
           </button>
         </InfoTooltip>
-        <InfoTooltip title={t('editor:toolbar.gizmo.rotate')} placement="bottom">
+        <InfoTooltip title={t('editor:toolbar.placement.drag')} placement="bottom">
           <button
-            className={styles.toolButton + ' ' + (transformMode === TransformMode.rotate ? styles.selected : '')}
-            onClick={() => setTransformMode(TransformMode.rotate)}
+            className={
+              styles.toolButton +
+              ' ' +
+              (editorHelperState.placementMode.value === PlacementMode.DRAG ? styles.selected : '')
+            }
+            onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
           >
-            <SyncIcon fontSize="small" />
-          </button>
-        </InfoTooltip>
-        <InfoTooltip title={t('editor:toolbar.gizmo.scale')} placement="bottom">
-          <button
-            className={styles.toolButton + ' ' + (transformMode === TransformMode.scale ? styles.selected : '')}
-            onClick={() => setTransformMode(TransformMode.scale)}
-          >
-            <HeightIcon fontSize="small" />
+            <SwipeRightIcon fontSize="small" />
           </button>
         </InfoTooltip>
       </div>
-    </InfoTooltip>
+      <InfoTooltip title={t('editor:toolbar.gizmo.description')} placement="right">
+        <div className={styles.toolbarInputGroup}>
+          <InfoTooltip title={t('editor:toolbar.gizmo.translate')} placement="bottom">
+            <button
+              className={styles.toolButton + ' ' + (transformMode === TransformMode.translate ? styles.selected : '')}
+              onClick={() => setTransformMode(TransformMode.translate)}
+            >
+              <OpenWithIcon fontSize="small" />
+            </button>
+          </InfoTooltip>
+          <InfoTooltip title={t('editor:toolbar.gizmo.rotate')} placement="bottom">
+            <button
+              className={styles.toolButton + ' ' + (transformMode === TransformMode.rotate ? styles.selected : '')}
+              onClick={() => setTransformMode(TransformMode.rotate)}
+            >
+              <SyncIcon fontSize="small" />
+            </button>
+          </InfoTooltip>
+          <InfoTooltip title={t('editor:toolbar.gizmo.scale')} placement="bottom">
+            <button
+              className={styles.toolButton + ' ' + (transformMode === TransformMode.scale ? styles.selected : '')}
+              onClick={() => setTransformMode(TransformMode.scale)}
+            >
+              <HeightIcon fontSize="small" />
+            </button>
+          </InfoTooltip>
+        </div>
+      </InfoTooltip>
+    </>
   )
 }
 

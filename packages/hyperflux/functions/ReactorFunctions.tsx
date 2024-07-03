@@ -23,15 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hookstate, State } from '@hookstate/core'
 import React, { Suspense, useTransition } from 'react'
 import Reconciler from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
 
 import { isDev } from '@etherealengine/common/src/config'
-
 import { createErrorBoundary } from '@etherealengine/common/src/utils/createErrorBoundary'
 
-import { State, createHookstate } from '@hookstate/core'
 import { HyperFlux } from './StoreFunctions'
 
 export const ReactorReconciler = Reconciler({
@@ -98,6 +97,7 @@ export function useReactorRootContext(): ReactorRoot {
 export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactNode; reactorRoot: ReactorRoot }>(
   function error(props, error?: Error) {
     if (error) {
+      console.error(error)
       props.reactorRoot.errors.merge([error])
       return null
     } else {
@@ -168,9 +168,9 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
   const reactorRoot = {
     fiber: fiberRoot,
     Reactor,
-    isRunning: createHookstate(false),
-    errors: createHookstate([] as Error[]),
-    suspended: createHookstate(false),
+    isRunning: hookstate(false),
+    errors: hookstate([] as Error[]),
+    suspended: hookstate(false),
     cleanupFunctions: new Set(),
     ReactorContainer: ReactorContainer as React.FC,
     promise: undefined!,

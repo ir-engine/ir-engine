@@ -1,7 +1,5 @@
 import { InstancedMesh, Material, Object3D, Vector3 } from 'three'
 
-import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
-
 import {
   ComponentType,
   getComponent,
@@ -11,23 +9,25 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { State, getState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { getState, State } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import {
-  GroupComponent,
   addObjectToGroup,
+  GroupComponent,
   removeObjectFromGroup
 } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
-import { pathResolver } from '../../../assets/functions/pathResolver'
+
+import { STATIC_ASSET_REGEX } from '@etherealengine/common/src/regex'
 import { getGLTFAsync } from '../../../assets/functions/resourceLoaderHooks'
 import { InstancingComponent } from '../../components/InstancingComponent'
 import { ModelComponent } from '../../components/ModelComponent'
-import { Heuristic, VariantComponent, VariantLevel, distanceBased } from '../../components/VariantComponent'
+import { distanceBased, Heuristic, VariantComponent, VariantLevel } from '../../components/VariantComponent'
 import getFirstMesh from '../../util/meshUtils'
 
 /*
@@ -66,12 +66,12 @@ export function updateModelVariant(
     const levelIndex = variantComponent.levels.findIndex((level) => level.metadata['device'] === targetDevice)
     if (levelIndex < 0) return
     const deviceVariant = variantComponent.levels[levelIndex]
-    const modelRelativePath = pathResolver().exec(modelComponent.src.value)?.[2]
-    const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src.value)?.[2] : ''
+    const modelRelativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[2]
+    const deviceRelativePath = deviceVariant ? STATIC_ASSET_REGEX.exec(deviceVariant.src.value)?.[2] : ''
     if (deviceVariant && modelRelativePath !== deviceRelativePath) {
       variantComponent.currentLevel.set(levelIndex)
     }
-  } else if (distanceBased(variantComponent.value)) {
+  } else if (distanceBased(variantComponent.value as ComponentType<typeof VariantComponent>)) {
     const distance = DistanceFromCameraComponent.squaredDistance[entity]
     for (let i = 0; i < variantComponent.levels.length; i++) {
       const level = variantComponent.levels[i].value

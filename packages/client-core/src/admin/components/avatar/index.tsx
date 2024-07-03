@@ -23,14 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
+
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { useHookstate } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+
 import AddEditAvatarModal from './AddEditAvatarModal'
 import AvatarTable from './AvatarTable'
 

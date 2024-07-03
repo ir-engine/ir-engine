@@ -25,13 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { CylinderGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
 
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
-
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
@@ -43,6 +42,7 @@ import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/Physic
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
 export const interactionGroups = getInteractionGroups(
@@ -65,7 +65,7 @@ export const autopilotSetPosition = (entity: Entity) => {
 
   const { physicsWorld } = getState(PhysicsState)
 
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
 

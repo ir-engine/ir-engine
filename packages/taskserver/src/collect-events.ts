@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
+import config from '@etherealengine/server-core/src/appconfig'
 import { default as multiLogger, default as serverLogger } from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
-import config from '@etherealengine/server-core/src/appconfig'
 
 const logger = multiLogger.child({ component: 'taskserver:collect-events' })
 

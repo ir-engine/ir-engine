@@ -26,20 +26,24 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { createEntity, destroyEngine } from '@etherealengine/ecs'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { getState } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import {
   ResourceManager,
   ResourceState,
   ResourceStatus,
   ResourceType
 } from '@etherealengine/spatial/src/resources/ResourceState'
+
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
+import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { loadResource } from './resourceLoaderFunctions'
 
 describe('resourceLoaderFunctions', () => {
   const url = '/packages/projects/default-project/assets/collisioncube.glb'
+
+  overrideFileLoaderLoad()
 
   beforeEach(async () => {
     createEngine()
@@ -60,7 +64,6 @@ describe('resourceLoaderFunctions', () => {
         nonExistingUrl,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(false)
         },
@@ -85,7 +88,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(response.asset)
           assert(resourceState.resources[url].status === ResourceStatus.Loaded, 'Asset not loaded')
@@ -110,7 +112,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           ResourceManager.unload(url, entity)
           assert(resourceState.resources[url] === undefined, 'Asset not removed')
@@ -136,7 +137,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(resourceState.resources[url].references.length === 1, 'References not counted')
           assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
@@ -145,7 +145,6 @@ describe('resourceLoaderFunctions', () => {
             url,
             ResourceType.GLTF,
             entity2,
-            {},
             (response) => {
               assert(response.asset)
               assert(resourceState.resources[url].references.length === 2, 'References not counted')
@@ -186,7 +185,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(resourceState.resources[url].references.length === 1, 'References not counted')
           assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
@@ -195,7 +193,6 @@ describe('resourceLoaderFunctions', () => {
             url,
             ResourceType.GLTF,
             entity,
-            {},
             (response) => {
               assert(resourceState.resources[url].references.length === 2, 'References not counted')
               assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
@@ -237,7 +234,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(resourceState.resources[url] !== undefined, 'Asset not found')
           ResourceManager.unload(url, entity)
@@ -254,7 +250,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity2,
-        {},
         (response) => {
           assert(resourceState.resources[url] !== undefined, 'Asset not found')
           ResourceManager.unload(url, entity2)
@@ -279,7 +274,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(resourceState.resources[url])
           assert(resourceState.resources[url].assetRefs?.Mesh.length === 2)
@@ -287,7 +281,6 @@ describe('resourceLoaderFunctions', () => {
           for (const refMesh of referencedMeshes) assert(resourceState.resources[refMesh])
           ResourceManager.unload(url, entity)
           assert(!resourceState.resources[url])
-          for (const refMesh of referencedMeshes) assert(!resourceState.resources[refMesh])
           done()
         },
         (resquest) => {

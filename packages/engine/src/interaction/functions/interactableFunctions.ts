@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Frustum, Matrix4, Vector3 } from 'three'
 
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
-
-import { Engine, getComponent } from '@etherealengine/ecs'
+import { getComponent } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
@@ -36,6 +35,8 @@ import {
   DistanceFromLocalClientComponent,
   compareDistanceToLocalClient
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InteractableComponent } from '../components/InteractableComponent'
 
 const worldPosVec3 = new Vector3()
@@ -82,7 +83,10 @@ export const inFrustum = (entity: Entity): boolean => {
 export const gatherAvailableInteractables = (interactables: Entity[]) => {
   const availableInteractable = getMutableState(InteractableState).available
 
-  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
+  const viewerEntity = getState(EngineState).viewerEntity
+  if (!viewerEntity) return
+
+  const camera = getComponent(viewerEntity, CameraComponent)
 
   mat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
   frustum.setFromProjectionMatrix(mat4)

@@ -28,29 +28,31 @@ import { Trans, useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router-dom'
 
 import styles from '@etherealengine/client-core/src/admin/old-styles/admin.module.scss'
-import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+
 import '@etherealengine/client-core/src/user/UserUISystem'
+
 import { PopupMenuState } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import config from '@etherealengine/common/src/config'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState, useMutableState } from '@etherealengine/hyperflux'
 
-import '@etherealengine/client-core/src/world/LocationModule'
-
-import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
-import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { Box, Button } from '@mui/material'
 
+import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
+
+import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import './index.scss'
 
 const ROOT_REDIRECT = config.client.rootRedirect
 
 export const HomePage = (): any => {
   const { t } = useTranslation()
-  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
-  const [clientSetting] = clientSettingState?.client?.value || []
-  const popupMenuState = useHookstate(getMutableState(PopupMenuState))
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSetting = clientSettingQuery.data[0]
+  const popupMenuState = useMutableState(PopupMenuState)
   const popupMenu = getState(PopupMenuState)
   const Panel = popupMenu.openMenu ? popupMenu.menus[popupMenu.openMenu] : null
 
@@ -91,7 +93,7 @@ export const HomePage = (): any => {
                   height: 'auto',
                   maxWidth: '100%'
                 }}
-                src={clientSetting.appBackground}
+                src={clientSetting?.appBackground}
                 alt=""
                 crossOrigin="anonymous"
               />
@@ -100,26 +102,26 @@ export const HomePage = (): any => {
         </div>
         <nav className="navbar">
           <div className="logo-section">
-            {clientSetting?.appTitle && <object className="lander-logo" data={clientSetting.appTitle} />}
+            {clientSetting?.appTitle && <object className="lander-logo" data={clientSetting?.appTitle} />}
             <div className="logo-bottom">
-              {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting.appSubtitle}</span>}
+              {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting?.appSubtitle}</span>}
             </div>
           </div>
         </nav>
         <div className="main-section">
           <div className="desc">
             {clientSetting?.appDescription && (
-              <Trans t={t} i18nKey={clientSetting.appDescription}>
-                <span>{clientSetting.appDescription}</span>
+              <Trans t={t} i18nKey={clientSetting?.appDescription}>
+                <span>{clientSetting?.appDescription}</span>
               </Trans>
             )}
             {Boolean(clientSetting?.homepageLinkButtonEnabled) && (
               <Button
                 className={styles.gradientButton + ' ' + styles.forceVaporwave}
                 autoFocus
-                onClick={() => (window.location.href = clientSetting.homepageLinkButtonRedirect)}
+                onClick={() => (window.location.href = clientSetting?.homepageLinkButtonRedirect)}
               >
-                {clientSetting.homepageLinkButtonText}
+                {clientSetting?.homepageLinkButtonText}
               </Button>
             )}
           </div>
@@ -144,7 +146,7 @@ export const HomePage = (): any => {
         <div className="link-container">
           <div className="link-block">
             {clientSetting?.appSocialLinks?.length > 0 &&
-              clientSetting.appSocialLinks.map((social, index) => (
+              clientSetting?.appSocialLinks.map((social, index) => (
                 <a key={index} target="_blank" className="icon" href={social.link}>
                   <img
                     style={{
@@ -158,7 +160,7 @@ export const HomePage = (): any => {
               ))}
           </div>
           <div className="logo-bottom">
-            {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting.appSubtitle}</span>}
+            {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting?.appSubtitle}</span>}
           </div>
         </div>
       </div>

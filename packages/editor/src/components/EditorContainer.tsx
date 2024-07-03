@@ -23,32 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Dialog from '@mui/material/Dialog'
+import { t } from 'i18next'
+import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
+
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import multiLogger from '@etherealengine/common/src/logger'
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, getComponent, useComponent } from '@etherealengine/ecs'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import Dialog from '@mui/material/Dialog'
-import { t } from 'i18next'
-import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
+
 import 'rc-dock/dist/rc-dock.css'
+
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
+
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
 import { onNewScene, saveSceneGLTF, setCurrentEditorScene } from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
+
 import './EditorContainer.css'
+
 import AssetDropZone from './assets/AssetDropZone'
 import ImportSettingsPanel from './assets/ImportSettingsPanel'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
@@ -215,7 +221,7 @@ const onImportAsset = async () => {
 
   if (projectName) {
     try {
-      await inputFileWithAddToScene({ projectName })
+      await inputFileWithAddToScene({ projectName, directoryPath: 'projects/' + projectName + '/assets/' })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -280,7 +286,7 @@ const generateToolbarMenu = () => {
   return [
     {
       name: t('editor:menubar.newScene'),
-      action: onNewScene
+      action: () => onNewScene()
     },
     {
       name: t('editor:menubar.saveScene'),
@@ -364,8 +370,8 @@ const tabs = [
  * EditorContainer class used for creating container for Editor
  */
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useHookstate(getMutableState(EditorState))
-  const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
+  const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useMutableState(EditorState)
+  const sceneQuery = useFind(staticResourcePath, { query: { assetURL: scenePath.value ?? '' } }).data
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -407,11 +413,11 @@ const EditorContainer = () => {
     const scene = sceneQuery[0]
     if (!scene) return
 
-    projectName.set(scene.projectName)
-    sceneName.set(scene.assetURL.split('/').pop() ?? null)
+    projectName.set(scene.project!)
+    sceneName.set(scene.key.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-    return setCurrentEditorScene(scene.assetURL, scene.id as EntityUUID)
-  }, [sceneQuery[0]?.assetURL])
+    return setCurrentEditorScene(scene.url, scene.id as EntityUUID)
+  }, [sceneQuery[0]?.key])
 
   useEffect(() => {
     return () => {

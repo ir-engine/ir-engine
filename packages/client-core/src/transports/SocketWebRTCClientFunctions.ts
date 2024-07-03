@@ -23,6 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import * as mediasoupClient from 'mediasoup-client'
+import {
+  Consumer,
+  DataProducer,
+  DtlsParameters,
+  MediaKind,
+  Transport as MediaSoupTransport,
+  Producer,
+  RtpParameters,
+  SctpStreamParameters
+} from 'mediasoup-client/lib/types'
+import { encode } from 'msgpackr'
+import type { EventEmitter } from 'primus'
+import Primus from 'primus-client'
+import { v4 as uuidv4 } from 'uuid'
+
 import config from '@etherealengine/common/src/config'
 import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
 import { PUBLIC_STUN_SERVERS } from '@etherealengine/common/src/constants/STUNServers'
@@ -37,8 +53,10 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { PeerID, State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { Identifiable, PeerID, State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import {
   Action,
   Topic,
@@ -47,6 +65,7 @@ import {
   removeActionQueue
 } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import {
+  DataChannelRegistryState,
   DataChannelType,
   MediaStreamAppData,
   MediasoupDataProducerActions,
@@ -58,6 +77,7 @@ import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
   MediasoupTransportState,
+  NetworkActionFunctions,
   NetworkActions,
   NetworkConnectionParams,
   NetworkState,
@@ -71,20 +91,7 @@ import {
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@etherealengine/network'
-import * as mediasoupClient from 'mediasoup-client'
-import {
-  Consumer,
-  DataProducer,
-  DtlsParameters,
-  MediaKind,
-  Transport as MediaSoupTransport,
-  Producer,
-  RtpParameters,
-  SctpStreamParameters
-} from 'mediasoup-client/lib/types'
-import type { EventEmitter } from 'primus'
-import Primus from 'primus-client'
-import { v4 as uuidv4 } from 'uuid'
+
 import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import {
@@ -96,13 +103,6 @@ import {
 import { AuthState } from '../user/services/AuthService'
 import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
-
-import { DataChannelRegistryState, NetworkActionFunctions } from '@etherealengine/network'
-import { encode } from 'msgpackr'
-
-import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
@@ -420,7 +420,10 @@ export const connectToNetwork = async (
 
   const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
 
-  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<
+    SocketWebRTCClientNetwork,
+    Identifiable
+  >
 
   network.transport.primus.on('data', (message) => {
     if (!message) return
@@ -793,9 +796,8 @@ export async function configureMediaTransports(mediaTypes: string[]): Promise<bo
 }
 
 const getCodecEncodings = (service: string) => {
-  const clientSettingState = getState(AdminClientSettingsState).client[0]
-  const settings =
-    service === 'video' ? clientSettingState.mediaSettings.video : clientSettingState.mediaSettings.screenshare
+  const mediaSettings = config.client.mediaSettings
+  const settings = service === 'video' ? mediaSettings.video : mediaSettings.screenshare
   let codec, encodings
   if (settings) {
     switch (settings.codec) {
@@ -865,7 +867,6 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
 
 export async function createCamAudioProducer(network: SocketWebRTCClientNetwork): Promise<void> {
   const channelConnectionState = getState(MediaInstanceState)
-  const clientSettingState = getState(AdminClientSettingsState)
   const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
   const channelId = currentChannelInstanceConnection.channelId
   const mediaStreamState = getMutableState(MediaStreamState)
@@ -889,8 +890,8 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
 
     try {
       const codecOptions = { ...VideoConstants.CAM_AUDIO_CODEC_OPTIONS }
-      if (clientSettingState.client?.[0]?.mediaSettings?.audio)
-        codecOptions.opusMaxAverageBitrate = clientSettingState.client[0].mediaSettings.audio.maxBitrate * 1000
+      const mediaSettings = config.client.mediaSettings
+      if (mediaSettings?.audio) codecOptions.opusMaxAverageBitrate = mediaSettings.audio.maxBitrate * 1000
 
       // Create a new transport for audio and start producing
       let produceInProgress = false
@@ -1090,8 +1091,8 @@ export const toggleMicrophonePaused = async () => {
     if (!mediaStreamState.camAudioProducer.value) await createCamAudioProducer(mediaNetwork)
     else {
       const audioPaused = mediaStreamState.audioPaused.value
-      if (audioPaused) resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
-      else pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
+      if (audioPaused) resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value! as ProducerExtension)
+      else pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value! as ProducerExtension)
       mediaStreamState.audioPaused.set(!audioPaused)
     }
   }
@@ -1104,9 +1105,10 @@ export const toggleWebcamPaused = async () => {
     if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
     else {
       const videoPaused = mediaStreamState.videoPaused.value
-      if (videoPaused) resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
-      else pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
+      if (videoPaused) resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value! as ProducerExtension)
+      else pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value! as ProducerExtension)
       mediaStreamState.videoPaused.set(!videoPaused)
+      if (!videoPaused) mediaStreamState.camVideoProducer.value!.track?.stop()
     }
   }
 }
@@ -1122,8 +1124,8 @@ export const toggleScreenshareAudioPaused = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   const audioPaused = mediaStreamState.screenShareAudioPaused.value
-  if (audioPaused) resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
-  else pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
+  if (audioPaused) resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value! as ProducerExtension)
+  else pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value! as ProducerExtension)
   mediaStreamState.screenShareAudioPaused.set(!audioPaused)
 }
 
@@ -1178,8 +1180,8 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   )
 
   const channelConnectionState = getState(MediaInstanceState)
-  const clientSettingState = getState(AdminClientSettingsState).client[0]
-  const screenshareSettings = clientSettingState.mediaSettings.screenshare
+  const mediaSettings = config.client.mediaSettings
+  const screenshareSettings = mediaSettings.screenshare
   const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
   const channelId = currentChannelInstanceConnection.channelId
 
@@ -1213,7 +1215,8 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
 
   // handler for screen share stopped event (triggered by the
   // browser's built-in screen sharing ui)
-  mediaStreamState.screenVideoProducer.value!.track!.onended = async () => {
+  const producer = mediaStreamState.screenVideoProducer.value as ProducerExtension
+  producer!.track!.onended = async () => {
     return stopScreenshare(network)
   }
 

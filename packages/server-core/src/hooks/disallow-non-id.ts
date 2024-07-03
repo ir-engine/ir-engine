@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext } from '@feathersjs/feathers'
-
 import { BadRequest } from '@feathersjs/errors'
+import { HookContext } from '@feathersjs/feathers'
 
 /**
  * A method that disallows the use of non id in request.

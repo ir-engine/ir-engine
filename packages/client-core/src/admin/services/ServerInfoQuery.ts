@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-
-import { PodsType, ServerPodInfoType, podsPath } from '@etherealengine/common/src/schema.type.module'
 import { useMemo } from 'react'
+
+import { podsPath, PodsType, ServerPodInfoType } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
 export const useServerInfoFind = () => {
   const serverInfoQuery = useFind(podsPath)

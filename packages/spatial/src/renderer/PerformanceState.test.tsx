@@ -23,14 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { destroyEngine } from '@etherealengine/ecs'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 import { act } from 'react-dom/test-utils'
 import sinon from 'sinon'
-import { createEngine } from '../initializeEngine'
+
+import { destroyEngine } from '@etherealengine/ecs'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+
+import { createEngine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '../EngineState'
+import { initializeSpatialEngine } from '../initializeEngine'
 import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
 import { EngineRenderer, RenderSettingsState } from './WebGLRendererSystem'
@@ -61,6 +65,9 @@ describe('PerformanceState', () => {
     }
     dpr = globalThis.window.devicePixelRatio
     globalThis.window.devicePixelRatio = 3
+    getMutableState(EngineState).isEditing.set(false)
+    getMutableState(RendererState).automatic.set(true)
+    getMutableState(PerformanceState).enabled.set(true)
   })
 
   after(() => {
@@ -70,27 +77,23 @@ describe('PerformanceState', () => {
 
   beforeEach(async () => {
     createEngine()
+    initializeSpatialEngine()
   })
 
   afterEach(() => {
     return destroyEngine()
   })
 
-  it('Builds Performance State', (done) => {
-    PerformanceManager.buildPerformanceState(
-      mockRenderer,
-      () => {
-        const performanceState = getState(PerformanceState)
-        const budgets = performanceState.budgets
-        assert(budgets.max3DTextureSize === 1000)
-        assert(budgets.maxBufferSize === 54000000000)
-        assert(budgets.maxIndices === 8000)
-        assert(budgets.maxTextureSize === 2000)
-        assert(budgets.maxVerticies === 10000)
-        done()
-      },
-      { renderer: 'nvidia corporation, nvidia geforce rtx 3070/pcie/sse2, ' }
-    )
+  it('Builds Performance State', async () => {
+    await PerformanceManager.buildPerformanceState(mockRenderer, {
+      renderer: 'nvidia corporation, nvidia geforce rtx 3070/pcie/sse2, '
+    })
+    const performanceState = getState(PerformanceState)
+    assert(performanceState.max3DTextureSize === 1000)
+    assert(performanceState.maxBufferSize === 54000000000)
+    assert(performanceState.maxIndices === 8000)
+    assert(performanceState.maxTextureSize === 2000)
+    assert(performanceState.maxVerticies === 10000)
   })
 
   it('Increments performance offset', (done) => {
@@ -174,8 +177,9 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
     act(async () => {
+      // Decrementing performance state twice consecutively should only have one reactive change with the value off by 1 instead of 2
       PerformanceManager.decrementGPUPerformance()
-      PerformanceManager.incrementGPUPerformance()
+      PerformanceManager.decrementGPUPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()

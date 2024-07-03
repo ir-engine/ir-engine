@@ -23,28 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import type { Knex } from 'knex'
+
+import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const sceneIdColumnExists = await trx.schema.hasColumn(locationPath, 'sceneId')
+  const sceneIdColumnExists = await knex.schema.hasColumn(locationPath, 'sceneId')
 
   if (sceneIdColumnExists === true) {
-    await trx
+    await knex
       .from(locationPath)
-      .update({ sceneId: trx.raw("CONCAT('projects/', ??, '.scene.json')", ['sceneId']) })
+      .update({ sceneId: knex.raw("CONCAT('projects/', ??, '.scene.json')", ['sceneId']) })
       .where('sceneId', 'not like', '%projects/%')
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**

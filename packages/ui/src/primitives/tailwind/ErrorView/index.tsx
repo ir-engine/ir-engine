@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineXCircle } from 'react-icons/hi2'
+
 import Button from '../Button'
 import Text from '../Text'
 

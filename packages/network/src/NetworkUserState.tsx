@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+
 import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
-import React, { useEffect } from 'react'
+
 import { NetworkTopics } from './Network'
 import { NetworkState } from './NetworkState'
 
@@ -45,6 +47,7 @@ export const NetworkWorldUserState = defineState({
   },
 
   userLeft: (userID: UserID, instanceID: InstanceID) => {
+    if (!getState(NetworkWorldUserState)[userID]) return
     getMutableState(NetworkWorldUserState)[userID].set((ids) => ids.filter((id) => id !== instanceID))
     if (getState(NetworkWorldUserState)[userID].length === 0) getMutableState(NetworkWorldUserState)[userID].set(none)
   }

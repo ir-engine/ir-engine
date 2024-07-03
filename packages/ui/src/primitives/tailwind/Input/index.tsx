@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { InputHTMLAttributes, forwardRef } from 'react'
+import React, { forwardRef, InputHTMLAttributes } from 'react'
 import { HiXCircle } from 'react-icons/hi'
 import { twMerge } from 'tailwind-merge'
+
 import Label from '../Label'
 
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
@@ -78,8 +79,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
     const twClassname = twMerge(
       'text-base font-normal tracking-tight',
-      'textshadow-sm border-theme-primary bg-theme-surfaceInput flex h-9 w-full rounded-lg border px-3.5 py-5 transition-colors',
-      'file:bg-theme-surfaceInput file:border-0 file:text-sm file:font-medium',
+      'textshadow-sm flex h-9 w-full rounded-lg border border-theme-primary bg-theme-surfaceInput px-3.5 py-5 transition-colors',
+      'file:border-0 file:bg-theme-surfaceInput file:text-sm file:font-medium',
       'dark:[color-scheme:dark]',
       'focus-visible:ring-ring placeholder:text-gray-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
       variant !== 'outlined' ? '' : 'focus-visible:ring-1',
@@ -96,7 +97,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     }
 
     const twcontainerClassName = twMerge(
-      'flex w-full flex-col items-center ',
+      'flex w-full flex-col items-center',
       containerVariants[variant],
       containerClassname
     )
@@ -127,9 +128,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             <div className="pointer-events-auto absolute inset-y-0 end-0 flex items-center">{endComponent}</div>
           )}
         </div>
-        {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
+        {description && <p className="self-stretch text-xs text-theme-secondary">{description}</p>}
         {error && (
-          <p className="text-theme-iconRed inline-flex items-center gap-2.5 self-start text-sm">
+          <p className="inline-flex items-center gap-2.5 self-start text-sm text-theme-iconRed">
             <HiXCircle /> {error}
           </p>
         )}

@@ -31,34 +31,38 @@ import {
 } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 import { AwsSettingDatabaseType, awsSettingPath } from '@etherealengine/common/src/schemas/setting/aws-setting.schema'
 import {
-  ChargebeeSettingType,
-  chargebeeSettingPath
+  chargebeeSettingPath,
+  ChargebeeSettingType
 } from '@etherealengine/common/src/schemas/setting/chargebee-setting.schema'
 import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
-import { CoilSettingType, coilSettingPath } from '@etherealengine/common/src/schemas/setting/coil-setting.schema'
+import { coilSettingPath, CoilSettingType } from '@etherealengine/common/src/schemas/setting/coil-setting.schema'
 import {
   EmailSettingDatabaseType,
   emailSettingPath
 } from '@etherealengine/common/src/schemas/setting/email-setting.schema'
 import {
-  InstanceServerSettingType,
-  instanceServerSettingPath
+  instanceServerSettingPath,
+  InstanceServerSettingType
 } from '@etherealengine/common/src/schemas/setting/instance-server-setting.schema'
-import { RedisSettingType, redisSettingPath } from '@etherealengine/common/src/schemas/setting/redis-setting.schema'
+import { redisSettingPath, RedisSettingType } from '@etherealengine/common/src/schemas/setting/redis-setting.schema'
 import {
   ServerSettingDatabaseType,
   serverSettingPath
 } from '@etherealengine/common/src/schemas/setting/server-setting.schema'
 import {
-  TaskServerSettingType,
-  taskServerSettingPath
+  taskServerSettingPath,
+  TaskServerSettingType
 } from '@etherealengine/common/src/schemas/setting/task-server-setting.schema'
 
-import logger from './ServerLogger'
+import {
+  zendeskSettingPath,
+  ZendeskSettingType
+} from '@etherealengine/common/src/schemas/setting/zendesk-setting.schema'
 import appConfig from './appconfig'
+import logger from './ServerLogger'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
 import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
@@ -281,6 +285,22 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
+
+  const zendeskSettingPromise = knexClient
+    .select()
+    .from<ZendeskSettingType>(zendeskSettingPath)
+    .then(([dbZendesk]) => {
+      if (dbZendesk) {
+        appConfig.zendesk = {
+          ...appConfig.zendesk,
+          ...dbZendesk
+        }
+      }
+    })
+    .catch((e) => {
+      logger.error(e, `[updateAppConfig]: Failed to read zendesk setting: ${e.message}`)
+    })
+  promises.push(zendeskSettingPromise)
 
   await Promise.all(promises)
 }

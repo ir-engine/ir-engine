@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Mesh, Object3D } from 'three'
+
 import { Entity, hasComponent, removeComponent } from '@etherealengine/ecs'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { Mesh, Object3D } from 'three'
+
 import { GroundPlaneComponent } from '../../../../scene/components/GroundPlaneComponent'
 import { PrimitiveGeometryComponent } from '../../../../scene/components/PrimitiveGeometryComponent'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'

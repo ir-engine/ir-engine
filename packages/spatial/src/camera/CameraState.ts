@@ -26,12 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import matches from 'ts-matches'
 
 import { defineAction, defineState } from '@etherealengine/hyperflux'
+
 import { SpawnObjectActions } from '../transform/SpawnObjectActions'
 
 export const CameraSettings = defineState({
   name: 'xre.engine.CameraSettings',
   initial: () => ({
-    cameraRotationSpeed: 100
+    cameraRotationSpeed: 200
   })
 })
 

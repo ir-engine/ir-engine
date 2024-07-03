@@ -23,7 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { MathUtils } from 'three'
+
 import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import {
   defineActionQueue,
   dispatchAction,
@@ -33,20 +37,17 @@ import {
   startReactor,
   useHookstate
 } from '@etherealengine/hyperflux'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { XRAction, XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
-import { Widget, Widgets } from '@etherealengine/spatial/src/xrui/Widgets'
-import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
-
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadAxes, XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { XRAnchorSystemState } from '@etherealengine/spatial/src/xr/XRAnchorSystem'
-import { useEffect } from 'react'
-import { MathUtils } from 'three'
+import { XRAction, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
+import { WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
+import { Widget, Widgets } from '@etherealengine/spatial/src/xrui/Widgets'
+
 import { AnchorWidgetUI } from './ui/AnchorWidgetUI'
 
 export function createAnchorWidget() {
@@ -76,7 +77,7 @@ export function createAnchorWidget() {
         if (inputComponent.source.gamepad?.mapping !== 'xr-standard') continue
         if (inputComponent.source.handedness !== preferredHand) continue
 
-        const buttonInputPressed = inputComponent.buttons[XRStandardGamepadButton.Trigger]?.down
+        const buttonInputPressed = inputComponent.buttons[XRStandardGamepadButton.XRStandardGamepadTrigger]?.down
 
         if (buttonInputPressed) {
           xrState.scenePlacementMode.set('placed')
@@ -85,8 +86,8 @@ export function createAnchorWidget() {
 
         const { deltaSeconds } = getState(ECSState)
 
-        const xAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.ThumbstickX]
-        const yAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.ThumbstickY]
+        const xAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.XRStandardGamepadThumbstickX]
+        const yAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.XRStandardGamepadThumbstickY]
 
         const xDelta = xAxisInput * Math.PI * deltaSeconds
         getMutableState(XRState).sceneRotationOffset.set((currentValue) => currentValue + xDelta)
@@ -96,7 +97,7 @@ export function createAnchorWidget() {
           xrState.sceneScaleTarget.set((currentValue) => MathUtils.clamp(currentValue + yDelta, 0.01, 0.2))
         }
 
-        const triggerButtonPressed = inputComponent.buttons[XRStandardGamepadButton.Stick]?.down
+        const triggerButtonPressed = inputComponent.buttons[XRStandardGamepadButton.XRStandardGamepadStick]?.down
 
         if (triggerButtonPressed) {
           xrState.sceneScaleAutoMode.set(!xrState.sceneScaleAutoMode.value)

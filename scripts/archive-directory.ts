@@ -28,8 +28,8 @@ import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
 import { archiverPath } from '@etherealengine/common/src/schema.type.module'
-import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 dotenv.config({
   path: appRootPath.path,
@@ -51,8 +51,7 @@ db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.ho
 cli.enable('status')
 
 const options = cli.parse({
-  directory: [false, 'Directory to archive', 'string'],
-  storageProviderName: [false, 'Storage Provider Name', 'string'],
+  project: [false, 'Project to archive', 'string'],
   jobId: [false, 'ID of Job record', 'string']
 })
 
@@ -60,9 +59,9 @@ cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
-    const { directory, jobId, storageProviderName } = options
+    const { project, jobId } = options
     await app.service(archiverPath).get(null, {
-      query: { storageProviderName: storageProviderName || undefined, isJob: true, directory, jobId }
+      query: { isJob: true, project, jobId }
     })
     cli.exit(0)
   } catch (err) {

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AvatarID } from '@etherealengine/common/src/schema.type.module'
+
 import { UserID } from '../schemas/user/user.schema'
 
 export type AvatarUploadArgsType = {
@@ -47,7 +48,6 @@ export type AdminAssetUploadArgumentsType = {
   name?: string
   project?: string
   hash?: string
-  stats?: any
 }
 
 export type AdminAssetUploadType = {
@@ -66,6 +66,6 @@ export interface UploadFile {
   originalname: string
   encoding?: string
   mimetype: string
-  buffer: Buffer | string
+  buffer: Buffer
   size: number
 }

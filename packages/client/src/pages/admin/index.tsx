@@ -26,15 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { t } from 'i18next'
 import React, { Suspense } from 'react'
 
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-
 import AdminRoutes from '@etherealengine/client-core/src/admin/adminRoutes'
 import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
-import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 const LocationRoutes = () => {
   const projectsLoaded = useEngineInjection()
-  useRemoveEngineCanvas()
 
   if (!projectsLoaded)
     return (

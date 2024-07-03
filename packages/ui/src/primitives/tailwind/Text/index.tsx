@@ -53,17 +53,22 @@ const Text = ({
   className,
   children,
   component = 'span',
-  theme = 'primary'
+  theme = 'primary',
+  ...props
 }: TextProps): JSX.Element => {
   const Component = componentTypes[component]
 
   const twClassName = twMerge(
     'inline-block leading-normal',
-    `font-${fontWeight} font-[${fontFamily}] text-${fontSize} text-theme-${theme}`,
+    `font-${fontWeight} font-['${fontFamily}'] text-${fontSize} text-theme-${theme}`,
     className
   )
 
-  return <Component className={twClassName}>{children}</Component>
+  return (
+    <Component className={twClassName} {...props}>
+      {children}
+    </Component>
+  )
 }
 
 export default Text

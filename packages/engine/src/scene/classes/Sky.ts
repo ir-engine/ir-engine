@@ -38,6 +38,7 @@ import {
   WebGLCubeRenderTarget,
   WebGLRenderer
 } from 'three'
+
 import { disposeObject3D } from '../systems/SceneObjectSystem'
 
 /**

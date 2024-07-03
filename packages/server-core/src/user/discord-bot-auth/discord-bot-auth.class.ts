@@ -25,15 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { errors } from '@feathersjs/errors'
 import { Paginated, ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import fetch from 'node-fetch'
 
 import {
-  IdentityProviderType,
-  identityProviderPath
+  identityProviderPath,
+  IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { UserID, userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
-import { UserID, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 

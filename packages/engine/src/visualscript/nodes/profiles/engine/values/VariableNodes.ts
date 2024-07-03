@@ -25,21 +25,22 @@ Ethereal Engine. All Rights Reserved.
 
 // could move this to the core package instaead of keeping it in the engine package
 
-import { InputSystemGroup, SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs'
-import {
-  IGraph,
-  NodeCategory,
-  SocketsList,
-  Variable,
-  makeEventNodeDefinition,
-  makeFlowNodeDefinition,
-  makeFunctionNodeDefinition
-} from '@etherealengine/visual-script'
 import { useEffect } from 'react'
 
+import { defineSystem, destroySystem, InputSystemGroup, SystemUUID } from '@etherealengine/ecs'
+import {
+  IGraph,
+  makeEventNodeDefinition,
+  makeFlowNodeDefinition,
+  makeFunctionNodeDefinition,
+  NodeCategory,
+  SocketsList,
+  Variable
+} from '@etherealengine/visual-script'
+
 export const EngineVariableGet = makeFunctionNodeDefinition({
-  typeName: 'engine/variable/get',
-  category: NodeCategory.Query,
+  typeName: 'variable/get',
+  category: NodeCategory.Variable,
   label: 'Get',
   configuration: {
     variableName: {
@@ -86,8 +87,8 @@ export const EngineVariableGet = makeFunctionNodeDefinition({
 })
 
 export const EngineVariableSet = makeFlowNodeDefinition({
-  typeName: 'engine/variable/set',
-  category: NodeCategory.Action,
+  typeName: 'variable/set',
+  category: NodeCategory.Variable,
   label: 'Set',
   configuration: {
     variableName: {
@@ -151,8 +152,8 @@ export const getUseVariableSystemUUID = (variableName) =>
   (useVariableSystemUUID + `${variableName}-` + useVariableSystemCounter) as SystemUUID
 
 export const EngineVariableUse = makeEventNodeDefinition({
-  typeName: 'engine/variable/use',
-  category: NodeCategory.Event,
+  typeName: 'variable/use',
+  category: NodeCategory.Variable,
   label: 'Use',
   configuration: {
     variableName: {

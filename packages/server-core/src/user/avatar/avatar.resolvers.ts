@@ -34,10 +34,9 @@ import {
   AvatarQuery,
   AvatarType
 } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const avatarResolver = resolve<AvatarType, HookContext>({
   createdAt: virtual(async (avatar) => fromDateTimeSql(avatar.createdAt)),
@@ -45,7 +44,7 @@ export const avatarResolver = resolve<AvatarType, HookContext>({
   modelResource: virtual(async (avatar, context) => {
     if (context.event !== 'removed' && avatar.modelResourceId)
       try {
-        return await context.app.service(staticResourcePath)._get(avatar.modelResourceId)
+        return await context.app.service(staticResourcePath).get(avatar.modelResourceId)
       } catch (err) {
         //Swallow missing resource errors, deal with them elsewhere
       }
@@ -53,7 +52,7 @@ export const avatarResolver = resolve<AvatarType, HookContext>({
   thumbnailResource: virtual(async (avatar, context) => {
     if (context.event !== 'removed' && avatar.thumbnailResourceId)
       try {
-        return await context.app.service(staticResourcePath)._get(avatar.thumbnailResourceId)
+        return await context.app.service(staticResourcePath).get(avatar.thumbnailResourceId)
       } catch (err) {
         //Swallow missing resource errors, deal with them elsewhere
       }

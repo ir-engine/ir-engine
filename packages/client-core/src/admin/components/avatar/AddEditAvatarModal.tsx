@@ -23,21 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiArrowPath } from 'react-icons/hi2'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { AvatarService } from '@etherealengine/client-core/src/user/services/AvatarService'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@etherealengine/common/src/constants/AvatarConstants'
 import { AvatarType } from '@etherealengine/common/src/schema.type.module'
+import { cleanURL } from '@etherealengine/common/src/utils/cleanURL'
 import { AssetsPreviewPanel } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import DragNDrop from '@etherealengine/ui/src/primitives/tailwind/DragNDrop'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
-import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiArrowPath } from 'react-icons/hi2'
+
 import { getCanvasBlob } from '../../../common/utils'
 
 const getDefaultErrors = () => ({
@@ -116,12 +119,12 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
       avatarFile = avatarAssets.model.value
       avatarThumbnail = avatarAssets.thumbnail.value
     } else {
-      const modelName = avatarAssets.modelURL.value.split('/').pop()!
       const avatarData = await fetch(avatarAssets.modelURL.value)
+      const modelName = cleanURL(avatarAssets.modelURL.value).split('/').pop()!
       avatarFile = new File([await avatarData.blob()], modelName)
 
       const thumbnailData = await fetch(avatarAssets.thumbnailURL.value)
-      const thumbnailName = avatarAssets.thumbnailURL.value.split('/').pop()!
+      const thumbnailName = cleanURL(avatarAssets.thumbnailURL.value).split('/').pop()!
       avatarThumbnail = new File([await thumbnailData.blob()], thumbnailName)
     }
 
@@ -163,12 +166,13 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
 
   useEffect(() => {
     if (!avatarAssets.modelURL.value || avatarAssets.source.value !== 'url') return
-    const modelName = avatarAssets.modelURL.value.split('/').pop()
-    const modelType = avatarAssets.modelURL.value.split('.').pop()
+    const modelURL = cleanURL(avatarAssets.modelURL.value)
+    const modelName = modelURL.split('/').pop()
+    const modelType = modelURL.split('.').pop()
     if (!modelName || !modelType) return
     ;(previewPanelRef as any).current?.onSelectionChanged({
       name: modelName,
-      resourceUrl: avatarAssets.modelURL.value,
+      resourceUrl: modelURL,
       contentType: `model/${modelType}`
     })
   }, [avatarAssets.modelURL])

@@ -28,7 +28,9 @@ import React from 'react'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import { fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
@@ -38,8 +40,6 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -120,14 +120,20 @@ export default function ImageCompressionPanel({
     const props = fileProperties.value
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
     const path = props.key.replace(/(.*\/).*/, '$1')
+    const projectName = props.key.split('/')[1] // TODO: support projects with / in the name
+    const relativePath = path.replace('projects/' + projectName + '/', '')
 
     const file = new File([data], newFileName, { type: 'image/ktx2' })
 
     try {
       await uploadToFeathersService(fileBrowserUploadPath, [file], {
-        fileName: newFileName,
-        path,
-        contentType: file.type
+        args: [
+          {
+            project: projectName,
+            path: relativePath + file.name,
+            contentType: file.type
+          }
+        ]
       }).promise
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

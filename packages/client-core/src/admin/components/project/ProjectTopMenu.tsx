@@ -23,16 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiArrowPath, HiPlus } from 'react-icons/hi2'
+
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import config from '@etherealengine/common/src/config'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiArrowPath, HiPlus } from 'react-icons/hi2'
+
 import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
@@ -40,7 +42,7 @@ import UpdateEngineModal from './UpdateEngineModal'
 
 export default function ProjectTopMenu() {
   const { t } = useTranslation()
-  const projectState = useHookstate(getMutableState(ProjectState))
+  const projectState = useMutableState(ProjectState)
   const modalProcessing = useHookstate(false)
 
   ProjectService.useAPIListeners()
@@ -79,7 +81,7 @@ export default function ProjectTopMenu() {
     }
   }
 
-  const authState = useHookstate(getMutableState(AuthState))
+  const authState = useMutableState(AuthState)
   const user = authState.user
   const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
 

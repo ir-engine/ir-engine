@@ -29,6 +29,7 @@ import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { EditorState } from '../../services/EditorServices'
 
 export type HeirarchyTreeNodeType = {
@@ -68,8 +69,7 @@ export function* heirarchyTreeWalker(sceneID: string, treeNode: Entity): Generat
     const entityTreeComponent = getComponent(entityNode as Entity, EntityTreeComponent)
 
     // treat entites with all helper children as leaf nodes
-    const allhelperChildren =
-      false || entityTreeComponent.children.every((child) => !hasComponent(child, SourceComponent))
+    const allhelperChildren = entityTreeComponent.children.every((child) => !hasComponent(child, SourceComponent))
 
     yield {
       isLeaf: entityTreeComponent.children.length === 0 || allhelperChildren,

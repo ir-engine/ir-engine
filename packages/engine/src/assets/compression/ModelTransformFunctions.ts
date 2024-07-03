@@ -24,11 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  ExtractedImageTransformParameters,
-  extractParameters,
-  ModelTransformParameters
-} from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import {
   BufferUtils,
   Document,
   Format,
@@ -57,22 +52,27 @@ import {
 } from '@gltf-transform/functions'
 import { createHash } from 'crypto'
 import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer'
+import { getPixels } from 'ndarray-pixels'
 import { LoaderUtils } from 'three'
+import { v4 as uuidv4 } from 'uuid'
 
+import config from '@etherealengine/common/src/config'
 import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { baseName, pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import {
+  ExtractedImageTransformParameters,
+  extractParameters,
+  ModelTransformParameters
+} from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
+import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
+
+import { UploadRequestState } from '../state/UploadRequestState'
 import { EEMaterial, EEMaterialExtension } from './extensions/EE_MaterialTransformer'
 import { EEResourceID, EEResourceIDExtension } from './extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from './ModelTransformLoader'
 
-import config from '@etherealengine/common/src/config'
-import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
-import { v4 as uuidv4 } from 'uuid'
-import { UploadRequestState } from '../state/UploadRequestState'
-
-import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
-import { getPixels } from 'ndarray-pixels'
 /**
  *
  * @param doc
@@ -270,7 +270,8 @@ export async function combineMaterials(document: Document) {
       if (eeMat !== null && cachedEEMat !== null) {
         return (
           eeMat.prototype === cachedEEMat.prototype &&
-          ((eeMat.args === cachedEEMat.args) === null || (cachedEEMat.args && eeMat.args?.equals(cachedEEMat.args)))
+          ((eeMat.args === cachedEEMat.args && eeMat.args === null) ||
+            (cachedEEMat.args && eeMat.args?.equals(cachedEEMat.args)))
         )
       } else return material.equals(cachedMaterial)
     })
@@ -345,7 +346,7 @@ function hashBuffer(buffer: Uint8Array): string {
 export async function transformModel(
   args: ModelTransformParameters,
   onMetadata: (key: string, data: any) => void = (key, data) => {}
-) {
+): Promise<string> {
   const parms = args
 
   /**
@@ -758,6 +759,7 @@ export async function transformModel(
         }
       })
     )*/
+    result = finalPath
     console.log('Handled glb file')
   } else if (parms.modelFormat === 'gltf') {
     await Promise.all(
@@ -842,7 +844,7 @@ export async function transformModel(
       finalPath += '.gltf'
     }
     await doUpload(new Blob([JSON.stringify(json)], { type: 'application/json' }), finalPath)
-
+    result = finalPath
     console.log('Handled gltf file')
   }
 
@@ -856,6 +858,6 @@ export async function transformModel(
     }
   }
   onMetadata('vertexCount', totalVertexCount)
-
+  result = pathJoin(LoaderUtils.extractUrlBase(args.src), result)
   return result
 }

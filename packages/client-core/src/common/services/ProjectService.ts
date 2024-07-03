@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { githubRepoAccessRefreshPath, ProjectUpdateParams } from '@etherealengine/common/src/schema.type.module'
-import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
 import {
   builderInfoPath,
+  githubRepoAccessRefreshPath,
   InviteCode,
   projectBranchesPath,
   projectBuilderTagsPath,
@@ -45,10 +44,13 @@ import {
   projectInvalidatePath,
   projectPath,
   projectPermissionPath,
-  ProjectType
+  ProjectType,
+  ProjectUpdateParams,
+  UserID
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Paginated } from '@feathersjs/feathers'
+import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+
 import { NotificationService } from './NotificationService'
 
 const logger = multiLogger.child({ component: 'client-core:projects' })
@@ -175,11 +177,13 @@ export const ProjectService = {
     }
   },
 
-  createPermission: async (userInviteCode: InviteCode, projectId: string) => {
+  createPermission: async (userInviteCode: InviteCode, projectId: string, type: string) => {
     try {
       return Engine.instance.api.service(projectPermissionPath).create({
         inviteCode: userInviteCode,
-        projectId: projectId
+        userId: '' as UserID,
+        projectId: projectId,
+        type
       })
     } catch (err) {
       logger.error('Error with creating new project-permission', err)

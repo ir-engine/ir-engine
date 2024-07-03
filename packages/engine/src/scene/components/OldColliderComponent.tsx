@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import { useLayoutEffect } from 'react'
-
-import { NO_PROXY, getState } from '@etherealengine/hyperflux'
+import { Mesh } from 'three'
+import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/ecs'
 import {
@@ -40,7 +40,7 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { NO_PROXY, getState } from '@etherealengine/hyperflux'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent as NewColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -56,15 +56,13 @@ import {
 } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { iterateEntityNode, useTreeQuery } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import {
   computeTransformMatrix,
   updateGroupChildren
 } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { Mesh } from 'three'
-import matches from 'ts-matches'
-import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
+
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 
 /** @deprecated - use the new API */
@@ -164,6 +162,7 @@ export const OldColliderComponent = defineComponent({
     const colliderComponent = useComponent(entity, OldColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
+    const tree = useTreeQuery(entity)
 
     useLayoutEffect(() => {
       setComponent(entity, InputComponent)
@@ -226,11 +225,6 @@ export const OldColliderComponent = defineComponent({
 
           meshesToRemove.push(mesh)
         })
-
-        if (!getState(EngineState).isEditor)
-          for (const mesh of meshesToRemove) {
-            cleanupAllMeshData(mesh, {})
-          }
       } else {
         /**
          * If rigidbody does not exist, create one
@@ -266,7 +260,7 @@ export const OldColliderComponent = defineComponent({
           removeComponent(entity, TriggerComponent)
         }
       }
-    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length])
+    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, tree])
 
     return null
   }

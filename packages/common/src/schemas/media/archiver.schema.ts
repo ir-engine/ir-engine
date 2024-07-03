@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Static, Type, querySyntax } from '@feathersjs/typebox'
+import { querySyntax, Static, Type } from '@feathersjs/typebox'
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
@@ -32,8 +32,7 @@ export const archiverPath = 'archiver'
 export const archiverMethods = ['get'] as const
 
 export const archiverQueryProperties = Type.Object({
-  directory: Type.Optional(Type.String()),
-  storageProviderName: Type.Optional(Type.String()),
+  project: Type.Optional(Type.String()),
   isJob: Type.Optional(Type.Boolean()),
   jobId: Type.Optional(Type.String())
 })

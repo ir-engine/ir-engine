@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert, NodeCategory, makeFlowNodeDefinition } from '../../../VisualScriptModule'
+import { Assert, makeFlowNodeDefinition, NodeCategory } from '../../../VisualScriptModule'
 
 export const ExpectTrue = makeFlowNodeDefinition({
   typeName: 'debug/expectTrue',

@@ -29,15 +29,14 @@ Ethereal Engine. All Rights Reserved.
  */
 
 import { useEffect } from 'react'
+import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector2 } from 'three'
+import { Text as TroikaText } from 'troika-three-text'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-
 import { matches } from '@etherealengine/hyperflux'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector2 } from 'three'
-import { Text as TroikaText } from 'troika-three-text'
 
 /**
  * @description
@@ -250,7 +249,13 @@ export const TextComponent = defineComponent({
     if (matches.string.test(json.font)) component.font.set(json.font)
     else if (matches.nill.test(json.font)) component.font.set(null)
     if (matches.number.test(json.fontSize)) component.fontSize.set(json.fontSize)
-    if (matches.object.test(json.fontColor) && json.fontColor.isColor) component.fontColor.set(json.fontColor)
+
+    if (matches.object.test(json.fontColor) && json.fontColor.isColor) {
+      component.fontColor.set(json.fontColor)
+    } else if (matches.number.test(json.fontColor)) {
+      component.fontColor.set(new Color(json.fontColor))
+    }
+
     if (matches.number.test(json.fontMaterial) && json.fontMaterial in FontMaterialKind)
       component.fontMaterial.set(json.fontMaterial)
     if (matches.number.test(json.outlineOpacity)) component.outlineOpacity.set(json.outlineOpacity)
@@ -258,11 +263,22 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.outlineBlur)) component.outlineBlur.set(json.outlineBlur)
     if (matches.object.test(json.outlineOffset) && json.outlineOffset.isVector2)
       component.outlineOffset.set(json.outlineOffset)
-    if (matches.object.test(json.outlineColor) && json.outlineColor.isColor)
+
+    if (matches.object.test(json.outlineColor) && json.outlineColor.isColor) {
       component.outlineColor.set(json.outlineColor)
+    } else if (matches.number.test(json.outlineColor)) {
+      component.outlineColor.set(new Color(json.outlineColor))
+    }
+
     if (matches.number.test(json.strokeOpacity)) component.strokeOpacity.set(json.strokeOpacity)
     if (matches.number.test(json.strokeWidth)) component.strokeWidth.set(json.strokeWidth)
-    if (matches.object.test(json.strokeColor) && json.strokeColor.isColor) component.strokeColor.set(json.strokeColor)
+
+    if (matches.object.test(json.strokeColor) && json.strokeColor.isColor) {
+      component.strokeColor.set(json.strokeColor)
+    } else if (matches.number.test(json.strokeColor)) {
+      component.strokeColor.set(new Color(json.strokeColor))
+    }
+
     // Advanced configuration
     if (matches.string.test(json.textOrientation)) component.textOrientation.set(json.textOrientation)
     if (matches.boolean.test(json.gpuAccelerated)) component.gpuAccelerated.set(json.gpuAccelerated)
@@ -320,52 +336,180 @@ export const TextComponent = defineComponent({
 
     useEffect(() => {
       text.troikaMesh.set(new TroikaText())
-      addObjectToGroup(entity, text.troikaMesh.value!)
+      addObjectToGroup(entity, text.troikaMesh.value as TextMesh)
       return () => {
         text.troikaMesh.value!.dispose()
       }
     }, [])
 
     useEffect(() => {
-      // Update the Text content/properties
-      text.troikaMesh.value!.text = text.text.value
-      text.troikaMesh.value!.fillOpacity = text.textOpacity.value / 100
-      text.troikaMesh.value!.maxWidth = text.textWidth.value
-      text.troikaMesh.value!.textIndent = text.textIndent.value
-      text.troikaMesh.value!.textAlign = text.textAlign.value
-      text.troikaMesh.value!.overflowWrap = text.textWrapKind.value
-      text.troikaMesh.value!.whiteSpace = text.textWrap.value ? 'normal' : 'nowrap'
-      text.troikaMesh.value!.anchorX = `${text.textAnchor.x.value}%`
-      text.troikaMesh.value!.anchorY = `${text.textAnchor.y.value}%`
-      text.troikaMesh.value!.depthOffset = text.textDepthOffset.value
-      text.troikaMesh.value!.curveRadius = MathUtils.degToRad(text.textCurveRadius.value)
-      text.troikaMesh.value!.letterSpacing = text.letterSpacing.value
-      text.troikaMesh.value!.lineHeight = text.lineHeight.value
-      text.troikaMesh.value!.direction = text.textDirection.value
-      // Update the font properties
-      text.troikaMesh.value!.font = text.font.value
-      text.troikaMesh.value!.fontSize = text.fontSize.value
-      text.troikaMesh.value!.color = text.fontColor.value.getHex()
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.text = text.text.value
+      troikaMesh.sync()
+    }, [text.text])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.fillOpacity = text.textOpacity.value / 100
+      troikaMesh.sync()
+    }, [text.textOpacity])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.textIndent = text.textIndent.value
+      troikaMesh.sync()
+    }, [text.textIndent])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.textAlign = text.textAlign.value
+      troikaMesh.sync()
+    }, [text.textAlign])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.whiteSpace = text.textWrap.value ? 'normal' : 'nowrap'
+      troikaMesh.sync()
+    }, [text.textWrap])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.overflowWrap = text.textWrapKind.value
+      troikaMesh.sync()
+    }, [text.textWrapKind])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.anchorX = `${text.textAnchor.x.value}%`
+      troikaMesh.anchorY = `${text.textAnchor.y.value}%`
+      troikaMesh.sync()
+    }, [text.textAnchor])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.curveRadius = MathUtils.degToRad(text.textCurveRadius.value)
+      troikaMesh.sync()
+    }, [text.textCurveRadius])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.depthOffset = text.textDepthOffset.value
+      troikaMesh.sync()
+    }, [text.textDepthOffset])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.maxWidth = text.textWidth.value
+      troikaMesh.sync()
+    }, [text.textWidth])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.lineHeight = text.lineHeight.value
+      troikaMesh.sync()
+    }, [text.lineHeight])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.letterSpacing = text.letterSpacing.value
+      troikaMesh.sync()
+    }, [text.letterSpacing])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.direction = text.textDirection.value
+      troikaMesh.sync()
+    }, [text.textDirection])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.font = text.font.value
+      troikaMesh.sync()
+    }, [text.font])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.fontSize = text.fontSize.value
+      troikaMesh.sync()
+    }, [text.fontSize])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.color = text.fontColor.value.getHex()
+      troikaMesh.sync()
+    }, [text.fontColor])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       switch (text.fontMaterial.value) {
         case FontMaterialKind.Basic:
-          text.troikaMesh.value!.material = new MeshBasicMaterial()
+          troikaMesh.material = new MeshBasicMaterial()
           break
         case FontMaterialKind.Standard:
-          text.troikaMesh.value!.material = new MeshStandardMaterial()
+          troikaMesh.material = new MeshStandardMaterial()
           break
       }
-      text.troikaMesh.value!.outlineOpacity = text.outlineOpacity.value / 100
-      text.troikaMesh.value!.outlineWidth = `${text.outlineWidth.value}%`
-      text.troikaMesh.value!.outlineBlur = `${text.outlineBlur.value}%`
-      text.troikaMesh.value!.outlineOffsetX = `${text.outlineOffset.x.value}%`
-      text.troikaMesh.value!.outlineOffsetY = `${text.outlineOffset.y.value}%`
-      text.troikaMesh.value!.outlineColor = text.outlineColor.value.getHex()
-      text.troikaMesh.value!.strokeOpacity = text.strokeOpacity.value / 100
-      text.troikaMesh.value!.strokeWidth = `${text.strokeWidth.value}%`
-      text.troikaMesh.value!.strokeColor = text.strokeColor.value.getHex()
-      // Update the Advanced configuration propertiess
-      text.troikaMesh.value!.orientation = text.textOrientation.value
-      ;(text.troikaMesh.value!.clipRect = text.clipActive.value
+      troikaMesh.sync()
+    }, [text.fontMaterial])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.outlineOpacity = text.outlineOpacity.value / 100
+      troikaMesh.sync()
+    }, [text.outlineOpacity])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.outlineWidth = `${text.outlineWidth.value}%`
+      troikaMesh.sync()
+    }, [text.outlineWidth])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.outlineBlur = `${text.outlineBlur.value}%`
+      troikaMesh.sync()
+    }, [text.outlineBlur])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.outlineOffsetX = `${text.outlineOffset.x.value}%`
+      troikaMesh.outlineOffsetY = `${text.outlineOffset.y.value}%`
+      troikaMesh.sync()
+    }, [text.outlineOffset])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.outlineColor = text.outlineColor.value.getHex()
+      troikaMesh.sync()
+    }, [text.outlineColor])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.strokeOpacity = text.strokeOpacity.value / 100
+      troikaMesh.sync()
+    }, [text.strokeOpacity])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.strokeWidth = `${text.strokeWidth.value}%`
+      troikaMesh.sync()
+    }, [text.strokeWidth])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.strokeColor = text.strokeColor.value.getHex()
+      troikaMesh.sync()
+    }, [text.strokeColor])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.orientation = text.textOrientation.value
+      troikaMesh.sync()
+    }, [text.textOrientation])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.clipRect = text.clipActive.value
         ? [
             // Send as [minX, minY, maxX, maxY] :Array<number>
             text.clipRectMin.x.value,
@@ -373,45 +517,27 @@ export const TextComponent = defineComponent({
             text.clipRectMax.x.value,
             text.clipRectMax.x.value
           ]
-        : []),
-        (text.troikaMesh.value!.gpuAccelerateSDF = text.gpuAccelerated.value)
-      text.troikaMesh.value!.sdfGlyphSize = Math.pow(2, text.glyphResolution.value)
-      text.troikaMesh.value!.glyphGeometryDetail = text.glyphDetail.value
-      // Order troika to synchronize the mesh
-      text.troikaMesh.value!.sync()
-    }, [
-      text.text,
-      text.textOpacity,
-      text.textIndent,
-      text.textAlign,
-      text.textWrap,
-      text.textWrapKind,
-      text.textAnchor,
-      text.textCurveRadius,
-      text.textDepthOffset,
-      text.textWidth,
-      text.lineHeight,
-      text.letterSpacing,
-      text.textDirection,
-      text.fontSize,
-      text.fontColor,
-      text.fontMaterial,
-      text.outlineOpacity,
-      text.outlineWidth,
-      text.outlineBlur,
-      text.outlineOffset,
-      text.outlineColor,
-      text.strokeOpacity,
-      text.strokeWidth,
-      text.strokeColor,
-      text.textOrientation,
-      text.clipActive,
-      text.clipRectMin,
-      text.clipRectMax,
-      text.gpuAccelerated,
-      text.glyphResolution,
-      text.glyphDetail
-    ])
+        : []
+      troikaMesh.sync()
+    }, [text.clipActive, text.clipRectMin, text.clipRectMax])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.gpuAccelerateSDF = text.gpuAccelerated.value
+      troikaMesh.sync()
+    }, [text.gpuAccelerated])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.sdfGlyphSize = Math.pow(2, text.glyphResolution.value)
+      troikaMesh.sync()
+    }, [text.glyphResolution])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.glyphGeometryDetail = text.glyphDetail.value
+      troikaMesh.sync()
+    }, [text.glyphDetail])
 
     return null
   }

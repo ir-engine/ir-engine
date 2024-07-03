@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { API } from '@etherealengine/client-core/src/API'
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
@@ -38,6 +36,8 @@ import { ModelFormat } from '@etherealengine/engine/src/assets/classes/ModelTran
 import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { Heuristic } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { getState } from '@etherealengine/hyperflux'
+
+import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { createLODVariants } from '../components/assets/ModelCompressionPanel'
 import { LODVariantDescriptor } from '../constants/GLTFPresets'
@@ -53,8 +53,8 @@ export const inputFileWithAddToScene = async ({
   projectName,
   directoryPath
 }: {
-  projectName?: string
-  directoryPath?: string
+  projectName: string
+  directoryPath: string
 }): Promise<null> =>
   new Promise((resolve, reject) => {
     const el = document.createElement('input')
@@ -103,9 +103,13 @@ export const inputFileWithAddToScene = async ({
               files.map(
                 (file) =>
                   uploadToFeathersService(fileBrowserUploadPath, [file], {
-                    fileName: file.name,
-                    path: directoryPath,
-                    contentType: ''
+                    args: [
+                      {
+                        project: projectName,
+                        path: directoryPath.replace('projects/' + projectName + '/', '') + file.name,
+                        contentType: file.type
+                      }
+                    ]
                   }).promise
               )
             )
@@ -123,11 +127,12 @@ export const inputFileWithAddToScene = async ({
         }
       } catch (err) {
         reject(err)
+      } finally {
+        el.remove()
       }
     }
 
     el.click()
-    el.remove()
   })
 
 export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], onProgress?) => {
@@ -135,16 +140,19 @@ export const uploadProjectFiles = (projectName: string, files: File[], paths: st
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
-    const path = paths[i]
+    const fileDirectory = paths[i].replace('projects/' + projectName + '/', '')
+    const filePath = fileDirectory ? pathJoin(fileDirectory, file.name) : file.name
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: file.name, path, contentType: '' }, onProgress)
+      uploadToFeathersService(
+        fileBrowserUploadPath,
+        [file],
+        {
+          args: [{ project: projectName, path: filePath, contentType: '' }]
+        },
+        onProgress
+      )
     )
   }
-
-  const uploadPromises = [...promises]
-  Promise.all(uploadPromises).then(() =>
-    Engine.instance.api.service('project-resources').create({ project: projectName })
-  )
 
   return {
     cancel: () => promises.forEach((promise) => promise.cancel()),
@@ -154,9 +162,9 @@ export const uploadProjectFiles = (projectName: string, files: File[], paths: st
 
 export async function clearModelResources(projectName: string, modelName: string) {
   const resourcePath = `projects/${projectName}/assets/${modelResourcesPath(modelName)}`
-  const exists = await API.instance.client.service(fileBrowserPath).get(resourcePath)
+  const exists = await Engine.instance.api.service(fileBrowserPath).get(resourcePath)
   if (exists) {
-    await FileBrowserService.deleteContent(resourcePath)
+    await Engine.instance.api.service(fileBrowserPath).remove(resourcePath)
   }
 }
 
@@ -194,11 +202,11 @@ export const processEntry = async (
 
   if (item.isFile) {
     const file = await getFile(item)
-    const path = `projects/${projectName}/assets${directory}`
     const name = processFileName(file.name)
+    const path = `assets${directory}/` + name
 
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: name, path, contentType: '' }, onProgress)
+      uploadToFeathersService(fileBrowserUploadPath, [file], { projectName, path, contentType: '' }, onProgress)
     )
   }
 }

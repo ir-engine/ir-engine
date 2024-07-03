@@ -29,18 +29,19 @@ import dotenv from 'dotenv'
 import fs from 'fs'
 import lodash from 'lodash'
 import path from 'path'
-import { UserConfig, defineConfig } from 'vite'
+import { defineConfig, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgr from 'vite-plugin-svgr'
-const { isArray, mergeWith } = lodash
 
 import manifest from './manifest.default.json'
 import packageJson from './package.json'
 import PWA from './pwa.config'
 import { getClientSetting } from './scripts/getClientSettings'
 import { getCoilSetting } from './scripts/getCoilSettings'
+
+const { isArray, mergeWith } = lodash
 
 const parseModuleName = (moduleName: string) => {
   // // chunk medisoup-client
@@ -136,11 +137,13 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
           `../projects/projects/${project}/vite.config.extension.ts`
         )
         if (typeof viteConfigExtension === 'function') {
-          const configExtension = await viteConfigExtension()
+          const configExtension = (await viteConfigExtension(config)) as UserConfig
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          config.plugins = [...config.plugins!, ...configExtension.default.plugins]
-          delete configExtension.default.plugins
-          config = merge(config, configExtension.default)
+          if (configExtension?.plugins) {
+            config.plugins = [...config.plugins!, ...configExtension.plugins]
+            delete configExtension.plugins
+          }
+          config = merge(config, configExtension)
         }
       } catch (e) {
         console.error(e)
@@ -302,6 +305,9 @@ export default defineConfig(async () => {
         icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
         icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
         webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
+        siteManifest: clientSetting.siteManifest || '/site.webmanifest',
+        safariPinnedTab: clientSetting.safariPinnedTab || '/safari-pinned-tab.svg',
+        favicon: clientSetting.favicon || '/favicon.ico',
         swScriptLink:
           clientSetting.swScriptLink || process.env.VITE_PWA_ENABLED === 'true'
             ? process.env.APP_ENV === 'development'
@@ -328,6 +334,15 @@ export default defineConfig(async () => {
       target: 'esnext',
       sourcemap: process.env.VITE_SOURCEMAPS === 'true' ? true : false,
       minify: 'terser',
+      terserOptions: {
+        mangle: {
+          // This is a work-around for a terser bug which occurs when a local variable named `fetch` is
+          // used in a function that also references the global `fetch` function as a default parameter value
+          // In this case, terser was mangling the local `fetch` variable a different name (which is fine),
+          // however it also updated the default parameter to the same mangled name (uh-oh), causing a runtime error.
+          reserved: ['fetch']
+        }
+      },
       dynamicImportVarsOptions: {
         warnOnError: true
       },

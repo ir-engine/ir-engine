@@ -6,7 +6,7 @@
   "error": "Error",
   "errorMsg": "There was an unknown error.",
   "generateScreenshot": "Generating Project Screenshot",
-  "newScene": "Create Scene",
+  "newScene": "Add Scene",
   "saving": "Saving Project",
   "savingError": "Error Saving Project",
   "savingErrorMsg": "There was an error when saving the project.",
@@ -26,6 +26,8 @@
   "envMapError": "Error loading cubemap images {{files}}",
   "lbl-return": "Return",
   "loadingScenes": "Loading Scenes",
+  "loadingScenesWithProgress": "Scene Loading... {{progress}}% ({{assetsLeft}} assets left)",
+  "help": "Help",
   "menubar": {
     "newScene": "New Scene",
     "saveScene": "Save Scene",
@@ -35,7 +37,7 @@
     "exportGLB": "Export as binary glTF (.glb) ...",
     "importScene": "Import scene",
     "exportScene": "Export scene",
-    "quit": "Quit"
+    "quit": "Quit to Dashboard"
   },
   "errors": {
     "fileTypeNotSupported": "Unsupported file type for file: \"{{name}}\". File must be an image, video, or glb model.",
@@ -51,6 +53,7 @@
     "mediaSearchAborted": "Media search aborted",
     "methodNotImplemented": "Method not implemented.",
     "saveProjectAborted": "Save scene aborted",
+    "sceneAlreadyExists": "Scene already exists with this name.",
     "unsavedChanges": "Unsaved Changes",
     "unsavedChangesMsg": "The scene has been modified. Please save your changes.",
     "projectCreationFail": "Project creation failed. {{reason}}",
@@ -65,7 +68,8 @@
     "networkError": "Network Error: {{status}}. {{text}}",
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
-    "urlFetchError": "Failed to fetch \"{{url}}\""
+    "urlFetchError": "Failed to fetch \"{{url}}\"",
+    "invalidSceneName": "Provide a valid scene name"
   },
   "viewport": {
     "title": "Viewport",
@@ -99,6 +103,8 @@
   "toolbar": {
     "lbl-publish": "Publish",
     "lbl-published": "Published",
+    "lbl-simple": "Simple",
+    "lbl-advanced": "Advanced",
     "gizmo": {
       "description": "Transform Gizmo",
       "translate": "[T] Translate",
@@ -130,6 +136,10 @@
       "toggleSnapMode": "[C] Toggle Grid Snap",
       "info-translate": "Translate objects by a unit of measurement.",
       "info-rotate": "Rotate objects by a specific degrees."
+    },
+    "placement": {
+      "click": "Point & Click Placement",
+      "drag": "Drag & Drop Placement"
     },
     "command": {
       "translate": "Translate",
@@ -189,7 +199,7 @@
   },
   "properties": {
     "title": "Properties",
-    "info": "Propeties let you access and edit detailed information about objects in the scene.",
+    "info": "Properties let you access and edit detailed information about objects in the scene.",
     "lbl-visible": "Visible",
     "lbl-preventBake": "Prevent Bake",
     "lbl-dynamicLoad": "Load Children Dynamically",
@@ -205,7 +215,14 @@
     },
     "envmap": {
       "name": "Environment Map",
-      "description": "environment map properties"
+      "description": "environment map properties",
+      "lbl-source": "Envmap Source",
+      "lbl-color": "Envmap Color",
+      "lbl-bake": "Envmap Bake",
+      "lbl-textureType": "Texture Type",
+      "lbl-textureUrl": "Texture URL",
+      "lbl-intensity": "Envmap Intensity",
+      "bake-reflection-probes": "Bake Probes"
     },
     "trigger": {
       "name": "Trigger",
@@ -237,28 +254,43 @@
       "description": "Anchors this entity to a real life reference",
       "lbl-name": "Anchor Name"
     },
+    "input": {
+      "name": "Input Component",
+      "description": "Input component that listens for input events and passes them to InputSink components",
+      "lbl-activationDistance": "Proximity focus distance",
+      "lbl-sinkTarget": "Sink Target",
+      "lbl-addSinkTarget": "Add Sink Target",
+      "lbl-removeSinkTarget": "Remove Sink Target"
+    },
     "interactable": {
       "name": "Interactable",
       "description": "An interactable component with an optional XRUI with text of Label that can trigger callbacks",
-      "lbl-label" : "Label",
+      "lbl-label": "Label",
       "lbl-activationDistance": "Activation Distance",
-      "lbl-addcallback" : "Add Callback",
+      "lbl-addcallback": "Add Callback",
       "lbl-removecallback": "Remove Callback",
       "lbl-clickInteract": "Click to Interact",
       "info-clickInteract": "Enables clicking to interact with the object",
-      "callbacks" :
-      {
-        "lbl-target" : "Target",
-        "lbl-callbackID" : "Callback ID"
+      "callbacks": {
+        "lbl-target": "Target",
+        "lbl-callbackID": "Callback ID"
       }
+    },
+    "lookAt": {
+      "name": "LookAt",
+      "description": "A component that makes the entity always face the user, or another entity",
+      "target": "Target Entity",
+      "xAxis": "X Axis",
+      "yAxis": "Y Axis"
     },
     "grabbable": {
       "name": "Grabbable",
-        "description": "A grabbable component that can be picked up and manipulated by the user"
+      "description": "A grabbable component that can be picked up and manipulated by the user"
     },
     "media": {
       "name": "Media",
       "description": "Audio and video playback",
+      "path": "Path",
       "paths": "Source Paths",
       "playmode": "Play Mode",
       "playtitle": "Play",
@@ -277,13 +309,20 @@
       "lbl-currentTime": "Current Time",
       "lbl-isMusic": "Is Music",
       "lbl-size": "Size",
-      "seektime": "Start Time"
+      "seektime": "Start Time",
+      "lbl-mediaControls": "Media Controls"
     },
     "mesh": {
       "name": "Mesh",
       "description": "A mesh is a collection of vertices, edges, and faces that describe the shape of a 3D object.",
       "geometryEditor": "Geometry Editor",
       "materialEditor": "Material Editor",
+      "geometry": {
+        "name": "Name:",
+        "count": "Count:",
+        "itemSize": "Item Size:",
+        "recalculateNormals": "Recalculate Normals"
+      },
       "material": {
         "name": "Name",
         "source": "Source",
@@ -291,7 +330,7 @@
         "path": "Path:",
         "prototype": "Prototype",
         "loading": "Loading...",
-        "addPlugin": "Add Plugin",
+        "setPlugin": "Set Plugin",
         "plugin": "Plugin"
       },
       "materialProperties": {
@@ -328,11 +367,12 @@
       "lbl-shape": "Shape",
       "lbl-type": "Body Type",
       "lbl-mass": "Mass",
-      "lbl-massCenter":"Mass Center",
-      "lbl-friction":"Friction",
-      "lbl-restitution":"Restitution",
-      "lbl-collisionLayer":"Collision Layer",
-      "lbl-collisionMask":"Collision Mask"
+      "lbl-massCenter": "Mass Center",
+      "lbl-friction": "Friction",
+      "lbl-restitution": "Restitution",
+      "lbl-collisionLayer": "Collision Layer",
+      "lbl-collisionMask": "Collision Mask",
+      "lbl-removeMesh": "Remove Mesh"
     },
     "camera": {
       "name": "Camera",
@@ -373,7 +413,8 @@
       "title": "Loop Animation",
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
       "lbl-loopAnimation": "Loop Animation",
-      "lbl-timeScale": "Time Scale"
+      "lbl-timeScale": "Time Scale",
+      "lbl-animationPack": "Animation Pack (via Mixamo Rig)"
     },
     "variant": {
       "name": "Variant",
@@ -429,14 +470,18 @@
       "lbl-interactionText": "Interaction Text",
       "lbl-interactionType": "Interaction Type",
       "transform": {
+        "lodLevels": "LOD Levels",
+        "lodLevelNumber": "LOD Level {{index}}",
         "compress": "Compress",
+        "applyPresetConfirmation": "Would you like to apply this preset?",
+        "savePreset": "Save Preset",
         "useDraco": "Use DRACO Mesh Compression",
         "useMeshopt": "Use Meshoptimizer",
         "useQuantization": "Use Mesh Quantization",
         "textureFormat": "Image Format",
         "modelFormat": "Model Format",
-        "resourceUri": "Resource URI",
-        "dst": "File Name",
+        "resourceUri": "Resource URL",
+        "dst": "File name",
         "resampleAnimations": "Resample Animations",
         "maxTextureSize": "Max Texture Size",
         "simplifyRatio": "Simplify Ratio",
@@ -523,7 +568,7 @@
       "name": "Image",
       "description": "Dynamically loads an image.",
       "lbl-imgURL": "Image URL",
-      "lbl-transparency": "Transparency Mode",
+      "lbl-transparency": "Transparency",
       "lbl-alphaCutoff": "Alpha Cutoff",
       "lbl-projection": "Projection",
       "lbl-side": "Side",
@@ -626,6 +671,7 @@
       "error-url": "Error Loading From URL"
     },
     "pointLight": {
+      "name": "Point Light",
       "description": "A light which emits in all directions from a single point.",
       "lbl-color": "Color",
       "lbl-intensity": "Intensity",
@@ -722,6 +768,11 @@
       "lbl-trebleMultiplier": "Treble Multiplier",
       "lbl-midMultiplier": "Mid Multiplier"
     },
+    "reflectionProbe": {
+      "name": "Reflection Probe",
+      "description": "A reflection probe that captures the environment and uses it for reflection.",
+      "src": "Source"
+    },
     "renderSettings": {
       "name": "Render Settings",
       "description": "Customise the scene renderer settings",
@@ -795,6 +846,7 @@
       "description": "Adds an interactable that opens links or navigates scene"
     },
     "spotLight": {
+      "name": "Spot Light",
       "description": "A light which emits along a direction, illuminating objects within a cone.",
       "lbl-color": "Color",
       "lbl-intensity": "Intensity",
@@ -811,7 +863,10 @@
       "lbl-useGlobalTransform": "Use Global Transform"
     },
     "triggerVolume": {
+      "name": "Trigger",
       "description": "Sets a property on the target object on enter and leave.",
+      "lbl-addTrigger": "Add Trigger",
+      "lbl-removeTrigger": "Remove Trigger",
       "lbl-target": "Object",
       "lbl-onenter": "On Enter",
       "lbl-onexit": "On Exit",
@@ -828,7 +883,27 @@
       "lbl-fit-info": "How the video should be stretched within the given canvas size",
       "lbl-media-info": "An entity w/ a media component that should be sourced for display",
       "description": "Display a video",
-      "lbl-projection": "Projection"
+      "lbl-projection": "Projection",
+      "lbl-side": "Side",
+      "lbl-side-info": "The side of the video to display",
+      "lbl-use-alpha": "Use Alpha",
+      "lbl-use-alpha-info": "If true, the video will be rendered with an alpha channel",
+      "lbl-alpha-threshold": "Alpha Threshold",
+      "lbl-alpha-threshold-info": "The alpha value below which the video will be considered transparent",
+      "lbl-uv-offset": "UV Offset",
+      "lbl-uv-offset-info": "The offset of the video texture in UV space",
+      "lbl-uv-scale": "UV Scale",
+      "lbl-uv-scale-info": "The scale of the video texture in UV space",
+      "lbl-wrap-s": "Wrap S",
+      "lbl-wrap-s-info": "The wrap mode of the video texture in the S direction",
+      "lbl-wrap-t": "Wrap T",
+      "lbl-wrap-t-info": "The wrap mode of the video texture in the T direction",
+      "lbl-use-alpha-uv-transform": "Use Alpha UV Transform",
+      "lbl-use-alpha-uv-transform-info": "If true, the alpha channel will be transformed by its own UV transform",
+      "lbl-alpha-uv-offset": "Alpha UV Offset",
+      "lbl-alpha-uv-offset-info": "The offset of the alpha channel in UV space",
+      "lbl-alpha-uv-scale": "Alpha UV Scale",
+      "lbl-alpha-uv-scale-info": "The scale of the alpha channel in UV space"
     },
     "volumetric": {
       "name": "Volumetric",
@@ -838,7 +913,7 @@
     "spline": {
       "name": "Spline",
       "description": "Create and customize curves.",
-      "lbl-addNode": "Add node to curve"
+      "lbl-addNode": "Nodes"
     },
     "splinetrack": {
       "name": "Spline Track",
@@ -875,6 +950,7 @@
       "lbl-torusknot": "Torus Knot"
     },
     "portal": {
+      "name": "Portal",
       "lbl-portal": "Linked Portal",
       "lbl-redirect": "Use Page Redirect",
       "description": "A Portal to teleport players to specified location",
@@ -915,33 +991,33 @@
     },
     "text": {
       "textGroup": "Text",
-      "textOpacity": "opacity",
-      "textWidth": "width",
-      "textIndent": "indent",
-      "textAlign": "align",
-      "textWrap": "wrap",
-      "textAnchor": "anchor",
-      "textDepthOffset": "depthOffset",
-      "textCurveRadius": "curveRadius",
-      "letterSpacing": "letterSpacing",
-      "lineHeightGroup": "lineHeight",
-      "lineHeight": "height",
-      "textDirection": "direction",
+      "textOpacity": "Opacity",
+      "textWidth": "Width",
+      "textIndent": "Indent",
+      "textAlign": "Align",
+      "textWrap": "Wrap",
+      "textAnchor": "Anchor",
+      "textDepthOffset": "Depth off set",
+      "textCurveRadius": "Curve radius",
+      "letterSpacing": "Letter spacing",
+      "lineHeightGroup": "Line height",
+      "lineHeight": "Height",
+      "textDirection": "Direction",
       "fontGroup": "Font",
-      "fontFamily": "family",
-      "fontSize": "size",
-      "fontColor": "color",
-      "fontMaterial": "material",
+      "fontFamily": "Family",
+      "fontSize": "Size",
+      "fontColor": "Color",
+      "fontMaterial": "Material",
       "outlineGroup": "Outline",
-      "outlineColor": "color",
-      "outlineOpacity": "opacity",
-      "outlineWidth": "width",
-      "outlineBlur": "blur",
-      "outlineOffset": "offset",
+      "outlineColor": "Color",
+      "outlineOpacity": "Opacity",
+      "outlineWidth": "Width",
+      "outlineBlur": "Blur",
+      "outlineOffset": "Offset",
       "strokeGroup": "Stroke",
-      "strokeColor": "color",
-      "strokeOpacity": "opacity",
-      "strokeWidth": "width",
+      "strokeColor": "Color",
+      "strokeOpacity": "Opacity",
+      "strokeWidth": "Width",
       "advancedActive": "Show Advanced",
       "advancedGroup": "Advanced",
       "clippingActive": "clip.active",
@@ -950,6 +1026,29 @@
       "glyphResolution": "glyph.resolution",
       "glyphDetail": "glyph.detail",
       "gpuAccelerated": "GPU Accelerated"
+    },
+    "textBox": {
+      "name": "Textbox Component",
+      "description": "An XRUI text box component",
+      "lbl-text": "Text",
+      "lbl-family": "Family",
+      "lbl-size": "Size",
+      "lbl-fontStroke": "Font Stroke",
+      "lbl-fontColor": "Font Color",
+      "lbl-cornerRadius": "Corner Radius",
+      "lbl-backgroundColor": "Background Color",
+      "lbl-opacity": "Opacity",
+      "lbl-padding": "Padding"
+    },
+    "gallery": {
+      "name": "Gallery Component",
+      "description": "XRUI Gallery Component",
+      "lbl-imageGrid": "ImageGrid Component",
+      "lbl-thumbnail": "Thumbnail",
+      "lbl-outfitURL": "Outfit URL",
+      "lbl-performerURL": "Performer URL",
+      "lbl-asset": "Asset",
+      "assets": "Assets"
     }
   },
   "projects": {
@@ -972,31 +1071,30 @@
       "lbl-newProject": "New Project"
     }
   },
-  "visualScript":{
+  "visualScript": {
     "panel": {
       "title": "Visual Script",
-      "addVisualScript" : "Add Visual Script"
-    
+      "addVisualScript": "Add Visual Script"
     },
-    "picker":{
-      "title" : "Add Node"
+    "picker": {
+      "title": "Add Node"
     },
     "modal": {
-      "clear": {  
-        "title":"Clear Visual Script",
+      "clear": {
+        "title": "Clear Visual Script",
         "confirm": "Are you sure?"
       },
       "help": {
-        "title":"Help",
-        "addNodeHelp":" Right click anywhere to add a new node.",
-        "addConnectionHelp":"Drag from the output of one node to the input of another to create a connection or into empty space to add a new node and connect it",
-        "deleteNodeHelp":"Left click to select individual or use Shift+Left click to box select nodes or connections, backspace to delete selected nodes or connections."
+        "title": "Help",
+        "addNodeHelp": " Right click anywhere to add a new node.",
+        "addConnectionHelp": "Drag from the output of one node to the input of another to create a connection or into empty space to add a new node and connect it",
+        "deleteNodeHelp": "Left click to select individual or use Shift+Left click to box select nodes or connections, backspace to delete selected nodes or connections."
       },
       "load": {
-        "title":"Load Visual Script",
-        "examples":  "Select an example"
+        "title": "Load Visual Script",
+        "examples": "Select an example"
       },
-      "save":"Save Visual Script",
+      "save": "Save Visual Script",
       "buttons": {
         "clear": "Clear",
         "cancel": "Cancel",
@@ -1008,23 +1106,23 @@
         }
       }
     },
-    "sidePanel":{
+    "sidePanel": {
       "title": "Graph Utilities",
-      "node":{
+      "node": {
         "name": "Nodes",
         "description": "Individual logic units connected together to create a graph"
-        },
-      "template":{
+      },
+      "template": {
         "name": "Templates",
         "description": "Reusable graphs that can be added to other graphs."
-        },
-      "variables":{
+      },
+      "variables": {
         "name": "Variables",
         "description": "Variables that can be used in the graph.",
         "add": "Add Variable"
-        }
-      },
-    "editorPanel":{
+      }
+    },
+    "editorPanel": {
       "makeTemplate": "Make into template"
     }
   },
@@ -1034,10 +1132,13 @@
       "copyURL": "Copy URL",
       "openInNewTab": "Open URL in New Tab",
       "deleteAsset": "Delete Asset",
+      "prefab": "Prefab",
+      "prefabs": "Prefabs",
+      "prefabs-search": "Search Prefabs ...",
       "components": "Components",
       "components-search": "Search Components ...",
       "component-detail": {
-        "gltf-model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
+        "model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
         "volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
         "video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
         "variant": "Add model variant for level of detail",
@@ -1077,15 +1178,22 @@
       "copyAsset": "Copy",
       "pasteAsset": "Paste",
       "renameAsset": "Rename",
+      "renameFile": "Rename File",
+      "deleteFile": "Delete File",
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
       "back": "Back",
       "loadingFiles": "Loading files",
+      "loadingProjects": "Loading projects",
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
-      "uploadAsset": "Upload Asset",
-      "search-placeholder": "Search files and folders ...",
+      "uploadAssets": "Upload Assets",
+      "uploadFiles": "Upload Files",
+      "search-placeholder": "Search folders",
+      "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
+      "file": "File",
+      "directory": "Directory",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
@@ -1114,27 +1222,39 @@
           "dateModified": "Date Modified",
           "size": "Size"
         }
+      },
+      "image-convert": {
+        "format": "Format",
+        "resize": "Resize",
+        "width": "Width",
+        "height": "Height"
       }
     },
     "scene-assets": {
       "no-category": "No category selected",
       "search-placeholder": "Search for an asset ...",
-      "preview": "Preview"
+      "preview": "Preview",
+      "info-drag-drop": "Drag and Drop these items into the scene",
+      "settings": "Settings",
+      "no-search-results": "No results found"
     }
   },
   "hierarchy": {
     "lbl": "Hierarchy",
     "info": "The scene Hierarchy contains all element currently in your scene (assets, lighting, items from the tool menu, etc).",
     "lbl-rename": "Rename",
+    "lbl-renameScene": "Rename Scene",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
     "lbl-copy": "Copy",
     "lbl-paste": "Paste",
     "lbl-delete": "Delete",
+    "lbl-deleteScene": "Are you sure you want to delete this scene?",
     "lbl-expandAll": "Expand All",
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
+    "lbl-createPrefab": "Create Prefab",
     "issues": "Issues",
     "copy-paste": {
       "no-hierarchy-nodes": "No hierarchy nodes found"
@@ -1202,7 +1322,8 @@
     "saveScene": {
       "title": "Save",
       "lbl-thumbnail": "Generate thumbnail & envmap",
-      "lbl-confirm": "Save Scene"
+      "lbl-confirm": "Save Scene",
+      "info-confirm": "Are you sure you want to save the scene?"
     },
     "saveNewScene": {
       "title": "Save As",
@@ -1291,5 +1412,15 @@
   "tabs": {
     "scene-assets": "Assets",
     "project-assets": "Project Assets"
+  },
+  "generatingThumbnails": {
+    "title": "Generating Thumbnails",
+    "amountRemaining": "{{count}} remaining"
+  },
+  "assetMetadata": {
+    "name": "Name",
+    "path": "Path",
+    "type": "Type",
+    "tags": "Tags"
   }
 }

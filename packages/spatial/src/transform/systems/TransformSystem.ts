@@ -23,13 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
+
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import {
   AnimationSystemGroup,
-  Engine,
-  Entity,
   defineQuery,
   defineSystem,
+  Entity,
   getComponent,
   getOptionalComponent,
   hasComponent
@@ -37,17 +39,17 @@ import {
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
-import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
+
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { EngineState } from '../../EngineState'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
-import { TransformSerialization } from '../TransformSerialization'
 import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../components/DistanceComponents'
-import { TransformComponent, composeMatrix } from '../components/TransformComponent'
+import { composeMatrix, TransformComponent } from '../components/TransformComponent'
+import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
 const groupQuery = defineQuery([GroupComponent, VisibleComponent])
@@ -100,6 +102,7 @@ export const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vec
 }
 
 const _frustum = new Frustum()
+const _worldPos = new Vector3()
 const _projScreenMatrix = new Matrix4()
 
 const transformDepths = new Map<Entity, number>()
@@ -175,11 +178,14 @@ const execute = () => {
   const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirty)
   for (const entity of dirtyOrAnimatingGroupEntities) updateGroupChildren(entity)
 
+  const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
+  for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
+
+  const viewerEntity = getState(EngineState).viewerEntity
   const cameraEntities = cameraQuery()
 
   for (const entity of cameraEntities) {
-    if (entity === Engine.instance.viewerEntity && xrFrame) continue
-
+    if (xrFrame && entity === viewerEntity) continue
     const camera = getComponent(entity, CameraComponent)
     camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
     const viewCamera = camera.cameras[0]
@@ -189,11 +195,10 @@ const execute = () => {
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
   }
 
-  const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
-  for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
+  if (!viewerEntity) return
 
-  const cameraPosition = getComponent(Engine.instance.viewerEntity, TransformComponent).position
-  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
+  const cameraPosition = getComponent(viewerEntity, TransformComponent).position
+  const camera = getComponent(viewerEntity, CameraComponent)
   for (const entity of distanceFromCameraQuery())
     DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
@@ -207,7 +212,7 @@ const execute = () => {
     )?.box
     const cull = boundingBox
       ? _frustum.intersectsBox(boundingBox)
-      : _frustum.containsPoint(getComponent(entity, TransformComponent).position)
+      : _frustum.containsPoint(TransformComponent.getWorldPosition(entity, _worldPos))
     FrustumCullCameraComponent.isCulled[entity] = cull ? 0 : 1
   }
 }

@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, SpotLight } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
 import {
   defineComponent,
   removeComponent,
@@ -36,12 +34,13 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
+import { matches, useMutableState } from '@etherealengine/hyperflux'
+
 import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../resources/resourceHooks'
 import { isMobileXRHeadset } from '../../xr/XRState'
-import { RendererState } from '../RendererState'
 import { useUpdateLight } from '../functions/useUpdateLight'
+import { RendererState } from '../RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 // const ringGeom = new TorusGeometry(0.1, 0.025, 8, 12)
@@ -77,7 +76,7 @@ export const SpotLightComponent = defineComponent({
     if (matches.number.test(json.range)) component.range.set(json.range)
     if (matches.number.test(json.decay)) component.decay.set(json.decay)
     if (matches.number.test(json.angle)) component.angle.set(json.angle)
-    if (matches.number.test(json.penumbra)) component.angle.set(json.penumbra)
+    if (matches.number.test(json.penumbra)) component.penumbra.set(json.penumbra)
     if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
     /** backwards compat */
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
@@ -100,7 +99,7 @@ export const SpotLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const renderState = useHookstate(getMutableState(RendererState))
+    const renderState = useMutableState(RendererState)
     const debugEnabled = renderState.nodeHelperVisibility
     const spotLightComponent = useComponent(entity, SpotLightComponent)
     const [light] = useDisposable(SpotLight, entity)

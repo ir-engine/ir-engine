@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ValueType } from '../../../VisualScriptModule'
 import { Vec4, vec4Equals, Vec4JSON, vec4Mix, vec4Parse } from './internal/Vec4'
+
 export const Vec4Value: ValueType = {
   name: 'vec4',
   creator: () => new Vec4(),

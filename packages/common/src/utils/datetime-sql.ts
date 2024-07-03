@@ -32,6 +32,18 @@ export const toDateTimeSql = (date: Date) => {
   return date.toISOString().slice(0, 19).replace('T', ' ')
 }
 
+export const toDisplayDateTime = (date: string | null | undefined) => {
+  return date
+    ? new Date(date).toLocaleString('en-us', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric'
+      })
+    : '-'
+}
+
 // https://stackoverflow.com/a/11150727
 export const fromDateTimeSql = (date: string) => {
   let dateObj: Date

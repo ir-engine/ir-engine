@@ -23,7 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UUIDComponent } from '@etherealengine/ecs'
+import { useEffect } from 'react'
+import { Vector3 } from 'three'
+
+import { UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -35,15 +38,20 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { dispatchAction, getMutableState, getState, matches, useHookstate } from '@etherealengine/hyperflux'
+import {
+  dispatchAction,
+  getMutableState,
+  getState,
+  matches,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
-import { useEffect } from 'react'
-import { Box3, Vector3 } from 'three'
+
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -69,6 +77,7 @@ const mountPointInteractMessages = {
 const mountCallbackName = 'mountEntity'
 
 const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
+  if (avatarEntity === UndefinedEntity) return //No avatar found, likely in edit mode for now
   const mountedEntities = getState(MountPointState)
   if (mountedEntities[getComponent(mountEntity, UUIDComponent)]) return //already sitting, exiting
 
@@ -165,16 +174,16 @@ export const MountPointComponent = defineComponent({
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const mountPoint = useComponent(entity, MountPointComponent)
-    const mountedEntities = useHookstate(getMutableState(MountPointState))
+    const mountedEntities = useMutableState(MountPointState)
 
     useEffect(() => {
       setCallback(entity, mountCallbackName, () => mountEntity(AvatarComponent.getSelfAvatarEntity(), entity))
-      setComponent(entity, BoundingBoxComponent, {
-        box: new Box3().setFromCenterAndSize(
-          getComponent(entity, TransformComponent).position,
-          new Vector3(0.1, 0.1, 0.1)
-        )
-      })
+      // setComponent(entity, BoundingBoxComponent, {
+      //   box: new Box3().setFromCenterAndSize(
+      //     getComponent(entity, TransformComponent).position,
+      //     new Vector3(0.1, 0.1, 0.1)
+      //   )
+      // })
     }, [])
 
     useEffect(() => {

@@ -23,25 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@etherealengine/hyperflux'
-import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
+import { t } from 'i18next'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ProjectTab from './tabs/project'
+import { useHookstate } from '@etherealengine/hyperflux'
+import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
 
 import AuthenticationTab from './tabs/authentication'
+import AwsTab from './tabs/aws'
 import ClientTab from './tabs/client'
 import EmailTab from './tabs/email'
+import FeaturesTab from './tabs/features'
 import HelmTab from './tabs/helm'
-
-import { t } from 'i18next'
-import AwsTab from './tabs/aws'
 import InstanceServerTab from './tabs/instanceServer'
 import MiddlewareTab from './tabs/middleware'
+import ProjectTab from './tabs/project'
 import RedisTab from './tabs/redis'
 import ServerTab from './tabs/server'
 import TaskServerTab from './tabs/taskServer'
+import ZendeskTab from './tabs/zendesk'
 
 export const SettingsTabsData = [
   {
@@ -87,6 +88,14 @@ export const SettingsTabsData = [
   {
     label: t('admin:components.setting.middleware.header'),
     Component: MiddlewareTab
+  },
+  {
+    label: t('admin:components.setting.features.header'),
+    Component: FeaturesTab
+  },
+  {
+    label: t('admin:components.setting.zendesk.header'),
+    Component: ZendeskTab
   }
 ]
 

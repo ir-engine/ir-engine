@@ -23,24 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
-import { useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
+
+import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
+import { useHookstate } from '@etherealengine/hyperflux'
+
 import Input from '../Input'
 
 export type OptionValueType = string | number
 
-export type SelectOptionsType = { label: string; value: any; disabled?: boolean }[]
+export type SelectOptionsType = { label: string; value: any; disabled?: boolean }
 
 export interface SelectProps<T extends OptionValueType> {
   label?: string
   className?: string
   error?: string
   description?: string
-  options: { label: string; value: T; disabled?: boolean }[]
+  options: SelectOptionsType[]
   currentValue: T
   onChange: (value: T) => void
   placeholder?: string
@@ -51,6 +53,8 @@ export interface SelectProps<T extends OptionValueType> {
   inputVariant?: 'outlined' | 'underlined' | 'onboarding'
   inputClassName?: string
   errorBorder?: boolean
+  searchDisabled?: boolean
+  inputContainerClassName?: string
 }
 
 const Select = <T extends OptionValueType>({
@@ -68,39 +72,61 @@ const Select = <T extends OptionValueType>({
   labelClassName,
   inputVariant,
   inputClassName,
-  errorBorder
+  errorBorder,
+  searchDisabled,
+  inputContainerClassName
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
-
   const showOptions = useHookstate(false)
-  const filteredOptions = useHookstate(options)
-
-  const toggleDropdown = () => {
-    showOptions.set((v) => !v)
-  }
-  useEffect(() => {
-    filteredOptions.set(options)
-  }, [options])
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    selectLabel.set(e.target.value)
-    const newOptions: SelectProps<T>['options'] = []
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].label.toLowerCase().startsWith(e.target.value.toLowerCase())) {
-        newOptions.push(options[i])
-      }
-    }
-    filteredOptions.set(newOptions)
-  }
-
+  const filteredOptions = useHookstate(JSON.parse(JSON.stringify(options)))
   const selectLabel = useHookstate('')
-  useEffect(() => {
-    const labelName = options.find((option) => option.value === currentValue)?.label
-    if (labelName) selectLabel.set(labelName)
-  }, [currentValue, options])
 
   useClickOutside(ref, () => showOptions.set(false))
+
+  useEffect(() => {
+    const labelName = options.find((option) => option.value === currentValue)?.label
+    if (labelName) selectLabel.set(labelName || '')
+  }, [currentValue, options])
+
+  useEffect(() => {
+    filteredOptions.set(JSON.parse(JSON.stringify(options)))
+  }, [options])
+
+  const toggleDropdown = () => {
+    if (options.length === 0) return
+    showOptions.set((v) => !v)
+  }
+
+  // Prevent the input field from receiving focus with Mouse click when it is searchDisabled
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (searchDisabled) {
+      e.preventDefault()
+    }
+  }
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (searchDisabled) {
+      return
+    }
+    const newOptions = options.filter((item) => item.label.toLowerCase().startsWith(e.target.value.toLowerCase()))
+    if (newOptions.length > 0) {
+      filteredOptions.set(newOptions)
+      selectLabel.set(e.target.value)
+    }
+
+    const optionFound = options.find((item) => item.label === e.target.value)
+    if (optionFound) {
+      onChange(newOptions[0].value as T)
+    }
+  }
+
+  const handleOptionItem = (option: SelectOptionsType) => {
+    if (option.disabled) return
+
+    showOptions.set(false)
+    onChange(option.value as T)
+  }
 
   return (
     <div className={twMerge('relative', className)} ref={ref}>
@@ -112,39 +138,37 @@ const Select = <T extends OptionValueType>({
         description={description}
         error={error}
         errorBorder={errorBorder}
-        className={`cursor-pointer ${inputClassName}`}
+        className={twMerge('cursor-pointer', inputClassName)}
         placeholder={placeholder || t('common:select.selectOption')}
         value={selectLabel.value}
         onChange={handleSearch}
         onClick={toggleDropdown}
-      />
-      <MdOutlineKeyboardArrowDown
-        size="1.5em"
-        className={`text-theme-primary absolute right-3 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
-          label ? 'top-8' : 'top-2'
-        }`}
-        onClick={toggleDropdown}
+        onMouseDown={handleMouseDown}
+        endComponent={
+          <MdOutlineKeyboardArrowDown
+            size="1.5em"
+            className={`text-theme-primary transition-transform ${showOptions.value ? 'rotate-180' : ''}`}
+            onClick={toggleDropdown}
+          />
+        }
+        containerClassname={inputContainerClassName}
       />
       <div
-        className={`border-theme-primary bg-theme-surface-main absolute z-10 mt-2 w-full rounded border ${
+        className={`absolute z-30 mt-2 w-full rounded border border-theme-primary bg-theme-surface-main ${
           showOptions.value ? 'visible' : 'hidden'
         }`}
       >
         <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2', menuClassname)}>
           {filteredOptions.value.map((option) => (
             <li
-              key={option.value}
+              key={option.label + option.value}
               value={option.value}
               className={twMerge(
-                'text-theme-secondary cursor-pointer px-4 py-2',
-                option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-highlight',
+                'cursor-pointer px-4 py-2 text-theme-secondary',
+                option.disabled ? 'cursor-not-allowed' : 'hover:bg-theme-highlight hover:text-theme-highlight',
                 menuItemClassName
               )}
-              onClick={() => {
-                if (option.disabled) return
-                showOptions.set(false)
-                onChange(option.value)
-              }}
+              onClick={() => handleOptionItem(option)}
             >
               {option.label}
             </li>

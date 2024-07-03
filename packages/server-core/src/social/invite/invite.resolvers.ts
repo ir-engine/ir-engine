@@ -24,7 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { Paginated } from '@feathersjs/feathers'
 import { resolve, virtual } from '@feathersjs/schema'
+import crypto from 'crypto'
 import { v4 as uuidv4 } from 'uuid'
 
 import { ChannelID, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
@@ -41,8 +43,6 @@ import {
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { Paginated } from '@feathersjs/feathers'
-import crypto from 'crypto'
 
 export const inviteDbToSchema = (rawData: InviteDatabaseType): InviteType => {
   let spawnDetails = JSON.parse(rawData.spawnDetails) as SpawnDetailsType

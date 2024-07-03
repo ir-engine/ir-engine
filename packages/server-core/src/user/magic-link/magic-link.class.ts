@@ -24,22 +24,23 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
 import { emailPath } from '@etherealengine/common/src/schemas/user/email.schema'
 import {
-  IdentityProviderType,
-  identityProviderPath
+  identityProviderPath,
+  IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@etherealengine/common/src/schemas/user/login-token.schema'
 import { smsPath } from '@etherealengine/common/src/schemas/user/sms.schema'
 import { UserName } from '@etherealengine/common/src/schemas/user/user.schema'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
 import config from '../../appconfig'
+import logger from '../../ServerLogger'
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
 
@@ -163,11 +164,10 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
     }
 
     if (identityProvider) {
+      await this.removePreviousLoginTokensByProvider(identityProvider.id)
       const loginToken = await this.app.service(loginTokenPath).create({
         identityProviderId: identityProvider.id
       })
-
-      await this.removePreviousLoginTokens(identityProvider.id)
 
       if (data.type === 'email') {
         await this.sendEmail(data.email, loginToken.token)
@@ -178,19 +178,12 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
     return data
   }
 
-  private async removePreviousLoginTokens(identityProviderId: string) {
+  private async removePreviousLoginTokensByProvider(identityProviderId: string) {
     const loginTokenService = this.app.service(loginTokenPath)
-    const previousTokens = await loginTokenService.find({
+    await loginTokenService.remove(null, {
       query: {
-        identityProviderId: identityProviderId
+        identityProviderId
       }
     })
-    // Keep only the latest token and remove the rest
-    if (previousTokens.total > 1) {
-      const tokensToRemove = previousTokens.data.slice(0, -1)
-      for (const token of tokensToRemove) {
-        await loginTokenService.remove(token.id)
-      }
-    }
   }
 }

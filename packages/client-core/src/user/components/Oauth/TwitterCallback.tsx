@@ -27,11 +27,11 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 
-import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './styles.module.scss'
 
@@ -68,7 +68,7 @@ const TwitterCallbackComponent = (props): JSX.Element => {
 
   return state.error && state.error !== '' ? (
     <Container className={styles.oauthError}>
-      <div className={styles.title}>{t('user:oauth.authFailed', { service: 'Twitter' })}</div>
+      <div className={styles.title}>{t('user:oauth.authFailed', { service: 'X' })}</div>
       <div className={styles.message}>{state.error}</div>
       <Button onClick={redirectToRoot} className={styles.gradientButton}>
         {t('user:oauth.redirectToRoot')}

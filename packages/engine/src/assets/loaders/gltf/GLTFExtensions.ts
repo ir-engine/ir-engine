@@ -41,11 +41,12 @@ import {
   Object3D,
   PointLight,
   Quaternion,
-  SRGBColorSpace,
   SpotLight,
+  SRGBColorSpace,
   Vector2,
   Vector3
 } from 'three'
+
 import { DRACOLoader } from './DRACOLoader'
 import { ATTRIBUTES, WEBGL_COMPONENT_TYPES, WEBGL_CONSTANTS } from './GLTFConstants'
 import { assignExtrasToUserData } from './GLTFLoaderFunctions'

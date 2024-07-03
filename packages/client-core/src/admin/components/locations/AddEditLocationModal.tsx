@@ -18,13 +18,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import {
   LocationData,
   LocationID,
+  locationPath,
   LocationType,
-  assetPath,
-  locationPath
+  staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -32,8 +35,6 @@ import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
 
 const getDefaultErrors = () => ({
   name: '',
@@ -48,7 +49,13 @@ const locationTypeOptions = [
   { label: 'Showroom', value: 'showroom' }
 ]
 
-export default function AddEditLocationModal({ location }: { location?: LocationType }) {
+export default function AddEditLocationModal({
+  location,
+  sceneID
+}: {
+  location?: LocationType
+  sceneID?: string | null
+}) {
   const { t } = useTranslation()
 
   const locationMutation = useMutation(locationPath)
@@ -58,13 +65,14 @@ export default function AddEditLocationModal({ location }: { location?: Location
 
   const name = useHookstate(location?.name || '')
   const maxUsers = useHookstate(location?.maxUsersPerInstance || 20)
-  const scene = useHookstate(location?.sceneId || '')
+
+  const scene = useHookstate((location ? location.sceneId : sceneID) ?? '')
   const videoEnabled = useHookstate<boolean>(location?.locationSetting.videoEnabled || true)
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
 
-  const scenes = useFind(assetPath, {
+  const scenes = useFind(staticResourcePath, {
     query: {
       paginate: false
     }
@@ -159,8 +167,8 @@ export default function AddEditLocationModal({ location }: { location?: Location
               : [
                   { value: '', label: t('admin:components.location.selectScene'), disabled: true },
                   ...scenes.data.map((scene) => {
-                    const project = scene.projectName
-                    const name = scene.assetURL.split('/').pop()!.split('.').at(0)!
+                    const project = scene.project
+                    const name = scene.key.split('/').pop()!.split('.').at(0)!
                     return {
                       label: `${name} (${project})`,
                       value: scene.id

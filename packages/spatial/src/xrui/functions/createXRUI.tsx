@@ -23,26 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State } from '@hookstate/core'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { Group } from 'three'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EntityContext, createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { State, getState } from '@etherealengine/hyperflux'
 import { WebContainer3D } from '@etherealengine/xrui/core/three/WebContainer3D'
 import { WebLayerManager } from '@etherealengine/xrui/core/three/WebLayerManager'
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, EntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
+import { EngineState } from '../../EngineState'
 import { InputComponent } from '../../input/components/InputComponent'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
-import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
+import { XRUIComponent } from '../components/XRUIComponent'
 
 export function createXRUI<S extends State<any> | null>(
   UIFunc: React.FC,
@@ -67,6 +70,13 @@ export function createXRUI<S extends State<any> | null>(
       </XRUIStateContext.Provider>
     </EntityContext.Provider>
   )
+
+  if (!WebLayerManager.instance) {
+    const viewerEntity = getState(EngineState).viewerEntity
+    const renderer = getComponent(viewerEntity, RendererComponent)
+    const gltfLoader = getState(AssetLoaderState).gltfLoader
+    WebLayerManager.initialize(renderer.renderer, gltfLoader.ktx2Loader!)
+  }
 
   const container = new WebContainer3D(containerElement, { manager: WebLayerManager.instance })
 

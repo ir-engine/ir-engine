@@ -23,18 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { AuthService, AuthState } from '../../services/AuthService'
+import { AuthService } from '../../services/AuthService'
 
 interface Props {
   //auth: any
@@ -46,7 +44,6 @@ interface Props {
 
 const AuthMagicLink = ({ token, type, instanceId, path }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const user = useHookstate(getMutableState(AuthState)).user
   useEffect(() => {
     if (type === 'login') {
       let redirectSuccess = path ? `${path}` : null
@@ -55,10 +52,6 @@ const AuthMagicLink = ({ token, type, instanceId, path }: Props): JSX.Element =>
       AuthService.loginUserByJwt(token, redirectSuccess || '/', '/')
     } else if (type === 'connection') {
       AuthService.loginUserMagicLink(token, '/', '/')
-      // if (user !== null) {
-      //   AuthService.refreshConnections(user.id.value!)
-      // }
-      // window.location.href = '/profile-connections'
     }
   }, [])
 

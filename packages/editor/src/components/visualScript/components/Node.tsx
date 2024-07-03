@@ -24,10 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { FaCircleMinus, FaCirclePlus } from 'react-icons/fa6'
 import { NodeProps as FlowNodeProps, useEdges } from 'reactflow'
 
 import { NodeSpecJSON } from '@etherealengine/visual-script'
-import { FaCircleMinus, FaCirclePlus } from 'react-icons/fa6'
+
 import { useChangeNode } from '../hooks/useChangeNode'
 import { useModifyNodeSocket } from '../hooks/useModifyNodeSocket'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
@@ -89,7 +90,12 @@ export const Node: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGene
   const pairs = getPairs(spec.inputs, spec.outputs)
   const label = spec.label === '' ? data.label : spec.label
   return (
-    <NodeContainer title={label} category={spec.category} selected={selected} isGroup={spec.type === 'group'}>
+    <NodeContainer
+      title={label}
+      category={spec.category}
+      selected={selected}
+      isGroup={spec.type ? spec.type === 'group' : false}
+    >
       {pairs.map(([input, output], ix) => (
         <div key={ix} className="node-container-row" style={containerRowStyle}>
           {input && (

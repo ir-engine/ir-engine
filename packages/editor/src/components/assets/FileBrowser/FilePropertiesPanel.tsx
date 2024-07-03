@@ -25,20 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import { Dialog, DialogTitle, Grid, Typography } from '@mui/material'
 import React, { useCallback, useEffect } from 'react'
-
-import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { logger } from '@etherealengine/client-core/src/user/services/AuthService'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { getMutableState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+
+import { EditorState } from '../../../services/EditorServices'
+import { Button } from '../../inputs/Button'
 import styles from '../styles.module.scss'
 import { FileType } from './FileBrowserContentPanel'
-
-import { logger } from '@etherealengine/client-core/src/user/services/AuthService'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { Button } from '../../inputs/Button'
 
 export const FilePropertiesPanel = (props: {
   openProperties: State<boolean>
@@ -66,11 +65,10 @@ export const FilePropertiesPanel = (props: {
       const key = fileProperties.value!.key
       await Engine.instance.api.service(staticResourcePath).patch(resourceProperties.id.value, {
         key,
-        tags: resourceProperties.tags.value,
+        tags: resourceProperties.tags.value as string[],
         licensing: resourceProperties.licensing.value,
         attribution: resourceProperties.attribution.value
       })
-      await Engine.instance.api.service(projectResourcesPath).create({ project: resourceProperties.project.value })
       isModified.set(false)
       openProperties.set(false)
     }
@@ -78,7 +76,8 @@ export const FilePropertiesPanel = (props: {
 
   const staticResource = useFind(staticResourcePath, {
     query: {
-      key: fileProperties.value!.key
+      key: fileProperties.value!.key,
+      project: getMutableState(EditorState).projectName.value!
     }
   })
 

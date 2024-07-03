@@ -23,44 +23,47 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { GLTF } from '@gltf-transform/core'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { EntityUUID, SetComponentType, UUIDComponent, generateEntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, generateEntityUUID, SetComponentType, UUIDComponent } from '@etherealengine/ecs'
 import {
   Component,
-  ComponentJSONIDMap,
-  SerializedComponentType,
   componentJsonDefaults,
+  ComponentJSONIDMap,
   getComponent,
+  getOptionalComponent,
   hasComponent,
-  serializeComponent,
-  setComponent,
+  SerializedComponentType,
   updateComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFDocumentState, GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
+import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { DirectionalLightComponent, HemisphereLightComponent } from '@etherealengine/spatial'
 import { MAT4_IDENTITY } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
   EntityTreeComponent,
+  filterParentEntities,
   findCommonAncestors,
-  iterateEntityNode,
-  traverseEntityNode
+  iterateEntityNode
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { GLTF } from '@gltf-transform/core'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import { filterParentEntities } from './filterParentEntities'
 
 const tempMatrix4 = new Matrix4()
 const tempVector = new Vector3()
@@ -85,6 +88,17 @@ const getParentNodeByUUID = (gltf: GLTF.IGLTF, uuid: string) => {
   return gltf.nodes?.find((n) => n.children?.includes(nodeIndex))
 }
 
+const hasComponentInAuthoringLayer = <C extends Component<any, any>>(entity: Entity, component: C) => {
+  const componentJsonId = component.jsonID
+  if (!componentJsonId) return false
+  const source = getOptionalComponent(entity, SourceComponent)
+  const uuid = getOptionalComponent(entity, UUIDComponent)
+  if (!source || !uuid) return false
+  const doc = getState(GLTFDocumentState)[source]
+  const node = getGLTFNodeByUUID(doc, uuid)
+  return node?.extensions?.[componentJsonId] !== undefined
+}
+
 const addOrRemoveComponent = <C extends Component<any, any>>(
   entities: Entity[],
   component: C,
@@ -97,44 +111,21 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   const scenes = getSourcesForEntities(entities)
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    if (getState(GLTFSourceState)[sceneID]) {
-      const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
-      for (const entity of entities) {
-        const entityUUID = getComponent(entity, UUIDComponent)
-        const node = getGLTFNodeByUUID(gltf.data, entityUUID)
-        if (!node) continue
-        if (add) {
-          node.extensions![sceneComponentID] = {
-            ...componentJsonDefaults(ComponentJSONIDMap.get(sceneComponentID)!),
-            ...args
-          }
-        } else {
-          delete node.extensions?.[sceneComponentID]
+    const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    for (const entity of entities) {
+      const entityUUID = getComponent(entity, UUIDComponent)
+      const node = getGLTFNodeByUUID(gltf.data, entityUUID)
+      if (!node) continue
+      if (add) {
+        node.extensions![sceneComponentID] = {
+          ...componentJsonDefaults(ComponentJSONIDMap.get(sceneComponentID)!),
+          ...args
         }
+      } else {
+        delete node.extensions?.[sceneComponentID]
       }
-      dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
-    } else {
-      const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
-
-      for (const entity of entities) {
-        const entityUUID = getComponent(entity, UUIDComponent)
-        let componentData = newSnapshot.data.entities[entityUUID]?.components
-        if (!componentData) continue
-        if (add) {
-          componentData = componentData.filter((c) => c.name !== sceneComponentID)
-          componentData.push({
-            name: sceneComponentID,
-            props: { ...componentJsonDefaults(ComponentJSONIDMap.get(sceneComponentID)!), ...args }
-          })
-        } else {
-          const index = componentData.findIndex((c) => c.name === sceneComponentID)
-          if (index > -1) componentData.splice(index, 1)
-        }
-        newSnapshot.data.entities[entityUUID].components = componentData
-      }
-
-      dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
+    dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
 }
 
@@ -142,29 +133,16 @@ const modifyName = (entities: Entity[], name: string) => {
   const scenes = getSourcesForEntities(entities)
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    if (getState(GLTFSourceState)[sceneID]) {
-      const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
-      for (const entity of entities) {
-        const entityUUID = getComponent(entity, UUIDComponent)
-        const node = getGLTFNodeByUUID(gltf.data, entityUUID)
-        if (!node) continue
-        node.name = name
-      }
-
-      dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
-    } else {
-      const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
-
-      for (const entity of entities) {
-        const entityUUID = getComponent(entity, UUIDComponent)
-        const entityData = newSnapshot.data.entities[entityUUID]
-        if (!entityData) continue
-        entityData.name = name
-      }
-
-      dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
+    for (const entity of entities) {
+      const entityUUID = getComponent(entity, UUIDComponent)
+      const node = getGLTFNodeByUUID(gltf.data, entityUUID)
+      if (!node) continue
+      node.name = name
     }
+
+    dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
 }
 
@@ -179,46 +157,23 @@ const modifyProperty = <C extends Component<any, any>>(
   const scenes = getSourcesForEntities(entities)
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    if (getState(GLTFSourceState)[sceneID]) {
-      const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
-      for (const entity of entities) {
-        const entityUUID = getComponent(entity, UUIDComponent)
-        const node = getGLTFNodeByUUID(gltf.data, entityUUID)
-        if (!node) continue
-        if (typeof properties === 'string') {
-          node.extensions![component.jsonID!] = properties
-        } else {
-          Object.entries(properties).map(([k, v]) => {
-            const { result, finalProp } = getNestedObject(node.extensions![component.jsonID!], k)
-            result[finalProp] = v
-          })
-        }
+    for (const entity of entities) {
+      const entityUUID = getComponent(entity, UUIDComponent)
+      const node = getGLTFNodeByUUID(gltf.data, entityUUID)
+      if (!node) continue
+      if (typeof properties === 'string') {
+        node.extensions![component.jsonID!] = properties
+      } else {
+        Object.entries(properties).map(([k, v]) => {
+          const { result, finalProp } = getNestedObject(node.extensions![component.jsonID!], k)
+          result[finalProp] = v
+        })
       }
-
-      dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
-    } else {
-      const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
-
-      for (const entity of entities) {
-        setComponent(entity, component, properties)
-        const entityUUID = getComponent(entity, UUIDComponent)
-        const componentSnapshot = newSnapshot.data.entities[entityUUID].components.find(
-          (c) => c.name === component.jsonID
-        )
-        if (!componentSnapshot) continue
-        if (typeof properties === 'string') {
-          componentSnapshot.props = properties
-        } else {
-          Object.entries(properties).map(([k, v]) => {
-            const { result, finalProp } = getNestedObject(componentSnapshot.props, k)
-            result[finalProp] = v
-          })
-        }
-      }
-
-      dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
+
+    dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
 }
 
@@ -242,10 +197,11 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         material[k] = v
       }
     })
+    material.needsUpdate = true
   }
 }
-
-const createObjectFromSceneElement = (
+const overwriteLookdevObject = (
+  beforeComponentJson: ComponentJsonType[] = [],
   componentJson: ComponentJsonType[] = [],
   parentEntity = getState(EditorState).rootEntity,
   beforeEntity?: Entity
@@ -255,12 +211,9 @@ const createObjectFromSceneElement = (
     componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    const name = 'New Object'
+    const name = 'Lookdev Object'
     if (getState(GLTFSourceState)[sceneID]) {
       const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
-
-      const nodeIndex = gltf.data.nodes!.length
-
       const extensions = {} as Record<string, any>
       for (const comp of componentJson) {
         extensions[comp.name] = {
@@ -268,98 +221,116 @@ const createObjectFromSceneElement = (
           ...comp.props
         }
       }
-      if (!extensions[UUIDComponent.jsonID]) {
-        extensions[UUIDComponent.jsonID] = entityUUID
-      }
-      if (!extensions[VisibleComponent.jsonID]) {
-        extensions[VisibleComponent.jsonID] = true
-      }
-
-      const node = {
-        name,
-        extensions
-      } as GLTF.INode
-
-      gltf.data.nodes!.push(node)
-
-      if (extensions[TransformComponent.jsonID]) {
-        const comp = {
-          ...componentJsonDefaults(TransformComponent),
-          ...extensions[TransformComponent.jsonID]
-        }
-        const matrix = tempMatrix4.compose(
-          new Vector3().copy(comp.position),
-          new Quaternion().copy(comp.rotation),
-          new Vector3().copy(comp.scale)
-        )
-        delete extensions[TransformComponent.jsonID]
-        if (!matrix.equals(MAT4_IDENTITY)) node.matrix = matrix.toArray()
-      }
-
-      if (parentEntity === getState(EditorState).rootEntity) {
-        const sceneIndex = 0 // TODO: how should this work? gltf.data.scenes!.findIndex((s) => s.nodes.includes(nodeIndex))
-
-        let beforeIndex = gltf.data.scenes![sceneIndex].nodes.length
-        if (typeof beforeEntity === 'number') {
-          const beforeUUID = getComponent(beforeEntity, UUIDComponent)
-          const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === beforeUUID)
-          if (beforeNodeIndex && beforeNodeIndex > -1) {
-            beforeIndex = gltf.data.scenes![sceneIndex].nodes.indexOf(beforeNodeIndex)
+      //check lookdev entity
+      const lookDevComponent: Component[] = [
+        SkyboxComponent,
+        HemisphereLightComponent,
+        DirectionalLightComponent,
+        PostProcessingComponent,
+        PrimitiveGeometryComponent //this component is for test will remove later
+      ]
+      let overwrited = false
+      for (const comp of lookDevComponent) {
+        if (extensions[comp.jsonID as string]) {
+          const index = gltf.data.nodes?.findIndex((n) => n.extensions?.[comp.jsonID as string] !== undefined) as number
+          if (typeof index === 'number' && index > -1) {
+            if (gltf.data.nodes !== undefined) {
+              gltf.data.nodes[index].extensions![comp.jsonID as string] = extensions[comp.jsonID as string]
+              overwrited = true
+            }
           }
         }
-
-        gltf.data.scenes![sceneIndex].nodes.splice(beforeIndex, 0, nodeIndex)
+      }
+      if (!overwrited) {
+        //if no lookdev object found then create new object
+        createObjectFromSceneElement(beforeComponentJson, parentEntity, beforeEntity)
       } else {
-        const parentUUID = getComponent(parentEntity, UUIDComponent)
-        const parentNode = getGLTFNodeByUUID(gltf.data, parentUUID)
-        if (!parentNode) continue
-        if (!parentNode.children) parentNode.children = []
-        let beforeIndex = 0
-        if (typeof beforeEntity === 'number') {
-          const beforeUUID = getComponent(beforeEntity, UUIDComponent)
-          const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === beforeUUID)
-          if (beforeNodeIndex && beforeNodeIndex > -1) {
-            beforeIndex = parentNode.children.indexOf(beforeNodeIndex)
-          }
-        }
-        parentNode.children.splice(beforeIndex, 0, nodeIndex)
+        dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
       }
-
-      dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
-    } else {
-      let childIndex = 0
-      if (typeof beforeEntity === 'number') {
-        const beforeNode = getComponent(beforeEntity, EntityTreeComponent)
-        if (beforeNode?.parentEntity && hasComponent(beforeNode.parentEntity, EntityTreeComponent)) {
-          childIndex = getComponent(beforeNode.parentEntity, EntityTreeComponent).children.indexOf(beforeEntity)
-        }
-      } else {
-        const parentEntityTreeComponent = getComponent(parentEntity, EntityTreeComponent)
-        childIndex = parentEntityTreeComponent.children.length
-      }
-
-      if (!componentJson.some((comp) => comp.name === TransformComponent.jsonID)) {
-        componentJson.push({ name: TransformComponent.jsonID })
-      }
-      const fullComponentJson = [...componentJson, { name: VisibleComponent.jsonID }].map((comp) => ({
-        name: comp.name,
-        props: {
-          ...componentJsonDefaults(ComponentJSONIDMap.get(comp.name)!),
-          ...comp.props
-        }
-      }))
-
-      const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
-      newSnapshot.data.entities[entityUUID] = {
-        name,
-        components: fullComponentJson,
-        parent: getComponent(parentEntity, UUIDComponent),
-        index: childIndex
-      }
-
-      dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
   }
+}
+const createObjectFromSceneElement = (
+  componentJson: ComponentJsonType[] = [],
+  parentEntity = getState(EditorState).rootEntity,
+  beforeEntity?: Entity
+) => {
+  const scenes = getSourcesForEntities([parentEntity])
+  const entityUUID: EntityUUID =
+    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
+  const sceneIDUsed = Object.keys(scenes)[0]
+  for (const [sceneID, entities] of Object.entries(scenes)) {
+    const name = 'New Object'
+    const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+
+    const nodeIndex = gltf.data.nodes!.length
+
+    const extensions = {} as Record<string, any>
+    for (const comp of componentJson) {
+      extensions[comp.name] = {
+        ...componentJsonDefaults(ComponentJSONIDMap.get(comp.name)!),
+        ...comp.props
+      }
+    }
+    if (!extensions[UUIDComponent.jsonID]) {
+      extensions[UUIDComponent.jsonID] = entityUUID
+    }
+    if (!extensions[VisibleComponent.jsonID]) {
+      extensions[VisibleComponent.jsonID] = true
+    }
+
+    const node = {
+      name,
+      extensions
+    } as GLTF.INode
+
+    gltf.data.nodes!.push(node)
+
+    if (extensions[TransformComponent.jsonID]) {
+      const comp = {
+        ...componentJsonDefaults(TransformComponent),
+        ...extensions[TransformComponent.jsonID]
+      }
+      const matrix = tempMatrix4.compose(
+        new Vector3().copy(comp.position),
+        new Quaternion().copy(comp.rotation),
+        new Vector3().copy(comp.scale)
+      )
+      delete extensions[TransformComponent.jsonID]
+      if (!matrix.equals(MAT4_IDENTITY)) node.matrix = matrix.toArray()
+    }
+
+    if (parentEntity === getState(EditorState).rootEntity) {
+      const sceneIndex = 0 // TODO: how should this work? gltf.data.scenes!.findIndex((s) => s.nodes.includes(nodeIndex))
+
+      let beforeIndex = gltf.data.scenes![sceneIndex].nodes.length
+      if (typeof beforeEntity === 'number') {
+        const beforeUUID = getComponent(beforeEntity, UUIDComponent)
+        const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === beforeUUID)
+        if (typeof beforeNodeIndex === 'number' && beforeNodeIndex > -1) {
+          beforeIndex = gltf.data.scenes![sceneIndex].nodes.indexOf(beforeNodeIndex)
+        }
+      }
+
+      gltf.data.scenes![sceneIndex].nodes.splice(beforeIndex, 0, nodeIndex)
+    } else {
+      const parentUUID = getComponent(parentEntity, UUIDComponent)
+      const parentNode = getGLTFNodeByUUID(gltf.data, parentUUID)
+      if (!parentNode) continue
+      if (!parentNode.children) parentNode.children = []
+      let beforeIndex = 0
+      if (typeof beforeEntity === 'number') {
+        const beforeUUID = getComponent(beforeEntity, UUIDComponent)
+        const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === beforeUUID)
+        if (typeof beforeNodeIndex == 'number' && beforeNodeIndex > -1) {
+          beforeIndex = parentNode.children.indexOf(beforeNodeIndex)
+        }
+      }
+      parentNode.children.splice(beforeIndex, 0, nodeIndex)
+    }
+    dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
+  }
+  return { entityUUID, sceneID: sceneIDUsed }
 }
 
 /**
@@ -372,99 +343,58 @@ const duplicateObject = (entities: Entity[]) => {
   for (const [sceneID, entities] of Object.entries(scenes)) {
     const rootEntities = findCommonAncestors(entities)
 
-    if (getState(GLTFSourceState)[sceneID]) {
-      const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
-      /** Depth first */
-      const duplicateNode = (entity: Entity) => {
-        const entityUUID = getComponent(entity, UUIDComponent)
-        const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
-        const node = gltf.data.nodes![nodeIndex]
+    /** Depth first */
+    const duplicateNode = (entity: Entity) => {
+      const entityUUID = getComponent(entity, UUIDComponent)
+      const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+      const node = gltf.data.nodes![nodeIndex]
 
-        const newChildren = [] as number[]
-        if (node.children) {
-          for (const childIndex of node.children) {
-            const childNode = gltf.data.nodes![childIndex]
-            const childEntityUUID = childNode.extensions![UUIDComponent.jsonID] as EntityUUID
-            const newChildIndex = duplicateNode(UUIDComponent.getEntityByUUID(childEntityUUID))
-            newChildren.push(newChildIndex)
-          }
-        }
-
-        const entityDataClone = JSON.parse(JSON.stringify(node))
-        const newUUID = generateEntityUUID()
-        copyMap[entityUUID] = newUUID
-        entityDataClone.extensions![UUIDComponent.jsonID] = newUUID
-        if (newChildren.length) entityDataClone.children = newChildren
-
-        gltf.data.nodes!.push(entityDataClone)
-
-        const newIndex = gltf.data.nodes!.length - 1
-
-        return newIndex
-      }
-
-      for (const rootEntity of rootEntities) {
-        const entityUUID = getComponent(rootEntity, UUIDComponent)
-        const originalIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
-        const newIndex = duplicateNode(rootEntity)
-
-        const sceneIndex = gltf.data.scenes!.findIndex((s) => s.nodes.includes(originalIndex))
-
-        if (sceneIndex > -1) {
-          gltf.data.scenes![sceneIndex].nodes.push(newIndex)
-        } else {
-          const parentEntity = getComponent(rootEntity, EntityTreeComponent).parentEntity
-          if (!parentEntity) throw new Error('Root entity must have a parent')
-          const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
-          const parentNode = getParentNodeByUUID(gltf.data, parentEntityUUID)
-          if (!parentNode) throw new Error('Parent node not found')
-          if (!parentNode.children) parentNode.children = []
-          parentNode.children.push(newIndex)
+      const newChildren = [] as number[]
+      if (node.children) {
+        for (const childIndex of node.children) {
+          const childNode = gltf.data.nodes![childIndex]
+          const childEntityUUID = childNode.extensions![UUIDComponent.jsonID] as EntityUUID
+          const newChildIndex = duplicateNode(UUIDComponent.getEntityByUUID(childEntityUUID))
+          newChildren.push(newChildIndex)
         }
       }
 
-      dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
-    } else {
-      const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
+      const entityDataClone = JSON.parse(JSON.stringify(node))
+      const newUUID = generateEntityUUID()
+      copyMap[entityUUID] = newUUID
+      entityDataClone.extensions![UUIDComponent.jsonID] = newUUID
+      if (newChildren.length) entityDataClone.children = newChildren
 
-      for (const rootEntity of rootEntities) {
-        traverseEntityNode(rootEntity, (entity) => {
-          const entityUUID = getComponent(entity, UUIDComponent)
-          const entityData = newSnapshot.data.entities[entityUUID]
-          if (!entityData) return /** @todo entity may be loaded in via GLTF **/
+      gltf.data.nodes!.push(entityDataClone)
 
-          const entityDataClone = JSON.parse(JSON.stringify(entityData))
-          const newUUID = generateEntityUUID()
-          copyMap[entityUUID] = newUUID
+      const newIndex = gltf.data.nodes!.length - 1
 
-          const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity!
-          const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
-
-          if (copyMap[parentEntityUUID]) {
-            entityDataClone.parent = copyMap[parentEntityUUID]
-          }
-
-          newSnapshot.data.entities[newUUID] = entityDataClone
-
-          if (rootEntity === entity) {
-            /** update index of parent with new entity */
-            const parentEntityTreeComponent = getComponent(parentEntity, EntityTreeComponent)
-            const index = parentEntityTreeComponent.children.indexOf(entity)
-            if (index) {
-              for (const [entityUUID, data] of Object.entries(newSnapshot.data.entities)) {
-                if (typeof data.index !== 'number') continue
-                if (data.parent === parentEntityUUID) {
-                  if (data.index > index) data.index++
-                }
-              }
-            }
-          }
-        })
-      }
-
-      dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
+      return newIndex
     }
+
+    for (const rootEntity of rootEntities) {
+      const entityUUID = getComponent(rootEntity, UUIDComponent)
+      const originalIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+      const newIndex = duplicateNode(rootEntity)
+
+      const sceneIndex = gltf.data.scenes!.findIndex((s) => s.nodes.includes(originalIndex))
+
+      if (sceneIndex > -1) {
+        gltf.data.scenes![sceneIndex].nodes.push(newIndex)
+      } else {
+        const parentEntity = getComponent(rootEntity, EntityTreeComponent).parentEntity
+        if (!parentEntity) throw new Error('Root entity must have a parent')
+        const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
+        const parentNode = getParentNodeByUUID(gltf.data, parentEntityUUID)
+        if (!parentNode) throw new Error('Parent node not found')
+        if (!parentNode.children) parentNode.children = []
+        parentNode.children.push(newIndex)
+      }
+    }
+
+    dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
 }
 
@@ -598,110 +528,70 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
   const scenes = getSourcesForEntities(entities)
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    if (getState(GLTFSourceState)[sceneID]) {
-      const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
-      for (const entity of entities) {
-        if (entity === parent) continue
+    for (const entity of entities) {
+      if (entity === parent) continue
 
-        const entityUUID = getComponent(entity, UUIDComponent)
-        const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
-        const isCurrentlyChildOfRoot = gltf.data.scenes![0].nodes.includes(nodeIndex)
+      const entityUUID = getComponent(entity, UUIDComponent)
+      const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+      const isCurrentlyChildOfRoot = gltf.data.scenes![0].nodes.includes(nodeIndex)
 
-        // Remove from current parent
-        if (isCurrentlyChildOfRoot) {
-          gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(nodeIndex), 1)
-        } else {
-          const currentParentNode = getParentNodeByUUID(gltf.data, entityUUID)
-          if (!currentParentNode) continue
-          const currentParentNodeIndex = currentParentNode.children!.indexOf(nodeIndex)
-          currentParentNode.children!.splice(currentParentNodeIndex, 1)
-        }
-
-        // Ensure the entity Transform remains unmodified when reparented
-        const node = getGLTFNodeByUUID(gltf.data, entityUUID) // Get the GLTF Node for the entity
-        if (node) {
-          // Get the transforms for both entitites
-          const parentTransform = getComponent(parent, TransformComponent)
-          const entityTransform = getComponent(entity, TransformComponent)
-          // Calculate the new matrix relative to the new parent entity, and apply the matrix to its GLTF node.matrix
-          node.matrix = tempMatrix4
-            .copy(entityTransform.matrixWorld)
-            .premultiply(parentTransform.matrixWorld.clone().invert())
-            .toArray()
-        }
-
-        const newParentUUID = getComponent(parent, UUIDComponent)
-        const isParentRoot = parent === getState(EditorState).rootEntity
-
-        // Add to new parent
-        if (isParentRoot) {
-          if (before) {
-            const beforeIndex = gltf.data.nodes!.findIndex(
-              (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
-            )
-            gltf.data.scenes![0].nodes.splice(beforeIndex, 0, nodeIndex)
-          } else {
-            gltf.data.scenes![0].nodes.push(nodeIndex)
-          }
-        } else {
-          const newParentNode = getGLTFNodeByUUID(gltf.data, newParentUUID)
-          if (!newParentNode) continue
-          if (!newParentNode.children) newParentNode.children = []
-          if (before) {
-            const beforeIndex = newParentNode.children.findIndex(
-              (n) =>
-                n ===
-                gltf.data.nodes!.find(
-                  (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
-                )
-            )
-            newParentNode.children.splice(beforeIndex, 0, nodeIndex)
-          } else {
-            newParentNode.children.push(nodeIndex)
-          }
-        }
+      // Remove from current parent
+      if (isCurrentlyChildOfRoot) {
+        gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(nodeIndex), 1)
+      } else {
+        const currentParentNode = getParentNodeByUUID(gltf.data, entityUUID)
+        if (!currentParentNode) continue
+        const currentParentNodeIndex = currentParentNode.children!.indexOf(nodeIndex)
+        currentParentNode.children!.splice(currentParentNodeIndex, 1)
+        if (!currentParentNode.children?.length) delete currentParentNode.children
       }
 
-      dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
-    } else {
-      const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
-      for (const entity of entities) {
-        if (entity === parent) continue
+      // Ensure the entity Transform remains unmodified when reparented
+      const node = getGLTFNodeByUUID(gltf.data, entityUUID) // Get the GLTF Node for the entity
+      if (node) {
+        // Get the transforms for both entitites
+        const parentTransform = getComponent(parent, TransformComponent)
+        const entityTransform = getComponent(entity, TransformComponent)
+        // Calculate the new matrix relative to the new parent entity, and apply the matrix to its GLTF node.matrix
+        node.matrix = tempMatrix4
+          .copy(entityTransform.matrixWorld)
+          .premultiply(parentTransform.matrixWorld.clone().invert())
+          .toArray()
+      }
 
-        const currentParentEntity = getComponent(entity, EntityTreeComponent).parentEntity!
-        const currentParentEntityUUID = getComponent(currentParentEntity, UUIDComponent)
-        const parentEntityTreeComponent = getComponent(currentParentEntity, EntityTreeComponent)
-        const currentIndex = parentEntityTreeComponent.children.indexOf(entity)
+      const newParentUUID = getComponent(parent, UUIDComponent)
+      const isParentRoot = parent === getState(EditorState).rootEntity
 
-        const newParentEntityTreeComponent = getComponent(parent, EntityTreeComponent)
-        const newIndex = before
-          ? newParentEntityTreeComponent.children.indexOf(before as Entity)
-          : newParentEntityTreeComponent.children.length
-
-        const entityData = newSnapshot.data.entities[getComponent(entity, UUIDComponent)]
-        entityData.parent = getComponent(parent, UUIDComponent)
-        entityData.index = newIndex
-
-        for (const [entityUUID, data] of Object.entries(newSnapshot.data.entities)) {
-          if (typeof data.index !== 'number') continue
-          if (entityUUID === getComponent(entity, UUIDComponent)) continue
-
-          /** update indexes for old sibling entities */
-          if (data.parent === currentParentEntityUUID) {
-            if (data.index > currentIndex) data.index--
-          }
-
-          /** update indexes for new sibling entities */
-          if (newIndex) {
-            if (data.parent === getComponent(parent, UUIDComponent)) {
-              if (data.index >= newIndex) data.index++
-            }
-          }
+      // Add to new parent
+      if (isParentRoot) {
+        if (before) {
+          const beforeIndex = gltf.data.nodes!.findIndex(
+            (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
+          )
+          gltf.data.scenes![0].nodes.splice(beforeIndex, 0, nodeIndex)
+        } else {
+          gltf.data.scenes![0].nodes.push(nodeIndex)
+        }
+      } else {
+        const newParentNode = getGLTFNodeByUUID(gltf.data, newParentUUID)
+        if (!newParentNode) continue
+        if (!newParentNode.children) newParentNode.children = []
+        if (before) {
+          const beforeIndex = newParentNode.children.findIndex(
+            (n) =>
+              n ===
+              gltf.data.nodes!.find((n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent))
+          )
+          newParentNode.children.splice(beforeIndex, 0, nodeIndex)
+        } else {
+          newParentNode.children.push(nodeIndex)
         }
       }
-      dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
+
+    dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
 }
 
@@ -716,106 +606,48 @@ const groupObjects = (entities: Entity[]) => {
   const newGroupUUIDs = {} as Record<number, EntityUUID>
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    if (getState(GLTFSourceState)[sceneID]) {
-      const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
-      /** 1. create new group node */
-      const groupNode = {
-        name: 'New Group',
-        extensions: {
-          [UUIDComponent.jsonID]: generateEntityUUID(),
-          // TODO figure out where the new position should be
-          [TransformComponent.jsonID]: componentJsonDefaults(TransformComponent),
-          [VisibleComponent.jsonID]: true
-        }
+    /** 1. create new group node */
+    const groupNode = {
+      name: 'New Group',
+      extensions: {
+        [UUIDComponent.jsonID]: generateEntityUUID(),
+        // TODO figure out where the new position should be
+        [TransformComponent.jsonID]: componentJsonDefaults(TransformComponent),
+        [VisibleComponent.jsonID]: true
       }
-
-      newGroupUUIDs[sceneID] = groupNode.extensions![UUIDComponent.jsonID]
-
-      const groupIndex = gltf.data.nodes!.push(groupNode) - 1
-
-      /** For each node being added to the group */
-      for (const entity of entities) {
-        const entityUUID = getComponent(entity, UUIDComponent)
-        const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
-
-        /** 2. remove node from current parent */
-        const isCurrentlyChildOfRoot = gltf.data.scenes![0].nodes.includes(nodeIndex)
-        if (isCurrentlyChildOfRoot) {
-          gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(nodeIndex), 1)
-        } else {
-          const currentParentNode = getParentNodeByUUID(gltf.data, entityUUID)
-          if (!currentParentNode) continue
-          const currentParentNodeIndex = currentParentNode.children!.indexOf(nodeIndex)
-          currentParentNode.children!.splice(currentParentNodeIndex, 1)
-        }
-
-        /** 3. add node to new group */
-        const groupNode = gltf.data.nodes![groupIndex]
-        if (!groupNode.children) groupNode.children = []
-        groupNode.children.push(nodeIndex)
-      }
-
-      gltf.data.scenes![0].nodes.push(groupIndex)
-
-      dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
-    } else {
-      const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
-
-      const parentEntity = getState(EditorState).rootEntity
-      const parentEntityTreeComponent = getComponent(parentEntity, EntityTreeComponent)
-      const childIndex = parentEntityTreeComponent.children.length
-      const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
-
-      const groupEntityUUID = generateEntityUUID()
-      newGroupUUIDs[sceneID] = groupEntityUUID
-
-      newSnapshot.data.entities[groupEntityUUID] = {
-        name: 'New Group',
-        components: [
-          {
-            name: TransformComponent.jsonID,
-            props: {
-              // todo figure out where the new position should be
-              ...componentJsonDefaults(TransformComponent)
-            }
-          },
-          {
-            name: VisibleComponent.jsonID,
-            props: true
-          }
-        ],
-        parent: parentEntityUUID,
-        index: childIndex
-      }
-
-      let count = 0
-
-      for (let i = 0; i < entities.length; i++) {
-        const entity = entities[i]
-        const currentParentEntity = getComponent(entity, EntityTreeComponent).parentEntity!
-        const currentParentEntityUUID = getComponent(currentParentEntity, UUIDComponent)
-
-        const parentEntityTreeComponent = getComponent(currentParentEntity, EntityTreeComponent)
-        const currentIndex = parentEntityTreeComponent.children.indexOf(entity)
-
-        const entityData = newSnapshot.data.entities[getComponent(entity, UUIDComponent)]
-        entityData.parent = groupEntityUUID
-        entityData.index = count++
-
-        for (const [entityUUID, data] of Object.entries(newSnapshot.data.entities)) {
-          if (typeof data.index !== 'number') continue
-          if (entityUUID === getComponent(entity, UUIDComponent)) continue
-
-          /** update indexes for old sibling entities */
-          if (data.parent === currentParentEntityUUID) {
-            if (data.index > currentIndex) data.index--
-          }
-        }
-      }
-
-      dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
+
+    newGroupUUIDs[sceneID] = groupNode.extensions![UUIDComponent.jsonID]
+
+    const groupIndex = gltf.data.nodes!.push(groupNode) - 1
+
+    /** For each node being added to the group */
+    for (const entity of entities) {
+      const entityUUID = getComponent(entity, UUIDComponent)
+      const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+
+      /** 2. remove node from current parent */
+      const isCurrentlyChildOfRoot = gltf.data.scenes![0].nodes.includes(nodeIndex)
+      if (isCurrentlyChildOfRoot) {
+        gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(nodeIndex), 1)
+      } else {
+        const currentParentNode = getParentNodeByUUID(gltf.data, entityUUID)
+        if (!currentParentNode) continue
+        const currentParentNodeIndex = currentParentNode.children!.indexOf(nodeIndex)
+        currentParentNode.children!.splice(currentParentNodeIndex, 1)
+      }
+
+      /** 3. add node to new group */
+      const groupNode = gltf.data.nodes![groupIndex]
+      if (!groupNode.children) groupNode.children = []
+      groupNode.children.push(nodeIndex)
+    }
+
+    gltf.data.scenes![0].nodes.push(groupIndex)
+
+    dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
 }
 
@@ -826,82 +658,60 @@ const removeObject = (entities: Entity[]) => {
   const scenes = getSourcesForEntities(entities)
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    if (getState(GLTFSourceState)[sceneID]) {
-      const rootEntity = getState(GLTFSourceState)[sceneID]
-      const removedParentNodes = filterParentEntities(rootEntity, entities, undefined, true, false)
+    const rootEntity = getState(GLTFSourceState)[sceneID]
+    const removedParentNodes = filterParentEntities(rootEntity, entities, undefined, true, false)
 
-      const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
-      for (let i = 0; i < removedParentNodes.length; i++) {
-        const entity = removedParentNodes[i]
-        const entityTreeComponent = getComponent(entity, EntityTreeComponent)
-        if (!entityTreeComponent.parentEntity) continue
-        const uuidsToDelete = iterateEntityNode(
-          entity,
-          (entity) => getComponent(entity, UUIDComponent),
-          (entity) => hasComponent(entity, SourceComponent) && hasComponent(entity, UUIDComponent),
-          false,
-          false
-        )
-        for (const entityUUID of uuidsToDelete) {
-          const oldNodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
-          // immediately remove the node from the document
-          gltf.data.nodes!.splice(oldNodeIndex, 1)
-          const childRootIndex = gltf.data.scenes![0].nodes.indexOf(oldNodeIndex)
+    for (let i = 0; i < removedParentNodes.length; i++) {
+      const entity = removedParentNodes[i]
+      const entityTreeComponent = getComponent(entity, EntityTreeComponent)
+      if (!entityTreeComponent.parentEntity) continue
+      const uuidsToDelete = iterateEntityNode(
+        entity,
+        (entity) => getComponent(entity, UUIDComponent),
+        (entity) => hasComponent(entity, SourceComponent) && hasComponent(entity, UUIDComponent),
+        false,
+        false
+      )
+      for (const entityUUID of uuidsToDelete) {
+        const oldNodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+        if (oldNodeIndex < 0) continue
+        // immediately remove the node from the document
+        gltf.data.nodes!.splice(oldNodeIndex, 1)
+        const childRootIndex = gltf.data.scenes![0].nodes.indexOf(oldNodeIndex)
 
-          // remove the node from parent
-          if (childRootIndex > -1) {
-            gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(oldNodeIndex), 1)
-          } else {
-            const currentParentNode = getParentNodeByUUID(gltf.data, entityUUID)!
-            if (!currentParentNode) continue
+        // remove the node from parent
+        if (childRootIndex > -1) {
+          gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(oldNodeIndex), 1)
+        } else {
+          const currentParentNode = getParentNodeByUUID(gltf.data, entityUUID)!
+          if (currentParentNode) {
             const currentParentNodeIndex = currentParentNode.children!.indexOf(oldNodeIndex)
             currentParentNode.children!.splice(currentParentNodeIndex, 1)
           }
+        }
 
-          // update all node indices in parents
-          for (let i = oldNodeIndex; i < gltf.data.nodes!.length; i++) {
-            const node = gltf.data.nodes![i]
-            const uuid = node.extensions?.[UUIDComponent.jsonID] as EntityUUID
-            const childRootIndex = gltf.data.scenes![0].nodes.indexOf(i + 1)
-            if (childRootIndex > -1) {
-              gltf.data.scenes![0].nodes[childRootIndex]--
-            }
-            const parentNode = getParentNodeByUUID(gltf.data, uuid)
-            if (!parentNode) continue
-            const childIndex = parentNode.children!.indexOf(i + 1)
-            if (childIndex > -1) {
-              parentNode.children![childIndex]--
-            }
+        // update all node indices in parents
+        for (let i = oldNodeIndex; i < gltf.data.nodes!.length; i++) {
+          const node = gltf.data.nodes![i]
+          const uuid = node.extensions?.[UUIDComponent.jsonID] as EntityUUID
+          const childRootIndex = gltf.data.scenes![0].nodes.indexOf(i + 1)
+          if (childRootIndex > -1) {
+            gltf.data.scenes![0].nodes[childRootIndex]--
+            continue
+          }
+          const parentNode = getParentNodeByUUID(gltf.data, uuid)
+          if (!parentNode) continue
+          const childIndex = parentNode.children!.indexOf(i + 1)
+          if (childIndex > -1) {
+            parentNode.children![childIndex]--
           }
         }
       }
-
-      dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
-    } else {
-      const rootEntity = SceneState.getRootEntity(sceneID)
-      const removedParentNodes = filterParentEntities(rootEntity, entities, undefined, true, false)
-
-      const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
-
-      for (let i = 0; i < removedParentNodes.length; i++) {
-        const entity = removedParentNodes[i]
-        const entityTreeComponent = getComponent(entity, EntityTreeComponent)
-        if (!entityTreeComponent.parentEntity) continue
-        const uuidsToDelete = iterateEntityNode(
-          entity,
-          (entity) => getComponent(entity, UUIDComponent),
-          (entity) => hasComponent(entity, SourceComponent) && hasComponent(entity, UUIDComponent),
-          false,
-          false
-        )
-        for (const uuid of uuidsToDelete) {
-          delete newSnapshot.data.entities[uuid]
-        }
-      }
-
-      dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
+
+    dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
 }
 
@@ -954,36 +764,25 @@ const addToSelection = (entities: EntityUUID[]) => {
 const commitTransformSave = (entities: Entity[]) => {
   const scenes = getSourcesForEntities(entities)
   for (const sceneID of Object.keys(scenes)) {
-    if (getState(GLTFSourceState)[sceneID]) {
-      const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
-      for (const entity of entities) {
-        const entityUUID = getComponent(entity, UUIDComponent)
-        const node = getGLTFNodeByUUID(gltf.data, entityUUID)
-        if (!node) continue
-        const transform = getComponent(entity, TransformComponent)
-        const position = transform.position
-        const rotation = transform.rotation
-        const scale = transform.scale
-        const matrix = tempMatrix4.compose(position, rotation, scale)
-        node.matrix = matrix.toArray()
-      }
-      dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
-    } else {
-      const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
-      const sceneEntities = scenes[sceneID]
-      for (const sceneEntity of sceneEntities) {
-        TransformComponent.stateMap[sceneEntity]!.set((v) => v)
-        const entityData = newSnapshot.data.entities[getComponent(sceneEntity, UUIDComponent)]
-        const component = entityData.components.find((c) => c.name === TransformComponent.jsonID)!
-        component.props = serializeComponent(sceneEntity, TransformComponent)
-      }
-      dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
+    const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    for (const entity of entities) {
+      const entityUUID = getComponent(entity, UUIDComponent)
+      const node = getGLTFNodeByUUID(gltf.data, entityUUID)
+      if (!node) continue
+      const transform = getComponent(entity, TransformComponent)
+      const position = transform.position
+      const rotation = transform.rotation
+      const scale = transform.scale
+      const matrix = tempMatrix4.compose(position, rotation, scale)
+      node.matrix = matrix.toArray()
     }
+    dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
 }
 
 export const EditorControlFunctions = {
   addOrRemoveComponent,
+  hasComponentInAuthoringLayer,
   modifyProperty,
   modifyName,
   modifyMaterial,
@@ -999,5 +798,6 @@ export const EditorControlFunctions = {
   addToSelection,
   replaceSelection,
   toggleSelection,
-  commitTransformSave
+  commitTransformSave,
+  overwriteLookdevObject
 }

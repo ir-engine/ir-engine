@@ -23,34 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import type { Knex } from 'knex'
+
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const avatarIdColumnExists = await trx.schema.hasColumn(userPath, 'avatarId')
+  const avatarIdColumnExists = await knex.schema.hasColumn(userPath, 'avatarId')
 
   if (avatarIdColumnExists === true) {
     try {
-      await trx.schema.alterTable(userPath, async (table) => {
+      await knex.schema.alterTable(userPath, async (table) => {
         table.dropForeign('avatarId')
       })
     } catch (err) {
       //If the foreign key doesn't exist, then move on
     }
-    await trx.schema.alterTable(userPath, async (table) => {
+    await knex.schema.alterTable(userPath, async (table) => {
       table.dropColumn('avatarId')
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -58,19 +57,17 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const avatarIdColumnExists = await trx.schema.hasColumn(userPath, 'avatarId')
+  const avatarIdColumnExists = await knex.schema.hasColumn(userPath, 'avatarId')
 
   if (avatarIdColumnExists === false) {
-    await trx.schema.alterTable(userPath, async (table) => {
+    await knex.schema.alterTable(userPath, async (table) => {
       //@ts-ignore
       table.uuid('avatarId').collate('utf8mb4_bin').nullable().index()
       table.foreign('avatarId').references('id').inTable('avatar').onDelete('SET NULL').onUpdate('CASCADE')
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

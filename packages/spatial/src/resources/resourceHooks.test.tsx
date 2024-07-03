@@ -23,17 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-
-import { createEntity, destroyEngine } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
+import assert from 'assert'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
 import { AmbientLight, DirectionalLight } from 'three'
-import { ResourceState } from './ResourceState'
+
+import { createEntity, destroyEngine } from '@etherealengine/ecs'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
+import { getState } from '@etherealengine/hyperflux'
+
 import { useDisposable, useResource } from './resourceHooks'
+import { ResourceState } from './ResourceState'
 
 describe('ResourceHooks', () => {
   beforeEach(async () => {

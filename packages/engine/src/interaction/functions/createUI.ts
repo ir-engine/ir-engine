@@ -23,13 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { WebLayer3D } from '@etherealengine/xrui'
-
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
+import { WebLayer3D } from '@etherealengine/xrui'
+
+import { createEntity } from '@etherealengine/ecs'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { Color, DoubleSide, Mesh, MeshPhysicalMaterial, Shape, ShapeGeometry, Vector3 } from 'three'
 import { createModalView } from '../ui/InteractiveModalView'
 
 /**
@@ -41,6 +47,23 @@ import { createModalView } from '../ui/InteractiveModalView'
  */
 export function createUI(entity: Entity, uiMessage: string, isInteractable = true) {
   const ui = createModalView(entity, uiMessage, isInteractable)
+
+  const blurMat = new MeshPhysicalMaterial({
+    color: new Color('#B9B9B9'),
+    transmission: 1,
+    roughness: 0.5,
+    opacity: 1,
+    transparent: true,
+    side: DoubleSide
+  })
+
+  const backgroundEid = createEntity()
+  const mesh = new Mesh(roundedRect(-(100 / 1000) / 2, -(100 / 1000) / 2, 100 / 1000, 100 / 1000, 0.01), blurMat)
+  setComponent(backgroundEid, EntityTreeComponent, { parentEntity: ui.entity })
+  setComponent(backgroundEid, MeshComponent, mesh)
+  setComponent(backgroundEid, VisibleComponent)
+  const backgroundTransform = setComponent(backgroundEid, TransformComponent, { position: new Vector3(0, 0, -0.001) })
+  addObjectToGroup(backgroundEid, mesh) // TODO: this should be managed by the MeshComponent
   const nameComponent = getComponent(entity, NameComponent)
   setComponent(ui.entity, NameComponent, 'interact-ui-' + uiMessage + '-' + nameComponent)
 
@@ -53,4 +76,18 @@ export function createUI(entity: Entity, uiMessage: string, isInteractable = tru
   transform.scale.setScalar(1)
 
   return ui
+}
+
+function roundedRect(x: number, y: number, width: number, height: number, radius: number): ShapeGeometry {
+  const shape = new Shape()
+  shape.moveTo(x, y + radius)
+  shape.lineTo(x, y + height - radius)
+  shape.quadraticCurveTo(x, y + height, x + radius, y + height)
+  shape.lineTo(x + width - radius, y + height)
+  shape.quadraticCurveTo(x + width, y + height, x + width, y + height - radius)
+  shape.lineTo(x + width, y + radius)
+  shape.quadraticCurveTo(x + width, y, x + width - radius, y)
+  shape.lineTo(x + radius, y)
+  shape.quadraticCurveTo(x, y, x, y + radius)
+  return new ShapeGeometry(shape)
 }

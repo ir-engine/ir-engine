@@ -26,10 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
-import { HelmSettingType, helmSettingPath } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
-import appConfig from '@etherealengine/server-core/src/appconfig'
-
+import { helmSettingPath, HelmSettingType } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig

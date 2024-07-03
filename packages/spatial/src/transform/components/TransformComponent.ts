@@ -29,6 +29,7 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { defineComponent, getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 
@@ -224,6 +225,27 @@ export const TransformComponent = defineComponent({
     const transform = getComponent(entity, TransformComponent)
     transform.matrixWorld.decompose(vec3, quat, vec3_2)
     transform.matrixWorld.compose(vec3, quat, scale)
+  },
+
+  /**Transforms forward vector*/
+  forward: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrix.elements
+    outVector.set(matrixElements[8], matrixElements[9], matrixElements[10]).normalize()
+    return outVector
+  },
+
+  /**Transforms up vector*/
+  up: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrix.elements
+    outVector.set(matrixElements[4], matrixElements[5], matrixElements[6]).normalize()
+    return outVector
+  },
+
+  /**Transforms right vector*/
+  right: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrix.elements
+    outVector.set(matrixElements[0], matrixElements[1], matrixElements[2]).normalize()
+    return outVector
   },
 
   dirtyTransforms: {} as Record<Entity, boolean>,

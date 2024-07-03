@@ -23,27 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { strictEqual } from 'assert'
+import { Quaternion, Vector3 } from 'three'
+
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine, destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { PeerID, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, PeerID } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import {
-  TransformSerialization,
   readRotation,
+  TransformSerialization,
   writePosition,
   writeTransform
 } from '@etherealengine/spatial/src/transform/TransformSerialization'
-import { strictEqual } from 'assert'
-import { Quaternion, Vector3 } from 'three'
-import { roundNumberToPlaces } from '../../tests/MathTestUtils'
+
 import { createMockNetwork } from '../../tests/createMockNetwork'
+import { roundNumberToPlaces } from '../../tests/MathTestUtils'
 import { Network } from '../Network'
 import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '../NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'

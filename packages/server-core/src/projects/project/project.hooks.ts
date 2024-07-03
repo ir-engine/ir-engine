@@ -22,59 +22,60 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import appRootPath from 'app-root-path'
 import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import fs from 'fs'
+import { Knex } from 'knex'
+import path from 'path'
 
+import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
+import { GITHUB_URL_REGEX } from '@etherealengine/common/src/regex'
+import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import {
   ProjectData,
-  ProjectPatch,
-  ProjectType,
   projectDataValidator,
+  ProjectPatch,
   projectPatchValidator,
   projectPath,
-  projectQueryValidator
+  projectQueryValidator,
+  ProjectType
 } from '@etherealengine/common/src/schemas/projects/project.schema'
-import fs from 'fs'
-import path from 'path'
-import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
-import verifyScope from '../../hooks/verify-scope'
-import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
-
-import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
-import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { AvatarType, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import {
-  GithubRepoAccessType,
-  githubRepoAccessPath
+  githubRepoAccessPath,
+  GithubRepoAccessType
 } from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 import {
-  IdentityProviderType,
-  identityProviderPath
+  identityProviderPath,
+  IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { cleanString } from '@etherealengine/common/src/utils/cleanString'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import templateManifestJson from '@etherealengine/projects/template-project/manifest.json'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
-import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
-import appRootPath from 'app-root-path'
-import { Knex } from 'knex'
+
 import { HookContext } from '../../../declarations'
-import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
+import { isSignedByAppJWT } from '../../hooks/is-signed-by-app-jwt'
+import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
+import verifyScope from '../../hooks/verify-scope'
+import { createExecutorJob } from '../../k8s-job-helper'
+import logger from '../../ServerLogger'
 import { useGit } from '../../util/gitHelperFunctions'
+import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
-  createExecutorJob,
   deleteProjectFilesInStorageProvider,
   engineVersion,
   getProjectConfig,
@@ -164,7 +165,7 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
       allowedProjectGithubRepos.map(async (project) => {
         const regexExec = GITHUB_URL_REGEX.exec(project.repositoryPath)
         if (!regexExec) return { repositoryPath: '', name: '' }
-        const split = regexExec[2].split('/')
+        const split = regexExec[1].split('/')
         project.repositoryPath = `https://github.com/${split[0]}/${split[1]}`
         return project
       })
@@ -183,7 +184,7 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
           repositoryPaths.push(`${url}.git`)
           const regexExec = GITHUB_URL_REGEX.exec(url)
           if (regexExec) {
-            const split = regexExec[2].split('/')
+            const split = regexExec[1].split('/')
             repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}`)
             repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}.git`)
           }
@@ -230,7 +231,7 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
   for (const item of data) {
     try {
       const packageJson = getProjectManifest(item.name)
-      item.thumbnail = packageJson.thumbnail || '/static/etherealengine_thumbnail.jpg'
+      item.thumbnail = packageJson.thumbnail || '/static/IR_thumbnail.jpg'
       item.version = packageJson.version
       item.engineVersion = packageJson.engineVersion
       item.description = packageJson.description
@@ -311,7 +312,11 @@ const uploadLocalProject = async (context: HookContext<ProjectService>) => {
   manifestData.engineVersion = engineVersion
   fs.writeFileSync(path.resolve(projectLocalDirectory, 'manifest.json'), JSON.stringify(manifestData, null, 2))
 
+  // we should replace this with explicitly putting the files into the storage provider, rather than writing to disk
   await uploadLocalProjectToProvider(context.app, context.projectName, false)
+
+  // TODO: see if this is necessary
+  // if (!config.fsProjectSyncEnabled) fs.rmSync(projectLocalDirectory, { recursive: true })
 }
 
 /**
@@ -355,13 +360,15 @@ const linkGithubToProject = async (context: HookContext) => {
     if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
     if (githubIdentityProvider.data.length === 0)
       throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
-    const split = githubPathRegexExec[2].split('/')
+    const split = githubPathRegexExec[1].split('/')
     const org = split[0]
-    const repo = split[1].replace('.git', '')
+    const repo = split[1]
     const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken)
     if (!appOrgAccess)
       throw new Forbidden(
-        `The organization ${org} needs to install the GitHub OAuth app ${config.authentication.oauth.github.key} in order to push code to its repositories`
+        `The organization ${org} needs to install the GitHub ${
+          config.authentication.oauth.github.appId != null ? 'App' : 'OAuth app'
+        } ${config.authentication.oauth.github.key} in order to push code to its repositories`
       )
     const repoWriteStatus = await checkUserRepoWriteStatus(org, repo, githubIdentityProvider.data[0].oauthToken)
     if (repoWriteStatus !== 200) {
@@ -382,7 +389,7 @@ const linkGithubToProject = async (context: HookContext) => {
  */
 const getProjectName = async (context: HookContext<ProjectService>) => {
   if (!context.id) throw new BadRequest('You need to pass project id')
-  context.name = ((await context.app.service(projectPath).get(context.id, context.params)) as ProjectType).name
+  context.project = await context.app.service(projectPath).get(context.id, context.params)
 }
 
 /**
@@ -391,10 +398,10 @@ const getProjectName = async (context: HookContext<ProjectService>) => {
  * @returns
  */
 const runProjectUninstallScript = async (context: HookContext<ProjectService>) => {
-  const projectConfig = getProjectConfig(context.name)
+  const projectConfig = getProjectConfig(context.project.name)
 
   if (projectConfig?.onEvent) {
-    await onProjectEvent(context.app, context.name, projectConfig.onEvent, 'onUninstall')
+    await onProjectEvent(context.app, context.project, projectConfig.onEvent, 'onUninstall')
   }
 }
 
@@ -404,12 +411,12 @@ const runProjectUninstallScript = async (context: HookContext<ProjectService>) =
  * @returns
  */
 const removeProjectFiles = async (context: HookContext<ProjectService>) => {
-  if (fs.existsSync(path.resolve(projectsRootFolder, context.name))) {
-    fs.rmSync(path.resolve(projectsRootFolder, context.name), { recursive: true })
+  if (fs.existsSync(path.resolve(projectsRootFolder, context.project.name))) {
+    fs.rmSync(path.resolve(projectsRootFolder, context.project.name), { recursive: true })
   }
 
-  logger.info(`[Projects]: removing project id "${context.id}", name: "${context.name}".`)
-  await deleteProjectFilesInStorageProvider(context.app, context.name)
+  logger.info(`[Projects]: removing project id "${context.id}", name: "${context.project.name}".`)
+  await deleteProjectFilesInStorageProvider(context.app, context.project.name)
 }
 
 /**
@@ -443,7 +450,7 @@ const removeLocationFromProject = async (context: HookContext<ProjectService>) =
   const removingLocations = await context.app.service(locationPath).find({
     query: {
       sceneId: {
-        $like: `${context.name}/%`
+        $like: `${context.project.name}/%`
       }
     }
   })
@@ -460,7 +467,7 @@ const removeLocationFromProject = async (context: HookContext<ProjectService>) =
 const removeRouteFromProject = async (context: HookContext<ProjectService>) => {
   await context.app.service(routePath).remove(null, {
     query: {
-      project: context.name
+      project: context.project.name
     }
   })
 }
@@ -473,7 +480,7 @@ const removeRouteFromProject = async (context: HookContext<ProjectService>) => {
 const removeAvatarsFromProject = async (context: HookContext<ProjectService>) => {
   const avatarItems = (await context.app.service(avatarPath).find({
     query: {
-      project: context.name
+      project: context.project.name
     },
     paginate: false
   })) as any as AvatarType[]
@@ -493,13 +500,13 @@ const removeAvatarsFromProject = async (context: HookContext<ProjectService>) =>
 const removeStaticResourcesFromProject = async (context: HookContext<ProjectService>) => {
   const staticResourceItems = (await context.app.service(staticResourcePath).find({
     query: {
-      project: context.name
+      project: context.project.name
     },
     paginate: false
   })) as any as StaticResourceType[]
   staticResourceItems.length &&
     staticResourceItems.forEach(async (staticResource) => {
-      await context.app.service(staticResourcePath).remove(staticResource.id)
+      await context.app.service(staticResourcePath).remove(staticResource.id, { ignoreResourcesJson: true })
     })
 }
 
@@ -509,7 +516,7 @@ const removeStaticResourcesFromProject = async (context: HookContext<ProjectServ
  * @returns
  */
 const removeProjectUpdate = async (context: HookContext<ProjectService>) => {
-  await removeProjectUpdateJob(context.app, context.name)
+  await removeProjectUpdateJob(context.app, context.project.name)
 }
 
 /**
@@ -529,7 +536,7 @@ const updateProjectJob = async (context: HookContext) => {
     context.result = await updateProject(context.app, context.data, context.params)
   else {
     const urlParts = data.sourceURL.split('/')
-    let projectName = data.name || urlParts.pop()
+    let projectName = data.name?.length > 0 ? data.name : urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
     projectName = projectName.toLowerCase()
     if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
@@ -542,7 +549,13 @@ const updateProjectJob = async (context: HookContext) => {
       returnData: '',
       status: 'pending'
     })
-    const jobBody = await getProjectUpdateJobBody(data, context.app, context.params!.user!.id, newJob.id)
+    const jobBody = await getProjectUpdateJobBody(
+      data,
+      context.app,
+      newJob.id,
+      context.params!.user?.id,
+      context.params!.appJWT
+    )
     await context.app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name
     })
@@ -589,7 +602,7 @@ export default createSkippableHooks(
       ],
       get: [],
       create: [
-        iff(isProvider('external'), verifyScope('editor', 'write')),
+        iff(isProvider('external') && !isSignedByAppJWT(), verifyScope('editor', 'write')),
         () => schemaHooks.validateData(projectDataValidator),
         schemaHooks.resolveData(projectDataResolver),
         discardQuery('action'),
@@ -599,11 +612,19 @@ export default createSkippableHooks(
         updateCreateData
       ],
       update: [
-        iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+        iff(
+          isProvider('external') && !isSignedByAppJWT(),
+          verifyScope('editor', 'write'),
+          projectPermissionAuthenticate(false)
+        ),
         updateProjectJob
       ],
       patch: [
-        iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+        iff(
+          isProvider('external') && !isSignedByAppJWT(),
+          verifyScope('editor', 'write'),
+          projectPermissionAuthenticate(false)
+        ),
         () => schemaHooks.validateData(projectPatchValidator),
         schemaHooks.resolveData(projectPatchResolver),
         iff(isProvider('external'), iffElse(checkEnabled, [], linkGithubToProject))

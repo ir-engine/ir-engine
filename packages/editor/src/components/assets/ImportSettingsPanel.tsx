@@ -23,10 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { NO_PROXY, defineState, getMutableState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
-import { useHookstate } from '@hookstate/core'
 import {
   Box,
   Button,
@@ -34,13 +30,17 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  MenuItem,
   TextField,
   Typography
 } from '@mui/material'
 import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
-import { LODList, LODVariantDescriptor, defaultLODs } from '../../constants/GLTFPresets'
+
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { defineState, NO_PROXY, syncStateWithLocalStorage, useMutableState } from '@etherealengine/hyperflux'
+
+import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import { DialogState } from '../dialogs/DialogState'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -58,16 +58,14 @@ export const ImportSettingsState = defineState({
     importFolder: '/assets/',
     LODFolder: 'LODs/'
   }),
-  onCreate: () => {
-    syncStateWithLocalStorage(ImportSettingsState, [
-      'LODsEnabled',
-      'selectedLODS',
-      'imageCompression',
-      'imageSettings',
-      'importFolder',
-      'LODFolder'
-    ])
-  }
+  extension: syncStateWithLocalStorage([
+    'LODsEnabled',
+    'selectedLODS',
+    'imageCompression',
+    'imageSettings',
+    'importFolder',
+    'LODFolder'
+  ])
 })
 
 const UASTCFlagOptions = [
@@ -84,7 +82,9 @@ const UASTCFlagOptions = [
   { label: 'Disable Flip and Individual', value: 256 }
 ]
 
-const ImageCompressionBox = ({ compressProperties }) => {
+const ImageCompressionBox = () => {
+  const compressProperties = useMutableState(ImportSettingsState).imageSettings
+
   return (
     <>
       <InputGroup name="fileType" label={'File'}>
@@ -195,16 +195,16 @@ const ImageCompressionBox = ({ compressProperties }) => {
 }
 
 export default function ImportSettingsPanel() {
-  const importSettingsState = useHookstate(getMutableState(ImportSettingsState))
-  const compressProperties = useHookstate(getMutableState(ImportSettingsState).imageSettings.get(NO_PROXY))
+  const importSettingsState = useMutableState(ImportSettingsState)
+  const compressProperties = useMutableState(ImportSettingsState).imageSettings
 
   const [defaultImportFolder, setDefaultImportFolder] = useState<string>(importSettingsState.importFolder.value)
   const [LODImportFolder, setLODImportFolder] = useState<string>(importSettingsState.LODFolder.value)
   const [LODGenEnabled, setLODGenEnabled] = useState<boolean>(importSettingsState.LODsEnabled.value)
   const [selectedLODS, setSelectedLods] = useState<LODVariantDescriptor[]>(
-    importSettingsState.selectedLODS.get(NO_PROXY)
+    LODList.slice(0, 3) as LODVariantDescriptor[]
   )
-  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor>(importSettingsState.selectedLODS[0].get(NO_PROXY))
+  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor | null>(null)
   const [currentIndex, setCurrentIndex] = useState<number>(0)
   const [KTXEnabled, setKTXEnabled] = useState<boolean>(importSettingsState.imageCompression.value)
 
@@ -215,9 +215,11 @@ export default function ImportSettingsPanel() {
   }, [currentLOD, currentIndex])
 
   const handleLODChange = () => {
-    const newLODS = [...selectedLODS]
-    newLODS.splice(currentIndex, 1, currentLOD)
-    setSelectedLods(newLODS)
+    if (currentLOD !== null) {
+      const newLODS = [...selectedLODS]
+      newLODS.splice(currentIndex, 1, currentLOD)
+      setSelectedLods(newLODS)
+    }
   }
 
   const handleSaveChanges = () => {
@@ -264,18 +266,17 @@ export default function ImportSettingsPanel() {
             <List>
               {selectedLODS.slice(0, 3).map((LOD, idx) => (
                 <FormControl>
-                  <TextField select label={LOD.params.dst} value={LOD.params.dst}>
-                    {LODList.map((sLOD) => (
-                      <MenuItem
-                        onClick={() => {
-                          setCurrentLOD(sLOD)
-                          setCurrentIndex(idx)
-                        }}
-                      >
-                        {sLOD.params.dst}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                  <SelectInput
+                    options={LODList.map((sLOD, idx) => ({
+                      label: sLOD.params.dst,
+                      value: idx
+                    }))}
+                    value={LODList.findIndex((sLOD) => sLOD.params.dst === LOD.params.dst)}
+                    onChange={(val) => {
+                      setCurrentLOD(LODList[val])
+                      setCurrentIndex(idx)
+                    }}
+                  />
                   <FormHelperText>{presetLabels[idx]}</FormHelperText>
                 </FormControl>
               ))}
@@ -291,7 +292,7 @@ export default function ImportSettingsPanel() {
             control={<Checkbox checked={KTXEnabled} onChange={() => setKTXEnabled(!KTXEnabled)} />}
             label={'Compress to KTX2'}
           />
-          {KTXEnabled && <ImageCompressionBox compressProperties={compressProperties} />}
+          {KTXEnabled && <ImageCompressionBox />}
         </Box>
       </Box>
       <Box>

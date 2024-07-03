@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Tooltip as MuiTooltip, TooltipProps } from '@mui/material'
 import React from 'react'
 
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
-
-import { Tooltip as MuiTooltip, TooltipProps } from '@mui/material'
 
 const Tooltip = ({ children, ...props }: TooltipProps) => (
   <MuiTooltip {...props}>

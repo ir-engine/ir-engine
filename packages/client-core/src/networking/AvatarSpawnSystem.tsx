@@ -23,27 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import {
+  defineSystem,
   Engine,
   Entity,
-  PresentationSystemGroup,
-  UUIDComponent,
-  defineSystem,
   getComponent,
-  useComponent
+  PresentationSystemGroup,
+  useComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { SpectateActions, SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
-import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 

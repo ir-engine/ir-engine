@@ -23,11 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { none } from '@hookstate/core'
-
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
 export const ProjectUpdateState = defineState({
   name: 'ProjectUpdateState',
@@ -74,7 +72,7 @@ export const ProjectUpdateService = {
       sourceProjectName: '',
       sourceVsDestinationChecked: false,
       selectedSHA: '',
-      projectName: '',
+      projectName: projectName,
       submitDisabled: true,
       triggerSetDestination: '',
       updateType: 'none' as ProjectType['updateType'],

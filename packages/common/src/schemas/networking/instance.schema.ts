@@ -24,9 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+
 import { TypedString } from '../../types/TypeboxUtils'
 import { ChannelID } from '../social/channel.schema'
 import { LocationID, locationSchema, RoomCode } from '../social/location.schema'
@@ -51,6 +53,9 @@ export const instanceSchema = Type.Object(
         format: 'uuid'
       })
     ),
+    projectId: Type.String({
+      format: 'uuid'
+    }),
     podName: Type.Optional(Type.String()),
     currentUsers: Type.Integer(),
     ended: Type.Optional(Type.Boolean()),
@@ -91,6 +96,7 @@ export const instanceQueryProperties = Type.Pick(instanceSchema, [
   'roomCode',
   'ipAddress',
   'channelId',
+  'projectId',
   'podName',
   'currentUsers',
   'ended',

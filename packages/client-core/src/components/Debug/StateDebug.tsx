@@ -22,19 +22,19 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
+  defineState,
+  getMutableState,
   NO_PROXY,
   NO_PROXY_STEALTH,
   StateDefinitions,
-  defineState,
-  getMutableState,
   syncStateWithLocalStorage,
   useHookstate
 } from '@etherealengine/hyperflux'
-
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { NetworkState } from '@etherealengine/network'
+
 import styles from './styles.module.scss'
 
 const labelRenderer = (data: Record<string | number, any>) => {
@@ -56,9 +56,7 @@ const StateSearchState = defineState({
   initial: {
     search: ''
   },
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(StateSearchState, ['search'])
-  }
+  extension: syncStateWithLocalStorage(['search'])
 })
 
 export function StateDebug() {
