@@ -170,6 +170,10 @@ export const DirectionalLightComponent = defineComponent({
     }, [directionalLightComponent.cameraFar])
 
     useEffect(() => {
+      light.castShadow = directionalLightComponent.castShadow.value
+    }, [directionalLightComponent.castShadow])
+
+    useEffect(() => {
       light.shadow.bias = directionalLightComponent.shadowBias.value
     }, [directionalLightComponent.shadowBias])
 
