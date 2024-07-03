@@ -58,7 +58,7 @@ export const InputPointerComponent = defineComponent({
   },
 
   onRemove(entity, component) {
-    const pointerHash = `canvas-${component.cameraEntity}.pointer-${component.pointerId}`
+    const pointerHash = `canvas-${component.cameraEntity.value}.pointer-${component.pointerId.value}`
     getState(InputPointerState).pointers.delete(pointerHash)
   },
 
