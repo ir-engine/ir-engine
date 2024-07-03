@@ -34,7 +34,7 @@ import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
-import { UserSettingPatch } from '@etherealengine/common/src/schema.type.module'
+import { UserSettingPatch, clientSettingPath } from '@etherealengine/common/src/schema.type.module'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
@@ -43,7 +43,6 @@ import {
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
@@ -51,11 +50,11 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
-import { userHasAccess } from '../../../userHasAccess'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { UserMenus } from '../../../UserUISystem'
-import styles from '../index.module.scss'
+import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
 
 export const ShadowMapResolutionOptions: InputMenuItem[] = [
   {
@@ -104,15 +103,14 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const controlSchemes = Object.entries(AvatarAxesControlScheme)
   const handOptions = ['left', 'right']
   const selectedTab = useHookstate('general')
-  const engineState = useMutableState(EngineState)
 
-  const clientSettingState = useMutableState(AdminClientSettingsState)
-  const [clientSetting] = clientSettingState?.client?.value || []
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettings = clientSettingQuery.data[0]
   const userSettings = selfUser.userSetting.value
 
   const hasAdminAccess = userHasAccess('admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
-  const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
+  const themeSettings = { ...defaultThemeSettings, ...clientSettings?.themeSettings }
   const themeModes = {
     client: userSettings?.themeModes?.client ?? defaultThemeModes.client,
     studio: userSettings?.themeModes?.studio ?? defaultThemeModes.studio,
@@ -455,9 +453,9 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
           <>
             <InputSlider
               icon={<Icon type="BlurLinear" sx={{ ml: '-3px' }} />}
-              label={t('user:usermenu.setting.lbl-resolution')}
+              label={t('user:usermenu.setting.lbl-quality')}
               max={5}
-              min={1}
+              min={0}
               step={1}
               value={rendererState.qualityLevel.value}
               sx={{ mt: 4 }}

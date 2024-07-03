@@ -78,9 +78,7 @@ export default function LocationTable({ search }: { search: string }) {
     rows.map((row) => ({
       name: <a href={`/location/${transformLink(row.name)}`}>{row.name}</a>,
       sceneId: (
-        <a href={`/studio?projectName=${row.sceneAsset.projectName}&scenePath=${row.sceneAsset.assetURL}`}>
-          {row.sceneId}
-        </a>
+        <a href={`/studio?projectName=${row.sceneAsset.project!}&scenePath=${row.sceneAsset.key}`}>{row.sceneId}</a>
       ),
       maxUsersPerInstance: row.maxUsersPerInstance.toString(),
       scene: row.slugifiedName,

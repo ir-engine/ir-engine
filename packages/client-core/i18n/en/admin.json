@@ -365,6 +365,7 @@
         "subtitle": "Edit Authentication Settings"
       },
       "service": "Service",
+      "githubAppId": "App ID (Enter for GitHub App, omit for OAuth App)",
       "secret": "Secret",
       "entity": "Entity",
       "authStrategies": "Authentication Strategies",
@@ -376,11 +377,11 @@
       "host": "Host",
       "protocol": "Protocol",
       "discord": "Discord",
-      "facebook": "Facebook",
+      "facebook": "Meta",
       "google": "Google",
       "github": "Github",
       "linkedIn": "LinkedIn",
-      "twitter": "Twitter",
+      "twitter": "X",
       "key": "Key",
       "callback": "Callback",
       "appTitle": "App Title",
@@ -528,7 +529,14 @@
         "subtitle": "Edit Project Settings",
         "submit": "Submit",
         "clear": "Clear",
-        "noSettingsMessage": "No settings schema available in xrengine.config.ts"
+        "save": "Save",
+        "delete": "Delete",
+        "add": "Add",
+        "noSettingsMessage": "No settings available",
+        "lastUpdatedBy": "Last updated by user id: {{userId}}",
+        "duplicateKey": "Duplicate keys cannot exist",
+        "keyName": "Key Name",
+        "value": "Value"
       },
       "server": {
         "header": "Server",
@@ -550,7 +558,13 @@
         "processInterval": "Process Interval"
       },
 
-      "plugins": "Plugins"
+      "plugins": "Plugins",
+      "zendesk": {
+        "header": "Zendesk",
+        "subtitle": "Edit Zendesk Settings"
+      }, 
+      "keyName": "key Name",
+      "kid": "Key Id"
     },
     "avatar": {
       "columns": {
@@ -642,11 +656,11 @@
       "userSearch": "user by id, name or account identifier",
       "linkedAccounts": "Linked Accounts",
       "discord": "Discord",
-      "facebook": "Facebook",
+      "facebook": "Meta",
       "google": "Google",
       "github": "Github",
       "linkedIn": "LinkedIn",
-      "twitter": "Twitter",
+      "twitter": "X",
       "sms": "SMS",
       "email": "Email",
       "selectAvatar": "Select an Avatar",

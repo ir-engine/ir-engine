@@ -7,7 +7,7 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "format-scss": "stylelint \"**/*.scss\" --fix",
     "format-staged": "lint-staged",
-    "precommit": "no-master-commits -b master"
+    "precommit": "no-master-commits -b main"
   },
   "license": "ISC",
   "pre-commit": [

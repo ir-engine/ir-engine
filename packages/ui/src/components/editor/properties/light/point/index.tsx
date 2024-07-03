@@ -46,7 +46,12 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
   const lightComponent = useComponent(props.entity, PointLightComponent).value
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.pointLight.description')} icon={<AiOutlineBulb />}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.pointLight.name')}
+      description={t('editor:properties.pointLight.description')}
+      icon={<PointLightNodeEditor.iconComponent />}
+    >
       <InputGroup name="Color" label={t('editor:properties.pointLight.lbl-color')}>
         <ColorInput value={lightComponent.color} onChange={updateProperty(PointLightComponent, 'color')} />
       </InputGroup>

@@ -27,10 +27,15 @@ import React from 'react'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 
+import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { EditorNavbarProfile } from './EditorNavbarProfile'
 import styles from './styles.module.scss'
 
 export const EditorNavbar = () => {
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettings = clientSettingQuery.data[0]
+
   const routeHome = () => {
     RouterState.navigate('/')
   }
@@ -40,7 +45,7 @@ export const EditorNavbar = () => {
       <div className={styles.navContainer}>
         <div
           className={styles.logoBlock}
-          style={{ backgroundImage: 'url(/static/etherealengine.png)' }}
+          style={{ backgroundImage: `url(${clientSettings?.appTitle})` }}
           onClick={routeHome}
         ></div>
         <EditorNavbarProfile />

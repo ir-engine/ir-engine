@@ -31,9 +31,10 @@ export interface StringInputProps extends Omit<InputProps, 'onChange'> {
   value: string
   onChange?: (value: string) => void
   onRelease?: (value: string) => void
+  inputRef?: React.Ref<any>
 }
 
-const StringInput = ({ value, onChange, onRelease, className, ...rest }: StringInputProps) => {
+const StringInput = ({ value, onChange, onRelease, className, inputRef, ...rest }: StringInputProps) => {
   return (
     <Input
       containerClassname="w-50 h-7 bg-[#1A1A1A] rounded"
@@ -51,6 +52,7 @@ const StringInput = ({ value, onChange, onRelease, className, ...rest }: StringI
       onFocus={(e) => {
         onRelease?.(e.target.value)
       }}
+      ref={inputRef}
       {...rest}
     />
   )
@@ -69,7 +71,7 @@ export default StringInput
 
 // do we really need a controlled string input? we could easily integrate this with string input itself
 export const ControlledStringInput = React.forwardRef<any, StringInputProps>((values, ref) => {
-  const { onChange, onRelease, value, placeholder, disabled, type, containerClassname, ...rest } = values
+  const { onChange, onRelease, value, placeholder, disabled, type, containerClassname, className, ...rest } = values
   const [tempValue, setTempValue] = useState(value)
 
   useEffect(() => {
@@ -88,9 +90,12 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
   return (
     <Input
       ref={ref}
-      containerClassname={twMerge('h-7 w-full rounded bg-[#1A1A1A]', containerClassname)}
-      className="h-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]"
-      value={value ?? ''}
+      containerClassname={twMerge('overflow-hidden rounded-lg', containerClassname)}
+      className={twMerge(
+        'h-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]',
+        className
+      )}
+      value={tempValue ?? ''}
       onChange={(e) => {
         onChangeValue(e.target.value)
       }}

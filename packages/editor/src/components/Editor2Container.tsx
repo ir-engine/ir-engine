@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID } from '@etherealengine/ecs'
+import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
@@ -35,6 +35,8 @@ import { MaterialsPanelTab } from '@etherealengine/ui/src/components/editor/pane
 import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Properties'
 import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/Scenes'
 import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
+import { VisualScriptPanelTab } from '@etherealengine/ui/src/components/editor/panels/VisualScript'
+
 import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
@@ -42,18 +44,22 @@ import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import Toolbar from '../components/toolbar/Toolbar2'
-import { setCurrentEditorScene } from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import AssetDropZone from './assets/AssetDropZone'
 import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
-import '@etherealengine/ui/src/fonts/font.css'
+import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
+import { EntityUUID } from '@etherealengine/ecs'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import 'rc-dock/dist/rc-dock.css'
+import { useTranslation } from 'react-i18next'
+import { IoHelpCircleOutline } from 'react-icons/io5'
+import { setCurrentEditorScene } from '../functions/sceneFunctions'
 import './Editor2Container.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
@@ -92,7 +98,7 @@ const defaultLayout: LayoutData = {
             tabs: [ViewportPanelTab]
           },
           {
-            tabs: [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
+            tabs: [ScenePanelTab, FilesPanelTab, AssetsPanelTab, VisualScriptPanelTab]
           }
         ]
       },
@@ -114,7 +120,7 @@ const defaultLayout: LayoutData = {
 
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath } = useMutableState(EditorState)
-  const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
+  const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '' } }).data
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -122,15 +128,20 @@ const EditorContainer = () => {
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => PopoverState.showPopupover(<SaveSceneDialog />))
 
+  const viewerEntity = useMutableState(EngineState).viewerEntity.value
+
+  const { initialized, isWidgetVisible, openChat } = useZendesk()
+  const { t } = useTranslation()
+
   useEffect(() => {
     const scene = sceneQuery[0]
-    if (!scene) return
+    if (!scene || !viewerEntity) return
 
-    projectName.set(scene.projectName)
-    sceneName.set(scene.assetURL.split('/').pop() ?? null)
+    projectName.set(scene.project!)
+    sceneName.set(scene.key.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-    return setCurrentEditorScene(scene.assetURL, scene.id as EntityUUID)
-  }, [sceneQuery[0]?.assetURL])
+    return setCurrentEditorScene(sceneQuery[0].url, sceneAssetID.value as EntityUUID)
+  }, [viewerEntity, sceneQuery[0]?.key])
 
   useEffect(() => {
     return () => {
@@ -146,6 +157,13 @@ const EditorContainer = () => {
 
   return (
     <main className="pointer-events-auto">
+      <MetaTags>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap"
+          rel="stylesheet"
+          type="text/css"
+        />
+      </MetaTags>
       <div
         id="editor-container"
         className="flex flex-col bg-black"
@@ -155,7 +173,6 @@ const EditorContainer = () => {
           <DragLayer />
           <Toolbar />
           <div className="mt-1 flex overflow-hidden">
-            <AssetDropZone />
             <DockContainer>
               <DockLayout
                 ref={dockPanelRef}
@@ -167,6 +184,17 @@ const EditorContainer = () => {
         </DndWrapper>
       </div>
       <PopupMenu />
+      {!isWidgetVisible && initialized && (
+        <Button
+          rounded="partial"
+          size="small"
+          className="absolute bottom-5 right-5 z-10"
+          startIcon={<IoHelpCircleOutline fontSize={20} />}
+          onClick={openChat}
+        >
+          {t('editor:help')}
+        </Button>
+      )}
     </main>
   )
 }

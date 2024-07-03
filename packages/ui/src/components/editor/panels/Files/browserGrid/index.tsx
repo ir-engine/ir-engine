@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,50 +19,42 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
 
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import {
   FilesViewModeSettings,
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
+import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import React, { MouseEventHandler, MutableRefObject, useEffect, useState } from 'react'
+import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
+import React, { MouseEventHandler, MutableRefObject, useEffect } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { IoIosArrowForward } from 'react-icons/io'
 import { VscBlank } from 'react-icons/vsc'
+import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
-import Input from '../../../../../primitives/tailwind/Input'
-import { ContextMenu } from '../../../layout/ContextMenu'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { FileType } from '../container'
 import { FileIcon } from '../icon'
-
-const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChanged: (newName: string) => void }) => {
-  const newFileName = useHookstate(fileName)
-
-  return (
-    <Input
-      autoFocus={true}
-      value={newFileName.value}
-      onChange={(event) => newFileName.set(event.target.value)}
-      onKeyUp={async (e) => {
-        if (e.key == 'Enter') {
-          onNameChanged(newFileName.value)
-        }
-      }}
-    />
-  )
-}
+import DeleteFileModal from './DeleteFileModal'
+import ImageConvertModal from './ImageConvertModal'
+import RenameFileModal from './RenameFileModal'
 
 export const canDropItemOverFolder = (folderName: string) =>
   folderName.endsWith('/assets') ||
@@ -79,7 +71,6 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
   }
   const { t } = useTranslation()
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
-  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
   return (
     <div className="table-container">
       <table className="w-full">
@@ -103,8 +94,6 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
 export const FileTableListBody = ({
   file,
   onContextMenu,
-  isRenaming,
-  onNameChanged,
   onClick,
   onDoubleClick,
   modifiedDate,
@@ -114,8 +103,6 @@ export const FileTableListBody = ({
 }: {
   file: FileDataType
   onContextMenu: React.MouseEventHandler
-  isRenaming: boolean
-  onNameChanged: (newName: string) => void
   onClick?: MouseEventHandler<HTMLDivElement>
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
   modifiedDate?: string
@@ -128,15 +115,16 @@ export const FileTableListBody = ({
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
 
-  const staticResource = useFind(staticResourcePath, { query: { key: file.key } })
+  const { projectName } = useMutableState(EditorState)
+  const staticResource = useFind(staticResourcePath, { query: { key: file.key, project: projectName.value! } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
 
   const tableColumns = {
     name: (
-      <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]">
+      <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]" style={{ fontSize: `${fontSize}px` }}>
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
-        <FileIcon thumbnailURL={null} type={file.type} isFolder={file.isFolder} />
-        {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
+        <FileIcon thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
+        {file.fullName}
       </span>
     ),
     type: file.type.toUpperCase(),
@@ -146,16 +134,17 @@ export const FileTableListBody = ({
   return (
     <tr
       key={file.key}
-      className={`h-[${fontSize * 3}px] text-[${fontSize}px] text-[#a3a3a3] hover:bg-theme-surfaceInput`}
+      className={`text-[#a3a3a3] hover:bg-theme-surfaceInput`}
+      style={{ height: `${fontSize * 3}px` }}
       onContextMenu={onContextMenu}
-      onClick={isRenaming ? () => {} : onClick}
-      onDoubleClick={isRenaming ? () => {} : onDoubleClick}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
       ref={(ref) => dragFn(dropFn(ref))}
     >
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
         .map((header, idx) => (
-          <td key={idx} className="text-base" style={{ fontSize }}>
+          <td key={idx} className="text-base" style={{ fontSize: `${fontSize}px` }}>
             {tableColumns[header]}
           </td>
         ))}
@@ -165,24 +154,28 @@ export const FileTableListBody = ({
 
 type FileGridItemProps = {
   item: FileDataType
-  isRenaming: boolean
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
   onClick?: MouseEventHandler<HTMLDivElement>
-  onNameChanged: (newName: string) => void
+  isSelected: boolean
 }
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
-  const staticResource = useFind(staticResourcePath, { query: { key: props.item.key } })
+  const { projectName } = useMutableState(EditorState)
+  const staticResource = useFind(staticResourcePath, { query: { key: props.item.key, project: projectName.value! } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
+  const { t } = useTranslation()
+
   return (
     <div
-      className="flex w-[112px] cursor-pointer flex-col items-center text-center"
+      className={`flex h-32 w-28 cursor-pointer flex-col items-center text-center ${
+        props.isSelected ? 'rounded-md bg-blue-700/20' : ''
+      }`}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
       onClick={props.onClick}
     >
       <div
-        className="mx-[16px] mt-[8px]"
+        className="mx-4 mt-2"
         style={{
           height: iconSize,
           width: iconSize,
@@ -196,14 +189,10 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
           color="text-[#375DAF]"
         />
       </div>
-      {props.isRenaming ? (
-        <></>
-      ) : (
-        /*<RenameInput fileName={props.item.name} onNameChanged={props.onNameChanged} />*/
-        <div className="text-secondary mb-[8px] line-clamp-1 w-full text-wrap break-all text-[14px]">
-          {props.item.fullName}
-        </div>
-      )}
+
+      <Tooltip title={t(props.item.fullName)} direction="bottom">
+        <div className="text-secondary line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
+      </Tooltip>
     </div>
   )
 }
@@ -215,15 +204,24 @@ type FileBrowserItemType = {
   setFileProperties: any
   setOpenPropertiesModal: any
   setOpenCompress: any
-  setOpenConvert: any
   isFilesLoading: boolean
-  deleteContent: (contentPath: string, type: string) => void
-  onClick: (params: FileDataType) => void
+  projectName: string
+  onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
-  moveContent: (oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean) => Promise<void>
   addFolder: () => void
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
+  isSelected: boolean
+  refreshDirectory: () => Promise<void>
+}
+
+function fileConsistsOfContentType(file: FileDataType, contentType: string): boolean {
+  if (file.isFolder) {
+    return contentType.startsWith('image')
+  } else {
+    const guessedType: string = CommonKnownContentTypes[file.type]
+    return guessedType?.startsWith(contentType)
+  }
 }
 
 export function FileBrowserItem({
@@ -233,40 +231,31 @@ export function FileBrowserItem({
   setOpenPropertiesModal,
   setFileProperties,
   setOpenCompress,
-  setOpenConvert,
-  deleteContent,
+  projectName,
   onClick,
   dropItemsOnPanel,
-  moveContent,
   isFilesLoading,
   addFolder,
   isListView,
-  staticResourceModifiedDates
+  staticResourceModifiedDates,
+  isSelected,
+  refreshDirectory
 }: FileBrowserItemType) {
   const { t } = useTranslation()
-  const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
-  const [renamingAsset, setRenamingAsset] = useState(false)
+  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const fileService = useMutation(fileBrowserPath)
-
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
-    setAnchorEl(event.currentTarget)
-    setAnchorPosition({
-      left: event.clientX + 2,
-      top: event.clientY - 6
-    })
+    setAnchorEvent(event)
   }
 
   const handleClose = () => {
-    setAnchorEl(null)
-    setAnchorPosition({ left: 0, top: 0 })
+    setAnchorEvent(undefined)
   }
 
-  const onClickItem = () => onClick(item)
+  const onClickItem = (e: React.MouseEvent) => onClick(e, item)
 
   const placeObjectAtOrigin = () => {
     addMediaNode(item.url)
@@ -304,9 +293,11 @@ export function FileBrowserItem({
 
   const pasteContent = async () => {
     handleClose()
-
     if (isFilesLoading) return
+
     fileService.update(null, {
+      oldProject: projectName,
+      newProject: projectName,
       oldName: currentContent.current.item.fullName,
       newName: currentContent.current.item.fullName,
       oldPath: currentContent.current.item.path,
@@ -325,28 +316,6 @@ export function FileBrowserItem({
   const viewCompress = () => {
     setFileProperties(item)
     setOpenCompress(true)
-    handleClose()
-  }
-
-  const viewConvert = () => {
-    setFileProperties(item)
-    setOpenConvert(true)
-    handleClose()
-  }
-
-  const deleteContentCallback = () => {
-    deleteContent(item.key, item.type)
-    handleClose()
-  }
-
-  const onNameChanged = async (fileName: string): Promise<void> => {
-    setRenamingAsset(false)
-
-    await moveContent(item.fullName, item.isFolder ? fileName : `${fileName}.${item.type}`, item.path, item.path, false)
-  }
-
-  const rename = () => {
-    setRenamingAsset(true)
     handleClose()
   }
 
@@ -382,39 +351,22 @@ export function FileBrowserItem({
           onContextMenu={handleContextMenu}
           onClick={onClickItem}
           onDoubleClick={onClickItem}
-          isRenaming={renamingAsset}
-          onNameChanged={onNameChanged}
           modifiedDate={staticResourceModifiedDates[item.key]}
           drop={drop}
           isOver={isOver}
           drag={drag}
         />
       ) : (
-        <div ref={drop} style={{ border: isOver ? '3px solid #ccc' : '' }}>
+        <div ref={drop} className={twMerge('h-min', isOver && 'border-2 border-gray-400')}>
           <div ref={drag}>
             <div onContextMenu={handleContextMenu}>
-              {
-                <FileGridItem
-                  item={item}
-                  onClick={onClickItem}
-                  onDoubleClick={onClickItem}
-                  isRenaming={renamingAsset}
-                  onNameChanged={onNameChanged}
-                />
-              }
+              <FileGridItem item={item} onClick={onClickItem} onDoubleClick={onClickItem} isSelected={isSelected} />
             </div>
           </div>
         </div>
       )}
 
-      <ContextMenu
-        open={open}
-        anchorEl={anchorEl}
-        panelId={'file-browser-panel'}
-        anchorPosition={anchorPosition}
-        onClose={handleClose}
-        className="gap-1"
-      >
+      <ContextMenu anchorEvent={anchorEvent} panelId={'file-browser-panel'} onClose={handleClose} className="gap-1">
         <Button variant="outline" size="small" fullWidth onClick={addFolder}>
           {t('editor:layout.filebrowser.addNewFolder')}
         </Button>
@@ -445,19 +397,49 @@ export function FileBrowserItem({
         <Button variant="outline" size="small" fullWidth disabled={!currentContent.current} onClick={pasteContent}>
           {t('editor:layout.filebrowser.pasteAsset')}
         </Button>
-        <Button variant="outline" size="small" fullWidth onClick={rename}>
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          onClick={() => PopoverState.showPopupover(<RenameFileModal projectName={projectName} file={item} />)}
+        >
           {t('editor:layout.filebrowser.renameAsset')}
         </Button>
-        <Button variant="outline" size="small" fullWidth onClick={deleteContentCallback}>
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          onClick={() => PopoverState.showPopupover(<DeleteFileModal file={item} />)}
+        >
           {t('editor:layout.assetGrid.deleteAsset')}
         </Button>
         <Button variant="outline" size="small" fullWidth onClick={viewAssetProperties}>
           {t('editor:layout.filebrowser.viewAssetProperties')}
         </Button>
-        <Button variant="outline" size="small" fullWidth onClick={viewCompress}>
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          disabled={!fileConsistsOfContentType(item, 'model')}
+          onClick={() => {
+            if (fileConsistsOfContentType(item, 'model')) {
+              PopoverState.showPopupover(
+                <ModelCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
+              )
+            }
+          }}
+        >
           {t('editor:layout.filebrowser.compress')}
         </Button>
-        <Button variant="outline" size="small" fullWidth onClick={viewConvert}>
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          onClick={() =>
+            PopoverState.showPopupover(<ImageConvertModal file={item} refreshDirectory={refreshDirectory} />)
+          }
+          disabled={!(['jpg', 'png', 'webp'].includes(item.type) || item.isFolder)}
+        >
           {t('editor:layout.filebrowser.convert')}
         </Button>
       </ContextMenu>

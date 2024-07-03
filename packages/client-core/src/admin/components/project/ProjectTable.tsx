@@ -40,7 +40,7 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
-import { projectPath, projectPermissionPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import { projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
@@ -72,13 +72,6 @@ export default function ProjectTable() {
     }
   })
 
-  const projectPermissionsFindQuery = useFind(projectPermissionPath, {
-    query: {
-      projectId: activeProjectId?.value,
-      paginate: false
-    }
-  })
-
   const handleEnabledChange = async (project: ProjectType) => {
     await ProjectService.setEnabled(project.id, !project.enabled)
     projectQuery.refetch()
@@ -90,7 +83,7 @@ export default function ProjectTable() {
       await ProjectService.uploadProject({
         sourceURL: projectUpdateStatus.sourceURL,
         destinationURL: projectUpdateStatus.destinationURL,
-        name: projectUpdateStatus.projectName,
+        name: project.name,
         reset: true,
         commitSHA: projectUpdateStatus.selectedSHA,
         sourceBranch: projectUpdateStatus.selectedBranch,
@@ -144,9 +137,7 @@ export default function ProjectTable() {
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
             activeProjectId.set(project.id)
-            PopoverState.showPopupover(
-              <ManageUserPermissionModal project={project} projectPermissions={projectPermissionsFindQuery.data} />
-            )
+            PopoverState.showPopupover(<ManageUserPermissionModal project={project} />)
           }}
         >
           {t('admin:components.project.actions.access')}
@@ -208,12 +199,12 @@ export default function ProjectTable() {
             </a>
             {!!row.needsRebuild && (
               <Tooltip title={t('admin:components.project.outdatedBuild')} direction="right">
-                <HiOutlineExclamationCircle className="text-orange-400" />
+                <HiOutlineExclamationCircle className="text-orange-400" size={22} />
               </Tooltip>
             )}
             {!!row.hasLocalChanges && (
               <Tooltip title={t('admin:components.project.hasLocalChanges')} direction="right">
-                <HiOutlineExclamationCircle className="text-yellow-400" />
+                <HiOutlineExclamationCircle className="text-yellow-400" size={22} />
               </Tooltip>
             )}
           </div>

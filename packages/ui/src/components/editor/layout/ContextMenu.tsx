@@ -28,48 +28,103 @@ import { twMerge } from 'tailwind-merge'
 import ClickAwayListener from './ClickAwayListener'
 
 type ContextMenuProps = {
-  open: boolean
-  anchorEl: null | HTMLElement
+  anchorEvent: undefined | React.MouseEvent<HTMLElement>
   panelId: string
-  anchorPosition: { left: number; top: number }
+  anchorPosition?: undefined | { left: number; top: number }
   onClose: () => void
   className?: string
+  anchorEl?: HTMLElement
 }
 
 export const ContextMenu = ({
   children,
-  open,
-  anchorEl,
+  anchorEvent,
   panelId,
-  anchorPosition,
+  anchorPosition: propAnchorPosition,
   onClose,
-  className
+  className,
+  ...prop
 }: React.PropsWithChildren<ContextMenuProps>) => {
+  const [open, setOpen] = React.useState(false)
   const panel = document.getElementById(panelId)
   const menuRef = useRef<HTMLDivElement | null>(null)
 
+  const { anchorEl } = prop
+
+  // use custom anchorPosition if explicity provided, otherwise use default anchor position when anchorEvent is defined
+  const anchorPosition = propAnchorPosition
+    ? propAnchorPosition
+    : anchorEvent
+    ? {
+        left: anchorEvent.clientX + 2,
+        top: anchorEvent.clientY - 6
+      } // default anchor position
+    : undefined
+
   // Calculate the Y position of the context menu based on the menu height and space to the bottom of the viewport in order to avoid overflow
   const calculatePositionY = () => {
-    let positionY = open ? anchorPosition.top - panel?.getBoundingClientRect().top! : 0
+    let positionY = anchorPosition
+      ? anchorPosition.top - panel?.getBoundingClientRect().top!
+      : anchorEl
+      ? anchorEl.getBoundingClientRect().bottom!
+      : 0
+    // let positionY =
 
     if (open && menuRef.current) {
       const menuHeight = menuRef.current.offsetHeight
 
-      // The amount of space that the menu can fill based on the current anchor position
-      const spaceToBottomFromAnchor = window.innerHeight - anchorPosition.top
-      // We want to reposition the context menu whenever it will overflow the bottom of the screen
-      const shouldRepositionMenu = menuHeight > spaceToBottomFromAnchor
+      // if the panel height is less than the menu height plus the menu pos y offset, we need to move the menu up
+      const offset = panel?.getBoundingClientRect().height! - (menuHeight + positionY)
+      if (offset < 0) {
+        positionY = positionY + offset
+      }
 
-      if (shouldRepositionMenu) {
-        // Align the menu bottom with the bottom of the viewport
-        positionY = window.innerHeight - menuHeight - (panel?.getBoundingClientRect().top || 0) + 30
+      const viewportHeight = window.innerHeight
+
+      // Adjust Y position to avoid overflow
+      if (positionY + menuHeight > viewportHeight) {
+        positionY = viewportHeight - menuHeight - 10 // 10px for padding
+      }
+      if (positionY < 0) {
+        positionY = 10 // 10px for padding
       }
     }
 
     return positionY
   }
 
-  const positionX = open ? anchorPosition.left - panel?.getBoundingClientRect().left! : 0
+  // Calculate the X position of the context menu based on the menu width and space to the right of the panel in order to avoid overflow
+  const calculatePositionX = () => {
+    let positionX = anchorPosition
+      ? anchorPosition.left - panel?.getBoundingClientRect().left!
+      : anchorEl
+      ? anchorEl.getBoundingClientRect().left!
+      : 0
+
+    if (open && menuRef.current) {
+      const menuWidth = menuRef.current.offsetWidth
+
+      // if the panel width is less than the menu width plus the menu pos x offset, we need to move the menu left
+      const offset = panel?.getBoundingClientRect().width! - (menuWidth + positionX)
+      if (offset < 0) {
+        positionX = positionX + offset
+      }
+
+      const viewportWidth = window.innerWidth
+
+      // Adjust X position to avoid overflow
+      if (positionX + menuWidth > viewportWidth) {
+        positionX = viewportWidth - menuWidth - 10 // 10px for padding
+      }
+      if (positionX < 0) {
+        positionX = 10 // 10px for padding
+      }
+    }
+
+    return positionX
+  }
+
+  const [positionX, setPositionX] = useState(calculatePositionX())
   const [positionY, setPositionY] = useState(calculatePositionY())
 
   const [isScrollable, setIsScrollable] = useState(false)
@@ -84,19 +139,29 @@ export const ContextMenu = ({
       setIsScrollable(parentHeight <= menuHeight + 1)
 
       setPositionY(calculatePositionY())
+      setPositionX(calculatePositionX())
     }
   }, [open])
+
+  useEffect(() => {
+    if (anchorEvent) {
+      setOpen(true)
+    } else {
+      setOpen(false)
+    }
+  }, [anchorEvent])
 
   return (
     <ClickAwayListener onClickAway={() => onClose()}>
       <div className={`${open ? 'block' : 'hidden'}`}>
-        {open && anchorEl && (
+        {open && (
           <div
             ref={menuRef}
-            className="absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg"
+            className="absolute z-[200] w-fit min-w-44 rounded-lg bg-neutral-900 shadow-lg"
             style={{
               top: `${positionY}px`,
               left: `${positionX}px`,
+              maxWidth: `${panel?.getBoundingClientRect().width}px`,
               maxHeight: `${panel?.getBoundingClientRect().height}px`,
               overflowY: isScrollable ? 'auto' : 'visible'
             }}

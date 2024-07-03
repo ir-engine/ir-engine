@@ -24,37 +24,32 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { lazy, Suspense, useEffect } from 'react'
+import React, { lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { BrowserRouter, history } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
 import './pages/styles.scss'
+import './pages/mui.styles.scss' /** @todo Remove when MUI is removed */
 // tslint:disable:ordered-imports
 // @ts-ignore
 ;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
 
+const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
+const $location = lazy(() => import('@etherealengine/client/src/pages/location/location'))
+const $auth = lazy(() => import('@etherealengine/client/src/pages/auth/authRoutes'))
+
 const Engine = lazy(() => import('./engine'))
 
-/** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
-const AppPage = lazy(() => import('./pages/_app'))
-const TailwindPage = lazy(() => import('./pages/_app_tw'))
+const AppPage = lazy(() => import('./pages/AppPage'))
+const Router = lazy(() => import('./route/CustomRouter'))
 
 const App = () => {
-  useEffect(() => {
-    const urlSearchParams = new URLSearchParams(window.location.search)
-    const redirectUrl = urlSearchParams.get('redirectUrl')
-    if (redirectUrl) {
-      history.push(redirectUrl)
-    }
-  }, [])
-
   return (
     <ErrorBoundary>
-      <BrowserRouter history={history}>
+      <Engine>
         <Routes>
           {/* @todo - these are for backwards compatibility with non tailwind pages - they will be removed eventually */}
           <Route
@@ -62,9 +57,9 @@ const App = () => {
             path="/location/*"
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'location'} />
-                </Engine>
+                <AppPage>
+                  <$location />
+                </AppPage>
               </Suspense>
             }
           />
@@ -73,26 +68,35 @@ const App = () => {
             path="/offline/*"
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'offline'} />
-                </Engine>
+                <AppPage>
+                  <$offline />
+                </AppPage>
               </Suspense>
             }
           />
-          {/* This will become redundant and we can embed the TailwindPage directly */}
+          {/* This will become redundant and we can embed the AppPage directly */}
+          <Route
+            key="auth"
+            path="/auth/*"
+            element={
+              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                <$auth />
+              </Suspense>
+            }
+          />
           <Route
             key="default"
             path="/*"
             element={
               <Suspense>
-                <Engine tailwind>
-                  <TailwindPage />
-                </Engine>
+                <AppPage>
+                  <Router />
+                </AppPage>
               </Suspense>
             }
           />
         </Routes>
-      </BrowserRouter>
+      </Engine>
     </ErrorBoundary>
   )
 }

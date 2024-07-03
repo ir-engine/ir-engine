@@ -32,6 +32,8 @@ import { Vector2, Vector3 } from 'three'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
@@ -74,11 +76,14 @@ const ViewportDnD = () => {
 const ViewPortPanelContent = () => {
   const { t } = useTranslation()
   const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettings = clientSettingQuery.data[0]
+
   return sceneName ? (
     <ViewportDnD />
   ) : (
     <div className={styles.bgImageBlock}>
-      <img src="/static/etherealengine.png" alt="" />
+      <img className="scale-[.8]" src={clientSettings?.appTitle} alt="" />
       <h2>{t('editor:selectSceneMsg')}</h2>
     </div>
   )

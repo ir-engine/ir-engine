@@ -306,6 +306,7 @@ const authentication = {
       secret: process.env.FACEBOOK_CLIENT_SECRET!
     },
     github: {
+      appId: process.env.GITHUB_APP_ID!,
       key: process.env.GITHUB_CLIENT_ID!,
       secret: process.env.GITHUB_CLIENT_SECRET!,
       scope: GITHUB_SCOPES
@@ -402,6 +403,12 @@ const middleware = {
   mwApi: process.env.MIDDLEWARE_BASE
 }
 
+const zendesk = {
+  name: process.env.ZENDESK_KEY_NAME,
+  secret: process.env.ZENDESK_SECRET,
+  kid: process.env.ZENDESK_KID
+}
+
 /**
  * Full config
  */
@@ -433,7 +440,8 @@ const config = {
   /** @todo when project versioning is fully implemented, remove 'undefined' check here */
   allowOutOfDateProjects:
     typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true',
-  fsProjectSyncEnabled: process.env.FS_PROJECT_SYNC_ENABLED === 'false' ? false : true
+  fsProjectSyncEnabled: process.env.FS_PROJECT_SYNC_ENABLED === 'false' ? false : true,
+  zendesk
 }
 
 chargebeeInst.configure({

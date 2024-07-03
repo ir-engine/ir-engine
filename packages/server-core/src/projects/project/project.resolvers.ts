@@ -31,114 +31,65 @@ import {
   projectPermissionPath,
   ProjectPermissionType
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import {
-  ProjectDatabaseType,
-  ProjectQuery,
-  ProjectSettingType,
-  ProjectType
-} from '@etherealengine/common/src/schemas/projects/project.schema'
+import { ProjectQuery, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { projectSettingPath } from '@etherealengine/common/src/schemas/setting/project-setting.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => {
-  let settings: ProjectSettingType[]
+export const projectResolver = resolve<ProjectType, HookContext>({
+  projectPermissions: virtual(async (project, context) => {
+    return context.params.populateProjectPermissions
+      ? ((await context.app.service(projectPermissionPath).find({
+          query: {
+            projectId: project.id
+          },
+          paginate: false
+        })) as ProjectPermissionType[])
+      : []
+  }),
 
-  if (typeof rawData.settings === 'string') {
-    settings = JSON.parse(rawData.settings) as ProjectSettingType[]
-
-    // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-    // was serialized multiple times, therefore we need to parse it twice.
-    if (typeof settings === 'string') {
-      settings = JSON.parse(settings)
-
-      // There are some old records in our database that requires further parsing.
-      if (typeof settings === 'string') {
-        settings = JSON.parse(settings)
-      }
+  settings: virtual(async (project, context) => {
+    if (context.event !== 'removed') {
+      return await context.app.service(projectSettingPath).find({
+        query: {
+          projectId: project.id
+        },
+        paginate: false
+      })
     }
-  } else {
-    settings = rawData.settings
-  }
+  }),
 
-  return {
-    ...rawData,
-    settings
-  } as ProjectType
-}
+  assetsOnly: virtual(async (project, context) => {
+    return !!project.assetsOnly
+  }),
 
-export const projectResolver = resolve<ProjectType, HookContext>(
-  {
-    projectPermissions: virtual(async (project, context) => {
-      return context.params.populateProjectPermissions
-        ? ((await context.app.service(projectPermissionPath).find({
-            query: {
-              projectId: project.id
-            },
-            paginate: false
-          })) as ProjectPermissionType[])
-        : []
-    }),
+  hasLocalChanges: virtual(async (project, context) => {
+    return !!project.hasLocalChanges
+  }),
 
-    assetsOnly: virtual(async (project, context) => {
-      return !!project.assetsOnly
-    }),
+  needsRebuild: virtual(async (project, context) => {
+    return !!project.needsRebuild
+  }),
 
-    hasLocalChanges: virtual(async (project, context) => {
-      return !!project.hasLocalChanges
-    }),
-
-    needsRebuild: virtual(async (project, context) => {
-      return !!project.needsRebuild
-    }),
-
-    commitDate: virtual(async (project) => {
-      if (project.commitDate) return fromDateTimeSql(project.commitDate)
-    }),
-    createdAt: virtual(async (project) => fromDateTimeSql(project.createdAt)),
-    updatedAt: virtual(async (project) => fromDateTimeSql(project.updatedAt))
-  },
-  {
-    // Convert the raw data into a new structure before running property resolvers
-    converter: async (rawData, context) => {
-      return projectDbToSchema(rawData)
-    }
-  }
-)
+  commitDate: virtual(async (project) => {
+    if (project.commitDate) return fromDateTimeSql(project.commitDate)
+  }),
+  createdAt: virtual(async (project) => fromDateTimeSql(project.createdAt)),
+  updatedAt: virtual(async (project) => fromDateTimeSql(project.updatedAt))
+})
 
 export const projectExternalResolver = resolve<ProjectType, HookContext>({})
 
-export const projectDataResolver = resolve<ProjectType, HookContext>(
-  {
-    id: async () => {
-      return uuidv4()
-    },
-    createdAt: getDateTimeSql,
-    updatedAt: getDateTimeSql
+export const projectDataResolver = resolve<ProjectType, HookContext>({
+  id: async () => {
+    return uuidv4()
   },
-  {
-    // Convert the raw data into a new structure before running property resolvers
-    converter: async (rawData, context) => {
-      return {
-        ...rawData,
-        settings: JSON.stringify(rawData.settings)
-      }
-    }
-  }
-)
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
 
-export const projectPatchResolver = resolve<ProjectType, HookContext>(
-  {
-    updatedAt: getDateTimeSql
-  },
-  {
-    // Convert the raw data into a new structure before running property resolvers
-    converter: async (rawData, context) => {
-      return {
-        ...rawData,
-        settings: JSON.stringify(rawData.settings)
-      }
-    }
-  }
-)
+export const projectPatchResolver = resolve<ProjectType, HookContext>({
+  updatedAt: getDateTimeSql
+})
 
 export const projectQueryResolver = resolve<ProjectQuery, HookContext>({})

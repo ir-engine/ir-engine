@@ -26,4 +26,4 @@ Ethereal Engine. All Rights Reserved.
 import { MotionCaptureInputSystem } from './MotionCaptureInputSystem'
 import { MotionCaptureSystem } from './MotionCaptureSystem'
 
-export { MotionCaptureSystem, MotionCaptureInputSystem }
+export { MotionCaptureInputSystem, MotionCaptureSystem }

@@ -42,6 +42,7 @@ import ProjectTab from './tabs/project'
 import RedisTab from './tabs/redis'
 import ServerTab from './tabs/server'
 import TaskServerTab from './tabs/taskServer'
+import ZendeskTab from './tabs/zendesk'
 
 export const SettingsTabsData = [
   {
@@ -91,6 +92,10 @@ export const SettingsTabsData = [
   {
     label: t('admin:components.setting.features.header'),
     Component: FeaturesTab
+  },
+  {
+    label: t('admin:components.setting.zendesk.header'),
+    Component: ZendeskTab
   }
 ]
 

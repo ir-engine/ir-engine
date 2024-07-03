@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
 
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
+import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { LocationParams } from './location.class'
@@ -53,9 +53,9 @@ describe('location.test', () => {
   it('should create a new location', async () => {
     const name = `Test Location ${uuidv4()}`
 
-    const scene = await app.service(assetPath).find({
+    const scene = await app.service(staticResourcePath).find({
       query: {
-        assetURL: 'projects/default-project/public/scenes/default.gltf'
+        key: 'projects/default-project/public/scenes/default.gltf'
       }
     })
 

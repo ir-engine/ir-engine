@@ -28,12 +28,12 @@ import { useTranslation } from 'react-i18next'
 
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 
-import TimelineIcon from '@mui/icons-material/Timeline'
+import { MdOutlineTimeline } from 'react-icons/md'
 
 import { useComponent } from '@etherealengine/ecs'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
 import { NO_PROXY } from '@etherealengine/hyperflux'
-import { BsPlusSquare } from 'react-icons/bs'
+import { HiPlus } from 'react-icons/hi2'
 import { MdClear } from 'react-icons/md'
 import { Quaternion, Vector3 } from 'three'
 import EulerInput from '../../input/Euler'
@@ -54,19 +54,25 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
   const elements = component.elements
 
   return (
-    <NodeEditor description={t('editor:properties.spline.description')} {...props}>
-      <div className="flex-strech flex w-full flex-row items-center gap-2 py-1">
-        <div className="flex w-full justify-center font-['Figtree'] text-xs font-normal text-neutral-50">
+    <NodeEditor
+      description={t('editor:properties.spline.description')}
+      icon={<SplineNodeEditor.iconComponent />}
+      {...props}
+    >
+      <div className="flex-strech flex w-full flex-row items-center gap-2 px-6 py-1">
+        <div className="flex w-full font-['Figtree'] text-xs font-normal text-neutral-50">
           {t('editor:properties.spline.lbl-addNode')}
         </div>
-        <div className="flex w-full justify-end px-8">
-          <BsPlusSquare
+        <div className="flex w-full justify-end">
+          <HiPlus
+            className="mr-5 cursor-pointer rounded-md bg-[#1A1A1A] text-white"
+            size="20px"
             onClick={() => {
               const elem = { position: new Vector3(), quaternion: new Quaternion() }
               const newElements = [...elements.get(NO_PROXY), elem]
               commitProperty(SplineComponent, 'elements')(newElements)
             }}
-          ></BsPlusSquare>
+          />
         </div>
       </div>
       {elements.map(
@@ -76,7 +82,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
         ) => (
           <div key={index}>
             <div className="flex-end border-t-2 border-zinc-900 py-2">
-              <div className="flex w-full flex-row px-10">
+              <div className="flex w-full flex-row px-6">
                 <div className="flex w-full justify-start font-['Figtree'] text-xs font-normal text-neutral-50">
                   {`Node ${index + 1}`}
                 </div>
@@ -90,7 +96,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                   />
                 </div>
               </div>
-              <InputGroup name="Position" label={`${t('editor:properties.transform.lbl-position')} ${index + 1}`}>
+              <InputGroup name="Position" label={`${t('editor:properties.transform.lbl-position')}`}>
                 <Vector3Input
                   //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
                   value={elem.position.value}
@@ -105,7 +111,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                   }}
                 />
               </InputGroup>
-              <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')} ${index + 1}`}>
+              <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')}`}>
                 <EulerInput
                   //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
                   quaternion={elem.quaternion.value}
@@ -126,6 +132,6 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-SplineNodeEditor.iconComponent = TimelineIcon
+SplineNodeEditor.iconComponent = MdOutlineTimeline
 
 export default SplineNodeEditor

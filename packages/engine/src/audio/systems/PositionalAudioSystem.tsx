@@ -30,7 +30,6 @@ import { Vector3 } from 'three'
 
 import { ComponentType, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -47,6 +46,7 @@ import {
 } from '@etherealengine/network'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { AudioNodeGroups, createAudioNodeGroup, MediaElementComponent } from '../../scene/components/MediaComponent'
@@ -185,10 +185,13 @@ const execute = () => {
     updateAudioPanner(panner, _vec3, rotation, endTime, mediaSettings)
   }
 
+  const viewerEntity = getState(EngineState).viewerEntity
+  if (!viewerEntity) return
+
   /**
    * Update camera listener position
    */
-  const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
+  const { position, rotation } = getComponent(viewerEntity, TransformComponent)
   if (isNaN(position.x)) return
   _rot.set(0, 0, -1).applyQuaternion(rotation)
   if (isNaN(_rot.x)) return

@@ -1,4 +1,3 @@
-/* eslint-disable no-case-declarations */
 /*
 CPAL-1.0 License
 
@@ -188,7 +187,7 @@ const SceneAssetsPanel = () => {
   useEffect(() => {
     const staticResourcesFindApi = () => {
       const query = {
-        key: { $like: `%${searchText.value}%` || undefined },
+        key: { $like: `%${searchText.value}%` },
         $sort: { mimeType: 1 },
         $limit: 10000
       }

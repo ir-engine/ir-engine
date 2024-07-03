@@ -36,7 +36,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -65,16 +65,17 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const transformComponent = useComponent(props.entity, TransformComponent)
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
-  transformSpace.value === TransformSpace.world
-    ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
-    : transformComponent.matrix.value.decompose(position, rotation, scale)
-
+  position.copy(transformComponent.position.value)
+  rotation.copy(transformComponent.rotation.value)
   scale.copy(transformComponent.scale.value)
 
+  if (transformSpace.value === TransformSpace.world)
+    transformComponent.matrixWorld.value.decompose(position, rotation, scale)
+
   const onRelease = () => {
-    const bboxSnapState = getMutableState(ObjectGridSnapState)
-    if (bboxSnapState.enabled.value) {
-      bboxSnapState.apply.set(true)
+    const bboxSnapState = getState(ObjectGridSnapState)
+    if (bboxSnapState.enabled) {
+      ObjectGridSnapState.apply()
     } else {
       EditorControlFunctions.commitTransformSave([props.entity])
     }
@@ -118,10 +119,10 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')}>
         <Vector3Input
-          value={position}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
+          value={position}
           onChange={onChangePosition}
           onRelease={onRelease}
         />

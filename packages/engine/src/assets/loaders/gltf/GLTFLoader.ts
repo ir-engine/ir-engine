@@ -248,6 +248,14 @@ export class GLTFLoader extends Loader {
     return this
   }
 
+  registerFirst(callback) {
+    if (this.pluginCallbacks.indexOf(callback) === -1) {
+      this.pluginCallbacks.unshift(callback)
+    }
+
+    return this
+  }
+
   register(callback) {
     if (this.pluginCallbacks.indexOf(callback) === -1) {
       this.pluginCallbacks.push(callback)
@@ -360,7 +368,7 @@ export interface GLTF {
     extensions?: any
     extras?: any
   }
-  parser: GLTFParser
+  parser?: GLTFParser
   userData: any
 }
 

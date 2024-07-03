@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
@@ -32,6 +33,7 @@ import {
   archiverPath,
   fileBrowserPath,
   fileBrowserUploadPath,
+  projectPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
@@ -44,19 +46,19 @@ import {
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
+import { FilePropertiesPanel } from '@etherealengine/editor/src/components/assets/FileBrowser/FilePropertiesPanel'
+import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { bytesToSize, unique } from '@etherealengine/editor/src/functions/utils'
+import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
+import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import {
-  ImageConvertDefaultParms,
-  ImageConvertParms
-} from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import React, { useEffect, useRef } from 'react'
+import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
@@ -78,14 +80,15 @@ import Popover from '../../../layout/Popover'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
 
 type FileBrowserContentPanelProps = {
+  projectName?: string
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
   disableDnD?: boolean
-  selectedFile?: string
+  originalPath: string
   folderName?: string
   nestingDirectory?: string
 }
 
-type DnDFileType = {
+export type DnDFileType = {
   dataTransfer: DataTransfer
   files: File[]
   items: DataTransferItemList
@@ -104,7 +107,7 @@ export type FileType = {
   url: string
 }
 
-const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
+function fileConsistsOfContentType(file: FileDataType, contentType: string): boolean {
   if (file.isFolder) {
     return contentType.startsWith('image')
   } else {
@@ -117,28 +120,69 @@ export function isFileDataType(value: any): value is FileDataType {
   return value && value.key
 }
 
+const viewModes = [
+  { mode: 'list', icon: <FaList /> },
+  { mode: 'icons', icon: <FiGrid /> }
+]
+
+function extractDirectoryWithoutOrgName(directory: string, orgName: string) {
+  if (!orgName) return directory
+
+  return directory.replace(`projects/${orgName}`, 'projects/')
+}
+
+/**
+ * Gets the project name that may or may not have a single slash it in from a list of valid project names
+ */
+export const useValidProjectForFileBrowser = (projectName: string) => {
+  const projects = useFind(projectPath, {
+    query: {
+      paginate: false,
+      action: 'studio',
+      allowed: true
+    }
+  })
+  return projects.data.find((project) => projectName.startsWith(`/projects/${project.name}/`))?.name ?? ''
+}
+
+function GeneratingThumbnailsProgress() {
+  const { t } = useTranslation()
+  const thumbnailJobState = useMutableState(FileThumbnailJobState)
+
+  if (!thumbnailJobState.length) return null
+
+  return (
+    <LoadingView
+      titleClassname="mt-0"
+      containerClassname="flex-row mt-1"
+      className="mx-2 my-auto h-6 w-6"
+      title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailJobState.length })}
+    />
+  )
+}
+
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
  */
 const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) => {
   const { t } = useTranslation()
 
-  const originalPath = `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
-  const selectedDirectory = useHookstate(originalPath)
-  const nestingDirectory = useHookstate(props.nestingDirectory || 'projects')
+  const selectedDirectory = useHookstate(props.originalPath)
+
+  const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
+  const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
+
   const fileProperties = useHookstate<FileType | null>(null)
   const anchorEl = useHookstate<HTMLButtonElement | null>(null)
 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
-  const openConvert = useHookstate(false)
-  const convertProperties = useHookstate<ImageConvertParms>(ImageConvertDefaultParms)
 
   const openConfirm = useHookstate(false)
   const contentToDeletePath = useHookstate('')
 
-  const filesViewMode = useHookstate(getMutableState(FilesViewModeState).viewMode)
-  const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
+  const filesViewMode = useMutableState(FilesViewModeState).viewMode
+  const anchorPosition = useHookstate<any>(undefined)
 
   const page = useHookstate(0)
 
@@ -204,14 +248,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         contentType: params.type,
         size: params.size
       })
+      const editorHelperState = getState(EditorHelperState)
+      if (editorHelperState.placementMode === PlacementMode.CLICK) {
+        getMutableState(ClickPlacementState).selectedAsset.set(params.url)
+      }
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
       changeDirectoryByPath(newPath)
     }
-  }
-
-  const handlePageChange = async (_event, newPage: number) => {
-    page.set(newPage)
   }
 
   const createNewFolder = async () => {
@@ -222,12 +266,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     if (isLoading) return
 
     const path = dropOn?.isFolder ? dropOn.key : selectedDirectory.value
+    const folder = path.replace(/(.*\/).*/, '$1')
 
     if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
         moveContent(data.fullName, data.fullName, data.path, path, false)
       }
     } else {
+      const relativePath = folder.replace('projects/' + projectName + '/', '').replace(/^\//gi, '')
       await Promise.all(
         data.files.map(async (file) => {
           const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
@@ -238,9 +284,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             try {
               const name = processFileName(file.name)
               await uploadToFeathersService(fileBrowserUploadPath, [file], {
-                fileName: name,
-                path,
-                contentType: file.type
+                args: [
+                  {
+                    project: projectName,
+                    path: relativePath + name,
+                    contentType: file.type
+                  }
+                ]
               }).promise
             } catch (err) {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -256,7 +306,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const onBackDirectory = () => {
     const pattern = /([^/]+)/g
     const result = selectedDirectory.value.match(pattern)
-    if (!result || result.length === 1) return
+    if (!result || result.length === 1 || (orgName && result.length === 2)) return
     let newPath = '/'
     for (let i = 0; i < result.length - 1; i++) {
       newPath += result[i] + '/'
@@ -272,13 +322,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     isCopy = false
   ): Promise<void> => {
     if (isLoading) return
-    fileService.update(null, { oldName, newName, oldPath, newPath, isCopy })
-  }
-
-  const handleConfirmDelete = (contentPath: string, type: string) => {
-    contentToDeletePath.set(contentPath)
-
-    openConfirm.set(true)
+    fileService.update(null, {
+      oldProject: projectName,
+      newProject: projectName,
+      oldName,
+      newName,
+      oldPath,
+      newPath,
+      isCopy
+    })
   }
 
   const handleConfirmClose = () => {
@@ -296,16 +348,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
 
-  const showUploadAndDownloadButtons =
-    selectedDirectory.value.slice(1).startsWith('projects/') &&
-    !['projects', 'projects/'].includes(selectedDirectory.value.slice(1))
-  const showBackButton = selectedDirectory.value.split('/').length > originalPath.split('/').length
+  const showDownloadButtons = selectedDirectory.value.startsWith('/projects/' + projectName + '/')
+  const showUploadButtons =
+    selectedDirectory.value.startsWith('/projects/' + projectName + '/public/') ||
+    selectedDirectory.value.startsWith('/projects/' + projectName + '/assets/')
+  const showBackButton = selectedDirectory.value.split('/').length > props.originalPath.split('/').length
 
   const handleDownloadProject = async () => {
-    const url = selectedDirectory.value
     const data = await Engine.instance.api
       .service(archiverPath)
-      .get(null, { query: { directory: url } })
+      .get(null, { query: { project: projectName } })
       .catch((err: Error) => {
         NotificationService.dispatchNotify(err.message, { variant: 'warning' })
         return null
@@ -314,7 +366,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const blob = await (await fetch(`${config.client.fileServer}/${data}`)).blob()
 
     let fileName: string
-    if (selectedDirectory.value[selectedDirectory.value.length - 1] === '/') {
+    if (selectedDirectory.value.at(-1) === '/') {
       fileName = selectedDirectory.value.split('/').at(-2) as string
     } else {
       fileName = selectedDirectory.value.split('/').at(-1) as string
@@ -325,6 +377,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const BreadcrumbItems = () => {
     const handleBreadcrumbDirectoryClick = (targetFolder: string) => {
+      if (orgName && targetFolder === 'projects') return
       const pattern = /([^/]+)/g
       const result = selectedDirectory.value.match(pattern)
       if (!result) return
@@ -337,9 +390,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       }
       changeDirectoryByPath(newPath)
     }
-    let breadcrumbDirectoryFiles = selectedDirectory.value.slice(1, -1).split('/')
+    let breadcrumbDirectoryFiles = extractDirectoryWithoutOrgName(selectedDirectory.value, orgName)
+      .slice(1, -1)
+      .split('/')
 
-    const nestedIndex = breadcrumbDirectoryFiles.indexOf(nestingDirectory.value)
+    const nestedIndex = breadcrumbDirectoryFiles.indexOf('projects')
 
     breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
 
@@ -350,11 +405,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       >
         <span className="flex h-full w-full items-center justify-center space-x-2 overflow-x-auto whitespace-nowrap px-4">
           {breadcrumbDirectoryFiles.map((file, index, arr) => (
-            <>
+            <Fragment key={index}>
               {index !== 0 && ( // Add separator for all but the first item
                 <span className="cursor-default align-middle text-xs">{'>'}</span>
               )}
-              {index === arr.length - 1 ? (
+              {index === arr.length - 1 || (orgName && index === 0) ? (
                 <span className="overflow-hidden">
                   <span className="inline-block w-full cursor-default overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
                     {file}
@@ -370,7 +425,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   </span>
                 </a>
               )}
-            </>
+            </Fragment>
           ))}
         </span>
       </nav>
@@ -384,6 +439,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       drop: (dropItem) => dropItemsOnPanel(dropItem as any),
       collect: (monitor) => ({ isFileDropOver: monitor.canDrop() && monitor.isOver() })
     })
+    const selectedFileKeys = useHookstate<string[]>([])
 
     const isListView = filesViewMode.value === 'list'
     const staticResourceData = useFind(staticResourcePath, {
@@ -391,6 +447,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         key: {
           $in: isListView ? files.map((file) => file.key) : []
         },
+        project: props.projectName,
         $select: ['key', 'updatedAt'] as any,
         $limit: FILES_PAGE_LIMIT
       }
@@ -398,40 +455,75 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const staticResourceModifiedDates = useHookstate<Record<string, string>>({})
 
     useEffect(() => {
+      if (staticResourceData.status !== 'success') return
       const modifiedDates: Record<string, string> = {}
       staticResourceData.data.forEach((data) => {
         modifiedDates[data.key] = new Date(data.updatedAt).toLocaleString()
       })
       staticResourceModifiedDates.set(modifiedDates)
-    }, [staticResourceData.data])
+    }, [staticResourceData.status])
+
+    const handleFileBrowserItemClick = (e: React.MouseEvent, currentFile: FileDataType) => {
+      e.stopPropagation()
+      if (e.ctrlKey || e.metaKey) {
+        selectedFileKeys.set((prevSelectedKeys) =>
+          prevSelectedKeys.includes(currentFile.key)
+            ? prevSelectedKeys.filter((selectedKey) => selectedKey !== currentFile.key)
+            : [...prevSelectedKeys, currentFile.key]
+        )
+      } else if (e.shiftKey) {
+        const lastIndex = files.findIndex((file) => file.key === selectedFileKeys.value.at(-1))
+        const clickedIndex = files.findIndex((file) => file.key === currentFile.key)
+        const newSelectedKeys = files
+          .slice(Math.min(lastIndex, clickedIndex), Math.max(lastIndex, clickedIndex) + 1)
+          .map((file) => file.key)
+        selectedFileKeys.set((prevSelectedKeys) => Array.from(new Set([...prevSelectedKeys, ...newSelectedKeys])))
+      } else {
+        if (selectedFileKeys.value.includes(currentFile.key)) {
+          selectedFileKeys.set([])
+        } else {
+          selectedFileKeys.set([currentFile.key])
+        }
+      }
+    }
 
     return (
       <div
         ref={fileDropRef}
-        className={twMerge('px-4 text-gray-400 ', isListView ? '' : 'flex py-8')}
-        style={{ border: isFileDropOver ? '3px solid #ccc' : '' }}
+        className={twMerge(
+          'h-full px-4 text-gray-400 ',
+          isListView ? '' : 'flex py-8',
+          isFileDropOver ? 'border-2 border-gray-300' : ''
+        )}
+        onClick={(event) => {
+          event.stopPropagation()
+          selectedFileKeys.set([])
+        }}
       >
-        <div className={isListView ? '' : 'flex flex-wrap justify-start gap-3 pb-8'}>
+        <div className={twMerge(!isListView && 'flex flex-wrap')}>
           <FileTableWrapper wrap={isListView}>
             <>
-              {unique(files, (file) => file.key).map((file, i) => (
+              {unique(files, (file) => file.key).map((file) => (
                 <FileBrowserItem
                   key={file.key}
                   item={file}
                   disableDnD={props.disableDnD}
-                  onClick={onSelect}
-                  moveContent={moveContent}
-                  deleteContent={handleConfirmDelete}
+                  projectName={projectName}
+                  onClick={(event, currentFile) => {
+                    handleFileBrowserItemClick(event, currentFile)
+                    onSelect(file)
+                  }}
                   currentContent={currentContentRef}
                   setOpenPropertiesModal={openProperties.set}
                   setFileProperties={fileProperties.set}
                   setOpenCompress={openCompress.set}
-                  setOpenConvert={openConvert.set}
                   dropItemsOnPanel={dropItemsOnPanel}
                   isFilesLoading={isLoading}
                   addFolder={createNewFolder}
                   isListView={isListView}
                   staticResourceModifiedDates={staticResourceModifiedDates.value}
+                  isSelected={selectedFileKeys.value.includes(file.key)}
+                  refreshDirectory={refreshDirectory}
                 />
               ))}
             </>
@@ -464,7 +556,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               startIcon={<IoSettingsSharp />}
               className="p-0"
               onClick={(event) => {
-                setAnchorPosition({ left: event.clientX, top: event.clientY })
+                anchorPosition.set({ left: event.clientX, top: event.clientY })
                 anchorEl.set(event.currentTarget)
               }}
             />
@@ -475,10 +567,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           anchorEl={anchorEl.value as any}
           onClose={() => {
             anchorEl.set(null)
-            setAnchorPosition(undefined)
+            anchorPosition.set(undefined)
           }}
           panelId={FilesPanelTab.id!}
-          anchorPosition={anchorPosition}
+          anchorPosition={anchorPosition.value}
           className="w-45 flex min-w-[300px] flex-col p-2"
         >
           {filesViewMode.value === 'icons' ? (
@@ -526,11 +618,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       </>
     )
   }
-
-  const viewModes = [
-    { mode: 'list', icon: <FaList /> },
-    { mode: 'icons', icon: <FiGrid /> }
-  ]
 
   return (
     <>
@@ -585,61 +672,84 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
         <div id="downloadProject" className="flex items-center">
           <Tooltip title={t('editor:layout.filebrowser.downloadProject')} direction="bottom">
-            <Button variant="transparent" startIcon={<FiDownload />} className="p-0" onClick={createNewFolder} />
+            <Button
+              variant="transparent"
+              startIcon={<FiDownload />}
+              className="p-0"
+              onClick={handleDownloadProject}
+              disabled={!showDownloadButtons}
+            />
           </Tooltip>
         </div>
 
         <div id="newFolder" className="flex items-center">
           <Tooltip title={t('editor:layout.filebrowser.addNewFolder')} direction="bottom">
-            <Button
-              variant="transparent"
-              startIcon={<PiFolderPlusBold />}
-              className="p-0"
-              onClick={handleDownloadProject}
-            />
+            <Button variant="transparent" startIcon={<PiFolderPlusBold />} className="p-0" onClick={createNewFolder} />
           </Tooltip>
         </div>
 
         <Button
-          id="uploadAssets"
+          id="uploadFiles"
           startIcon={<HiOutlinePlusCircle />}
           variant="transparent"
-          disabled={!showUploadAndDownloadButtons}
+          disabled={!showUploadButtons}
           rounded="none"
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
           size="small"
-          onClick={async () => {
-            await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+          onClick={() =>
+            inputFileWithAddToScene({ projectName, directoryPath: selectedDirectory.get(NO_PROXY).slice(1) })
               .then(refreshDirectory)
               .catch((err) => {
                 NotificationService.dispatchNotify(err.message, { variant: 'error' })
               })
-          }}
+          }
         >
-          {t('editor:layout.filebrowser.uploadAssets')}
+          {t('editor:layout.filebrowser.uploadFiles')}
         </Button>
       </div>
       {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}
+      <GeneratingThumbnailsProgress />
       <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
         <DndWrapper id="file-browser-panel">
           <DropArea />
         </DndWrapper>
       </div>
+
+      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
+        <ImageCompressionPanel
+          openCompress={openCompress}
+          fileProperties={fileProperties as any}
+          onRefreshDirectory={refreshDirectory}
+        />
+      )}
+
+      {openProperties.value && fileProperties.value && (
+        <FilePropertiesPanel openProperties={openProperties} fileProperties={fileProperties} />
+      )}
+      <ConfirmDialog
+        open={openConfirm.value}
+        description={t('editor:dialog.delete.confirm-content', {
+          content: contentToDeletePath.value.split('/').at(-1)
+        })}
+        onClose={handleConfirmClose}
+        onSubmit={deleteContent}
+      />
     </>
   )
 }
 
 export default function FilesPanelContainer() {
   const assetsPreviewPanelRef = React.useRef()
-  const projectName = useHookstate(getMutableState(EditorState).projectName).value
+  const originalPath = useMutableState(EditorState).projectName.value
 
   const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
     ;(assetsPreviewPanelRef as any).current?.onSelectionChanged?.(props)
   }
 
   return (
-    <>
-      <FileBrowserContentPanel selectedFile={projectName ?? undefined} onSelectionChanged={onSelectionChanged} />
-    </>
+    <FileBrowserContentPanel
+      originalPath={'/projects/' + originalPath + '/assets/'}
+      onSelectionChanged={onSelectionChanged}
+    />
   )
 }

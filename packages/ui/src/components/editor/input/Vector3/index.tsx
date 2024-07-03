@@ -26,8 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { useHookstate } from '@etherealengine/hyperflux'
 import { Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import React from 'react'
+import { LuLock, LuUnlock } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
+import Button from '../../../../primitives/tailwind/Button'
 import Scrubber from '../../layout/Scrubber'
 import NumericInput from '../Numeric'
 
@@ -40,7 +42,7 @@ interface Vector3ScrubberProps {
   className?: string
 }
 
-export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: Vector3ScrubberProps) => {
+export const Vector3Scrubber = ({ axis, onChange, onPointerUp, value, children, ...props }: Vector3ScrubberProps) => {
   const color = (() => {
     switch (axis) {
       case 'x':
@@ -57,15 +59,15 @@ export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: V
   props.className = twMerge(`text-${color}`)
   const content = children ?? axis?.toUpperCase()
   return (
-    <Scrubber onChange={onChange} value={value} {...props}>
+    <Scrubber onChange={onChange} onRelease={onPointerUp} value={value} {...props}>
       {content}
     </Scrubber>
   )
 }
 
-export const UniformButtonContainer: React.FC<{ children?: any }> = ({ children }) => {
+export const UniformButtonContainer: React.FC<{ children?: JSX.Element }> = ({ children }) => {
   return (
-    <div className="flex w-4 items-center hover:text-[color:var(--blueHover)] [&>*:where(label)]:text-[color:var(--textColor)] [&>*:where(ul)]:w-full">
+    <div className="flex w-6 items-center hover:text-[color:var(--blueHover)] [&>*:where(label)]:text-[color:var(--textColor)] [&>*:where(ul)]:w-full">
       {children}
     </div>
   )
@@ -93,7 +95,12 @@ export const Vector3Input = ({
   onRelease,
   ...rest
 }: Vector3InputProp) => {
-  const uniformEnabled = useHookstate(uniformScaling)
+  const uniformEnabled = useHookstate(false)
+
+  const onToggleUniform = () => {
+    uniformEnabled.set((v) => !v)
+  }
+
   const processChange = (field: string, fieldValue: number) => {
     if (uniformEnabled.value) {
       value.set(fieldValue, fieldValue, fieldValue)
@@ -117,7 +124,15 @@ export const Vector3Input = ({
   const vz = value.z
 
   return (
-    <div className="flex flex-row justify-start gap-1.5">
+    <div className="flex flex-row flex-wrap justify-start gap-1.5">
+      {uniformScaling && (
+        <Button
+          variant="transparent"
+          startIcon={uniformEnabled.value ? <LuLock /> : <LuUnlock />}
+          onClick={onToggleUniform}
+          className="p-0"
+        />
+      )}
       <NumericInput
         {...rest}
         value={vx}

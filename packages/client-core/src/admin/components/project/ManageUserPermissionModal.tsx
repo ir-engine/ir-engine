@@ -32,22 +32,21 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
-import { InviteCode, ProjectPermissionType, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import {
+  InviteCode,
+  ProjectPermissionType,
+  ProjectType,
+  projectPermissionPath
+} from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 
-export default function ManageUserPermissionModal({
-  project,
-  projectPermissions
-}: {
-  project: ProjectType
-  projectPermissions: readonly ProjectPermissionType[]
-}) {
-  console.log('ManageUserPermissionModal', project, projectPermissions)
+export default function ManageUserPermissionModal({ project }: { project: ProjectType }) {
   const { t } = useTranslation()
   const selfUser = useHookstate(getMutableState(AuthState)).user
   const userInviteCode = useHookstate('' as InviteCode)
@@ -58,13 +57,21 @@ export default function ManageUserPermissionModal({
       ? 'owner'
       : 'user'
 
+  const projectPermissionsFindQuery = useFind(projectPermissionPath, {
+    query: {
+      projectId: project.id,
+      paginate: false
+    }
+  })
+
   const handleCreatePermission = async () => {
     if (!userInviteCode.value) {
       userInviteCodeError.set(t('admin:components.project.inviteCodeCantEmpty'))
       return
     }
     try {
-      await ProjectService.createPermission(userInviteCode.value, project.id)
+      await ProjectService.createPermission(userInviteCode.value, project.id, 'reviewer')
+      projectPermissionsFindQuery.refetch()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -73,6 +80,7 @@ export default function ManageUserPermissionModal({
   const handlePatchPermission = async (permission: ProjectPermissionType) => {
     try {
       await ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'user' : 'owner')
+      projectPermissionsFindQuery.refetch()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -81,6 +89,7 @@ export default function ManageUserPermissionModal({
   const handleRemovePermission = async (id: string) => {
     try {
       await ProjectService.removePermission(id)
+      projectPermissionsFindQuery.refetch()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -105,7 +114,7 @@ export default function ManageUserPermissionModal({
         />
       )}
       <div className="grid gap-4">
-        {projectPermissions?.map((permission) => (
+        {projectPermissionsFindQuery.data.map((permission) => (
           <div key={permission.id} className="flex items-center gap-2">
             <Text fontSize="sm">
               {permission.userId === selfUser.id.value ? `${permission.user?.name} (you)` : permission.user?.name}
@@ -119,7 +128,7 @@ export default function ManageUserPermissionModal({
               disabled={
                 selfUserPermission !== 'owner' ||
                 selfUser.id.value === permission.userId ||
-                projectPermissions?.length === 1
+                projectPermissionsFindQuery.data.length === 1
               }
             />
             <Button

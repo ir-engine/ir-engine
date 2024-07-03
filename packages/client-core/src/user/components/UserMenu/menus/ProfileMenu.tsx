@@ -34,10 +34,10 @@ import Button from '@etherealengine/client-core/src/common/components/Button'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { DiscordIcon } from '@etherealengine/client-core/src/common/components/Icons/DiscordIcon'
-import { FacebookIcon } from '@etherealengine/client-core/src/common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '@etherealengine/client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '@etherealengine/client-core/src/common/components/Icons/LinkedInIcon'
-import { TwitterIcon } from '@etherealengine/client-core/src/common/components/Icons/TwitterIcon'
+import { MetaIcon } from '@etherealengine/client-core/src/common/components/Icons/MetaIcon'
+import { XIcon } from '@etherealengine/client-core/src/common/components/Icons/XIcon'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
@@ -52,8 +52,10 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
+import { useZendesk } from '../../../../hooks/useZendesk'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthService, AuthState } from '../../../services/AuthService'
+import { AvatarService } from '../../../services/AvatarService'
 import { useUserHasAccessHook } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
@@ -92,6 +94,8 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
   const hasAdminAccess = useUserHasAccessHook('admin:admin')
   const avatarThumbnail = useUserAvatarThumbnail(userId)
+
+  const { initialized, openChat } = useZendesk()
 
   useEffect(() => {
     if (authSetting) {
@@ -178,7 +182,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
       // @ts-ignore
-      AuthService.updateUsername(userId, name)
+      AvatarService.updateUsername(userId, name)
     }
   }
   const handleInputChange = (e) => emailPhone.set(e.target.value)
@@ -418,6 +422,43 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Settings)}
             />
           )}
+          {!isGuest && initialized && (
+            <IconButton
+              background="var(--textColor)"
+              sx={{
+                width: '110px',
+                height: '45px',
+                marginTop: '1rem',
+                borderRadius: '10px'
+              }}
+              icon={
+                <>
+                  <Icon
+                    type="Help"
+                    sx={{
+                      display: 'block',
+                      width: '30%',
+                      height: '100%',
+                      margin: 'auto',
+                      color: 'var(--inputBackground)'
+                    }}
+                  />
+                  <Text
+                    align="center"
+                    sx={{
+                      width: '100%',
+                      marginLeft: '4px',
+                      fontSize: '12px',
+                      color: 'var(--inputBackground)'
+                    }}
+                  >
+                    {t('user:usermenu.profile.helpChat')}
+                  </Text>
+                </>
+              }
+              onClick={openChat}
+            ></IconButton>
+          )}
         </Box>
 
         <InputText
@@ -570,7 +611,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                   {authState?.value?.facebook && !oauthConnectedState.facebook.value && (
                     <IconButton
                       id="facebook"
-                      icon={<FacebookIcon width="40" height="40" viewBox="0 0 40 40" />}
+                      icon={<MetaIcon width="40" height="40" viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
                   )}
@@ -584,7 +625,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                   {authState?.value?.twitter && !oauthConnectedState.twitter.value && (
                     <IconButton
                       id="twitter"
-                      icon={<TwitterIcon width="40" height="40" viewBox="0 0 40 40" />}
+                      icon={<XIcon width="40" height="40" viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
                   )}
@@ -617,7 +658,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                       {authState?.facebook.value && oauthConnectedState.facebook.value && (
                         <IconButton
                           id="facebook"
-                          icon={<Icon type="Facebook" viewBox="0 0 40 40" />}
+                          icon={<MetaIcon viewBox="0 0 40 40" />}
                           onClick={handleRemoveOAuthServiceClick}
                         />
                       )}
@@ -631,7 +672,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                       {authState?.twitter.value && oauthConnectedState.twitter.value && (
                         <IconButton
                           id="twitter"
-                          icon={<Icon type="Twitter" viewBox="0 0 40 40" />}
+                          icon={<XIcon viewBox="0 0 40 40" />}
                           onClick={handleRemoveOAuthServiceClick}
                         />
                       )}

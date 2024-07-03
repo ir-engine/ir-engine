@@ -41,7 +41,10 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWrapping, RepeatWrapping } from 'three'
+import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
+import NumericInput from '../../input/Numeric'
 import ProgressBar from '../../input/Progress'
 import SelectInput from '../../input/Select'
 import Vector2Input from '../../input/Vector2'
@@ -57,6 +60,12 @@ const fitOptions = [
 const projectionOptions = [
   { label: 'Flat', value: 'Flat' },
   { label: 'Equirectangular360', value: 'Equirectangular360' }
+]
+
+const wrappingOptions = [
+  { label: 'Repeat', value: RepeatWrapping },
+  { label: 'Clamp', value: ClampToEdgeWrapping },
+  { label: 'Mirrored Repeat', value: MirroredRepeatWrapping }
 ]
 
 /**
@@ -88,7 +97,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.video.name')}
       description={t('editor:properties.video.description')}
-      icon={<HiOutlineVideoCamera />}
+      icon={<VideoNodeEditor.iconComponent />}
     >
       <ProgressBar value={5} paused={false} totalTime={100} />
       <InputGroup
@@ -114,6 +123,133 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(VideoComponent, 'size')}
         />
       </InputGroup>
+
+      <InputGroup
+        name="Side"
+        label={t('editor:properties.video.lbl-side')}
+        info={t('editor:properties.video.lbl-side-info')}
+      >
+        <SelectInput
+          value={video.side.value}
+          onChange={commitProperty(VideoComponent, 'side')}
+          options={[
+            { label: 'Front', value: FrontSide },
+            { label: 'Back', value: BackSide },
+            { label: 'Double', value: DoubleSide }
+          ]}
+        />
+      </InputGroup>
+
+      <InputGroup
+        name="UV Offset"
+        label={t('editor:properties.video.lbl-uv-offset')}
+        info={t('editor:properties.video.lbl-uv-offset-info')}
+      >
+        <Vector2Input
+          value={video.uvOffset.value}
+          onChange={updateProperty(VideoComponent, 'uvOffset')}
+          onRelease={commitProperty(VideoComponent, 'uvOffset')}
+        />
+      </InputGroup>
+
+      <InputGroup
+        name="UV Scale"
+        label={t('editor:properties.video.lbl-uv-scale')}
+        info={t('editor:properties.video.lbl-uv-scale-info')}
+      >
+        <Vector2Input
+          value={video.uvScale.value}
+          onChange={updateProperty(VideoComponent, 'uvScale')}
+          onRelease={commitProperty(VideoComponent, 'uvScale')}
+        />
+      </InputGroup>
+
+      <InputGroup
+        name="Wrap S"
+        label={t('editor:properties.video.lbl-wrap-s')}
+        info={t('editor:properties.video.lbl-wrap-s-info')}
+      >
+        <SelectInput
+          value={video.wrapS.value}
+          onChange={commitProperty(VideoComponent, 'wrapS')}
+          options={wrappingOptions}
+        />
+      </InputGroup>
+
+      <InputGroup
+        name="Wrap T"
+        label={t('editor:properties.video.lbl-wrap-t')}
+        info={t('editor:properties.video.lbl-wrap-t-info')}
+      >
+        <SelectInput
+          value={video.wrapT.value}
+          onChange={commitProperty(VideoComponent, 'wrapT')}
+          options={wrappingOptions}
+        />
+      </InputGroup>
+
+      <InputGroup
+        name="Use Alpha"
+        label={t('editor:properties.video.lbl-use-alpha')}
+        info={t('editor:properties.video.lbl-use-alpha-info')}
+      >
+        <BooleanInput value={video.useAlpha.value} onChange={commitProperty(VideoComponent, 'useAlpha')} />
+      </InputGroup>
+
+      {video.useAlpha.value && (
+        <>
+          <InputGroup
+            name="Alpha Threshold"
+            label={t('editor:properties.video.lbl-alpha-threshold')}
+            info={t('editor:properties.video.lbl-alpha-threshold-info')}
+          >
+            <NumericInput
+              value={video.alphaThreshold.value}
+              onChange={updateProperty(VideoComponent, 'alphaThreshold')}
+              onRelease={commitProperty(VideoComponent, 'alphaThreshold')}
+            />
+          </InputGroup>
+
+          <InputGroup
+            name="Use Alpha UV Transform"
+            label={t('editor:properties.video.lbl-use-alpha-uv-transform')}
+            info={t('editor:properties.video.lbl-use-alpha-uv-transform-info')}
+          >
+            <BooleanInput
+              value={video.useAlphaUVTransform.value}
+              onChange={commitProperty(VideoComponent, 'useAlphaUVTransform')}
+            />
+          </InputGroup>
+
+          {video.useAlphaUVTransform.value && (
+            <>
+              <InputGroup
+                name="Alpha UV Offset"
+                label={t('editor:properties.video.lbl-alpha-uv-offset')}
+                info={t('editor:properties.video.lbl-alpha-uv-offset-info')}
+              >
+                <Vector2Input
+                  value={video.alphaUVOffset.value}
+                  onChange={updateProperty(VideoComponent, 'alphaUVOffset')}
+                  onRelease={commitProperty(VideoComponent, 'alphaUVOffset')}
+                />
+              </InputGroup>
+
+              <InputGroup
+                name="Alpha UV Scale"
+                label={t('editor:properties.video.lbl-alpha-uv-scale')}
+                info={t('editor:properties.video.lbl-alpha-uv-scale-info')}
+              >
+                <Vector2Input
+                  value={video.alphaUVScale.value}
+                  onChange={updateProperty(VideoComponent, 'alphaUVScale')}
+                  onRelease={commitProperty(VideoComponent, 'alphaUVScale')}
+                />
+              </InputGroup>
+            </>
+          )}
+        </>
+      )}
 
       <InputGroup name="Projection" label={t('editor:properties.video.lbl-projection')}>
         <SelectInput

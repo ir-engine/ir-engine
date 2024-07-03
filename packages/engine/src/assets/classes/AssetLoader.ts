@@ -23,20 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AudioLoader, Material, RepeatWrapping, Texture, TextureLoader } from 'three'
+import { AudioLoader } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
-import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 
+import { AssetExt, AssetType, FileExtToAssetExt, FileToAssetType } from '@etherealengine/common/src/constants/AssetType'
 import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
-import { AssetClass } from '../enum/AssetClass'
-import { AssetType } from '../enum/AssetType'
 import { FileLoader } from '../loaders/base/FileLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
-import { GLTF } from '../loaders/gltf/GLTFLoader'
+import { TextureLoader } from '../loaders/texture/TextureLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
@@ -46,54 +44,10 @@ import { AssetLoaderState } from '../state/AssetLoaderState'
  * @param assetFileName Name of the Asset file.
  * @returns Asset type of the file.
  */
-const getAssetType = (assetFileName: string): AssetType => {
-  assetFileName = assetFileName.toLowerCase()
-  const suffix = assetFileName.split('.').pop()
-  switch (suffix) {
-    case 'gltf':
-      return AssetType.glTF
-    case 'glb':
-      return AssetType.glB
-    case 'usdz':
-      return AssetType.USDZ
-    case 'fbx':
-      return AssetType.FBX
-    case 'vrm':
-      return AssetType.VRM
-    case 'tga':
-      return AssetType.TGA
-    case 'ktx2':
-      return AssetType.KTX2
-    case 'ddx':
-      return AssetType.DDS
-    case 'png':
-      return AssetType.PNG
-    case 'jpg':
-    case 'jpeg':
-      return AssetType.JPEG
-    case 'mp3':
-      return AssetType.MP3
-    case 'wav':
-      return AssetType.WAV
-    case 'aac':
-      return AssetType.AAC
-    case 'ogg':
-      return AssetType.OGG
-    case 'm4a':
-      return AssetType.M4A
-    case 'mp4':
-      return AssetType.MP4
-    case 'mkv':
-      return AssetType.MKV
-    case 'm3u8':
-      return AssetType.M3U8
-    case 'material':
-      return AssetType.MAT
-    case 'json':
-      return AssetType.JSON
-    default:
-      return null!
-  }
+const getAssetType = (assetFileName: string): AssetExt => {
+  const ext = assetFileName.split('.').pop()
+  if (!ext) return undefined!
+  return FileExtToAssetExt(ext)!
 }
 
 /**
@@ -101,200 +55,75 @@ const getAssetType = (assetFileName: string): AssetType => {
  * @param assetFileName Name of the Asset file.
  * @returns Asset class of the file.
  */
-const getAssetClass = (assetFileName: string): AssetClass => {
-  assetFileName = assetFileName.toLowerCase()
-  if (/\.(gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
-    if (/\.(material.gltf)$/.test(assetFileName)) {
-      console.log('Material asset')
-      return AssetClass.Material
-    } else if (/\.(lookdev.gltf)$/.test(assetFileName)) {
-      console.log('Lookdev asset')
-      return AssetClass.Lookdev
-    }
-    if (/\.(prefab.gltf)$/.test(assetFileName)) {
-      console.log('prefab asset')
-      return AssetClass.Prefab
-    }
-    return AssetClass.Model
-  } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
-    return AssetClass.Image
-  } else if (/\.(mp4|avi|webm|mkv|mov|m3u8|mpd)$/.test(assetFileName)) {
-    return AssetClass.Video
-  } else if (/\.(mp3|ogg|m4a|flac|wav)$/.test(assetFileName)) {
-    return AssetClass.Audio
-  } else if (/\.(drcs|uvol|manifest)$/.test(assetFileName)) {
-    return AssetClass.Volumetric
-  } else {
-    return AssetClass.Unknown
-  }
+const getAssetClass = (assetFileName: string): AssetType => {
+  return FileToAssetType(assetFileName)
 }
 
-//@ts-ignore
-const ddsLoader = () => new DDSLoader()
-const fbxLoader = () => new FBXLoader()
-const textureLoader = () => new TextureLoader()
-const fileLoader = () => new FileLoader()
-const audioLoader = () => new AudioLoader()
-const tgaLoader = () => new TGALoader()
-const videoLoader = () => ({ load: loadVideoTexture })
-const ktx2Loader = () => ({
-  load: (src, onLoad, onProgress, onError, signal?) => {
-    const gltfLoader = getState(AssetLoaderState).gltfLoader
-    gltfLoader.ktx2Loader!.load(
-      src,
-      (texture) => {
-        // console.log('KTX2Loader loaded texture', texture)
-        texture.source.data.src = src
-        onLoad(texture)
-      },
-      onProgress,
-      onError
-    )
-  }
-})
-const usdzLoader = () => new USDZLoader()
-
-export const getLoader = (assetType: AssetType) => {
+export const getLoader = (assetType: AssetExt) => {
   switch (assetType) {
-    case AssetType.KTX2:
-      return ktx2Loader()
-    case AssetType.DDS:
-      return ddsLoader()
-    case AssetType.glTF:
-    case AssetType.glB:
-    case AssetType.VRM:
+    case AssetExt.KTX2:
+      return getState(AssetLoaderState).gltfLoader.ktx2Loader!
+    case AssetExt.DDS:
+      return new DDSLoader()
+    case AssetExt.GLTF:
+    case AssetExt.GLB:
+    case AssetExt.VRM:
       return getState(AssetLoaderState).gltfLoader
-    case AssetType.USDZ:
-      return usdzLoader()
-    case AssetType.FBX:
-      return fbxLoader()
-    case AssetType.TGA:
-      return tgaLoader()
-    case AssetType.PNG:
-    case AssetType.JPEG:
-      return textureLoader()
-    case AssetType.AAC:
-    case AssetType.MP3:
-    case AssetType.OGG:
-    case AssetType.M4A:
-      return audioLoader()
-    case AssetType.MP4:
-    case AssetType.MKV:
-    case AssetType.M3U8:
-      return videoLoader()
+    case AssetExt.USDZ:
+      return new USDZLoader()
+    case AssetExt.FBX:
+      return new FBXLoader()
+    case AssetExt.TGA:
+      return new TGALoader()
+    case AssetExt.PNG:
+    case AssetExt.JPEG:
+      return new TextureLoader()
+    case AssetExt.AAC:
+    case AssetExt.MP3:
+    case AssetExt.OGG:
+    case AssetExt.M4A:
+      return new AudioLoader()
+    case AssetExt.MP4:
+    case AssetExt.MKV:
+    case AssetExt.M3U8:
+      return { load: loadVideoTexture }
     default:
-      return fileLoader()
+      return new FileLoader()
   }
-}
-
-const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
-  const assetClass = AssetLoader.getAssetClass(url)
-  if (assetClass === AssetClass.Model) {
-    const notGLTF = [AssetType.FBX, AssetType.USDZ].includes(assetType)
-    if (notGLTF) {
-      asset = { scene: asset }
-    } else if (assetType === AssetType.VRM) {
-      asset = asset.userData.vrm
-    }
-
-    if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
-    if (asset.scene.userData) asset.scene.userData.type = assetType
-    if (asset.userData) asset.userData.type = assetType
-    else asset.userData = { type: assetType }
-  }
-  if (assetClass === AssetClass.Material) {
-    const material = asset as Material
-    material.userData.type = assetType
-  }
-  if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
-    const texture = asset as Texture
-    texture.wrapS = RepeatWrapping
-    texture.wrapT = RepeatWrapping
-  }
-
-  const gltf = asset as GLTF
-  if (gltf.parser) delete asset.parser
-
-  onLoad(asset)
 }
 
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineState).publicPath + url)
 
-const load = async (
-  _url: string,
-  onLoad = (response: any) => {},
-  onProgress = (request: ProgressEvent) => {},
-  onError = (event: ErrorEvent | Error) => {},
-  signal?: AbortSignal
+const loadAsset = async <T>(
+  url: string,
+  onLoad: (response: T) => void = () => {},
+  onProgress: (request: ProgressEvent) => void = () => {},
+  onError: (event: ErrorEvent | Error) => void = () => {},
+  signal?: AbortSignal,
+  loader?: ReturnType<typeof getLoader>
 ) => {
-  if (!_url) {
+  if (!url) {
     onError(new Error('URL is empty'))
     return
   }
-  let url = getAbsolutePath(_url)
+  url = getAbsolutePath(url)
 
-  const assetType = AssetLoader.getAssetType(url)
-  const loader = getLoader(assetType)
-  if (iOS && (assetType === AssetType.PNG || assetType === AssetType.JPEG)) {
-    const img = new Image()
-    img.crossOrigin = 'anonymous' //browser will yell without this
-    img.src = url
-    await img.decode() //new way to wait for image to load
-    // Initialize the canvas and it's size
-    const canvas = document.createElement('canvas') //dead dom elements? Remove after Three loads them
-    const ctx = canvas.getContext('2d')
-
-    // Set width and height
-    const originalWidth = img.width
-    const originalHeight = img.height
-
-    let resizingFactor = 1
-    if (originalWidth >= originalHeight) {
-      if (originalWidth > 1024) {
-        resizingFactor = 1024 / originalWidth
-      }
-    } else {
-      if (originalHeight > 1024) {
-        resizingFactor = 1024 / originalHeight
-      }
-    }
-
-    const canvasWidth = originalWidth * resizingFactor
-    const canvasHeight = originalHeight * resizingFactor
-
-    canvas.width = canvasWidth
-    canvas.height = canvasHeight
-
-    // Draw image and export to a data-uri
-    ctx?.drawImage(img, 0, 0, canvasWidth, canvasHeight)
-    const dataURI = canvas.toDataURL()
-
-    // Do something with the result, like overwrite original
-    url = dataURI
+  if (!loader) {
+    const assetExt = AssetLoader.getAssetType(url)
+    loader = getLoader(assetExt)
   }
 
-  const callback = assetLoadCallback(url, assetType, onLoad)
-
   try {
-    return loader.load(url, callback, onProgress, onError, signal)
+    return loader.load(url, onLoad, onProgress, onError, signal)
   } catch (error) {
     onError(error)
   }
 }
 
-const loadAsync = async (url: string, onProgress = (request: ProgressEvent) => {}) => {
-  return new Promise<any>((resolve, reject) => {
-    load(url, resolve, onProgress, reject)
-  })
-}
-
 export const AssetLoader = {
-  loaders: new Map<number, any>(),
   getAbsolutePath,
   getAssetType,
   getAssetClass,
-  /** @deprecated Use hooks from resourceHooks.ts instead **/
-  load,
-  /** @deprecated Use hooks from resourceHooks.ts instead **/
-  loadAsync
+  /** @deprecated Use resourceLoaderHooks instead */
+  loadAsset
 }

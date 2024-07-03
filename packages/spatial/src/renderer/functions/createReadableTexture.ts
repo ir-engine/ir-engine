@@ -96,7 +96,7 @@ function initializeTemporaryScene() {
   return temporaryScene
 }
 
-async function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
+export async function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
   let blit: Texture = map.clone()
   if ((map as CubeTexture).isCubeTexture) {
     blit = new Texture(map.source.data[0])

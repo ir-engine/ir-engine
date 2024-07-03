@@ -112,12 +112,16 @@ export class IPFSStorage implements StorageProviderInterface {
     }
   }
 
+  getCacheDomain(): string {
+    return this.cacheDomain
+  }
+
   /**
    * Get the object from cache, otherwise returns getObject.
    * @param key Key of object.
    */
-  async getCachedObject(key: string): Promise<StorageObjectInterface> {
-    return this.getObject(key)
+  getCachedURL(key: string) {
+    return key
   }
 
   /**
@@ -417,17 +421,17 @@ export class IPFSStorage implements StorageProviderInterface {
     }
   }
 
-  private async _getUrl(assetPath: string): Promise<string> {
+  private async _getUrl(key: string): Promise<string> {
     if (!this.cacheDomain) throw new Error('No cache domain found - please check the storage provider configuration')
 
-    const filePath = path.join(this._pathPrefix, assetPath)
+    const filePath = path.join(this._pathPrefix, key)
 
     return this._client.files
       .stat(filePath)
       .then(
         (stats) =>
           new URL(
-            `/ipfs/${stats.cid.toString()}?filename=${encodeURI(path.basename(assetPath))}`,
+            `/ipfs/${stats.cid.toString()}?filename=${encodeURI(path.basename(key))}`,
             `http://${this.cacheDomain}`
           ).href
       )

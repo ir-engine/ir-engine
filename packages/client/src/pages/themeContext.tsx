@@ -26,11 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import {
-  AdminClientSettingsState,
-  ClientSettingService
-} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-
-import {
   AdminMiddlewareSettingsState,
   MiddlewareSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/MiddlewareSettingService'
@@ -41,8 +36,14 @@ import {
   useAppThemeName
 } from '@etherealengine/client-core/src/common/services/AppThemeState'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+// <<<<<<< HEAD
+// import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
+// import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+// =======
+import { ClientThemeOptionsType, clientSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+// >>>>>>> dev
 
 export interface ThemeContextProps {
   theme: string
@@ -58,12 +59,17 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
   const authState = useMutableState(AuthState)
   const selfUser = authState.user
 
-  const clientSettingState = useMutableState(AdminClientSettingsState)
+  // <<<<<<< HEAD
+  //   const clientSettingState = useMutableState(AdminClientSettingsState)
 
   const middlewareSettingState = useHookstate(getMutableState(AdminMiddlewareSettingsState))
 
+  // =======
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSetting = clientSettingQuery.data[0]
+  // >>>>>>> dev
   const appTheme = useMutableState(AppThemeState)
-  const [clientSetting] = clientSettingState?.client?.get(NO_PROXY) || []
+
   const clientThemeSettings = useHookstate({} as Record<string, ClientThemeOptionsType>)
 
   const [middlewareSetting] = middlewareSettingState?.middleware?.get(NO_PROXY) || []
@@ -82,8 +88,7 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     if (clientSetting) {
       clientThemeSettings.set(clientSetting?.themeSettings)
     }
-    if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
-  }, [clientSettingState?.updateNeeded?.value])
+  }, [clientSetting])
 
   useEffect(() => {
     if (middlewareSettingState?.updateNeeded?.value) MiddlewareSettingService.fetchMiddlewareSettings()

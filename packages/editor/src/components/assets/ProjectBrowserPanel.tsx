@@ -66,6 +66,7 @@ export default function ProjectBrowserPanel() {
                   title: t('editor:layout.filebrowser.tab-name'),
                   content: (
                     <FileBrowserContentPanel
+                      projectName={projectName ?? undefined}
                       selectedFile={projectName ?? undefined}
                       onSelectionChanged={onSelectionChanged}
                     />

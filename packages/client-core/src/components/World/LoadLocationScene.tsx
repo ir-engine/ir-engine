@@ -27,7 +27,7 @@ import { t } from 'i18next'
 import { useEffect } from 'react'
 
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -37,7 +37,7 @@ import { WarningUIService } from '../../systems/WarningUISystem'
 
 export const useLoadLocation = (props: { locationName: string }) => {
   const locationState = useMutableState(LocationState)
-  const scene = useGet(assetPath, locationState.currentLocation.location.sceneId.value).data
+  const scene = useGet(staticResourcePath, locationState.currentLocation.location.sceneId.value).data
 
   useEffect(() => {
     LocationState.setLocationName(props.locationName)
@@ -80,18 +80,19 @@ export const useLoadLocation = (props: { locationName: string }) => {
       !scene
     )
       return
-    const sceneURL = scene.assetURL
+    const sceneURL = scene.url
     return GLTFAssetState.loadScene(sceneURL, scene.id)
   }, [locationState.currentLocation.location.sceneId, scene])
 }
 
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
-  const sceneURL = `projects/${props.projectName}/${props.sceneName}`
-  const assetID = useFind(assetPath, { query: { assetURL: sceneURL } })
+  const sceneKey = `projects/${props.projectName}/${props.sceneName}`
+  const assetID = useFind(staticResourcePath, { query: { key: sceneKey, type: 'scene' } })
+
   useEffect(() => {
     if (!props.sceneName || !props.projectName) return
     if (!assetID.data.length) return
     getMutableState(LocationState).currentLocation.location.sceneId.set(assetID.data[0].id)
-    return GLTFAssetState.loadScene(sceneURL, assetID.data[0].id)
+    return GLTFAssetState.loadScene(assetID.data[0].url, assetID.data[0].id)
   }, [assetID.data.length])
 }

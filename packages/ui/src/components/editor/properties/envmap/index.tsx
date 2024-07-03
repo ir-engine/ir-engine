@@ -42,6 +42,7 @@ import {
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import { IoMapOutline } from 'react-icons/io5'
+import Button from '../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import Slider from '../../../../primitives/tailwind/Slider'
 import FolderInput from '../../input/Folder'
@@ -91,7 +92,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
       component={EnvmapComponent}
       name={t('editor:properties.envmap.name')}
       description={t('editor:properties.envmap.description')}
-      icon={<IoMapOutline />}
+      icon={<EnvMapEditor.iconComponent />}
     >
       <InputGroup name="Envmap Source" label={t('editor:properties.envmap.lbl-source')}>
         <SelectInput
@@ -144,7 +145,18 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           </InputGroup>
         </div>
       )}
-
+      {envmapComponent.type.value === EnvMapSourceType.Probes && (
+        <Button
+          onClick={() => {
+            commitProperty(EnvmapComponent, 'type')(EnvMapSourceType.None)
+            setTimeout(() => {
+              commitProperty(EnvmapComponent, 'type')(EnvMapSourceType.Probes)
+            }, 1000)
+          }}
+        >
+          {t('editor:properties.envmap.bake-reflection-probes')}
+        </Button>
+      )}
       {envmapComponent.type.value !== EnvMapSourceType.None && (
         <InputGroup name="EnvMap Intensity" label={t('editor:properties.envmap.lbl-intensity')}>
           <Slider

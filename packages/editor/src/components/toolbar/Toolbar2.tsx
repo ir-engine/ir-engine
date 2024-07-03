@@ -23,17 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import AddEditLocationModal from '@etherealengine/client-core/src/admin/components/locations/AddEditLocationModal'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
+import { useProjectPermissions } from '@etherealengine/client-core/src/user/useUserProjectPermission'
+import { useUserHasAccessHook } from '@etherealengine/client-core/src/user/userHasAccess'
+import { locationPath } from '@etherealengine/common/src/schema.type.module'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ContextMenu from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { PiSquaresFourThin } from 'react-icons/pi'
+import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
+import { RxHamburgerMenu } from 'react-icons/rx'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
@@ -46,7 +52,7 @@ const onImportAsset = async () => {
 
   if (projectName) {
     try {
-      await inputFileWithAddToScene({ projectName })
+      await inputFileWithAddToScene({ projectName, directoryPath: 'projects/' + projectName + '/assets/' })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -77,7 +83,7 @@ const generateToolbarMenu = () => {
   return [
     {
       name: t('editor:menubar.newScene'),
-      action: onNewScene
+      action: () => onNewScene()
     },
     {
       name: t('editor:menubar.saveScene'),
@@ -107,41 +113,77 @@ const toolbarMenu = generateToolbarMenu()
 
 export default function Toolbar() {
   const { t } = useTranslation()
-  const anchorEl = useHookstate<HTMLElement | null>(null)
+  const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
-  const anchorOpen = useHookstate(false)
+
+  const { projectName, sceneName, sceneAssetID } = useMutableState(EditorState)
+
+  const hasLocationWriteScope = useUserHasAccessHook('location:write')
+  const permission = useProjectPermissions(projectName.value!)
+  const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
+  const locationQuery = useFind(locationPath, { query: { sceneId: sceneAssetID.value } })
+  const currentLocation = locationQuery.data.length === 1 ? locationQuery.data[0] : undefined
 
   return (
     <>
       <div className="flex items-center justify-between bg-theme-primary">
-        <Button
-          variant="outline"
-          rounded="none"
-          startIcon={<PiSquaresFourThin />}
-          className="border-0 bg-transparent"
-          onClick={(event) => {
-            anchorOpen.set(true)
-            anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
-            anchorEl.set(event.currentTarget)
-          }}
-        />
-        {/* TO BE ADDED
-        <div className="flex items-center gap-2.5 rounded-full bg-theme-surface-main p-0.5">
+        <div className="flex items-center">
+          <div className="ml-3 mr-6 cursor-pointer" onClick={onCloseProject}>
+            <img src="favicon-32x32.png" alt="iR Engine Logo" className={`h-7 w-7 opacity-50`} />
+          </div>
+          <Button
+            endIcon={<MdOutlineKeyboardArrowDown size="1em" className="-ml-3 text-[#A3A3A3]" />}
+            iconContainerClassName="ml-2 mr-1"
+            rounded="none"
+            startIcon={<RxHamburgerMenu size={24} className="text-[#9CA0AA]" />}
+            className="-mr-1 border-0 bg-transparent p-0"
+            onClick={(event) => {
+              anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
+              anchorEvent.set(event)
+            }}
+          />
+        </div>
+        {/* TO BE ADDED */}
+        {/* <div className="flex items-center gap-2.5 rounded-full bg-theme-surface-main p-0.5">
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
           <div className="rounded-2xl bg-blue-primary px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
-        <Button rounded="none">{t('editor:toolbar.lbl-publish')}</Button>
+        <div className="flex items-center gap-2.5">
+          <span className="text-[#B2B5BD]">{projectName.value}</span>
+          <span>/</span>
+          <span>{sceneName.value}</span>
+        </div>
+        {sceneAssetID.value && (
+          <Button
+            rounded="none"
+            disabled={!hasPublishAccess}
+            onClick={() =>
+              PopoverState.showPopupover(
+                <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
+              )
+            }
+          >
+            {t('editor:toolbar.lbl-publish')}
+          </Button>
+        )}
       </div>
       <ContextMenu
-        anchorEl={anchorEl.value as HTMLElement}
+        anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
         anchorPosition={anchorPosition.value}
-        open={anchorOpen.value}
         panelId="toolbar-menu"
-        onClose={() => anchorOpen.set(false)}
+        onClose={() => anchorEvent.set(null)}
       >
         {toolbarMenu.map(({ name, action, hotkey }, index) => (
-          <div key={index} className="m-1">
-            <Button size="small" variant="outline" fullWidth onClick={action} endIcon={hotkey}>
+          <div key={index}>
+            <Button
+              className="px-4 py-[10px] text-left font-light text-[#9CA0AA]"
+              textContainerClassName="text-xs"
+              variant="sidebar"
+              size="small"
+              fullWidth
+              onClick={action}
+              endIcon={hotkey}
+            >
               {name}
             </Button>
           </div>

@@ -141,6 +141,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
     rendererComponent.csm.set(csm)
     return () => {
       csm.dispose()
+      if (!hasComponent(rendererEntity, RendererComponent)) return
       rendererComponent.csm.set(null)
     }
   }, [directionalLightComponent.castShadow])
@@ -462,11 +463,13 @@ const execute = () => {
 const RendererShadowReactor = () => {
   const entity = useEntityContext()
   const useShadows = useShadowsEnabled()
+  const rendererComponent = useComponent(entity, RendererComponent)
 
   useEffect(() => {
     const renderer = getComponent(entity, RendererComponent).renderer
+    if (!renderer) return
     renderer.shadowMap.enabled = renderer.shadowMap.autoUpdate = useShadows
-  }, [useShadows])
+  }, [useShadows, rendererComponent.renderer])
 
   return null
 }

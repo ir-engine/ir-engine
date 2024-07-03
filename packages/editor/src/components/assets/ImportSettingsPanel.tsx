@@ -30,7 +30,6 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  MenuItem,
   TextField,
   Typography
 } from '@mui/material'
@@ -83,7 +82,9 @@ const UASTCFlagOptions = [
   { label: 'Disable Flip and Individual', value: 256 }
 ]
 
-const ImageCompressionBox = ({ compressProperties }) => {
+const ImageCompressionBox = () => {
+  const compressProperties = useMutableState(ImportSettingsState).imageSettings
+
   return (
     <>
       <InputGroup name="fileType" label={'File'}>
@@ -195,17 +196,15 @@ const ImageCompressionBox = ({ compressProperties }) => {
 
 export default function ImportSettingsPanel() {
   const importSettingsState = useMutableState(ImportSettingsState)
-  const compressProperties = useMutableState(ImportSettingsState).imageSettings.get(NO_PROXY)
+  const compressProperties = useMutableState(ImportSettingsState).imageSettings
 
   const [defaultImportFolder, setDefaultImportFolder] = useState<string>(importSettingsState.importFolder.value)
   const [LODImportFolder, setLODImportFolder] = useState<string>(importSettingsState.LODFolder.value)
   const [LODGenEnabled, setLODGenEnabled] = useState<boolean>(importSettingsState.LODsEnabled.value)
   const [selectedLODS, setSelectedLods] = useState<LODVariantDescriptor[]>(
-    importSettingsState.selectedLODS.get(NO_PROXY) as LODVariantDescriptor[]
+    LODList.slice(0, 3) as LODVariantDescriptor[]
   )
-  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor>(
-    importSettingsState.selectedLODS[0].get(NO_PROXY) as LODVariantDescriptor
-  )
+  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor | null>(null)
   const [currentIndex, setCurrentIndex] = useState<number>(0)
   const [KTXEnabled, setKTXEnabled] = useState<boolean>(importSettingsState.imageCompression.value)
 
@@ -216,9 +215,11 @@ export default function ImportSettingsPanel() {
   }, [currentLOD, currentIndex])
 
   const handleLODChange = () => {
-    const newLODS = [...selectedLODS]
-    newLODS.splice(currentIndex, 1, currentLOD)
-    setSelectedLods(newLODS)
+    if (currentLOD !== null) {
+      const newLODS = [...selectedLODS]
+      newLODS.splice(currentIndex, 1, currentLOD)
+      setSelectedLods(newLODS)
+    }
   }
 
   const handleSaveChanges = () => {
@@ -226,7 +227,7 @@ export default function ImportSettingsPanel() {
     importSettingsState.LODFolder.set(LODImportFolder)
     importSettingsState.LODsEnabled.set(LODGenEnabled)
     importSettingsState.imageCompression.set(KTXEnabled)
-    importSettingsState.imageSettings.set(compressProperties)
+    importSettingsState.imageSettings.set(compressProperties.get(NO_PROXY))
     importSettingsState.selectedLODS.set(selectedLODS)
     handleCancel()
   }
@@ -265,18 +266,17 @@ export default function ImportSettingsPanel() {
             <List>
               {selectedLODS.slice(0, 3).map((LOD, idx) => (
                 <FormControl>
-                  <TextField select label={LOD.params.dst} value={LOD.params.dst}>
-                    {LODList.map((sLOD) => (
-                      <MenuItem
-                        onClick={() => {
-                          setCurrentLOD(sLOD)
-                          setCurrentIndex(idx)
-                        }}
-                      >
-                        {sLOD.params.dst}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                  <SelectInput
+                    options={LODList.map((sLOD, idx) => ({
+                      label: sLOD.params.dst,
+                      value: idx
+                    }))}
+                    value={LODList.findIndex((sLOD) => sLOD.params.dst === LOD.params.dst)}
+                    onChange={(val) => {
+                      setCurrentLOD(LODList[val])
+                      setCurrentIndex(idx)
+                    }}
+                  />
                   <FormHelperText>{presetLabels[idx]}</FormHelperText>
                 </FormControl>
               ))}
@@ -292,7 +292,7 @@ export default function ImportSettingsPanel() {
             control={<Checkbox checked={KTXEnabled} onChange={() => setKTXEnabled(!KTXEnabled)} />}
             label={'Compress to KTX2'}
           />
-          {KTXEnabled && <ImageCompressionBox compressProperties={compressProperties} />}
+          {KTXEnabled && <ImageCompressionBox />}
         </Box>
       </Box>
       <Box>

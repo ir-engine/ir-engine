@@ -132,7 +132,7 @@ export interface ComponentPartial<
    * `@todo` Explain what reactive is in this context
    * `@todo` Explain this function
    */
-  reactor?: React.FC
+  reactor?: any // previously <React.FC> breaks types
   /**
    * @todo Explain ComponentPartial.errors[]
    */
@@ -481,7 +481,7 @@ export const serializeComponent = <C extends Component<any, any, any>>(entity: E
 }
 
 // use seems to be unavailable in the server environment
-function _use(promise) {
+export function _use(promise) {
   if (promise.status === 'fulfilled') {
     return promise.value
   } else if (promise.status === 'rejected') {
@@ -508,6 +508,7 @@ function _use(promise) {
  * Use a component in a reactive context (a React component)
  */
 export function useComponent<C extends Component<any>>(entity: Entity, Component: C) {
+  if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
   if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(none)
   const componentState = Component.stateMap[entity]!
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved

@@ -33,6 +33,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   useComponent,
   useEntityContext,
   useQuery
@@ -174,7 +175,7 @@ const useGLTFDocument = (url: string, entity: Entity) => {
       dispatchAction(
         GLTFSnapshotAction.createSnapshot({
           source: getComponent(entity, SourceComponent),
-          data: parseStorageProviderURLs(json)
+          data: parseStorageProviderURLs(JSON.parse(JSON.stringify(json)))
         })
       )
     }
@@ -189,6 +190,7 @@ const useGLTFDocument = (url: string, entity: Entity) => {
 
     return () => {
       abortController.abort()
+      if (!hasComponent(entity, GLTFComponent)) return
       state.merge({
         extensions: {}
       })

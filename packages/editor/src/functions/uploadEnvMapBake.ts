@@ -38,7 +38,11 @@ import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import {
+  RendererComponent,
+  getNestedVisibleChildren,
+  getSceneParameters
+} from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import { EditorState } from '../services/EditorServices'
@@ -116,7 +120,11 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
     await uploadProjectFiles(projectName, [new File([envmap], filename)], [currentSceneDirectory]).promises[0]
   )[0]
 
-  setComponent(entity, EnvMapBakeComponent, { envMapOrigin: url })
+  const cleanURL = new URL(url)
+  cleanURL.hash = ''
+  cleanURL.search = ''
+
+  setComponent(entity, EnvMapBakeComponent, { envMapOrigin: cleanURL.href })
 }
 
 /** @todo replace resolution with LODs */
@@ -124,7 +132,14 @@ export const generateEnvmapBake = (resolution = 2048) => {
   const position = getScenePositionForBake()
   const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer
 
+  const rootEntity = getState(EditorState).rootEntity
+  const entitiesToRender = getNestedVisibleChildren(rootEntity)
+  const sceneData = getSceneParameters(entitiesToRender)
   const scene = new Scene()
+  scene.children = sceneData.children
+  scene.background = sceneData.background
+  scene.fog = sceneData.fog
+  scene.environment = sceneData.environment
 
   const cubemapCapturer = new CubemapCapturer(renderer, scene, resolution)
   const renderTarget = cubemapCapturer.update(position)

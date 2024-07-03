@@ -110,7 +110,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
         anchorPosition={anchorPosition}
         className="h-[60%] w-full min-w-[300px] overflow-y-auto"
       >
-        {<ElementList />}
+        <ElementList type="components" />
       </Popover>
       <TransformPropertyGroup entity={entity} />
       {components.map((c, i) => (
@@ -123,6 +123,13 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
       ))}
     </PopoverContext.Provider>
   )
+}
+
+const NodeEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => {
+  const entity = UUIDComponent.useEntityByUUID(props.entityUUID)
+  const node = GLTFNodeState.useMutableNode(entity)
+  if (!node) return null
+  return <EntityEditor entityUUID={props.entityUUID} multiEdit={props.multiEdit} />
 }
 
 /**
@@ -141,7 +148,7 @@ export const PropertiesPanelContainer = () => {
       {materialUUID ? (
         <MaterialEditor materialUUID={materialUUID} />
       ) : uuid ? (
-        <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
+        <NodeEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (
         <div className="flex h-full items-center justify-center text-gray-500">
           {t('editor:properties.noNodeSelected')}

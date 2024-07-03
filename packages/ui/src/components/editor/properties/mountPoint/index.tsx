@@ -23,18 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/ecs'
+import { getComponent, getMutableComponent, hasComponent, useComponent, UUIDComponent } from '@etherealengine/ecs'
 import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import {
-  EditorComponentType,
   commitProperty,
+  EditorComponentType,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
+import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
+import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { LuUsers2 } from 'react-icons/lu'
+import { Vector3 } from 'three'
 import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
 import NodeEditor from '../nodeEditor'
@@ -48,15 +51,31 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const mountComponent = useComponent(props.entity, MountPointComponent)
-
+  const onChangeOffset = (value: Vector3) => {
+    getMutableComponent(props.entity, MountPointComponent).dismountOffset.set(value)
+  }
+  useEffect(() => {
+    if (!hasComponent(props.entity, InteractableComponent)) {
+      const mountPoint = getComponent(props.entity, MountPointComponent)
+      EditorControlFunctions.addOrRemoveComponent([props.entity], InteractableComponent, true, {
+        label: MountPointComponent.mountPointInteractMessages[mountPoint.type],
+        callbacks: [
+          {
+            callbackID: MountPointComponent.mountCallbackName,
+            target: getComponent(props.entity, UUIDComponent)
+          }
+        ]
+      })
+    }
+  }, [])
   return (
     <NodeEditor
       {...props}
       name={t('editor:properties.mountPoint.name')}
       description={t('editor:properties.mountPoint.description')}
-      icon={<LuUsers2 />}
+      icon={<MountPointNodeEditor.iconComponent />}
     >
-      <InputGroup name="Mount Type" label={t('editor:properties.mountpoint.lbl-mountType')}>
+      <InputGroup name="Mount Type" label={t('editor:properties.mountPoint.lbl-type')}>
         <SelectInput // we dont know the options and the component for this
           key={props.entity}
           value={mountComponent.type.value}
@@ -64,7 +83,7 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
           onChange={commitProperty(MountPointComponent, 'type')}
         />
       </InputGroup>
-      <InputGroup name="Dismount Offset" label={t('editor:properties.mountpoint.lbl-dismountOffset')}>
+      <InputGroup name="Dismount Offset" label={t('editor:properties.mountPoint.lbl-dismount')}>
         <Vector3Input
           value={mountComponent.dismountOffset.value}
           onChange={updateProperty(MountPointComponent, 'dismountOffset')}

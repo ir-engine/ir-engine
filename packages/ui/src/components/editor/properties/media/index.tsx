@@ -91,7 +91,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.media.name')}
       description={t('editor:properties.media.description')}
-      icon={<HiOutlineVideoCamera />}
+      icon={<MediaNodeEditor.iconComponent />}
     >
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
         <Slider
@@ -104,7 +104,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
 
-      <InputGroup name="Start Time" label={t('editor:properties.media.seekTime')}>
+      <InputGroup name="Start Time" label={t('editor:properties.media.seektime')}>
         <NumericInput
           value={media.seekTime.value}
           onChange={updateProperty(MediaComponent, 'seekTime')}
@@ -156,11 +156,13 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       {media.resources.length > 0 && (
-        <InputGroup name="media-controls" label="media-controls">
-          <Button onClick={toggle}>
+        <InputGroup name="media-controls" label={t('editor:properties.media.lbl-mediaControls')} className="gap-2">
+          <Button variant="outline" onClick={toggle}>
             {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
           </Button>
-          <Button onClick={reset}>{t('editor:properties.media.resettitle')}</Button>
+          <Button variant="outline" onClick={reset}>
+            {t('editor:properties.media.resettitle')}
+          </Button>
         </InputGroup>
       )}
     </NodeEditor>

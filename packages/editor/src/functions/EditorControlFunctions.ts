@@ -33,12 +33,13 @@ import {
   componentJsonDefaults,
   ComponentJSONIDMap,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   SerializedComponentType,
   updateComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFDocumentState, GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
@@ -48,7 +49,6 @@ import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneT
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@etherealengine/spatial'
 import { MAT4_IDENTITY } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
@@ -60,6 +60,7 @@ import {
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -88,21 +89,16 @@ const getParentNodeByUUID = (gltf: GLTF.IGLTF, uuid: string) => {
 }
 
 const hasComponentInAuthoringLayer = <C extends Component<any, any>>(entity: Entity, component: C) => {
-  const sceneComponentID = component.jsonID
-  if (!sceneComponentID) return
-
-  const scenes = getSourcesForEntities([entity])
-
-  for (const [sceneID, entities] of Object.entries(scenes)) {
-    const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
-    const entityUUID = getComponent(entity, UUIDComponent)
-    const node = getGLTFNodeByUUID(gltf.data, entityUUID)
-    if (!node) continue
-
-    return node.extensions?.[sceneComponentID] !== undefined
-  }
-  return false
+  const componentJsonId = component.jsonID
+  if (!componentJsonId) return false
+  const source = getOptionalComponent(entity, SourceComponent)
+  const uuid = getOptionalComponent(entity, UUIDComponent)
+  if (!source || !uuid) return false
+  const doc = getState(GLTFDocumentState)[source]
+  const node = getGLTFNodeByUUID(doc, uuid)
+  return node?.extensions?.[componentJsonId] !== undefined
 }
+
 const addOrRemoveComponent = <C extends Component<any, any>>(
   entities: Entity[],
   component: C,
@@ -201,6 +197,7 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         material[k] = v
       }
     })
+    material.needsUpdate = true
   }
 }
 const overwriteLookdevObject = (

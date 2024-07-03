@@ -56,14 +56,20 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
     onChange(newValue)
   }
 
+  const gradientPercent = Math.round(((value - min) / (max - min)) * 100)
+
+  const sliderStyle = {
+    background: `linear-gradient(to right, #214AA6 ${gradientPercent}%, #111113 ${gradientPercent}%)`
+  }
+
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <input
         min={min}
         max={max}
         value={value}
         onChange={handleInputChange}
-        onBlur={() => onRelease(value)}
+        onBlur={() => onRelease && onRelease(value)}
         className="h-8 w-14 rounded bg-neutral-900 text-center font-['Figtree'] text-sm font-normal leading-[21px] text-neutral-400"
       />
       <input
@@ -72,46 +78,37 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
         max={max}
         value={value}
         onChange={handleChange}
-        onBlur={() => onRelease(value)}
+        onPointerUp={() => onRelease && onRelease(value)}
         step={step}
         type="range"
+        style={sliderStyle}
         className={twMerge(
-          `w-[${width}px] h-8 cursor-pointer appearance-none overflow-hidden rounded bg-[#111113] from-[#214AA6] via-[#214AA6] focus:outline-none
-        
-        disabled:pointer-events-none
-        disabled:opacity-50
-        [&::-moz-range-progress]:bg-[#214AA6]
-        [&::-moz-range-track]:h-full
-        [&::-moz-range-track]:w-full
-
-        [&::-moz-range-track]:rounded
-        [&::-moz-range-track]:bg-[#111113]
-        [&::-webkit-slider-runnable-track]:h-full
-        [&::-webkit-slider-runnable-track]:w-full [&::-webkit-slider-runnable-track]:rounded [&::-webkit-slider-runnable-track]:bg-gradient-to-r via-[${Math.round(
-          ((value - min) / (max - min)) * 95
-        )}%] to-[${Math.round(((value - min) / (max - min)) * 100)}%]     
-        [&::-webkit-slider-thumb]:h-full
-        [&::-webkit-slider-thumb]:shadow-[-${width}px_0_0_${width}px_#214AA6]
-
-        [&::-moz-range-thumb]:h-full
-        [&::-moz-range-thumb]:w-4
-        [&::-moz-range-thumb]:appearance-none
-        [&::-moz-range-thumb]:rounded
-        [&::-moz-range-thumb]:bg-[#849ED6]
-
-        [&::-moz-range-thumb]:transition-all
-        [&::-moz-range-thumb]:duration-150
-        [&::-moz-range-thumb]:ease-in-out
-
-        [&::-webkit-slider-thumb]:w-4
-        [&::-webkit-slider-thumb]:appearance-none
-        [&::-webkit-slider-thumb]:rounded
-        [&::-webkit-slider-thumb]:bg-[#849ED6]
-
-        [&::-webkit-slider-thumb]:transition-all
-        [&::-webkit-slider-thumb]:duration-150
-        [&::-webkit-slider-thumb]:ease-in-out
-        `,
+          `w-[${width}px] h-8 cursor-pointer appearance-none overflow-hidden rounded bg-[#111113] focus:outline-none
+          disabled:pointer-events-none disabled:opacity-50
+          [&::-moz-range-progress]:bg-[#214AA6]
+          [&::-moz-range-thumb]:h-full
+          [&::-moz-range-thumb]:w-4
+          [&::-moz-range-thumb]:appearance-none
+          [&::-moz-range-thumb]:rounded
+          [&::-moz-range-thumb]:bg-[#849ED6]
+          [&::-moz-range-thumb]:transition-all
+          [&::-moz-range-thumb]:duration-150
+          [&::-moz-range-thumb]:ease-in-out
+          [&::-moz-range-track]:h-full
+          [&::-moz-range-track]:w-full
+          [&::-moz-range-track]:rounded
+          [&::-moz-range-track]:bg-[#111113]
+          [&::-webkit-slider-runnable-track]:h-full
+          [&::-webkit-slider-runnable-track]:w-full
+          [&::-webkit-slider-runnable-track]:rounded
+          [&::-webkit-slider-thumb]:h-full
+          [&::-webkit-slider-thumb]:w-4
+          [&::-webkit-slider-thumb]:appearance-none
+          [&::-webkit-slider-thumb]:rounded
+          [&::-webkit-slider-thumb]:bg-[#849ED6]
+          [&::-webkit-slider-thumb]:transition-all
+          [&::-webkit-slider-thumb]:duration-150
+          [&::-webkit-slider-thumb]:ease-in-out`,
           className
         )}
       />

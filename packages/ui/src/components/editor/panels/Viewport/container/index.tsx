@@ -23,102 +23,140 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine, getComponent } from '@etherealengine/ecs'
+import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useEngineCanvas'
+import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { getComponent, useComponent, useQuery } from '@etherealengine/ecs'
 import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
-import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
+import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
+import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
+import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import React, { useEffect, useRef } from 'react'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import React, { useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { Vector2, Vector3 } from 'three'
+import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
+import { DnDFileType, FileType } from '../../Files/container'
+import GizmoTool from '../tools/GizmoTool'
 import GridTool from '../tools/GridTool'
 import PlayModeTool from '../tools/PlayModeTool'
 import RenderModeTool from '../tools/RenderTool'
+import SceneHelpersTool from '../tools/SceneHelpersTool'
 import TransformPivotTool from '../tools/TransformPivotTool'
 import TransformSnapTool from '../tools/TransformSnapTool'
 import TransformSpaceTool from '../tools/TransformSpaceTool'
 
 const ViewportDnD = () => {
-  const ref = useRef(null as null | HTMLDivElement)
-
-  const [{ isDragging, isOver }, dropRef] = useDrop({
-    accept: [ItemTypes.Component],
+  const [{ isDragging }, dropRef] = useDrop({
+    accept: [ItemTypes.Component, ...SupportedFileTypes],
     collect: (monitor) => ({
-      isDragging: monitor.getItem() !== null && monitor.canDrop(),
-      isOver: monitor.isOver()
+      isDragging: monitor.getItem() !== null && monitor.canDrop() && monitor.isOver()
     }),
-    drop(item: SceneElementType, monitor) {
+    drop(item: SceneElementType | FileType | DnDFileType, monitor) {
       const vec3 = new Vector3()
       getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
-      EditorControlFunctions.createObjectFromSceneElement([
-        { name: item!.componentJsonID },
-        { name: TransformComponent.jsonID, props: { position: vec3 } }
-      ])
+      if ('componentJsonID' in item) {
+        EditorControlFunctions.createObjectFromSceneElement([
+          { name: item.componentJsonID },
+          { name: TransformComponent.jsonID, props: { position: vec3 } }
+        ])
+      } else if ('url' in item) {
+        addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+      }
     }
   })
-
-  useEffect(() => {
-    if (!ref?.current) return
-
-    const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement
-    ref.current.appendChild(canvas)
-
-    getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
-
-    const observer = new ResizeObserver(() => {
-      getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
-    })
-
-    observer.observe(ref.current)
-    return () => {
-      observer.disconnect()
-      //   const canvas = document.getElementById('engine-renderer-canvas')!
-      //   parent.removeChild(canvas)
-    }
-  }, [ref])
 
   return (
     <div
       id="viewport-panel"
-      ref={((el: HTMLDivElement) => dropRef(el)) && ref}
+      ref={dropRef}
       className={twMerge(
         'h-full w-full border border-white',
-        isDragging && isOver ? 'border-4' : 'border-none',
-        isDragging ? 'pointer-events-auto' : 'pointer-events-none'
+        isDragging ? 'pointer-events-auto border-4' : 'pointer-events-none border-none'
       )}
-    ></div>
+    />
+  )
+}
+
+const SceneLoadingProgress = ({ rootEntity }) => {
+  const { t } = useTranslation()
+  const progress = useComponent(rootEntity, GLTFComponent).progress.value
+  const resourcePendingQuery = useQuery([ResourcePendingComponent])
+  const root = getComponent(rootEntity, SourceComponent)
+  const sceneModified = useHookstate(getMutableState(GLTFModifiedState)[root]).value
+
+  useEffect(() => {
+    if (!sceneModified) return
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      alert('You have unsaved changes. Please save before leaving.')
+      e.preventDefault()
+      e.returnValue = ''
+    }
+
+    window.addEventListener('beforeunload', onBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', onBeforeUnload)
+    }
+  }, [sceneModified])
+
+  if (progress === 100) return null
+
+  return (
+    <LoadingView
+      fullSpace
+      className="mb-2 flex h-1/2 w-1/2 justify-center"
+      title={t('editor:loadingScenesWithProgress', { progress, assetsLeft: resourcePendingQuery.length })}
+    />
   )
 }
 
 const ViewPortPanelContainer = () => {
+  const { sceneName, rootEntity } = useMutableState(EditorState)
+
   const { t } = useTranslation()
-  const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettings = clientSettingQuery.data[0]
+
+  const ref = React.useRef<HTMLDivElement>(null)
+
+  useEngineCanvas(ref)
+
   return (
-    <div className="z-30 flex h-full w-full flex-col bg-theme-surface-main">
-      <div className="flex gap-1 p-1">
+    <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
+      <div className="z-10 flex gap-1 bg-theme-primary p-1">
         <TransformSpaceTool />
         <TransformPivotTool />
         <GridTool />
         <TransformSnapTool />
+        <SceneHelpersTool />
         <div className="flex-1" />
         <RenderModeTool />
         <PlayModeTool />
       </div>
-      {sceneName ? (
-        <ViewportDnD />
+      {sceneName.value ? <GizmoTool /> : null}
+      {sceneName.value ? (
+        <>
+          {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
+          <ViewportDnD />
+        </>
       ) : (
         <div className="flex h-full w-full flex-col justify-center gap-2">
-          <img src="/static/etherealengine.png" className="block" />
+          <img src={clientSettings?.appTitle} className="block scale-[.8]" />
           <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
         </div>
       )}
+      <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
     </div>
   )
 }

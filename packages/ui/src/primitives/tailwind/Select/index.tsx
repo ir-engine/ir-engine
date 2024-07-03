@@ -54,6 +54,7 @@ export interface SelectProps<T extends OptionValueType> {
   inputClassName?: string
   errorBorder?: boolean
   searchDisabled?: boolean
+  inputContainerClassName?: string
 }
 
 const Select = <T extends OptionValueType>({
@@ -72,12 +73,13 @@ const Select = <T extends OptionValueType>({
   inputVariant,
   inputClassName,
   errorBorder,
-  searchDisabled
+  searchDisabled,
+  inputContainerClassName
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
   const showOptions = useHookstate(false)
-  const filteredOptions = useHookstate(options)
+  const filteredOptions = useHookstate(JSON.parse(JSON.stringify(options)))
   const selectLabel = useHookstate('')
 
   useClickOutside(ref, () => showOptions.set(false))
@@ -88,10 +90,11 @@ const Select = <T extends OptionValueType>({
   }, [currentValue, options])
 
   useEffect(() => {
-    filteredOptions.set(options)
+    filteredOptions.set(JSON.parse(JSON.stringify(options)))
   }, [options])
 
   const toggleDropdown = () => {
+    if (options.length === 0) return
     showOptions.set((v) => !v)
   }
 
@@ -148,16 +151,17 @@ const Select = <T extends OptionValueType>({
             onClick={toggleDropdown}
           />
         }
+        containerClassname={inputContainerClassName}
       />
       <div
-        className={`absolute z-10 mt-2 w-full rounded border border-theme-primary bg-theme-surface-main ${
+        className={`absolute z-30 mt-2 w-full rounded border border-theme-primary bg-theme-surface-main ${
           showOptions.value ? 'visible' : 'hidden'
         }`}
       >
         <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2', menuClassname)}>
           {filteredOptions.value.map((option) => (
             <li
-              key={option.value}
+              key={option.label + option.value}
               value={option.value}
               className={twMerge(
                 'cursor-pointer px-4 py-2 text-theme-secondary',

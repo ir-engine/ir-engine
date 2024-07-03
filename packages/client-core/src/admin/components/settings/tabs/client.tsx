@@ -27,8 +27,8 @@ import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-import { ClientSettingType } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, NO_PROXY, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { clientSettingPath, ClientSettingType } from '@etherealengine/common/src/schema.type.module'
+import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
@@ -37,8 +37,8 @@ import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 
-import { AuthState } from '../../../../user/services/AuthService'
-import { AdminClientSettingsState, ClientSettingService } from '../../../services/Setting/ClientSettingService'
+import { Engine } from '@etherealengine/ecs'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
 const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
@@ -47,50 +47,27 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     loading: false,
     errorMessage: ''
   })
-  const user = useHookstate(getMutableState(AuthState).user)
 
-  const clientSettingState = useMutableState(AdminClientSettingsState)
-  const [clientSetting] = clientSettingState?.client?.get({ noproxy: true }) || []
-  const id = clientSetting?.id
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettings = clientSettingQuery.data[0] ?? null
+  const id = clientSettings?.id
 
-  const settings = useHookstate(clientSetting)
+  const settingsState = useHookstate(null as null | ClientSettingType)
 
   console.log('# client settings', settings)
 
   useEffect(() => {
-    if (user?.id?.value != null && clientSettingState?.updateNeeded?.value === true) {
-      ClientSettingService.fetchClientSettings()
+    if (clientSettingQuery) {
+      state.set({ loading: clientSettingQuery.status === 'pending', errorMessage: clientSettingQuery.error })
     }
-  }, [user?.id?.value, clientSettingState?.updateNeeded?.value])
+  }, [clientSettingQuery])
 
   useEffect(() => {
-    if (clientSetting) {
-      settings.merge({
-        logo: clientSetting?.logo,
-        title: clientSetting?.title,
-        shortTitle: clientSetting?.shortTitle,
-        startPath: clientSetting?.startPath || '/',
-        appTitle: clientSetting?.appTitle,
-        appSubtitle: clientSetting?.appSubtitle,
-        appDescription: clientSetting?.appDescription,
-        appBackground: clientSetting?.appBackground,
-        appSocialLinks: JSON.parse(JSON.stringify(clientSetting?.appSocialLinks)) || [],
-        appleTouchIcon: clientSetting?.appleTouchIcon,
-        icon192px: clientSetting?.icon192px,
-        icon512px: clientSetting?.icon512px,
-        webmanifestLink: clientSetting?.webmanifestLink,
-        swScriptLink: clientSetting?.swScriptLink,
-        favicon16px: clientSetting?.favicon16px,
-        favicon32px: clientSetting?.favicon32px,
-        siteDescription: clientSetting?.siteDescription,
-        key8thWall: clientSetting?.key8thWall,
-        privacyPolicy: clientSetting?.privacyPolicy,
-        homepageLinkButtonEnabled: clientSetting?.homepageLinkButtonEnabled,
-        homepageLinkButtonRedirect: clientSetting?.homepageLinkButtonRedirect,
-        homepageLinkButtonText: clientSetting?.homepageLinkButtonText
-      })
+    if (clientSettings) {
+      settingsState.set(clientSettings)
+      state.set({ loading: false, errorMessage: '' })
     }
-  }, [clientSettingState?.updateNeeded?.value])
+  }, [clientSettings])
 
   const codecMenu = [
     {
@@ -129,14 +106,26 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   const handleSubmit = (event) => {
     state.loading.set(true)
     event.preventDefault()
-    console.log('# client handleSubmit', settings.get(NO_PROXY))
-    settings.merge({
-      createdAt: none,
-      updatedAt: none
-    })
-    ClientSettingService.patchClientSetting(settings.value as ClientSettingType, id)
+    // <<<<<<< HEAD
+    //     console.log('# client handleSubmit', settings.get(NO_PROXY))
+    //     settings.merge({
+    //       createdAt: none,
+    //       updatedAt: none
+    //     })
+    //     ClientSettingService.patchClientSetting(settings.value as ClientSettingType, id)
+    // =======
+    const newSettings = {
+      ...settingsState.get(NO_PROXY),
+      createdAt: undefined!,
+      updatedAt: undefined!
+    } as any as ClientSettingType
+    Engine.instance.api
+      .service(clientSettingPath)
+      .patch(id, newSettings)
+      // >>>>>>> dev
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
+        clientSettingQuery.refetch()
       })
       .catch((e) => {
         state.set({ loading: false, errorMessage: e.message })
@@ -144,8 +133,13 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   }
 
   const handleCancel = () => {
-    settings.set(clientSetting)
+    settingsState.set(clientSettings)
   }
+
+  if (!settingsState.value)
+    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loading')} />
+
+  const settings = settingsState as State<ClientSettingType>
 
   return (
     <Accordion
@@ -291,14 +285,14 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         <Input
           className="col-span-1"
           label={t('admin:components.setting.url')}
-          value={clientSetting?.url || ''}
+          value={clientSettings?.url || ''}
           disabled
         />
 
         <Input
           className="col-span-1"
           label={t('admin:components.setting.releaseName')}
-          value={clientSetting?.releaseName || ''}
+          value={clientSettings?.releaseName || ''}
           disabled
         />
 
