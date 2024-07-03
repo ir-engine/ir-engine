@@ -26,13 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 
-import { Engine, Entity, EntityUUID, QueryReactor, UUIDComponent } from '@etherealengine/ecs'
+import { Entity, EntityUUID, QueryReactor, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 
 import { NameComponent } from '../common/NameComponent'
+import { EngineState } from '../EngineState'
 import { RapierWorldState } from '../physics/classes/Physics'
 import { addObjectToGroup, GroupComponent } from '../renderer/components/GroupComponent'
 import { setObjectLayers } from '../renderer/components/ObjectLayerComponent'
@@ -91,18 +92,19 @@ const PhysicsReactor = () => {
 
 const reactor = () => {
   const engineRendererSettings = useMutableState(RendererState)
+  const originEntity = useMutableState(EngineState).originEntity.value
 
   useEffect(() => {
-    if (!engineRendererSettings.gridVisibility.value) return
+    if (!engineRendererSettings.gridVisibility.value || !originEntity) return
 
     const infiniteGridHelperEntity = createInfiniteGridHelper()
-    setComponent(infiniteGridHelperEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(infiniteGridHelperEntity, EntityTreeComponent, { parentEntity: originEntity })
     getMutableState(RendererState).infiniteGridHelperEntity.set(infiniteGridHelperEntity)
     return () => {
       removeEntity(infiniteGridHelperEntity)
       getMutableState(RendererState).infiniteGridHelperEntity.set(null)
     }
-  }, [engineRendererSettings.gridVisibility])
+  }, [originEntity, engineRendererSettings.gridVisibility])
 
   return (
     <>

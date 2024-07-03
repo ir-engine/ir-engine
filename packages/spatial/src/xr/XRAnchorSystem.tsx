@@ -175,7 +175,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   const targetScale = xrState.sceneScaleTarget
   if (targetScale !== xrState.sceneScale) {
     const newScale = MathUtils.lerp(xrState.sceneScale, targetScale, lerpAlpha)
-    getMutableState(XRState).sceneScale.set(newScale > 0.9 ? 1 : newScale)
+    getMutableState(XRState).sceneScale.set(newScale > 0.99 ? 1 : newScale)
   }
 
   xrState.scenePosition.copy(transform.position)
@@ -201,11 +201,10 @@ export const XRAnchorSystemState = defineState({
 const execute = () => {
   const xrState = getState(XRState)
 
-  const { scenePlacementEntity, originAnchorEntity } = getState(XRAnchorSystemState)
+  const { scenePlacementEntity } = getState(XRAnchorSystemState)
 
   for (const action of xrSessionChangedQueue()) {
     if (!action.active) {
-      setComponent(Engine.instance.localFloorEntity, TransformComponent) // reset world origin
       getMutableState(XRState).scenePlacementMode.set('unplaced')
       for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
       for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)
@@ -220,9 +219,6 @@ const execute = () => {
   if (xrState.scenePlacementMode === 'placing') {
     updateScenePlacement(scenePlacementEntity)
     updateWorldOriginFromScenePlacement()
-
-    const inverseWorldScale = 1 / XRState.worldScale
-    getComponent(originAnchorEntity, TransformComponent).scale.setScalar(inverseWorldScale)
   }
 }
 
@@ -254,6 +250,7 @@ const Reactor = () => {
     const originAnchorEntity = createEntity()
     setComponent(originAnchorEntity, NameComponent, 'xr-world-anchor')
     addObjectToGroup(originAnchorEntity, originAnchorMesh)
+    setComponent(originAnchorEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
     getMutableState(XRAnchorSystemState).set({ scenePlacementEntity, originAnchorEntity })
   }, [])

@@ -103,9 +103,6 @@ const updateControllerRayInteraction = (entity: Entity, xruiEntities: Entity[]) 
       cursor.visible = true
       cursor.position.copy(hit.intersection.point)
       pointer.worldToLocal(cursor.position)
-      // this is a hack because this system runs after the transform system
-      // @todo turn cursor and pointer into entities
-      cursor.updateMatrixWorld(true)
 
       if (interactable) {
         cursor.material.color = hitColor
@@ -138,11 +135,9 @@ const execute = () => {
 
   /** Update the objects to use for intersection tests */
   const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
-  if (xrFrame && xruiState.interactionRays[0] === pointerScreenRaycaster.ray)
-    xruiState.interactionRays = [...PointerComponent.getPointers(), pointerScreenRaycaster.ray] // todo, replace pointerScreenRaycaster with input sources
-
-  if (!xrFrame && xruiState.interactionRays[0] !== pointerScreenRaycaster.ray)
-    xruiState.interactionRays = [pointerScreenRaycaster.ray]
+  xruiState.interactionRays = xrFrame
+    ? [...PointerComponent.getPointers(), pointerScreenRaycaster.ray]
+    : [pointerScreenRaycaster.ray]
 
   const interactableXRUIEntities = visibleInteractableXRUIQuery()
 

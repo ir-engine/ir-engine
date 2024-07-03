@@ -416,7 +416,7 @@ const _updateLocalAvatarRotationAttachedMode = (entity: Entity) => {
   const rigidbodyForward = new Vector3(0, 0, -1).applyQuaternion(rigidbody.targetKinematicRotation).setY(0)
   const angle = viewerForward.angleTo(rigidbodyForward)
 
-  if (angle > Math.PI * 0.25 || rotationNeedsUpdate == true) {
+  if (angle > Math.PI / 12 || rotationNeedsUpdate == true) {
     // const avatarRotation = extractRotationAboutAxis(viewerQuat, V_010, _quat)
     avatarRotationAroundY.setFromQuaternion(viewerQuat, 'YXZ')
     avatarRotation.setFromAxisAngle(Vector3_Up, avatarRotationAroundY.y + Math.PI)

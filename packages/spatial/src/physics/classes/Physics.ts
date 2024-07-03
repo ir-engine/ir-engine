@@ -69,6 +69,7 @@ import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { getAncestorWithComponent, useAncestorWithComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
@@ -213,6 +214,7 @@ const mat4 = new Matrix4()
 function createRigidBody(world: PhysicsWorld, entity: Entity) {
   const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
 
+  computeTransformMatrix(entity)
   TransformComponent.getMatrixRelativeToEntity(entity, sceneEntity, mat4)
   mat4.decompose(position, rotation, scale)
 

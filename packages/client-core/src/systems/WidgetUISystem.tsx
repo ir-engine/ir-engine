@@ -145,7 +145,7 @@ const execute = () => {
   }
   for (const action of unregisterWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
-    setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
     if (typeof widget.cleanup === 'function') widget.cleanup()
   }
 
@@ -176,7 +176,7 @@ const execute = () => {
     }
   } else {
     if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
-      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
       setComponent(widgetMenuUI.entity, ComputedTransformComponent, {
         referenceEntities: [Engine.instance.viewerEntity],
         computeFunction: () => {
@@ -213,8 +213,7 @@ const Reactor = () => {
 
   useEffect(() => {
     const widgetMenuUI = createWidgetButtonsView()
-    /** @todo is originEntity is the correct parent? */
-    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
     setComponent(widgetMenuUI.entity, TransformComponent)
     removeComponent(widgetMenuUI.entity, VisibleComponent)
     setComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')

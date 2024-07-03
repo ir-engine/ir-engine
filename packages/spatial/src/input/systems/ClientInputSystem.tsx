@@ -75,7 +75,7 @@ import { InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
-import { ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
+import { ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 
 /** squared distance threshold for dragging state */
@@ -118,53 +118,54 @@ export function updateGamepadInput(eid: Entity) {
     const xrTransform = getOptionalComponent(eid, TransformComponent)
 
     for (let i = 0; i < gamepadButtons.length; i++) {
-      const button = gamepadButtons[i]
-      if (!buttons[i] && (button.pressed || button.touched)) {
-        buttons[i] = createInitialButtonState(eid, button)
+      const gamepadButton = gamepadButtons[i]
+      if (!buttons[i] && (gamepadButton.pressed || gamepadButton.touched)) {
+        buttons[i] = createInitialButtonState(eid, gamepadButton)
       }
-      if (buttons[i] && (button.pressed || button.touched)) {
-        if (!buttons[i].pressed && button.pressed) {
-          buttons[i].down = true
-          buttons[i].downPosition = new Vector3()
-          buttons[i].downRotation = new Quaternion()
+      const buttonState = buttons[i] as ButtonState
+      if (buttonState && (gamepadButton.pressed || gamepadButton.touched)) {
+        if (!buttonState.pressed && gamepadButton.pressed) {
+          buttonState.down = true
+          buttonState.downPosition = new Vector3()
+          buttonState.downRotation = new Quaternion()
 
           if (pointer) {
-            buttons[i].downPosition.set(pointer.position.x, pointer.position.y, 0)
+            buttonState.downPosition.set(pointer.position.x, pointer.position.y, 0)
             //TODO maybe map pointer rotation/swing/twist to downRotation here once we map the pointer events to that (think Apple pencil)
           } else if (hasComponent(eid, XRSpaceComponent) && xrTransform) {
-            buttons[i].downPosition.copy(xrTransform.position)
-            buttons[i].downRotation.copy(xrTransform.rotation)
+            buttonState.downPosition.copy(xrTransform.position)
+            buttonState.downRotation.copy(xrTransform.rotation)
           }
         }
-        buttons[i].pressed = button.pressed
-        buttons[i].touched = button.touched
-        buttons[i].value = button.value
+        buttonState.pressed = gamepadButton.pressed
+        buttonState.touched = gamepadButton.touched
+        buttonState.value = gamepadButton.value
 
-        if (buttons[i].downPosition) {
+        if (buttonState.downPosition) {
           //if not yet dragging, compare distance to drag threshold and begin if appropriate
-          if (!buttons[i].dragging) {
+          if (!buttonState.dragging) {
             if (pointer) pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
-            const squaredDistance = buttons[i].downPosition.squaredDistance(
+            const squaredDistance = buttonState.downPosition.distanceToSquared(
               pointer ? pointerPositionVector3 : xrTransform?.position ?? Vector3_Zero
             )
 
             if (squaredDistance > DRAGGING_THRESHOLD) {
-              buttons[i].dragging = true
+              buttonState.dragging = true
             }
           }
 
           //if not yet rotating, compare distance to drag threshold and begin if appropriate
-          if (!buttons[i].rotating) {
-            const angleRadians = buttons[i].downRotation.angleTo(
+          if (!buttonState.rotating) {
+            const angleRadians = buttonState.downRotation!.angleTo(
               pointer ? Q_IDENTITY : xrTransform?.rotation ?? Q_IDENTITY
             )
             if (angleRadians > ROTATING_THRESHOLD) {
-              buttons[i].rotating = true
+              buttonState.rotating = true
             }
           }
         }
-      } else if (buttons[i]) {
-        buttons[i].up = true
+      } else if (buttonState) {
+        buttonState.up = true
       }
     }
   }

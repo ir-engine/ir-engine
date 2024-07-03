@@ -268,5 +268,5 @@ export const createInitialButtonState = (
     up: initial.up ?? false,
     value: initial.value ?? 1,
     inputSource: inputSourceEntity ?? UndefinedEntity
-  }
+  } as ButtonState
 }
