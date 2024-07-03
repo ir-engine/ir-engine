@@ -24,10 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  StaticResourceType,
   staticResourceMethods,
   staticResourcePath
 } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { StaticResourceService } from './static-resource.class'
 import staticResourceDocs from './static-resource.docs'
@@ -57,4 +60,29 @@ export default (app: Application): void => {
 
   const service = app.service(staticResourcePath)
   service.hooks(hooks)
+
+  const onCRUD = (data: StaticResourceType | Paginated<StaticResourceType> | StaticResourceType[]) => {
+    const targetIds: string[] = []
+    if (Array.isArray(data)) {
+      data.forEach((item) => {
+        targetIds.push(item.userId)
+      })
+    } else if ('data' in data) {
+      data.data.forEach((item) => {
+        targetIds.push(item.userId)
+      })
+    } else {
+      targetIds.push(data.userId)
+    }
+
+    return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
+  }
+
+  service.publish('created', onCRUD)
+
+  service.publish('patched', onCRUD)
+
+  service.publish('updated', onCRUD)
+
+  service.publish('removed', onCRUD)
 }
