@@ -28,7 +28,8 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 
 export const enum StandardCallbacks {
   PLAY = 'xre.play',
-  PAUSE = 'xre.pause'
+  PAUSE = 'xre.pause',
+  RESET = 'xre.reset'
 }
 
 export const CallbackComponent = defineComponent({
