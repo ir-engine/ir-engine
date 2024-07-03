@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -40,13 +39,15 @@ import Input from '../../../../../primitives/tailwind/Input'
 import Modal from '../../../../../primitives/tailwind/Modal'
 import Text from '../../../../../primitives/tailwind/Text'
 
-export default function FilePropertiesModal({ file }: { file: FileDataType }) {
+export default function FilePropertiesModal({ projectName, file }: { projectName: string; file: FileDataType }) {
   const { t } = useTranslation()
   const newFileName = useHookstate(file.name)
   const fileService = useMutation(fileBrowserPath)
 
   const handleSubmit = async () => {
     fileService.update(null, {
+      oldProject: projectName,
+      newProject: projectName,
       oldName: file.fullName,
       newName: file.isFolder ? newFileName.value : `${newFileName.value}.${file.type}`,
       oldPath: file.path,
@@ -64,7 +65,6 @@ export default function FilePropertiesModal({ file }: { file: FileDataType }) {
   })
 
   const staticResourceMutation = useMutation(staticResourcePath)
-  const projectResourcesMutation = useMutation(projectResourcesPath)
 
   const resourceProperties = useHookstate({
     id: '',

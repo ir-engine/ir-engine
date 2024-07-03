@@ -409,7 +409,7 @@ export function FileBrowserItem({
           variant="outline"
           size="small"
           fullWidth
-          onClick={() => PopoverState.showPopupover(<FilePropertiesModal file={item} />)}
+          onClick={() => PopoverState.showPopupover(<FilePropertiesModal projectName={projectName} file={item} />)}
         >
           {t('editor:layout.filebrowser.viewAssetProperties')}
         </Button>
