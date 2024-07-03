@@ -77,11 +77,8 @@ export type * from './schemas/setting/email-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
 export type * from './schemas/setting/helm-setting.schema'
 export type * from './schemas/setting/instance-server-setting.schema'
-// <<<<<<< HEAD
 export type * from './schemas/setting/middleware-setting.schema'
-// =======
 export type * from './schemas/setting/project-setting.schema'
-// >>>>>>> dev
 export type * from './schemas/setting/redis-setting.schema'
 export type * from './schemas/setting/server-setting.schema'
 export type * from './schemas/setting/task-server-setting.schema'
@@ -271,6 +268,8 @@ export const projectInvalidatePath = 'project-invalidate'
 export const projectPath = 'project'
 
 export const projectsPath = 'projects'
+
+export const assetPath = 'asset'
 
 export const builderInfoPath = 'builder-info'
 

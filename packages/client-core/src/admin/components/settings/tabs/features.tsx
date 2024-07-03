@@ -24,19 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-// <<<<<<< HEAD
-// import { FeatureFlagSettingType, featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
-// import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-// =======
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { FeatureFlagSettingType, featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { getAllStringValueNodes } from '@etherealengine/common/src/utils/getAllStringValueNodes'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-// >>>>>>> dev
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import { useHookstate } from '@hookstate/core'
 
@@ -48,37 +43,6 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
 
   const featureFlagSettings = useFind(featureFlagSettingPath)
 
-  // <<<<<<< HEAD
-  //   // useEffect(() => {
-  //   //   const defaultTypes = [
-  //   //     'ir.client.menu.social',
-  //   //     'ir.client.menu.emote',
-  //   //     'ir.client.menu.avaturn',
-  //   //     'ir.client.menu.readyPlayerMe'
-  //   //   ]
-  //   //
-  //   //   if (featureFlagSettings.status === 'success') {
-  //   //     const missingTypes = defaultTypes.filter(
-  //   //       (type) =>
-  //   //         !featureFlagSettings.data.find(
-  //   //           (flag) => flag.flagName === type && !Object.keys(flag).filter((key) => !defaultProps.includes(key))
-  //   //         )
-  //   //     )
-  //   //
-  //   //     const updatedFeatures: FeatureFlagSettingType[] = [
-  //   //       ...missingTypes.map((type) => ({
-  //   //         flagName: type as FeatureFlag,
-  //   //         flagValue: true,
-  //   //         id: '',
-  //   //         createdAt: '',
-  //   //         updatedAt: ''
-  //   //       })),
-  //   //       ...featureFlagSettings.data
-  //   //     ]
-  //   //     displayedFeatures.set(updatedFeatures)
-  //   //   }
-  //   // }, [featureFlagSettings])
-  // =======
   useEffect(() => {
     if (featureFlagSettings.status === 'success') {
       const defaultTypes = getAllStringValueNodes(FeatureFlags)
@@ -106,7 +70,6 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
       displayedFeatures.set(updatedFeatures)
     }
   }, [featureFlagSettings.data])
-  // >>>>>>> dev
 
   return (
     <Accordion

@@ -91,15 +91,6 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
                 .join(' ')
             }
           }
-
-          // Removed scene iterator, for per-npc config //
-          // const scenesKeys = _.keys(projectScenes)
-          // const mSJsonKeys = _.keys(JSON.parse(object.middlewareSettingMenu))
-          //
-          // _.difference(scenesKeys, mSJsonKeys).forEach((key: any) => {
-          //   const template = JSON.parse(object.middlewareSettingTemp.toString('utf8'))
-          //   mtObj[object.middlewareProject][key] = template['Scene']
-          // })
         })
 
         console.log('#### mtObj', JSON.stringify(mtObj, null, 2))
@@ -121,7 +112,6 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
   }
 
   const mwHandleChange = (inputValue: string, project: string, category: string, inputLabel: string) => {
-    // console.log('#### mwHandleChange', inputValue, '### e', typeof(inputValue))
     setMwSettings((prevMwSettings) => {
       const newMwSettings = JSON.parse(JSON.stringify(prevMwSettings))
 
@@ -181,7 +171,6 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
   }
 
   const mwHandleToggle = (inputLabel: string, project: string, category: string) => {
-    // console.log('#### mwHandleToggle', inputValue, '### e', typeof(inputValue))
     setMwSettings((prevMwSettings) => {
       const newMwSettings = JSON.parse(JSON.stringify(prevMwSettings))
 
@@ -206,12 +195,9 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
 
       return newMwSettings
     })
-    // console.log('## mwHandleToggle', mwSettings)
   }
 
   const mwHandleSelect = (inputValue: string, project: string, category: string, inputLabel: string) => {
-    // console.log('#### #### mwHandleSelect', inputValue, typeof(inputValue), inputLabel, typeof(inputLabel))
-
     setMwSettings((prevMwSettings) => {
       const newMwSettings = JSON.parse(JSON.stringify(prevMwSettings))
 
@@ -222,7 +208,6 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
           // Iterate over each setting under the category
           value.forEach((setting, _) => {
             if (setting.component === 'MiddlewareSelect' && setting.label === inputLabel) {
-              // console.log('#### mwHandleSelect', setting.value, typeof(setting.value))
               const filtered = setting.value.filter((item) => item !== inputValue)
               setting.value = [inputValue, ...filtered]
             }
@@ -232,7 +217,6 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
 
       return newMwSettings
     })
-    // console.log('## mwHandleSelect', mwSettings)
   }
 
   const actions = {
@@ -254,7 +238,6 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
   }
 
   async function updateChat(tenant: string): Promise<Response> {
-    // TODO set and retrieve middleware URL from env
     const apiUrl = `${middlewareUrlBase}/middleware/v1/chat-bot/chat-update`
     console.log('#### #### Middleware update hook:', apiUrl)
     await delay(5000)
@@ -306,17 +289,12 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
     })
   }
 
-  // const handleCancel = () => {Default Value
-  //   // TODO: middlewareSettingMenu state logic
-  // }
-
   const renderSettings = (settings, components, actions, project, category) => {
     console.log('#### renderSettings', project, category, settings, components)
     return settings.map((setting, idx) => {
       const Component = components[setting.component]
       const onAction = actions[setting.action]
       const compLabel = setting.label
-      // console.log('## types', project, typeof(project), category, typeof(category), compLabel, typeof(compLabel))
       const handleAction = (e) => {
         onAction(e, project, category, compLabel)
       }

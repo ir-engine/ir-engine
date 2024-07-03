@@ -26,24 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import {
-  AdminMiddlewareSettingsState,
-  MiddlewareSettingService
-} from '@etherealengine/client-core/src/admin/services/Setting/MiddlewareSettingService'
-
-import {
   AppThemeState,
   getAppTheme,
   useAppThemeName
 } from '@etherealengine/client-core/src/common/services/AppThemeState'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-// <<<<<<< HEAD
-// import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
-// import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-// =======
 import { ClientThemeOptionsType, clientSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-// >>>>>>> dev
 
 export interface ThemeContextProps {
   theme: string
@@ -59,20 +49,11 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
   const authState = useMutableState(AuthState)
   const selfUser = authState.user
 
-  // <<<<<<< HEAD
-  //   const clientSettingState = useMutableState(AdminClientSettingsState)
-
-  const middlewareSettingState = useHookstate(getMutableState(AdminMiddlewareSettingsState))
-
-  // =======
   const clientSettingQuery = useFind(clientSettingPath)
   const clientSetting = clientSettingQuery.data[0]
-  // >>>>>>> dev
   const appTheme = useMutableState(AppThemeState)
 
   const clientThemeSettings = useHookstate({} as Record<string, ClientThemeOptionsType>)
-
-  const [middlewareSetting] = middlewareSettingState?.middleware?.get(NO_PROXY) || []
 
   const currentThemeName = useAppThemeName()
 
@@ -89,10 +70,6 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
       clientThemeSettings.set(clientSetting?.themeSettings)
     }
   }, [clientSetting])
-
-  useEffect(() => {
-    if (middlewareSettingState?.updateNeeded?.value) MiddlewareSettingService.fetchMiddlewareSettings()
-  }, [middlewareSettingState?.updateNeeded?.value])
 
   useEffect(() => {
     updateTheme()

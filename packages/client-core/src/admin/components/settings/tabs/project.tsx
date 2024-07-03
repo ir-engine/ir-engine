@@ -65,8 +65,6 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     remove: removeProjectSetting
   } = useMutation(projectSettingPath)
 
-  const tSettings = JSON.parse(JSON.stringify(settings.value))
-
   useEffect(() => {
     ProjectService.fetchProjects()
   }, [])

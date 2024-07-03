@@ -54,8 +54,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
 
   const settingsState = useHookstate(null as null | ClientSettingType)
 
-  console.log('# client settings', settings)
-
   useEffect(() => {
     if (clientSettingQuery) {
       state.set({ loading: clientSettingQuery.status === 'pending', errorMessage: clientSettingQuery.error })
@@ -106,14 +104,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   const handleSubmit = (event) => {
     state.loading.set(true)
     event.preventDefault()
-    // <<<<<<< HEAD
-    //     console.log('# client handleSubmit', settings.get(NO_PROXY))
-    //     settings.merge({
-    //       createdAt: none,
-    //       updatedAt: none
-    //     })
-    //     ClientSettingService.patchClientSetting(settings.value as ClientSettingType, id)
-    // =======
     const newSettings = {
       ...settingsState.get(NO_PROXY),
       createdAt: undefined!,
@@ -122,7 +112,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     Engine.instance.api
       .service(clientSettingPath)
       .patch(id, newSettings)
-      // >>>>>>> dev
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
         clientSettingQuery.refetch()
