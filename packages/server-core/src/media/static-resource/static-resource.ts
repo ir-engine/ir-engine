@@ -29,8 +29,15 @@ import {
   staticResourcePath
 } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
+import {
+  ScopeType,
+  UserID,
+  projectPath,
+  projectPermissionPath,
+  scopePath
+} from '@etherealengine/common/src/schema.type.module'
 import { Paginated } from '@feathersjs/feathers'
+import _ from 'lodash'
 import { Application } from '../../../declarations'
 import { StaticResourceService } from './static-resource.class'
 import staticResourceDocs from './static-resource.docs'
@@ -61,28 +68,70 @@ export default (app: Application): void => {
   const service = app.service(staticResourcePath)
   service.hooks(hooks)
 
-  const onCRUD = (data: StaticResourceType | Paginated<StaticResourceType> | StaticResourceType[]) => {
-    const targetIds: string[] = []
-    if (Array.isArray(data)) {
-      data.forEach((item) => {
-        targetIds.push(item.userId)
-      })
-    } else if ('data' in data) {
-      data.data.forEach((item) => {
-        targetIds.push(item.userId)
-      })
-    } else {
-      targetIds.push(data.userId)
+  const onCRUD =
+    (app: Application) => async (data: StaticResourceType | Paginated<StaticResourceType> | StaticResourceType[]) => {
+      const projectNames: string[] = []
+      if (Array.isArray(data)) {
+        data.forEach((item) => {
+          if (item.project && item.type === 'scene') {
+            projectNames.push(item.project)
+          }
+        })
+      } else if ('data' in data) {
+        data.data.forEach((item) => {
+          if (item.project && item.type === 'scene') {
+            projectNames.push(item.project)
+          }
+        })
+      } else {
+        if (data.project && data.type === 'scene') {
+          projectNames.push(data.project)
+        }
+      }
+
+      const projectIds: string[] = []
+      for (const projectName of projectNames) {
+        const projectId = await app.service(projectPath).find({
+          query: {
+            name: projectName
+          }
+        })
+        if (projectId.total === 1) {
+          projectIds.push(projectId.data[0].id)
+        }
+      }
+
+      const targetIds: string[] = []
+      for (const projectId of projectIds) {
+        const projectOwners = await app.service(projectPermissionPath).find({
+          query: {
+            projectId: projectId,
+            type: 'owner'
+          },
+          paginate: false
+        })
+        projectOwners.forEach((permission) => {
+          targetIds.push(permission.userId)
+        })
+
+        const projectReadScopes = await app.service(scopePath).find({
+          query: {
+            type: 'projects:read' as ScopeType
+          },
+          paginate: false
+        })
+
+        projectReadScopes.forEach((scope) => {
+          targetIds.push(scope.userId)
+        })
+      }
+
+      const uniqueUserIds = _.uniq(targetIds)
+      return Promise.all(uniqueUserIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
     }
 
-    return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
-  }
-
-  service.publish('created', onCRUD)
-
-  service.publish('patched', onCRUD)
-
-  service.publish('updated', onCRUD)
-
-  service.publish('removed', onCRUD)
+  service.publish('created', onCRUD(app))
+  service.publish('patched', onCRUD(app))
+  service.publish('updated', onCRUD(app))
+  service.publish('removed', onCRUD(app))
 }
