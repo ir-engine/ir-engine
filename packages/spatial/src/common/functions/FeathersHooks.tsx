@@ -267,16 +267,6 @@ type UpdateMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['upd
 type PatchMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['patch']
 type RemoveMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['remove']
 
-export interface UseMutationReturnType<S extends keyof ServiceTypes> {
-  create: CreateMethodParameters<S>
-  update: UpdateMethodParameters<S>
-  patch: PatchMethodParameters<S>
-  remove: RemoveMethodParameters<S>
-  data: unknown | null
-  status: 'idle' | 'loading' | 'success' | 'error'
-  error: string | null
-}
-
 /**
  * Simple mutation hook exposing crud methods
  * of any feathers service. The resulting state
@@ -286,7 +276,7 @@ export interface UseMutationReturnType<S extends keyof ServiceTypes> {
  */
 export function useMutation<S extends keyof ServiceTypes>(serviceName: S, forceRefetch = true) {
   const state = useHookstate({
-    status: 'idle' as 'idle' | 'loading' | 'success' | 'error',
+    status: 'idle',
     data: null as unknown | null,
     error: null as string | null
   })
