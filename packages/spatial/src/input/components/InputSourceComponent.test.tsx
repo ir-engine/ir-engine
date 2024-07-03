@@ -185,7 +185,7 @@ const InputSourceComponentReliableDefaults = {
       hapticActuators: [],
       // id: 'emulated-gamepad-1',  // @note The attached number is unreliable on tests. Requires the entity number
       index: 0,
-      mapping: 'standard' as GamepadMappingType,
+      mapping: '' as GamepadMappingType,
       // timestamp: performance.now(),  // @note Unreliable on tests
       vibrationActuator: null
     },
