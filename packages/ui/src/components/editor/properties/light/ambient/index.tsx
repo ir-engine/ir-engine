@@ -32,7 +32,7 @@ import {
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
-import { AmbientLightComponent } from '@etherealengine/spatial/src/renderer/components/AmbientLightComponent'
+import { AmbientLightComponent } from '@etherealengine/spatial/src/renderer/components/lights/AmbientLightComponent'
 import { HiOutlineSun } from 'react-icons/hi2'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'

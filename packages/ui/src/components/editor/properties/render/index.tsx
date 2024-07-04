@@ -46,7 +46,7 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
+import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/lights/DirectionalLightComponent'
 import { SiRender } from 'react-icons/si'
 import Slider from '../../../../primitives/tailwind/Slider'
 import BooleanInput from '../../input/Boolean'

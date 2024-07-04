@@ -28,7 +28,6 @@ import '../threejsPatches'
 import { EffectComposer, NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
 import React, { useEffect } from 'react'
 import {
-  AmbientLight,
   ArrayCamera,
   Color,
   CubeTexture,
@@ -97,7 +96,6 @@ export const RendererComponent = defineComponent({
 })
 
 const _scene = new Scene()
-const _tempAmbientLight = new AmbientLight()
 _scene.matrixAutoUpdate = false
 _scene.matrixWorldAutoUpdate = false
 _scene.layers.set(ObjectLayers.Scene)
@@ -315,15 +313,6 @@ const execute = () => {
     const sessionMode = getState(XRState).sessionMode
     _scene.background =
       sessionMode === 'immersive-ar' ? null : renderMode === RenderModes.WIREFRAME ? new Color(0xffffff) : background
-
-    if (renderMode === RenderModes.UNLIT) {
-      _scene.children.forEach((child: any) => {
-        if (child.isLight) {
-          child.visible = false
-        }
-      })
-      _scene.children.push(_tempAmbientLight)
-    }
 
     const lightProbe = getState(XRLightProbeState).environment
     _scene.environment = lightProbe ?? environment
