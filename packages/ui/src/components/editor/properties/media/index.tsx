@@ -144,7 +144,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.paths')}
         inputLabel={t('editor:properties.media.path')}
         values={media.resources.value as string[]}
-        onChange={updateProperty(MediaComponent, 'resources')}
+        onChange={commitProperty(MediaComponent, 'resources')}
       />
 
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>

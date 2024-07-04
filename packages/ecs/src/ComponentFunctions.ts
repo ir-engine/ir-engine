@@ -508,6 +508,7 @@ export function _use(promise) {
  * Use a component in a reactive context (a React component)
  */
 export function useComponent<C extends Component<any>>(entity: Entity, Component: C) {
+  if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
   if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(none)
   const componentState = Component.stateMap[entity]!
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved

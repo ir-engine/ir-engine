@@ -68,6 +68,7 @@ export const MaterialPreviewCanvas = () => {
       new Float32Array(sphereMesh.geometry.attributes.position.count * 3).fill(1),
       3
     )
+    sphereMesh.geometry.attributes['uv1'] = sphereMesh.geometry.attributes['uv'].clone()
     addObjectToGroup(sceneEntity, sphereMesh)
     setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 })
     const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)

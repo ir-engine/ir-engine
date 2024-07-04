@@ -34,7 +34,6 @@ import { useThemeProvider } from '@etherealengine/client-core/src/common/service
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
 import { LoadWebappInjection } from '@etherealengine/client-core/src/components/LoadWebappInjection'
-import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
 import { useAuthenticated } from '@etherealengine/client-core/src/user/services/AuthService'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
@@ -45,8 +44,6 @@ import '../themes/utilities.css'
 const AppPage = (props: { children: React.ReactNode }) => {
   const { t } = useTranslation()
   const isLoggedIn = useAuthenticated()
-
-  useZendesk()
 
   useEffect(() => {
     initGA()
