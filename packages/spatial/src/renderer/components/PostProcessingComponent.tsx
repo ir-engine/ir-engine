@@ -42,7 +42,7 @@ import { RendererState } from '../RendererState'
 import { RenderSettingsState, RendererComponent } from '../WebGLRendererSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { PostProcessingEffectState } from '../effects/EffectRegistry'
-import { useScene } from './SceneComponents'
+import { useRendererEntity } from '../functions/useRendererEntity'
 
 declare module 'postprocessing' {
   interface EffectComposer {
@@ -84,7 +84,7 @@ export const PostProcessingComponent = defineComponent({
   /** @todo this will be replaced with spatial queries or distance checks */
   reactor: () => {
     const entity = useEntityContext()
-    const rendererEntity = useScene(entity)
+    const rendererEntity = useRendererEntity(entity)
 
     if (!rendererEntity) return null
 

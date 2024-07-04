@@ -25,23 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, CubeTexture, FogBase, Texture } from 'three'
 
-import { defineComponent, Entity } from '@etherealengine/ecs'
-
-import { useAncestorWithComponent } from '../../transform/components/EntityTree'
+import { defineComponent } from '@etherealengine/ecs'
 
 export const SceneComponent = defineComponent({
   name: 'SceneComponent'
 })
-
-/**
- * Returns the scene entity ancestor for a given entity (if one exists)
- * @deprecated - use useAncestorWithComponent instead
- * @param entity
- * @returns
- */
-export function useScene(entity: Entity) {
-  return useAncestorWithComponent(entity, SceneComponent)
-}
 
 export const BackgroundComponent = defineComponent({
   name: 'BackgroundComponent',

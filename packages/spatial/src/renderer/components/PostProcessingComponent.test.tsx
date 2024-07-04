@@ -66,17 +66,16 @@ describe('PostProcessingComponent', () => {
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
-    setComponent(rootEntity, SceneComponent)
-    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas() })
 
     entity = createEntity()
     setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     getMutableState(RendererState).usePostProcessing.set(true)
+    setComponent(entity, SceneComponent)
     setComponent(entity, PostProcessingComponent, { enabled: true })
     setComponent(entity, EntityTreeComponent)
 
     //set data to test
-    setComponent(rootEntity, SceneComponent, { scenes: [entity] })
+    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas(), scenes: [entity] })
 
     //override addpass to test data without dependency on Browser
     let addPassCount = 0
@@ -105,11 +104,11 @@ describe('PostProcessingComponent', () => {
 
     const effectComposer = getComponent(rootEntity, RendererComponent).effectComposer
     //test that the effect composer is setup
-    assert(getComponent(rootEntity, RendererComponent).effectComposer, 'effect composer is setup')
+    assert(effectComposer, 'effect composer is setup')
 
     //test that the effect pass has the the effect set
     // @ts-ignore
-    const effects = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
+    const effects = effectComposer.EffectPass.effects
     assert(effects.find((el) => el.name == effectKey))
 
     unmount()
