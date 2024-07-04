@@ -241,17 +241,20 @@ export const MediaIconsBox = () => {
           icon={<Icon type="ViewInAr" />}
         />
       )}
-      <button
-        type="button"
-        id="ExitSpectator"
-        title={t('user:menu.exitSpectate')}
-        className={styles.iconContainer}
-        onClick={handleExitSpectatorClick}
-        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-      >
-        {spectating ? 'Exit Spectate' : 'Enter Spectate'}
-      </button>
+      {spectating && (
+        <button
+          type="button"
+          id="ExitSpectator"
+          title={t('user:menu.exitSpectate')}
+          className={styles.iconContainer}
+          onClick={handleExitSpectatorClick}
+          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+        >
+          {/* todo - better UX for entering spectate mode */}
+          {spectating ? 'Exit Spectate' : 'Enter Spectate'}
+        </button>
+      )}
       {/* {recordScopes && (
         <>
           {recordingState.recordingID.value || playbackState.recordingID.value ? (

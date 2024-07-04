@@ -55,15 +55,15 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { smootheLerpAlpha } from '../common/functions/MathLerpFunctions'
 
 import React from 'react'
-import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
-import { Vector3_Up } from '../common/constants/MathConstants'
-import { NameComponent } from '../common/NameComponent'
 import { EngineState } from '../EngineState'
+import { NameComponent } from '../common/NameComponent'
+import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
+import { Vector3_One, Vector3_Up } from '../common/constants/MathConstants'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { InputState } from '../input/state/InputState'
 import { addObjectToGroup } from '../renderer/components/GroupComponent'
-import { setVisibleComponent, VisibleComponent } from '../renderer/components/VisibleComponent'
+import { VisibleComponent, setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
 import { XRCameraUpdateSystem } from './XRCameraSystem'
@@ -201,7 +201,7 @@ export const XRAnchorSystemState = defineState({
 const execute = () => {
   const xrState = getState(XRState)
 
-  const { scenePlacementEntity } = getState(XRAnchorSystemState)
+  const { scenePlacementEntity, originAnchorEntity } = getState(XRAnchorSystemState)
 
   for (const action of xrSessionChangedQueue()) {
     if (!action.active) {
@@ -219,6 +219,8 @@ const execute = () => {
   if (xrState.scenePlacementMode === 'placing') {
     updateScenePlacement(scenePlacementEntity)
     updateWorldOriginFromScenePlacement()
+
+    getComponent(originAnchorEntity, TransformComponent).scale.copy(Vector3_One)
   }
 }
 
