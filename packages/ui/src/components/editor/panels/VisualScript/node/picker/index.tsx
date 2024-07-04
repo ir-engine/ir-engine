@@ -31,6 +31,7 @@ import { GoDotFill } from 'react-icons/go'
 import { HiMagnifyingGlass, HiOutlineChevronDown, HiOutlineChevronRight } from 'react-icons/hi2'
 import { XYPosition, useReactFlow } from 'reactflow'
 import { twMerge } from 'tailwind-merge'
+import { VisualScriptPanelTab } from '../..'
 import Input from '../../../../../../primitives/tailwind/Input'
 import { categoryColorMap, colors } from '../../util/colors'
 
@@ -69,7 +70,12 @@ const PickerItem = ({ label, node, onPickNode, position, instance, color }) => {
 
   const handleNodeClick = () => {
     if (isLeafNode) {
-      onPickNode(node.type, instance.screenToFlowPosition(position))
+      console.log('DEBUG final pos', instance.screenToFlowPosition(position))
+      const paneBounds = document.getElementById(VisualScriptPanelTab.id!)!.getBoundingClientRect()
+
+      const newPosition = { x: position.x + paneBounds.x, y: position.y + paneBounds.y }
+
+      onPickNode(node.type, instance.screenToFlowPosition(newPosition))
     }
     setIsExpanded(!isExpanded)
   }
@@ -107,8 +113,6 @@ const NodePickerNode = ({ nodes, onPickNode, position, instance }) => {
     current['type'] = node.type
   })
 
-  console.log('node tree', nodeTree)
-
   const initialTreeNodes = createPickerNodes(nodeTree, onPickNode, position, instance)
 
   return <div className="flex h-48 flex-col overflow-x-hidden overflow-y-scroll">{initialTreeNodes}</div>
@@ -120,7 +124,6 @@ export type NodePickerFilters = {
 }
 
 type NodePickerProps = {
-  flowRef: React.MutableRefObject<HTMLElement | null>
   position: XYPosition
   filters?: NodePickerFilters
   onPickNode: (type: string, position: XYPosition) => void
@@ -134,7 +137,6 @@ const pickerStyle = {
 }
 
 export const NodePicker: React.FC<NodePickerProps> = ({
-  flowRef,
   position,
   onPickNode,
   onClose,
@@ -162,11 +164,18 @@ export const NodePicker: React.FC<NodePickerProps> = ({
       return node.type.toLowerCase().includes(term)
     }) || []
 
-  const paneBounds = flowRef.current!.getBoundingClientRect()
+  const paneBounds = document.getElementById(VisualScriptPanelTab.id!)!.getBoundingClientRect()
   const width = parseInt(pickerStyle.width)
   const height = parseInt(pickerStyle.height)
-  position.x = position.x + width > paneBounds.width ? (position.x -= width) : position.x
-  position.y = position.y + height > paneBounds.height ? (position.y -= height) : position.y
+
+  position.x =
+    position.x - width > 0 ? (position.x + width > paneBounds.width ? (position.x -= width) : position.x) : position.x
+  position.y =
+    position.y - height > 0
+      ? position.y + height > paneBounds.height
+        ? (position.y -= height)
+        : position.y
+      : position.y
 
   return (
     <div
