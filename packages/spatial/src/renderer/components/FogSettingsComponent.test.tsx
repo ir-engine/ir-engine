@@ -58,20 +58,20 @@ describe('FogSettingsComponent', () => {
   beforeEach(() => {
     createEngine()
 
-    rootEntity = createEntity()
-    setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-    setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, CameraComponent)
-    setComponent(rootEntity, SceneComponent)
-    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas() })
-
     entity = createEntity()
     setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(entity, FogSettingsComponent)
     setComponent(entity, EntityTreeComponent)
 
     //set data to test
-    setComponent(rootEntity, SceneComponent, { scenes: [entity] })
+    setComponent(rootEntity, SceneComponent)
+
+    rootEntity = createEntity()
+    setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(rootEntity, EntityTreeComponent)
+    setComponent(rootEntity, CameraComponent)
+    setComponent(rootEntity, SceneComponent)
+    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas(), scenes: [entity] })
   })
 
   afterEach(() => {
