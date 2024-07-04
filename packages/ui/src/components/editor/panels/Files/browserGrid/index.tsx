@@ -35,8 +35,7 @@ import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
@@ -99,7 +98,8 @@ export const FileTableListBody = ({
   modifiedDate,
   drop,
   isOver,
-  drag
+  drag,
+  projectName
 }: {
   file: FileDataType
   onContextMenu: React.MouseEventHandler
@@ -109,13 +109,13 @@ export const FileTableListBody = ({
   drop?: ConnectDropTarget
   isOver: boolean
   drag?: ConnectDragSource
+  projectName: string
 }) => {
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
   const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
 
-  const { projectName } = useMutableState(EditorState)
   const staticResource = useFind(staticResourcePath, { query: { key: file.key, project: projectName.value! } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
 
@@ -157,12 +157,12 @@ type FileGridItemProps = {
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
   onClick?: MouseEventHandler<HTMLDivElement>
   isSelected: boolean
+  projectName: string
 }
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
-  const editorState = useMutableState(EditorState)
-  const projectName = props.item.key.match(/projects\/([^/]+)\//)?.[1] ?? editorState.projectName.value
+  const { projectName } = props
   const staticResource = useFind(staticResourcePath, { query: { key: props.item.key, project: projectName! } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
   const { t } = useTranslation()
@@ -356,12 +356,19 @@ export function FileBrowserItem({
           drop={drop}
           isOver={isOver}
           drag={drag}
+          projectName={projectName}
         />
       ) : (
         <div ref={drop} className={twMerge('h-min', isOver && 'border-2 border-gray-400')}>
           <div ref={drag}>
             <div onContextMenu={handleContextMenu}>
-              <FileGridItem item={item} onClick={onClickItem} onDoubleClick={onClickItem} isSelected={isSelected} />
+              <FileGridItem
+                item={item}
+                onClick={onClickItem}
+                onDoubleClick={onClickItem}
+                isSelected={isSelected}
+                projectName={projectName}
+              />
             </div>
           </div>
         </div>
