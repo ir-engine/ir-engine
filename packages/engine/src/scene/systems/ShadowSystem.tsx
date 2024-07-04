@@ -87,6 +87,7 @@ import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSy
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { RenderModes } from '@etherealengine/spatial/src/renderer/constants/RenderModes'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
@@ -278,7 +279,7 @@ function _CSMReactor() {
 
   if (!rendererEntity) return null
   if (!renderSettingsEntity) return null
-  if (isEditor && ['Unlit', 'Lit'].includes(renderMode)) return null
+  if ((isEditor && renderMode === RenderModes.UNLIT) || renderMode === RenderModes.LIT) return null
 
   return <CSMReactor rendererEntity={rendererEntity} renderSettingsEntity={renderSettingsEntity} />
 }
