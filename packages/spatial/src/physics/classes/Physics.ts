@@ -917,6 +917,7 @@ export const Physics = {
   destroyWorld,
   getWorld,
   useWorld,
+  smoothKinematicBody,
   simulate,
   /** world.Rigidbodies */
   createRigidBody,

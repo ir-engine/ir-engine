@@ -27,6 +27,7 @@ import assert from 'assert'
 
 import {
   Entity,
+  UUIDComponent,
   UndefinedEntity,
   createEntity,
   destroyEngine,
@@ -36,17 +37,14 @@ import {
   serializeComponent,
   setComponent
 } from '@etherealengine/ecs'
-import { getMutableState } from '@etherealengine/hyperflux'
 
-import { World } from '@dimforge/rapier3d-compat'
 import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
 import { EntityTreeComponent, getAncestorWithComponent } from '../../transform/components/EntityTree'
-import { Physics } from '../classes/Physics'
+import { Physics, PhysicsWorld } from '../classes/Physics'
 import { assertVecAllApproxNotEq, assertVecApproxEq } from '../classes/Physics.test'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { PhysicsState } from '../state/PhysicsState'
 import { BodyTypes, Shapes } from '../types/PhysicsTypes'
 import { ColliderComponent } from './ColliderComponent'
 import { RigidBodyComponent } from './RigidBodyComponent'
@@ -84,12 +82,16 @@ function getMaskFromCollisionGroups(groups: number): number {
 describe('ColliderComponent', () => {
   describe('general functionality', () => {
     let entity = UndefinedEntity
+    let physicsWorld: PhysicsWorld
 
     beforeEach(async () => {
       createEngine()
       await Physics.load()
-      getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
+      const physicsEntity = createEntity()
+      setComponent(physicsEntity, UUIDComponent, UUIDComponent.generateUUID())
+      physicsWorld = Physics.createWorld(getComponent(physicsEntity, UUIDComponent))
       entity = createEntity()
+      setComponent(entity, EntityTreeComponent, { parentEntity: physicsEntity })
     })
 
     afterEach(() => {
@@ -102,8 +104,8 @@ describe('ColliderComponent', () => {
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(entity, ColliderComponent)
 
-      const body = Physics._Rigidbodies.get(entity)!
-      const collider = Physics._Colliders.get(entity)!
+      const body = physicsWorld.Rigidbodies.get(entity)!
+      const collider = physicsWorld.Colliders.get(entity)!
 
       assert.equal(body.numColliders(), 1)
       assert(collider)
@@ -115,8 +117,8 @@ describe('ColliderComponent', () => {
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(entity, ColliderComponent)
 
-      const body = Physics._Rigidbodies.get(entity)!
-      const collider = Physics._Colliders.get(entity)!
+      const body = physicsWorld.Rigidbodies.get(entity)!
+      const collider = physicsWorld.Colliders.get(entity)!
 
       assert.equal(body.numColliders(), 1)
       assert(collider)
@@ -134,7 +136,7 @@ describe('ColliderComponent', () => {
       setComponent(entity, TriggerComponent)
       setComponent(entity, ColliderComponent)
 
-      const collider = Physics._Colliders.get(entity)!
+      const collider = physicsWorld.Colliders.get(entity)!
       assert.equal(collider!.isSensor(), true)
     })
   })
@@ -244,7 +246,7 @@ describe('ColliderComponent', () => {
   describe('reactor', () => {
     let testEntity = UndefinedEntity
     let parentEntity = UndefinedEntity
-    let physicsWorld: World | undefined = undefined
+    let physicsWorld: PhysicsWorld
 
     function createValidAncestor(colliderData = ColliderComponentDefaults as any): Entity {
       const result = createEntity()
@@ -257,12 +259,14 @@ describe('ColliderComponent', () => {
     beforeEach(async () => {
       createEngine()
       await Physics.load()
-      physicsWorld = Physics.createWorld()
+      const physicsEntity = createEntity()
+      setComponent(physicsEntity, UUIDComponent, UUIDComponent.generateUUID())
+      physicsWorld = Physics.createWorld(getComponent(physicsEntity, UUIDComponent))
       physicsWorld!.timestep = 1 / 60
-      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
 
       parentEntity = createValidAncestor()
       testEntity = createEntity()
+      setComponent(parentEntity, EntityTreeComponent, { parentEntity: physicsEntity })
       setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, ColliderComponent)
@@ -270,29 +274,29 @@ describe('ColliderComponent', () => {
     })
 
     afterEach(() => {
+      Physics.destroyWorld(physicsWorld.id)
       removeEntity(testEntity)
-      physicsWorld = undefined
       return destroyEngine()
     })
 
     describe('should attach and/or remove a collider to the physicsWorld based on the entity and its closest ancestor with a RigidBodyComponent ...', () => {
       it("... when the shape of the entity's collider changes", () => {
         assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
-        const beforeCollider = Physics._Colliders.get(testEntity)
+        const beforeCollider = physicsWorld.Colliders.get(testEntity)
         assert.ok(beforeCollider)
         const before = beforeCollider.shape
         assert.equal(getComponent(testEntity, ColliderComponent).shape, ColliderComponentDefaults.shape)
 
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
         assert.notEqual(getComponent(testEntity, ColliderComponent).shape, ColliderComponentDefaults.shape)
-        const after1Collider = Physics._Colliders.get(testEntity)!
+        const after1Collider = physicsWorld.Colliders.get(testEntity)!
         const after1 = after1Collider.shape
         assert.notEqual(beforeCollider.handle, after1Collider.handle)
         assert.notDeepEqual(after1, before)
 
         removeComponent(testEntity, ColliderComponent)
         assert.notEqual(getComponent(testEntity, ColliderComponent)?.shape, ColliderComponentDefaults.shape)
-        const after2Collider = Physics._Colliders.get(testEntity)!
+        const after2Collider = physicsWorld.Colliders.get(testEntity)!
         assert.equal(after2Collider, undefined)
       })
 
@@ -300,7 +304,7 @@ describe('ColliderComponent', () => {
         assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
         const TransformScaleDefault = new Vector3(1, 1, 1)
         const Expected = new Vector3(42, 42, 42)
-        const beforeCollider = Physics._Colliders.get(testEntity)
+        const beforeCollider = physicsWorld.Colliders.get(testEntity)
         assert.ok(beforeCollider)
         const before = getComponent(testEntity, TransformComponent).scale.clone()
         assertVecApproxEq(before, TransformScaleDefault, 3)
@@ -314,7 +318,7 @@ describe('ColliderComponent', () => {
         removeComponent(testEntity, ColliderComponent)
         const after2 = getComponent(testEntity, TransformComponent).scale.clone()
         assert.notEqual(after1, after2)
-        const afterCollider = Physics._Colliders.get(testEntity)
+        const afterCollider = physicsWorld.Colliders.get(testEntity)
         assert.equal(afterCollider, undefined)
       })
 
@@ -338,9 +342,9 @@ describe('ColliderComponent', () => {
     it('should set the mass of the API data based on the component.mass.value when it changes', () => {
       assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
       const Expected = 42
-      const before = Physics._Colliders.get(testEntity)!.mass()
+      const before = physicsWorld.Colliders.get(testEntity)!.mass()
       setComponent(testEntity, ColliderComponent, { mass: Expected })
-      const after = Physics._Colliders.get(testEntity)!.mass()
+      const after = physicsWorld.Colliders.get(testEntity)!.mass()
       assert.notEqual(before, after, 'Before and After should not be equal')
       assert.notEqual(before, Expected, 'Before and Expected should not be equal')
       assert.equal(after, Expected, 'After and Expected should be equal')
@@ -349,9 +353,9 @@ describe('ColliderComponent', () => {
     it('should set the friction of the API data based on the component.friction.value when it changes', () => {
       assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
       const Expected = 42
-      const before = Physics._Colliders.get(testEntity)!.friction()
+      const before = physicsWorld.Colliders.get(testEntity)!.friction()
       setComponent(testEntity, ColliderComponent, { friction: Expected })
-      const after = Physics._Colliders.get(testEntity)!.friction()
+      const after = physicsWorld.Colliders.get(testEntity)!.friction()
       assert.notEqual(before, after, 'Before and After should not be equal')
       assert.notEqual(before, Expected, 'Before and Expected should not be equal')
       assert.equal(after, Expected, 'After and Expected should be equal')
@@ -360,9 +364,9 @@ describe('ColliderComponent', () => {
     it('should set the restitution of the API data based on the component.restitution.value when it changes', () => {
       assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
       const Expected = 42
-      const before = Physics._Colliders.get(testEntity)!.restitution()
+      const before = physicsWorld.Colliders.get(testEntity)!.restitution()
       setComponent(testEntity, ColliderComponent, { restitution: Expected })
-      const after = Physics._Colliders.get(testEntity)!.restitution()
+      const after = physicsWorld.Colliders.get(testEntity)!.restitution()
       assert.notEqual(before, after, 'Before and After should not be equal')
       assert.notEqual(before, Expected, 'Before and Expected should not be equal')
       assert.equal(after, Expected, 'After and Expected should be equal')
@@ -371,9 +375,9 @@ describe('ColliderComponent', () => {
     it('should set the collisionLayer of the API data based on the component.collisionLayer.value when it changes', () => {
       assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
       const Expected = CollisionGroups.Avatars
-      const before = getLayerFromCollisionGroups(Physics._Colliders.get(testEntity)!.collisionGroups())
+      const before = getLayerFromCollisionGroups(physicsWorld.Colliders.get(testEntity)!.collisionGroups())
       setComponent(testEntity, ColliderComponent, { collisionLayer: Expected })
-      const after = getLayerFromCollisionGroups(Physics._Colliders.get(testEntity)!.collisionGroups())
+      const after = getLayerFromCollisionGroups(physicsWorld.Colliders.get(testEntity)!.collisionGroups())
       assert.notEqual(before, after, 'Before and After should not be equal')
       assert.notEqual(before, Expected, 'Before and Expected should not be equal')
       assert.equal(after, Expected, 'After and Expected should be equal')
@@ -382,9 +386,9 @@ describe('ColliderComponent', () => {
     it('should set the collisionMask of the API data based on the component.collisionMask.value when it changes', () => {
       assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
       const Expected = CollisionGroups.Avatars
-      const before = getMaskFromCollisionGroups(Physics._Colliders.get(testEntity)!.collisionGroups())
+      const before = getMaskFromCollisionGroups(physicsWorld.Colliders.get(testEntity)!.collisionGroups())
       setComponent(testEntity, ColliderComponent, { collisionMask: Expected })
-      const after = getMaskFromCollisionGroups(Physics._Colliders.get(testEntity)!.collisionGroups())
+      const after = getMaskFromCollisionGroups(physicsWorld.Colliders.get(testEntity)!.collisionGroups())
       assert.notEqual(before, after, 'Before and After should not be equal')
       assert.notEqual(before, Expected, 'Before and Expected should not be equal')
       assert.equal(after, Expected, 'After and Expected should be equal')

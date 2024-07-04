@@ -22,6 +22,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import '../../..'
 
 import { RigidBodyType, ShapeType, TempContactForceEvent, Vector, World } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
@@ -38,7 +39,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { ObjectDirection, Vector3_Zero } from '../../common/constants/MathConstants'
@@ -54,9 +55,15 @@ import {
 import { TriggerComponent } from '../components/TriggerComponent'
 import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
-import { PhysicsState } from '../state/PhysicsState'
 
-import { Entity, SystemDefinitions, UndefinedEntity, removeEntity } from '@etherealengine/ecs'
+import {
+  Entity,
+  EntityUUID,
+  SystemDefinitions,
+  UUIDComponent,
+  UndefinedEntity,
+  removeEntity
+} from '@etherealengine/ecs'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { PhysicsSystem } from '../PhysicsModule'
 import {
@@ -67,7 +74,7 @@ import {
   SceneQueryType,
   Shapes
 } from '../types/PhysicsTypes'
-import { Physics } from './Physics'
+import { Physics, PhysicsWorld, RapierWorldState } from './Physics'
 
 const Rotation_Zero = { x: 0, y: 0, z: 0, w: 1 }
 
@@ -124,11 +131,14 @@ export const boxDynamicConfig = {
 } as ColliderDescOptions
 
 describe('Physics : External API', () => {
+  let physicsWorld: PhysicsWorld
+
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    const physicsWorld = Physics.createWorld()
-    getMutableState(PhysicsState).physicsWorld.set(physicsWorld)
+    const entity = createEntity()
+    setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+    physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
     physicsWorld.timestep = 1 / 60
   })
 
@@ -137,8 +147,6 @@ describe('Physics : External API', () => {
   })
 
   it('should create & remove rigidBody', async () => {
-    const physicsWorld = getState(PhysicsState).physicsWorld
-
     const entity = createEntity()
     setComponent(entity, TransformComponent)
     setComponent(entity, RigidBodyComponent, { type: BodyTypes.Dynamic })
@@ -177,8 +185,6 @@ describe('Physics : External API', () => {
   })
 
   it('should generate a collision event', async () => {
-    const physicsWorld = getState(PhysicsState).physicsWorld
-
     const entity1 = createEntity()
     const entity2 = createEntity()
     setComponent(entity1, TransformComponent)
@@ -203,8 +209,8 @@ describe('Physics : External API', () => {
     physicsWorld.step(collisionEventQueue)
     collisionEventQueue.drainCollisionEvents(drainCollisions)
 
-    const rigidBody1 = Physics._Rigidbodies.get(entity1)!
-    const rigidBody2 = Physics._Rigidbodies.get(entity2)!
+    const rigidBody1 = physicsWorld.Rigidbodies.get(entity1)!
+    const rigidBody2 = physicsWorld.Rigidbodies.get(entity2)!
 
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodySelf, rigidBody1)
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodyOther, rigidBody2)
@@ -237,8 +243,6 @@ describe('Physics : External API', () => {
   })
 
   it('should generate a trigger event', async () => {
-    const physicsWorld = getState(PhysicsState).physicsWorld
-
     const entity1 = createEntity()
     const entity2 = createEntity()
 
@@ -268,8 +272,8 @@ describe('Physics : External API', () => {
     physicsWorld.step(collisionEventQueue)
     collisionEventQueue.drainCollisionEvents(drainCollisions)
 
-    const rigidBody1 = Physics._Rigidbodies.get(entity1)!
-    const rigidBody2 = Physics._Rigidbodies.get(entity2)!
+    const rigidBody1 = physicsWorld.Rigidbodies.get(entity1)!
+    const rigidBody2 = physicsWorld.Rigidbodies.get(entity2)!
 
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodySelf, rigidBody1)
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodyOther, rigidBody2)
@@ -313,21 +317,21 @@ describe('Physics : Rapier->ECS API', () => {
       return destroyEngine()
     })
 
-    it('should create a new world object successfully', () => {
-      const world = Physics.createWorld()
-      assert.ok(world instanceof World, 'The create world has an incorrect type.')
-    })
-
     it('should create a world object with the default gravity when not specified', () => {
-      const world = Physics.createWorld()
+      const world = Physics.createWorld('world' as EntityUUID)
+      assert(getState(RapierWorldState)['world'])
+      assert.ok(world instanceof World, 'The create world has an incorrect type.')
       const Expected = new Vector3(0.0, -9.81, 0.0)
       assertVecApproxEq(world.gravity, Expected, 3)
+      Physics.destroyWorld('world' as EntityUUID)
+      assert(!getState(RapierWorldState)['world'])
     })
 
     it('should create a world object with a different gravity value when specified', () => {
-      const expected = new Vector3(1.0, 2.0, 3.0)
-      const world = Physics.createWorld(expected)
+      const expected = { x: 0.0, y: -5.0, z: 0.0 }
+      const world = Physics.createWorld('world' as EntityUUID, { gravity: expected, substeps: 2 })
       assertVecApproxEq(world.gravity, expected, 3)
+      assert.equal(world.substeps, 2)
     })
   })
 
@@ -338,13 +342,14 @@ describe('Physics : Rapier->ECS API', () => {
 
       const scale = new Vector3(10, 10, 10)
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -356,67 +361,67 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should create a rigidBody successfully', () => {
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        const body = Physics._Rigidbodies.get(testEntity)
+        Physics.createRigidBody(physicsWorld, testEntity)
+        const body = physicsWorld.Rigidbodies.get(testEntity)
         assert.ok(body)
       })
 
       it("shouldn't mark the entity transform as dirty", () => {
-        Physics.createRigidBody(testEntity, physicsWorld!)
+        Physics.createRigidBody(physicsWorld, testEntity)
         assert.ok(TransformComponent.dirtyTransforms[testEntity] == false)
       })
 
       it('should assign the correct RigidBodyType enum', () => {
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        Physics.createRigidBody(physicsWorld, testEntity)
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         assert.equal(body.bodyType(), RigidBodyType.Dynamic)
       })
 
       it("should assign the entity's position to the rigidBody.translation property", () => {
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        Physics.createRigidBody(physicsWorld, testEntity)
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         assertVecApproxEq(body.translation(), position, 3)
       })
 
       it("should assign the entity's rotation to the rigidBody.rotation property", () => {
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        Physics.createRigidBody(physicsWorld, testEntity)
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         assertVecApproxEq(body!.rotation(), rotation, 4)
       })
 
       it('should create a body with no Linear Velocity', () => {
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        Physics.createRigidBody(physicsWorld, testEntity)
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         assertVecApproxEq(body.linvel(), Vector3_Zero, 3)
       })
 
       it('should create a body with no Angular Velocity', () => {
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        Physics.createRigidBody(physicsWorld, testEntity)
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         assertVecApproxEq(body.angvel(), Vector3_Zero, 3)
       })
 
       it("should store the entity in the body's userData property", () => {
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        Physics.createRigidBody(physicsWorld, testEntity)
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         assert.deepEqual(body.userData, { entity: testEntity })
       })
     })
 
     describe('removeRigidbody', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -424,33 +429,33 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.reactorMap.get(testEntity)!.stop()
-        Physics.createRigidBody(testEntity, physicsWorld!)
+        Physics.createRigidBody(physicsWorld, testEntity)
       })
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should successfully remove the body from the RigidBodies map', () => {
-        let body = Physics._Rigidbodies.get(testEntity)
+        let body = physicsWorld.Rigidbodies.get(testEntity)
         assert.ok(body)
-        Physics.removeRigidbody(testEntity, physicsWorld!)
-        body = Physics._Rigidbodies.get(testEntity)
+        Physics.removeRigidbody(physicsWorld, testEntity)
+        body = physicsWorld.Rigidbodies.get(testEntity)
         assert.equal(body, undefined)
       })
     })
 
     describe('isSleeping', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -458,20 +463,23 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.reactorMap.get(testEntity)!.stop()
-        Physics.createRigidBody(testEntity, physicsWorld!)
+        Physics.createRigidBody(physicsWorld, testEntity)
       })
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should return the correct values', () => {
         const noBodyEntity = createEntity()
-        assert.equal(Physics.isSleeping(noBodyEntity), true, 'Returns true when the entity does not have a RigidBody')
         assert.equal(
-          Physics.isSleeping(testEntity),
+          Physics.isSleeping(physicsWorld, noBodyEntity),
+          true,
+          'Returns true when the entity does not have a RigidBody'
+        )
+        assert.equal(
+          Physics.isSleeping(physicsWorld, testEntity),
           false,
           "Returns false when the entity is first created and physics haven't been simulated yet"
         )
@@ -480,13 +488,14 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('setRigidBodyType', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -494,31 +503,30 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.reactorMap.get(testEntity)!.stop()
-        Physics.createRigidBody(testEntity, physicsWorld!)
+        Physics.createRigidBody(physicsWorld, testEntity)
       })
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it("should assign the correct RigidBodyType to the entity's body", () => {
-        let body = Physics._Rigidbodies.get(testEntity)!
+        let body = physicsWorld.Rigidbodies.get(testEntity)!
         assert.equal(body.bodyType(), RigidBodyType.Dynamic)
         // Check change to fixed
-        Physics.setRigidBodyType(testEntity, BodyTypes.Fixed)
-        body = Physics._Rigidbodies.get(testEntity)!
+        Physics.setRigidBodyType(physicsWorld, testEntity, BodyTypes.Fixed)
+        body = physicsWorld.Rigidbodies.get(testEntity)!
         assert.notEqual(body.bodyType(), RigidBodyType.Dynamic, "The RigidBody's type was not changed")
         assert.equal(body.bodyType(), RigidBodyType.Fixed, "The RigidBody's type was not changed to Fixed")
         // Check change to dynamic
-        Physics.setRigidBodyType(testEntity, BodyTypes.Dynamic)
-        body = Physics._Rigidbodies.get(testEntity)!
+        Physics.setRigidBodyType(physicsWorld, testEntity, BodyTypes.Dynamic)
+        body = physicsWorld.Rigidbodies.get(testEntity)!
         assert.notEqual(body.bodyType(), RigidBodyType.Fixed, "The RigidBody's type was not changed")
         assert.equal(body.bodyType(), RigidBodyType.Dynamic, "The RigidBody's type was not changed to Dynamic")
         // Check change to kinematic
-        Physics.setRigidBodyType(testEntity, BodyTypes.Kinematic)
-        body = Physics._Rigidbodies.get(testEntity)!
+        Physics.setRigidBodyType(physicsWorld, testEntity, BodyTypes.Kinematic)
+        body = physicsWorld.Rigidbodies.get(testEntity)!
         assert.notEqual(body.bodyType(), RigidBodyType.Dynamic, "The RigidBody's type was not changed")
         assert.equal(
           body.bodyType(),
@@ -534,13 +542,14 @@ describe('Physics : Rapier->ECS API', () => {
       const linVel = new Vector3(7, 8, 9)
       const angVel = new Vector3(0, 1, 2)
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -548,49 +557,49 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.reactorMap.get(testEntity)!.stop()
-        Physics.createRigidBody(testEntity, physicsWorld!)
+        Physics.createRigidBody(physicsWorld, testEntity)
       })
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it("should set the body's Translation to the given Position", () => {
-        Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        Physics.setRigidbodyPose(physicsWorld, testEntity, position, rotation, linVel, angVel)
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         assertVecApproxEq(body.translation(), position, 3)
       })
 
       it("should set the body's Rotation to the given value", () => {
-        Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        Physics.setRigidbodyPose(physicsWorld, testEntity, position, rotation, linVel, angVel)
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         assertVecApproxEq(body.rotation(), rotation, 4)
       })
 
       it("should set the body's Linear Velocity to the given value", () => {
-        Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        Physics.setRigidbodyPose(physicsWorld, testEntity, position, rotation, linVel, angVel)
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         assertVecApproxEq(body.linvel(), linVel, 3)
       })
 
       it("should set the body's Angular Velocity to the given value", () => {
-        Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        Physics.setRigidbodyPose(physicsWorld, testEntity, position, rotation, linVel, angVel)
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         assertVecApproxEq(body.angvel(), angVel, 3)
       })
     })
 
     describe('enabledCcd', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -598,47 +607,41 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.reactorMap.get(testEntity)!.stop()
-        Physics.createRigidBody(testEntity, physicsWorld!)
+        Physics.createRigidBody(physicsWorld, testEntity)
       })
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should enable Continuous Collision Detection on the entity', () => {
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         assert.equal(body.isCcdEnabled(), false)
-        Physics.enabledCcd(testEntity, true)
+        Physics.enabledCcd(physicsWorld, testEntity, true)
         assert.equal(body.isCcdEnabled(), true)
       })
 
       it('should disable CCD on the entity when passing `false` to the `enabled` property', () => {
-        const body = Physics._Rigidbodies.get(testEntity)!
-        Physics.enabledCcd(testEntity, true)
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
+        Physics.enabledCcd(physicsWorld, testEntity, true)
         assert.equal(body.isCcdEnabled(), true)
-        Physics.enabledCcd(testEntity, false)
+        Physics.enabledCcd(physicsWorld, testEntity, false)
         assert.equal(body.isCcdEnabled(), false)
       })
     })
 
     describe('applyImpulse', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
-        const physicsState = getMutableState(PhysicsState)
-        physicsState.physicsWorld!.set(physicsWorld!)
-        physicsState.physicsCollisionEventQueue.set(Physics.createCollisionEventQueue())
-        /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
-        physicsState.drainCollisions.set((val) => Physics.drainCollisionEventQueue(physicsWorld!))
-        /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
-        physicsState.drainContacts.set((val) => Physics.drainContactEventQueue(physicsWorld!))
 
         // Create the entity
         testEntity = createEntity()
@@ -649,7 +652,6 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
@@ -657,13 +659,13 @@ describe('Physics : Rapier->ECS API', () => {
 
       it('should apply the impulse to the RigidBody of the entity', () => {
         const testImpulse = new Vector3(1, 2, 3)
-        const beforeBody = Physics._Rigidbodies.get(testEntity)
+        const beforeBody = physicsWorld.Rigidbodies.get(testEntity)
         assert.ok(beforeBody)
         const before = beforeBody.linvel()
         assertVecApproxEq(before, Vector3_Zero, 3)
-        Physics.applyImpulse(testEntity, testImpulse)
+        Physics.applyImpulse(physicsWorld, testEntity, testImpulse)
         physicsSystemExecute()
-        const afterBody = Physics._Rigidbodies.get(testEntity)
+        const afterBody = physicsWorld.Rigidbodies.get(testEntity)
         assert.ok(afterBody)
         const after = afterBody.linvel()
         assertVecAllApproxNotEq(after, before, 3)
@@ -672,14 +674,15 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('lockRotations', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
 
         // Create the entity
         testEntity = createEntity()
@@ -690,13 +693,12 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should lock rotations on the entity', () => {
         const impulse = new Vector3(1, 2, 3)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         const before = { x: body.angvel().x, y: body.angvel().y, z: body.angvel().z }
         assertVecApproxEq(before, Vector3_Zero, 3)
 
@@ -704,7 +706,7 @@ describe('Physics : Rapier->ECS API', () => {
         const dummy = { x: body.angvel().x, y: body.angvel().y, z: body.angvel().z }
         assertVecAllApproxNotEq(before, dummy, 3)
 
-        Physics.lockRotations(testEntity, true)
+        Physics.lockRotations(physicsWorld, testEntity, true)
         body.applyTorqueImpulse(impulse, false)
         const after = { x: body.angvel().x, y: body.angvel().y, z: body.angvel().z }
         assertVecApproxEq(dummy, after, 3)
@@ -714,7 +716,7 @@ describe('Physics : Rapier->ECS API', () => {
       // @todo Fix this test when we update to Rapier >= v0.12
       it('should disable locked rotations on the entity', () => {
         const ExpectedValue = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         assert.notDeepEqual(body.rotation(), ExpectedValue)
 
         Physics.lockRotations(testEntity, true)
@@ -733,13 +735,14 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('setEnabledRotations', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -751,17 +754,16 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should disable rotations on the X axis for the rigidBody of the entity', () => {
         const testImpulse = new Vector3(1, 2, 3)
         const enabledRotation = [false, true, true] as [boolean, boolean, boolean]
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         const before = body.angvel()
         assertVecApproxEq(before, Vector3_Zero, 3)
-        Physics.setEnabledRotations(testEntity, enabledRotation)
+        Physics.setEnabledRotations(physicsWorld, testEntity, enabledRotation)
         body.applyTorqueImpulse(testImpulse, false)
         physicsWorld!.step()
         const after = body.angvel()
@@ -773,10 +775,10 @@ describe('Physics : Rapier->ECS API', () => {
       it('should disable rotations on the Y axis for the rigidBody of the entity', () => {
         const testImpulse = new Vector3(1, 2, 3)
         const enabledRotation = [true, false, true] as [boolean, boolean, boolean]
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         const before = body.angvel()
         assertVecApproxEq(before, Vector3_Zero, 3)
-        Physics.setEnabledRotations(testEntity, enabledRotation)
+        Physics.setEnabledRotations(physicsWorld, testEntity, enabledRotation)
         body.applyTorqueImpulse(testImpulse, false)
         physicsWorld!.step()
         const after = body.angvel()
@@ -788,10 +790,10 @@ describe('Physics : Rapier->ECS API', () => {
       it('should disable rotations on the Z axis for the rigidBody of the entity', () => {
         const testImpulse = new Vector3(1, 2, 3)
         const enabledRotation = [true, true, false] as [boolean, boolean, boolean]
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         const before = body.angvel()
         assertVecApproxEq(before, Vector3_Zero, 3)
-        Physics.setEnabledRotations(testEntity, enabledRotation)
+        Physics.setEnabledRotations(physicsWorld, testEntity, enabledRotation)
         body.applyTorqueImpulse(testImpulse, false)
         physicsWorld!.step()
         const after = body.angvel()
@@ -803,13 +805,14 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('updatePreviousRigidbodyPose', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -821,13 +824,12 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it("should set the previous position of the entity's RigidBodyComponent", () => {
         const Expected = new Vector3(1, 2, 3)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         body.setTranslation(Expected, false)
         const before = {
           x: RigidBodyComponent.previousPosition.x[testEntity],
@@ -845,7 +847,7 @@ describe('Physics : Rapier->ECS API', () => {
 
       it("should set the previous rotation of the entity's RigidBodyComponent", () => {
         const Expected = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         body.setRotation(Expected, false)
         const before = {
           x: RigidBodyComponent.previousRotation.x[testEntity],
@@ -866,13 +868,14 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('updateRigidbodyPose', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -884,13 +887,12 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it("should set the position of the entity's RigidBodyComponent", () => {
         const position = new Vector3(1, 2, 3)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         body.setTranslation(position, false)
         const before = {
           x: RigidBodyComponent.position.x[testEntity],
@@ -908,7 +910,7 @@ describe('Physics : Rapier->ECS API', () => {
 
       it("should set the rotation of the entity's RigidBodyComponent", () => {
         const rotation = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         body.setRotation(rotation, false)
         const before = {
           x: RigidBodyComponent.rotation.x[testEntity],
@@ -928,7 +930,7 @@ describe('Physics : Rapier->ECS API', () => {
 
       it("should set the linearVelocity of the entity's RigidBodyComponent", () => {
         const impulse = new Vector3(1, 2, 3)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         body.applyImpulse(impulse, false)
         const before = {
           x: RigidBodyComponent.linearVelocity.x[testEntity],
@@ -946,7 +948,7 @@ describe('Physics : Rapier->ECS API', () => {
 
       it("should set the angularVelocity of the entity's RigidBodyComponent", () => {
         const impulse = new Vector3(1, 2, 3)
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         body.applyTorqueImpulse(impulse, false)
         const before = {
           x: RigidBodyComponent.angularVelocity.x[testEntity],
@@ -967,13 +969,14 @@ describe('Physics : Rapier->ECS API', () => {
       const position = new Vector3(1, 2, 3)
       const rotation = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -985,22 +988,21 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it("should set the nextTranslation property of the entity's Kinematic RigidBody", () => {
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         const before = body.nextTranslation()
-        Physics.setKinematicRigidbodyPose(testEntity, position, rotation)
+        Physics.setKinematicRigidbodyPose(physicsWorld, testEntity, position, rotation)
         const after = body.nextTranslation()
         assertVecAllApproxNotEq(before, after, 3)
       })
 
       it("should set the nextRotation property of the entity's Kinematic RigidBody", () => {
-        const body = Physics._Rigidbodies.get(testEntity)!
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
         const before = body.nextRotation()
-        Physics.setKinematicRigidbodyPose(testEntity, position, rotation)
+        Physics.setKinematicRigidbodyPose(physicsWorld, testEntity, position, rotation)
         const after = body.nextRotation()
         assertVecAllApproxNotEq(before, after, 4)
       })
@@ -1010,13 +1012,14 @@ describe('Physics : Rapier->ECS API', () => {
   describe('Colliders', () => {
     describe('setTrigger', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1028,27 +1031,26 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should mark the collider of the entity as a sensor', () => {
-        const collider = Physics._Colliders.get(testEntity)!
-        Physics.setTrigger(testEntity, true)
+        const collider = physicsWorld.Colliders.get(testEntity)!
+        Physics.setTrigger(physicsWorld, testEntity, true)
         assert.ok(collider.isSensor())
       })
 
       it('should add CollisionGroup.trigger to the interaction groups of the collider when `isTrigger` is passed as true', () => {
-        const collider = Physics._Colliders.get(testEntity)!
-        Physics.setTrigger(testEntity, true)
+        const collider = physicsWorld.Colliders.get(testEntity)!
+        Physics.setTrigger(physicsWorld, testEntity, true)
         const triggerInteraction = getInteractionGroups(CollisionGroups.Trigger, 0) // Shift the Trigger bits into the interaction bits, so they don't match with the mask
         const hasTriggerInteraction = Boolean(collider.collisionGroups() & triggerInteraction) // If interactionGroups contains the triggerInteraction bits
         assert.ok(hasTriggerInteraction)
       })
 
       it('should not add CollisionGroup.trigger to the interaction groups of the collider when `isTrigger` is passed as false', () => {
-        const collider = Physics._Colliders.get(testEntity)!
-        Physics.setTrigger(testEntity, false)
+        const collider = physicsWorld.Colliders.get(testEntity)!
+        Physics.setTrigger(physicsWorld, testEntity, false)
         const triggerInteraction = getInteractionGroups(CollisionGroups.Trigger, 0) // Shift the Trigger bits into the interaction bits, so they don't match with the mask
         const notTriggerInteraction = !(collider.collisionGroups() & triggerInteraction) // If interactionGroups does not contain the triggerInteraction bits
         assert.ok(notTriggerInteraction)
@@ -1057,13 +1059,14 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('setCollisionLayer', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1075,7 +1078,6 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
@@ -1083,9 +1085,9 @@ describe('Physics : Rapier->ECS API', () => {
         const data = getComponent(testEntity, ColliderComponent)
         const ExpectedLayer = CollisionGroups.Avatars | data.collisionLayer
         const Expected = getInteractionGroups(ExpectedLayer, data.collisionMask)
-        const before = Physics._Colliders.get(testEntity)!.collisionGroups()
-        Physics.setCollisionLayer(testEntity, ExpectedLayer)
-        const after = Physics._Colliders.get(testEntity)!.collisionGroups()
+        const before = physicsWorld.Colliders.get(testEntity)!.collisionGroups()
+        Physics.setCollisionLayer(physicsWorld, testEntity, ExpectedLayer)
+        const after = physicsWorld.Colliders.get(testEntity)!.collisionGroups()
         assert.notEqual(before, Expected)
         assert.equal(after, Expected)
       })
@@ -1094,14 +1096,14 @@ describe('Physics : Rapier->ECS API', () => {
         const data = getComponent(testEntity, ColliderComponent)
         const newLayer = CollisionGroups.Avatars
         const Expected = getInteractionGroups(newLayer, data.collisionMask)
-        Physics.setCollisionLayer(testEntity, newLayer)
-        const after = Physics._Colliders.get(testEntity)!.collisionGroups()
+        Physics.setCollisionLayer(physicsWorld, testEntity, newLayer)
+        const after = physicsWorld.Colliders.get(testEntity)!.collisionGroups()
         assert.equal(after, Expected)
       })
 
       it('should not add CollisionGroups.Trigger to the collider interaction groups if the entity does not have a TriggerComponent', () => {
-        Physics.setCollisionLayer(testEntity, CollisionGroups.Avatars)
-        const after = Physics._Colliders.get(testEntity)!.collisionGroups()
+        Physics.setCollisionLayer(physicsWorld, testEntity, CollisionGroups.Avatars)
+        const after = physicsWorld.Colliders.get(testEntity)!.collisionGroups()
         const noTriggerBit = !(after & getInteractionGroups(CollisionGroups.Trigger, 0)) // not collisionLayer contains Trigger
         assert.ok(noTriggerBit)
       })
@@ -1109,10 +1111,10 @@ describe('Physics : Rapier->ECS API', () => {
       it('should not modify the CollisionGroups.Trigger bit in the collider interaction groups if the entity has a TriggerComponent', () => {
         const triggerLayer = getInteractionGroups(CollisionGroups.Trigger, 0) // Create the triggerLayer groups bitmask
         setComponent(testEntity, TriggerComponent)
-        const beforeGroups = Physics._Colliders.get(testEntity)!.collisionGroups()
+        const beforeGroups = physicsWorld.Colliders.get(testEntity)!.collisionGroups()
         const before = getInteractionGroups(beforeGroups & triggerLayer, 0) === triggerLayer // beforeGroups.collisionLayer contains Trigger
-        Physics.setCollisionLayer(testEntity, CollisionGroups.Avatars)
-        const afterGroups = Physics._Colliders.get(testEntity)!.collisionGroups()
+        Physics.setCollisionLayer(physicsWorld, testEntity, CollisionGroups.Avatars)
+        const afterGroups = physicsWorld.Colliders.get(testEntity)!.collisionGroups()
         const after = getInteractionGroups(afterGroups & triggerLayer, 0) === triggerLayer // afterGroups.collisionLayer contains Trigger
         assert.equal(before, after)
       })
@@ -1120,13 +1122,14 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('setCollisionMask', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1138,27 +1141,26 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should set the collider mask to the given value', () => {
         const before = getComponent(testEntity, ColliderComponent)
         const Expected = CollisionGroups.Avatars | before.collisionMask
-        Physics.setCollisionMask(testEntity, Expected)
+        Physics.setCollisionMask(physicsWorld, testEntity, Expected)
         const after = getComponent(testEntity, ColliderComponent)
         assert.equal(after.collisionMask, Expected)
       })
 
       it('should not modify the collision layer of the collider', () => {
         const before = getComponent(testEntity, ColliderComponent)
-        Physics.setCollisionMask(testEntity, CollisionGroups.Avatars)
+        Physics.setCollisionMask(physicsWorld, testEntity, CollisionGroups.Avatars)
         const after = getComponent(testEntity, ColliderComponent)
         assert.equal(before.collisionLayer, after.collisionLayer)
       })
 
       it('should not add CollisionGroups.Trigger to the collider mask if the entity does not have a TriggerComponent', () => {
-        Physics.setCollisionMask(testEntity, CollisionGroups.Avatars)
+        Physics.setCollisionMask(physicsWorld, testEntity, CollisionGroups.Avatars)
         const after = getComponent(testEntity, ColliderComponent)
         const noTriggerBit = !(after.collisionMask & CollisionGroups.Trigger) // not collisionMask contains Trigger
         assert.ok(noTriggerBit)
@@ -1168,7 +1170,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(testEntity, TriggerComponent)
         const beforeData = getComponent(testEntity, ColliderComponent)
         const before = beforeData.collisionMask & CollisionGroups.Trigger // collisionMask contains Trigger
-        Physics.setCollisionMask(testEntity, CollisionGroups.Avatars)
+        Physics.setCollisionMask(physicsWorld, testEntity, CollisionGroups.Avatars)
 
         const afterData = getComponent(testEntity, ColliderComponent)
         const after = afterData.collisionMask & CollisionGroups.Trigger // collisionMask contains Trigger
@@ -1178,13 +1180,14 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('setFriction', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1196,28 +1199,28 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should set the friction value on the entity', () => {
         const ExpectedValue = 42
-        const collider = Physics._Colliders.get(testEntity)!
+        const collider = physicsWorld.Colliders.get(testEntity)!
         assert.notEqual(collider.friction(), ExpectedValue)
-        Physics.setFriction(testEntity, ExpectedValue)
+        Physics.setFriction(physicsWorld, testEntity, ExpectedValue)
         assert.equal(collider.friction(), ExpectedValue)
       })
     }) // << setFriction
 
     describe('setRestitution', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1229,28 +1232,28 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should set the restitution value on the entity', () => {
         const ExpectedValue = 42
-        const collider = Physics._Colliders.get(testEntity)!
+        const collider = physicsWorld.Colliders.get(testEntity)!
         assert.notEqual(collider.restitution(), ExpectedValue)
-        Physics.setRestitution(testEntity, ExpectedValue)
+        Physics.setRestitution(physicsWorld, testEntity, ExpectedValue)
         assert.equal(collider.restitution(), ExpectedValue)
       })
     }) // << setRestitution
 
     describe('setMass', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1262,28 +1265,28 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should set the mass value on the entity', () => {
         const ExpectedValue = 42
-        const collider = Physics._Colliders.get(testEntity)!
+        const collider = physicsWorld.Colliders.get(testEntity)!
         assert.notEqual(collider.mass(), ExpectedValue)
-        Physics.setMass(testEntity, ExpectedValue)
+        Physics.setMass(physicsWorld, testEntity, ExpectedValue)
         assert.equal(collider.mass(), ExpectedValue)
       })
     }) // << setMass
 
     describe('getShape', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1294,71 +1297,71 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should return a sphere shape', () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        assert.equal(Physics.getShape(testEntity), Shapes.Sphere)
+        Physics.createRigidBody(physicsWorld, testEntity)
+        assert.equal(Physics.getShape(physicsWorld, testEntity), Shapes.Sphere)
       })
 
       it('should return a capsule shape', () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Capsule })
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        assert.equal(Physics.getShape(testEntity), Shapes.Capsule)
+        Physics.createRigidBody(physicsWorld, testEntity)
+        assert.equal(Physics.getShape(physicsWorld, testEntity), Shapes.Capsule)
       })
 
       it('should return a cylinder shape', () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Cylinder })
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        assert.equal(Physics.getShape(testEntity), Shapes.Cylinder)
+        Physics.createRigidBody(physicsWorld, testEntity)
+        assert.equal(Physics.getShape(physicsWorld, testEntity), Shapes.Cylinder)
       })
 
       it('should return a box shape', () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        assert.equal(Physics.getShape(testEntity), Shapes.Box)
+        Physics.createRigidBody(physicsWorld, testEntity)
+        assert.equal(Physics.getShape(physicsWorld, testEntity), Shapes.Box)
       })
 
       it('should return a plane shape', () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Plane })
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        assert.equal(Physics.getShape(testEntity), Shapes.Box) // The Shapes.Plane case is implemented as a box in the engine
+        Physics.createRigidBody(physicsWorld, testEntity)
+        assert.equal(Physics.getShape(physicsWorld, testEntity), Shapes.Box) // The Shapes.Plane case is implemented as a box in the engine
       })
 
       it('should return undefined for the convex_hull case', () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.ConvexHull })
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        assert.equal(Physics.getShape(testEntity), undefined /** @todo Shapes.ConvexHull */)
+        Physics.createRigidBody(physicsWorld, testEntity)
+        assert.equal(Physics.getShape(physicsWorld, testEntity), undefined /** @todo Shapes.ConvexHull */)
       })
 
       it('should return undefined for the mesh case', () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        assert.equal(Physics.getShape(testEntity), undefined /** @todo Shapes.Mesh */)
+        Physics.createRigidBody(physicsWorld, testEntity)
+        assert.equal(Physics.getShape(physicsWorld, testEntity), undefined /** @todo Shapes.Mesh */)
       })
 
       /**
       // @todo Heightfield is not supported yet. Triggers an Error exception
       it("should return undefined for the heightfield case", () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Heightfield })
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        assert.equal(Physics.getShape(testEntity), Shapes.Heightfield)
+        Physics.createRigidBody(physicsWorld, testEntity)
+        assert.equal(Physics.getShape(physicsWorld, testEntity), Shapes.Heightfield)
       })
       */
     }) // << getShape
 
     describe('removeCollider', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1370,28 +1373,28 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it("should remove the entity's collider", () => {
-        const before = Physics._Colliders.get(testEntity)
+        const before = physicsWorld.Colliders.get(testEntity)
         assert.notEqual(before, undefined)
         Physics.removeCollider(physicsWorld!, testEntity)
-        const after = Physics._Colliders.get(testEntity)
+        const after = physicsWorld.Colliders.get(testEntity)
         assert.equal(after, undefined)
       })
     }) // << removeCollider
 
     describe('removeCollidersFromRigidBody', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1403,12 +1406,11 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should remove all Colliders from the RigidBody when called', () => {
-        const before = Physics._Rigidbodies.get(testEntity)!
+        const before = physicsWorld.Rigidbodies.get(testEntity)!
         assert.notEqual(before.numColliders(), 0)
         Physics.removeCollidersFromRigidBody(testEntity, physicsWorld!)
         assert.equal(before.numColliders(), 0)
@@ -1441,15 +1443,16 @@ describe('Physics : Rapier->ECS API', () => {
         angularInertiaLocalFrame: { x: 0, y: 0, z: 0, w: 1 }
       }
 
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
       let testEntity = UndefinedEntity
       let rootEntity = UndefinedEntity
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1466,86 +1469,85 @@ describe('Physics : Rapier->ECS API', () => {
       afterEach(() => {
         removeEntity(testEntity)
         removeEntity(rootEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should return early if the given `rootEntity` does not have a RigidBody', () => {
         removeComponent(rootEntity, RigidBodyComponent)
-        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assert.equal(result, undefined)
       })
 
       it('should return a descriptor with the expected default values', () => {
-        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assert.deepEqual(result, Default)
       })
 
       it('should set the friction to the same value as the ColliderComponent', () => {
-        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assert.equal(result.friction, getComponent(testEntity, ColliderComponent).friction)
       })
 
       it('should set the restitution to the same value as the ColliderComponent', () => {
-        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assert.equal(result.restitution, getComponent(testEntity, ColliderComponent).restitution)
       })
 
       it('should set the collisionGroups to the same value as the ColliderComponent layer and mask', () => {
-        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         const data = getComponent(testEntity, ColliderComponent)
         assert.equal(result.collisionGroups, getInteractionGroups(data.collisionLayer, data.collisionMask))
       })
 
       it('should set the sensor property according to whether the entity has a TriggerComponent or not', () => {
-        const noTriggerDesc = Physics.createColliderDesc(testEntity, rootEntity)
+        const noTriggerDesc = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assert.equal(noTriggerDesc.isSensor, hasComponent(testEntity, TriggerComponent))
         setComponent(testEntity, TriggerComponent)
-        const triggerDesc = Physics.createColliderDesc(testEntity, rootEntity)
+        const triggerDesc = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assert.equal(triggerDesc.isSensor, hasComponent(testEntity, TriggerComponent))
       })
 
       it('should set the shape to a Ball when the ColliderComponent shape is a Sphere', () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
-        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assert.equal(result.shape.type, ShapeType.Ball)
       })
 
       it('should set the shape to a Cuboid when the ColliderComponent shape is a Box', () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
-        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assert.equal(result.shape.type, ShapeType.Cuboid)
       })
 
       it('should set the shape to a Cuboid when the ColliderComponent shape is a Plane', () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Plane })
-        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assert.equal(result.shape.type, ShapeType.Cuboid)
       })
 
       it('should set the shape to a TriMesh when the ColliderComponent shape is a Mesh', () => {
         setComponent(testEntity, MeshComponent, new Mesh(new BoxGeometry()))
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
-        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assert.equal(result.shape.type, ShapeType.TriMesh)
       })
 
       it('should set the shape to a ConvexPolyhedron when the ColliderComponent shape is a ConvexHull', () => {
         setComponent(testEntity, MeshComponent, new Mesh(new BoxGeometry()))
         setComponent(testEntity, ColliderComponent, { shape: Shapes.ConvexHull })
-        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assert.equal(result.shape.type, ShapeType.ConvexPolyhedron)
       })
 
       it('should set the shape to a Cylinder when the ColliderComponent shape is a Cylinder', () => {
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Cylinder })
-        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assert.equal(result.shape.type, ShapeType.Cylinder)
       })
 
       it('should set the position relative to the parent entity', () => {
         const Expected = new Vector3(1, 2, 3)
-        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         console.log(JSON.stringify(result))
         console.log(JSON.stringify(result.translation))
         assertVecApproxEq(result.translation, Vector3_Zero, 3)
@@ -1553,7 +1555,7 @@ describe('Physics : Rapier->ECS API', () => {
 
       it('should set the rotation relative to the parent entity', () => {
         const Expected = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
-        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         console.log(JSON.stringify(result.rotation))
         assertVecApproxEq(result.rotation, Rotation_Zero, 4)
       })
@@ -1562,13 +1564,14 @@ describe('Physics : Rapier->ECS API', () => {
     describe('attachCollider', () => {
       let testEntity = UndefinedEntity
       let rigidbodyEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1585,22 +1588,21 @@ describe('Physics : Rapier->ECS API', () => {
       afterEach(() => {
         removeEntity(testEntity)
         removeEntity(rigidbodyEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it("should return undefined when rigidBodyEntity doesn't have a RigidBodyComponent", () => {
         removeComponent(rigidbodyEntity, RigidBodyComponent)
-        const colliderDesc = Physics.createColliderDesc(testEntity, rigidbodyEntity)
+        const colliderDesc = Physics.createColliderDesc(physicsWorld, testEntity, rigidbodyEntity)
         const result = Physics.attachCollider(physicsWorld!, colliderDesc, rigidbodyEntity, testEntity)
         assert.equal(result, undefined)
       })
 
-      it('should add the collider to the Physics._Colliders map', () => {
+      it('should add the collider to the physicsWorld.Colliders map', () => {
         ColliderComponent.reactorMap.get(testEntity)!.stop()
-        const colliderDesc = Physics.createColliderDesc(testEntity, rigidbodyEntity)
+        const colliderDesc = Physics.createColliderDesc(physicsWorld, testEntity, rigidbodyEntity)
         const result = Physics.attachCollider(physicsWorld!, colliderDesc, rigidbodyEntity, testEntity)!
-        const expected = Physics._Colliders.get(testEntity)
+        const expected = physicsWorld.Colliders.get(testEntity)
         assert.ok(result)
         assert.ok(expected)
         assert.deepEqual(result.handle, expected.handle)
@@ -1609,15 +1611,16 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('setColliderPose', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
       const position = new Vector3(1, 2, 3)
       const rotation = new Quaternion(0.5, 0.4, 0.1, 0.0).normalize()
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1629,19 +1632,18 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it("should assign the entity's position to the collider.translation property", () => {
-        Physics.setColliderPose(testEntity, position, rotation)
-        const collider = Physics._Colliders.get(testEntity)!
+        Physics.setColliderPose(physicsWorld, testEntity, position, rotation)
+        const collider = physicsWorld.Colliders.get(testEntity)!
         assertVecApproxEq(collider.translation(), position, 3)
       })
 
       it("should assign the entity's rotation to the collider.rotation property", () => {
-        Physics.setColliderPose(testEntity, position, rotation)
-        const collider = Physics._Colliders.get(testEntity)!
+        Physics.setColliderPose(physicsWorld, testEntity, position, rotation)
+        const collider = physicsWorld.Colliders.get(testEntity)!
         assertVecApproxEq(collider.rotation(), rotation, 4)
       })
     })
@@ -1660,13 +1662,14 @@ describe('Physics : Rapier->ECS API', () => {
       }
 
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1678,21 +1681,20 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should store a character controller in the Controllers map', () => {
-        const before = Physics._Controllers.get(testEntity)
+        const before = physicsWorld.Controllers.get(testEntity)
         assert.equal(before, undefined)
-        Physics.createCharacterController(testEntity, physicsWorld!, {})
-        const after = Physics._Controllers.get(testEntity)
+        Physics.createCharacterController(physicsWorld, testEntity, {})
+        const after = physicsWorld.Controllers.get(testEntity)
         assert.ok(after)
       })
 
       it('should create a the character controller with the expected defaults when they are omitted', () => {
-        Physics.createCharacterController(testEntity, physicsWorld!, {})
-        const controller = Physics._Controllers.get(testEntity)
+        Physics.createCharacterController(physicsWorld, testEntity, {})
+        const controller = physicsWorld.Controllers.get(testEntity)
         assert.ok(controller)
         assertFloatApproxEq(controller.offset(), Default.offset)
         assertFloatApproxEq(controller.maxSlopeClimbAngle(), Default.maxSlopeClimbAngle)
@@ -1711,8 +1713,8 @@ describe('Physics : Rapier->ECS API', () => {
           autoStep: { maxHeight: 0.1, minWidth: 0.05, stepOverDynamic: false },
           enableSnapToGround: false as number | false
         }
-        Physics.createCharacterController(testEntity, physicsWorld!, Expected)
-        const controller = Physics._Controllers.get(testEntity)
+        Physics.createCharacterController(physicsWorld, testEntity, Expected)
+        const controller = physicsWorld.Controllers.get(testEntity)
         assert.ok(controller)
         // Compare against the specified values
         assertFloatApproxEq(controller.offset(), Expected.offset)
@@ -1735,13 +1737,14 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('removeCharacterController', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1753,58 +1756,52 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should remove the character controller from the Controllers map', () => {
-        const before = Physics._Controllers.get(testEntity)
+        const before = physicsWorld.Controllers.get(testEntity)
         assert.equal(before, undefined)
-        Physics.createCharacterController(testEntity, physicsWorld!, {})
-        const created = Physics._Controllers.get(testEntity)
+        Physics.createCharacterController(physicsWorld, testEntity, {})
+        const created = physicsWorld.Controllers.get(testEntity)
         assert.ok(created)
-        Physics.removeCharacterController(testEntity, physicsWorld!)
-        const after = Physics._Controllers.get(testEntity)
+        Physics.removeCharacterController(physicsWorld, testEntity)
+        const after = physicsWorld.Controllers.get(testEntity)
         assert.equal(after, undefined)
       })
     })
 
     describe('computeColliderMovement', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
-        const physicsState = getMutableState(PhysicsState)
-        physicsState.physicsWorld!.set(physicsWorld!)
-        physicsState.physicsCollisionEventQueue.set(Physics.createCollisionEventQueue())
-        /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
-        physicsState.drainCollisions.set((val) => Physics.drainCollisionEventQueue(physicsWorld!))
-        /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
-        physicsState.drainContacts.set((val) => Physics.drainContactEventQueue(physicsWorld!))
 
         // Create the entity
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
-        Physics.createCharacterController(testEntity, physicsWorld!, {})
+        Physics.createCharacterController(physicsWorld, testEntity, {})
       })
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it("should change the `computedMovement` value for the entity's Character Controller", () => {
         const movement = new Vector3(1, 2, 3)
-        const controller = Physics._Controllers.get(testEntity)!
+        const controller = physicsWorld.Controllers.get(testEntity)!
         const before = controller.computedMovement()
         Physics.computeColliderMovement(
+          physicsWorld,
           testEntity, // entity: Entity,
           testEntity, // colliderEntity: Entity,
           movement // desiredTranslation: Vector3,
@@ -1818,20 +1815,15 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('getComputedMovement', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
-        const physicsState = getMutableState(PhysicsState)
-        physicsState.physicsWorld!.set(physicsWorld!)
-        physicsState.physicsCollisionEventQueue.set(Physics.createCollisionEventQueue())
-        /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
-        physicsState.drainCollisions.set((val) => Physics.drainCollisionEventQueue(physicsWorld!))
-        /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
-        physicsState.drainContacts.set((val) => Physics.drainContactEventQueue(physicsWorld!))
 
         // Create the entity
         testEntity = createEntity()
@@ -1842,22 +1834,22 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
       it('should return (0,0,0) when the entity does not have a CharacterController', () => {
         const result = new Vector3(1, 2, 3)
-        Physics.getComputedMovement(testEntity, result)
+        Physics.getComputedMovement(physicsWorld, testEntity, result)
         assertVecApproxEq(result, Vector3_Zero, 3)
       })
 
       it("should return the same value contained in the `computedMovement` value of the entity's Character Controller", () => {
-        Physics.createCharacterController(testEntity, physicsWorld!, {})
+        Physics.createCharacterController(physicsWorld, testEntity, {})
         const movement = new Vector3(1, 2, 3)
-        const controller = Physics._Controllers.get(testEntity)!
+        const controller = physicsWorld.Controllers.get(testEntity)!
         const before = controller.computedMovement()
         Physics.computeColliderMovement(
+          physicsWorld,
           testEntity, // entity: Entity,
           testEntity, // colliderEntity: Entity,
           movement // desiredTranslation: Vector3,
@@ -1867,7 +1859,7 @@ describe('Physics : Rapier->ECS API', () => {
         const after = controller.computedMovement()
         assertVecAllApproxNotEq(before, after, 3)
         const result = new Vector3()
-        Physics.getComputedMovement(testEntity, result)
+        Physics.getComputedMovement(physicsWorld, testEntity, result)
         assertVecAllApproxNotEq(before, result, 3)
         assertVecApproxEq(after, result, 3)
       })
@@ -1877,13 +1869,14 @@ describe('Physics : Rapier->ECS API', () => {
   describe('Raycasts', () => {
     describe('castRay', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1903,7 +1896,6 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
@@ -1928,13 +1920,14 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('castRayFromCamera', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1954,7 +1947,6 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
@@ -1970,13 +1962,14 @@ describe('Physics : Rapier->ECS API', () => {
     // @todo Double check the `castShape` implementation before implementing this test
     describe('castShape', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: World | undefined = undefined
+      let physicsWorld: PhysicsWorld
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1996,7 +1989,6 @@ describe('Physics : Rapier->ECS API', () => {
 
       afterEach(() => {
         removeEntity(testEntity)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
@@ -2004,7 +1996,7 @@ describe('Physics : Rapier->ECS API', () => {
       it('should cast a shape and hit a rigidbody', () => {
         physicsWorld!.step()
 
-        const collider = Physics._Colliders.get(testEntity)!
+        const collider = physicsWorld.Colliders.get(testEntity)!
         const hits = [] as RaycastHit[]
         const shapecastComponentData :ShapecastArgs= {
           type: SceneQueryType.Closest,  // type: SceneQueryType
@@ -2044,16 +2036,17 @@ describe('Physics : Rapier->ECS API', () => {
 
     describe('drainCollisionEventQueue', () => {
       const InvalidHandle = 8198123
-      let physicsWorld = undefined as World | undefined
+      let physicsWorld: PhysicsWorld
       let testEntity1 = UndefinedEntity
       let testEntity2 = UndefinedEntity
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld.timestep = 1 / 60
-        getMutableState(PhysicsState).physicsWorld.set(physicsWorld)
 
         testEntity1 = createEntity()
         setComponent(testEntity1, TransformComponent)
@@ -2067,7 +2060,6 @@ describe('Physics : Rapier->ECS API', () => {
       })
 
       afterEach(() => {
-        physicsWorld = undefined
         return destroyEngine()
       })
 
@@ -2091,8 +2083,8 @@ describe('Physics : Rapier->ECS API', () => {
         const event = Physics.drainCollisionEventQueue(physicsWorld)
         assertCollisionEventClosure(event)
         physicsWorld.step()
-        const collider1 = Physics._Colliders.get(testEntity1)
-        const collider2 = Physics._Colliders.get(testEntity2)
+        const collider1 = physicsWorld.Colliders.get(testEntity1)
+        const collider2 = physicsWorld.Colliders.get(testEntity2)
         assert.ok(collider1)
         assert.ok(collider2)
 
@@ -2112,8 +2104,8 @@ describe('Physics : Rapier->ECS API', () => {
         physicsWorld.step()
 
         // Get the colliders from the API
-        const collider1 = Physics._Colliders.get(testEntity1)
-        const collider2 = Physics._Colliders.get(testEntity2)
+        const collider1 = physicsWorld.Colliders.get(testEntity1)
+        const collider2 = physicsWorld.Colliders.get(testEntity2)
         assert.ok(collider1)
         assert.ok(collider2)
         // Get the parents from the API
@@ -2144,8 +2136,8 @@ describe('Physics : Rapier->ECS API', () => {
           const event = Physics.drainCollisionEventQueue(physicsWorld)
           assertCollisionEventClosure(event)
           // Get the colliders from the API
-          const collider1 = Physics._Colliders.get(testEntity1)
-          const collider2 = Physics._Colliders.get(testEntity2)
+          const collider1 = physicsWorld.Colliders.get(testEntity1)
+          const collider2 = physicsWorld.Colliders.get(testEntity2)
           assert.ok(collider1)
           assert.ok(collider2)
           // Check before
@@ -2172,8 +2164,8 @@ describe('Physics : Rapier->ECS API', () => {
           const event = Physics.drainCollisionEventQueue(physicsWorld)
           assertCollisionEventClosure(event)
           // Get the colliders from the API
-          const collider1 = Physics._Colliders.get(testEntity1)
-          const collider2 = Physics._Colliders.get(testEntity2)
+          const collider1 = physicsWorld.Colliders.get(testEntity1)
+          const collider2 = physicsWorld.Colliders.get(testEntity2)
           assert.ok(collider1)
           assert.ok(collider2)
           // Check before
@@ -2198,8 +2190,8 @@ describe('Physics : Rapier->ECS API', () => {
           const event = Physics.drainCollisionEventQueue(physicsWorld)
           assertCollisionEventClosure(event)
           // Get the colliders from the API
-          const collider1 = Physics._Colliders.get(testEntity1)
-          const collider2 = Physics._Colliders.get(testEntity2)
+          const collider1 = physicsWorld.Colliders.get(testEntity1)
+          const collider2 = physicsWorld.Colliders.get(testEntity2)
           assert.ok(collider1)
           assert.ok(collider2)
           // Check before
@@ -2225,8 +2217,8 @@ describe('Physics : Rapier->ECS API', () => {
           const event = Physics.drainCollisionEventQueue(physicsWorld)
           assertCollisionEventClosure(event)
           // Get the colliders from the API
-          const collider1 = Physics._Colliders.get(testEntity1)
-          const collider2 = Physics._Colliders.get(testEntity2)
+          const collider1 = physicsWorld.Colliders.get(testEntity1)
+          const collider2 = physicsWorld.Colliders.get(testEntity2)
           assert.ok(collider1)
           assert.ok(collider2)
           // Check before
@@ -2254,8 +2246,8 @@ describe('Physics : Rapier->ECS API', () => {
           const event = Physics.drainCollisionEventQueue(physicsWorld)
           assertCollisionEventClosure(event)
           // Get the colliders from the API
-          const collider1 = Physics._Colliders.get(testEntity1)
-          const collider2 = Physics._Colliders.get(testEntity2)
+          const collider1 = physicsWorld.Colliders.get(testEntity1)
+          const collider2 = physicsWorld.Colliders.get(testEntity2)
           assert.ok(collider1)
           assert.ok(collider2)
           // Check before
@@ -2279,16 +2271,17 @@ describe('Physics : Rapier->ECS API', () => {
     }) // << drainCollisionEventQueue
 
     describe('drainContactEventQueue', () => {
-      let physicsWorld = undefined as World | undefined
+      let physicsWorld: PhysicsWorld
       let testEntity1 = UndefinedEntity
       let testEntity2 = UndefinedEntity
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld = Physics.createWorld()
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld.timestep = 1 / 60
-        getMutableState(PhysicsState).physicsWorld.set(physicsWorld)
 
         testEntity1 = createEntity()
         setComponent(testEntity1, TransformComponent)
@@ -2303,7 +2296,6 @@ describe('Physics : Rapier->ECS API', () => {
       afterEach(() => {
         removeEntity(testEntity1)
         removeEntity(testEntity2)
-        physicsWorld = undefined
         return destroyEngine()
       })
 
@@ -2342,10 +2334,10 @@ describe('Physics : Rapier->ECS API', () => {
         it('should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity1.collision.get(entity2) if the collision exists', () => {
           // Setup the function spies
           const collider1Spy = sinon.spy((): number => {
-            return Physics._Colliders.get(testEntity1)!.handle
+            return physicsWorld.Colliders.get(testEntity1)!.handle
           })
           const collider2Spy = sinon.spy((): number => {
-            return Physics._Colliders.get(testEntity2)!.handle
+            return physicsWorld.Colliders.get(testEntity2)!.handle
           })
           const totalForceSpy = sinon.spy((): Vector => {
             return ExpectedTotalForce
@@ -2380,10 +2372,10 @@ describe('Physics : Rapier->ECS API', () => {
         it('should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity2.collision.get(entity1) if the collision exists', () => {
           // Setup the function spies
           const collider1Spy = sinon.spy((): number => {
-            return Physics._Colliders.get(testEntity1)!.handle
+            return physicsWorld.Colliders.get(testEntity1)!.handle
           })
           const collider2Spy = sinon.spy((): number => {
-            return Physics._Colliders.get(testEntity2)!.handle
+            return physicsWorld.Colliders.get(testEntity2)!.handle
           })
           const totalForceSpy = sinon.spy((): Vector => {
             return ExpectedTotalForce
@@ -2420,10 +2412,10 @@ describe('Physics : Rapier->ECS API', () => {
         it('should store event.totalForce() into the CollisionComponent.totalForce of entity1.collision.get(entity2) if the collision exists', () => {
           // Setup the function spies
           const collider1Spy = sinon.spy((): number => {
-            return Physics._Colliders.get(testEntity1)!.handle
+            return physicsWorld.Colliders.get(testEntity1)!.handle
           })
           const collider2Spy = sinon.spy((): number => {
-            return Physics._Colliders.get(testEntity2)!.handle
+            return physicsWorld.Colliders.get(testEntity2)!.handle
           })
           const totalForceSpy = sinon.spy((): Vector => {
             return ExpectedTotalForce
@@ -2459,10 +2451,10 @@ describe('Physics : Rapier->ECS API', () => {
         it('should store event.totalForce() into the CollisionComponent.totalForce of entity2.collision.get(entity1) if the collision exists', () => {
           // Setup the function spies
           const collider1Spy = sinon.spy((): number => {
-            return Physics._Colliders.get(testEntity1)!.handle
+            return physicsWorld.Colliders.get(testEntity1)!.handle
           })
           const collider2Spy = sinon.spy((): number => {
-            return Physics._Colliders.get(testEntity2)!.handle
+            return physicsWorld.Colliders.get(testEntity2)!.handle
           })
           const totalForceSpy = sinon.spy((): Vector => {
             return ExpectedTotalForce
