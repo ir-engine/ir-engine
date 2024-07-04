@@ -37,22 +37,17 @@ import { SplineComponent } from '@etherealengine/engine/src/scene/components/Spl
 import { applyIncomingActions, getMutableState, getState } from '@etherealengine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 describe('EditorControlFunctions', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     createEngine()
-    getMutableState(PhysicsState).physicsWorld.set({} as any)
     getMutableState(EngineState).isEditing.set(true)
     getMutableState(EngineState).isEditor.set(true)
     Engine.instance.userID = 'user' as UserID
-    await Physics.load()
-    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
   })
 
   afterEach(() => {

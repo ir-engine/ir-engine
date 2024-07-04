@@ -271,7 +271,7 @@ describe('RigidBodyComponent', () => {
 
     const physicsSystemExecute = SystemDefinitions.get(PhysicsSystem)!.execute
 
-    it('should create a RigidBody for the entity in the new PhysicsState.physicsWorld when the world is changed', async () => {
+    it('should create a RigidBody for the entity in the new physicsWorld when the world is changed', async () => {
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
       const before = physicsWorld.Rigidbodies.get(testEntity)!.handle
       assert.ok(physicsWorld!.bodies.contains(before))
