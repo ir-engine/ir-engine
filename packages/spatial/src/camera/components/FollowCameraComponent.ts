@@ -96,6 +96,10 @@ export const FollowCameraComponent = defineComponent({
       cameraRays.push(new Vector3())
     }
 
+    const windowHeight = 'innerHeight' in window ? window.innerHeight : 1
+    const windowWidth = 'innerWidth' in window ? window.innerWidth : 2
+    const distance = (windowHeight / windowWidth) * cameraSettings.startCameraDistance
+
     return {
       firstPersonOffset: new Vector3(),
       thirdPersonOffset: new Vector3(),
@@ -111,8 +115,9 @@ export const FollowCameraComponent = defineComponent({
         FollowCameraMode.TopDown,
         FollowCameraMode.ShoulderCam
       ],
-      distance: cameraSettings.startCameraDistance,
-      targetDistance: 5,
+      // map portrait window to further distance, landscape to closer distance
+      distance: distance,
+      targetDistance: distance,
       zoomVelocity: { value: 0 },
       thirdPersonMinDistance: cameraSettings.minCameraDistance,
       thirdPersonMaxDistance: cameraSettings.maxCameraDistance,
@@ -219,7 +224,9 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   let obstacleDistance = Infinity
   if (follow.raycastProps.enabled && follow.mode !== FollowCameraMode.FirstPerson) {
     const distanceResults = getMaxCamDistance(cameraEntity, follow.currentTargetPosition)
-    obstacleDistance = distanceResults.maxDistance
+    if (distanceResults.maxDistance > 0.1) {
+      obstacleDistance = distanceResults.maxDistance
+    }
     isInsideWall = distanceResults.targetHit
   }
 
