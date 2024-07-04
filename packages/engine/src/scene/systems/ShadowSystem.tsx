@@ -90,6 +90,7 @@ import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
+import { usePrimitiveGeom } from '../components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SceneObjectSystem } from './SceneObjectSystem'
@@ -357,9 +358,16 @@ const DropShadowReactor = () => {
   const entity = useEntityContext()
   const shadowMaterial = useHookstate(shadowState)
   const isMeshOrModel = useMeshOrModel(entity)
+  const isPrimitiveGeom = usePrimitiveGeom(entity)
   const shadow = useComponent(entity, ShadowComponent)
   useEffect(() => {
-    if (!shadow.cast.value || !shadowMaterial.value || !isMeshOrModel || hasComponent(entity, DropShadowComponent))
+    if (
+      !shadow.cast.value ||
+      !shadowMaterial.value ||
+      !isMeshOrModel ||
+      !isPrimitiveGeom ||
+      hasComponent(entity, DropShadowComponent)
+    )
       return
 
     box3.makeEmpty()

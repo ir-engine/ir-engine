@@ -26,11 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { useLayoutEffect } from 'react'
 import { MeshLambertMaterial } from 'three'
 
-import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { Geometry } from '@etherealengine/spatial/src/common/constants/Geometry'
-import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { MeshComponent, useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 
+import { Entity } from '@etherealengine/ecs'
 import { GeometryTypeEnum, GeometryTypeToClass } from '../constants/GeometryTypeEnum'
 
 const createGeometry = (geometryType: GeometryTypeEnum, geometryParams: Record<string, any>): Geometry => {
@@ -79,3 +80,10 @@ export const PrimitiveGeometryComponent = defineComponent({
     return null
   }
 })
+
+export const usePrimitiveGeom = (entity: Entity) => {
+  const hasMesh = !!useOptionalComponent(entity, MeshComponent)
+  const isPrimitiveGeom = !!useOptionalComponent(entity, PrimitiveGeometryComponent)
+
+  return isPrimitiveGeom && hasMesh
+}
