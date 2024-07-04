@@ -75,5 +75,6 @@ export class MockEngineRenderer extends EngineRenderer {
     } as unknown as EffectComposer
     this.needsResize = false
     this.xrManager = createWebXRManager(this.renderer)
+    this.scenes = []
   }
 }

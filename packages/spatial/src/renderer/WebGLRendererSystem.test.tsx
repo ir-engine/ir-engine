@@ -24,9 +24,11 @@
 // */
 
 import {
+  ECSState,
   Entity,
   EntityUUID,
   SystemDefinitions,
+  Timer,
   UUIDComponent,
   createEntity,
   destroyEngine,
@@ -80,16 +82,14 @@ describe('WebGl Renderer System', () => {
 
   beforeEach(() => {
     createEngine()
+    const timer = Timer((time, xrFrame) => {})
+    getMutableState(ECSState).timer.set(timer)
 
     rootEntity = createEntity()
     getMutableState(EngineState).viewerEntity.set(rootEntity)
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
-    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas() })
-    getMutableComponent(rootEntity, RendererComponent).set(new MockEngineRenderer())
-    const rendererComp = getMutableComponent(rootEntity, RendererComponent)
-    rendererComp.canvas.set(mockCanvas())
     setComponent(rootEntity, BackgroundComponent, new Color(0xffffff))
 
     setComponent(rootEntity, EnvironmentMapComponent, new Texture())
@@ -109,8 +109,7 @@ describe('WebGl Renderer System', () => {
     addObjectToGroup(visibleEntity, visibleObject3d)
     setComponent(visibleEntity, GroupComponent)
     setComponent(visibleEntity, EntityTreeComponent)
-
-    setComponent(rootEntity, SceneComponent, { scenes: [invisibleEntity, visibleEntity] })
+    setComponent(rootEntity, SceneComponent)
 
     nestedInvisibleEntity = createEntity()
     setComponent(nestedInvisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
@@ -118,7 +117,7 @@ describe('WebGl Renderer System', () => {
     const nestedInvisibleObject3d = setComponent(nestedInvisibleEntity, Object3DComponent, new Group())
     addObjectToGroup(nestedInvisibleEntity, nestedInvisibleObject3d)
     setComponent(nestedInvisibleEntity, EntityTreeComponent)
-    setComponent(visibleEntity, SceneComponent, { scenes: [nestedInvisibleEntity] })
+    setComponent(visibleEntity, SceneComponent)
 
     nestedVisibleEntity = createEntity()
     setComponent(nestedVisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
@@ -127,7 +126,11 @@ describe('WebGl Renderer System', () => {
     addObjectToGroup(nestedVisibleEntity, nestedVisibleObject3d)
     setComponent(nestedVisibleEntity, GroupComponent)
     setComponent(nestedVisibleEntity, EntityTreeComponent)
-    setComponent(invisibleEntity, SceneComponent, { scenes: [nestedVisibleEntity] })
+    setComponent(invisibleEntity, SceneComponent)
+
+    setComponent(rootEntity, RendererComponent)
+    getMutableComponent(rootEntity, RendererComponent).set(new MockEngineRenderer())
+    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas(), scenes: [visibleEntity, invisibleEntity] })
 
     //override addpass to test data without dependency on Browser
     let addPassCount = 0
@@ -191,8 +194,8 @@ describe('WebGl Renderer System', () => {
     webGLRendererSystem?.execute()
 
     assert(!rendererComp.needsResize, 'resize updated')
-    const scene = getComponent(rootEntity, SceneComponent)
-    const entitiesToRender = scene.scenes.map(getNestedVisibleChildren).flat()
+    const scenes = getComponent(rootEntity, RendererComponent).scenes
+    const entitiesToRender = scenes.map(getNestedVisibleChildren).flat()
     assert(entitiesToRender.length == 1 && entitiesToRender[0] == visibleEntity, 'visible children')
   })
 })
