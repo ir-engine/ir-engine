@@ -30,14 +30,14 @@ import { VariableJSON } from '@etherealengine/visual-script'
 import { useVisualScriptFlow } from './useVisualScriptFlow'
 
 type visualScriptFlow = ReturnType<typeof useVisualScriptFlow>
-let variableCounter = 1
+
 export const useVariableHandler = ({
   variables,
   setVariables
 }: Pick<visualScriptFlow, 'variables' | 'setVariables'>) => {
   const createVariable = (): VariableJSON => ({
     id: uuidv4(),
-    name: 'variable ' + variableCounter++,
+    name: 'variable ' + Math.random().toString(36).slice(-6),
     valueTypeName: 'string',
     initialValue: ''
   })
@@ -66,7 +66,6 @@ export const useVariableHandler = ({
 
   const handleDeleteVariable = (deleteVariable: VariableJSON) => {
     try {
-      variableCounter--
       setVariables((currentVariables) => currentVariables.filter((variable) => variable.id !== deleteVariable.id))
     } catch (error) {
       console.error('Error deleting variable:', error)

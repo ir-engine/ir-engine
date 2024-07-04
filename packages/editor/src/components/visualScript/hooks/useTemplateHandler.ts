@@ -34,7 +34,6 @@ import { useVisualScriptFlow } from './useVisualScriptFlow'
 
 type selectionHandler = ReturnType<typeof useSelectionHandler>
 type visualScriptFlow = ReturnType<typeof useVisualScriptFlow>
-let templateCounter = 1
 export const useTemplateHandler = ({
   selectedNodes,
   selectedEdges,
@@ -49,7 +48,7 @@ export const useTemplateHandler = ({
 
   const createGraphTemplate = (nodes: Node[], edges: Edge[]): GraphTemplate => ({
     id: uuidv4(),
-    name: 'New template ' + templateCounter++,
+    name: 'New template ' + Math.random().toString(36).slice(-6),
     nodes,
     edges
   })
@@ -82,7 +81,6 @@ export const useTemplateHandler = ({
 
   const handleDeleteTemplate = (deleteTemplate: GraphTemplate) => {
     try {
-      templateCounter--
       visualScriptState.templates.set((currentTemplates) =>
         currentTemplates.filter((template) => template.id !== deleteTemplate.id)
       )
