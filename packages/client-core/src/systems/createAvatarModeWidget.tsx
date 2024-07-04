@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Vector3 } from 'three'
 
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { dispatchAction, getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
@@ -36,12 +35,18 @@ import { Widget, Widgets } from '@etherealengine/spatial/src/xrui/Widgets'
 
 import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
+import {
+  translateAndRotateAvatar,
+  updateLocalAvatarPosition
+} from '@etherealengine/engine/src/avatar/functions/moveAvatar'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import { EntityNetworkState } from '@etherealengine/network'
+import { TransformComponent } from '@etherealengine/spatial'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { Quaternion, Vector3 } from 'three'
 
 export function createAvatarModeWidget() {
   const ui = createXRUI(() => null)
@@ -65,7 +70,14 @@ export function createAvatarModeWidget() {
       } else {
         getMutableState(XRState).avatarCameraMode.set('attached')
         setComponent(avatarEntity, EntityTreeComponent, { parentEntity: getState(EngineState).localFloorEntity })
-        teleportAvatar(avatarEntity, new Vector3(), true)
+        getComponent(avatarEntity, RigidBodyComponent).targetKinematicPosition.set(0, 0, 0) // todo instead fo 0,0,0 make it camera relative to floor entity on the floor (y = 0)
+        updateLocalAvatarPosition(avatarEntity)
+        translateAndRotateAvatar(avatarEntity, new Vector3(), new Quaternion())
+        console.log(
+          getComponent(getState(EngineState).localFloorEntity, TransformComponent).position.x,
+          getComponent(getState(EngineState).localFloorEntity, TransformComponent).position.y,
+          getComponent(getState(EngineState).localFloorEntity, TransformComponent).position.z
+        )
         iterateEntityNode(avatarEntity, computeTransformMatrix)
       }
       dispatchAction(WidgetAppActions.showWidgetMenu({ shown: false }))
@@ -73,7 +85,7 @@ export function createAvatarModeWidget() {
   }
 
   /** for testing */
-  globalThis.toggle = widget.onOpen
+  // globalThis.toggle = widget.onOpen
 
   const id = Widgets.registerWidget(ui.entity, widget)
 
