@@ -63,9 +63,6 @@ describe('FogSettingsComponent', () => {
     setComponent(entity, FogSettingsComponent)
     setComponent(entity, EntityTreeComponent)
 
-    //set data to test
-    setComponent(rootEntity, SceneComponent)
-
     rootEntity = createEntity()
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
