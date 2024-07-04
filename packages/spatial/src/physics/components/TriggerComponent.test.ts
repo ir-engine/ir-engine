@@ -39,6 +39,7 @@ import {
 import assert from 'assert'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
@@ -175,17 +176,21 @@ describe('TriggerComponent', () => {
   describe('reactor', () => {
     let testEntity = UndefinedEntity
     let physicsWorld: PhysicsWorld
+    let physicsWorldEntity = UndefinedEntity
 
     beforeEach(async () => {
       createEngine()
       await Physics.load()
-      const physicsEntity = createEntity()
-      setComponent(physicsEntity, UUIDComponent, UUIDComponent.generateUUID())
-      physicsWorld = Physics.createWorld(getComponent(physicsEntity, UUIDComponent))
+      physicsWorldEntity = createEntity()
+      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(physicsWorldEntity, SceneComponent)
+      setComponent(physicsWorldEntity, TransformComponent)
+      setComponent(physicsWorldEntity, EntityTreeComponent)
+      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
       physicsWorld!.timestep = 1 / 60
 
       testEntity = createEntity()
-      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsEntity })
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, RigidBodyComponent)
       setComponent(testEntity, ColliderComponent)

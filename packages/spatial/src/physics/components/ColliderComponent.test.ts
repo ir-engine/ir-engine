@@ -41,6 +41,7 @@ import {
 import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent, getAncestorWithComponent } from '../../transform/components/EntityTree'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { assertVecAllApproxNotEq, assertVecApproxEq } from '../classes/Physics.test'
@@ -83,15 +84,19 @@ describe('ColliderComponent', () => {
   describe('general functionality', () => {
     let entity = UndefinedEntity
     let physicsWorld: PhysicsWorld
+    let physicsWorldEntity = UndefinedEntity
 
     beforeEach(async () => {
       createEngine()
       await Physics.load()
-      const physicsEntity = createEntity()
-      setComponent(physicsEntity, UUIDComponent, UUIDComponent.generateUUID())
-      physicsWorld = Physics.createWorld(getComponent(physicsEntity, UUIDComponent))
+      physicsWorldEntity = createEntity()
+      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      setComponent(physicsWorldEntity, SceneComponent)
+      setComponent(physicsWorldEntity, TransformComponent)
+      setComponent(physicsWorldEntity, EntityTreeComponent)
       entity = createEntity()
-      setComponent(entity, EntityTreeComponent, { parentEntity: physicsEntity })
+      setComponent(entity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
     })
 
     afterEach(() => {
@@ -247,6 +252,7 @@ describe('ColliderComponent', () => {
     let testEntity = UndefinedEntity
     let parentEntity = UndefinedEntity
     let physicsWorld: PhysicsWorld
+    let physicsWorldEntity = UndefinedEntity
 
     function createValidAncestor(colliderData = ColliderComponentDefaults as any): Entity {
       const result = createEntity()
@@ -259,18 +265,21 @@ describe('ColliderComponent', () => {
     beforeEach(async () => {
       createEngine()
       await Physics.load()
-      const physicsEntity = createEntity()
-      setComponent(physicsEntity, UUIDComponent, UUIDComponent.generateUUID())
-      physicsWorld = Physics.createWorld(getComponent(physicsEntity, UUIDComponent))
+      physicsWorldEntity = createEntity()
+      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      setComponent(physicsWorldEntity, SceneComponent)
+      setComponent(physicsWorldEntity, TransformComponent)
+      setComponent(physicsWorldEntity, EntityTreeComponent)
       physicsWorld!.timestep = 1 / 60
 
       parentEntity = createValidAncestor()
       testEntity = createEntity()
-      setComponent(parentEntity, EntityTreeComponent, { parentEntity: physicsEntity })
+      setComponent(parentEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
       setComponent(testEntity, TransformComponent)
-      setComponent(testEntity, ColliderComponent)
       setComponent(testEntity, RigidBodyComponent)
+      setComponent(testEntity, ColliderComponent)
     })
 
     afterEach(() => {

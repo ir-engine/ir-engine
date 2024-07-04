@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
@@ -40,9 +41,11 @@ import {
   serializeComponent,
   setComponent
 } from '@etherealengine/ecs'
+import React from 'react'
 import { Vector3 } from 'three'
 import { PhysicsSystem, TransformComponent } from '../../SpatialModule'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import {
@@ -239,17 +242,21 @@ describe('RigidBodyComponent', () => {
     let testEntity = UndefinedEntity
     let physicsWorld: PhysicsWorld
     let newPhysicsWorld: PhysicsWorld
+    let physicsWorldEntity = UndefinedEntity
 
     beforeEach(async () => {
       createEngine()
       await Physics.load()
-      const physicsEntity = createEntity()
-      setComponent(physicsEntity, UUIDComponent, UUIDComponent.generateUUID())
-      physicsWorld = Physics.createWorld(getComponent(physicsEntity, UUIDComponent))
+      physicsWorldEntity = createEntity()
+      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(physicsWorldEntity, SceneComponent)
+      setComponent(physicsWorldEntity, TransformComponent)
+      setComponent(physicsWorldEntity, EntityTreeComponent)
+      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
       physicsWorld!.timestep = 1 / 60
 
       testEntity = createEntity()
-      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsEntity })
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, RigidBodyComponent)
       setComponent(testEntity, ColliderComponent)
@@ -257,24 +264,32 @@ describe('RigidBodyComponent', () => {
 
     afterEach(() => {
       Physics.destroyWorld(physicsWorld.id)
-      if (newPhysicsWorld) Physics.destroyWorld(newPhysicsWorld.id)
+      // if (newPhysicsWorld) Physics.destroyWorld(newPhysicsWorld.id)
       removeEntity(testEntity)
       return destroyEngine()
     })
 
     const physicsSystemExecute = SystemDefinitions.get(PhysicsSystem)!.execute
 
-    it('should create a RigidBody for the entity in the new PhysicsState.physicsWorld when the world is changed', () => {
+    it('should create a RigidBody for the entity in the new PhysicsState.physicsWorld when the world is changed', async () => {
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
       const before = physicsWorld.Rigidbodies.get(testEntity)!.handle
       assert.ok(physicsWorld!.bodies.contains(before))
 
       const newPhysicsEntity = createEntity()
       setComponent(newPhysicsEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(newPhysicsEntity, SceneComponent)
+      setComponent(newPhysicsEntity, TransformComponent)
+      setComponent(newPhysicsEntity, EntityTreeComponent)
       newPhysicsWorld = Physics.createWorld(getComponent(newPhysicsEntity, UUIDComponent))
       newPhysicsWorld!.timestep = 1 / 60
 
+      // Change the world
       setComponent(testEntity, EntityTreeComponent, { parentEntity: newPhysicsEntity })
+
+      // Force react lifecycle to update Physics.useWorld
+      const { rerender, unmount } = render(<></>)
+      await act(() => rerender(<></>))
 
       // Check the changes
       RigidBodyComponent.reactorMap.get(testEntity)!.run() // Reactor is already running. But force-run it so changes are applied immediately

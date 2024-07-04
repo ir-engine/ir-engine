@@ -42,6 +42,7 @@ import {
 } from '@etherealengine/ecs'
 import { TransformComponent } from '../../SpatialModule'
 import { setCallback } from '../../common/CallbackComponent'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -81,18 +82,22 @@ describe('TriggerSystem', () => {
   let testEntity = UndefinedEntity
   let targetEntityUUID = '' as EntityUUID
   let physicsWorld: PhysicsWorld
+  let physicsWorldEntity = UndefinedEntity
 
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    const physicsEntity = createEntity()
-    setComponent(physicsEntity, UUIDComponent, UUIDComponent.generateUUID())
-    physicsWorld = Physics.createWorld(getComponent(physicsEntity, UUIDComponent))
+    physicsWorldEntity = createEntity()
+    setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+    setComponent(physicsWorldEntity, SceneComponent)
+    setComponent(physicsWorldEntity, TransformComponent)
+    setComponent(physicsWorldEntity, EntityTreeComponent)
+    physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
     physicsWorld.timestep = 1 / 60
 
     // Create the entity
     testEntity = createEntity()
-    setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsEntity })
+    setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
     setComponent(testEntity, TransformComponent)
     setComponent(testEntity, RigidBodyComponent)
     setComponent(testEntity, ColliderComponent)
@@ -104,7 +109,7 @@ describe('TriggerSystem', () => {
     targetEntityUUID = getComponent(targetEntity, UUIDComponent)
 
     triggerEntity = createEntity()
-    setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsEntity })
+    setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
     setComponent(triggerEntity, TransformComponent)
     setComponent(triggerEntity, RigidBodyComponent)
     setComponent(triggerEntity, ColliderComponent)

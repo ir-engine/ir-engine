@@ -44,6 +44,7 @@ import { Quaternion, Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { assertVecAllApproxNotEq, assertVecAnyApproxNotEq, assertVecApproxEq } from '../classes/Physics.test'
@@ -98,16 +99,20 @@ describe('smoothKinematicBody', () => {
    */
   let testEntity = UndefinedEntity
   let physicsWorld: PhysicsWorld
+  let physicsWorldEntity = UndefinedEntity
 
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    const physicsEntity = createEntity()
-    setComponent(physicsEntity, UUIDComponent, UUIDComponent.generateUUID())
-    physicsWorld = Physics.createWorld(getComponent(physicsEntity, UUIDComponent))
+    physicsWorldEntity = createEntity()
+    setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+    setComponent(physicsWorldEntity, SceneComponent)
+    setComponent(physicsWorldEntity, TransformComponent)
+    setComponent(physicsWorldEntity, EntityTreeComponent)
+    physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
 
     testEntity = createEntity()
-    setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsEntity })
+    setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
     setComponent(testEntity, TransformComponent)
     setComponent(testEntity, RigidBodyComponent)
     // Set the Start..Final values for interpolation
@@ -324,17 +329,21 @@ describe('PhysicsSystem', () => {
   describe('execute', () => {
     let testEntity = UndefinedEntity
     let physicsWorld: PhysicsWorld
+    let physicsWorldEntity = UndefinedEntity
 
     beforeEach(async () => {
       createEngine()
       await Physics.load()
-      const physicsEntity = createEntity()
-      setComponent(physicsEntity, UUIDComponent, UUIDComponent.generateUUID())
-      physicsWorld = Physics.createWorld(getComponent(physicsEntity, UUIDComponent))
+      physicsWorldEntity = createEntity()
+      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(physicsWorldEntity, SceneComponent)
+      setComponent(physicsWorldEntity, TransformComponent)
+      setComponent(physicsWorldEntity, EntityTreeComponent)
+      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
       physicsWorld.timestep = 1 / 60
 
       testEntity = createEntity()
-      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsEntity })
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
       setComponent(testEntity, ColliderComponent)
