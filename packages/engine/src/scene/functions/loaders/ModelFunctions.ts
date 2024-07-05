@@ -50,14 +50,14 @@ export function getModelSceneID(entity: Entity): string {
   if (!hasComponent(entity, ModelComponent) || !hasComponent(entity, UUIDComponent)) {
     return ''
   }
-  return getComponent(entity, UUIDComponent) + ':' + getComponent(entity, ModelComponent).src
+  return getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src
 }
 
 export function useModelSceneID(entity: Entity): string {
   const uuid = useOptionalComponent(entity, UUIDComponent)?.value
   const model = useOptionalComponent(entity, ModelComponent)?.value
   if (!uuid || !model) return ''
-  return uuid + ':' + model.src
+  return uuid + '-' + model.src
 }
 
 export function getModelResources(entity: Entity, defaultParms: ModelTransformParameters): ResourceTransforms {
