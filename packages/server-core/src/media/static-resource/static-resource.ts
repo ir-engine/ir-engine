@@ -91,6 +91,7 @@ export default (app: Application): void => {
           })
         }
 
+        // Get project id
         const project = await app.service(projectPath).find({
           query: {
             name: item.project,
@@ -104,6 +105,7 @@ export default (app: Application): void => {
           throw new BadRequest(`Project not found. ${item.project}`)
         }
 
+        // Get project owners from project-permission service
         const projectOwners = await app.service(projectPermissionPath).find({
           query: {
             projectId: project[0].id,
@@ -123,6 +125,8 @@ export default (app: Application): void => {
         })
 
         const uniqueUserIds = _.uniq(targetIds)
+
+        // Publish to all users with project read scopes or project permission
         return Promise.all(uniqueUserIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(item)))
       }
 
