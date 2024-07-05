@@ -81,7 +81,7 @@ export const HomePage = (): any => {
         </style>
         <MetaTags>
           <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;800&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;600;800&display=swap"
             rel="stylesheet"
           />
         </MetaTags>
