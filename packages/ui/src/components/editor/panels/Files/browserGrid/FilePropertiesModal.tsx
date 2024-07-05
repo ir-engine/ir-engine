@@ -109,12 +109,17 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
   }, [staticResource.data])
 
   const handleAddTag = () => {
-    const newTags = [...resourceProperties.tags.all.value, resourceProperties.tags.input.value]
-    staticResourceMutation.patch(resourceProperties.id.value, {
-      tags: newTags
-    })
+    if (
+      resourceProperties.tags.input.value &&
+      !resourceProperties.tags.all.value.find((tag) => tag === resourceProperties.tags.input.value)
+    ) {
+      const newTags = [...resourceProperties.tags.all.value, resourceProperties.tags.input.value]
+      staticResourceMutation.patch(resourceProperties.id.value, {
+        tags: newTags
+      })
+      resourceProperties.tags.all.set(newTags)
+    }
     resourceProperties.tags.input.set('')
-    resourceProperties.tags.all.set(newTags)
   }
 
   const handleRemoveTag = (removedTag: string) => {
