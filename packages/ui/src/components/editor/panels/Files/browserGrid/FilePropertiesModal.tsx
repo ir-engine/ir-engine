@@ -27,7 +27,13 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import {
+  StaticResourceType,
+  UserType,
+  fileBrowserPath,
+  staticResourcePath
+} from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -69,6 +75,7 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
   const resourceProperties = useHookstate({
     id: '',
     project: '',
+    author: null as UserType | null,
     tags: {
       input: '',
       all: [] as string[]
@@ -88,6 +95,10 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
       if (staticResource.data.length > 1) console.info('Multiple resources with same key found')
       const resources = JSON.parse(JSON.stringify(staticResource.data[0])) as StaticResourceType
       if (resources) {
+        Engine.instance.api
+          .service('user')
+          .get(resources.userId)
+          .then((user) => resourceProperties.author.set(user))
         resourceProperties.id.set(resources.id)
         resourceProperties.project.set(resources.project ?? '')
         resourceProperties.tags.all.set(resources.tags ?? [])
@@ -125,21 +136,43 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
     >
       <div className="flex flex-col items-center gap-2">
         <div className="grid grid-cols-2 gap-2">
-          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.name')}</Text>
-          <Text className="text-[#9CA0AA]">{file.name}</Text>
+          <Text fontFamily="Figtree" className="text-end">
+            {t('editor:layout.filebrowser.fileProperties.name')}
+          </Text>
+          <Text fontFamily="Figtree" className="text-[#9CA0AA]">
+            {file.name}
+          </Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.type')}</Text>
-          <Text className="text-[#9CA0AA]">{file.type.toUpperCase()}</Text>
+          <Text fontFamily="Figtree" className="text-end">
+            {t('editor:layout.filebrowser.fileProperties.type')}
+          </Text>
+          <Text fontFamily="Figtree" className="text-[#9CA0AA]">
+            {file.type.toUpperCase()}
+          </Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.size')}</Text>
-          <Text className="text-[#9CA0AA]">{file.size}</Text>
+          <Text fontFamily="Figtree" className="text-end">
+            {t('editor:layout.filebrowser.fileProperties.size')}
+          </Text>
+          <Text fontFamily="Figtree" className="text-[#9CA0AA]">
+            {file.size}
+          </Text>
         </div>
         {resourceProperties.id.value && (
           <>
+            <div className="grid grid-cols-2 gap-2">
+              <Text fontFamily="Figtree" className="text-end">
+                {t('editor:layout.filebrowser.fileProperties.author')}
+              </Text>
+              <Text fontFamily="Figtree" className="text-[#9CA0AA]">
+                {resourceProperties.author.value?.name}
+              </Text>
+            </div>
             <div className="grid grid-cols-2 items-center gap-2">
-              <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.attribution')}</Text>
+              <Text fontFamily="Figtree" className="text-end">
+                {t('editor:layout.filebrowser.fileProperties.attribution')}
+              </Text>
               <span className="flex items-center">
                 {resourceProperties.attribution.editing.value ? (
                   <>
@@ -157,7 +190,7 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
                   </>
                 ) : (
                   <>
-                    <Text className="text-[#9CA0AA]">
+                    <Text fontFamily="Figtree" className="text-[#9CA0AA]">
                       {resourceProperties.attribution.input.value || <em>{t('common:components.none')}</em>}
                     </Text>
                     <Button
@@ -177,7 +210,9 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
               </span>
             </div>
             <div className="grid grid-cols-2 items-center gap-2">
-              <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.licensing')}</Text>
+              <Text fontFamily="Figtree" className="text-end">
+                {t('editor:layout.filebrowser.fileProperties.licensing')}
+              </Text>
               <span className="flex items-center">
                 {resourceProperties.licensing.editing.value ? (
                   <>
@@ -195,7 +230,7 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
                   </>
                 ) : (
                   <>
-                    <Text className="text-[#9CA0AA]">
+                    <Text fontFamily="Figtree" className="text-[#9CA0AA]">
                       {resourceProperties.licensing.input.value || <em>{t('common:components.none')}</em>}
                     </Text>
                     <Button
@@ -215,13 +250,14 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
               </span>
             </div>
             <div className="mt-10 flex flex-col gap-2">
-              <Text className="text-[#D3D5D9]" fontSize="sm">
+              <Text fontFamily="Figtree" className="text-[#D3D5D9]" fontSize="sm">
                 {t('editor:layout.filebrowser.fileProperties.addTag')}
               </Text>
               <div className="flex items-center gap-2">
                 <Input
                   value={resourceProperties.tags.input.value}
                   onChange={(event) => resourceProperties.tags.input.set(event.target.value)}
+                  onKeyUp={(event) => event.key === 'Enter' && handleAddTag()}
                 />
                 <Button
                   startIcon={<HiPlus />}
@@ -230,8 +266,8 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
                 />
               </div>
               <div className="flex h-24 flex-wrap gap-2 overflow-y-auto bg-theme-surfaceInput p-2">
-                {resourceProperties.tags.all.value.map((tag) => (
-                  <span className="flex h-fit w-fit items-center rounded bg-[#2F3137] px-2 py-0.5">
+                {resourceProperties.tags.all.value.map((tag, idx) => (
+                  <span key={idx} className="flex h-fit w-fit items-center rounded bg-[#2F3137] px-2 py-0.5">
                     {tag} <HiXMark className="ml-1 cursor-pointer" onClick={() => handleRemoveTag(tag)} />
                   </span>
                 ))}
