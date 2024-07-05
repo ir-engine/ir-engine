@@ -29,7 +29,7 @@ import { getContentType } from '@etherealengine/common/src/utils/getContentType'
 import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
@@ -47,7 +47,7 @@ import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { createMaterialEntity, getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -87,24 +87,17 @@ export async function addMediaNode(
       const intersected = pointerScreenRaycaster.intersectObjects(sceneObjects)[0]
       const gltfLoader = getState(AssetLoaderState).gltfLoader
       gltfLoader.load(url, (gltf) => {
-        let material = iterateObject3D(
+        const material = iterateObject3D(
           gltf.scene,
           (mesh: Mesh) => mesh.material as Material,
           (mesh: Mesh) => mesh?.isMesh
         )[0]
         if (!material) return
-        if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) createMaterialEntity(material)
-
-        const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
-        if (materialEntity) material = getMaterial(material.uuid as EntityUUID)!
-
+        createMaterialEntity(material, UndefinedEntity)
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
           const materialInstanceComponent = getMutableComponent(mesh.entity, MaterialInstanceComponent)
           if (materialInstanceComponent.uuid.value) materialInstanceComponent.uuid.set([material.uuid as EntityUUID])
-          /**this SHOULD be handled by library reactor */
-          // if (materialStateComponent.instances.value)
-          //   materialStateComponent.instances.set([...materialStateComponent.instances.value, mesh.entity])
         })
       })
     } else if (contentType.startsWith('model/lookdev')) {

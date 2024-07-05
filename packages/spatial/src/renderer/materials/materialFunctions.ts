@@ -34,7 +34,9 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  removeEntity,
   setComponent,
+  UndefinedEntity,
   UUIDComponent
 } from '@etherealengine/ecs'
 
@@ -100,10 +102,8 @@ export const getMaterial = (uuid: EntityUUID) => {
 
 export const setMeshMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {
   const mesh = getComponent(groupEntity, MeshComponent) as Mesh
-  if (!isArray(mesh.material)) mesh.material = getMaterial(newMaterialUUIDs[0])! ?? mesh.material
-  else
-    for (let i = 0; i < mesh.material.length; i++)
-      mesh.material[i] = getMaterial(newMaterialUUIDs[i])! ?? mesh.material[i]
+  if (!isArray(mesh.material)) mesh.material = getMaterial(newMaterialUUIDs[0])
+  else for (let i = 0; i < mesh.material.length; i++) mesh.material[i] = getMaterial(newMaterialUUIDs[i])
 }
 
 export const setPlugin = (material: Material, callback) => {
@@ -195,16 +195,21 @@ export const assignMaterial = (entity: Entity, materialEntity: Entity) => {
   materialStateComponent.instances.set([...materialStateComponent.instances.value, entity])
 }
 
-export const createMaterialEntity = (material: Material, user: Entity) => {
+/**Sets and replaces a material entity for a material's UUID */
+export const createMaterialEntity = (material: Material, user: Entity): Entity => {
   const materialEntity = createEntity()
   const uuid = material.uuid as EntityUUID
-  setComponent(user, MaterialInstanceComponent, { uuid: [uuid] })
+  if (user) setComponent(user, MaterialInstanceComponent, { uuid: [uuid] })
   const existingMaterial = UUIDComponent.getEntityByUUID(uuid)
-  if (existingMaterial) return existingMaterial
+  const existingUsers = existingMaterial ? getComponent(existingMaterial, MaterialStateComponent).instances : []
+  if (existingMaterial) removeEntity(existingMaterial)
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
   const prototypeEntity = getPrototypeEntityFromName(material.userData.type || material.type)
   if (!prototypeEntity) {
-    return
+    console.warn(
+      `Material ${material.name} has no prototype entity for prototype ${material.userData.type || material.type}`
+    )
+    return UndefinedEntity
   }
   setComponent(materialEntity, MaterialStateComponent, {
     material,
@@ -214,7 +219,7 @@ export const createMaterialEntity = (material: Material, user: Entity) => {
         (k) => [k, material[k]]
       )
     ),
-    instances: [user]
+    instances: existingUsers.length ? existingUsers : [user]
   })
   if (material.userData?.plugins)
     material.userData.plugins.map((plugin) => {
