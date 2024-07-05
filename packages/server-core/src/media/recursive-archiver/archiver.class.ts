@@ -27,7 +27,6 @@ import { BadRequest } from '@feathersjs/errors'
 import { NullableId, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import JSZip from 'jszip'
-import fetch from 'node-fetch'
 
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { ArchiverQuery } from '@etherealengine/common/src/schemas/media/archiver.schema'
@@ -70,10 +69,7 @@ const archive = async (app: Application, projectName: string, params?: ArchiverP
 
     if (result[i].type == 'folder') continue
 
-    const blobPromise = await fetch(result[i].url, { method: 'GET' }).then((r) => {
-      if (r.status === 200) return r.arrayBuffer()
-      return Promise.reject(new Error(r.statusText))
-    })
+    const blobPromise = (await storageProvider.getObject(result[i].key)).Body
 
     logger.info(`Added ${result[i].key} to archive`)
 
