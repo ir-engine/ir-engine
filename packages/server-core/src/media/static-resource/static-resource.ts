@@ -30,12 +30,15 @@ import {
 } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
 import {
+  ScopeData,
   ScopeType,
+  ScopeTypeInterface,
   UserID,
   projectPath,
   projectPermissionPath,
   scopePath
 } from '@etherealengine/common/src/schema.type.module'
+import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import _ from 'lodash'
 import { Application } from '../../../declarations'
@@ -70,58 +73,66 @@ export default (app: Application): void => {
 
   const onCRUD =
     (app: Application) => async (data: StaticResourceType | Paginated<StaticResourceType> | StaticResourceType[]) => {
-      const projectNames: string[] = []
-      if (Array.isArray(data)) {
-        data.forEach((item) => {
-          if (item.project && item.type === 'scene') {
-            projectNames.push(item.project)
-          }
-        })
-      } else if ('data' in data) {
-        data.data.forEach((item) => {
-          if (item.project && item.type === 'scene') {
-            projectNames.push(item.project)
-          }
-        })
-      } else if (data.project && data.type === 'scene') {
-        projectNames.push(data.project)
-      }
+      let userWithProjectReadScopes: (ScopeTypeInterface | ScopeData)[] = []
 
-      const projects = await app.service(projectPath).find({
-        query: {
-          name: { $in: projectNames },
-          $select: ['id']
-        },
-        paginate: false
-      })
+      const process = async (item: StaticResourceType) => {
+        // Only allow project scenes to be processed further
+        if (!item.project || item.type !== 'scene') {
+          return
+        }
 
-      const targetIds: string[] = []
-      for (const project of projects) {
+        // Populate user with project read scopes array if its not already populated
+        if (userWithProjectReadScopes.length === 0) {
+          userWithProjectReadScopes = await app.service(scopePath).find({
+            query: {
+              type: 'projects:read' as ScopeType
+            },
+            paginate: false
+          })
+        }
+
+        const project = await app.service(projectPath).find({
+          query: {
+            name: item.project,
+            $select: ['id'],
+            $limit: 1
+          },
+          paginate: false
+        })
+
+        if (project.length === 0) {
+          throw new BadRequest(`Project not found. ${item.project}`)
+        }
+
         const projectOwners = await app.service(projectPermissionPath).find({
           query: {
-            projectId: project.id,
+            projectId: project[0].id,
             type: 'owner'
           },
           paginate: false
         })
+
+        const targetIds: string[] = []
+
         projectOwners.forEach((permission) => {
           targetIds.push(permission.userId)
         })
+
+        userWithProjectReadScopes.forEach((scope) => {
+          targetIds.push(scope.userId)
+        })
+
+        const uniqueUserIds = _.uniq(targetIds)
+        return Promise.all(uniqueUserIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(item)))
       }
 
-      const projectReadScopes = await app.service(scopePath).find({
-        query: {
-          type: 'projects:read' as ScopeType
-        },
-        paginate: false
-      })
-
-      projectReadScopes.forEach((scope) => {
-        targetIds.push(scope.userId)
-      })
-
-      const uniqueUserIds = _.uniq(targetIds)
-      return Promise.all(uniqueUserIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
+      if (Array.isArray(data)) {
+        await Promise.all(data.map(process))
+      } else if ('data' in data) {
+        await Promise.all(data.data.map(process))
+      } else {
+        await process(data)
+      }
     }
 
   service.publish('created', onCRUD(app))
