@@ -95,7 +95,7 @@ export const createMaterialPrototype = (prototype: MaterialPrototypeDefinition) 
 }
 
 export const getMaterial = (uuid: EntityUUID) => {
-  return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent).material! as Material
+  return getOptionalComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent)?.material as Material
 }
 
 export const setMeshMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {
