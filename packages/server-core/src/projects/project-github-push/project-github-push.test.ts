@@ -76,7 +76,7 @@ describe('project-github-push.test', () => {
     await app.service(identityProviderPath).create(
       {
         type: 'github',
-        token: `test-token-${Math.round(Math.random() * 1000)}`,
+        token: uuidv4(),
         userId: testUser.id,
         oauthToken: `test-oauthtoken-${Math.round(Math.random() * 1000)}`
       },
