@@ -30,6 +30,7 @@ import matches from 'ts-matches'
 import {
   defineComponent,
   getMutableComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent
@@ -121,6 +122,8 @@ export const XRDetectedPlaneComponent = defineComponent({
         removeObjectFromGroup(entity, shadowMesh)
         removeObjectFromGroup(entity, occlusionMesh)
         removeObjectFromGroup(entity, placementHelper)
+
+        if (!hasComponent(entity, XRDetectedPlaneComponent)) return
 
         component.shadowMesh.set(none)
         component.occlusionMesh.set(none)

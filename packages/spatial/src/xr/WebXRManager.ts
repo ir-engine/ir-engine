@@ -127,8 +127,9 @@ export function createWebXRManager(renderer: WebGLRenderer) {
     xrRendererState.glBinding.set(null)
     xrRendererState.newRenderTarget.set(null)
 
-    animation.start()
+    animation.setContext(globalThis)
     animation.stop()
+    animation.start()
 
     scope.isPresenting = false
   }

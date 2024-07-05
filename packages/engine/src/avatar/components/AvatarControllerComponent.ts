@@ -137,7 +137,9 @@ export const AvatarControllerComponent = defineComponent({
         setComponent(controller.cameraEntity, FollowCameraComponent, {
           targetEntity: entity,
           phi: targetCameraRotation.phi,
-          theta: targetCameraRotation.theta
+          theta: targetCameraRotation.theta,
+          firstPersonOffset: new Vector3(0, avatarComponent.eyeHeight.value, eyeOffset),
+          thirdPersonOffset: new Vector3(0, avatarComponent.eyeHeight.value, 0)
         })
       }
     }, [isCameraAttachedToAvatar])
