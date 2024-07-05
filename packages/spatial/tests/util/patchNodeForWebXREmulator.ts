@@ -100,7 +100,7 @@ if (!globalThis.DOMPoint) (globalThis as any).DOMPoint = DOMPoint
 if (!globalThis.DOMPointReadOnly) (globalThis as any).DOMPointReadOnly = DOMPointReadOnly
 
 if (!globalThis.requestAnimationFrame) {
-  ;(globalThis as any).requestAnimationFrame = (cb: Function) => {
+  ;(globalThis as any).requestAnimationFrame = (cb) => {
     setTimeout(() => cb(0), (1 / 60) * 1000)
   }
 }

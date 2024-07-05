@@ -139,7 +139,7 @@ export class DOMMatrixReadOnly {
    * here.
    */
   get isIdentity() {
-    for (var i = 0, len = this._matrix.length; i < len; i += 1) {
+    for (let i = 0, len = this._matrix.length; i < len; i += 1) {
       if (this._matrix[i] != identity[i]) return (this._isIdentity = false)
     }
 
