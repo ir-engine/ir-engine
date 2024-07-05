@@ -80,7 +80,6 @@ export const bindAnimationClipFromMixamo = (clip: AnimationClip, vrm: VRM) => {
     const trackSplitted = trackClone.name.split('.')
     const mixamoPrefix = trackSplitted[0].includes('mixamorig') ? '' : 'mixamorig'
     const mixamoBoneName = mixamoPrefix + trackSplitted[0]
-    console.log(mixamoBoneName)
     const vrmBoneName = mixamoVRMRigMap[mixamoBoneName]
     const vrmNodeName = vrm.humanoid?.getNormalizedBoneNode(vrmBoneName)?.name
 
