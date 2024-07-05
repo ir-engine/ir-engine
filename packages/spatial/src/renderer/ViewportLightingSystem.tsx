@@ -27,7 +27,7 @@ import { defineQuery, defineSystem, getComponent } from '@etherealengine/ecs'
 import { getState, useMutableState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { AmbientLight } from 'three'
-import { EditorState } from '../../../editor/src/services/EditorServices'
+import { EngineState } from '../EngineState'
 import { RendererState } from './RendererState'
 import { WebGLRendererSystem } from './WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './components/GroupComponent'
@@ -53,7 +53,7 @@ const execute = () => {
 const reactor = () => {
   const renderer = useMutableState(RendererState)
   useEffect(() => {
-    const root = getState(EditorState).rootEntity
+    const root = getState(EngineState).originEntity
     renderer.renderMode.value === RenderModes.UNLIT
       ? addObjectToGroup(root, _tempAmbientLight)
       : removeObjectFromGroup(root, _tempAmbientLight)
