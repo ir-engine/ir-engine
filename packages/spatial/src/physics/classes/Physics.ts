@@ -445,7 +445,10 @@ function removeCollider(world: World, entity: Entity) {
 
 function setTrigger(entity: Entity, isTrigger: boolean) {
   const collider = Colliders.get(entity)
-  if (!collider) return
+  if (!collider) {
+    console.error("missing collider, can't set Trigger")
+    return
+  }
   collider.setSensor(isTrigger)
   const colliderComponent = getComponent(entity, ColliderComponent)
   // if we are a trigger, we need to update the interaction bits of the collision groups to include the trigger group
