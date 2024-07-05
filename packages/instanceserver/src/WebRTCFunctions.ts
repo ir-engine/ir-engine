@@ -355,9 +355,18 @@ export async function handleWebRtcTransportCreate(
       peerID
     ) as WebRTCTransportExtension
     if (existingTransport) {
+      return dispatchAction(
+        MediasoupTransportActions.requestTransportError({
+          error: 'Transport already exists',
+          direction,
+          $network: network.id,
+          $topic: network.topic,
+          $to: peerID
+        })
+      )
       /** @todo figure out why we transition to state failed in local dev sometimes */
-      return console.warn('Transport already exists for ' + peerID)
       // throw new Error('Transport already exists for ' + peerID)
+      // return console.warn('Transport already exists for ' + peerID)
       // MediasoupTransportState.removeTransport(network.id, existingTransport.id)
     }
 
@@ -432,7 +441,7 @@ export async function handleWebRtcTransportCreate(
 
     return dispatchAction(
       MediasoupTransportActions.requestTransportError({
-        error: err,
+        error: err.message,
         direction,
         $network: network.id,
         $topic: network.topic,
@@ -628,7 +637,7 @@ export async function handleWebRtcTransportConnect(
       transportsConnectPending[transportID] ?? transport.connect({ dtlsParameters: dtlsParameters as any })
     pending
       .then(() => {
-        // delete transportsConnectPending[transportID]
+        delete transportsConnectPending[transportID]
         dispatchAction(
           MediasoupTransportActions.transportConnected({
             transportID,
@@ -641,7 +650,7 @@ export async function handleWebRtcTransportConnect(
       })
       .catch((err) => {
         logger.error(err, 'handleWebRtcTransportConnect, data: %o', action)
-        // delete transportsConnectPending[transportID]
+        delete transportsConnectPending[transportID]
         dispatchAction(
           MediasoupTransportActions.requestTransportConnectError({
             requestID,
