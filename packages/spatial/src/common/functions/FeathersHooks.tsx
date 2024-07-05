@@ -357,14 +357,17 @@ export function hashObject(obj) {
  * An internal hook that will listen to realtime updates to a service
  * and update the cache as changes happen.
  */
-export function useRealtime(serviceName: keyof ServiceTypes, refetch: () => void) {
+export function useRealtime(
+  serviceName: keyof ServiceTypes,
+  refetch: (data: any, eventType: 'created' | 'updated' | 'patched' | 'removed') => void
+) {
   useLayoutEffect(() => {
     const service = Engine.instance.api.service(serviceName)
 
-    service.on('created', refetch)
-    service.on('updated', refetch)
-    service.on('patched', refetch)
-    service.on('removed', refetch)
+    service.on('created', (data: any) => refetch(data, 'created'))
+    service.on('updated', (data: any) => refetch(data, 'updated'))
+    service.on('patched', (data: any) => refetch(data, 'patched'))
+    service.on('removed', (data: any) => refetch(data, 'removed'))
 
     return () => {
       service.off('created', refetch)
