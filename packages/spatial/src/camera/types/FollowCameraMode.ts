@@ -24,11 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /** Camera Modes. */
-export enum CameraMode {
-  FirstPerson,
-  ShoulderCam,
-  ThirdPerson,
-  TopDown,
-  Strategic,
-  Dynamic
+export enum FollowCameraMode {
+  FirstPerson = 'FirstPerson',
+  ShoulderCam = 'ShoulderCam',
+  ThirdPerson = 'ThirdPerson',
+  TopDown = 'TopDown',
+  Strategic = 'Strategic',
+  Dynamic = 'Dynamic'
+}
+
+export enum FollowCameraShoulderSide {
+  Left = 'Left',
+  Right = 'Right'
 }
