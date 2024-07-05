@@ -682,7 +682,6 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
   // any time a transport transitions to closed,
   // failed, or disconnected, leave the  and reset
   transport.on('connectionstatechange', async (state: string) => {
-    console.log('\n\n\n\n\nconnectionstatechange ' + state + ' \n\n\n\n\n\n')
     if (state === 'closed' || state === 'failed' || state === 'disconnected') {
       logger.error(network.topic + 'Transport %o transitioned to state ' + state, transport)
       logger.error(
