@@ -23,30 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AmbientLightComponent } from '../renderer/components/AmbientLightComponent'
-import { CSMLightComponent } from '../renderer/components/CSMLightComponent'
-import { DirectionalLightComponent } from '../renderer/components/DirectionalLightComponent'
-import { HemisphereLightComponent } from '../renderer/components/HemisphereLightComponent'
-import { PointLightComponent } from '../renderer/components/PointLightComponent'
-import { SpotLightComponent } from '../renderer/components/SpotLightComponent'
-import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRAnchorComponent } from '../xr/XRComponents'
-import { DebugRendererSystem } from './DebugRendererSystem'
-import { RenderInfoSystem } from './RenderInfoSystem'
-import { WebGLRendererSystem } from './WebGLRendererSystem'
+import Component from './index'
 
-/** Components */
-export {
-  AmbientLightComponent,
-  CSMLightComponent,
-  /** Systems */
-  DebugRendererSystem,
-  DirectionalLightComponent,
-  HemisphereLightComponent,
-  PointLightComponent,
-  RenderInfoSystem,
-  SpotLightComponent,
-  TransformComponent,
-  WebGLRendererSystem,
-  XRAnchorComponent
+const argTypes = {}
+
+export default {
+  title: 'Editor/Properties/Light/CSM',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'CSMLightNodeEditor',
+    jest: 'csmLightNodeEditor.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
+export const Default = { args: {} }

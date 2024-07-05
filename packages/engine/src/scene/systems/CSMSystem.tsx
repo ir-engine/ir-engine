@@ -28,20 +28,28 @@ import {
   ComponentType,
   Engine,
   Entity,
+  QueryReactor,
   defineQuery,
   getComponent,
   getMutableComponent,
-  hasComponent
+  hasComponent,
+  useComponent,
+  useEntityContext
 } from '@etherealengine/ecs'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { DirectionalLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { addOBCPlugin, removeOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { CSMLightComponent } from '@etherealengine/spatial/src/renderer/components/CSMLightComponent'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import Frustum from '@etherealengine/spatial/src/renderer/csm/Frustum'
 import { useShadowsEnabled } from '@etherealengine/spatial/src/renderer/functions/RenderSettingsFunction'
-import { ArrayCamera, Box3, Material, Matrix4, Object3D, Shader, Vector2, Vector3 } from 'three'
+import React, { useEffect } from 'react'
+import { ArrayCamera, Box3, Material, Matrix4, Mesh, Object3D, Shader, Vector2, Vector3 } from 'three'
+import { ShadowComponent } from '../components/ShadowComponent'
 
 const _defaultLightDirection = new Vector3(1, -1, 1).normalize()
 const _sourceLightDirection = new Vector3()
@@ -57,7 +65,8 @@ const _bbox = new Box3()
 
 const csmLightQuery = defineQuery([CSMLightComponent])
 
-const entityShaderMap = new Map<Entity, Map<Material, Shader>>()
+const _entityShaderMap = new Map<Entity, Map<Material, Shader>>()
+const _entityMaterialMap = new Map<Entity, Set<Material>>()
 
 const updateShadowBounds = (csmLightComponent: ComponentType<typeof CSMLightComponent>, camera: ArrayCamera) => {
   const { frustums, lights, maxFar, shadowBias, shadowNormalBias, lightMargin, fade } = csmLightComponent
@@ -128,7 +137,7 @@ const updateUniforms = (
   const { maxFar, fade } = csmLightComponent
   const far = Math.min(camera.far, maxFar)
 
-  const shaders = entityShaderMap.get(csmLightEntity)
+  const shaders = _entityShaderMap.get(csmLightEntity)
   if (!shaders) return
   shaders.forEach(function (shader: Shader, material: Material) {
     if (shader !== null) {
@@ -224,12 +233,123 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  if (!isClient) return null
+const setupMaterial = (
+  mesh: Mesh,
+  csmLightEntity: Entity,
+  csmLightComponent: ComponentType<typeof CSMLightComponent>
+) => {
+  const { cascades, fade, maxFar } = csmLightComponent
 
-  const useShadows = useShadowsEnabled()
+  const material = mesh.material as Material
+  if (!material.userData) material.userData = {}
+  if (!_entityMaterialMap.has(csmLightEntity)) {
+    _entityMaterialMap.set(csmLightEntity, new Set())
+  }
+  const materials = _entityMaterialMap.get(csmLightEntity)!
+
+  if (material.userData.IGNORE_CSM) return
+  if (materials.has(material)) return
+  materials.add(material)
+  material.defines = material.defines || {}
+  material.defines.USE_CSM = 1
+  material.defines.CSM_CASCADES = cascades
+
+  if (fade) material.defines.CSM_FADE = ''
+
+  const breaksVec2 = []
+
+  if (!_entityShaderMap.has(csmLightEntity)) {
+    _entityShaderMap.set(csmLightEntity, new Map())
+  }
+  const shaders = _entityShaderMap.get(csmLightEntity)!
+  shaders.delete(material)
+
+  material.userData.CSMPlugin = {
+    id: 'CSM' + Math.random(),
+    compile: (shader: Shader) => {
+      // if (shaders.has(material)) return
+
+      const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+      const far = Math.min(camera.far, maxFar)
+      getExtendedBreaks(breaksVec2, csmLightComponent)
+
+      shader.uniforms.CSM_cascades = { value: breaksVec2 }
+      shader.uniforms.cameraNear = { value: camera.near }
+      shader.uniforms.shadowFar = { value: far }
+
+      shaders.set(material, shader)
+      getMutableComponent(csmLightEntity, CSMLightComponent).needsUpdate.set(true)
+    }
+  }
+
+  addOBCPlugin(material, material.userData.CSMPlugin)
+}
+
+const teardownMaterial = (material: Material, csmLightEntity: Entity) => {
+  if (!material?.isMaterial) return
+  if (!material.userData) material.userData = {}
+  if (material.userData.CSMPlugin) {
+    removeOBCPlugin(material, material.userData.CSMPlugin)
+    delete material.userData.CSMPlugin
+  }
+  if (material.defines) {
+    delete material.defines.USE_CSM
+    delete material.defines.CSM_CASCADES
+    delete material.defines.CSM_FADE
+  }
+  material.needsUpdate = true
+  _entityShaderMap.get(csmLightEntity)?.delete(material)
+  _entityMaterialMap.get(csmLightEntity)?.delete(material)
+}
+
+const CSMShadowReactor = (props: { csmLightEntity: Entity }) => {
+  const { csmLightEntity } = props
+  const entity = useEntityContext()
+
+  const shadowComponent = useComponent(entity, ShadowComponent)
+  const groupComponent = useComponent(entity, GroupComponent)
+
+  useEffect(() => {
+    if (!shadowComponent.receive.value) return
+    if (!groupComponent) return
+
+    const csmLightComponent = getComponent(csmLightEntity, CSMLightComponent)
+
+    const objs = [...groupComponent.value] as Mesh<any, Material>[]
+    for (const obj of objs) {
+      if (obj.material) {
+        setupMaterial(obj, csmLightEntity, csmLightComponent)
+      }
+    }
+
+    return () => {
+      for (const obj of objs) {
+        if (obj.material) {
+          teardownMaterial(obj.material, csmLightEntity)
+        }
+      }
+    }
+  }, [shadowComponent.receive])
 
   return null
+}
+
+const CSMReactor = () => {
+  const csmLightEntity = useEntityContext()
+
+  return (
+    <QueryReactor
+      Components={[VisibleComponent, ShadowComponent, GroupComponent]}
+      ChildEntityReactor={CSMShadowReactor}
+      props={{ csmLightEntity: csmLightEntity }}
+    />
+  )
+}
+
+const reactor = () => {
+  if (!isClient) return null
+  const useShadows = useShadowsEnabled()
+  return useShadows ? <QueryReactor Components={[CSMLightComponent]} ChildEntityReactor={CSMReactor} /> : null
 }
 
 export const CSMSystem = defineSystem({

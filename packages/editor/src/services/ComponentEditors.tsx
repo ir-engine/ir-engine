@@ -64,6 +64,7 @@ import { VolumetricComponent } from '@etherealengine/engine/src/scene/components
 import { defineState } from '@etherealengine/hyperflux'
 import {
   AmbientLightComponent,
+  CSMLightComponent,
   DirectionalLightComponent,
   HemisphereLightComponent,
   PointLightComponent,
@@ -96,6 +97,7 @@ import ImageNodeEditor from '@etherealengine/ui/src/components/editor/properties
 import InstancingNodeEditor from '@etherealengine/ui/src/components/editor/properties/instance'
 import InteractableComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/interact'
 import AmbientLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/ambient'
+import CSMLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/csm'
 import DirectionalLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/directional'
 import HemisphereLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/hemisphere'
 import PointLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/point'
@@ -146,6 +148,7 @@ export const ComponentEditorsState = defineState({
       [FogSettingsComponent.name]: FogSettingsEditor,
       [CameraSettingsComponent.name]: CameraPropertiesNodeEditor,
       [DirectionalLightComponent.name]: DirectionalLightNodeEditor,
+      [CSMLightComponent.name]: CSMLightNodeEditor,
       [HemisphereLightComponent.name]: HemisphereLightNodeEditor,
       [AmbientLightComponent.name]: AmbientLightNodeEditor,
       [PointLightComponent.name]: PointLightNodeEditor,

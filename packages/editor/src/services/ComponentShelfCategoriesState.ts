@@ -63,6 +63,7 @@ import { VolumetricComponent } from '@etherealengine/engine/src/scene/components
 import { defineState } from '@etherealengine/hyperflux'
 import {
   AmbientLightComponent,
+  CSMLightComponent,
   DirectionalLightComponent,
   HemisphereLightComponent,
   PointLightComponent,
@@ -111,6 +112,7 @@ export const ComponentShelfCategoriesState = defineState({
         PointLightComponent,
         SpotLightComponent,
         DirectionalLightComponent,
+        CSMLightComponent,
         HemisphereLightComponent
       ],
       FX: [

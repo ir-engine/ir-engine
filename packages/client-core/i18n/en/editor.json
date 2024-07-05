@@ -402,6 +402,10 @@
       "lbl-showCameraHelper": "Show Camera Helper",
       "lbl-castShadows": "Cast Shadows"
     },
+    "csmLight": {
+      "name": "CSM Light",
+      "description": "A directional light that provides cascaded shadow mapping"
+    },
     "groundPlane": {
       "name": "Ground Plane",
       "description": "A flat ground plane that extends into the distance.",

@@ -34,7 +34,7 @@ import {
   useEntityContext
 } from '@etherealengine/ecs'
 import { NO_PROXY, matches, useImmediateEffect } from '@etherealengine/hyperflux'
-import { Color, ColorRepresentation, DirectionalLight, MathUtils, ShaderChunk } from 'three'
+import { Color, DirectionalLight, MathUtils, ShaderChunk } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { matchesColor } from '../../common/functions/MatchesUtils'
@@ -63,7 +63,7 @@ export const CSMLightComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      color: new Color() as ColorRepresentation,
+      color: new Color(),
       intensity: 1,
       lightMargin: 200,
       shadowMapSize: 1024,
@@ -93,7 +93,7 @@ export const CSMLightComponent = defineComponent({
       shadowBias: component.shadowBias.value,
       shadowNormalBias: component.shadowNormalBias.value,
       shadowRadius: component.shadowRadius.value,
-      far: component.maxFar.value,
+      maxFar: component.maxFar.value,
       cascades: component.cascades.value,
       mode: component.mode.value,
       fade: component.fade.value
@@ -109,7 +109,7 @@ export const CSMLightComponent = defineComponent({
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowNormalBias)) component.shadowNormalBias.set(json.shadowNormalBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
-    if (matches.number.test(json.far)) component.maxFar.set(json.far)
+    if (matches.number.test(json.maxFar)) component.maxFar.set(json.maxFar)
     if (matches.number.test(json.cascades)) component.cascades.set(json.cascades)
     if (matches.string.test(json.mode)) component.mode.set(json.mode)
     if (matches.boolean.test(json.fade)) component.fade.set(json.fade)
@@ -172,9 +172,10 @@ export const CSMLightComponent = defineComponent({
     }, [csmLightComponent.cascades])
 
     useImmediateEffect(() => {
+      const shadowMapSize = csmLightComponent.shadowMapSize.value
       for (const light of csmLightComponent.lights.get(NO_PROXY) as DirectionalLight[]) {
-        light.shadow.mapSize.width = this.shadowMapSize
-        light.shadow.mapSize.height = this.shadowMapSize
+        light.shadow.mapSize.width = shadowMapSize
+        light.shadow.mapSize.height = shadowMapSize
       }
     }, [csmLightComponent.lights, csmLightComponent.shadowMapSize])
 
