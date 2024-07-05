@@ -34,7 +34,7 @@ import {
   MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
-import { injectMaterialDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
+import { injectMaterialDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 

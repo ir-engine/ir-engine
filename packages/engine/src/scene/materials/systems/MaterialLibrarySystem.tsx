@@ -30,6 +30,7 @@ import {
   getOptionalComponent,
   PresentationSystemGroup,
   QueryReactor,
+  removeEntity,
   useComponent,
   useEntityContext,
   useOptionalComponent
@@ -40,6 +41,7 @@ import {
   MaterialPrototypeDefinitions
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import {
+  createMaterialEntity,
   createMaterialPrototype,
   materialPrototypeMatches,
   setMeshMaterial,
@@ -54,7 +56,6 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { isArray } from 'lodash'
 import { Material } from 'three'
-import { createMaterialInstance, removeMaterial } from '../functions/materialSourcingFunctions'
 
 const reactor = (): ReactElement => {
   useEffect(() => {
@@ -77,8 +78,8 @@ const MeshReactor = () => {
   useEffect(() => {
     if (materialComponent) return
     const material = meshComponent.material.value as Material
-    if (!isArray(material)) createMaterialInstance(entity, material)
-    else for (const mat of material) createMaterialInstance(entity, mat)
+    if (!isArray(material)) createMaterialEntity(material, entity)
+    else for (const mat of material) createMaterialEntity(mat, entity)
   }, [])
   return null
 }
@@ -101,7 +102,7 @@ const MaterialEntityReactor = () => {
   }, [materialComponent.prototypeEntity])
 
   useEffect(() => {
-    if (materialComponent.instances.value?.length === 0) removeMaterial(entity)
+    if (materialComponent.instances.value?.length === 0) removeEntity(entity)
   }, [materialComponent.instances])
 
   return null

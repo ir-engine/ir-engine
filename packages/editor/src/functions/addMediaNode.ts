@@ -39,7 +39,6 @@ import { MediaComponent } from '@etherealengine/engine/src/scene/components/Medi
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { createMaterialEntity } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
@@ -48,7 +47,7 @@ import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { createMaterialEntity, getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -94,7 +93,7 @@ export async function addMediaNode(
           (mesh: Mesh) => mesh?.isMesh
         )[0]
         if (!material) return
-        if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) createMaterialEntity(material, url)
+        if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) createMaterialEntity(material)
 
         const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
         if (materialEntity) material = getMaterial(material.uuid as EntityUUID)!

@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 import { Texture, Uniform } from 'three'
 
 import {
-  defineQuery,
   Entity,
   EntityUUID,
   getComponent,
@@ -44,7 +43,6 @@ import styles from '@etherealengine/editor/src/components/layout/styles.module.s
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
@@ -52,7 +50,8 @@ import { getDefaultType } from '@etherealengine/spatial/src/renderer/materials/c
 import {
   MaterialPlugins,
   MaterialPrototypeComponent,
-  MaterialStateComponent
+  MaterialStateComponent,
+  prototypeQuery
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { formatMaterialArgs } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -76,7 +75,6 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
   return blobs
 }
 
-const prototypeQuery = defineQuery([MaterialPrototypeComponent])
 export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const { t } = useTranslation()
   const prototypes = prototypeQuery().map((prototype) => ({
@@ -206,7 +204,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         <StringInput
           value={materialName.value}
           onChange={(name) => {
-            setMaterialName(entity, name)
+            setComponent(entity, NameComponent, name)
             materialName.set(name)
           }}
         />

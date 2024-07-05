@@ -72,13 +72,13 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
-import { createMaterialEntity } from '../materials/functions/materialSourcingFunctions'
 
 const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {
@@ -142,7 +142,7 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
       newBasicMaterial.side = prevMaterial.side
       newBasicMaterial.plugins = undefined
 
-      createMaterialEntity(newBasicMaterial, '', entity)
+      createMaterialEntity(newBasicMaterial, entity)
       setComponent(entity, MaterialInstanceComponent, { uuid: [basicUUID] })
     } else {
       const UUID = child.material.uuid as EntityUUID

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { hookstate, none } from '@etherealengine/hyperflux'
 
@@ -59,6 +59,8 @@ export const SourceComponent = defineComponent({
       SourceComponent.entitiesBySourceState[src].set(entities)
     }
   },
+
+  getSourceAsset: (entity: Entity) => getComponent(entity, SourceComponent).split(':')[0],
 
   entitiesBySourceState: hookstate(entitiesBySource),
   entitiesBySource: entitiesBySource as Readonly<typeof entitiesBySource>

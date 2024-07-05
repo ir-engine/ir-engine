@@ -25,7 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material, Shader, WebGLRenderer } from 'three'
 
-import { Component, UUIDComponent, defineComponent, getComponent, getMutableComponent } from '@etherealengine/ecs'
+import {
+  Component,
+  UUIDComponent,
+  defineComponent,
+  defineQuery,
+  getComponent,
+  getMutableComponent
+} from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
@@ -92,9 +99,6 @@ export const MaterialStateComponent = defineComponent({
     }
   },
 
-  materialByHash: {} as Record<string, EntityUUID>,
-  assetSourceByMaterial: {} as Record<EntityUUID, string>,
-
   onSet: (entity, component, json) => {
     if (json?.material && component.material.value !== undefined) component.material.set(json.material)
     if (json?.parameters && component.parameters.value !== undefined) component.parameters.set(json.parameters)
@@ -140,6 +144,8 @@ export const MaterialPrototypeComponent = defineComponent({
       component.prototypeConstructor.set(json.prototypeConstructor)
   }
 })
+
+export const prototypeQuery = defineQuery([MaterialPrototypeComponent])
 
 declare module 'three/src/materials/Material' {
   export interface Material {

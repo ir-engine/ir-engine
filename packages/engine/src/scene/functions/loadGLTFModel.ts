@@ -50,7 +50,6 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -350,11 +349,6 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   const material = mesh.material
   if (!material) return eJson
-
-  const materials = Array.isArray(material) ? material : [material]
-  materials.map((material) => {
-    MaterialStateComponent.assetSourceByMaterial[material.uuid] = getComponent(rootEntity, ModelComponent).src
-  })
 
   delete mesh.userData['componentJson']
   delete mesh.userData['gltfExtensions']
