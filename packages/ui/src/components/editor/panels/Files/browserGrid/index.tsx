@@ -31,6 +31,7 @@ import {
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
+import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
 import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
@@ -202,8 +203,6 @@ type FileBrowserItemType = {
   item: FileDataType
   disableDnD?: boolean
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
-  setFileProperties: any
-  setOpenCompress: any
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
@@ -228,8 +227,6 @@ export function FileBrowserItem({
   item,
   disableDnD,
   currentContent,
-  setFileProperties,
-  setOpenCompress,
   projectName,
   onClick,
   dropItemsOnPanel,
@@ -303,12 +300,6 @@ export function FileBrowserItem({
       newPath: item.isFolder ? item.path + item.fullName : item.path,
       isCopy: currentContent.current.isCopy
     })
-  }
-
-  const viewCompress = () => {
-    setFileProperties(item)
-    setOpenCompress(true)
-    handleClose()
   }
 
   const [_dragProps, drag, preview] = disableDnD
@@ -417,11 +408,15 @@ export function FileBrowserItem({
           variant="outline"
           size="small"
           fullWidth
-          disabled={!fileConsistsOfContentType(item, 'model')}
+          disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')}
           onClick={() => {
             if (fileConsistsOfContentType(item, 'model')) {
               PopoverState.showPopupover(
                 <ModelCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
+              )
+            } else if (fileConsistsOfContentType(item, 'image')) {
+              PopoverState.showPopupover(
+                <ImageCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
               )
             }
           }}

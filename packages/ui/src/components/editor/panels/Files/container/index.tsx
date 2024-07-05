@@ -46,7 +46,6 @@ import {
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
-import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
@@ -512,8 +511,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     onSelect(file)
                   }}
                   currentContent={currentContentRef}
-                  setFileProperties={fileProperties.set}
-                  setOpenCompress={openCompress.set}
                   dropItemsOnPanel={dropItemsOnPanel}
                   isFilesLoading={isLoading}
                   addFolder={createNewFolder}
@@ -711,14 +708,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <DropArea />
         </DndWrapper>
       </div>
-
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
-        <ImageCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
-          onRefreshDirectory={refreshDirectory}
-        />
-      )}
 
       <ConfirmDialog
         open={openConfirm.value}
