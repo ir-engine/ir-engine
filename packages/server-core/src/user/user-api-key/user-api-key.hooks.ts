@@ -92,18 +92,18 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(userApiKeyQueryValidator), schemaHooks.resolveQuery(userApiKeyQueryResolver)],
+    all: [schemaHooks.validateQuery(userApiKeyQueryValidator), schemaHooks.resolveQuery(userApiKeyQueryResolver)],
     find: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     get: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     create: [
-      () => schemaHooks.validateData(userApiKeyDataValidator),
+      schemaHooks.validateData(userApiKeyDataValidator),
       schemaHooks.resolveData(userApiKeyDataResolver),
       iff(isProvider('external'), ensureUserDoesNotHaveApiKey),
       iff(isProvider('external'), setLoggedInUser('userId'))
     ],
     update: [disallow('external')],
     patch: [
-      () => schemaHooks.validateData(userApiKeyPatchValidator),
+      schemaHooks.validateData(userApiKeyPatchValidator),
       schemaHooks.resolveData(userApiKeyPatchResolver),
       iff(isProvider('external'), ensureUserOwnsApiKey),
       iff(isProvider('external'), attachOwnerIdInQuery('userId')),

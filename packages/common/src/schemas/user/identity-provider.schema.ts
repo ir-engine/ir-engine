@@ -45,7 +45,9 @@ export const identityProviderTypes = [
   'facebook',
   'twitter',
   'linkedin',
-  'auth0'
+  'auth0',
+  'guest',
+  'user'
 ]
 
 // Main data model schema
@@ -60,9 +62,7 @@ export const identityProviderSchema = Type.Object(
     accountIdentifier: Type.Optional(Type.String()),
     oauthToken: Type.Optional(Type.String()),
     type: StringEnum(identityProviderTypes),
-    userId: TypedString<UserID>({
-      format: 'uuid'
-    }),
+    userId: TypedString<UserID>(),
     accessToken: Type.Optional(Type.String()),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })

@@ -61,9 +61,9 @@ const ensureUserThemeModes = () => {
     const { app, result } = context
     const clientSettings = await app.service(clientSettingPath).find()
     if (clientSettings && clientSettings.data.length > 0) {
-      result.themeModes = clientSettings.data[0].themeModes
-
-      await app.service(userSettingPath).patch(result.id, result)
+      context.result = await app
+        .service(userSettingPath)
+        .patch(result.id, { themeModes: clientSettings.data[0].themeModes })
     }
 
     return context
@@ -76,21 +76,18 @@ export default {
   },
 
   before: {
-    all: [
-      () => schemaHooks.validateQuery(userSettingQueryValidator),
-      schemaHooks.resolveQuery(userSettingQueryResolver)
-    ],
+    all: [schemaHooks.validateQuery(userSettingQueryValidator), schemaHooks.resolveQuery(userSettingQueryResolver)],
     find: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     get: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     create: [
       iff(isProvider('external'), attachOwnerId('userId')),
-      () => schemaHooks.validateData(userSettingDataValidator),
+      schemaHooks.validateData(userSettingDataValidator),
       schemaHooks.resolveData(userSettingDataResolver)
     ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), ensureUserSettingsOwner()),
-      () => schemaHooks.validateData(userSettingPatchValidator),
+      schemaHooks.validateData(userSettingPatchValidator),
       schemaHooks.resolveData(userSettingPatchResolver)
     ],
     remove: [disallow('external')]
