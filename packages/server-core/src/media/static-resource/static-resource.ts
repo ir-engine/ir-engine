@@ -40,6 +40,7 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
+import { Channel } from '@feathersjs/transport-commons'
 import _ from 'lodash'
 import { Application } from '../../../declarations'
 import { StaticResourceService } from './static-resource.class'
@@ -75,7 +76,7 @@ export default (app: Application): void => {
     (app: Application) => async (data: StaticResourceType | Paginated<StaticResourceType> | StaticResourceType[]) => {
       let userWithProjectReadScopes: (ScopeTypeInterface | ScopeData)[] = []
 
-      const process = async (item: StaticResourceType) => {
+      const process = async (item: StaticResourceType, promises: Channel[]) => {
         // Only allow project scenes to be processed further
         if (!item.project || item.type !== 'scene') {
           return
@@ -127,16 +128,16 @@ export default (app: Application): void => {
         const uniqueUserIds = _.uniq(targetIds)
 
         // Publish to all users with project read scopes or project permission
-        return Promise.all(uniqueUserIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(item)))
+        promises.push(...uniqueUserIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(item)))
       }
 
-      if (Array.isArray(data)) {
-        await Promise.all(data.map(process))
-      } else if ('data' in data) {
-        await Promise.all(data.data.map(process))
-      } else {
-        await process(data)
+      const dataArr = Array.isArray(data) ? data : 'data' in data ? data.data : [data]
+
+      const promises: Channel[] = []
+      for (const item of dataArr) {
+        await process(item, promises)
       }
+      return promises
     }
 
   service.publish('created', onCRUD(app))
