@@ -54,6 +54,7 @@ import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { FileType } from '../container'
 import { FileIcon } from '../icon'
 import DeleteFileModal from './DeleteFileModal'
+import FilePropertiesModal from './FilePropertiesModal'
 import ImageConvertModal from './ImageConvertModal'
 import RenameFileModal from './RenameFileModal'
 
@@ -202,8 +203,6 @@ type FileBrowserItemType = {
   item: FileDataType
   disableDnD?: boolean
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
-  setFileProperties: any
-  setOpenPropertiesModal: any
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
@@ -228,8 +227,6 @@ export function FileBrowserItem({
   item,
   disableDnD,
   currentContent,
-  setOpenPropertiesModal,
-  setFileProperties,
   projectName,
   onClick,
   dropItemsOnPanel,
@@ -303,13 +300,6 @@ export function FileBrowserItem({
       newPath: item.isFolder ? item.path + item.fullName : item.path,
       isCopy: currentContent.current.isCopy
     })
-  }
-
-  const viewAssetProperties = () => {
-    setFileProperties(item)
-
-    setOpenPropertiesModal(true)
-    handleClose()
   }
 
   const [_dragProps, drag, preview] = disableDnD
@@ -406,7 +396,12 @@ export function FileBrowserItem({
         >
           {t('editor:layout.assetGrid.deleteAsset')}
         </Button>
-        <Button variant="outline" size="small" fullWidth onClick={viewAssetProperties}>
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          onClick={() => PopoverState.showPopupover(<FilePropertiesModal projectName={projectName} file={item} />)}
+        >
           {t('editor:layout.filebrowser.viewAssetProperties')}
         </Button>
         <Button
