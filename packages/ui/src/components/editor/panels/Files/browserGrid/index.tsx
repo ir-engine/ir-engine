@@ -116,7 +116,7 @@ export const FileTableListBody = ({
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
 
-  const staticResource = useFind(staticResourcePath, { query: { key: file.key, project: projectName.value! } })
+  const staticResource = useFind(staticResourcePath, { query: { key: file.key, project: projectName! } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
 
   const tableColumns = {
