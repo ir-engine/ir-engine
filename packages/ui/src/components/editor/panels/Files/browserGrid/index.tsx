@@ -31,6 +31,7 @@ import {
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
+import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
 import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
@@ -203,7 +204,6 @@ type FileBrowserItemType = {
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
   setFileProperties: any
   setOpenPropertiesModal: any
-  setOpenCompress: any
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
@@ -230,7 +230,6 @@ export function FileBrowserItem({
   currentContent,
   setOpenPropertiesModal,
   setFileProperties,
-  setOpenCompress,
   projectName,
   onClick,
   dropItemsOnPanel,
@@ -310,12 +309,6 @@ export function FileBrowserItem({
     setFileProperties(item)
 
     setOpenPropertiesModal(true)
-    handleClose()
-  }
-
-  const viewCompress = () => {
-    setFileProperties(item)
-    setOpenCompress(true)
     handleClose()
   }
 
@@ -420,11 +413,15 @@ export function FileBrowserItem({
           variant="outline"
           size="small"
           fullWidth
-          disabled={!fileConsistsOfContentType(item, 'model')}
+          disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')}
           onClick={() => {
             if (fileConsistsOfContentType(item, 'model')) {
               PopoverState.showPopupover(
                 <ModelCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
+              )
+            } else if (fileConsistsOfContentType(item, 'image')) {
+              PopoverState.showPopupover(
+                <ImageCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
               )
             }
           }}
