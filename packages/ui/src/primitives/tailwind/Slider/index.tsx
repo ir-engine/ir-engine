@@ -59,7 +59,7 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
   const gradientPercent = Math.round(((value - min) / (max - min)) * 100)
 
   const sliderStyle = {
-    background: `linear-gradient(to right, #214AA6 ${gradientPercent}%, #111113 ${gradientPercent}%)`
+    background: `linear-gradient(to right, #214AA6 ${gradientPercent}%, #191B1F ${gradientPercent}%)`
   }
 
   return (
