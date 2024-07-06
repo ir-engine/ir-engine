@@ -44,11 +44,14 @@ import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
+import { DefaultButtonAlias } from './InputComponent'
 import { InputSourceComponent } from './InputSourceComponent'
 
 /** @note Intersection types used, but not exported or declared, by InputSourceComponent */
 type Intersection = { entity: Entity; distance: number }
 type IntersectionList = Array<Intersection>
+/** @note ButtonStateMap, aliased to its required type for ergonomics */
+type ButtonStateMapAlias = Readonly<ButtonStateMap<typeof DefaultButtonAlias>>
 
 describe.skip('InputSourceComponent', () => {
   // beforeEach(() => {
@@ -196,7 +199,7 @@ const InputSourceComponentReliableDefaults = {
     targetRayMode: 'screen',
     targetRaySpace: {}
   } as unknown as XRInputSource,
-  buttons: {} as Readonly<ButtonStateMap>,
+  buttons: {} as ButtonStateMapAlias,
   raycaster: new Raycaster(),
   intersections: [] as Array<{ entity: Entity; distance: number }>
 }
@@ -291,7 +294,7 @@ describe('InputSourceComponent', () => {
           targetRayMode: 'screen',
           targetRaySpace: null // @note Setting this to a value crashes this test with an error
         } as unknown as XRInputSource,
-        buttons: {} as Readonly<ButtonStateMap>,
+        buttons: {} as ButtonStateMapAlias,
         raycaster: new Raycaster(),
         intersections: [] as Array<{ entity: Entity; distance: number }>
       }
@@ -321,7 +324,7 @@ describe('InputSourceComponent', () => {
           targetRayMode: 'screen',
           targetRaySpace: null // @note Setting this to a value crashes this test with an error
         } as unknown as XRInputSource,
-        buttons: {} as Readonly<ButtonStateMap>,
+        buttons: {} as ButtonStateMapAlias,
         raycaster: new Raycaster(),
         intersections: [] as Array<{ entity: Entity; distance: number }>
       }
@@ -354,7 +357,7 @@ describe('InputSourceComponent', () => {
           targetRayMode: 'tracked-pointer',
           targetRaySpace: {} as XRSpace, // @note Setting this to an invalid value will throw an error
         } as unknown as XRInputSource,
-        buttons: {} as Readonly<ButtonStateMap>,
+        buttons: {} as ButtonStateMapAlias,
         raycaster: new Raycaster(),
         intersections: [] as Array<{ entity: Entity; distance: number }>
       }
@@ -386,7 +389,7 @@ describe('InputSourceComponent', () => {
           targetRayMode: 'screen',
           targetRaySpace: {} // @note This empty object triggers the error
         } as unknown as XRInputSource,
-        buttons: {} as Readonly<ButtonStateMap>,
+        buttons: {} as ButtonStateMapAlias,
         raycaster: new Raycaster(),
         intersections: [] as Array<{ entity: Entity; distance: number }>
       }
@@ -416,7 +419,7 @@ describe('InputSourceComponent', () => {
           targetRayMode: 'screen',
           targetRaySpace: null // @note Setting this to a value crashes this test with an error
         } as unknown as XRInputSource,
-        buttons: {} as Readonly<ButtonStateMap>,
+        buttons: {} as ButtonStateMapAlias,
         raycaster: new Raycaster(),
         intersections: [] as Array<{ entity: Entity; distance: number }>
       }
@@ -447,7 +450,7 @@ describe('InputSourceComponent', () => {
           targetRayMode: 'screen',
           targetRaySpace: null // @note Setting this to a value crashes this test with an error
         } as unknown as XRInputSource,
-        buttons: {} as Readonly<ButtonStateMap>,
+        buttons: {} as ButtonStateMapAlias,
         raycaster: new Raycaster(),
         intersections: [] as Array<{ entity: Entity; distance: number }>
       }
