@@ -29,6 +29,7 @@ import {
   getComponent,
   getMutableComponent,
   hasComponent,
+  removeComponent,
   serializeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -41,7 +42,9 @@ import { EngineState } from '../../EngineState'
 import { initializeSpatialEngine } from '../../initializeEngine'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { InputComponent } from './InputComponent'
+import { InputSinkComponent } from './InputSinkComponent'
 
 const InputComponentDefaults = {
   inputSinks: ['Self'] as EntityUUID[],
@@ -56,6 +59,19 @@ function assertInputComponentEq(A, B): void {
   assert.equal(A.highlight, B.highlight)
   assert.equal(A.grow, B.grow)
   assertArrayEqual(A.inputSources, B.inputSources)
+}
+
+/** @description Returns whethere or not the given `@param arr` has duplicate values. */
+export function arrayHasDuplicates(arr: any[]): boolean {
+  return new Set(arr).size !== arr.length
+}
+
+export function assertArrayHasDuplicates(arr: any[]) {
+  assert.ok(arrayHasDuplicates(arr))
+}
+
+export function assertArrayHasNoDuplicates(arr: any[]) {
+  assert.ok(!arrayHasDuplicates(arr))
 }
 
 describe('InputComponent', () => {
@@ -153,15 +169,95 @@ describe('InputComponent', () => {
     })
   })
 
+  describe('getInputEntities', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, InputComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should return an empty list when the entity does not have an InputComponent or an InputSinkComponent', () => {
+      removeComponent(testEntity, InputComponent)
+      const result = InputComponent.getInputEntities(testEntity)
+      assert.ok(Array.isArray(result))
+      assert.equal(result.length, 0)
+    })
+
+    it('should return a list containing itself when the entity has an InputComponent, but no InputSinkComponent', () => {
+      const result = InputComponent.getInputEntities(testEntity)
+      assert.ok(Array.isArray(result))
+      assert.equal(result.length, 1)
+      assert.equal(result[0], testEntity)
+    })
+
+    it('should return a list containing only the closest ancestor that has an InputComponent, even if the entity itself has no InputComponent', () => {
+      removeComponent(testEntity, InputComponent)
+      const parentEntity = createEntity()
+      setComponent(parentEntity, InputComponent)
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+      const result = InputComponent.getInputEntities(testEntity)
+      assert.ok(Array.isArray(result))
+      assert.equal(result.length, 1)
+      assert.equal(result[0], parentEntity)
+    })
+
+    it('should return a list containing the entity itself if it has an InputComponent, even if its closest ancestor also has an InputComponent', () => {
+      const parentEntity = createEntity()
+      setComponent(parentEntity, InputComponent)
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+      const result = InputComponent.getInputEntities(testEntity)
+      assert.ok(Array.isArray(result))
+      assert.equal(result.length, 1)
+      assert.ok(result.includes(testEntity))
+      assert.ok(!result.includes(parentEntity))
+    })
+
+    it('should return a de-duplicated list of Input Entities, taken from the InputSinkComponent.inputEntities of the closest ancestor of the given entity', () => {
+      removeComponent(testEntity, InputComponent)
+      const parentEntity = createEntity()
+      const someEntity = createEntity()
+      setComponent(parentEntity, InputComponent)
+      setComponent(parentEntity, InputSinkComponent)
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+      const DummyList = [
+        12345 as Entity,
+        12345 as Entity,
+        12345 as Entity,
+        54321 as Entity,
+        54321 as Entity,
+        someEntity,
+        someEntity
+      ]
+      assertArrayHasDuplicates(DummyList)
+      getMutableComponent(parentEntity, InputSinkComponent).inputEntities.set(DummyList)
+      const result = InputComponent.getInputEntities(testEntity)
+      assertArrayHasNoDuplicates(result)
+      assert.ok(
+        !result.includes(testEntity),
+        'the result should not contain the given entity if it does not have an InputComponent'
+      )
+      assert.ok(
+        result.includes(parentEntity),
+        'the result should contain the parent entity if it has an InputComponent'
+      )
+    })
+  })
+
   /**
   // @todo
-  describe('useExecuteWithInput', () => {})
-  describe('getInputEntities', () => {})
   describe('getInputSourceEntities', () => {})
   describe('getMergedButtons', () => {})
   describe('getMergedAxes', () => {})
   describe('getMergedButtonsForInputSources', () => {})
   describe('getMergedAxesForInputSources', () => {})
+  describe('useExecuteWithInput', () => {})
   describe('useHasFocus', () => {})
   */
 
