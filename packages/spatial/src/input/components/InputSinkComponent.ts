@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs'
+import { Entity, defineComponent } from '@etherealengine/ecs'
 
 /** InputSinkComponent - receives input from input entities.  */
 export const InputSinkComponent = defineComponent({
@@ -34,7 +34,7 @@ export const InputSinkComponent = defineComponent({
       /**
        * The set of entities that are actively channeling input into this Entity Tree
        */
-      inputEntities: []
+      inputEntities: [] as Entity[]
     }
   }
 })
