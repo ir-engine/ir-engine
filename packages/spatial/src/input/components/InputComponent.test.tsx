@@ -29,6 +29,7 @@ import {
   getComponent,
   getMutableComponent,
   hasComponent,
+  serializeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -130,6 +131,40 @@ describe('InputComponent', () => {
     })
   }) // << onSet
 
+  describe('toJSON', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, InputComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it("should serialize the component's default data as expected", () => {
+      const json = serializeComponent(testEntity, InputComponent)
+      assert.ok(Array.isArray(json.inputSinks))
+      assert.equal(json.inputSinks, 'Self')
+      assert.equal(json.activationDistance, 2)
+    })
+  })
+
+  /**
+  // @todo
+  describe('useExecuteWithInput', () => {})
+  describe('getInputEntities', () => {})
+  describe('getInputSourceEntities', () => {})
+  describe('getMergedButtons', () => {})
+  describe('getMergedAxes', () => {})
+  describe('getMergedButtonsForInputSources', () => {})
+  describe('getMergedAxesForInputSources', () => {})
+  describe('useHasFocus', () => {})
+  */
+
   describe('reactor', () => {
     beforeEach(() => {
       createEngine()
@@ -158,5 +193,11 @@ describe('InputComponent', () => {
 
       assert(hasComponent(entity, HighlightComponent))
     })
-  })
+  }) // << reactor
 })
+
+/**
+// @todo
+describe('InputExecutionOrder', () => {})
+describe('InputExecutionSystemGroup', () => {})
+*/
