@@ -364,16 +364,21 @@ export function useRealtime(
   useLayoutEffect(() => {
     const service = Engine.instance.api.service(serviceName)
 
-    service.on('created', (data: any) => refetch(data, 'created'))
-    service.on('updated', (data: any) => refetch(data, 'updated'))
-    service.on('patched', (data: any) => refetch(data, 'patched'))
-    service.on('removed', (data: any) => refetch(data, 'removed'))
+    const handleCreated = (data: any) => refetch(data, 'created')
+    const handleUpdated = (data: any) => refetch(data, 'updated')
+    const handlePatched = (data: any) => refetch(data, 'patched')
+    const handleRemoved = (data: any) => refetch(data, 'removed')
+
+    service.on('created', handleCreated)
+    service.on('updated', handleUpdated)
+    service.on('patched', handlePatched)
+    service.on('removed', handleRemoved)
 
     return () => {
-      service.off('created', refetch)
-      service.off('updated', refetch)
-      service.off('patched', refetch)
-      service.off('removed', refetch)
+      service.off('created', handleCreated)
+      service.off('updated', handleUpdated)
+      service.off('patched', handlePatched)
+      service.off('removed', handleRemoved)
     }
   }, [serviceName])
 }
