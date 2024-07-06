@@ -23,13 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Object3D, Ray } from 'three'
+/** Camera Modes. */
+export enum FollowCameraMode {
+  FirstPerson = 'FirstPerson',
+  ShoulderCam = 'ShoulderCam',
+  ThirdPerson = 'ThirdPerson',
+  TopDown = 'TopDown',
+  Strategic = 'Strategic',
+  Dynamic = 'Dynamic'
+}
 
-import { defineState } from '@etherealengine/hyperflux'
-
-export const XRUIState = defineState({
-  name: 'XRUIState',
-  initial: () => ({
-    interactionRays: [] as Array<Ray | Object3D>
-  })
-})
+export enum FollowCameraShoulderSide {
+  Left = 'Left',
+  Right = 'Right'
+}

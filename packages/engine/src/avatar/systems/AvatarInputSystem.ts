@@ -62,20 +62,11 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { applyInputSourcePoseToIKTargets } from '../functions/applyInputSourcePoseToIKTargets'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
-const _quat = new Quaternion()
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
+import { FollowCameraMode } from '@etherealengine/spatial/src/camera/types/FollowCameraMode'
+import { getThumbstickOrThumbpadAxes } from '@etherealengine/spatial/src/input/functions/getThumbstickOrThumbpadAxes'
 
-/**
- * On 'xr-standard' mapping, get thumbstick input [2,3], fallback to thumbpad input [0,1]
- * On 'standard' mapping, get thumbstick input [0,1]
- */
-export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, handedness: XRHandedness, deadZone = 0.05) {
-  const gamepad = inputSource.gamepad
-  const axes = gamepad!.axes
-  const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' || handedness === 'right' ? 2 : 0
-  const xAxis = Math.abs(axes[axesIndex]) > deadZone ? axes[axesIndex] : 0
-  const zAxis = Math.abs(axes[axesIndex + 1]) > deadZone ? axes[axesIndex + 1] : 0
-  return [xAxis, zAxis] as [number, number]
-}
+const _quat = new Quaternion()
 
 export const InputSourceAxesDidReset = new WeakMap<XRInputSource, boolean>()
 
@@ -244,14 +235,16 @@ const execute = () => {
   controller.gamepadLocalInput.set(0, 0, 0)
 
   const viewerEntity = Engine.instance.viewerEntity
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(viewerEntity)
+
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(viewerEntity)[0]
+
   if (!inputPointerEntity && !xrState.session) return
 
   const buttons = InputComponent.getMergedButtons(viewerEntity)
 
   if (buttons.ShiftLeft?.down) onShiftLeft()
 
-  const gamepadJump = buttons[StandardGamepadButton.ButtonA]?.down
+  const gamepadJump = buttons[StandardGamepadButton.StandardGamepadButtonA]?.down
 
   //** touch input (only for avatar jump)*/
   const doubleClicked = isCameraAttachedToAvatar ? false : getAvatarDoubleClick(buttons)
@@ -259,15 +252,22 @@ const execute = () => {
   const keyDeltaX =
     (buttons.KeyA?.pressed ? -1 : 0) +
     (buttons.KeyD?.pressed ? 1 : 0) +
-    (buttons[StandardGamepadButton.DPadLeft]?.pressed ? -1 : 0) +
-    (buttons[StandardGamepadButton.DPadRight]?.pressed ? 1 : 0)
+    (buttons[StandardGamepadButton.StandardGamepadDPadLeft]?.pressed ? -1 : 0) +
+    (buttons[StandardGamepadButton.StandardGamepadDPadRight]?.pressed ? 1 : 0)
   const keyDeltaZ =
     (buttons.KeyW?.pressed ? -1 : 0) +
     (buttons.KeyS?.pressed ? 1 : 0) +
     (buttons.ArrowUp?.pressed ? -1 : 0) +
     (buttons.ArrowDown?.pressed ? 1 : 0) +
-    (buttons[StandardGamepadButton.DPadUp]?.pressed ? -1 : 0) +
-    (buttons[StandardGamepadButton.DPadDown]?.pressed ? -1 : 0)
+    (buttons[StandardGamepadButton.StandardGamepadDPadUp]?.pressed ? -1 : 0) +
+    (buttons[StandardGamepadButton.StandardGamepadDPadDown]?.pressed ? -1 : 0)
+
+  if (keyDeltaZ === 1) {
+    // todo: auto-adjust target distance in follow camera system based on target velocity
+    const follow = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
+    if (follow?.mode === FollowCameraMode.ThirdPerson || follow?.mode === FollowCameraMode.ShoulderCam)
+      follow.targetDistance = Math.max(follow.targetDistance, follow.effectiveMaxDistance * 0.5)
+  }
 
   controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ).normalize()
 

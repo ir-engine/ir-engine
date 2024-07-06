@@ -262,7 +262,8 @@
       "userIdCopied": "User ID copied",
       "apiKeyCopied": "API Key copied",
       "refreshApiKey": "Refresh API Key",
-      "privacyPolicy": "Privacy Policy"
+      "privacyPolicy": "Privacy Policy",
+      "helpChat": "Help Chat"
     },
     "oauth": {
       "authenticating": "Authenticating...",

@@ -148,6 +148,21 @@ export const saveSceneGLTF = async (
   })
 }
 
+export const createScene = async (
+  projectName: string,
+  templateURL = config.client.fileServer + '/projects/default-project/public/scenes/default.gltf'
+) => {
+  const sceneData = await Engine.instance.api.service(fileBrowserPath).patch(null, {
+    project: projectName,
+    type: 'scene',
+    body: templateURL,
+    path: 'public/scenes/New-Scene.gltf',
+    thumbnailKey: templateURL.replace(`${config.client.fileServer}/`, '').replace('.gltf', '.thumbnail.jpg'),
+    unique: true
+  })
+  return sceneData
+}
+
 export const onNewScene = async (
   templateURL = config.client.fileServer + '/projects/@etherealengine/default-project/public/scenes/default.gltf'
 ) => {
@@ -155,14 +170,7 @@ export const onNewScene = async (
   if (!projectName) return
 
   try {
-    const sceneData = await Engine.instance.api.service(fileBrowserPath).patch(null, {
-      project: projectName,
-      type: 'scene',
-      body: templateURL,
-      path: 'public/scenes/New-Scene.gltf',
-      thumbnailKey: templateURL.replace(`${config.client.fileServer}/`, '').replace('.gltf', '.thumbnail.jpg'),
-      unique: true
-    })
+    const sceneData = await createScene(projectName, templateURL)
     if (!sceneData) return
     const sceneName = sceneData.key.split('/').pop()
 
