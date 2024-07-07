@@ -54,7 +54,7 @@ import {
   MaterialPrototypeComponent,
   MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { formatMaterialArgs } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { formatMaterialArgs, getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
@@ -237,12 +237,21 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         values={materialComponent.parameters.value!}
         onChange={(key) => async (value) => {
           const property = await shouldLoadTexture(value, key, prototype.prototypeArguments)
+          const texture = property as Texture
+          if (texture?.isTexture) {
+            texture.flipY = false
+            texture.needsUpdate = true
+          }
           EditorControlFunctions.modifyMaterial(
             [materialComponent.material.value!.uuid],
             materialComponent.material.value!.uuid as EntityUUID,
             [{ [key]: property }]
           )
           if (materialComponent.parameters.value) materialComponent.parameters[key].set(property)
+          await checkThumbs()
+        }}
+        onModify={() => {
+          getMaterial(materialComponent.material.value.uuid as EntityUUID).needsUpdate = true
         }}
         defaults={prototype.prototypeArguments!.value}
         thumbnails={toBlobs(thumbnails.value)}

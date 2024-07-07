@@ -96,6 +96,10 @@ export const FollowCameraComponent = defineComponent({
       cameraRays.push(new Vector3())
     }
 
+    const windowHeight = 'innerHeight' in window ? window.innerHeight : 1
+    const windowWidth = 'innerWidth' in window ? window.innerWidth : 2
+    const distance = (windowHeight / windowWidth) * cameraSettings.startCameraDistance
+
     return {
       firstPersonOffset: new Vector3(),
       thirdPersonOffset: new Vector3(),
@@ -111,8 +115,9 @@ export const FollowCameraComponent = defineComponent({
         FollowCameraMode.TopDown,
         FollowCameraMode.ShoulderCam
       ],
-      distance: cameraSettings.startCameraDistance,
-      targetDistance: 5,
+      // map portrait window to further distance, landscape to closer distance
+      distance: distance,
+      targetDistance: distance,
       zoomVelocity: { value: 0 },
       thirdPersonMinDistance: cameraSettings.minCameraDistance,
       thirdPersonMaxDistance: cameraSettings.maxCameraDistance,
@@ -122,6 +127,8 @@ export const FollowCameraComponent = defineComponent({
       phi: 10,
       minPhi: cameraSettings.minPhi,
       maxPhi: cameraSettings.maxPhi,
+      locked: false,
+      enabled: true,
       shoulderSide: FollowCameraShoulderSide.Left,
       raycastProps,
       accumulatedZoomTriggerDebounceTime: -1,
@@ -193,7 +200,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const cameraTransform = getComponent(cameraEntity, TransformComponent)
   const targetTransform = getComponent(referenceEntity, TransformComponent)
 
-  if (!targetTransform || !follow) return
+  if (!targetTransform || !follow || !follow?.enabled) return
 
   // Limit the pitch
   follow.phi = Math.min(follow.maxPhi, Math.max(follow.minPhi, follow.phi))
@@ -217,7 +224,9 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   let obstacleDistance = Infinity
   if (follow.raycastProps.enabled && follow.mode !== FollowCameraMode.FirstPerson) {
     const distanceResults = getMaxCamDistance(cameraEntity, follow.currentTargetPosition)
-    obstacleDistance = distanceResults.maxDistance
+    if (distanceResults.maxDistance > 0.1) {
+      obstacleDistance = distanceResults.maxDistance
+    }
     isInsideWall = distanceResults.targetHit
   }
 
@@ -386,8 +395,10 @@ const updateCameraTargetRotation = (cameraEntity: Entity) => {
   }
 
   const delta = getState(ECSState).deltaSeconds
-  followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
-  followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
+  if (!followCamera.locked) {
+    followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
+    followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
+  }
 }
 
 const cameraLayerQuery = defineQuery([VisibleComponent, ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
