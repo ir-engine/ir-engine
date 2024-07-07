@@ -164,6 +164,8 @@ export class EngineRenderer {
       this.needsResize = true
     }
 
+    // https://stackoverflow.com/questions/48124372/pointermove-event-not-working-with-touch-why-not
+    canvas.style.touchAction = 'none'
     canvas.addEventListener('resize', onResize, false)
     window.addEventListener('resize', onResize, false)
 
