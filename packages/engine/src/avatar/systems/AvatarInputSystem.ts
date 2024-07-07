@@ -64,6 +64,7 @@ import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { FollowCameraMode } from '@etherealengine/spatial/src/camera/types/FollowCameraMode'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { getThumbstickOrThumbpadAxes } from '@etherealengine/spatial/src/input/functions/getThumbstickOrThumbpadAxes'
 
 const _quat = new Quaternion()
@@ -238,7 +239,7 @@ const execute = () => {
 
   const inputPointerEntity = InputPointerComponent.getPointersForCamera(viewerEntity)[0]
 
-  if (!inputPointerEntity && !xrState.session) return
+  if (!isMobile && !inputPointerEntity && !xrState.session) return
 
   const buttons = InputComponent.getMergedButtons(viewerEntity)
 
@@ -275,13 +276,14 @@ const execute = () => {
 
   // TODO: refactor AvatarControlSchemes to allow multiple input sources to be passed
   for (const eid of InputSourceComponent.nonCapturedInputSources()) {
+    if (hasComponent(eid, InputPointerComponent)) continue
     const inputSource = getComponent(eid, InputSourceComponent)
-    if (inputSource.source.handedness === 'none') continue
-    const controlScheme = !isCameraAttachedToAvatar
-      ? AvatarAxesControlScheme.Move
-      : inputSource.source.handedness === inputState.preferredHand
-      ? avatarInputSettings.rightAxesControlScheme
-      : avatarInputSettings.leftAxesControlScheme
+    const controlScheme =
+      !isCameraAttachedToAvatar || inputSource.source.handedness === 'none'
+        ? AvatarAxesControlScheme.Move
+        : inputSource.source.handedness === inputState.preferredHand
+        ? avatarInputSettings.rightAxesControlScheme
+        : avatarInputSettings.leftAxesControlScheme
     AvatarAxesControlSchemeBehavior[controlScheme](
       inputSource.source,
       controller,
