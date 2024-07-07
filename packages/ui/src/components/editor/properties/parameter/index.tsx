@@ -41,14 +41,17 @@ export default function ParameterInput({
   values,
   onChange,
   defaults,
-  thumbnails
+  thumbnails,
+  ...rest
 }: {
   entity: string
   values: object
   defaults?: object
   thumbnails?: Record<string, string>
   onChange: (k: string) => (v) => void
+  onModify?: () => void
 }) {
+  const { onModify } = rest
   function setArgsProp(k) {
     const thisOnChange = onChange(k)
     return (value) => {
@@ -115,9 +118,14 @@ export default function ParameterInput({
                 case 'color':
                   return <ColorInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'texture':
-                  if (thumbnails?.[k])
-                    return <TexturePreviewInput preview={thumbnails[k]} value={values[k]} onRelease={setArgsProp(k)} />
-                  else return <TexturePreviewInput value={values[k]} onRelease={setArgsProp(k)} />
+                  return (
+                    <TexturePreviewInput
+                      preview={thumbnails?.[k]}
+                      value={values[k]}
+                      onRelease={setArgsProp(k)}
+                      onModify={onModify}
+                    />
+                  )
                 case 'vec2':
                 case 'vec3':
                 case 'vec4':
