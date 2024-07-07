@@ -845,6 +845,12 @@ const cleanupInputs = () => {
     for (const key in source.buttons) {
       cleanupButton(key, source.buttons, hasFocus)
     }
+
+    // clear non-spatial emulated axes data end of each frame
+    // this is used to clear wheel speed each frame
+    if (!hasComponent(eid, XRSpaceComponent) && hasComponent(eid, InputPointerComponent)) {
+      ;(source.source.gamepad!.axes as number[]).fill(0)
+    }
   }
 }
 
