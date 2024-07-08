@@ -222,7 +222,6 @@ describe('InputComponent', () => {
     it('should return a de-duplicated list of Input Entities, taken from the InputSinkComponent.inputEntities of the closest ancestor of the given entity', () => {
       removeComponent(testEntity, InputComponent)
       const parentEntity = createEntity()
-      const someEntity = createEntity()
       setComponent(parentEntity, InputComponent)
       setComponent(parentEntity, InputSinkComponent)
       setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
@@ -232,8 +231,8 @@ describe('InputComponent', () => {
         12345 as Entity,
         54321 as Entity,
         54321 as Entity,
-        someEntity,
-        someEntity
+        parentEntity,
+        parentEntity
       ]
       assertArrayHasDuplicates(DummyList)
       getMutableComponent(parentEntity, InputSinkComponent).inputEntities.set(DummyList)
@@ -250,9 +249,74 @@ describe('InputComponent', () => {
     })
   })
 
+  describe('getInputSourceEntities', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, InputComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    /** @description Alias to create a dummy entity with an InputComponent. Used for syntax ergonomics. */
+    function createDummyEntity(): Entity {
+      const result = createEntity()
+      setComponent(result, InputComponent)
+      return result
+    }
+
+    /**
+     * @note
+     * This test's setup is a bit complex, but it does test what the code is supposed to do.
+     * The notes are left for reference, since the setup can be confusing. */
+    it('should return a combined list of all entities contained in the InputComponent.inputSources of all entities returned by InputComponent.getInputEntities(entityContext)', () => {
+      removeComponent(testEntity, InputComponent)
+      const parentEntity = createEntity()
+      setComponent(parentEntity, InputComponent)
+      // `one`, `two`, `three` and `four` are valid entities that have an all-defaults InputComponent
+      const one = createDummyEntity()
+      const two = createDummyEntity()
+      const three = createDummyEntity()
+      const four = createDummyEntity()
+      const DummyList0 = [12345 as Entity, 54321 as Entity, one, two] as Entity[]
+      // DummyList0 is added to parentEntity.InputComponent.inputSources
+      getMutableComponent(parentEntity, InputComponent).inputSources.set(DummyList0)
+      // DummyList3 is added to three.InputComponent.inputSources
+      const DummyList3 = [98765 as Entity, 55544 as Entity] as Entity[]
+      getMutableComponent(three, InputComponent).inputSources.set(DummyList3)
+      // DummyList4 is added to four.InputComponent.inputSources
+      const DummyList4 = [42424 as Entity, 21212 as Entity] as Entity[]
+      getMutableComponent(four, InputComponent).inputSources.set(DummyList4)
+      // SinkList is created with entities `three` and `four`
+      // We will retrieve DummyList3 and DummyList4 from their inputSources in the result call
+      const SinkList = [three, four] as Entity[]
+      // SinkList is set as parentEntity.InputSinkComponent.inputEntities
+      setComponent(parentEntity, InputSinkComponent)
+      getMutableComponent(parentEntity, InputSinkComponent).inputEntities.set(SinkList)
+      // parentEntity is set as the parent of testEntity
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+      // The result should contain all other lists combined
+      // 1. We retrieve DummyList0 from parentEntity's inputSources
+      // 2. We retrieve DummyList3 from the inputSources of entity `three`, which are accessed from the parentEntity.InputSinkComponent
+      // 3. We retrieve DummyList4 from the inputSources of entity `four`, which are accessed from the parentEntity.InputSinkComponent
+      const Expected = DummyList0.concat(DummyList3).concat(DummyList4)
+      const result = InputComponent.getInputSourceEntities(testEntity)
+      assert.ok(result.length > 0, 'The result should not be empty')
+      assertArrayEqual(
+        result,
+        Expected,
+        'The result should contain all lists of inputSources combined, no matter what their values are'
+      )
+    })
+  })
+
   /**
   // @todo
-  describe('getInputSourceEntities', () => {})
   describe('getMergedButtons', () => {})
   describe('getMergedAxes', () => {})
   describe('getMergedButtonsForInputSources', () => {})
