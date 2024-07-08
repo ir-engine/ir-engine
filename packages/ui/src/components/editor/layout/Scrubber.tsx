@@ -65,12 +65,7 @@ const Scrubber: React.FC<ScrubberProps> = ({
   onRelease,
   ...rest
 }) => {
-  const containerClassName = twMerge(
-    'flex items-center',
-    'cursor-ew-resize p-1',
-    "font-['Figtree'] text-xs font-normal",
-    className
-  )
+  const containerClassName = twMerge('flex items-center', 'cursor-ew-resize p-1', 'text-xs font-normal', className)
 
   const state = useHookstate({
     isDragging: false,
