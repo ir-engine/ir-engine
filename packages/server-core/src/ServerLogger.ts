@@ -30,6 +30,7 @@ Ethereal Engine. All Rights Reserved.
  *  API endpoint).
  */
 import os from 'os'
+import path from 'path'
 import pino from 'pino'
 import pinoElastic from 'pino-elasticsearch'
 import pinoOpensearch from 'pino-opensearch'
@@ -41,6 +42,14 @@ const useLogger = !process.env.DISABLE_SERVER_LOG
 
 const streamToPretty = pretty({
   colorize: true
+})
+
+const streamToFile = pino.transport({
+  target: 'pino/file',
+  options: {
+    mkdir: true,
+    destination: path.join(__dirname, 'logs/irengine.log')
+  }
 })
 
 const streamToOpenSearch = pinoOpensearch({
@@ -62,7 +71,7 @@ const streamToElastic = pinoElastic({
   flushBytes: 1000
 })
 
-const streams = [streamToPretty, streamToElastic, streamToOpenSearch]
+const streams = [streamToFile, streamToPretty, streamToElastic, streamToOpenSearch]
 
 export const opensearchOnlyLogger = pino(
   {
