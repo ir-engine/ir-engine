@@ -1493,7 +1493,8 @@ export const updateProject = async (
           updateSchedule: data.updateSchedule,
           updateUserId: userId || null,
           commitSHA,
-          commitDate: toDateTimeSql(commitDate)
+          commitDate: toDateTimeSql(commitDate),
+          assetsOnly
         },
         params || {}
       )
