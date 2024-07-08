@@ -26,11 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { useLayoutEffect } from 'react'
 import { MeshLambertMaterial } from 'three'
 
-import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { Geometry } from '@etherealengine/spatial/src/common/constants/Geometry'
 import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { Shape, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { GeometryTypeEnum, GeometryTypeToClass } from '../constants/GeometryTypeEnum'
 
 const createGeometry = (geometryType: GeometryTypeEnum, geometryParams: Record<string, any>): Geometry => {
@@ -71,11 +73,33 @@ export const PrimitiveGeometryComponent = defineComponent({
       () => createGeometry(geometryComponent.geometryType.value, geometryComponent.geometryParams.value),
       () => new MeshLambertMaterial()
     )
+    const colliderComponent = useOptionalComponent(entity, ColliderComponent)
 
     useLayoutEffect(() => {
       mesh.geometry.set(createGeometry(geometryComponent.geometryType.value, geometryComponent.geometryParams.value))
     }, [geometryComponent.geometryType, geometryComponent.geometryParams])
 
+    useLayoutEffect(() => {
+      if (!colliderComponent) return
+      colliderComponent.shape.set(GeometryToColliderShape[geometryComponent.geometryType.value])
+    }, [mesh.geometry, !!colliderComponent])
+
     return null
   }
 })
+
+const GeometryToColliderShape = {
+  [GeometryTypeEnum.BoxGeometry]: Shapes.Box,
+  [GeometryTypeEnum.SphereGeometry]: Shapes.Sphere,
+  [GeometryTypeEnum.CylinderGeometry]: Shapes.Cylinder,
+  [GeometryTypeEnum.CapsuleGeometry]: Shapes.Capsule,
+  [GeometryTypeEnum.PlaneGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.CircleGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.RingGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.TorusGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.DodecahedronGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.IcosahedronGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.OctahedronGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.TetrahedronGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.TorusKnotGeometry]: Shapes.Mesh
+} as Record<GeometryTypeEnum, Shape>
