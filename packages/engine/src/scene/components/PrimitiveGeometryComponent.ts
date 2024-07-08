@@ -36,7 +36,6 @@ import { Shape, Shapes } from '@etherealengine/spatial/src/physics/types/Physics
 import { GeometryTypeEnum, GeometryTypeToClass } from '../constants/GeometryTypeEnum'
 
 const createGeometry = (geometryType: GeometryTypeEnum, geometryParams: Record<string, any>): Geometry => {
-  console.log(geometryType, geometryParams)
   const GeometryClass = GeometryTypeToClass[geometryType]
   const geometry = new GeometryClass(...Object.values(geometryParams))
   return geometry
