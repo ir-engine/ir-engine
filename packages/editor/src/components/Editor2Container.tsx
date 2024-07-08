@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
 import { FilesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Files'
@@ -121,8 +121,8 @@ const defaultLayout: LayoutData = {
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath } = useMutableState(EditorState)
   const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '' } }).data
-
-  const errorState = useHookstate(getMutableState(EditorErrorState).error)
+  const editorState = useMutableState(EditorState)
+  const errorState = useMutableState(EditorErrorState).error
 
   const dockPanelRef = useRef<DockLayout>(null)
 
@@ -169,19 +169,24 @@ const EditorContainer = () => {
         className="flex flex-col bg-black"
         style={scenePath.value ? { background: 'transparent' } : {}}
       >
-        <DndWrapper id="editor-container">
-          <DragLayer />
-          <Toolbar />
-          <div className="mt-1 flex overflow-hidden">
-            <DockContainer>
-              <DockLayout
-                ref={dockPanelRef}
-                defaultLayout={defaultLayout}
-                style={{ position: 'absolute', left: 5, top: 45, right: 5, bottom: 5 }}
-              />
-            </DockContainer>
-          </div>
-        </DndWrapper>
+        {editorState.uiEnabled.value && (
+          <DndWrapper id="editor-container">
+            <DragLayer />
+            <Toolbar />
+            <div className="mt-1 flex overflow-hidden">
+              <DockContainer>
+                <DockLayout
+                  ref={dockPanelRef}
+                  defaultLayout={defaultLayout}
+                  style={{ position: 'absolute', left: 5, top: 45, right: 5, bottom: 5 }}
+                />
+              </DockContainer>
+            </div>
+          </DndWrapper>
+        )}
+        {Object.entries(editorState.uiAddons.container.value).map(([key, value]) => {
+          return value
+        })}
       </div>
       <PopupMenu />
       {!isWidgetVisible && initialized && (
