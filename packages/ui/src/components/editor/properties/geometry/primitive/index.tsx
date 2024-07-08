@@ -29,7 +29,11 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
+import {
+  EditorComponentType,
+  commitProperties,
+  commitProperty
+} from '@etherealengine/editor/src/components/properties/Util'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { GeometryTypeEnum } from '@etherealengine/engine/src/scene/constants/GeometryTypeEnum'
@@ -136,8 +140,8 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={GeometryOption}
           value={primitiveGeometry.geometryType.value}
-          onChange={(value) => {
-            commitProperty(PrimitiveGeometryComponent, 'geometryType')(value as GeometryTypeEnum)
+          onChange={(value: GeometryTypeEnum) => {
+            commitProperties(PrimitiveGeometryComponent, { geometryType: value, geometryParams: {} })
           }}
         />
       </InputGroup>
