@@ -161,7 +161,7 @@ describe('identity-provider.service', () => {
   })
 
   it('should not be able to remove the only identity provider as a user', async () => {
-    const type = 'user'
+    const type = 'auth0'
     const token = uuidv4()
 
     const foundIdentityProvider = await app.service(identityProviderPath).create(
