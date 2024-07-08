@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
 import { FilesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Files'
@@ -119,10 +119,9 @@ const defaultLayout: LayoutData = {
 }
 
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath } = useMutableState(EditorState)
+  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, uiAddons } = useMutableState(EditorState)
   const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '' } }).data
-  const editorState = useMutableState(EditorState)
-  const errorState = useMutableState(EditorErrorState).error
+  const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
   const dockPanelRef = useRef<DockLayout>(null)
 
@@ -169,7 +168,7 @@ const EditorContainer = () => {
         className="flex flex-col bg-black"
         style={scenePath.value ? { background: 'transparent' } : {}}
       >
-        {editorState.uiEnabled.value && (
+        {uiEnabled.value && (
           <DndWrapper id="editor-container">
             <DragLayer />
             <Toolbar />
@@ -184,7 +183,7 @@ const EditorContainer = () => {
             </div>
           </DndWrapper>
         )}
-        {Object.entries(editorState.uiAddons.container.value).map(([key, value]) => {
+        {Object.entries(uiAddons.container.get(NO_PROXY)).map(([key, value]) => {
           return value
         })}
       </div>
