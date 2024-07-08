@@ -95,7 +95,6 @@ const PlayModeTool = () => {
             ? `${t('editor:toolbar.command.lbl-playPreview')} (${t('editor:toolbar.command.info-playPreview')})`
             : `${t('editor:toolbar.command.lbl-stopPreview')} (${t('editor:toolbar.command.info-stopPreview')})`
         }
-        direction="bottom"
       >
         <Button
           variant="transparent"

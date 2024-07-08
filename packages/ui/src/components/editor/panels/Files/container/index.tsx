@@ -519,7 +519,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     return (
       <>
         <div id="viewSettings" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')} direction="bottom">
+          <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
             <Button
               variant="transparent"
               startIcon={<IoSettingsSharp />}
@@ -597,13 +597,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             showBackButton ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
           }`}
         >
-          <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottom" className="left-1">
+          <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
             <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={onBackDirectory} />
           </Tooltip>
         </div>
 
         <div id="refreshDir" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.refresh')} direction="bottom">
+          <Tooltip title={t('editor:layout.filebrowser.refresh')}>
             <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={refreshDirectory} />
           </Tooltip>
         </div>
@@ -640,7 +640,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
 
         <div id="downloadProject" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.downloadProject')} direction="bottom">
+          <Tooltip title={t('editor:layout.filebrowser.downloadProject')}>
             <Button
               variant="transparent"
               startIcon={<FiDownload />}
@@ -652,7 +652,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
 
         <div id="newFolder" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.addNewFolder')} direction="bottom">
+          <Tooltip title={t('editor:layout.filebrowser.addNewFolder')}>
             <Button variant="transparent" startIcon={<PiFolderPlusBold />} className="p-0" onClick={createNewFolder} />
           </Tooltip>
         </div>

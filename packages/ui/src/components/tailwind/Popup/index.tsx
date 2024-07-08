@@ -23,36 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
-import Popup from 'reactjs-popup'
+import React from 'react'
+import { Popup as ReactjsPopup } from 'reactjs-popup'
 import { PopupProps } from 'reactjs-popup/dist/types'
-import { twMerge } from 'tailwind-merge'
 
-interface TooltipProps {
-  title: ReactNode
-  children: React.ReactElement
+export const Popup = (props: PopupProps) => {
+  return <ReactjsPopup closeOnDocumentClick closeOnEscape on={'click'} {...props} />
 }
 
-const Tooltip = ({ title, children, className, ...rest }: TooltipProps & PopupProps) => {
-  return (
-    <Popup
-      trigger={<div style={{ all: 'unset' }}>{children}</div>}
-      on="hover"
-      keepTooltipInside
-      repositionOnResize
-      arrow={false}
-      {...rest}
-    >
-      <span
-        className={twMerge(
-          '-mt-5 text-wrap rounded bg-gray-800 text-xs text-white shadow-lg transition-all',
-          className
-        )}
-      >
-        {title}
-      </span>
-    </Popup>
-  )
+export const ControlledPopup = (props: { open: boolean } & Omit<PopupProps, 'open'>) => {
+  return <Popup {...props} />
 }
-
-export default Tooltip

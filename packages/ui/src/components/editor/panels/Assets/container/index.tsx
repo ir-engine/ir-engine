@@ -160,7 +160,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
 
-      <Tooltip title={t(name)} direction="bottom">
+      <Tooltip title={t(name)}>
         <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
       </Tooltip>
 
@@ -483,19 +483,19 @@ const AssetPanel = () => {
       <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
         <div className="mr-20 flex gap-2">
           <div id="back" className="pointer-events-auto flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottom" className="left-1">
+            <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
               <Button variant="transparent" startIcon={<HiMiniArrowLeft />} className="p-0" onClick={handleBack} />
             </Tooltip>
           </div>
 
           <div id="refresh" className="flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.refresh')} direction="bottom">
+            <Tooltip title={t('editor:layout.filebrowser.refresh')}>
               <Button variant="transparent" startIcon={<HiMiniArrowPath />} className="p-0" onClick={handleRefresh} />
             </Tooltip>
           </div>
 
           <div id="settings" className="flex items-center">
-            <Tooltip title={t('editor:layout.scene-assets.settings')} direction="bottom">
+            <Tooltip title={t('editor:layout.scene-assets.settings')}>
               <Button
                 variant="transparent"
                 startIcon={<HiOutlineCog6Tooth />}
