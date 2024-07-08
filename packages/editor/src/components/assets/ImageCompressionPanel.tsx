@@ -143,9 +143,7 @@ export default function ImageCompressionPanel({
   return (
     <div className="max-h-[80vh] w-[680px] overflow-y-auto rounded-xl bg-[#0E0F11]">
       <div className="relative mb-3 flex items-center justify-center px-8 py-3">
-        <Text className="leading-6" fontFamily="Figtree">
-          {t('editor:properties.model.transform.compressImage')}
-        </Text>
+        <Text className="leading-6">{t('editor:properties.model.transform.compressImage')}</Text>
         <Button
           variant="outline"
           className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
