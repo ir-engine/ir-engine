@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
@@ -46,7 +45,6 @@ import {
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
-import { FilePropertiesPanel } from '@etherealengine/editor/src/components/assets/FileBrowser/FilePropertiesPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
@@ -171,14 +169,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
   const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
 
-  const fileProperties = useHookstate<FileType | null>(null)
   const anchorEl = useHookstate<HTMLButtonElement | null>(null)
-
-  const openProperties = useHookstate(false)
-  const openCompress = useHookstate(false)
-
-  const openConfirm = useHookstate(false)
-  const contentToDeletePath = useHookstate('')
 
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
   const anchorPosition = useHookstate<any>(undefined)
@@ -192,9 +183,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       directory: selectedDirectory.value
     }
   })
-
+  const isLoading = fileQuery.status === 'pending'
   const searchText = useHookstate('')
-
   useSearch(
     fileQuery,
     {
@@ -204,11 +194,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     },
     searchText.value
   )
-
-  const fileService = useMutation(fileBrowserPath)
-
-  const isLoading = fileQuery.status === 'pending'
-
   const files = fileQuery.data.map((file: FileBrowserContentType) => {
     const isFolder = file.type === 'folder'
     const fullName = isFolder ? file.name : file.name + '.' + file.type
@@ -221,10 +206,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       isFolder
     }
   })
-
   useEffect(() => {
     FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
   }, [fileQuery.data])
+
+  const fileService = useMutation(fileBrowserPath)
 
   useEffect(() => {
     refreshDirectory()
@@ -330,19 +316,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       newPath,
       isCopy
     })
-  }
-
-  const handleConfirmClose = () => {
-    contentToDeletePath.set('')
-
-    openConfirm.set(false)
-  }
-
-  const deleteContent = async (): Promise<void> => {
-    if (isLoading) return
-    openConfirm.set(false)
-    fileService.remove(contentToDeletePath.value)
-    props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '', size: '' })
   }
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
@@ -513,8 +486,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     onSelect(file)
                   }}
                   currentContent={currentContentRef}
-                  setOpenPropertiesModal={openProperties.set}
-                  setFileProperties={fileProperties.set}
                   dropItemsOnPanel={dropItemsOnPanel}
                   isFilesLoading={isLoading}
                   addFolder={createNewFolder}
@@ -712,18 +683,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <DropArea />
         </DndWrapper>
       </div>
-
-      {openProperties.value && fileProperties.value && (
-        <FilePropertiesPanel openProperties={openProperties} fileProperties={fileProperties} />
-      )}
-      <ConfirmDialog
-        open={openConfirm.value}
-        description={t('editor:dialog.delete.confirm-content', {
-          content: contentToDeletePath.value.split('/').at(-1)
-        })}
-        onClose={handleConfirmClose}
-        onSubmit={deleteContent}
-      />
     </>
   )
 }
