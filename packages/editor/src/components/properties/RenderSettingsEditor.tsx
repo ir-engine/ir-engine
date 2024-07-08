@@ -37,7 +37,7 @@ import {
   VSMShadowMap
 } from 'three'
 
-import { entityExists, EntityUUID, useQuery, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, useQuery, UUIDComponent } from '@etherealengine/ecs'
 import { ComponentType, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -130,7 +130,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
   )
 
   useEffect(() => {
-    if (!entityExists(UUIDComponent.getEntityByUUID(rendererSettingsState.primaryLight.value))) {
+    if (!UUIDComponent.getEntityByUUID(rendererSettingsState.primaryLight.value)) {
       const source = getComponent(entity, SourceComponent)
       const node = GLTFNodeState.getMutableNode(entity)
       const renderSettingsExt = node.extensions[RenderSettingsComponent.jsonID] as State<

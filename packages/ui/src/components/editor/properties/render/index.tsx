@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, entityExists, useQuery } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, useQuery } from '@etherealengine/ecs'
 import { ComponentType, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   EditorComponentType,
@@ -128,7 +128,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
   )
 
   useEffect(() => {
-    if (!entityExists(UUIDComponent.getEntityByUUID(rendererSettingsState.primaryLight.value))) {
+    if (!UUIDComponent.getEntityByUUID(rendererSettingsState.primaryLight.value)) {
       const source = getComponent(entity, SourceComponent)
       const node = GLTFNodeState.getMutableNode(entity)
       const renderSettingsExt = node.extensions[RenderSettingsComponent.jsonID] as State<
