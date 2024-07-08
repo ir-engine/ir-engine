@@ -137,7 +137,9 @@ export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
   'description',
   'stats',
   'thumbnailKey',
-  'thumbnailMode'
+  'thumbnailMode',
+  'createdAt',
+  'updatedAt'
 ])
 export const staticResourceQuerySchema = Type.Intersect(
   [

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
@@ -156,13 +155,6 @@ const EditorContainer = () => {
 
   return (
     <main className="pointer-events-auto">
-      <MetaTags>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap"
-          rel="stylesheet"
-          type="text/css"
-        />
-      </MetaTags>
       <div
         id="editor-container"
         className="flex flex-col bg-black"

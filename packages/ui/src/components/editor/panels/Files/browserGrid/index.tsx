@@ -31,6 +31,7 @@ import {
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
+import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
 import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
@@ -52,6 +53,7 @@ import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { FileType } from '../container'
 import { FileIcon } from '../icon'
 import DeleteFileModal from './DeleteFileModal'
+import FilePropertiesModal from './FilePropertiesModal'
 import ImageConvertModal from './ImageConvertModal'
 import RenameFileModal from './RenameFileModal'
 
@@ -116,7 +118,7 @@ export const FileTableListBody = ({
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
 
-  const staticResource = useFind(staticResourcePath, { query: { key: file.key, project: projectName.value! } })
+  const staticResource = useFind(staticResourcePath, { query: { key: file.key, project: projectName! } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
 
   const tableColumns = {
@@ -202,9 +204,6 @@ type FileBrowserItemType = {
   item: FileDataType
   disableDnD?: boolean
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
-  setFileProperties: any
-  setOpenPropertiesModal: any
-  setOpenCompress: any
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
@@ -229,9 +228,6 @@ export function FileBrowserItem({
   item,
   disableDnD,
   currentContent,
-  setOpenPropertiesModal,
-  setFileProperties,
-  setOpenCompress,
   projectName,
   onClick,
   dropItemsOnPanel,
@@ -305,19 +301,6 @@ export function FileBrowserItem({
       newPath: item.isFolder ? item.path + item.fullName : item.path,
       isCopy: currentContent.current.isCopy
     })
-  }
-
-  const viewAssetProperties = () => {
-    setFileProperties(item)
-
-    setOpenPropertiesModal(true)
-    handleClose()
-  }
-
-  const viewCompress = () => {
-    setFileProperties(item)
-    setOpenCompress(true)
-    handleClose()
   }
 
   const [_dragProps, drag, preview] = disableDnD
@@ -421,18 +404,27 @@ export function FileBrowserItem({
         >
           {t('editor:layout.assetGrid.deleteAsset')}
         </Button>
-        <Button variant="outline" size="small" fullWidth onClick={viewAssetProperties}>
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          onClick={() => PopoverState.showPopupover(<FilePropertiesModal projectName={projectName} file={item} />)}
+        >
           {t('editor:layout.filebrowser.viewAssetProperties')}
         </Button>
         <Button
           variant="outline"
           size="small"
           fullWidth
-          disabled={!fileConsistsOfContentType(item, 'model')}
+          disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')}
           onClick={() => {
             if (fileConsistsOfContentType(item, 'model')) {
               PopoverState.showPopupover(
                 <ModelCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
+              )
+            } else if (fileConsistsOfContentType(item, 'image')) {
+              PopoverState.showPopupover(
+                <ImageCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
               )
             }
           }}

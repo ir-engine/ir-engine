@@ -692,11 +692,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       )}
 
       {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
-        <ImageCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
-          onRefreshDirectory={refreshDirectory}
-        />
+        <ImageCompressionPanel selectedFile={fileProperties.value} refreshDirectory={refreshDirectory} />
       )}
 
       {openProperties.value && fileProperties.value && (
