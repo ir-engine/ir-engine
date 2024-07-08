@@ -185,7 +185,8 @@ const SettingMenu2 = (): JSX.Element => {
   return (
     <Modal
       title={'Settings'}
-      className="fixed left-1/2 top-1/2 z-50 w-[50vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 transform"
+      // className="fixed left-1/2 top-1/2 z-50 w-[50vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 transform"
+      className="w-[50vw] max-w-2xl"
       onClose={() => PopupMenuServices.showPopupMenu()}
       hideFooter
     >
@@ -203,7 +204,7 @@ const SettingMenu2 = (): JSX.Element => {
       </div>
       {selectedTab.value === 'general' && selfUser && (
         <>
-          <div className="mb-5 mt-1">{t('user:usermenu.setting.themes')}</div>
+          <Text className="mb-5 mt-1">{t('user:usermenu.setting.themes')}</Text>
           <div className="mb-4 flex justify-between">
             {accessibleThemeModes.map((mode, index) => (
               <div className="flex-1" key={index}>
@@ -223,7 +224,7 @@ const SettingMenu2 = (): JSX.Element => {
 
           {xrSupported && (
             <>
-              <div className="my-1 items-center">{t('user:usermenu.setting.xrusersetting')}</div>
+              <Text className="my-1 items-center">{t('user:usermenu.setting.xrusersetting')}</Text>
 
               <div className="grid">
                 <div className="grid">
