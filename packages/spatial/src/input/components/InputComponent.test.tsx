@@ -36,14 +36,22 @@ import {
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { ReactorReconciler, getState } from '@etherealengine/hyperflux'
 
-import { Entity, EntityUUID, UndefinedEntity, createEntity, removeEntity } from '@etherealengine/ecs'
+import {
+  Entity,
+  EntityUUID,
+  InputSystemGroup,
+  SystemDefinitions,
+  UndefinedEntity,
+  createEntity,
+  removeEntity
+} from '@etherealengine/ecs'
 import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { EngineState } from '../../EngineState'
 import { initializeSpatialEngine } from '../../initializeEngine'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
-import { InputComponent } from './InputComponent'
+import { InputComponent, InputExecutionOrder, InputExecutionSystemGroup } from './InputComponent'
 import { InputSinkComponent } from './InputSinkComponent'
 
 const InputComponentDefaults = {
@@ -356,8 +364,31 @@ describe('InputComponent', () => {
   }) // << reactor
 })
 
-/**
-// @todo
-describe('InputExecutionOrder', () => {})
-describe('InputExecutionSystemGroup', () => {})
-*/
+describe('InputExecutionOrder', () => {
+  it('should be described using the expected values', () => {
+    assert.equal(InputExecutionOrder.Before, -1)
+    assert.equal(InputExecutionOrder.With, 0)
+    assert.equal(InputExecutionOrder.After, 1)
+  })
+})
+
+describe('InputExecutionSystemGroup', () => {
+  describe('Fields', () => {
+    const System = SystemDefinitions.get(InputExecutionSystemGroup)
+
+    it('should initialize the InputExecutionSystemGroup.uuid field with the expected value', () => {
+      assert.equal(System!.uuid, 'ee.engine.InputExecutionSystemGroup')
+    })
+
+    it('should initialize the InputExecutionSystemGroup.insert field with the expected value', () => {
+      assert.notEqual(System!.insert, undefined)
+      assert.notEqual(System!.insert!.with, undefined)
+      assert.equal(System!.insert!.with!, InputSystemGroup)
+    })
+  })
+
+  // export const InputExecutionSystemGroup = defineSystem({
+  //   uuid: 'ee.engine.InputExecutionSystemGroup',
+  //   insert: { with: InputSystemGroup }
+  // })
+})
