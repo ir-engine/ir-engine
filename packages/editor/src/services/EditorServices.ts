@@ -37,6 +37,17 @@ interface IExpandedNodes {
   }
 }
 
+export enum UIMode {
+  BASIC = 'BASIC',
+  ADVANCED = 'ADVANCED'
+}
+
+export type StudioUIAddons = {
+  container: Record<string, JSX.Element>
+  newScene: Record<string, JSX.Element>
+  //more addon points to come here
+}
+
 export const EditorState = defineState({
   name: 'EditorState',
   initial: () => ({
@@ -49,7 +60,13 @@ export const EditorState = defineState({
     expandedNodes: {} as IExpandedNodes,
     lockPropertiesPanel: '' as EntityUUID,
     panelLayout: {} as LayoutData,
-    rootEntity: UndefinedEntity
+    rootEntity: UndefinedEntity,
+    uiEnabled: true,
+    uiMode: UIMode.ADVANCED,
+    uiAddons: {
+      container: {},
+      newScene: {}
+    } as StudioUIAddons
   }),
   isModified: () => {
     const rootEntity = getState(EditorState).rootEntity
