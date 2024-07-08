@@ -342,7 +342,10 @@ export default function ModelCompressionPanel({
         </div>
 
         <div className="ml-[16.66%] w-4/6">
-          <GLTFTransformProperties transformParms={lods[selectedLODIndex.value].params} />
+          <GLTFTransformProperties
+            transformParms={lods[selectedLODIndex.value].params}
+            itemCount={selectedFiles.length}
+          />
         </div>
 
         <div className="flex justify-end px-8">

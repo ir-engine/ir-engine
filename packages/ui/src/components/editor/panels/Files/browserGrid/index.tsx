@@ -450,7 +450,7 @@ export function FileBrowserItem({
               variant="outline"
               size="small"
               fullWidth
-              // disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')}
+              // disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')} // TODO: move context menu to its own component, with a State<Filetype[]> -JS
               onClick={() => {
                 openModelCompress()
                 handleClose()
@@ -465,7 +465,7 @@ export function FileBrowserItem({
               variant="outline"
               size="small"
               fullWidth
-              // disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')}
+              // disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')} // TODO: move context menu to its own component, with a State<Filetype[]> -JS
               onClick={() => {
                 openImageCompress()
                 handleClose()

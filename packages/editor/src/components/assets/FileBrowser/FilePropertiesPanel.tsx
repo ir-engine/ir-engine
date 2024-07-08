@@ -163,7 +163,7 @@ export const FilePropertiesPanel = (props: { openProperties: State<boolean>; fil
               onChange={onChange('attribution', resourceDigest.attribution)}
               value={
                 fileProperties.value?.length > 1 && !sharedFields.value.includes('attribution')
-                  ? ' - '
+                  ? ' Mixed '
                   : resourceDigest.attribution.value
               }
             />
@@ -173,7 +173,7 @@ export const FilePropertiesPanel = (props: { openProperties: State<boolean>; fil
               onChange={onChange('licensing', resourceDigest.licensing)}
               value={
                 fileProperties.value?.length > 1 && !sharedFields.value.includes('licensing')
-                  ? ' - '
+                  ? ' Mixed '
                   : resourceDigest.licensing.value
               }
             />
