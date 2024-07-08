@@ -67,7 +67,7 @@ const PaddingNumericInput = ({
         value={value.toFixed(2)}
         onChange={(event) => onChange(parseFloat(event.target.value))}
       />
-      <Text fontSize="xs" fontFamily="Figtree" className="text-right text-[#444444]">
+      <Text fontSize="xs" className="text-right text-[#444444]">
         {'rem'}
       </Text>
     </div>

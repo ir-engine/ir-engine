@@ -141,43 +141,25 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
     >
       <div className="flex flex-col items-center gap-2">
         <div className="grid grid-cols-2 gap-2">
-          <Text fontFamily="Figtree" className="text-end">
-            {t('editor:layout.filebrowser.fileProperties.name')}
-          </Text>
-          <Text fontFamily="Figtree" className="text-[#9CA0AA]">
-            {file.name}
-          </Text>
+          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.name')}</Text>
+          <Text className="text-[#9CA0AA]">{file.name}</Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <Text fontFamily="Figtree" className="text-end">
-            {t('editor:layout.filebrowser.fileProperties.type')}
-          </Text>
-          <Text fontFamily="Figtree" className="text-[#9CA0AA]">
-            {file.type.toUpperCase()}
-          </Text>
+          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.type')}</Text>
+          <Text className="text-[#9CA0AA]">{file.type.toUpperCase()}</Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <Text fontFamily="Figtree" className="text-end">
-            {t('editor:layout.filebrowser.fileProperties.size')}
-          </Text>
-          <Text fontFamily="Figtree" className="text-[#9CA0AA]">
-            {file.size}
-          </Text>
+          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.size')}</Text>
+          <Text className="text-[#9CA0AA]">{file.size}</Text>
         </div>
         {resourceProperties.id.value && (
           <>
             <div className="grid grid-cols-2 gap-2">
-              <Text fontFamily="Figtree" className="text-end">
-                {t('editor:layout.filebrowser.fileProperties.author')}
-              </Text>
-              <Text fontFamily="Figtree" className="text-[#9CA0AA]">
-                {resourceProperties.author.value?.name}
-              </Text>
+              <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.author')}</Text>
+              <Text className="text-[#9CA0AA]">{resourceProperties.author.value?.name}</Text>
             </div>
             <div className="grid grid-cols-2 items-center gap-2">
-              <Text fontFamily="Figtree" className="text-end">
-                {t('editor:layout.filebrowser.fileProperties.attribution')}
-              </Text>
+              <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.attribution')}</Text>
               <span className="flex items-center">
                 {resourceProperties.attribution.editing.value ? (
                   <>
@@ -195,7 +177,7 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
                   </>
                 ) : (
                   <>
-                    <Text fontFamily="Figtree" className="text-[#9CA0AA]">
+                    <Text className="text-[#9CA0AA]">
                       {resourceProperties.attribution.input.value || <em>{t('common:components.none')}</em>}
                     </Text>
                     <Button
@@ -215,9 +197,7 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
               </span>
             </div>
             <div className="grid grid-cols-2 items-center gap-2">
-              <Text fontFamily="Figtree" className="text-end">
-                {t('editor:layout.filebrowser.fileProperties.licensing')}
-              </Text>
+              <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.licensing')}</Text>
               <span className="flex items-center">
                 {resourceProperties.licensing.editing.value ? (
                   <>
@@ -235,7 +215,7 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
                   </>
                 ) : (
                   <>
-                    <Text fontFamily="Figtree" className="text-[#9CA0AA]">
+                    <Text className="text-[#9CA0AA]">
                       {resourceProperties.licensing.input.value || <em>{t('common:components.none')}</em>}
                     </Text>
                     <Button
@@ -255,7 +235,7 @@ export default function FilePropertiesModal({ projectName, file }: { projectName
               </span>
             </div>
             <div className="mt-10 flex flex-col gap-2">
-              <Text fontFamily="Figtree" className="text-[#D3D5D9]" fontSize="sm">
+              <Text className="text-[#D3D5D9]" fontSize="sm">
                 {t('editor:layout.filebrowser.fileProperties.addTag')}
               </Text>
               <div className="flex items-center gap-2">
