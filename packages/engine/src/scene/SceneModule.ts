@@ -61,6 +61,7 @@ import { TextComponent } from './components/TextComponent'
 import { VariantComponent } from './components/VariantComponent'
 import { VideoComponent } from './components/VideoComponent'
 import { VolumetricComponent } from './components/VolumetricComponent'
+import { CSMSystem } from './systems/CSMSystem'
 import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { MeshBVHSystem } from './systems/MeshBVHSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
@@ -114,6 +115,7 @@ export const SceneComponents = [
 ]
 
 export {
+  CSMSystem,
   EnvironmentSystem,
   FogSystem,
   MaterialLibrarySystem,
