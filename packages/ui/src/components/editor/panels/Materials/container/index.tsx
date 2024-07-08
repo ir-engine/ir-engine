@@ -23,32 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { EntityUUID, getComponent, UndefinedEntity, useQuery, UUIDComponent } from '@etherealengine/ecs'
+import { Entity, EntityUUID, UndefinedEntity, useComponent, useQuery, UUIDComponent } from '@etherealengine/ecs'
 import { ImportSettingsState } from '@etherealengine/editor/src/components/assets/ImportSettingsPanel'
 import { uploadProjectFiles } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import {
-  createMaterialEntity,
-  getMaterialsFromSource
-} from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import { createMaterialEntity } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { useTranslation } from 'react-i18next'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
 import StringInput from '../../../input/String'
 import { MaterialPreviewPanel } from '../../preview/material'
-import MaterialLibraryEntry, { MaterialLibraryEntryType } from '../node'
+import { MaterialLibraryEntryType } from '../node'
+
+function SubMaterialLibraryPanel(props: { entity: Entity }) {
+  const nameComponent = useComponent(props.entity, NameComponent)
+
+  const onClick = (e: MouseEvent, node: MaterialLibraryEntryType) => {
+    getMutableState(MaterialSelectionState).selectedMaterial.set(node.uuid)
+  }
+
+  return <div onClick={onClick}>{nameComponent.value}</div>
+}
 
 export default function MaterialLibraryPanel() {
   const { t } = useTranslation()
@@ -56,12 +62,14 @@ export default function MaterialLibraryPanel() {
   const materialPreviewPanelRef = React.useRef()
 
   const materialQuery = useQuery([MaterialStateComponent])
-  const nodes = useHookstate([] as MaterialLibraryEntryType[])
-  const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
 
+  const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
+  const selectedEntity = UUIDComponent.getEntityByUUID(selected.value[0])
+
+  /*
   useEffect(() => {
     const materials = selected.value.length
-      ? getMaterialsFromSource(UUIDComponent.getEntityByUUID(selected.value[0]))
+      ? getMaterialsFromSource(selectedEntity)
       : materialQuery.map((entity) => getComponent(entity, UUIDComponent))
     const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
       const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
@@ -73,28 +81,18 @@ export default function MaterialLibraryPanel() {
       ]
     })
     nodes.set(result)
-  }, [materialQuery.length, selected])
+  }, [materialQuery.length, selected, materialQuery])
+*/
 
-  const onClick = (e: MouseEvent, node: MaterialLibraryEntryType) => {
-    getMutableState(MaterialSelectionState).selectedMaterial.set(node.uuid)
+  const getMaterials = ({ height, width }) => {
+    return (
+      <>
+        {materialQuery.map((entity) => {
+          return <SubMaterialLibraryPanel entity={entity} />
+        })}
+      </>
+    )
   }
-
-  const MaterialList = ({ height, width }) => (
-    <FixedSizeList
-      height={height - 32}
-      width={width}
-      itemSize={32}
-      itemCount={nodes.length}
-      itemData={{
-        nodes: nodes.value,
-        onClick
-      }}
-      itemKey={(index, _) => index}
-      innerElementType="ul"
-    >
-      {MaterialLibraryEntry}
-    </FixedSizeList>
-  )
 
   return (
     <div className="h-full overflow-scroll">
@@ -147,7 +145,7 @@ export default function MaterialLibraryPanel() {
         </div>
       </div>
       <div id="material-panel" className="h-full overflow-hidden">
-        <AutoSizer onResize={MaterialList}>{MaterialList}</AutoSizer>
+        <AutoSizer onResize={getMaterials}>{getMaterials}</AutoSizer>
       </div>
     </div>
   )
