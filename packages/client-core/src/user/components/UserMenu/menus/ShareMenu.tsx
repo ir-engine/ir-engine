@@ -178,7 +178,7 @@ const ShareMenu = (): JSX.Element => {
   const questShareLink = new URL('https://oculus.com/open_url/')
   questShareLink.searchParams.set('url', shareLink)
 
-  const iframeString = `<iframe src="${window.location.href}" height="100%" width="100%" scrolling="0" allow="camera 'src'; microphone 'src';xr-spatial-tracking" style="pointer-events:all;user-select:none;border:none;"></iframe>`
+  const iframeString = `<iframe src="${window.location.href}" height="100%" width="100%"  allow="camera 'src'; microphone 'src';xr-spatial-tracking" style="pointer-events:all;user-select:none;border:none;"></iframe>`
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
