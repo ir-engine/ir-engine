@@ -89,7 +89,7 @@ const MaterialEntityReactor = () => {
   const entity = useEntityContext()
   const materialComponent = useComponent(entity, MaterialStateComponent)
   useEffect(() => {
-    if (!materialComponent.instances.value! || !SourceComponent.entitiesBySource) return
+    if (!materialComponent.instances.value! || !Object.keys(SourceComponent.entitiesBySource)) return
     for (const sourceEntity of materialComponent.instances.value)
       for (const entity of SourceComponent.entitiesBySource[getComponent(sourceEntity, SourceComponent)]) {
         const uuid = getOptionalComponent(entity, MaterialInstanceComponent)?.uuid as EntityUUID[] | undefined
