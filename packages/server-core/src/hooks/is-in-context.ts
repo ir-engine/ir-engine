@@ -23,30 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { HookContext } from '../../declarations'
 
-import { HiPause, HiPlay } from 'react-icons/hi2'
-import Progress, { ProgressProps } from '../../../../primitives/tailwind/Progress'
-
-export interface ProgressBarProps extends ProgressProps {
-  paused: boolean
-  totalTime: number
+/**
+ * This hook is used to check a value in the context.
+ * If propertyValue is not provided then it will just
+ * check if that property exists.
+ * If searchIn is not provided then it will search for
+ * it in the query.
+ */
+export default (propertyName: string, propertyValue?: any, searchIn?: 'query' | 'params' | 'data') => {
+  return (context: HookContext): boolean => {
+    if (searchIn === 'data') {
+      if (Array.isArray(context.data)) {
+        return context.data.find(
+          (item) => item[propertyName] && (!propertyValue || item[propertyName] === propertyValue)
+        )
+      } else {
+        return context.data[propertyName] && (!propertyValue || context.data[propertyName] === propertyValue)
+      }
+    } else if (searchIn === 'params') {
+      return context.params[propertyName] && (!propertyValue || context.params[propertyName] === propertyValue)
+    } else {
+      return (
+        context.params.query[propertyName] && (!propertyValue || context.params.query[propertyName] === propertyValue)
+      )
+    }
+  }
 }
-
-export default function ProgressBar({ value, paused, totalTime, ...rest }: ProgressBarProps) {
-  return (
-    <div className="ml-auto mr-6 flex h-10 w-[314px] flex-row place-items-center gap-2 rounded bg-zinc-900 px-2">
-      {paused ? <HiPlay className="text-white" /> : <HiPause className="text-white" />}
-      <Progress value={value} className="w-[173px]" barClassName="bg-blue-800 " />
-      <div className="w-[85px] truncate text-right text-sm font-normal leading-normal text-neutral-400">
-        {paused
-          ? 'Paused'
-          : `${Math.floor((totalTime * value) / 100 / 60)}:${Math.floor(
-              ((totalTime * value) / 100) % 60
-            )}  / ${Math.floor(totalTime / 60)}:${Math.floor(totalTime % 60)} `}
-      </div>
-    </div>
-  )
-}
-
-ProgressBar.defaultProps = {}
