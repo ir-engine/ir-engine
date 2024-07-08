@@ -24,12 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
 import { deleteScene, onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useRealtime } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiDotsHorizontal } from 'react-icons/hi'
@@ -56,18 +56,18 @@ export default function ScenesPanel() {
     getMutableState(EditorState).scenePath.set(scene.key)
   }
 
+  useRealtime(fileBrowserPath, scenesQuery.refetch)
+
   const isCreatingScene = useHookstate(false)
   const handleCreateScene = async () => {
     isCreatingScene.set(true)
     await onNewScene()
-    scenesQuery.refetch()
     isCreatingScene.set(false)
   }
 
   const deleteSelectedScene = async (scene: StaticResourceType) => {
     if (scene) {
       await deleteScene(scene.key)
-      scenesQuery.refetch()
       if (editorState.sceneAssetID.value === scene.id) {
         editorState.sceneName.set(null)
         editorState.sceneAssetID.set(null)

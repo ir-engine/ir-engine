@@ -54,6 +54,8 @@ import { TargetCameraRotationComponent } from './TargetCameraRotationComponent'
 
 export const coneDebugHelpers: ArrowHelper[] = []
 
+const window = 'window' in globalThis ? globalThis.window : ({} as any as Window)
+
 export const FollowCameraComponent = defineComponent({
   name: 'FollowCameraComponent',
   onInit: (entity) => {
