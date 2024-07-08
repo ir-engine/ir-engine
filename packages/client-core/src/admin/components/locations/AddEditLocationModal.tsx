@@ -25,6 +25,7 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import {
   LocationData,
   LocationID,
+  LocationPatch,
   locationPath,
   LocationType,
   staticResourcePath
@@ -102,15 +103,12 @@ export default function AddEditLocationModal({
       sceneId: scene.value,
       maxUsersPerInstance: maxUsers.value,
       locationSetting: {
-        id: '',
         locationId: '' as LocationID,
         locationType: locationType.value,
         audioEnabled: audioEnabled.value,
         screenSharingEnabled: screenSharingEnabled.value,
         faceStreamingEnabled: false,
-        videoEnabled: videoEnabled.value,
-        createdAt: '',
-        updatedAt: ''
+        videoEnabled: videoEnabled.value
       },
       isLobby: false,
       isFeatured: false
@@ -118,7 +116,7 @@ export default function AddEditLocationModal({
 
     try {
       if (location?.id) {
-        await locationMutation.patch(location.id, locationData)
+        await locationMutation.patch(location.id, locationData as LocationPatch)
       } else {
         await locationMutation.create(locationData)
       }

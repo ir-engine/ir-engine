@@ -62,6 +62,7 @@ export const createLocations = async (app: Application, projectName: string, sce
         screenSharingEnabled: true,
         faceStreamingEnabled: true
       } as LocationSettingType
+
       const location = {
         id: locationId,
         name: cleanedLocationName,
