@@ -893,5 +893,92 @@ describe('EditorControlFunctions', () => {
       assert.equal(newSnapshot.nodes![0].name, 'node2')
       assert.equal(newSnapshot.nodes![1].name, 'node3')
     })
+
+    it('should correctly update state when removing objects in hierarchy', () => {
+      const rootUUID = 'rootUUID' as EntityUUID
+      const parentUUID = 'parentUUID' as EntityUUID
+      const child1UUID = 'child1UUID' as EntityUUID
+      const child2UUID = 'child2UUID' as EntityUUID
+      const grandchildUUID = 'grandchildUUID' as EntityUUID
+
+      const gltf: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'root',
+            children: [1],
+            extensions: {
+              [UUIDComponent.jsonID]: rootUUID
+            }
+          },
+          {
+            name: 'parent',
+            children: [2, 3],
+            extensions: {
+              [UUIDComponent.jsonID]: parentUUID
+            }
+          },
+          {
+            name: 'child1',
+            children: [4],
+            extensions: {
+              [UUIDComponent.jsonID]: child1UUID
+            }
+          },
+          {
+            name: 'child2',
+            extensions: {
+              [UUIDComponent.jsonID]: child2UUID
+            }
+          },
+          {
+            name: 'grandchild',
+            extensions: {
+              [UUIDComponent.jsonID]: grandchildUUID
+            }
+          }
+        ]
+      }
+
+      Cache.add('/test.gltf', gltf)
+      const rootEntity = GLTFSourceState.load('/test.gltf')
+      getMutableState(EditorState).rootEntity.set(rootEntity)
+      applyIncomingActions()
+
+      const parentEntity = UUIDComponent.getEntityByUUID(parentUUID)
+      const child1Entity = UUIDComponent.getEntityByUUID(child1UUID)
+      const sourceID = getComponent(parentEntity, SourceComponent)
+
+      // remove child1 (which also has a grandchild)
+      EditorControlFunctions.removeObject([child1Entity])
+
+      applyIncomingActions()
+
+      let newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
+
+      // check that child1 and grandchild are removed, but child2 remains
+      assert.equal(newSnapshot.nodes!.length, 3)
+      assert.equal(newSnapshot.nodes![0].extensions![UUIDComponent.jsonID], rootUUID)
+      assert.equal(newSnapshot.nodes![1].extensions![UUIDComponent.jsonID], parentUUID)
+      assert.equal(newSnapshot.nodes![2].extensions![UUIDComponent.jsonID], child2UUID)
+      assert.deepEqual(newSnapshot.nodes![1].children, [2])
+
+      // now remove the parent
+      EditorControlFunctions.removeObject([parentEntity])
+
+      applyIncomingActions()
+
+      newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[2]
+
+      // check that only the root remains
+      assert.equal(newSnapshot.nodes!.length, 1)
+      assert.equal(newSnapshot.nodes![0].extensions![UUIDComponent.jsonID], rootUUID)
+      assert.equal(newSnapshot.nodes![0].children?.length, 0)
+      assert.deepEqual(newSnapshot.scenes![0].nodes, [0])
+    })
   })
 })
