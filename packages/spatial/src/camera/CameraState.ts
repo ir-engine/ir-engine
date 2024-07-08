@@ -32,7 +32,7 @@ import { SpawnObjectActions } from '../transform/SpawnObjectActions'
 export const CameraSettings = defineState({
   name: 'xre.engine.CameraSettings',
   initial: () => ({
-    cameraRotationSpeed: 100
+    cameraRotationSpeed: 200
   })
 })
 

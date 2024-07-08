@@ -76,6 +76,7 @@ export const FeathersState = defineState({
         QueryHash,
         {
           fetch: () => void
+          query: any
           response: unknown
           status: 'pending' | 'success' | 'error'
           error: string
@@ -118,11 +119,13 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   const service = Engine.instance.api.service(serviceName)
   const state = useMutableState(FeathersState)
 
-  const queryId = `${method.substring(0, 1)}:${hashObject({
+  const queryParams = {
     serviceName,
     method,
     args
-  })}` as QueryHash
+  }
+
+  const queryId = `${method.substring(0, 1)}:${hashObject(queryParams)}` as QueryHash
 
   const fetch = () => {
     if (method === 'get' && !args) {
@@ -159,6 +162,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       state[serviceName].merge({
         [queryId]: {
           fetch,
+          query: queryParams,
           response: null,
           status: 'pending',
           error: ''
@@ -353,20 +357,28 @@ export function hashObject(obj) {
  * An internal hook that will listen to realtime updates to a service
  * and update the cache as changes happen.
  */
-export function useRealtime(serviceName: keyof ServiceTypes, refetch: () => void) {
+export function useRealtime(
+  serviceName: keyof ServiceTypes,
+  refetch: (data: any, eventType: 'created' | 'updated' | 'patched' | 'removed') => void
+) {
   useLayoutEffect(() => {
     const service = Engine.instance.api.service(serviceName)
 
-    service.on('created', refetch)
-    service.on('updated', refetch)
-    service.on('patched', refetch)
-    service.on('removed', refetch)
+    const handleCreated = (data: any) => refetch(data, 'created')
+    const handleUpdated = (data: any) => refetch(data, 'updated')
+    const handlePatched = (data: any) => refetch(data, 'patched')
+    const handleRemoved = (data: any) => refetch(data, 'removed')
+
+    service.on('created', handleCreated)
+    service.on('updated', handleUpdated)
+    service.on('patched', handlePatched)
+    service.on('removed', handleRemoved)
 
     return () => {
-      service.off('created', refetch)
-      service.off('updated', refetch)
-      service.off('patched', refetch)
-      service.off('removed', refetch)
+      service.off('created', handleCreated)
+      service.off('updated', handleUpdated)
+      service.off('patched', handlePatched)
+      service.off('removed', handleRemoved)
     }
   }, [serviceName])
 }

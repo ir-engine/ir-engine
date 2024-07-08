@@ -23,13 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Object3D, Ray } from 'three'
+import { HookContext } from '../../declarations'
 
-import { defineState } from '@etherealengine/hyperflux'
-
-export const XRUIState = defineState({
-  name: 'XRUIState',
-  initial: () => ({
-    interactionRays: [] as Array<Ray | Object3D>
-  })
-})
+/**
+ * This hook is used to check a value in the context.
+ * If propertyValue is not provided then it will just
+ * check if that property exists.
+ * If searchIn is not provided then it will search for
+ * it in the query.
+ */
+export default (propertyName: string, propertyValue?: any, searchIn?: 'query' | 'params' | 'data') => {
+  return (context: HookContext): boolean => {
+    if (searchIn === 'data') {
+      if (Array.isArray(context.data)) {
+        return context.data.find(
+          (item) => item[propertyName] && (!propertyValue || item[propertyName] === propertyValue)
+        )
+      } else {
+        return context.data[propertyName] && (!propertyValue || context.data[propertyName] === propertyValue)
+      }
+    } else if (searchIn === 'params') {
+      return context.params[propertyName] && (!propertyValue || context.params[propertyName] === propertyValue)
+    } else {
+      return (
+        context.params.query[propertyName] && (!propertyValue || context.params.query[propertyName] === propertyValue)
+      )
+    }
+  }
+}
