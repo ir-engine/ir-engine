@@ -28,7 +28,6 @@ import { Trans, useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router-dom'
 
 import styles from '@etherealengine/client-core/src/admin/old-styles/admin.module.scss'
-import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 
 import '@etherealengine/client-core/src/user/UserUISystem'
@@ -79,12 +78,6 @@ export const HomePage = (): any => {
             }
           `}
         </style>
-        <MetaTags>
-          <link
-            href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;600;800&display=swap"
-            rel="stylesheet"
-          />
-        </MetaTags>
         <div className="main-background">
           <div className="img-container">
             {clientSetting?.appBackground && (

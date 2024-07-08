@@ -30,7 +30,6 @@ import { Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 
 import './pages/styles.scss'
 import './pages/mui.styles.scss' /** @todo Remove when MUI is removed */
@@ -51,13 +50,6 @@ const App = () => {
   return (
     <ErrorBoundary>
       <Engine>
-        {/** we keep this here so the entire app gets figtree, else we miss out figtree in some places */}
-        <MetaTags>
-          <link
-            href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;600;800&display=swap"
-            rel="stylesheet"
-          />
-        </MetaTags>
         <Routes>
           {/* @todo - these are for backwards compatibility with non tailwind pages - they will be removed eventually */}
           <Route
