@@ -190,10 +190,10 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
       locationSetting: {
         locationId: '' as LocationID,
         locationType: state.type.value as 'private' | 'public' | 'showroom',
-        audioEnabled: state.audioEnabled.value,
-        screenSharingEnabled: state.screenSharingEnabled.value,
+        audioEnabled: Boolean(state.audioEnabled.value),
+        screenSharingEnabled: Boolean(state.screenSharingEnabled.value),
         faceStreamingEnabled: false, //state.faceStreamingEnabled.value,
-        videoEnabled: state.videoEnabled.value
+        videoEnabled: Boolean(state.videoEnabled.value)
       },
       isLobby: false, //state.isLobby.value,
       isFeatured: false //state.isFeatured.value

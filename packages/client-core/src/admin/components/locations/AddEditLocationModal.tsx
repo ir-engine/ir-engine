@@ -105,10 +105,10 @@ export default function AddEditLocationModal({
       locationSetting: {
         locationId: '' as LocationID,
         locationType: locationType.value,
-        audioEnabled: audioEnabled.value,
-        screenSharingEnabled: screenSharingEnabled.value,
+        audioEnabled: Boolean(audioEnabled.value),
+        screenSharingEnabled: Boolean(screenSharingEnabled.value),
         faceStreamingEnabled: false,
-        videoEnabled: videoEnabled.value
+        videoEnabled: Boolean(videoEnabled.value)
       },
       isLobby: false,
       isFeatured: false

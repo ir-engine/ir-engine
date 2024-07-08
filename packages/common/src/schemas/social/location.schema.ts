@@ -113,9 +113,17 @@ export const locationDataSchema = Type.Intersect(
 export interface LocationData extends Static<typeof locationDataSchema> {}
 
 // Schema for updating existing entries
-export const locationPatchSchema = Type.Partial(locationSchema, {
-  $id: 'LocationPatch'
-})
+export const locationPatchSchema = Type.Intersect(
+  [
+    Type.Partial(Type.Omit(locationSchema, ['locationSetting'])),
+    Type.Object({
+      locationSetting: Type.Optional(Type.Ref(locationSettingDataSchema))
+    })
+  ],
+  {
+    $id: 'LocationPatch'
+  }
+)
 export interface LocationPatch extends Static<typeof locationPatchSchema> {}
 
 // Schema for allowed query properties

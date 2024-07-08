@@ -147,7 +147,8 @@ export const inviteQueryProperties = Type.Pick(inviteSchema, [
   'timed',
   'userId',
   'inviteType',
-  'inviteeId'
+  'inviteeId',
+  'createdAt'
 ])
 export const inviteQuerySchema = Type.Intersect(
   [
