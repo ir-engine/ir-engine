@@ -73,7 +73,7 @@ describe('project-builder-tags.test', () => {
     await app.service(identityProviderPath).create(
       {
         type: 'github',
-        token: uuidv4(),
+        token: `test-token-${Math.round(Math.random() * 1000)}`,
         userId: testUser.id
       },
       getParams()

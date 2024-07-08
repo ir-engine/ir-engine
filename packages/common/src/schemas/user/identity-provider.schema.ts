@@ -56,9 +56,7 @@ export const identityProviderSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    token: Type.String({
-      format: 'uuid'
-    }),
+    token: Type.String(),
     accountIdentifier: Type.Optional(Type.String()),
     oauthToken: Type.Optional(Type.String()),
     type: StringEnum(identityProviderTypes),
