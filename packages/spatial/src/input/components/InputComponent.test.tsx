@@ -83,6 +83,13 @@ export function assertArrayHasNoDuplicates(arr: any[]) {
   assert.ok(!arrayHasDuplicates(arr))
 }
 
+/** @description Alias to create a dummy entity with an InputComponent. Used for syntax ergonomics. */
+function createDummyEntity(): Entity {
+  const result = createEntity()
+  setComponent(result, InputComponent)
+  return result
+}
+
 describe('InputComponent', () => {
   describe('IDs', () => {
     it('should initialize the InputComponent.name field with the expected value', () => {
@@ -272,13 +279,6 @@ describe('InputComponent', () => {
       return destroyEngine()
     })
 
-    /** @description Alias to create a dummy entity with an InputComponent. Used for syntax ergonomics. */
-    function createDummyEntity(): Entity {
-      const result = createEntity()
-      setComponent(result, InputComponent)
-      return result
-    }
-
     /**
      * @note
      * This test's setup is a bit complex, but it does test what the code is supposed to do.
@@ -325,16 +325,11 @@ describe('InputComponent', () => {
   })
 
   describe('getMergedButtonsForInputSources', () => {
-    let testEntity = UndefinedEntity
-
     beforeEach(async () => {
       createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, InputComponent)
     })
 
     afterEach(() => {
-      removeEntity(testEntity)
       return destroyEngine()
     })
 
@@ -471,9 +466,113 @@ describe('InputComponent', () => {
     })
   })
 
+  describe('getMergedButtons', () => {
+    let testEntity = UndefinedEntity
+    let parentEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      parentEntity = createEntity()
+      setComponent(parentEntity, InputComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      removeEntity(parentEntity)
+      return destroyEngine()
+    })
+
+    it('should contain all buttons held by the entities returned by getInputSourceEntities for the given `@param entityContext`', () => {
+      const Expected = ['1', '2', '3']
+      const Down = { down: true }
+      const NotDown = { down: false }
+      const Buttons1 = {}
+      const Buttons2 = {}
+      const Buttons3 = {}
+      // Set the state of the buttons
+      Buttons1[Expected[0]] = Down
+      Buttons2[Expected[1]] = NotDown
+      Buttons3[Expected[2]] = Down
+      // `one`, `two` and `three` are valid entities that have an all-defaults InputComponent
+      const one = createEntity()
+      const two = createEntity()
+      const three = createEntity()
+      // We add the key sources to each entity
+      setComponent(one, InputSourceComponent)
+      setComponent(two, InputSourceComponent)
+      setComponent(three, InputSourceComponent)
+      getMutableComponent(one, InputSourceComponent).buttons.set(Buttons1)
+      getMutableComponent(two, InputSourceComponent).buttons.set(Buttons2)
+      getMutableComponent(three, InputSourceComponent).buttons.set(Buttons3)
+      // Create the entity that the InputSink will reference
+      const inputEntity = createEntity()
+      setComponent(inputEntity, InputComponent)
+      getMutableComponent(inputEntity, InputComponent).inputSources.set([two, three])
+      // Set the parentEntity as both an Input and an InputSink
+      //  @note (might not make sense conceptually. this is just to test this codepath)
+      setComponent(parentEntity, InputComponent)
+      getMutableComponent(parentEntity, InputComponent).inputSources.set([one])
+      // The parentEntity is the InputSink where we get the inputs from
+      setComponent(parentEntity, InputSinkComponent)
+      getMutableComponent(parentEntity, InputSinkComponent).inputEntities.set([inputEntity])
+      // parentEntity is set as the parent of testEntity
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+      // The result should contain the buttons listed by all entities combined, retrieved by calling the function with `testEntity`
+      const result = InputComponent.getMergedButtons(testEntity)
+      for (const key of Expected) {
+        assert.ok(result[key] !== undefined, 'Expected key: ' + key + ' should be contained in the result')
+      }
+    })
+
+    it('should collapse the state of all buttons described by the given `@param inputAlias` into keys of the same name in the resulting object', () => {
+      // Create the `@param inputAlias` object
+      const SomeAliasList = {
+        SomeKeyOne: ['0', '1'],
+        SomeKeyTwo: ['2', '3']
+      }
+      const Down = { down: true }
+      const NotDown = { down: false }
+      const Buttons1 = {}
+      const Buttons2 = {}
+      // Create the list of expected keys
+      const Expected = ['0', '1', '2', '3']
+      for (const key of Object.keys(SomeAliasList)) {
+        Expected.push(key)
+      }
+      // Set the state of the buttons
+      Buttons1[Expected[0]] = Down
+      Buttons1[Expected[1]] = NotDown
+      Buttons2[Expected[2]] = Down
+      Buttons2[Expected[3]] = NotDown
+      // Create the input sources that contain the button states
+      const one = createEntity()
+      const two = createEntity()
+      setComponent(one, InputSourceComponent)
+      setComponent(two, InputSourceComponent)
+      getMutableComponent(one, InputSourceComponent).buttons.set(Buttons1)
+      getMutableComponent(two, InputSourceComponent).buttons.set(Buttons2)
+      // Add the input sources to the InputComponent of testEntity
+      setComponent(testEntity, InputComponent)
+      getMutableComponent(testEntity, InputComponent).inputSources.set([one, two])
+      // Run the process
+      const result = InputComponent.getMergedButtons(testEntity, SomeAliasList)
+      // Check that all expected keys are being added to the result
+      for (const key of Object.keys(result)) {
+        assert.ok(Expected.includes(key), key + ' should be contained in the result')
+      }
+      // Check that all keys of the resulting object have the expected state
+      assert.equal(result[Expected[0]].down, true)
+      assert.equal(result[Expected[1]].down, false)
+      assert.equal(result[Expected[2]].down, true)
+      assert.equal(result[Expected[3]].down, false)
+      assert.equal(result[Expected[4]].down, true)
+      assert.equal(result[Expected[5]].down, true)
+    })
+  })
+
   /**
   // @todo
-  describe('getMergedButtons', () => {})
   describe('getMergedAxes', () => {})
   describe('getMergedAxesForInputSources', () => {})
   describe('useExecuteWithInput', () => {})
