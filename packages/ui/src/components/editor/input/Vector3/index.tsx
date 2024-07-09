@@ -46,18 +46,18 @@ export const Vector3Scrubber = ({ axis, onChange, onPointerUp, value, children, 
   const color = (() => {
     switch (axis) {
       case 'x':
-        return 'red-500'
+        return '[#375DAF]'
       case 'y':
-        return 'green-400' // must be fushsia-400 , but these colors doesnt show up
+        return '[#A24482]'
       case 'z':
-        return 'blue-400' //must be teal-400 , but this color doesnt show up
+        return '[#8261D2]'
       default:
         return 'inherit'
     }
   })()
 
-  props.className = twMerge(`text-${color}`)
-  const content = children ?? axis?.toUpperCase()
+  props.className = twMerge(`w-full text-${color}`)
+  const content = children ?? `${axis?.toUpperCase()} - `
   return (
     <Scrubber onChange={onChange} onRelease={onPointerUp} value={value} {...props}>
       {content}
