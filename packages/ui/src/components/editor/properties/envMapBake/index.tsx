@@ -161,7 +161,7 @@ export const EnvMapBakeNodeEditor = (props) => {
     <NodeEditor
       style={envMapBakeNodeEditorStyle}
       {...props}
-      name="EnvMap Bake"
+      name={t('editor:properties.envmap.lbl-bake')}
       description="For Adding EnvMap bake in your scene"
       icon={<EnvMapBakeNodeEditor.iconComponent />}
     >
