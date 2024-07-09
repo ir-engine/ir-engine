@@ -26,10 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { LinearToneMapping, PCFSoftShadowMap, ShadowMapType, ToneMapping } from 'three'
 
-import { EntityUUID, UUIDComponent, UndefinedEntity, useQuery } from '@etherealengine/ecs'
+import { EntityUUID } from '@etherealengine/ecs'
 import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { DirectionalLightComponent } from '@etherealengine/spatial'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 
@@ -74,7 +73,6 @@ export const RenderSettingsComponent = defineComponent({
     const entity = useEntityContext()
     const rendererEntity = useScene(entity)
     const component = useComponent(entity, RenderSettingsComponent)
-    const directionalLights = useQuery([DirectionalLightComponent])
 
     useEffect(() => {
       if (!rendererEntity) return
@@ -94,24 +92,6 @@ export const RenderSettingsComponent = defineComponent({
       renderer.renderer.shadowMap.type = component.shadowMapType.value
       renderer.renderer.shadowMap.needsUpdate = true
     }, [component.shadowMapType])
-
-    useEffect(() => {
-      const directionalLightEntities = directionalLights
-      let primaryLight = UndefinedEntity
-      for (const directionalLightEntity of directionalLightEntities) {
-        if (component.primaryLight.value === getComponent(directionalLightEntity, UUIDComponent)) {
-          primaryLight = directionalLightEntity
-          break
-        }
-      }
-
-      if (!primaryLight && component.primaryLight.value) {
-        component.merge({
-          csm: false,
-          primaryLight: '' as EntityUUID
-        })
-      }
-    }, [directionalLights])
 
     return null
   }
