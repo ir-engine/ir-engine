@@ -91,7 +91,7 @@ export const TriggerComponent = defineComponent({
     const colliderComponent = useComponent(entity, ColliderComponent)
 
     useEffect(() => {
-      if (!colliderComponent?.value || !colliderComponent?.hasCollider) return
+      if (!colliderComponent?.value || !colliderComponent?.hasCollider.value) return
 
       Physics.setTrigger(entity, true)
 
