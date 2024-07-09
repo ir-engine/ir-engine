@@ -35,7 +35,7 @@ import { dataValidator, queryValidator } from '../validators'
 import { locationAdminDataSchema, locationAdminSchema } from './location-admin.schema'
 import { locationAuthorizedUserSchema } from './location-authorized-user.schema'
 import { locationBanSchema } from './location-ban.schema'
-import { locationSettingDataSchema, locationSettingSchema } from './location-setting.schema'
+import { locationSettingDataSchema, locationSettingPatchSchema, locationSettingSchema } from './location-setting.schema'
 
 export const locationPath = 'location'
 
@@ -117,7 +117,7 @@ export const locationPatchSchema = Type.Intersect(
   [
     Type.Partial(Type.Omit(locationSchema, ['locationSetting'])),
     Type.Object({
-      locationSetting: Type.Optional(Type.Ref(locationSettingDataSchema))
+      locationSetting: Type.Optional(Type.Ref(locationSettingPatchSchema))
     })
   ],
   {
