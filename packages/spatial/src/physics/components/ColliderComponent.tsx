@@ -27,7 +27,7 @@ import { useEffect, useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
 
 import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
+import { getState, useState } from '@etherealengine/hyperflux'
 
 import { useAncestorWithComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -50,8 +50,7 @@ export const ColliderComponent = defineComponent({
       friction: 0.5,
       restitution: 0.5,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: DefaultCollisionMask,
-      hasCollider: false
+      collisionMask: DefaultCollisionMask
     }
   },
 
@@ -86,6 +85,7 @@ export const ColliderComponent = defineComponent({
     const transform = useComponent(entity, TransformComponent)
     const rigidbodyEntity = useAncestorWithComponent(entity, RigidBodyComponent)
     const triggerComponent = useOptionalComponent(entity, TriggerComponent)
+    const hasCollider = useState(false)
 
     useEffect(() => {
       if (!rigidbodyEntity) return
@@ -96,11 +96,11 @@ export const ColliderComponent = defineComponent({
       if (!colliderDesc) return
 
       Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
-      component.hasCollider.set(true)
+      hasCollider.set(true)
 
       return () => {
         Physics.removeCollider(physicsWorld, entity)
-        component.hasCollider.set(false)
+        hasCollider.set(false)
       }
     }, [component.shape, rigidbodyEntity, transform.scale])
 
@@ -129,14 +129,14 @@ export const ColliderComponent = defineComponent({
     }, [component.collisionMask])
 
     useEffect(() => {
-      if (!triggerComponent?.value || !component.hasCollider.value) return
+      if (!triggerComponent?.value || !hasCollider.value) return
 
       Physics.setTrigger(entity, true)
 
       return () => {
         Physics.setTrigger(entity, false)
       }
-    }, [triggerComponent, component.hasCollider])
+    }, [triggerComponent, hasCollider])
 
     return null
   }
