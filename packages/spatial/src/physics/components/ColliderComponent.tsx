@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect, useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 
 import { useAncestorWithComponent } from '../../transform/components/EntityTree'
@@ -36,6 +36,7 @@ import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 import { Shape, Shapes } from '../types/PhysicsTypes'
 import { RigidBodyComponent } from './RigidBodyComponent'
+import { TriggerComponent } from './TriggerComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
@@ -84,6 +85,7 @@ export const ColliderComponent = defineComponent({
     const component = useComponent(entity, ColliderComponent)
     const transform = useComponent(entity, TransformComponent)
     const rigidbodyEntity = useAncestorWithComponent(entity, RigidBodyComponent)
+    const triggerComponent = useOptionalComponent(entity, TriggerComponent)
 
     useEffect(() => {
       if (!rigidbodyEntity) return
@@ -125,6 +127,16 @@ export const ColliderComponent = defineComponent({
     useLayoutEffect(() => {
       Physics.setCollisionMask(entity, component.collisionMask.value)
     }, [component.collisionMask])
+
+    useEffect(() => {
+      if (!triggerComponent?.value || !component.hasCollider.value) return
+
+      Physics.setTrigger(entity, true)
+
+      return () => {
+        Physics.setTrigger(entity, false)
+      }
+    }, [triggerComponent, component.hasCollider])
 
     return null
   }
