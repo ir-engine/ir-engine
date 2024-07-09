@@ -49,7 +49,8 @@ export const ColliderComponent = defineComponent({
       friction: 0.5,
       restitution: 0.5,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: DefaultCollisionMask
+      collisionMask: DefaultCollisionMask,
+      hasCollider: false
     }
   },
 
@@ -93,9 +94,11 @@ export const ColliderComponent = defineComponent({
       if (!colliderDesc) return
 
       Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
+      component.hasCollider.set(true)
 
       return () => {
         Physics.removeCollider(physicsWorld, entity)
+        component.hasCollider.set(false)
       }
     }, [component.shape, rigidbodyEntity, transform.scale])
 
