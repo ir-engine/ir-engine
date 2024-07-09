@@ -67,12 +67,14 @@ export const FileIcon = ({
   thumbnailURL,
   type,
   isFolder,
-  color = 'text-white'
+  color = 'text-white',
+  isMinified = false
 }: {
   thumbnailURL?: string
   type: string
   isFolder?: boolean
   color?: string
+  isMinified?: boolean
 }) => {
   const FallbackIcon = FileIconType[type ?? '']
 
@@ -81,7 +83,12 @@ export const FileIcon = ({
       {isFolder ? (
         <HiFolder className={`${color}`} />
       ) : thumbnailURL ? (
-        <img className="h-4 w-4 object-contain" crossOrigin="anonymous" src={thumbnailURL} alt="" />
+        <img
+          className={`${isMinified ? 'h-4 w-4' : 'h-full w-full min-w-[90px]'} object-contain`}
+          crossOrigin="anonymous"
+          src={thumbnailURL}
+          alt=""
+        />
       ) : FallbackIcon ? (
         <FallbackIcon className={`${color}`} />
       ) : (
