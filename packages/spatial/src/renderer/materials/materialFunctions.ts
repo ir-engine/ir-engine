@@ -146,7 +146,7 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
   const newMaterial = new prototypeConstructor(fullParameters)
   if (newMaterial.plugins) {
     newMaterial.customProgramCacheKey = () =>
-      newMaterial.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
+      newMaterial.shader + newMaterial.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
   }
   newMaterial.uuid = material.uuid
   if (material.defines?.['USE_COLOR']) {
@@ -190,7 +190,7 @@ export const assignMaterial = (entity: Entity, materialEntity: Entity) => {
 
   if (material.plugins) {
     material.customProgramCacheKey = () =>
-      material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
+      material.shader + material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
   }
   materialStateComponent.instances.set([...materialStateComponent.instances.value, entity])
 }
