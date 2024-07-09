@@ -61,13 +61,10 @@ import { SelectionState } from '@etherealengine/editor/src/services/SelectionSer
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
-import { PopoverPosition } from '@mui/material'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
-import { HierarchyPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
-import Popover from '../../../layout/Popover'
-import { PopoverContext } from '../../../util/PopoverContext'
+import { Popup } from '../../../../tailwind/Popup'
 import ElementList from '../../Properties/elementList'
 import HierarchyTreeNode, { HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from '../node'
 
@@ -84,7 +81,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
-  const [anchorPositionPop, setAnchorPositionPop] = React.useState<undefined | PopoverPosition>(undefined)
 
   const [prevClickedNode, setPrevClickedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const onUpload = useUpload(uploadOptions)
@@ -97,9 +93,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const sourcedEntities = useQuery([SourceComponent])
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const rootEntityTree = useComponent(rootEntity, EntityTreeComponent)
-  const panel = document.getElementById('propertiesPanel')
-  const anchorElButton = useHookstate<HTMLButtonElement | null>(null)
-  const open = !!anchorElButton.value
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -444,53 +437,36 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   return (
     <>
-      <PopoverContext.Provider
-        value={{
-          handlePopoverClose: () => {
-            anchorElButton.set(null)
-          }
-        }}
-      >
-        <div className="flex items-center gap-2 bg-theme-surface-main">
-          <Input
-            placeholder={t('common:components.search')}
-            value={searchHierarchy.value}
-            onChange={(event) => {
-              searchHierarchy.set(event.target.value)
-            }}
-            className="m-1 rounded bg-theme-primary text-[#A3A3A3]"
-            startComponent={<HiMagnifyingGlass className="text-white" />}
-          />
-
-          <Button
-            startIcon={<HiOutlinePlusCircle />}
-            variant="transparent"
-            rounded="none"
-            className="ml-auto w-32 bg-theme-highlight px-2 py-3"
-            size="small"
-            textContainerClassName="mx-0"
-            onClick={(event) => {
-              setAnchorPositionPop({ top: event.clientY - 10, left: panel?.getBoundingClientRect().left! + 10 })
-              anchorElButton.set(event.currentTarget)
-            }}
-          >
-            <span className="text-nowrap">{t('editor:hierarchy.lbl-addEntity')}</span>
-          </Button>
-        </div>
-        <Popover
-          open={open}
-          anchorEl={anchorElButton.value as any}
-          onClose={() => {
-            anchorElButton.set(null)
-            setAnchorPositionPop(undefined)
+      <div className="flex items-center gap-2 bg-theme-surface-main">
+        <Input
+          placeholder={t('common:components.search')}
+          value={searchHierarchy.value}
+          onChange={(event) => {
+            searchHierarchy.set(event.target.value)
           }}
-          panelId={HierarchyPanelTab.id!}
-          anchorPosition={anchorPositionPop}
-          className="h-[60%] w-full min-w-[300px] overflow-y-auto"
+          className="m-1 rounded bg-theme-primary text-[#A3A3A3]"
+          startComponent={<HiMagnifyingGlass className="text-white" />}
+        />
+        <Popup
+          keepInside
+          trigger={
+            <Button
+              startIcon={<HiOutlinePlusCircle />}
+              variant="transparent"
+              rounded="none"
+              className="ml-auto w-32 text-nowrap bg-theme-highlight px-2 py-3 text-white"
+              size="small"
+              textContainerClassName="mx-0"
+            >
+              {t('editor:hierarchy.lbl-addEntity')}
+            </Button>
+          }
         >
-          <ElementList type="prefabs" />
-        </Popover>
-      </PopoverContext.Provider>
+          <div className="h-[600px] w-72 overflow-y-auto">
+            <ElementList type="prefabs" />
+          </div>
+        </Popup>
+      </div>
       <div id="heirarchy-panel" className="h-5/6 overflow-hidden">
         <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
       </div>

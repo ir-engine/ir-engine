@@ -45,7 +45,7 @@ const Tooltip = ({ title, children, className, ...rest }: TooltipProps & PopupPr
     >
       <span
         className={twMerge(
-          '-mt-5 text-wrap rounded bg-gray-800 text-xs text-white shadow-lg transition-all',
+          '-mt-5 text-wrap rounded bg-gray-800 p-1 text-xs text-white shadow-lg transition-all',
           className
         )}
       >

@@ -42,7 +42,6 @@ import { IoIosArrowDown, IoIosArrowUp, IoMdAddCircle } from 'react-icons/io'
 import Button from '../../../../../primitives/tailwind/Button'
 import Text from '../../../../../primitives/tailwind/Text'
 import StringInput from '../../../input/String'
-import { usePopoverContextClose } from '../../../util/PopoverContext'
 
 type ElementsType = 'components' | 'prefabs'
 
@@ -57,7 +56,6 @@ const ComponentListItem = ({ item }: { item: Component }) => {
   const { t } = useTranslation()
   useMutableState(ComponentEditorsState).keys // ensure reactively updates new components
   const Icon = getState(ComponentEditorsState)[item.name]?.iconComponent ?? GrStatusPlaceholder
-  const handleClosePopover = usePopoverContextClose()
 
   const jsonName = item.jsonID?.slice(3).replace('_', '-') || item.name
 
@@ -69,7 +67,6 @@ const ComponentListItem = ({ item }: { item: Component }) => {
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
-        handleClosePopover()
       }}
       startIcon={<Icon className="h-6 w-6 text-white" />}
     >
@@ -86,8 +83,6 @@ const ComponentListItem = ({ item }: { item: Component }) => {
 }
 
 const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
-  const handleClosePopover = usePopoverContextClose()
-
   return (
     <Button
       variant="transparent"
@@ -100,7 +95,6 @@ const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
         } else {
           addMediaNode(url)
         }
-        handleClosePopover()
       }}
       startIcon={<IoMdAddCircle className="h-6 w-6 text-white" />}
     >
