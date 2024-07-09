@@ -69,7 +69,7 @@ export interface RecordingDatabaseType extends Omit<RecordingType, 'schema'> {
 }
 
 // Schema for creating new entries
-export const recordingDataSchema = Type.Partial(recordingSchema, {
+export const recordingDataSchema = Type.Pick(recordingSchema, ['schema'], {
   $id: 'RecordingData'
 })
 export interface RecordingData extends Static<typeof recordingDataSchema> {}
