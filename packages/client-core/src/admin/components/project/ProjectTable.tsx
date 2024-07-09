@@ -42,7 +42,7 @@ import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import CopyText from '@etherealengine/ui/src/primitives/tailwind/CopyText'
@@ -58,7 +58,7 @@ import ManageUserPermissionModal from './ManageUserPermissionModal'
 
 const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 
-export default function ProjectTable() {
+export default function ProjectTable({ search }) {
   const { t } = useTranslation()
   const activeProjectId = useHookstate<string | null>(null)
   const projectQuery = useFind(projectPath, {
@@ -71,6 +71,20 @@ export default function ProjectTable() {
       }
     }
   })
+
+  useSearch(
+    projectQuery,
+    {
+      $or: [
+        {
+          name: {
+            $like: `%${search}%`
+          }
+        }
+      ]
+    },
+    search
+  )
 
   const handleEnabledChange = async (project: ProjectType) => {
     await ProjectService.setEnabled(project.id, !project.enabled)
