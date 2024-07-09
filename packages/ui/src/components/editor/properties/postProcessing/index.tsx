@@ -243,14 +243,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     }
 
     return (
-      <div
-        key={index}
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}
-      >
+      <div key={index}>
         <InputGroup name={effectSettingState.name} label={effectSettingState.name}>
           {renderVal}
         </InputGroup>
@@ -274,7 +267,12 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
             value={postprocessing.effects[effect]?.isActive?.value}
             label={effect}
           />
-          {postprocessing.effects[effect]?.isActive?.value && <div>{renderEffectsTypes(effect)}</div>}
+          {postprocessing.effects[effect]?.isActive?.value && (
+            <div>
+              {renderEffectsTypes(effect)}
+              <hr className="my-2 h-[1px] text-[#A0A1A2]" />
+            </div>
+          )}
         </div>
       )
     })
@@ -299,9 +297,9 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
       {postprocessing.enabled.value && (
         <>
           <Accordion
-            className="bg-[#242424] p-0 text-white"
+            className="bg-none p-2 text-white"
             onClick={() => setOpenSettings(!openSettings)}
-            title={'Post Processing Effects'}
+            title={t('editor:properties.postprocessing.name')}
             prefixIcon={<GiMagickTrick />}
             expandIcon={<FaChevronDown />}
             shrinkIcon={<FaChevronUp />}

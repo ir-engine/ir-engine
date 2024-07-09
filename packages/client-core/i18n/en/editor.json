@@ -724,7 +724,7 @@
       "description": "Change the camera settings for this scene."
     },
     "postprocessing": {
-      "name": "Post Processing",
+      "name": "Post Processing Effect",
       "enabled": "Enabled",
       "description": "For applying Post Processing effects to you scene."
     },
