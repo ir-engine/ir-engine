@@ -386,6 +386,10 @@ const handleUserAttendance = async (app: Application, userId: UserID, headers: o
     isChannel: instanceServerState.isMediaInstance,
     userId: userId
   }
+  if (!instanceServerState.isMediaInstance) {
+    const location = await app.service(locationPath).get(instanceServerState.instance.locationId!, { headers })
+    ;(newInstanceAttendance as any).sceneId = location.sceneId
+  }
   await app.service(instanceAttendancePath).create(newInstanceAttendance as any)
 }
 
