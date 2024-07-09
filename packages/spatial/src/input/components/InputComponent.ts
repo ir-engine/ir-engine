@@ -163,6 +163,10 @@ export const InputComponent = defineComponent({
     return InputComponent.getMergedAxesForInputSources(inputSourceEntities, inputAlias)
   },
 
+  /**
+   * @description Returns an object that:
+   * - Contains all of the buttons described by the InputSourceComponent.buttons of all `@param inputSourceEntities`
+   * - Has synchronized the state of the buttons described by all entries of `@param inputAlias` into fields of the same name.  */
   getMergedButtonsForInputSources<AliasType extends InputAlias = typeof DefaultButtonAlias>(
     inputSourceEntities: Entity[],
     inputAlias: AliasType = DefaultButtonAlias as unknown as AliasType
