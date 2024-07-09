@@ -76,7 +76,6 @@ export const inputFileWithAddToScene = ({
     el.style.display = 'none'
 
     el.onchange = async () => {
-      console.log(el, el.files)
       try {
         if (el.files?.length) await handleUploadFiles(projectName, directoryPath, el.files)
         resolve(null)
