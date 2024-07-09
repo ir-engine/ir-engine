@@ -247,20 +247,39 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     fileService.create(`${selectedDirectory.value}New_Folder`)
   }
 
-  const dropItemsOnPanel = async (data: FileDataType | DnDFileType, dropOn?: FileDataType) => {
-    console.log('items dropped: ', { data })
+  const dropItemsOnPanel = async (
+    data: FileDataType | DnDFileType,
+    dropOn?: FileDataType,
+    selectedFileKeys?: string[]
+  ) => {
     if (isLoading) return
 
     const destinationPath = dropOn?.isFolder ? `${dropOn.key}/` : selectedDirectory.value
 
-    if (isFileDataType(data)) {
+    if (selectedFileKeys && selectedFileKeys.length > 0) {
+      await Promise.all(
+        selectedFileKeys.map(async (fileKey) => {
+          const file = files.find((f) => f.key === fileKey)
+          if (file) {
+            if (file.isFolder) {
+              await fileService.create(`${destinationPath}${file.name}`)
+            } else {
+              const newName = `${file.name}${file.type ? '.' + file.type : ''}`
+              await moveContent(file.fullName, newName, file.path, destinationPath, false)
+            }
+          }
+        })
+      )
+    } else if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
         const newName = `${data.name}${data.type ? '.' + data.type : ''}`
-        console.log(`Moving file ${data.fullName} to ${destinationPath}${newName}`)
         await moveContent(data.fullName, newName, data.path, destinationPath, false)
       }
     } else {
-      const relativePath = destinationPath.replace(`projects/${projectName}/`, '').replace(/^\//, '')
+      const folder = destinationPath.substring(0, destinationPath.lastIndexOf('/') + 1)
+      const projectName = folder.split('/')[1]
+      const relativePath = folder.replace('projects/' + projectName + '/', '')
+
       await Promise.all(
         data.files.map(async (file) => {
           const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
@@ -320,6 +339,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         newPath,
         isCopy
       })
+
       console.log(`File moved successfully from ${oldPath}${oldName} to ${newPath}${newName}`)
       await refreshDirectory()
     } catch (error) {
@@ -496,7 +516,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     onSelect(file)
                   }}
                   currentContent={currentContentRef}
-                  dropItemsOnPanel={dropItemsOnPanel}
+                  handleDropItemsOnPanel={(data, dropOn) =>
+                    dropItemsOnPanel(data, dropOn, selectedFileKeys.value as string[])
+                  }
                   isFilesLoading={isLoading}
                   addFolder={createNewFolder}
                   isListView={isListView}
