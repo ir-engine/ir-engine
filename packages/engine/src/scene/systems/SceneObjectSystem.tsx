@@ -225,22 +225,24 @@ const ModelEntityReactor = () => {
 const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
   const isMesh = useOptionalComponent(props.entity, MeshComponent)
   const isModelColliders = useOptionalComponent(props.parentEntity, RigidBodyComponent)
+  const isVisible = useOptionalComponent(props.entity, VisibleComponent)
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
-    if (!isMesh) return
+    if (!isMesh || !isVisible) return
     if (shadowComponent)
       setComponent(props.entity, ShadowComponent, serializeComponent(props.parentEntity, ShadowComponent))
     else removeComponent(props.entity, ShadowComponent)
-  }, [isMesh, shadowComponent?.cast, shadowComponent?.receive])
+  }, [isVisible, isMesh, shadowComponent?.cast, shadowComponent?.receive])
 
   const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
   useEffect(() => {
-    if (!isMesh) return
+    if (!isMesh || !isVisible) return
     if (envmapComponent)
       setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
     else removeComponent(props.entity, EnvmapComponent)
   }, [
+    isVisible,
     isMesh,
     envmapComponent,
     envmapComponent?.envMapIntensity,
