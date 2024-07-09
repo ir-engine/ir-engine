@@ -858,6 +858,7 @@
     },
     "transform": {
       "title": "Transform",
+      "description": "Change transform of an entity",
       "lbl-position": "Position",
       "lbl-rotation": "Rotation",
       "lbl-scale": "Scale",
