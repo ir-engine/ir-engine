@@ -39,7 +39,6 @@ import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/s
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import React, { MouseEventHandler, MutableRefObject, useEffect } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -50,6 +49,7 @@ import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import { FileType } from '../container'
 import { FileIcon } from '../icon'
 import DeleteFileModal from './DeleteFileModal'
@@ -357,91 +357,93 @@ export function FileBrowserItem({
         </div>
       )}
 
-      <ContextMenu anchorEvent={anchorEvent} panelId={'file-browser-panel'} onClose={handleClose} className="gap-1">
-        <Button variant="outline" size="small" fullWidth onClick={addFolder}>
-          {t('editor:layout.filebrowser.addNewFolder')}
-        </Button>
-        {!item.isFolder && (
-          <Button variant="outline" size="small" fullWidth onClick={placeObject}>
-            {t('editor:layout.assetGrid.placeObject')}
+      <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
+        <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+          <Button variant="outline" size="small" fullWidth onClick={addFolder}>
+            {t('editor:layout.filebrowser.addNewFolder')}
           </Button>
-        )}
-        {!item.isFolder && (
-          <Button variant="outline" size="small" fullWidth onClick={placeObjectAtOrigin}>
-            {t('editor:layout.assetGrid.placeObjectAtOrigin')}
+          {!item.isFolder && (
+            <Button variant="outline" size="small" fullWidth onClick={placeObject}>
+              {t('editor:layout.assetGrid.placeObject')}
+            </Button>
+          )}
+          {!item.isFolder && (
+            <Button variant="outline" size="small" fullWidth onClick={placeObjectAtOrigin}>
+              {t('editor:layout.assetGrid.placeObjectAtOrigin')}
+            </Button>
+          )}
+          {!item.isFolder && (
+            <Button variant="outline" size="small" fullWidth onClick={openURL}>
+              {t('editor:layout.assetGrid.openInNewTab')}
+            </Button>
+          )}
+          <Button variant="outline" size="small" fullWidth onClick={copyURL}>
+            {t('editor:layout.assetGrid.copyURL')}
           </Button>
-        )}
-        {!item.isFolder && (
-          <Button variant="outline" size="small" fullWidth onClick={openURL}>
-            {t('editor:layout.assetGrid.openInNewTab')}
+          <Button variant="outline" size="small" fullWidth onClick={Cut}>
+            {t('editor:layout.filebrowser.cutAsset')}
           </Button>
-        )}
-        <Button variant="outline" size="small" fullWidth onClick={copyURL}>
-          {t('editor:layout.assetGrid.copyURL')}
-        </Button>
-        <Button variant="outline" size="small" fullWidth onClick={Cut}>
-          {t('editor:layout.filebrowser.cutAsset')}
-        </Button>
-        <Button variant="outline" size="small" fullWidth onClick={Copy}>
-          {t('editor:layout.filebrowser.copyAsset')}
-        </Button>
-        <Button variant="outline" size="small" fullWidth disabled={!currentContent.current} onClick={pasteContent}>
-          {t('editor:layout.filebrowser.pasteAsset')}
-        </Button>
-        <Button
-          variant="outline"
-          size="small"
-          fullWidth
-          onClick={() => PopoverState.showPopupover(<RenameFileModal projectName={projectName} file={item} />)}
-        >
-          {t('editor:layout.filebrowser.renameAsset')}
-        </Button>
-        <Button
-          variant="outline"
-          size="small"
-          fullWidth
-          onClick={() => PopoverState.showPopupover(<DeleteFileModal file={item} />)}
-        >
-          {t('editor:layout.assetGrid.deleteAsset')}
-        </Button>
-        <Button
-          variant="outline"
-          size="small"
-          fullWidth
-          onClick={() => PopoverState.showPopupover(<FilePropertiesModal projectName={projectName} file={item} />)}
-        >
-          {t('editor:layout.filebrowser.viewAssetProperties')}
-        </Button>
-        <Button
-          variant="outline"
-          size="small"
-          fullWidth
-          disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')}
-          onClick={() => {
-            if (fileConsistsOfContentType(item, 'model')) {
-              PopoverState.showPopupover(
-                <ModelCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
-              )
-            } else if (fileConsistsOfContentType(item, 'image')) {
-              PopoverState.showPopupover(
-                <ImageCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
-              )
+          <Button variant="outline" size="small" fullWidth onClick={Copy}>
+            {t('editor:layout.filebrowser.copyAsset')}
+          </Button>
+          <Button variant="outline" size="small" fullWidth disabled={!currentContent.current} onClick={pasteContent}>
+            {t('editor:layout.filebrowser.pasteAsset')}
+          </Button>
+          <Button
+            variant="outline"
+            size="small"
+            fullWidth
+            onClick={() => PopoverState.showPopupover(<RenameFileModal projectName={projectName} file={item} />)}
+          >
+            {t('editor:layout.filebrowser.renameAsset')}
+          </Button>
+          <Button
+            variant="outline"
+            size="small"
+            fullWidth
+            onClick={() => PopoverState.showPopupover(<DeleteFileModal file={item} />)}
+          >
+            {t('editor:layout.assetGrid.deleteAsset')}
+          </Button>
+          <Button
+            variant="outline"
+            size="small"
+            fullWidth
+            onClick={() => PopoverState.showPopupover(<FilePropertiesModal projectName={projectName} file={item} />)}
+          >
+            {t('editor:layout.filebrowser.viewAssetProperties')}
+          </Button>
+          <Button
+            variant="outline"
+            size="small"
+            fullWidth
+            disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')}
+            onClick={() => {
+              if (fileConsistsOfContentType(item, 'model')) {
+                PopoverState.showPopupover(
+                  <ModelCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
+                )
+              } else if (fileConsistsOfContentType(item, 'image')) {
+                PopoverState.showPopupover(
+                  <ImageCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
+                )
+              }
+            }}
+          >
+            {t('editor:layout.filebrowser.compress')}
+          </Button>
+          <Button
+            variant="outline"
+            size="small"
+            fullWidth
+            onClick={() =>
+              PopoverState.showPopupover(<ImageConvertModal file={item} refreshDirectory={refreshDirectory} />)
             }
-          }}
-        >
-          {t('editor:layout.filebrowser.compress')}
-        </Button>
-        <Button
-          variant="outline"
-          size="small"
-          fullWidth
-          onClick={() =>
-            PopoverState.showPopupover(<ImageConvertModal file={item} refreshDirectory={refreshDirectory} />)
-          }
-          disabled={!(['jpg', 'png', 'webp'].includes(item.type) || item.isFolder)}
-        >
-          {t('editor:layout.filebrowser.convert')}
-        </Button>
+            disabled={!(['jpg', 'png', 'webp'].includes(item.type) || item.isFolder)}
+          >
+            {t('editor:layout.filebrowser.convert')}
+          </Button>
+        </div>
       </ContextMenu>
     </>
   )
