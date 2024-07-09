@@ -118,16 +118,17 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.emissiveFactor
     const materialComponent = getComponent(materialEntity, MaterialStateComponent)
     const prototype = getComponent(materialComponent.prototypeEntity!, MaterialPrototypeComponent)
-    const plugins = Object.keys(MaterialPlugins).map((plugin) => {
-      if (!hasComponent(materialEntity, MaterialPlugins[plugin])) return
-      const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin])
-      const uniforms = {}
-      for (const key in pluginComponent) {
-        console.log(pluginComponent[key])
-        uniforms[key] = pluginComponent[key].value
-      }
-      return { id: plugin, uniforms }
-    })
+    const plugins = Object.keys(MaterialPlugins)
+      .map((plugin) => {
+        if (!hasComponent(materialEntity, MaterialPlugins[plugin])) return
+        const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin])
+        const uniforms = {}
+        for (const key in pluginComponent) {
+          uniforms[key] = pluginComponent[key].value
+        }
+        return { id: plugin, uniforms }
+      })
+      .filter(Boolean)
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
       uuid: getComponent(materialEntity, UUIDComponent),
