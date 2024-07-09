@@ -57,7 +57,7 @@ export const matchUserSchema = Type.Object(
 export interface MatchUserType extends Static<typeof matchUserSchema> {}
 
 // Schema for creating new entries
-export const matchUserDataSchema = Type.Pick(matchUserSchema, ['ticketId', 'gameMode', 'connection'], {
+export const matchUserDataSchema = Type.Pick(matchUserSchema, ['ticketId', 'gameMode', 'userId'], {
   $id: 'MatchUserData'
 })
 export interface MatchUserData extends Static<typeof matchUserDataSchema> {}
