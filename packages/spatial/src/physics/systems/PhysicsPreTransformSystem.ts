@@ -37,7 +37,7 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
 
 import { Vector3_Zero } from '../../common/constants/MathConstants'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { EntityTreeComponent, getAncestorWithComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, isDirty, TransformSystem } from '../../transform/systems/TransformSystem'
 import { Physics } from '../classes/Physics'
@@ -161,7 +161,9 @@ const copyTransformToCollider = (entity: Entity) => {
   const world = Physics.getWorld(entity)
   if (!world) return
   computeTransformMatrix(entity)
-  TransformComponent.getMatrixRelativeToScene(entity, mat4)
+  const rigidbodyEntity = getAncestorWithComponent(entity, RigidBodyComponent)
+  if (!rigidbodyEntity) return
+  TransformComponent.getMatrixRelativeToEntity(entity, rigidbodyEntity, mat4)
   mat4.decompose(position, rotation, scale)
   Physics.setColliderPose(world, entity, position, rotation)
 }
