@@ -58,6 +58,7 @@ import { cmdOrCtrlString } from '@etherealengine/editor/src/functions/utils'
 import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
@@ -101,6 +102,10 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const anchorElButton = useHookstate<HTMLButtonElement | null>(null)
   const open = !!anchorElButton.value
 
+  const rootEntitySource = useComponent(rootEntity, SourceComponent)
+  const gltfNode = useMutableState(GLTFNodeState)
+  const gltfSource = gltfNode[rootEntitySource.value]
+
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
       <HierarchyTreeNode
@@ -129,7 +134,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   useEffect(() => {
     entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, rootEntity)))
-  }, [expandedNodes, index, rootEntityTree.children, sourcedEntities.length])
+  }, [expandedNodes, index, rootEntityTree.children, sourcedEntities.length, gltfSource])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 
