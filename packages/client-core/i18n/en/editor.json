@@ -1192,6 +1192,7 @@
       "downloadProject": "Download Project",
       "uploadAssets": "Upload Assets",
       "uploadFiles": "Upload Files",
+      "uploadFolder": "Upload Folder",
       "search-placeholder": "Search folders",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",

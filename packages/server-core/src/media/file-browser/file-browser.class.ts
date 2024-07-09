@@ -124,9 +124,16 @@ export class FileBrowserService
     let total = result.length
 
     result = result.slice(skip, skip + limit)
-    result.forEach((file) => {
-      file.url = storageProvider.getCachedURL(file.key, params && params.provider == null)
-    })
+
+    await Promise.all(
+      result.map(async (file) => {
+        file.url = storageProvider.getCachedURL(file.key, params && params.provider == null)
+        const resourceQuery = await this.app.service(staticResourcePath).find({ query: { key: file.key } })
+        if (resourceQuery.data.length) {
+          file.thumbnailURL = resourceQuery.data[0].thumbnailURL
+        }
+      })
+    )
 
     if (params.provider && !isAdmin) {
       const knexClient: Knex = this.app.get('knexClient')
