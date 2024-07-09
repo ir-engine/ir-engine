@@ -34,9 +34,7 @@ export const FeatureFlags = {
     },
     Admin: {
       ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
-      Avatars: {
-        Upload: 'ir.client.menu.avatars.upload'
-      }
+      CreateAvatar: 'ir.client.menu.createAvatar'
     },
     Location: {
       Menu: {

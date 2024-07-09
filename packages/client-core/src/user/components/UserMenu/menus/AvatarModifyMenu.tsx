@@ -87,7 +87,6 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
   const thumbnailRef = useRef<HTMLInputElement | null>(null)
   const avaturnEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.Avaturn)
   const rpmEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.ReadyPlayerMe)
-  const uploadAvatarEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.Avatars.Upload)
 
   let thumbnailSrc = state.thumbnailUrl
   if (state.thumbnailFile) {
@@ -391,15 +390,13 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
               sx={{ mt: 2 }}
               endIcon={state.avatarFile ? <Icon type="Clear" /> : undefined}
               endControl={
-                uploadAvatarEnabled && (
-                  <IconButton
-                    icon={<Icon type="FileUpload" />}
-                    title={t('admin:components.avatar.selectAvatar')}
-                    type="gradient"
-                    sx={{ ml: 1 }}
-                    onClick={() => avatarRef.current && avatarRef.current.click()}
-                  />
-                )
+                <IconButton
+                  icon={<Icon type="FileUpload" />}
+                  title={t('admin:components.avatar.selectAvatar')}
+                  type="gradient"
+                  sx={{ ml: 1 }}
+                  onClick={() => avatarRef.current && avatarRef.current.click()}
+                />
               }
               onChange={handleChange}
               onEndIconClick={() => {
