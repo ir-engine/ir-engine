@@ -70,7 +70,7 @@ const PickerItem = ({ label, node, onPickNode, position, instance, color }) => {
 
   const handleNodeClick = () => {
     if (isLeafNode) {
-      console.log('DEBUG final pos', instance.screenToFlowPosition(position))
+     
       const paneBounds = document.getElementById(VisualScriptPanelTab.id!)!.getBoundingClientRect()
 
       const newPosition = { x: position.x + paneBounds.x, y: position.y + paneBounds.y }
