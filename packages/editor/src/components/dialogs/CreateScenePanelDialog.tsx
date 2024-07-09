@@ -25,14 +25,29 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
+import { onNewScene } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
 
 export default function CreateSceneDialog() {
   const element = useMutableState(EditorState).uiAddons.newScene.get(NO_PROXY)
   return (
-    <Modal title="New Scene" className="w-[50vw] max-w-2xl" onClose={PopoverState.hidePopupover}>
+    <Modal title="New Scene" className="w-[15vw] max-w-2xl" onClose={PopoverState.hidePopupover}>
+      <div className="flex justify-center">
+        <Button
+          size="small"
+          variant="outline"
+          className="w-[10vw]"
+          onClick={() => {
+            onNewScene()
+            PopoverState.hidePopupover()
+          }}
+        >
+          New Empty Scene
+        </Button>
+      </div>
       <div className="flex justify-center">
         {Object.entries(element).map(([key, value]) => {
           return value
