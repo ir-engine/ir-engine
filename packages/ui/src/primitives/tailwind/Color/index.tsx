@@ -59,7 +59,7 @@ export function ColorInput({
   return (
     <div
       className={twMerge(
-        'relative flex h-8 w-[200px] items-center gap-1 rounded bg-theme-primary px-1',
+        'relative flex h-9 w-48 items-center gap-1 rounded-lg border-none bg-[#1A1A1A] px-2 text-xs text-[#8B8B8D]',
         disabled && 'cursor-not-allowed',
         className
       )}
