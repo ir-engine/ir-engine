@@ -81,7 +81,7 @@ export const recordingPatchSchema = Type.Partial(recordingSchema, {
 export interface RecordingPatch extends Static<typeof recordingPatchSchema> {}
 
 // Schema for allowed query properties
-export const recordingQueryProperties = Type.Pick(recordingSchema, ['id', 'userId'])
+export const recordingQueryProperties = Type.Pick(recordingSchema, ['id', 'userId', 'createdAt'])
 export const recordingQuerySchema = Type.Intersect(
   [
     querySyntax(recordingQueryProperties),
