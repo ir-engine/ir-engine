@@ -47,7 +47,8 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
@@ -245,10 +246,9 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
   //const rendererComponent = useComponent(rendererEntity, RendererComponent)
 
   const renderSettingsComponent = useComponent(renderSettingsEntity, RenderSettingsComponent)
-
   const xrLightProbeEntity = useHookstate(getMutableState(XRLightProbeState).directionalLightEntity)
-
   const activeLightEntity = useHookstate(UUIDComponent.getEntityByUUID(renderSettingsComponent.primaryLight.value))
+  const directionalLight = useOptionalComponent(activeLightEntity.value, DirectionalLightComponent)
 
   //const rendererState = useMutableState(RendererState)
 
@@ -278,12 +278,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
     activeLightEntity.set(UndefinedEntity)
   }, [xrLightProbeEntity.value, renderSettingsComponent.primaryLight])
 
-  if (
-    !renderSettingsComponent.csm.value ||
-    !activeLightEntity.value ||
-    !hasComponent(activeLightEntity.value, DirectionalLightComponent)
-  )
-    return null
+  if (!renderSettingsComponent.csm.value || !activeLightEntity.value || !directionalLight) return null
 
   return (
     <EntityCSMReactor
