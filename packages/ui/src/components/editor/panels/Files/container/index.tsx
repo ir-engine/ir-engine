@@ -675,6 +675,28 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         >
           {t('editor:layout.filebrowser.uploadFiles')}
         </Button>
+        <Button
+          id="uploadFiles"
+          startIcon={<HiOutlinePlusCircle />}
+          variant="transparent"
+          disabled={!showUploadButtons}
+          rounded="none"
+          className="h-full whitespace-nowrap bg-theme-highlight px-2"
+          size="small"
+          onClick={() =>
+            inputFileWithAddToScene({
+              projectName,
+              directoryPath: selectedDirectory.get(NO_PROXY).slice(1),
+              preserveDirectory: true
+            })
+              .then(refreshDirectory)
+              .catch((err) => {
+                NotificationService.dispatchNotify(err.message, { variant: 'error' })
+              })
+          }
+        >
+          {t('editor:layout.filebrowser.uploadFolder')}
+        </Button>
       </div>
       {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}
       <GeneratingThumbnailsProgress />
