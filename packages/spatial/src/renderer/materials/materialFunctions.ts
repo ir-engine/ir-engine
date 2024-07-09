@@ -143,10 +143,11 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
   const material = materialComponent.material
   if (!material || material.type === prototypeName) return
   const fullParameters = { ...extractDefaults(prototypeComponent.prototypeArguments) }
-  const newMaterial = new prototypeConstructor(fullParameters)
+  const newMaterial = new prototypeConstructor(fullParameters) as Material
   if (newMaterial.plugins) {
     newMaterial.customProgramCacheKey = () =>
-      newMaterial.shader + newMaterial.plugins!.map((plugin) => plugin?.toString() ?? '').reduce((x, y) => x + y, '')
+      (newMaterial.shader ? newMaterial.shader.fragmentShader + newMaterial.shader.vertexShader : '') +
+      newMaterial.plugins!.map((plugin) => plugin?.toString() ?? '').reduce((x, y) => x + y, '')
   }
   newMaterial.uuid = material.uuid
   if (material.defines?.['USE_COLOR']) {
@@ -190,7 +191,8 @@ export const assignMaterial = (entity: Entity, materialEntity: Entity) => {
 
   if (material.plugins) {
     material.customProgramCacheKey = () =>
-      material.shader + material.plugins!.map((plugin) => plugin?.toString() ?? '').reduce((x, y) => x + y, '')
+      (material.shader ? material.shader.fragmentShader + material.shader.vertexShader : '') +
+      material.plugins!.map((plugin) => plugin?.toString() ?? '').reduce((x, y) => x + y, '')
   }
   materialStateComponent.instances.set([...materialStateComponent.instances.value, entity])
 }
