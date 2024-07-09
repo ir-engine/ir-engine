@@ -28,12 +28,12 @@ import Popup from 'reactjs-popup'
 import { PopupProps } from 'reactjs-popup/dist/types'
 import { twMerge } from 'tailwind-merge'
 
-interface TooltipProps {
+export type TooltipProps = {
   title: ReactNode
   children: React.ReactElement
-}
+} & PopupProps
 
-const Tooltip = ({ title, children, className, ...rest }: TooltipProps & PopupProps) => {
+const Tooltip = ({ title, children, className, ...rest }: TooltipProps) => {
   return (
     <Popup
       trigger={<div style={{ all: 'unset' }}>{children}</div>}
