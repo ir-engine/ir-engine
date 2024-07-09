@@ -217,7 +217,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }, [selectedDirectory])
 
   const refreshDirectory = async () => {
-    fileQuery.refetch()
+    await fileQuery.refetch()
   }
 
   const changeDirectoryByPath = (path: string) => {
@@ -248,23 +248,26 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const dropItemsOnPanel = async (data: FileDataType | DnDFileType, dropOn?: FileDataType) => {
+    console.log('items dropped: ', { data })
     if (isLoading) return
 
-    const path = dropOn?.isFolder ? dropOn.key : selectedDirectory.value
-    const folder = path.replace(/(.*\/).*/, '$1')
+    const destinationPath = dropOn?.isFolder ? `${dropOn.key}/` : selectedDirectory.value
 
     if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
-        moveContent(data.fullName, data.fullName, data.path, path, false)
+        const newName = `${data.name}${data.type ? '.' + data.type : ''}`
+        console.log(`Moving file ${data.fullName} to ${destinationPath}${newName}`)
+        await moveContent(data.fullName, newName, data.path, destinationPath, false)
       }
     } else {
-      const relativePath = folder.replace('projects/' + projectName + '/', '').replace(/^\//gi, '')
+      const relativePath = destinationPath.replace(`projects/${projectName}/`, '').replace(/^\//, '')
       await Promise.all(
         data.files.map(async (file) => {
           const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
           if (!assetType) {
-            // file is directory
-            fileService.create(`${path}${file.name}`)
+            // creating directory
+            console.log(`Creating directory: ${destinationPath}${file.name}`)
+            await fileService.create(`${destinationPath}${file.name}`)
           } else {
             try {
               const name = processFileName(file.name)
@@ -307,15 +310,22 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     isCopy = false
   ): Promise<void> => {
     if (isLoading) return
-    fileService.update(null, {
-      oldProject: projectName,
-      newProject: projectName,
-      oldName,
-      newName,
-      oldPath,
-      newPath,
-      isCopy
-    })
+    try {
+      await fileService.update(null, {
+        oldProject: projectName,
+        newProject: projectName,
+        oldName,
+        newName,
+        oldPath,
+        newPath,
+        isCopy
+      })
+      console.log(`File moved successfully from ${oldPath}${oldName} to ${newPath}${newName}`)
+      await refreshDirectory()
+    } catch (error) {
+      console.error('Error moving file:', error)
+      NotificationService.dispatchNotify((error as Error).message, { variant: 'error' })
+    }
   }
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
