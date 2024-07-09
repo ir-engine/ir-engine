@@ -285,7 +285,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
           if (!assetType) {
             // creating directory
-            console.log(`Creating directory: ${destinationPath}${file.name}`)
             await fileService.create(`${destinationPath}${file.name}`)
           } else {
             try {
@@ -340,7 +339,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         isCopy
       })
 
-      console.log(`File moved successfully from ${oldPath}${oldName} to ${newPath}${newName}`)
       await refreshDirectory()
     } catch (error) {
       console.error('Error moving file:', error)
