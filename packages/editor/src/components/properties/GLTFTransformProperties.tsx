@@ -124,14 +124,14 @@ export default function GLTFTransformProperties({
               onChange={(e) => {
                 transformParms.dst.set(e.target.value)
               }}
-              className="px-2 py-0.5 font-['Figtree'] text-sm text-[#9CA0AA]"
+              className="px-2 py-0.5 text-sm text-[#9CA0AA]"
             />
             <Input
               value={transformParms.resourceUri.value}
               onChange={(e) => {
                 transformParms.resourceUri.set(e.target.value)
               }}
-              className="px-2 py-0.5 font-['Figtree'] text-sm text-[#9CA0AA]"
+              className="px-2 py-0.5 text-sm text-[#9CA0AA]"
             />
           </div>
         </div>

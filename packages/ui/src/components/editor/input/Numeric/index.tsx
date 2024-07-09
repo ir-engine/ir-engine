@@ -181,7 +181,7 @@ const NumericInput = ({
         {...rest}
       />
       {unit && (
-        <Text fontSize="xs" fontFamily="Figtree" className="text-right text-[#8B8B8D]">
+        <Text fontSize="xs" className="text-right text-[#8B8B8D]">
           {unit}
         </Text>
       )}

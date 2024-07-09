@@ -126,10 +126,7 @@ const projectsPath = path.join(appRootPath.path, '/packages/projects/')
  */
 export const installAvatarsFromProject = async (app: Application, avatarsFolder: string) => {
   // TODO backcompat
-  const projectName = avatarsFolder
-    .replace(projectsPath + '/projects/', '')
-    .split('/')
-    .pop()!
+  const projectName = avatarsFolder.replace(path.join(projectsPath + '/projects/'), '').split('/')[0]
   return Promise.all(
     fs
       .readdirSync(avatarsFolder)

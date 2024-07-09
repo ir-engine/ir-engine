@@ -308,16 +308,16 @@ export const onProjectEvent = async (
   }
 }
 
-export const getProjectConfig = (projectName: string): ProjectConfigInterface => {
+export const getProjectConfig = (projectName: string) => {
   try {
-    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')).default
+    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts'))
+      .default as ProjectConfigInterface
   } catch (e) {
     logger.error(
       e,
       '[Projects]: WARNING project with ' +
         `name ${projectName} has no xrengine.config.ts file - this is not recommended.`
     )
-    return null!
   }
 }
 export const getProjectManifest = (projectName: string): ManifestJson => {
@@ -1454,7 +1454,7 @@ export const updateProject = async (
 
   const { assetsOnly } = await uploadLocalProjectToProvider(app, projectName)
 
-  const projectConfig = getProjectConfig(projectName) ?? {}
+  const projectConfig = getProjectConfig(projectName)
 
   const enabled = getProjectEnabled(projectName)
 
@@ -1543,7 +1543,7 @@ export const updateProject = async (
     )
   }
   // run project install script
-  if (projectConfig.onEvent) {
+  if (projectConfig?.onEvent) {
     await onProjectEvent(app, returned, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
   }
 
