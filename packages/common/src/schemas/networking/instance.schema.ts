@@ -65,7 +65,7 @@ export const instanceSchema = Type.Object(
         format: 'uuid'
       })
     ),
-    assignedAt: Type.Optional(Type.String({ format: 'date-time' })),
+    assignedAt: Type.Optional(Type.Union([Type.Null(), Type.String({ format: 'date-time' })])),
     location: Type.Ref(locationSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -75,12 +75,14 @@ export const instanceSchema = Type.Object(
 export interface InstanceType extends Static<typeof instanceSchema> {}
 
 // Schema for creating new entries
-export const instanceDataSchema = Type.Pick(
-  instanceSchema,
-  ['roomCode', 'ipAddress', 'channelId', 'podName', 'currentUsers', 'ended', 'assigned', 'locationId', 'assignedAt'],
-  {
-    $id: 'InstanceData'
-  }
+export const instanceDataSchema = Type.Partial(
+  Type.Pick(
+    instanceSchema,
+    ['roomCode', 'ipAddress', 'channelId', 'podName', 'currentUsers', 'ended', 'assigned', 'locationId', 'assignedAt'],
+    {
+      $id: 'InstanceData'
+    }
+  )
 )
 export interface InstanceData extends Static<typeof instanceDataSchema> {}
 
