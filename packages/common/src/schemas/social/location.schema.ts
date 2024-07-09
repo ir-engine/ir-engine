@@ -75,7 +75,7 @@ export interface LocationType extends Static<typeof locationSchema> {}
 
 export const locationDatabaseSchema = Type.Omit(
   locationSchema,
-  ['locationSetting', 'locationAuthorizedUsers', 'locationBans'],
+  ['locationSetting', 'locationAuthorizedUsers', 'locationBans', 'locationAdmin', 'sceneAsset'],
   {
     $id: 'LocationDatabase'
   }
@@ -83,7 +83,7 @@ export const locationDatabaseSchema = Type.Omit(
 export interface LocationDatabaseType extends Static<typeof locationDatabaseSchema> {}
 
 // Schema for creating new entries
-export const locationDatabaseProperties = Type.Pick(locationSchema, [
+export const locationDataProperties = Type.Pick(locationSchema, [
   'name',
   'sceneId',
   'slugifiedName',
@@ -94,7 +94,7 @@ export const locationDatabaseProperties = Type.Pick(locationSchema, [
 
 export const locationDataSchema = Type.Intersect(
   [
-    locationDatabaseProperties,
+    locationDataProperties,
     Type.Object(
       {
         id: Type.Optional(
@@ -115,7 +115,7 @@ export interface LocationData extends Static<typeof locationDataSchema> {}
 // Schema for updating existing entries
 export const locationPatchSchema = Type.Intersect(
   [
-    Type.Partial(Type.Omit(locationSchema, ['locationSetting'])),
+    Type.Partial(locationDatabaseSchema),
     Type.Object({
       locationSetting: Type.Optional(Type.Ref(locationSettingPatchSchema))
     })

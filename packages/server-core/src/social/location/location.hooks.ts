@@ -200,10 +200,6 @@ const duplicateNameError = async (context: HookContext<LocationService>) => {
   }
 }
 
-const a = async (context: HookContext<LocationService>) => {
-  const a = context
-}
-
 export default {
   around: {
     all: [schemaHooks.resolveExternal(locationExternalResolver), schemaHooks.resolveResult(locationResolver)]
@@ -229,10 +225,8 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      a,
       schemaHooks.validateData(locationPatchValidator),
       schemaHooks.resolveData(locationPatchResolver),
-      a,
       iff(
         isProvider('external'),
         iffElse(
@@ -243,8 +237,7 @@ export default {
       ),
       disallowNonId,
       persistData,
-      discard('locationSetting'),
-      a
+      discard('locationSetting')
     ],
     remove: [
       iff(
