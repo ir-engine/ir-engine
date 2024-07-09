@@ -42,8 +42,7 @@ export const FeatureFlags = {
       Menu: {
         MotionCapture: 'ir.client.location.menu.motionCapture'
       }
-    },
-    DebugMode: 'ir.client.debugMode'
+    }
   },
   Editor: {
     Panel: {

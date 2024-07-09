@@ -37,8 +37,6 @@ import { LoadWebappInjection } from '@etherealengine/client-core/src/components/
 import { useAuthenticated } from '@etherealengine/client-core/src/user/services/AuthService'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
-import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { FeatureFlagsState } from '@etherealengine/engine'
 import '../themes/base.css'
 import '../themes/components.css'
 import '../themes/utilities.css'
@@ -47,7 +45,6 @@ const AppPage = (props: { children: React.ReactNode }) => {
   const { t } = useTranslation()
   const isLoggedIn = useAuthenticated()
 
-  const debugModeEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.DebugMode)
   useEffect(() => {
     initGA()
     logPageView()
@@ -64,7 +61,7 @@ const AppPage = (props: { children: React.ReactNode }) => {
       <NotificationSnackbar />
       <LoadWebappInjection>{props.children}</LoadWebappInjection>
       <InviteToast />
-      {debugModeEnabled && <Debug />}
+      {import.meta.env.VITE_DEBUG_MODE === 'true' && <Debug />}
     </>
   )
 }
