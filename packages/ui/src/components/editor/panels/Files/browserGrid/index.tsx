@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import {
   FilesViewModeSettings,
@@ -37,7 +37,7 @@ import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTy
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import React, { MouseEventHandler, MutableRefObject, useEffect } from 'react'
@@ -118,8 +118,7 @@ export const FileTableListBody = ({
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
 
-  const staticResource = useFind(staticResourcePath, { query: { key: file.key, project: projectName! } })
-  const thumbnailURL = staticResource.data[0]?.thumbnailURL
+  const thumbnailURL = file.thumbnailURL
 
   const tableColumns = {
     name: (
@@ -164,9 +163,7 @@ type FileGridItemProps = {
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
-  const { projectName } = props
-  const staticResource = useFind(staticResourcePath, { query: { key: props.item.key, project: projectName! } })
-  const thumbnailURL = staticResource.data[0]?.thumbnailURL
+  const thumbnailURL = props.item.thumbnailURL
   const { t } = useTranslation()
 
   return (

@@ -47,21 +47,18 @@ export default {
   },
 
   before: {
-    all: [
-      () => schemaHooks.validateQuery(buildStatusQueryValidator),
-      schemaHooks.resolveQuery(buildStatusQueryResolver)
-    ],
+    all: [schemaHooks.validateQuery(buildStatusQueryValidator), schemaHooks.resolveQuery(buildStatusQueryResolver)],
     find: [iff(isProvider('external'), verifyScope('server', 'read'))],
     get: [iff(isProvider('external'), verifyScope('server', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('server', 'write')),
-      () => schemaHooks.validateData(buildStatusDataValidator),
+      schemaHooks.validateData(buildStatusDataValidator),
       schemaHooks.resolveData(buildStatusDataResolver)
     ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('server', 'write')),
-      () => schemaHooks.validateData(buildStatusPatchValidator),
+      schemaHooks.validateData(buildStatusPatchValidator),
       schemaHooks.resolveData(buildStatusPatchResolver)
     ],
     remove: [iff(isProvider('external'), verifyScope('server', 'read'))]
