@@ -45,15 +45,12 @@ export default {
   before: {
     all: [
       disallow('external'),
-      () => schemaHooks.validateQuery(invalidationQueryValidator),
+      schemaHooks.validateQuery(invalidationQueryValidator),
       schemaHooks.resolveQuery(invalidationQueryResolver)
     ],
     find: [],
     get: [],
-    create: [
-      () => schemaHooks.validateData(invalidationDataValidator),
-      schemaHooks.resolveData(invalidationDataResolver)
-    ],
+    create: [schemaHooks.validateData(invalidationDataValidator), schemaHooks.resolveData(invalidationDataResolver)],
     update: [disallow()],
     patch: [disallow()],
     remove: []

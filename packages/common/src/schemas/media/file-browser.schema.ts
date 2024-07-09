@@ -83,7 +83,8 @@ export const fileBrowserPatchSchema = Type.Intersect(
       project: Type.String(),
       body: Type.Any(), // Buffer | string
       contentType: Type.Optional(Type.String()),
-      storageProviderName: Type.Optional(Type.String())
+      storageProviderName: Type.Optional(Type.String()),
+      fileName: Type.Optional(Type.String())
     })
   ],
   {
