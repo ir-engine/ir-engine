@@ -58,7 +58,7 @@ import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
-import { setCurrentEditorScene } from '../functions/sceneFunctions'
+import { onNewScene, setCurrentEditorScene } from '../functions/sceneFunctions'
 import './Editor2Container.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
@@ -119,6 +119,19 @@ const defaultLayout: LayoutData = {
 
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, uiAddons } = useMutableState(EditorState)
+  uiAddons.newScene['emptyScene'].set(
+    <Button
+      size="small"
+      variant="outline"
+      className="text-center"
+      onClick={() => {
+        onNewScene()
+        PopoverState.hidePopupover()
+      }}
+    >
+      new empty Scene
+    </Button>
+  )
   const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '' } }).data
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
