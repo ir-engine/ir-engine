@@ -100,6 +100,8 @@ const Tabs = ({
     }
   }, [currentTab])
 
+  const currentTabData = tabsData[currentTab.value]
+
   return (
     <div className="relative overflow-y-auto">
       {tabsData[currentTab.value]?.title && (
@@ -107,28 +109,27 @@ const Tabs = ({
           {tabsData[currentTab.value]?.title}
         </Text>
       )}
-      {tabsData[currentTab.value].search && (
-        <div className="mb-4 flex justify-between">
-          <Input
-            placeholder={t('common:components.search')}
-            value={tabsData[currentTab.value].search!.local.value}
-            onChange={(event) => {
-              tabsData[currentTab.value].search!.local.set(event.target.value)
+      <div className="mb-4 flex justify-between">
+        <Input
+          disabled={!currentTabData.search?.value}
+          placeholder={t('common:components.search')}
+          value={currentTabData.search?.value.local ?? ''}
+          onChange={(event) => {
+            currentTabData.search!.local.set(event.target.value)
 
-              if (debouncedSearchQueryRef) {
-                clearTimeout(debouncedSearchQueryRef.current)
-              }
+            if (debouncedSearchQueryRef) {
+              clearTimeout(debouncedSearchQueryRef.current)
+            }
 
-              debouncedSearchQueryRef.current = setTimeout(() => {
-                tabsData[currentTab.value].search!.query.set(event.target.value)
-              }, 100)
-            }}
-            className="bg-theme-surface-main"
-            containerClassname="w-1/5 block"
-            startComponent={<HiMagnifyingGlass />}
-          />
-        </div>
-      )}
+            debouncedSearchQueryRef.current = setTimeout(() => {
+              currentTabData.search!.query.set(event.target.value)
+            }, 100)
+          }}
+          className="bg-theme-surface-main"
+          containerClassname="w-1/5 block"
+          startComponent={<HiMagnifyingGlass />}
+        />
+      </div>
       <div className={'sticky top-0 flex justify-between'}>
         <div className={twMerge(twTabcontainerClassName, tabcontainerClassName)} {...props}>
           {tabsData.map((tab, index) => (

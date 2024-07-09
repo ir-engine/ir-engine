@@ -58,7 +58,7 @@ import ManageUserPermissionModal from './ManageUserPermissionModal'
 
 const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 
-export default function ProjectTable({ search }) {
+export default function ProjectTable(props: { search: string }) {
   const { t } = useTranslation()
   const activeProjectId = useHookstate<string | null>(null)
   const projectQuery = useFind(projectPath, {
@@ -78,12 +78,12 @@ export default function ProjectTable({ search }) {
       $or: [
         {
           name: {
-            $like: `%${search}%`
+            $like: `%${props.search}%`
           }
         }
       ]
     },
-    search
+    props.search
   )
 
   const handleEnabledChange = async (project: ProjectType) => {
