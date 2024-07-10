@@ -204,6 +204,8 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           </InputGroup>
           <InputGroup name="TextAnchor" label={t('editor:properties.text.textAnchor')}>
             <Vector2Input
+              min={0}
+              max={100}
               value={text.textAnchor.value}
               onChange={updateProperty(TextComponent, 'textAnchor')}
               onRelease={commitProperty(TextComponent, 'textAnchor')}
