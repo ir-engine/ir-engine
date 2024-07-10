@@ -124,9 +124,6 @@ export class FileBrowserService
     let total = result.length
 
     result = result.slice(skip, skip + limit)
-    result.forEach((file) => {
-      file.url = storageProvider.getCachedURL(file.key, params && params.provider == null)
-    })
 
     if (params.provider && !isAdmin) {
       const knexClient: Knex = this.app.get('knexClient')
@@ -148,6 +145,22 @@ export class FileBrowserService
           allowedProjectNames.some((project) => item.key.startsWith(`projects/${project}`)) || item.name === 'projects'
         )
       })
+    }
+
+    const resourceQuery = await this.app.service(staticResourcePath).find({
+      query: {
+        key: { $in: result.map((file) => file.key) }
+      }
+    })
+    const resourceMap: Record<string, StaticResourceType> = {}
+    for (const resource of resourceQuery.data) {
+      resourceMap[resource.key] = resource
+    }
+    for (const file of result) {
+      const resource = resourceMap[file.key]
+      if (resource) {
+        file.thumbnailURL = resource.thumbnailURL
+      }
     }
 
     return {

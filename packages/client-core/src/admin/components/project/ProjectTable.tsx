@@ -42,7 +42,7 @@ import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import CopyText from '@etherealengine/ui/src/primitives/tailwind/CopyText'
@@ -58,19 +58,33 @@ import ManageUserPermissionModal from './ManageUserPermissionModal'
 
 const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 
-export default function ProjectTable() {
+export default function ProjectTable(props: { search: string }) {
   const { t } = useTranslation()
   const activeProjectId = useHookstate<string | null>(null)
   const projectQuery = useFind(projectPath, {
     query: {
       allowed: true,
-      $limit: 100,
+      $limit: 20,
       action: 'admin',
       $sort: {
         name: 1
       }
     }
   })
+
+  useSearch(
+    projectQuery,
+    {
+      $or: [
+        {
+          name: {
+            $like: `%${props.search}%`
+          }
+        }
+      ]
+    },
+    props.search
+  )
 
   const handleEnabledChange = async (project: ProjectType) => {
     await ProjectService.setEnabled(project.id, !project.enabled)
@@ -194,7 +208,11 @@ export default function ProjectTable() {
       return {
         name: (
           <div className="flex items-center gap-2">
-            <a href={`/studio/${row.name}`} className={row.needsRebuild ? 'text-blue-400' : 'text-theme-primary'}>
+            <a
+              target="_blank"
+              href={`/studio?project=${row.name}`}
+              className={row.needsRebuild ? 'text-blue-400' : 'text-theme-primary'}
+            >
               {row.name}
             </a>
             {!!row.needsRebuild && (

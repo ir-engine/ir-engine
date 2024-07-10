@@ -48,18 +48,18 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(routeQueryValidator), schemaHooks.resolveQuery(routeQueryResolver)],
+    all: [schemaHooks.validateQuery(routeQueryValidator), schemaHooks.resolveQuery(routeQueryResolver)],
     find: [enableClientPagination()],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('admin', 'admin')),
-      () => schemaHooks.validateData(routeDataValidator),
+      schemaHooks.validateData(routeDataValidator),
       schemaHooks.resolveData(routeDataResolver)
     ],
     update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
     patch: [
       iff(isProvider('external'), verifyScope('admin', 'admin')),
-      () => schemaHooks.validateData(routePatchValidator),
+      schemaHooks.validateData(routePatchValidator),
       schemaHooks.resolveData(routePatchResolver)
     ],
     remove: [iff(isProvider('external'), verifyScope('admin', 'admin'))]

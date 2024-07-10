@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import {
   FilesViewModeSettings,
@@ -37,7 +37,7 @@ import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTy
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import React, { MouseEventHandler, MutableRefObject, useEffect } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
@@ -118,14 +118,13 @@ export const FileTableListBody = ({
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
 
-  const staticResource = useFind(staticResourcePath, { query: { key: file.key, project: projectName! } })
-  const thumbnailURL = staticResource.data[0]?.thumbnailURL
+  const thumbnailURL = file.thumbnailURL
 
   const tableColumns = {
     name: (
       <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]" style={{ fontSize: `${fontSize}px` }}>
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
-        <FileIcon thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
+        <FileIcon isMinified={true} thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
         {file.fullName}
       </span>
     ),
@@ -164,9 +163,7 @@ type FileGridItemProps = {
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
-  const { projectName } = props
-  const staticResource = useFind(staticResourcePath, { query: { key: props.item.key, project: projectName! } })
-  const thumbnailURL = staticResource.data[0]?.thumbnailURL
+  const thumbnailURL = props.item.thumbnailURL
   const { t } = useTranslation()
 
   return (
@@ -207,7 +204,7 @@ type FileBrowserItemType = {
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
-  dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
+  handleDropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   addFolder: () => void
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
@@ -230,7 +227,7 @@ export function FileBrowserItem({
   currentContent,
   projectName,
   onClick,
-  dropItemsOnPanel,
+  handleDropItemsOnPanel,
   isFilesLoading,
   addFolder,
   isListView,
@@ -315,7 +312,7 @@ export function FileBrowserItem({
     ? [{ isOver: false }, undefined]
     : useDrop({
         accept: [...SupportedFileTypes],
-        drop: (dropItem) => dropItemsOnPanel(dropItem, item),
+        drop: (dropItem) => handleDropItemsOnPanel(dropItem, item),
         canDrop: (dropItem: Record<string, unknown>) =>
           item.isFolder && ('key' in dropItem || canDropItemOverFolder(item.key)),
         collect: (monitor) => ({
