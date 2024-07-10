@@ -193,8 +193,9 @@
     },
     "publishLocation": {
       "title": "Publish",
-      "lbl": "Publish Location",
-      "info": "Publish location for the selected scene."
+      "create": "Publish Location",
+      "update": "Update Published Location",
+      "unpublish": "Unpublish Location"
     }
   },
   "properties": {

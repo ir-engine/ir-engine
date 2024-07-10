@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import AddEditLocationModal from '@etherealengine/client-core/src/admin/components/locations/AddEditLocationModal'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
@@ -45,6 +44,7 @@ import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog2'
+import PublishSceneModal from '../dialogs/PublishModal'
 import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog2'
 
 const onImportAsset = async () => {
@@ -158,9 +158,7 @@ export default function Toolbar() {
             rounded="none"
             disabled={!hasPublishAccess}
             onClick={() =>
-              PopoverState.showPopupover(
-                <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
-              )
+              PopoverState.showPopupover(<PublishSceneModal sceneID={sceneAssetID.value} location={currentLocation} />)
             }
           >
             {t('editor:toolbar.lbl-publish')}
