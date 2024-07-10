@@ -92,6 +92,59 @@ function createDummyEntity(): Entity {
   return result
 }
 
+/** @description Returns a dummy XRInputSource object containing the given `@param mapping` as its {@link XRInputSource.gamepad.mapping} */
+function getDummyMapping(mapping: GamepadMappingType): XRInputSource {
+  return {
+    gamepad: {
+      axes: [0, 0, 0, 0],
+      buttons: [],
+      connected: true,
+      hapticActuators: [],
+      // id: 'emulated-gamepad-1',  // @note The attached number is unreliable on tests. Requires the entity number
+      index: 0,
+      mapping: mapping,
+      // timestamp: performance.now(),  // @note Unreliable on tests
+      vibrationActuator: null
+    },
+    gripSpace: undefined,
+    hand: undefined,
+    handedness: 'none',
+    profiles: [],
+    targetRayMode: 'screen',
+    targetRaySpace: {}
+  } as unknown as XRInputSource
+}
+
+/** @description Alias for the type expected by {@link InputSourceComponent.source.gamepad.axes} */
+type Axes = [number, number, number, number]
+/** @description Returns a dummy InputSourceComponent object containing the given `@param axes` */
+function getDummyAxes(axes: Axes) {
+  return {
+    source: {
+      gamepad: {
+        axes: axes,
+        buttons: [],
+        connected: true,
+        hapticActuators: [],
+        // id: 'emulated-gamepad-1',  // @note The attached number is unreliable on tests. Requires the entity number
+        index: 0,
+        mapping: '' as GamepadMappingType,
+        // timestamp: performance.now(),  // @note Unreliable on tests
+        vibrationActuator: null
+      },
+      gripSpace: undefined,
+      hand: undefined,
+      handedness: 'none',
+      profiles: [],
+      targetRayMode: 'screen',
+      targetRaySpace: {}
+    } as unknown as XRInputSource,
+    buttons: {} as Readonly<ButtonStateMap<typeof DefaultButtonAlias>>,
+    raycaster: new Raycaster(),
+    intersections: [] as Array<{ entity: Entity; distance: number }>
+  }
+}
+
 describe('InputComponent', () => {
   describe('IDs', () => {
     it('should initialize the InputComponent.name field with the expected value', () => {
@@ -605,28 +658,6 @@ describe('InputComponent', () => {
         assert.notEqual(result.FollowCameraShoulderCamScroll, undefined)
       })
 
-      function getDummyMapping(mapping: GamepadMappingType): XRInputSource {
-        return {
-          gamepad: {
-            axes: [0, 0, 0, 0],
-            buttons: [],
-            connected: true,
-            hapticActuators: [],
-            // id: 'emulated-gamepad-1',  // @note The attached number is unreliable on tests. Requires the entity number
-            index: 0,
-            mapping: mapping,
-            // timestamp: performance.now(),  // @note Unreliable on tests
-            vibrationActuator: null
-          },
-          gripSpace: undefined,
-          hand: undefined,
-          handedness: 'none',
-          profiles: [],
-          targetRayMode: 'screen',
-          targetRaySpace: {}
-        } as unknown as XRInputSource
-      }
-
       it('... has all the expected keys for the "" mapping', () => {
         setComponent(testEntity, InputSourceComponent, getDummyMapping(''))
         const result = InputComponent.getMergedAxesForInputSources([testEntity])
@@ -700,34 +731,6 @@ describe('InputComponent', () => {
       assert.equal(result.SomeAxisTwo, 0)
     })
 
-    type Axes = [number, number, number, number]
-    function getDummyAxes(axes: Axes) {
-      return {
-        source: {
-          gamepad: {
-            axes: axes,
-            buttons: [],
-            connected: true,
-            hapticActuators: [],
-            // id: 'emulated-gamepad-1',  // @note The attached number is unreliable on tests. Requires the entity number
-            index: 0,
-            mapping: '' as GamepadMappingType,
-            // timestamp: performance.now(),  // @note Unreliable on tests
-            vibrationActuator: null
-          },
-          gripSpace: undefined,
-          hand: undefined,
-          handedness: 'none',
-          profiles: [],
-          targetRayMode: 'screen',
-          targetRaySpace: {}
-        } as unknown as XRInputSource,
-        buttons: {} as Readonly<ButtonStateMap<typeof DefaultButtonAlias>>,
-        raycaster: new Raycaster(),
-        intersections: [] as Array<{ entity: Entity; distance: number }>
-      }
-    }
-
     it('should collapse the values of each `inputAlias` field into the single absolute largest value of all keys described by that field, into the result.field of that same name', () => {
       // Create the `@param inputAlias` object
       const SomeAliasList = {
@@ -751,9 +754,68 @@ describe('InputComponent', () => {
     })
   })
 
+  describe('getMergedAxes', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should collapse the state of all axes held by the entities returned by getInputSourceEntities for the given `@param entityContext`, into the resulting object (including the fields described by `@param inputAlias`)', () => {
+      // Create the `@param inputAlias` object
+      const SomeAliasList = {
+        SomeAxisOne: [MouseScroll.HorizontalScroll, MouseScroll.VerticalScroll],
+        SomeWrongAxis: [2, 3]
+      }
+      // Set the low and high values
+      const OtherX = 2.0
+      const OtherY = 2.1
+      const OtherZ = 2.2
+      const OtherW = 2.3
+      const BiggerX = 40
+      const BiggerY = 41
+      const BiggerZ = 42
+      const BiggerW = 43
+      // Set the dummy input source entities
+      const one = createEntity() // will be set in the sink
+      const two = createEntity() // will be set in the parent
+      setComponent(one, InputSourceComponent)
+      setComponent(two, InputSourceComponent)
+      const DummyAxes1 = [BiggerX, OtherY, BiggerZ, OtherW] as Axes
+      const DummyAxes2 = [OtherX, BiggerY, OtherZ, BiggerW] as Axes
+      getMutableComponent(one, InputSourceComponent).set(getDummyAxes(DummyAxes1))
+      getMutableComponent(two, InputSourceComponent).set(getDummyAxes(DummyAxes2))
+      // Create an inputSink entity that holds entity source one
+      const sinkEntity = createEntity()
+      setComponent(sinkEntity, InputComponent)
+      getMutableComponent(sinkEntity, InputComponent).inputSources.set([one])
+      // Set the parent as an input entity that holds entity source two and the input sink that contains input source one
+      const parentEntity = createEntity()
+      setComponent(parentEntity, InputComponent)
+      getMutableComponent(parentEntity, InputComponent).inputSources.set([two])
+      setComponent(parentEntity, InputSinkComponent)
+      getMutableComponent(parentEntity, InputSinkComponent).inputEntities.set([sinkEntity])
+      // Set the parent as the parent of testEntity
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+      // Run the code to get the result
+      const merged = InputComponent.getMergedAxes(testEntity, SomeAliasList)
+      const resultArray = [merged[0], merged[1], merged[2], merged[3]] as Axes
+      // Check that the result is what we expect it to be
+      const Expected = [BiggerX, BiggerY, BiggerZ, BiggerW] as Axes
+      assertArrayEqual(resultArray, Expected)
+      assert.equal(merged.HorizontalScroll, Expected[MouseScroll.HorizontalScroll])
+      assert.equal(merged.VerticalScroll, Expected[MouseScroll.VerticalScroll])
+    })
+  })
+
   /**
   // @todo
-  describe('getMergedAxes', () => {})
   describe('useExecuteWithInput', () => {})
   describe('useHasFocus', () => {})
   */
