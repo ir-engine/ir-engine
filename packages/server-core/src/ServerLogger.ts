@@ -156,7 +156,7 @@ isLogStashRunning()
     multiStream.add(streamToLogstash)
   })
   .catch(() => {
-    console.error('Logstash not running')
+    console.error('Logstash is not running')
   })
 
 logger.debug('Debug message for testing')
