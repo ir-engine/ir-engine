@@ -64,7 +64,7 @@ export default function ProjectTable(props: { search: string }) {
   const projectQuery = useFind(projectPath, {
     query: {
       allowed: true,
-      $limit: 100,
+      $limit: 20,
       action: 'admin',
       $sort: {
         name: 1
