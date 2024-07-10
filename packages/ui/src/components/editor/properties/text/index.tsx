@@ -128,15 +128,9 @@ export const TextNodeEditor: EditorComponentType = (props) => {
   const text = useComponent(props.entity, TextComponent)
   const advancedActive = useHookstate(false) // State tracking whether the Advanced Options Section is active or not
 
-  // LineHeight state management
-  const lineHeightIsNormal = useHookstate(true) // true when `text.lineHeight` is set to its union 'normal'
-  const lineHeight_setNormal = (checkboxValue: boolean) => {
-    // Used as a BooleanInput callback for setting the value of lineheight.
-    // Sets the value to either its 'normal' type-union option, or to a default lineHeight value when the checkbox is off.
-    lineHeightIsNormal.set(checkboxValue)
-    if (checkboxValue) text.lineHeight.set('normal' as TroikaTextLineHeight)
-    else text.lineHeight.set(LineHeightNumericDefault)
-  }
+  useEffect(() => {
+    text.lineHeight.set(LineHeightNumericDefault)
+  }, [])
 
   return (
     <NodeEditor {...props} name="Text Component" description="A Text component" icon={<TextNodeEditor.iconComponent />}>
@@ -243,21 +237,17 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               unit="px"
             />
           </InputGroup>
-          <InputGroup name="LineHeightGroup" label={t('editor:properties.text.textWrap')}>
-            <BooleanInput value={lineHeightIsNormal.value} onChange={lineHeight_setNormal} />
-            <InputGroup name="LineHeight" label={t('editor:properties.text.lineHeight')}>
-              <NumericInput
-                //disabled={lineHeightIsNormal.value} // Disable numeric input when lineHeight is set to 'normal'
-                min={0}
-                smallStep={0.01}
-                mediumStep={0.1}
-                largeStep={0.2}
-                value={text.lineHeight.value as number}
-                onChange={updateProperty(TextComponent, 'lineHeight')}
-                onRelease={commitProperty(TextComponent, 'lineHeight')}
-                unit="em"
-              />
-            </InputGroup>
+          <InputGroup name="LineHeight" label={t('editor:properties.text.lineHeight')}>
+            <NumericInput
+              min={0}
+              smallStep={0.01}
+              mediumStep={0.1}
+              largeStep={0.2}
+              value={text.lineHeight.value as number}
+              onChange={updateProperty(TextComponent, 'lineHeight')}
+              onRelease={commitProperty(TextComponent, 'lineHeight')}
+              unit="em"
+            />
           </InputGroup>
           <InputGroup name="TextDirection" label={t('editor:properties.text.textDirection')}>
             <SelectInput
