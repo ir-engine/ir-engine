@@ -124,7 +124,7 @@ export const Vector3Input = ({
   const vz = value.z
 
   return (
-    <div className="flex flex-row flex-wrap justify-start gap-1.5">
+    <div className="flex flex-row flex-wrap justify-end gap-1.5">
       {uniformScaling && (
         <Button
           variant="transparent"
