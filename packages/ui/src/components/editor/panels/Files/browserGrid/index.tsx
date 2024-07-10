@@ -187,7 +187,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
       </div>
 
       <Tooltip title={t(props.item.fullName)}>
-        <div className="text-secondary text-wrap line-clamp-1 w-full break-all text-sm">{props.item.fullName}</div>
+        <div className="text-secondary line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
       </Tooltip>
     </div>
   )
@@ -357,7 +357,7 @@ export function FileBrowserItem({
       )}
 
       <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
-        <div className="min-w-44 flex w-fit flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+        <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           <Button variant="outline" size="small" fullWidth onClick={addFolder}>
             {t('editor:layout.filebrowser.addNewFolder')}
           </Button>
