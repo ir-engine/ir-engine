@@ -64,9 +64,8 @@ const SelectOptions = {
     { label: 'Right to Left', value: 'rtl' }
   ],
   TextAlignment: [
-    { label: 'Justify', value: 'justify' },
-    { label: 'Center', value: 'center' },
     { label: 'Left', value: 'left' },
+    { label: 'Center', value: 'center' },
     { label: 'Right', value: 'right' }
   ],
   TextWrapping: [
