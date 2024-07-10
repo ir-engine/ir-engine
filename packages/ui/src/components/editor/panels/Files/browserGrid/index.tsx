@@ -390,7 +390,10 @@ export function FileBrowserItem({
             variant="outline"
             size="small"
             fullWidth
-            onClick={() => PopoverState.showPopupover(<RenameFileModal projectName={projectName} file={item} />)}
+            onClick={() => {
+              PopoverState.showPopupover(<RenameFileModal projectName={projectName} file={item} />)
+              handleClose()
+            }}
           >
             {t('editor:layout.filebrowser.renameAsset')}
           </Button>
@@ -398,7 +401,10 @@ export function FileBrowserItem({
             variant="outline"
             size="small"
             fullWidth
-            onClick={() => PopoverState.showPopupover(<DeleteFileModal file={item} />)}
+            onClick={() => {
+              PopoverState.showPopupover(<DeleteFileModal file={item} />)
+              handleClose()
+            }}
           >
             {t('editor:layout.assetGrid.deleteAsset')}
           </Button>
@@ -406,7 +412,10 @@ export function FileBrowserItem({
             variant="outline"
             size="small"
             fullWidth
-            onClick={() => PopoverState.showPopupover(<FilePropertiesModal projectName={projectName} file={item} />)}
+            onClick={() => {
+              PopoverState.showPopupover(<FilePropertiesModal projectName={projectName} file={item} />)
+              handleClose()
+            }}
           >
             {t('editor:layout.filebrowser.viewAssetProperties')}
           </Button>
@@ -425,6 +434,7 @@ export function FileBrowserItem({
                   <ImageCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
                 )
               }
+              handleClose()
             }}
           >
             {t('editor:layout.filebrowser.compress')}
@@ -433,9 +443,10 @@ export function FileBrowserItem({
             variant="outline"
             size="small"
             fullWidth
-            onClick={() =>
+            onClick={() => {
               PopoverState.showPopupover(<ImageConvertModal file={item} refreshDirectory={refreshDirectory} />)
-            }
+              handleClose()
+            }}
             disabled={!(['jpg', 'png', 'webp'].includes(item.type) || item.isFolder)}
           >
             {t('editor:layout.filebrowser.convert')}
