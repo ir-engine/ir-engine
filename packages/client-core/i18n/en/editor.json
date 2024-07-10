@@ -928,6 +928,7 @@
       "lbl-loop": "Loop"
     },
     "systemnode": {
+      "name": "System Node",
       "description": "Attach script.",
       "lbl-filePath": "Url",
       "lbl-insertUUID": "Reference System",
