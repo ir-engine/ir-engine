@@ -96,7 +96,11 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                   />
                 </div>
               </div>
-              <InputGroup name="Position" label={`${t('editor:properties.transform.lbl-position')}`}>
+              <InputGroup
+                name="Position"
+                label={`${t('editor:properties.transform.lbl-position')}`}
+                childrenClassName="w-auto"
+              >
                 <Vector3Input
                   //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
                   value={elem.position.value}

@@ -205,7 +205,11 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         previewOnly={true}
         value={state.previewImageURL.value ?? portalComponent.previewImageURL.value}
       />
-      <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')}>
+      <InputGroup
+        name="Spawn Position"
+        label={t('editor:properties.portal.lbl-spawnPosition')}
+        childrenClassName="w-auto"
+      >
         <Vector3Input
           value={portalComponent.spawnPosition.value}
           onChange={updateProperty(PortalComponent, 'spawnPosition')}
