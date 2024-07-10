@@ -65,15 +65,14 @@ import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { PiFolderPlusBold } from 'react-icons/pi'
 import { twMerge } from 'tailwind-merge'
-import { FilesPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Slider from '../../../../../primitives/tailwind/Slider'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { Popup } from '../../../../tailwind/Popup'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
-import Popover from '../../../layout/Popover'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
 
 type FileBrowserContentPanelProps = {
@@ -169,10 +168,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
   const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
 
-  const anchorEl = useHookstate<HTMLButtonElement | null>(null)
-
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
-  const anchorPosition = useHookstate<any>(undefined)
 
   const page = useHookstate(0)
 
@@ -547,74 +543,56 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const ViewModeSettings = () => {
     const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
     return (
-      <>
-        <div id="viewSettings" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')} direction="bottom">
-            <Button
-              variant="transparent"
-              startIcon={<IoSettingsSharp />}
-              className="p-0"
-              onClick={(event) => {
-                anchorPosition.set({ left: event.clientX, top: event.clientY })
-                anchorEl.set(event.currentTarget)
-              }}
-            />
+      <Popup
+        position={'bottom left'}
+        trigger={
+          <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
+            <Button variant="transparent" startIcon={<IoSettingsSharp />} className="p-0" />
           </Tooltip>
-        </div>
-        <Popover
-          open={!!anchorEl.value}
-          anchorEl={anchorEl.value as any}
-          onClose={() => {
-            anchorEl.set(null)
-            anchorPosition.set(undefined)
-          }}
-          panelId={FilesPanelTab.id!}
-          anchorPosition={anchorPosition.value}
-          className="w-45 flex min-w-[300px] flex-col p-2"
-        >
-          {filesViewMode.value === 'icons' ? (
-            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+        }
+      >
+        {filesViewMode.value === 'icons' ? (
+          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+            <Slider
+              min={10}
+              max={100}
+              step={0.5}
+              value={viewModeSettings.icons.iconSize.value}
+              onChange={viewModeSettings.icons.iconSize.set}
+              onRelease={viewModeSettings.icons.iconSize.set}
+            />
+          </InputGroup>
+        ) : (
+          <>
+            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
               <Slider
                 min={10}
                 max={100}
                 step={0.5}
-                value={viewModeSettings.icons.iconSize.value}
-                onChange={viewModeSettings.icons.iconSize.set}
-                onRelease={viewModeSettings.icons.iconSize.set}
+                value={viewModeSettings.list.fontSize.value}
+                onChange={viewModeSettings.list.fontSize.set}
+                onRelease={viewModeSettings.list.fontSize.set}
               />
             </InputGroup>
-          ) : (
-            <>
-              <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
-                <Slider
-                  min={10}
-                  max={100}
-                  step={0.5}
-                  value={viewModeSettings.list.fontSize.value}
-                  onChange={viewModeSettings.list.fontSize.set}
-                  onRelease={viewModeSettings.list.fontSize.set}
-                />
-              </InputGroup>
 
-              <div>
-                <div className="mt-1 flex flex-auto text-white">
-                  <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-                </div>
-                <div className="flex-col">
-                  {availableTableColumns.map((column) => (
-                    <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
-                      <BooleanInput
-                        value={viewModeSettings.list.selectedTableColumns[column].value}
-                        onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                      />
-                    </InputGroup>
-                  ))}
-                </div>
+            <div>
+              <div className="mt-1 flex flex-auto text-white">
+                <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
               </div>
-            </>
-          )}
-        </Popover>
-      </>
+              <div className="flex-col">
+                {availableTableColumns.map((column) => (
+                  <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
+                    <BooleanInput
+                      value={viewModeSettings.list.selectedTableColumns[column].value}
+                      onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
+                    />
+                  </InputGroup>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </Popup>
     )
   }
 
@@ -627,13 +605,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             showBackButton ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
           }`}
         >
-          <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottom" className="left-1">
+          <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
             <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={onBackDirectory} />
           </Tooltip>
         </div>
 
         <div id="refreshDir" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.refresh')} direction="bottom">
+          <Tooltip title={t('editor:layout.filebrowser.refresh')}>
             <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={refreshDirectory} />
           </Tooltip>
         </div>
@@ -670,7 +648,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
 
         <div id="downloadProject" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.downloadProject')} direction="bottom">
+          <Tooltip title={t('editor:layout.filebrowser.downloadProject')}>
             <Button
               variant="transparent"
               startIcon={<FiDownload />}
@@ -682,7 +660,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
 
         <div id="newFolder" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.addNewFolder')} direction="bottom">
+          <Tooltip title={t('editor:layout.filebrowser.addNewFolder')}>
             <Button variant="transparent" startIcon={<PiFolderPlusBold />} className="p-0" onClick={createNewFolder} />
           </Tooltip>
         </div>
