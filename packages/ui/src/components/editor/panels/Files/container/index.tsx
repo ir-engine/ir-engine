@@ -127,15 +127,24 @@ export const createFileDigest = (files: ImmutableArray<FileType>): FileType => {
 
 export const createStaticResourceDigest = (staticResources: ImmutableArray<StaticResourceType>): StaticResourceType => {
   const digest: StaticResourceType = {
-    type: '',
-    key: '',
     id: '',
-    url: '',
+    key: '',
     mimeType: '',
-    userId: '' as UserID,
     hash: '',
+    type: '',
+    project: '',
+    // dependencies: '',
+    attribution: '',
+    licensing: '',
+    description: '',
+    // stats: '',
+    thumbnailKey: '',
+    thumbnailMode: '',
     createdAt: '',
-    updatedAt: ''
+    updatedAt: '',
+
+    url: '',
+    userId: '' as UserID
   }
   for (const key in digest) {
     const allValues = new Set(staticResources.map((resource) => resource[key]))
