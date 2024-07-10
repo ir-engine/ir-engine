@@ -23,10 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactNode, useEffect } from 'react'
+import React, { ReactNode, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 
-import { useHookstate } from '@etherealengine/hyperflux'
+import { State, useHookstate } from '@etherealengine/hyperflux'
+import { HiMagnifyingGlass } from 'react-icons/hi2'
+import Input from '../../tailwind/Input'
 
 import Text from '../Text'
 
@@ -38,6 +41,10 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
     rightComponent?: ReactNode
     ref?: React.RefObject<HTMLDivElement>
     disabled?: boolean
+    search?: State<{
+      local: string
+      query: string
+    }>
   }[]
   backgroundTheme?: string
   tabcontainerClassName?: string
@@ -56,12 +63,17 @@ const Tabs = ({
   onTabChange,
   ...props
 }: TabProps): JSX.Element => {
+  const { t } = useTranslation()
+
   const twTabcontainerClassName = twMerge('flex gap-4', tabcontainerClassName)
   const twTabClassName = twMerge(
     'p-3 text-sm text-theme-secondary disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-b dark:hover:border-b-blue-400',
     tabClassName
   )
   const currentTab = useHookstate(0)
+  const debouncedSearchQueryRef = useRef<ReturnType<typeof setTimeout>>()
+
+  useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
 
   useEffect(() => {
     if (currentTabIndex) {
@@ -88,6 +100,8 @@ const Tabs = ({
     }
   }, [currentTab])
 
+  const currentTabData = tabsData[currentTab.value]
+
   return (
     <div className="relative overflow-y-auto">
       {tabsData[currentTab.value]?.title && (
@@ -95,6 +109,27 @@ const Tabs = ({
           {tabsData[currentTab.value]?.title}
         </Text>
       )}
+      <div className="mb-4 flex justify-between">
+        <Input
+          disabled={!currentTabData.search?.value}
+          placeholder={t('common:components.search')}
+          value={currentTabData.search?.value.local ?? ''}
+          onChange={(event) => {
+            currentTabData.search!.local.set(event.target.value)
+
+            if (debouncedSearchQueryRef) {
+              clearTimeout(debouncedSearchQueryRef.current)
+            }
+
+            debouncedSearchQueryRef.current = setTimeout(() => {
+              currentTabData.search!.query.set(event.target.value)
+            }, 100)
+          }}
+          className="bg-theme-surface-main"
+          containerClassname="w-1/5 block"
+          startComponent={<HiMagnifyingGlass />}
+        />
+      </div>
       <div className={'sticky top-0 flex justify-between'}>
         <div className={twMerge(twTabcontainerClassName, tabcontainerClassName)} {...props}>
           {tabsData.map((tab, index) => (
