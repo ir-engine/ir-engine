@@ -128,8 +128,11 @@ export const TextNodeEditor: EditorComponentType = (props) => {
   const text = useComponent(props.entity, TextComponent)
   const advancedActive = useHookstate(false) // State tracking whether the Advanced Options Section is active or not
 
+  // initialize default values
   useEffect(() => {
-    text.lineHeight.set(LineHeightNumericDefault)
+    text.lineHeight.set(LineHeightNumericDefault) // 1.2 em
+    text.outlineOpacity.set(100) // 100%
+    text.outlineWidth.set(3) // 3px
   }, [])
 
   return (
@@ -330,7 +333,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               value={text.outlineWidth.value}
               onChange={updateProperty(TextComponent, 'outlineWidth')}
               onRelease={commitProperty(TextComponent, 'outlineWidth')}
-              unit="%"
+              unit="px"
             />
           </InputGroup>
           <InputGroup name="OutlineBlur" label={t('editor:properties.text.outlineBlur')}>
@@ -342,7 +345,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               value={text.outlineBlur.value}
               onChange={updateProperty(TextComponent, 'outlineBlur')}
               onRelease={commitProperty(TextComponent, 'outlineBlur')}
-              unit="%"
+              unit="px"
             />
           </InputGroup>
           <InputGroup name="OutlineOffset" label={t('editor:properties.text.outlineOffset')}>
