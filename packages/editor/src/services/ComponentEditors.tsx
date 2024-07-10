@@ -56,7 +56,6 @@ import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/Sky
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
-import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
@@ -125,7 +124,6 @@ import SplineNodeEditor from '@etherealengine/ui/src/components/editor/propertie
 import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import PlaylistNodeEditor from '@etherealengine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline/track'
-import SystemNodeEditor from '@etherealengine/ui/src/components/editor/properties/system'
 import TextNodeEditor from '@etherealengine/ui/src/components/editor/properties/text'
 import TriggerComponentEditor from '@etherealengine/ui/src/components/editor/properties/trigger'
 import VariantNodeEditor from '@etherealengine/ui/src/components/editor/properties/variant'
@@ -174,7 +172,6 @@ export const ComponentEditorsState = defineState({
       [VolumetricComponent.name]: VolumetricNodeEditor,
       [NewVolumetricComponent.name]: NewVolumetricNodeEditor,
       [PlaylistComponent.name]: PlaylistNodeEditor,
-      [SystemComponent.name]: SystemNodeEditor,
       [EnvmapComponent.name]: EnvMapEditor,
       [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,
       [InstancingComponent.name]: InstancingNodeEditor,

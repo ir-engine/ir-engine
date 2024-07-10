@@ -124,7 +124,7 @@ export const FileTableListBody = ({
     name: (
       <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]" style={{ fontSize: `${fontSize}px` }}>
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
-        <FileIcon thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
+        <FileIcon isMinified={true} thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
         {file.fullName}
       </span>
     ),
@@ -204,7 +204,7 @@ type FileBrowserItemType = {
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
-  dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
+  handleDropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   addFolder: () => void
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
@@ -227,7 +227,7 @@ export function FileBrowserItem({
   currentContent,
   projectName,
   onClick,
-  dropItemsOnPanel,
+  handleDropItemsOnPanel,
   isFilesLoading,
   addFolder,
   isListView,
@@ -312,7 +312,7 @@ export function FileBrowserItem({
     ? [{ isOver: false }, undefined]
     : useDrop({
         accept: [...SupportedFileTypes],
-        drop: (dropItem) => dropItemsOnPanel(dropItem, item),
+        drop: (dropItem) => handleDropItemsOnPanel(dropItem, item),
         canDrop: (dropItem: Record<string, unknown>) =>
           item.isFolder && ('key' in dropItem || canDropItemOverFolder(item.key)),
         collect: (monitor) => ({
