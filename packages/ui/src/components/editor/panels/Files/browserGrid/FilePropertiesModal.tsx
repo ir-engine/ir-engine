@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { StaticResourceType, UserType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs'
 import { ImmutableArray, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
-import { debounce } from '@mui/material'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { HiPencil, HiPlus, HiXMark } from 'react-icons/hi2'
 import { RiSave2Line } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -98,45 +98,40 @@ export default function FilePropertiesModal({
     }
   }
 
-  const staticResourcesFindApi = () => {
-    const query = {
-      key: {
-        $like: undefined,
-        $or: files.map(({ key }) => ({
-          key
-        }))
-      },
-      $limit: 10000
-    }
-
-    Engine.instance.api
-      .service(staticResourcePath)
-      .find({ query })
-      .then((resources) => {
-        Engine.instance.api
-          .service('user')
-          .get(resources.data[0].userId)
-          .then((user) => author.set(user))
-
-        fileStaticResources.set(resources.data)
-        const digest = createStaticResourceDigest(resources.data)
-        resourceDigest.set(digest)
-        sharedFields.set(
-          Object.keys(resourceDigest).filter((key) => {
-            const value = resourceDigest[key]
-            return value.length !== ''
-          })
-        )
-        sharedTags.set(resourceDigest.tags.get(NO_PROXY)!.slice() as string[])
-      })
+  const query = {
+    key: {
+      $like: undefined,
+      $or: files.map(({ key }) => ({
+        key
+      }))
+    },
+    $limit: 10000
   }
-  const debouncedQuery = debounce(staticResourcesFindApi, 500)
-  debouncedQuery()
+
+  const resources = useFind(staticResourcePath, { query })
+  useEffect(() => {
+    if (resources.data.length === 0) return
+    Engine.instance.api
+      .service('user')
+      .get(resources.data[0].userId)
+      .then((user) => author.set(user))
+
+    fileStaticResources.set(resources.data)
+    const digest = createStaticResourceDigest(resources.data)
+    resourceDigest.set(digest)
+    sharedFields.set(
+      Object.keys(resourceDigest).filter((key) => {
+        const value = resourceDigest[key]
+        return value.length !== ''
+      })
+    )
+    sharedTags.set(resourceDigest.tags.get(NO_PROXY)!.slice() as string[])
+  }, [resources.data.length])
 
   const author = useHookstate<UserType | null>(null)
 
   const handleAddTag = () => {
-    if (tagInput.value != '' && resourceDigest.tags.value!.includes(tagInput.value)) {
+    if (tagInput.value != '' && !resourceDigest.tags.value!.includes(tagInput.value)) {
       if (!modifiedFields.value.includes('tags')) {
         modifiedFields.set([...modifiedFields.value, 'tags'])
       }
