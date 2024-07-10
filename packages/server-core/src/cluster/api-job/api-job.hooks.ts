@@ -47,18 +47,18 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(apiJobQueryValidator), schemaHooks.resolveQuery(apiJobQueryResolver)],
+    all: [schemaHooks.validateQuery(apiJobQueryValidator), schemaHooks.resolveQuery(apiJobQueryResolver)],
     find: [iff(isProvider('external'), verifyScope('server', 'read'))],
     get: [iff(isProvider('external'), verifyScope('server', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('server', 'write')),
-      () => schemaHooks.validateData(apiJobDataValidator),
+      schemaHooks.validateData(apiJobDataValidator),
       schemaHooks.resolveData(apiJobDataResolver)
     ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('server', 'write')),
-      () => schemaHooks.validateData(apiJobPatchValidator),
+      schemaHooks.validateData(apiJobPatchValidator),
       schemaHooks.resolveData(apiJobPatchResolver)
     ],
     remove: []

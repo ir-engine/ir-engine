@@ -29,8 +29,8 @@ import { LinearToneMapping, PCFSoftShadowMap, ShadowMapType, ToneMapping } from 
 import { EntityUUID } from '@etherealengine/ecs'
 import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 
 export const RenderSettingsComponent = defineComponent({
   name: 'RenderSettingsComponent',

@@ -42,7 +42,6 @@ import fetch from 'node-fetch'
 import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
-import { v4 as uuidv4 } from 'uuid'
 
 import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/regex'
@@ -1483,7 +1482,6 @@ export const updateProject = async (
     ? // Add to DB
       await app.service(projectPath).create(
         {
-          id: uuidv4(),
           name: projectName,
           enabled,
           repositoryPath,
@@ -1496,9 +1494,7 @@ export const updateProject = async (
           updateUserId: userId || null,
           commitSHA,
           commitDate: toDateTimeSql(commitDate),
-          assetsOnly: assetsOnly,
-          createdAt: await getDateTimeSql(),
-          updatedAt: await getDateTimeSql()
+          assetsOnly
         },
         params || {}
       )
