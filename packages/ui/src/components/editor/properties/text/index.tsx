@@ -209,7 +209,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               onRelease={commitProperty(TextComponent, 'textAnchor')}
             />
           </InputGroup>
-          <InputGroup name="TextDepthOffset" label={t('editor:properties.text.textDepthOffset')}>
+          {/* <InputGroup name="TextDepthOffset" label={t('editor:properties.text.textDepthOffset')}>
             <NumericInput
               smallStep={0.01}
               mediumStep={0.1}
@@ -219,7 +219,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               onRelease={commitProperty(TextComponent, 'textDepthOffset')}
               unit="px"
             />
-          </InputGroup>
+          </InputGroup> */}
           <InputGroup name="TextCurveRadius" label={t('editor:properties.text.textCurveRadius')}>
             <NumericInput
               smallStep={1}
