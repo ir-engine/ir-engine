@@ -48,7 +48,7 @@ import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
 import CreatePrefabPanel from '@etherealengine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
   HeirarchyTreeNodeType,
-  heirarchyTreeWalker
+  gltfSnapshotTreeWalker
 } from '@etherealengine/editor/src/components/hierarchy/HeirarchyTreeWalker'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { CopyPasteFunctions } from '@etherealengine/editor/src/functions/CopyPasteFunctions'
@@ -58,7 +58,6 @@ import { cmdOrCtrlString } from '@etherealengine/editor/src/functions/utils'
 import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
-import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
@@ -103,8 +102,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const open = !!anchorElButton.value
 
   const rootEntitySource = useComponent(rootEntity, SourceComponent)
-  const gltfNode = useMutableState(GLTFNodeState)
-  const gltfSource = gltfNode[rootEntitySource.value]
+  const gltfNode = useMutableState(GLTFSnapshotState)
+  const gltfSnapshot = gltfNode[rootEntitySource.value].snapshots[props.index]
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -133,8 +132,9 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   }, [])
 
   useEffect(() => {
-    entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, rootEntity)))
-  }, [expandedNodes, index, rootEntityTree.children, sourcedEntities.length, gltfSource])
+    entityHierarchy.set(gltfSnapshotTreeWalker(gltfSnapshot.value))
+    // entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, rootEntity)))
+  }, [expandedNodes, index, rootEntityTree.children, sourcedEntities.length, gltfSnapshot])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 
@@ -632,9 +632,10 @@ export default function HierarchyPanel() {
 
   const GLTFHierarchySub = () => {
     const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
-    const sourceID = `${rootEntityUUID}-${sceneID}`
+    const sourceID = getComponent(gltfEntity, SourceComponent)
     const index = GLTFSnapshotState.useSnapshotIndex(sourceID)
 
+    if (index === undefined) return null
     return (
       <HierarchyPanelContents
         key={`${sourceID}-${index.value}`}

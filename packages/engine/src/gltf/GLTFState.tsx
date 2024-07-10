@@ -199,8 +199,8 @@ export const GLTFSnapshotState = defineState({
     )
   },
 
-  useSnapshotIndex(source: string) {
-    return useHookstate(getMutableState(GLTFSnapshotState)[source].index)
+  useSnapshotIndex(source: string): State<number> | undefined {
+    return useMutableState(GLTFSnapshotState)[source]?.index
   },
 
   cloneCurrentSnapshot: (source: string) => {

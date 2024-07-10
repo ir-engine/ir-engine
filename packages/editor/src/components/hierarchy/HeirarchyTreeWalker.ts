@@ -43,6 +43,17 @@ export type HeirarchyTreeNodeType = {
 
 export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
 
+export function gltfSnapshotTreeWalker(snapshot): HeirarchyTreeNodeType[] {
+  const tree = []
+
+  for (let i = 0; i < snapshot.nodes.length; i++) {
+    const node = snapshot.nodes[i]
+    console.log(node)
+  }
+
+  return []
+}
+
 /**
  * treeWalker function used to handle tree.
  *
