@@ -197,6 +197,13 @@ export const assignMaterial = (entity: Entity, materialEntity: Entity) => {
   materialStateComponent.instances.set([...materialStateComponent.instances.value, entity])
 }
 
+export const removeMaterialEntity = (materialEntity: Entity) => {
+  const materialStateComponent = getOptionalComponent(materialEntity, MaterialStateComponent)
+  if (materialStateComponent) {
+    removeEntity(materialEntity)
+  }
+}
+
 /**Sets and replaces a material entity for a material's UUID */
 export const createMaterialEntity = (material: Material, user: Entity): Entity => {
   const materialEntity = createEntity()

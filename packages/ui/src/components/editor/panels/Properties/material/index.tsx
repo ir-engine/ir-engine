@@ -44,7 +44,7 @@ import { EditorControlFunctions } from '@etherealengine/editor/src/functions/Edi
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { NO_PROXY, none, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, NO_PROXY, none, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import { getDefaultType } from '@etherealengine/spatial/src/renderer/materials/constants/DefaultArgs'
@@ -54,7 +54,11 @@ import {
   MaterialStateComponent,
   prototypeQuery
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { formatMaterialArgs, getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import {
+  formatMaterialArgs,
+  getMaterial,
+  removeMaterialEntity
+} from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
@@ -302,6 +306,18 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           </Button>
         </div>
       )}
+      <Button
+        className="w-full text-xs"
+        onClick={() => {
+          getMutableState(MaterialSelectionState).selectedMaterial.set(null)
+          removeMaterialEntity(entity)
+
+          //const newMaterial = new MeshBasicMaterial({ name: 'New Material' })
+          //createMaterialEntity(newMaterial, UndefinedEntity)
+        }}
+      >
+        Delete
+      </Button>
     </div>
   )
 }
