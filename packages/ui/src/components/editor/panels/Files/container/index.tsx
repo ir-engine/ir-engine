@@ -47,7 +47,6 @@ import {
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
-import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
 import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
 import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
@@ -86,6 +85,7 @@ import { Popup } from '../../../../tailwind/Popup'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
+import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
 
 type FileBrowserContentPanelProps = {
   projectName?: string
@@ -564,18 +564,21 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   }}
                   currentContent={currentContentRef}
                   handleDropItemsOnPanel={(data, dropOn) =>
-                    dropItemsOnPanel(data, dropOn, fileProperties.value.map(file => file.key))
+                    dropItemsOnPanel(
+                      data,
+                      dropOn,
+                      fileProperties.value.map((file) => file.key)
+                    )
                   }
                   openFileProperties={() => {
-                    PopoverState.showPopupover(<FilePropertiesModal 
-                      projectName={projectName} 
-                      files={fileProperties.value} 
-                    />)
+                    PopoverState.showPopupover(
+                      <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
+                    )
                   }}
                   openImageCompress={() => {
                     if (filesConsistOfContentType(fileProperties.value, 'image')) {
                       PopoverState.showPopupover(
-                        <ImageCompressionPanel 
+                        <ImageCompressionPanel
                           selectedFiles={fileProperties.value}
                           refreshDirectory={refreshDirectory}
                         />

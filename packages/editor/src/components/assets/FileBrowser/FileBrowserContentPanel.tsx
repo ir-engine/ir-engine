@@ -44,16 +44,12 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import {
-  ImmutableArray,
-  NO_PROXY,
-  getMutableState,
-  getState,
-  useHookstate,
-  useMutableState
-} from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { filesConsistOfContentType, useValidProjectForFileBrowser } from '@etherealengine/ui/src/components/editor/panels/Files/container'
+import {
+  filesConsistOfContentType,
+  useValidProjectForFileBrowser
+} from '@etherealengine/ui/src/components/editor/panels/Files/container'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
@@ -79,13 +75,13 @@ import InputGroup from '../../inputs/InputGroup'
 import StringInput from '../../inputs/StringInput'
 import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
+import ImageCompressionPanel from '../ImageCompressionPanel'
 import ImageConvertPanel from '../ImageConvertPanel'
 import styles from '../styles.module.scss'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from './FileBrowserGrid'
 import { FilesViewModeSettings, FilesViewModeState, availableTableColumns } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
 import { FilePropertiesPanel } from './FilePropertiesPanel'
-import ImageCompressionPanel from '../ImageCompressionPanel'
 
 type FileBrowserContentPanelProps = {
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void

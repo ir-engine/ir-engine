@@ -39,6 +39,7 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
 import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
+import { FileType, createFileDigest } from '@etherealengine/ui/src/components/editor/panels/Files/container'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
@@ -47,9 +48,6 @@ import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
-import { FileType, createFileDigest } from '@etherealengine/ui/src/components/editor/panels/Files/container'
-import CompoundNumericInput from '../inputs/CompoundNumericInput'
-import styles from './styles.module.scss'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },
