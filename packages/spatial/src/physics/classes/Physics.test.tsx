@@ -2172,7 +2172,10 @@ describe('Physics : Rapier->ECS API', () => {
           assert.equal(after2.type, CollisionEvents.COLLISION_START)
         })
 
-        it('... should create a CollisionEvents.TRIGGER_START when either one of the colliders is a sensor (aka has a TriggerComponent)', () => {
+        it('... should create a CollisionEvents.TRIGGER_START when either one of the colliders is a sensor (aka has a TriggerComponent)', async () => {
+          //force nested reactors to run
+          const { rerender, unmount } = render(<></>)
+
           const Started = true
 
           assert.ok(physicsWorld)
@@ -2189,6 +2192,8 @@ describe('Physics : Rapier->ECS API', () => {
           assert.equal(before1, undefined)
           assert.equal(before2, undefined)
           setComponent(testEntity1, TriggerComponent) // Set the trigger component (marks testEntity1.body.isSensor() as true)
+          await act(() => rerender(<></>))
+
           event(collider1.handle, collider2.handle, Started)
 
           // Run and Check after
@@ -2225,7 +2230,10 @@ describe('Physics : Rapier->ECS API', () => {
       })
 
       describe('when `started` is set to `false` ...', () => {
-        it('... should create a CollisionEvents.TRIGGER_END when either one of the colliders is a sensor', () => {
+        it('... should create a CollisionEvents.TRIGGER_END when either one of the colliders is a sensor', async () => {
+          //force nested reactors to run
+          const { rerender, unmount } = render(<></>)
+
           const Started = false
 
           assert.ok(physicsWorld)
@@ -2242,6 +2250,7 @@ describe('Physics : Rapier->ECS API', () => {
           assert.equal(before1, undefined)
           assert.equal(before2, undefined)
           setComponent(testEntity1, TriggerComponent) // Set the trigger component (marks testEntity1.body.isSensor() as true)
+          await act(() => rerender(<></>))
 
           // Run and Check after
           event(collider1.handle, collider2.handle, true) // Run the even twice, so that the entities get each other in their collision components
