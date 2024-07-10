@@ -187,8 +187,8 @@ export const TextComponent = defineComponent({
       textWrapKind: 'normal' as TroikaTextWrapKind, // Maps to troika.Text.overflowWrap
       textAnchor: new Vector2(
         /* X */ 0, // range[0..100+], sent to troika as [0..100]% :string
-        /* Y */ 0 // range[0..100+], sent to troika as [0..100]% :string
-      ),
+        /* Y */ 100 // range[0..100+], sent to troika as [0..100]% :string
+      ), // lower-left by default
       textDepthOffset: 0, // For Z-fighting adjustments. Similar to anchor.Z
       textCurveRadius: 0,
       letterSpacing: 0,
