@@ -38,8 +38,8 @@ import { matches, useMutableState } from '@etherealengine/hyperflux'
 
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { useDisposable } from '../../resources/resourceHooks'
-import { useUpdateLight } from '../functions/useUpdateLight'
 import { RendererState } from '../RendererState'
+import { useUpdateLight } from '../functions/useUpdateLight'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { LineSegmentComponent } from './LineSegmentComponent'
 
