@@ -77,10 +77,7 @@ const SelectOptions = {
     // { label: 'Arial', value: 'Arial' },
     // { label: 'Times New Roman', value: 'Times New Roman' },
   ],
-  FontMaterial: [
-    { label: 'Basic', value: FontMaterialKind.Basic },
-    { label: 'Standard', value: FontMaterialKind.Standard }
-  ]
+  FontMaterial: [{ label: 'Basic', value: FontMaterialKind.Basic }]
 }
 
 /**
