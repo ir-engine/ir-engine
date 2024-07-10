@@ -64,7 +64,7 @@ export default function ProjectTable(props: { search: string }) {
   const projectQuery = useFind(projectPath, {
     query: {
       allowed: true,
-      $limit: 100,
+      $limit: 20,
       action: 'admin',
       $sort: {
         name: 1
@@ -208,7 +208,11 @@ export default function ProjectTable(props: { search: string }) {
       return {
         name: (
           <div className="flex items-center gap-2">
-            <a href={`/studio/${row.name}`} className={row.needsRebuild ? 'text-blue-400' : 'text-theme-primary'}>
+            <a
+              target="_blank"
+              href={`/studio?project=${row.name}`}
+              className={row.needsRebuild ? 'text-blue-400' : 'text-theme-primary'}
+            >
               {row.name}
             </a>
             {!!row.needsRebuild && (
