@@ -29,6 +29,7 @@ Ethereal Engine. All Rights Reserved.
  * (which will send all log events to this server-side logger here, via an
  *  API endpoint).
  */
+import net from 'net'
 import os from 'os'
 import path from 'path'
 import pino from 'pino'
@@ -39,6 +40,33 @@ import pretty from 'pino-pretty'
 const node = process.env.ELASTIC_HOST || 'http://localhost:9200'
 const nodeOpensearch = process.env.OPENSEARCH_HOST || 'http://localhost:9200'
 const useLogger = !process.env.DISABLE_SERVER_LOG
+
+const logStashAddress = process.env.LOGSTASH_ADDRESS || 'logstash-service'
+const logStashPort = process.env.LOGSTASH_PORT || 5044
+
+const isLogStashRunning = () => {
+  return new Promise((resolve, reject) => {
+    const socket = new net.Socket()
+
+    const timer = setTimeout(() => {
+      reject(new Error(`Timeout trying to connect to logstash ${logStashAddress}:${logStashPort}`))
+      socket.destroy()
+    }, 2000)
+
+    // Connect to the port
+    socket.connect(parseInt(logStashPort.toString()), logStashAddress, () => {
+      clearTimeout(timer)
+      socket.end()
+      resolve(true)
+    })
+
+    // Handle connection errors
+    socket.on('error', (err: any) => {
+      clearTimeout(timer)
+      reject(err)
+    })
+  })
+}
 
 const streamToPretty = pretty({
   colorize: true
@@ -59,8 +87,8 @@ const streamToFile = pino.transport({
 const streamToLogstash = pino.transport({
   target: 'pino-socket',
   options: {
-    address: process.env.LOGSTASH_ADDRESS || 'logstash-service',
-    port: process.env.LOGSTASH_PORT || 5044,
+    address: logStashAddress,
+    port: logStashPort,
     mode: 'tcp'
   }
 })
@@ -84,8 +112,6 @@ const streamToElastic = pinoElastic({
   flushBytes: 1000
 })
 
-const streams = [streamToFile, streamToPretty, streamToLogstash, streamToElastic, streamToOpenSearch]
-
 export const opensearchOnlyLogger = pino(
   {
     level: 'debug',
@@ -96,18 +122,6 @@ export const opensearchOnlyLogger = pino(
     }
   },
   streamToOpenSearch
-)
-
-export const logger = pino(
-  {
-    level: 'debug',
-    enabled: useLogger,
-    base: {
-      hostname: os.hostname,
-      component: 'server-core'
-    }
-  },
-  pino.multistream(streams)
 )
 
 export const elasticOnlyLogger = pino(
@@ -121,6 +135,30 @@ export const elasticOnlyLogger = pino(
   },
   streamToElastic
 )
+
+const multiStream = pino.multistream([streamToFile, streamToPretty, streamToElastic, streamToOpenSearch])
+
+export const logger = pino(
+  {
+    level: 'debug',
+    enabled: useLogger,
+    base: {
+      hostname: os.hostname,
+      component: 'server-core'
+    }
+  },
+  multiStream
+)
+
+isLogStashRunning()
+  .then(() => {
+    console.info('Logstash is running')
+    multiStream.add(streamToLogstash)
+  })
+  .catch(() => {
+    console.error('Logstash not running')
+  })
+
 logger.debug('Debug message for testing')
 
 export default logger
