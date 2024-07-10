@@ -81,8 +81,6 @@ const defaultState = {
   }
 }
 
-const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
-
 const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }: Props) => {
   const { t } = useTranslation()
   const editMode = useHookstate(false)
