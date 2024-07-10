@@ -204,7 +204,7 @@ type FileBrowserItemType = {
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
-  dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
+  handleDropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   addFolder: () => void
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
@@ -227,7 +227,7 @@ export function FileBrowserItem({
   currentContent,
   projectName,
   onClick,
-  dropItemsOnPanel,
+  handleDropItemsOnPanel,
   isFilesLoading,
   addFolder,
   isListView,
@@ -312,7 +312,7 @@ export function FileBrowserItem({
     ? [{ isOver: false }, undefined]
     : useDrop({
         accept: [...SupportedFileTypes],
-        drop: (dropItem) => dropItemsOnPanel(dropItem, item),
+        drop: (dropItem) => handleDropItemsOnPanel(dropItem, item),
         canDrop: (dropItem: Record<string, unknown>) =>
           item.isFolder && ('key' in dropItem || canDropItemOverFolder(item.key)),
         collect: (monitor) => ({
