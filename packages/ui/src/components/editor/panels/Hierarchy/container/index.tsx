@@ -60,6 +60,7 @@ import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { GLTF } from '@gltf-transform/core'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
@@ -125,8 +126,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   }, [])
 
   useEffect(() => {
-    entityHierarchy.set(gltfSnapshotTreeWalker(gltfSnapshot.value))
-    // entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, rootEntity)))
+    entityHierarchy.set(gltfSnapshotTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[]))
+    // entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, rootEntity, gltfSnapshot.nodes.value as GLTF.INode[])))
   }, [expandedNodes, index, rootEntityTree.children, sourcedEntities.length, gltfSnapshot])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)

@@ -23,13 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ComponentType, getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { UUIDComponent } from '@etherealengine/ecs'
+import { GLTF } from '@gltf-transform/core'
 import { EditorState } from '../../services/EditorServices'
 
 export type HeirarchyTreeNodeType = {
@@ -43,15 +45,81 @@ export type HeirarchyTreeNodeType = {
 
 export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
 
-export function gltfSnapshotTreeWalker(snapshot): HeirarchyTreeNodeType[] {
-  const tree = []
+type HeirarchyTreeNode = HeirarchyTreeNodeType & { children: HeirarchyTreeNode[] }
 
-  for (let i = 0; i < snapshot.nodes.length; i++) {
-    const node = snapshot.nodes[i]
-    console.log(node)
+function isChild(index: number, nodes: GLTF.INode[]) {
+  for (const node of nodes) {
+    if (node.children && node.children.includes(index)) return true
   }
 
-  return []
+  return false
+}
+
+function buildHeirarchyTree(
+  depth: number,
+  childIndex: number,
+  nodeIndex: number,
+  nodes: GLTF.INode[],
+  array: HeirarchyTreeNode[],
+  lastChild = false
+) {
+  const node = nodes[nodeIndex]
+  if (!node) return
+
+  const child = isChild(nodeIndex, nodes)
+  const addToArray = (child && depth !== 1) || !child
+
+  if (addToArray) {
+    const uuid = node.extensions && (node.extensions[UUIDComponent.jsonID] as ComponentType<typeof UUIDComponent>)
+    const entity = UUIDComponent.getEntityByUUID(uuid!)
+    const sceneID = getComponent(entity, SourceComponent)
+
+    const item = {
+      depth,
+      childIndex,
+      entity: entity,
+      isCollapsed: !getState(EditorState).expandedNodes[sceneID]?.[entity],
+      children: [],
+      isLeaf: !(node.children && node.children.length > 0),
+      lastChild: lastChild
+    }
+    array.push(item)
+    if (node.children) {
+      for (let i = 0; i < node.children.length; i++) {
+        const childIndex = node.children[i]
+        buildHeirarchyTree(depth + 1, i, childIndex, nodes, item.children, i === node.children.length - 1)
+      }
+    }
+  }
+
+  buildHeirarchyTree(depth, childIndex, nodeIndex + 1, nodes, array)
+}
+
+function flattenTree(array: HeirarchyTreeNode[], outArray: HeirarchyTreeNodeType[]) {
+  for (const item of array) {
+    outArray.push({
+      depth: item.depth,
+      entity: item.entity,
+      childIndex: item.childIndex,
+      lastChild: item.lastChild,
+      isLeaf: item.isLeaf,
+      isCollapsed: item.isCollapsed
+    })
+    flattenTree(item.children, outArray)
+  }
+}
+
+export function gltfSnapshotTreeWalker(rootEntity: Entity, snapshotNodes: GLTF.INode[]): HeirarchyTreeNodeType[] {
+  const nodes = snapshotNodes.slice()
+
+  const outArray = [] as HeirarchyTreeNode[]
+  buildHeirarchyTree(1, 0, 0, nodes, outArray)
+
+  const tree = [] as HeirarchyTreeNodeType[]
+  tree.push({ depth: 0, entity: rootEntity, childIndex: 0, lastChild: true })
+  flattenTree(outArray, tree)
+
+  return tree
 }
 
 /**
@@ -70,8 +138,7 @@ export function* heirarchyTreeWalker(sceneID: string, treeNode: Entity): Generat
   while (stack.length !== 0) {
     const { depth, entity: entityNode, childIndex, lastChild } = stack.pop() as HeirarchyTreeNodeType
 
-    if (!entityExists(entityNode)) continue
-    if (!hasComponent(entityNode, SourceComponent)) continue
+    if (!entityExists(entityNode) || !hasComponent(entityNode, SourceComponent)) continue
 
     const expandedNodes = getState(EditorState).expandedNodes
 

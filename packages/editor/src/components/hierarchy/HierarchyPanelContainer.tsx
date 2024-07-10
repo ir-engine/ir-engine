@@ -569,6 +569,7 @@ export default function HierarchyPanel() {
     const sourceID = `${rootEntityUUID}-${sceneID}`
     const index = GLTFSnapshotState.useSnapshotIndex(sourceID)
 
+    if (index === undefined) return null
     return (
       <HierarchyPanelContents
         key={`${sourceID}-${index.value}`}
