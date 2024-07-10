@@ -52,6 +52,19 @@ const streamToFile = pino.transport({
   }
 })
 
+/**
+ * https://getpino.io/#/docs/transports?id=logstash
+ * https://www.npmjs.com/package/pino-socket
+ */
+const streamToLogstash = pino.transport({
+  target: 'pino-socket',
+  options: {
+    address: process.env.LOGSTASH_ADDRESS || 'logstash-service',
+    port: process.env.LOGSTASH_PORT || 5044,
+    mode: 'tcp'
+  }
+})
+
 const streamToOpenSearch = pinoOpensearch({
   index: 'ethereal',
   consistency: 'one',
@@ -71,7 +84,7 @@ const streamToElastic = pinoElastic({
   flushBytes: 1000
 })
 
-const streams = [streamToFile, streamToPretty, streamToElastic, streamToOpenSearch]
+const streams = [streamToFile, streamToPretty, streamToLogstash, streamToElastic, streamToOpenSearch]
 
 export const opensearchOnlyLogger = pino(
   {
