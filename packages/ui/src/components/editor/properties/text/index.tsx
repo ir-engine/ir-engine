@@ -201,13 +201,6 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               onChange={text.textWrap.set}
               onRelease={commitProperty(TextComponent, 'textWrap')}
             />
-            <SelectInput
-              disabled={!text.textWrap.value} // Enabled when text.textWrap is true
-              options={SelectOptions.TextWrapping}
-              value={text.textWrapKind.value}
-              onChange={updateProperty(TextComponent, 'textWrapKind')}
-              //onRelease={commitProperty(TextComponent, 'textWrapKind')}
-            />
           </InputGroup>
           <InputGroup name="TextAnchor" label={t('editor:properties.text.textAnchor')}>
             <Vector2Input
