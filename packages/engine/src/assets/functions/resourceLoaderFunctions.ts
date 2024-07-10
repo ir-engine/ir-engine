@@ -40,6 +40,22 @@ interface Cloneable<T> {
   clone?: () => T
 }
 
+const pending: Record<string, Set<(response) => void>> = {}
+
+const isCloneable = (resourceType: ResourceType): boolean => {
+  /** @todo Add cloning for GLTF data */
+  return resourceType === ResourceType.Texture
+}
+
+const cloneAsset = <T>(asset: Cloneable<T> | undefined, onLoad: (T) => void): boolean => {
+  if (asset && typeof asset.clone === 'function') {
+    onLoad(asset.clone())
+    return true
+  }
+
+  return false
+}
+
 const getLoaderForResourceType = (resourceType: ResourceType) => {
   switch (resourceType) {
     case ResourceType.GLTF:
@@ -74,37 +90,55 @@ export const loadResource = <T extends ResourceAssetType>(
         onLoads: {}
       }
     })
+    if (uuid) resources[url].onLoads.merge({ [uuid]: onLoad })
   } else {
     //No need for callbacks if the asset has already been loaded
     callbacks = ResourceManager.resourceCallbacks[ResourceType.Unknown]
     resources[url].references.merge([entity])
+    if (uuid) resources[url].onLoads.merge({ [uuid]: onLoad })
 
+    const resource = getState(ResourceState).resources[url]
+    const asset = resource.asset as Cloneable<T> | undefined
+    if (
+      (resource.status === ResourceStatus.Unloaded || resource.status === ResourceStatus.Loading) &&
+      isCloneable(resourceType)
+    ) {
+      if (!pending[url]) pending[url] = new Set()
+      pending[url].add(onLoad)
+      return
+    }
     // If asset already exists clone it to share GPU memory
-    const asset = getState(ResourceState).resources[url].asset as Cloneable<T> | undefined
-    if (asset && typeof asset.clone === 'function') {
-      onLoad(asset.clone())
+    else if (cloneAsset(asset, onLoad)) {
+      ResourceState.debugLog(`ResourceManager:load cloning already loaded asset: ${url} for entity: ${entity}`)
       return
     }
   }
 
-  if (uuid) resources[url].onLoads.merge({ [uuid]: onLoad })
-
   const resource = resources[url]
   callbacks.onStart(resource)
-  ResourceState.debugLog('ResourceManager:load Loading resource: ' + url + ' for entity: ' + entity)
+  ResourceState.debugLog(`ResourceManager:load Loading resource: ${url} for entity: ${entity}`)
   AssetLoader.loadAsset<T>(
     url,
     (response: T) => {
       if (!resource || !resource.value) {
-        console.warn('ResourceManager:load Resource removed before load finished: ' + url + ' for entity: ' + entity)
+        console.warn(`ResourceManager:load Resource removed before load finished: ${url} for entity: ${entity}`)
         return
       }
-      resource.status.set(ResourceStatus.Loaded)
       resource.asset.set(response)
+      resource.status.set(ResourceStatus.Loaded)
       callbacks.onLoad(response, resource, resourceState)
-      ResourceState.debugLog('ResourceManager:load Loaded resource: ' + url + ' for entity: ' + entity)
+      ResourceState.debugLog(`ResourceManager:load Loaded resource: ${url} for entity: ${entity}`)
       ResourceManager.checkBudgets()
       onLoad(response)
+
+      if (pending[url]) {
+        for (const pendingLoad of pending[url]) {
+          if (!cloneAsset(response as Cloneable<T>, pendingLoad))
+            console.warn(`ResourceManager:load unable to clone asset for pending response: ${url}`)
+          else ResourceState.debugLog(`ResourceManager:load cloning pending asset: ${url}`)
+        }
+        pending[url].clear()
+      }
     },
     (request) => {
       callbacks.onProgress(request, resource)
