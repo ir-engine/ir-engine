@@ -46,6 +46,7 @@ import { HookContext } from '../../../declarations'
 import checkScope from '../../hooks/check-scope'
 import disallowNonId from '../../hooks/disallow-non-id'
 import persistData from '../../hooks/persist-data'
+import resolveProjectId from '../../hooks/resolve-project-id'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
 import logger from '../../ServerLogger'
 import { LocationService } from './location.class'
@@ -209,7 +210,7 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
-    find: [discardQuery('action'), discardQuery('studio'), sortByLocationSetting],
+    find: [resolveProjectId, discardQuery('action'), discardQuery('studio'), sortByLocationSetting],
     get: [],
     create: [
       () => schemaHooks.validateData(locationDataValidator),

@@ -113,6 +113,9 @@ export const locationQuerySchema = Type.Intersect(
         $like: Type.String({
           format: 'uuid'
         })
+      },
+      project: {
+        $like: Type.String()
       }
     }),
     // Add additional query properties here

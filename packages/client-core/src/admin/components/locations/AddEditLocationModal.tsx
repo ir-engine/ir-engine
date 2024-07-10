@@ -170,7 +170,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
                 className="z-10 h-4 w-4 cursor-pointer"
                 onClick={() => {
                   navigator.clipboard.writeText(
-                    new URL(window.location.origin + `/location/${transformLink(location.name)}`).href
+                    new URL(window.location.origin + `/location/${location.slugifiedName}`).href
                   )
                 }}
               />
@@ -179,13 +179,10 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
             <div
               className="cursor-pointer text-blue-primary hover:underline"
               onClick={() =>
-                window.open(
-                  new URL(window.location.origin + `/location/${transformLink(location.name)}`).href,
-                  '_blank'
-                )
+                window.open(new URL(window.location.origin + `/location/${location.slugifiedName}`).href, '_blank')
               }
             >
-              {new URL(window.location.origin + `/location/${transformLink(location.name)}`).href}
+              {new URL(window.location.origin + `/location/${location.slugifiedName}`).href}
             </div>
           </Button>
         )}
