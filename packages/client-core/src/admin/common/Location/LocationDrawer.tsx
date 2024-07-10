@@ -36,7 +36,7 @@ import {
   LocationType,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -44,7 +44,6 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { NotificationService } from '../../../common/services/NotificationService'
 import styles from '../../old-styles/admin.module.scss'
 import DrawerView from '../DrawerView'
@@ -82,6 +81,8 @@ const defaultState = {
   }
 }
 
+const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
+
 const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }: Props) => {
   const { t } = useTranslation()
   const editMode = useHookstate(false)
@@ -95,8 +96,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
 
   const selectedSceneData = useGet(staticResourcePath, selectedScene!)
-
-  const editorState = getState(EditorState)
 
   useEffect(() => {
     if (selectedScene) state.scene.set(selectedScene)

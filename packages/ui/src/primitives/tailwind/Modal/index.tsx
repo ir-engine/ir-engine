@@ -41,11 +41,14 @@ export interface ModalProps {
   submitLoading?: boolean
   showCloseButton?: boolean
   closeButtonDisabled?: boolean
+  customButtonDisabled?: boolean
   submitButtonDisabled?: boolean
   closeButtonText?: string
+  customButtonText?: string
   submitButtonText?: string
   onClose?: (isHeader: boolean) => void
   onSubmit?: () => void
+  onCustom?: () => void
 }
 
 export const ModalHeader = ({
@@ -72,20 +75,26 @@ export const ModalHeader = ({
 
 export const ModalFooter = ({
   onCancel,
+  onCustom,
   onSubmit,
   submitLoading,
   closeButtonDisabled,
+  customButtonDisabled,
   submitButtonDisabled,
   closeButtonText,
+  customButtonText,
   submitButtonText,
   showCloseButton = true
 }: {
   onCancel?: (isHeader: boolean) => void
+  onCustom?: () => void
   onSubmit?: () => void
   submitLoading?: boolean
   closeButtonDisabled?: boolean
+  customButtonDisabled?: boolean
   submitButtonDisabled?: boolean
   closeButtonText?: string
+  customButtonText?: string
   submitButtonText?: string
   showCloseButton?: boolean
 }) => {
@@ -95,6 +104,11 @@ export const ModalFooter = ({
       {showCloseButton && (
         <Button className="bg-[#162546]" disabled={closeButtonDisabled} onClick={() => onCancel && onCancel(false)}>
           {closeButtonText || t('common:components.cancel')}
+        </Button>
+      )}
+      {onCustom && (
+        <Button variant="outline" className="place-self-center" disabled={customButtonDisabled} onClick={onCustom}>
+          {customButtonText || t('common:components.custom')}
         </Button>
       )}
       {onSubmit && (
@@ -114,6 +128,7 @@ export const ModalFooter = ({
 const Modal = ({
   title,
   onClose,
+  onCustom,
   onSubmit,
   hideFooter,
   rawChildren,
@@ -121,8 +136,10 @@ const Modal = ({
   className,
   submitLoading,
   closeButtonText,
+  customButtonText,
   submitButtonText,
   closeButtonDisabled,
+  customButtonDisabled,
   submitButtonDisabled,
   showCloseButton = true
 }: ModalProps) => {
@@ -130,17 +147,20 @@ const Modal = ({
   return (
     <div className={twClassName}>
       <div className="relative rounded-lg shadow">
-        {onClose && <ModalHeader title={title} onClose={onClose} />}
+        <ModalHeader title={title} onClose={onClose} />
         {rawChildren && rawChildren}
         {children && <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>}
 
         {!hideFooter && (
           <ModalFooter
             closeButtonText={closeButtonText}
+            customButtonText={customButtonText}
             submitButtonText={submitButtonText}
             closeButtonDisabled={closeButtonDisabled}
+            customButtonDisabled={customButtonDisabled}
             submitButtonDisabled={submitButtonDisabled}
             onCancel={onClose}
+            onCustom={onCustom}
             onSubmit={onSubmit}
             submitLoading={submitLoading}
             showCloseButton={showCloseButton}

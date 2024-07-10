@@ -21,6 +21,7 @@
       "lbl-se": "Screen Sharing Enabled",
       "lbl-fe": "Face Streaming Enabled",
       "createLocation": "Create Location",
+      "unpublishLocation": "Unpublish Location",
       "updateLocation": "Update Location",
       "removeLocation": "Remove Location",
       "type": "Type",

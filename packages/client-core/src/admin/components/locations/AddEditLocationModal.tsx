@@ -20,6 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiLink } from 'react-icons/hi2'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import {
@@ -30,7 +31,8 @@ import {
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
@@ -49,19 +51,19 @@ const locationTypeOptions = [
   { label: 'Showroom', value: 'showroom' }
 ]
 
-export default function AddEditLocationModal({
-  location,
-  sceneID
-}: {
-  location?: LocationType
-  sceneID?: string | null
-}) {
+const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
+
+export default function AddEditLocationModal(props: { location?: LocationType; sceneID?: string | null }) {
+  const { sceneID } = props
   const { t } = useTranslation()
 
   const locationMutation = useMutation(locationPath)
 
   const submitLoading = useHookstate(false)
   const errors = useHookstate(getDefaultErrors())
+
+  const locationID = useHookstate(props.location?.id || '')
+  const location = useGet(locationPath, locationID.value).data
 
   const name = useHookstate(location?.name || '')
   const maxUsers = useHookstate(location?.maxUsersPerInstance || 20)
@@ -74,6 +76,7 @@ export default function AddEditLocationModal({
 
   const scenes = useFind(staticResourcePath, {
     query: {
+      type: 'scene',
       paginate: false
     }
   })
@@ -120,13 +123,26 @@ export default function AddEditLocationModal({
       if (location?.id) {
         await locationMutation.patch(location.id, locationData)
       } else {
-        await locationMutation.create(locationData)
+        const data = await locationMutation.create(locationData)
+        locationID.set(data.id)
       }
-      PopoverState.hidePopupover()
     } catch (err) {
       errors.serverError.set(err.message)
     }
     submitLoading.set(false)
+  }
+
+  const unpublishLocation = async () => {
+    if (location?.id) {
+      submitLoading.set(true)
+      try {
+        await locationMutation.remove(location.id)
+        locationID.set('')
+      } catch (err) {
+        errors.serverError.set(err.message)
+      }
+      submitLoading.set(false)
+    }
   }
 
   return (
@@ -136,11 +152,44 @@ export default function AddEditLocationModal({
       }
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
+      onCustom={location && unpublishLocation}
+      customButtonText={t('admin:components.location.unpublishLocation')}
       onClose={PopoverState.hidePopupover}
       submitLoading={submitLoading.value}
     >
       <div className="relative grid w-full gap-6">
         {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
+
+        {location && (
+          <Button
+            size="medium"
+            variant="transparent"
+            className="w-full cursor-default text-left text-xs"
+            endIcon={
+              <HiLink
+                className="z-10 h-4 w-4 cursor-pointer"
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    new URL(window.location.origin + `/location/${transformLink(location.name)}`).href
+                  )
+                }}
+              />
+            }
+          >
+            <div
+              className="cursor-pointer text-blue-primary hover:underline"
+              onClick={() =>
+                window.open(
+                  new URL(window.location.origin + `/location/${transformLink(location.name)}`).href,
+                  '_blank'
+                )
+              }
+            >
+              {new URL(window.location.origin + `/location/${transformLink(location.name)}`).href}
+            </div>
+          </Button>
+        )}
+
         <Input
           label={t('admin:components.location.lbl-name')}
           value={name.value}
