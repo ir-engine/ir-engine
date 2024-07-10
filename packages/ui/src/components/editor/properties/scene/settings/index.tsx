@@ -214,27 +214,31 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         </div>
       </InputGroup>
       <InputGroup name="Primary Color" label={t('editor:properties.sceneSettings.lbl-colors')}>
-        <div className="space-y-2">
+        <div className="w-full space-y-2 md:w-64">
           <ColorInput
             disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.primaryColor.value)}
             onChange={(val) => commitProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
+            className="w-full"
           />
           <ColorInput
             disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.backgroundColor.value)}
             onChange={(val) => commitProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+            className="w-full"
           />
           <ColorInput
             disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.alternativeColor.value)}
             onChange={(val) => commitProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+            className="w-full"
           />
           <Button onClick={generateColors} className="w-full">
             {t('editor:properties.sceneSettings.generate')}
           </Button>
         </div>
       </InputGroup>
+
       <InputGroup name="Kill Height" label={t('editor:properties.sceneSettings.lbl-killHeight')}>
         <NumericInput
           value={sceneSettingsComponent.sceneKillHeight.value}
