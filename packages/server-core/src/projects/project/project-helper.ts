@@ -42,7 +42,6 @@ import fetch from 'node-fetch'
 import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
-import { v4 as uuidv4 } from 'uuid'
 
 import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/regex'
@@ -308,16 +307,16 @@ export const onProjectEvent = async (
   }
 }
 
-export const getProjectConfig = (projectName: string): ProjectConfigInterface => {
+export const getProjectConfig = (projectName: string) => {
   try {
-    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')).default
+    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts'))
+      .default as ProjectConfigInterface
   } catch (e) {
     logger.error(
       e,
       '[Projects]: WARNING project with ' +
         `name ${projectName} has no xrengine.config.ts file - this is not recommended.`
     )
-    return null!
   }
 }
 export const getProjectManifest = (projectName: string): ManifestJson => {
@@ -1454,7 +1453,7 @@ export const updateProject = async (
 
   const { assetsOnly } = await uploadLocalProjectToProvider(app, projectName)
 
-  const projectConfig = getProjectConfig(projectName) ?? {}
+  const projectConfig = getProjectConfig(projectName)
 
   const enabled = getProjectEnabled(projectName)
 
@@ -1483,7 +1482,6 @@ export const updateProject = async (
     ? // Add to DB
       await app.service(projectPath).create(
         {
-          id: uuidv4(),
           name: projectName,
           enabled,
           repositoryPath,
@@ -1496,9 +1494,7 @@ export const updateProject = async (
           updateUserId: userId || null,
           commitSHA,
           commitDate: toDateTimeSql(commitDate),
-          assetsOnly: assetsOnly,
-          createdAt: await getDateTimeSql(),
-          updatedAt: await getDateTimeSql()
+          assetsOnly
         },
         params || {}
       )
@@ -1543,7 +1539,7 @@ export const updateProject = async (
     )
   }
   // run project install script
-  if (projectConfig.onEvent) {
+  if (projectConfig?.onEvent) {
     await onProjectEvent(app, returned, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
   }
 

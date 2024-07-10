@@ -205,7 +205,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                   setting.userId && (
                     <Tooltip
                       title={t('admin:components.setting.project.lastUpdatedBy', { userId: setting.userId })}
-                      direction="left"
+                      position="left center"
                     >
                       <HiUser className="mr-2" />
                     </Tooltip>

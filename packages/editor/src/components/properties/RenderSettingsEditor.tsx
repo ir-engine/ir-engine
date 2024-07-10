@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ACESFilmicToneMapping,
@@ -38,11 +38,15 @@ import {
 } from 'three'
 
 import { EntityUUID, useQuery, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ComponentType, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/lights/DirectionalLightComponent'
 
+import { GLTFNodeState, GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { dispatchAction, State } from '@etherealengine/hyperflux'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -108,7 +112,8 @@ const ShadowTypeOptions = [
 
 export const RenderSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const rendererSettingsState = useComponent(props.entity, RenderSettingsComponent)
+  const { entity } = props
+  const rendererSettingsState = useComponent(entity, RenderSettingsComponent)
 
   const directionalLightOptions = [
     {
@@ -123,6 +128,23 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
       }
     })
   )
+
+  useEffect(() => {
+    if (!UUIDComponent.getEntityByUUID(rendererSettingsState.primaryLight.value)) {
+      const source = getComponent(entity, SourceComponent)
+      const node = GLTFNodeState.getMutableNode(entity)
+      const renderSettingsExt = node.extensions[RenderSettingsComponent.jsonID] as State<
+        ComponentType<typeof RenderSettingsComponent>
+      >
+      if (!renderSettingsExt.primaryLight.value) return
+      renderSettingsExt.merge({
+        csm: false,
+        primaryLight: '' as EntityUUID
+      })
+      const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(source)
+      dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
+    }
+  }, [rendererSettingsState.primaryLight])
 
   return (
     <NodeEditor
