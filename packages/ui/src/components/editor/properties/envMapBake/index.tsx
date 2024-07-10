@@ -168,14 +168,14 @@ export const EnvMapBakeNodeEditor = (props) => {
       <Button className="my-1 ml-auto px-10" onClick={() => uploadBPCEMBakeToServer(props.entity)}>
         {t(`editor.projects.bake`)}
       </Button>
-      <InputGroup name="Position" label="Position Offset">
+      <InputGroup name="Position" label="Position Offset" childrenClassName="w-auto">
         <Vector3Input
           value={bakeComponent.bakePositionOffset.value}
           onChange={updateProperty(EnvMapBakeComponent, 'bakePositionOffset')}
           onRelease={commitProperty(EnvMapBakeComponent, 'bakePositionOffset')}
         />
       </InputGroup>
-      <InputGroup name="Scale" label="Scale">
+      <InputGroup name="Scale" label="Scale" childrenClassName="w-auto">
         <Vector3Input
           value={bakeComponent.bakeScale.value}
           onChange={updateProperty(EnvMapBakeComponent, 'bakeScale')}

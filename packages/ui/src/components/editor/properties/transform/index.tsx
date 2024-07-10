@@ -118,6 +118,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         name="Dynamically Load Children"
         label={t('editor:properties.lbl-dynamicLoad')}
         labelClassName="font-normal text-[#6B6D78]"
+        childrenClassName="w-auto"
       >
         <BooleanInput
           value={hasComponent(props.entity, SceneDynamicLoadTagComponent)}
@@ -134,7 +135,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           />
         )}
       </InputGroup>
-      <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')}>
+      <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')} childrenClassName="w-auto">
         <Vector3Input
           smallStep={0.01}
           mediumStep={0.1}
@@ -144,10 +145,10 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           onRelease={onRelease}
         />
       </InputGroup>
-      <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')}>
+      <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')} childrenClassName="w-auto">
         <EulerInput quaternion={rotation} onChange={onChangeRotation} unit="°" onRelease={onRelease} />
       </InputGroup>
-      <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')}>
+      <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')} childrenClassName="w-auto">
         <Vector3Input
           uniformScaling
           smallStep={0.01}

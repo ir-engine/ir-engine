@@ -174,6 +174,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         name="Thumbnail"
         label={t('editor:properties.sceneSettings.lbl-thumbnail')}
         info={t('editor:properties.sceneSettings.info-thumbnail')}
+        childrenClassName="w-auto"
       >
         <div>
           <ImagePreviewInput value={state.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
@@ -194,6 +195,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         name="Loading Screen"
         label={t('editor:properties.sceneSettings.lbl-loading')}
         info={t('editor:properties.sceneSettings.info-loading')}
+        childrenClassName="w-auto"
       >
         <div>
           <ImagePreviewInput value={state.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value} />
@@ -214,7 +216,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         </div>
       </InputGroup>
       <InputGroup name="Primary Color" label={t('editor:properties.sceneSettings.lbl-colors')}>
-        <div className="w-full space-y-2 md:w-64">
+        <div className="w-full space-y-2">
           <ColorInput
             disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.primaryColor.value)}

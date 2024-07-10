@@ -122,15 +122,24 @@ export interface InputGroupProps {
   className?: string
   labelClassName?: string
   infoClassName?: string
+  childrenClassName?: string
 }
 
 /**
  * InputGroup used to render the view of component.
  */
-export function InputGroup({ children, info, label, className, labelClassName, infoClassName }: InputGroupProps) {
+export function InputGroup({
+  children,
+  info,
+  label,
+  className,
+  labelClassName,
+  infoClassName,
+  childrenClassName
+}: InputGroupProps) {
   return (
     <div className={twMerge('my-1 flex flex-wrap items-center justify-end', className)}>
-      <div className="flex">
+      <div className="mr-2 flex">
         <Label className={twMerge('mr-2.5 text-wrap text-end text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
         {info && (
           <Tooltip title={info}>
@@ -138,7 +147,8 @@ export function InputGroup({ children, info, label, className, labelClassName, i
           </Tooltip>
         )}
       </div>
-      {children}
+      {/* default width of 240px. This value can be overrride or removed by passing w-auto */}
+      <div className={twMerge('w-60', childrenClassName)}>{children}</div>
     </div>
   )
 }
