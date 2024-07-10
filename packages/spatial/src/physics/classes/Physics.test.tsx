@@ -57,6 +57,8 @@ import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 
 import { Entity, SystemDefinitions, UndefinedEntity, removeEntity } from '@etherealengine/ecs'
+import { act, render } from '@testing-library/react'
+import React from 'react'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { PhysicsSystem } from '../PhysicsModule'
 import {
@@ -237,6 +239,9 @@ describe('Physics : External API', () => {
   })
 
   it('should generate a trigger event', async () => {
+    //force nested reactors to run
+    const { rerender, unmount } = render(<></>)
+
     const physicsWorld = getState(PhysicsState).physicsWorld
 
     const entity1 = createEntity()
@@ -261,6 +266,8 @@ describe('Physics : External API', () => {
       collisionMask: AllCollisionMask
     })
     setComponent(entity2, TriggerComponent)
+
+    await act(() => rerender(<></>))
 
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
