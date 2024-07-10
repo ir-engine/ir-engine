@@ -31,8 +31,6 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import { clamp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 
 import { getStepSize, toPrecision } from '../../functions/utils'
-import Overlay from '../layout/Overlay'
-import Portal from '../layout/Portal'
 
 type ScrubberContainerProps = {
   tag?: any
@@ -176,13 +174,6 @@ const Scrubber: React.FC<ScrubberProps> = ({
   return (
     <ScrubberContainer tag={tag} ref={scrubberEl} onMouseDown={handleMouseDown} {...rest}>
       {children}
-      {state.isDragging.value && (
-        <Portal>
-          <Overlay pointerEvents="none">
-            <Cursor x={state.mouseX.value!} y={state.mouseY.value!} />
-          </Overlay>
-        </Portal>
-      )}
     </ScrubberContainer>
   )
 }

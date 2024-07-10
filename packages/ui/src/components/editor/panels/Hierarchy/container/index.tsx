@@ -60,14 +60,11 @@ import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
-import { PopoverPosition } from '@mui/material'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
-import { HierarchyPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
-import Popover from '../../../layout/Popover'
-import { PopoverContext } from '../../../util/PopoverContext'
+import { ContextMenu } from '../../../../tailwind/ContextMenu'
+import { Popup } from '../../../../tailwind/Popup'
 import ElementList from '../../Properties/elementList'
 import HierarchyTreeNode, { HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from '../node'
 
@@ -84,7 +81,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
-  const [anchorPositionPop, setAnchorPositionPop] = React.useState<undefined | PopoverPosition>(undefined)
 
   const [prevClickedNode, setPrevClickedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const onUpload = useUpload(uploadOptions)
@@ -97,9 +93,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const sourcedEntities = useQuery([SourceComponent])
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const rootEntityTree = useComponent(rootEntity, EntityTreeComponent)
-  const panel = document.getElementById('propertiesPanel')
-  const anchorElButton = useHookstate<HTMLButtonElement | null>(null)
-  const open = !!anchorElButton.value
 
   const rootEntitySource = useComponent(rootEntity, SourceComponent)
   const gltfNode = useMutableState(GLTFSnapshotState)
@@ -185,8 +178,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     setContextSelectedItem(undefined)
     setAnchorEvent(undefined)
   }
-
-  const onMouseDown = useCallback((e: React.MouseEvent, node: HeirarchyTreeNodeType) => {}, [])
 
   const onClick = useCallback(
     (e: MouseEvent, node: HeirarchyTreeNodeType) => {
@@ -449,177 +440,160 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   return (
     <>
-      <PopoverContext.Provider
-        value={{
-          handlePopoverClose: () => {
-            anchorElButton.set(null)
-          }
-        }}
-      >
-        <div className="flex items-center gap-2 bg-theme-surface-main">
-          <Input
-            placeholder={t('common:components.search')}
-            value={searchHierarchy.value}
-            onChange={(event) => {
-              searchHierarchy.set(event.target.value)
-            }}
-            className="m-1 rounded bg-theme-primary text-[#A3A3A3]"
-            startComponent={<HiMagnifyingGlass className="text-white" />}
-          />
-
-          <Button
-            startIcon={<HiOutlinePlusCircle />}
-            variant="transparent"
-            rounded="none"
-            className="ml-auto w-32 bg-theme-highlight px-2 py-3"
-            size="small"
-            textContainerClassName="mx-0"
-            onClick={(event) => {
-              setAnchorPositionPop({ top: event.clientY - 10, left: panel?.getBoundingClientRect().left! + 10 })
-              anchorElButton.set(event.currentTarget)
-            }}
-          >
-            <span className="text-nowrap">{t('editor:hierarchy.lbl-addEntity')}</span>
-          </Button>
-        </div>
-        <Popover
-          open={open}
-          anchorEl={anchorElButton.value as any}
-          onClose={() => {
-            anchorElButton.set(null)
-            setAnchorPositionPop(undefined)
+      <div className="flex items-center gap-2 bg-theme-surface-main">
+        <Input
+          placeholder={t('common:components.search')}
+          value={searchHierarchy.value}
+          onChange={(event) => {
+            searchHierarchy.set(event.target.value)
           }}
-          panelId={HierarchyPanelTab.id!}
-          anchorPosition={anchorPositionPop}
-          className="h-[60%] w-full min-w-[300px] overflow-y-auto"
+          className="m-1 rounded bg-theme-primary text-[#A3A3A3]"
+          startComponent={<HiMagnifyingGlass className="text-white" />}
+        />
+        <Popup
+          keepInside
+          trigger={
+            <Button
+              startIcon={<HiOutlinePlusCircle />}
+              variant="transparent"
+              rounded="none"
+              className="ml-auto w-32 text-nowrap bg-theme-highlight px-2 py-3 text-white"
+              size="small"
+              textContainerClassName="mx-0"
+            >
+              {t('editor:hierarchy.lbl-addEntity')}
+            </Button>
+          }
         >
-          <ElementList type="prefabs" />
-        </Popover>
-      </PopoverContext.Provider>
+          <div className="h-[600px] w-72 overflow-y-auto">
+            <ElementList type="prefabs" />
+          </div>
+        </Popup>
+      </div>
       <div id="heirarchy-panel" className="h-5/6 overflow-hidden">
         <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
       </div>
-      <ContextMenu anchorEvent={anchorEvent} panelId={'heirarchy-panel'} onClose={handleClose}>
-        <Button
-          fullWidth
-          size="small"
-          variant="transparent"
-          className="text-left text-xs"
-          onClick={() => onRenameNode(contextSelectedItem!)}
-        >
-          {t('editor:hierarchy.lbl-rename')}
-        </Button>
-        <Hotkeys
-          keyName={cmdOrCtrlString + '+d'}
-          onKeyUp={(_, e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            selectedNode && onDuplicateNode(selectedNode!)
-          }}
-        >
+      <ContextMenu anchorEvent={anchorEvent} onClose={handleClose}>
+        <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           <Button
+            fullWidth
             size="small"
             variant="transparent"
-            className="w-full text-left text-xs"
-            onClick={() => onDuplicateNode(contextSelectedItem!)}
-            endIcon={cmdOrCtrlString + ' + d'}
+            className="text-left text-xs"
+            onClick={() => onRenameNode(contextSelectedItem!)}
           >
-            {t('editor:hierarchy.lbl-duplicate')}
+            {t('editor:hierarchy.lbl-rename')}
           </Button>
-        </Hotkeys>
-        <Hotkeys
-          keyName={cmdOrCtrlString + '+g'}
-          onKeyUp={(_, e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            selectedNode && onGroupNodes(selectedNode!)
-          }}
-        >
+          <Hotkeys
+            keyName={cmdOrCtrlString + '+d'}
+            onKeyUp={(_, e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              selectedNode && onDuplicateNode(selectedNode!)
+            }}
+          >
+            <Button
+              size="small"
+              variant="transparent"
+              className="w-full text-left text-xs"
+              onClick={() => onDuplicateNode(contextSelectedItem!)}
+              endIcon={cmdOrCtrlString + ' + d'}
+            >
+              {t('editor:hierarchy.lbl-duplicate')}
+            </Button>
+          </Hotkeys>
+          <Hotkeys
+            keyName={cmdOrCtrlString + '+g'}
+            onKeyUp={(_, e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              selectedNode && onGroupNodes(selectedNode!)
+            }}
+          >
+            <Button
+              size="small"
+              variant="transparent"
+              className="w-full text-left text-xs"
+              onClick={() => onGroupNodes(contextSelectedItem!)}
+              endIcon={cmdOrCtrlString + ' + g'}
+            >
+              {t('editor:hierarchy.lbl-group')}
+            </Button>
+          </Hotkeys>
+          <Hotkeys
+            keyName={cmdOrCtrlString + '+c'}
+            onKeyUp={(_, e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              selectedNode && onCopyNode(selectedNode)
+            }}
+          >
+            <Button
+              size="small"
+              variant="transparent"
+              className="w-full text-left text-xs"
+              onClick={() => onCopyNode(contextSelectedItem!)}
+              endIcon={cmdOrCtrlString + ' + c'}
+            >
+              {t('editor:hierarchy.lbl-copy')}
+            </Button>
+          </Hotkeys>
+          <Hotkeys
+            keyName={cmdOrCtrlString + '+v'}
+            onKeyUp={(_, e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              selectedNode && onPasteNode(selectedNode)
+            }}
+          >
+            <Button
+              size="small"
+              variant="transparent"
+              className="w-full text-left text-xs"
+              onClick={() => onPasteNode(contextSelectedItem!)}
+              endIcon={cmdOrCtrlString + ' + v'}
+            >
+              {t('editor:hierarchy.lbl-paste')}
+            </Button>
+          </Hotkeys>
           <Button
+            fullWidth
             size="small"
             variant="transparent"
-            className="w-full text-left text-xs"
-            onClick={() => onGroupNodes(contextSelectedItem!)}
-            endIcon={cmdOrCtrlString + ' + g'}
+            className="text-left text-xs"
+            onClick={() => onDeleteNode(contextSelectedItem!)}
           >
-            {t('editor:hierarchy.lbl-group')}
+            {t('editor:hierarchy.lbl-delete')}
           </Button>
-        </Hotkeys>
-        <Hotkeys
-          keyName={cmdOrCtrlString + '+c'}
-          onKeyUp={(_, e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            selectedNode && onCopyNode(selectedNode)
-          }}
-        >
           <Button
+            fullWidth
             size="small"
             variant="transparent"
-            className="w-full text-left text-xs"
-            onClick={() => onCopyNode(contextSelectedItem!)}
-            endIcon={cmdOrCtrlString + ' + c'}
+            className="text-left text-xs"
+            onClick={() => expandChildren(contextSelectedItem!)}
           >
-            {t('editor:hierarchy.lbl-copy')}
+            {t('editor:hierarchy.lbl-expandAll')}
           </Button>
-        </Hotkeys>
-        <Hotkeys
-          keyName={cmdOrCtrlString + '+v'}
-          onKeyUp={(_, e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            selectedNode && onPasteNode(selectedNode)
-          }}
-        >
           <Button
+            fullWidth
             size="small"
             variant="transparent"
-            className="w-full text-left text-xs"
-            onClick={() => onPasteNode(contextSelectedItem!)}
-            endIcon={cmdOrCtrlString + ' + v'}
+            className="text-left text-xs"
+            onClick={() => collapseChildren(contextSelectedItem!)}
           >
-            {t('editor:hierarchy.lbl-paste')}
+            {t('editor:hierarchy.lbl-collapseAll')}
           </Button>
-        </Hotkeys>
-        <Button
-          fullWidth
-          size="small"
-          variant="transparent"
-          className="text-left text-xs"
-          onClick={() => onDeleteNode(contextSelectedItem!)}
-        >
-          {t('editor:hierarchy.lbl-delete')}
-        </Button>
-        <Button
-          fullWidth
-          size="small"
-          variant="transparent"
-          className="text-left text-xs"
-          onClick={() => expandChildren(contextSelectedItem!)}
-        >
-          {t('editor:hierarchy.lbl-expandAll')}
-        </Button>
-        <Button
-          fullWidth
-          size="small"
-          variant="transparent"
-          className="text-left text-xs"
-          onClick={() => collapseChildren(contextSelectedItem!)}
-        >
-          {t('editor:hierarchy.lbl-collapseAll')}
-        </Button>
 
-        <Button
-          fullWidth
-          size="small"
-          variant="transparent"
-          className="text-left text-xs"
-          onClick={() => PopoverState.showPopupover(<CreatePrefabPanel node={contextSelectedItem!} />)}
-        >
-          {t('editor:hierarchy.lbl-createPrefab')}
-        </Button>
-
-        {/* )} */}
+          <Button
+            fullWidth
+            size="small"
+            variant="transparent"
+            className="text-left text-xs"
+            onClick={() => PopoverState.showPopupover(<CreatePrefabPanel node={contextSelectedItem!} />)}
+          >
+            {t('editor:hierarchy.lbl-createPrefab')}
+          </Button>
+        </div>
       </ContextMenu>
     </>
   )
