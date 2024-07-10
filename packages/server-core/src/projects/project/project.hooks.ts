@@ -245,7 +245,7 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
       ? data
       : {
           data: data,
-          total: data.length,
+          total: context.result?.['total'] ?? data.length,
           limit: context.params?.query?.$limit || 1000,
           skip: context.params?.query?.$skip || 0
         }
