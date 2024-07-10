@@ -66,7 +66,7 @@ export default function FilePropertiesModal({
     filename = firstFile.name
     title = t('editor:layout.filebrowser.fileProperties.header', { fileName: filename.toUpperCase() })
   } else {
-    filename = ''
+    filename = t('editor:layout.filebrowser.fileProperties.mixedValues')
     title = t('editor:layout.filebrowser.fileProperties.header-plural', { itemCount })
   }
 
@@ -188,11 +188,7 @@ export default function FilePropertiesModal({
                 {editedField.value === 'attribution' ? (
                   <>
                     <Input
-                      value={
-                        files.length > 1 && !sharedFields.value.includes('attribution')
-                          ? t('editor:layout.filebrowser.fileProperties.mixedValues')
-                          : resourceDigest.attribution.value!
-                      }
+                      value={resourceDigest.attribution.value ?? ''}
                       onChange={onChange('attribution', resourceDigest.attribution)}
                     />
                     <Button
@@ -206,7 +202,9 @@ export default function FilePropertiesModal({
                 ) : (
                   <>
                     <Text className="text-[#9CA0AA]">
-                      {resourceDigest.attribution.value || <em>{t('common:components.none')}</em>}
+                      {files.length > 1 && !sharedFields.value.includes('attribution')
+                        ? t('editor:layout.filebrowser.fileProperties.mixedValues')
+                        : resourceDigest.attribution.value || <em>{t('common:components.none')}</em>}
                     </Text>
                     <Button
                       title={t('common:components.edit')}
@@ -225,11 +223,7 @@ export default function FilePropertiesModal({
                 {editedField.value === 'licensing' ? (
                   <>
                     <Input
-                      value={
-                        files.length > 1 && !sharedFields.value.includes('licensing')
-                          ? t('editor:layout.filebrowser.fileProperties.mixedValues')
-                          : resourceDigest.licensing.value!
-                      }
+                      value={resourceDigest.licensing.value ?? ''}
                       onChange={onChange('licensing', resourceDigest.licensing)}
                     />
                     <Button
@@ -243,7 +237,9 @@ export default function FilePropertiesModal({
                 ) : (
                   <>
                     <Text className="text-[#9CA0AA]">
-                      {resourceDigest.licensing.value || <em>{t('common:components.none')}</em>}
+                      {files.length > 1 && !sharedFields.value.includes('licensing')
+                        ? t('editor:layout.filebrowser.fileProperties.mixedValues')
+                        : resourceDigest.licensing.value || <em>{t('common:components.none')}</em>}
                     </Text>
                     <Button
                       title={t('common:components.edit')}
