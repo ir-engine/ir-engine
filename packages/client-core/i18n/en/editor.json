@@ -1213,7 +1213,7 @@
         "add": "Add",
         "save-changes": "Save Changes",
         "discard": "Discard",
-        "mixed-values": "Mixed"
+        "mixedValues": "Mixed"
       },
       "view-mode": {
         "icons": "View: Icons",

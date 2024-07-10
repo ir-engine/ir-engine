@@ -23,31 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback, useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import {
-  StaticResourceType,
-  UserType,
-  fileBrowserPath,
-  staticResourcePath
-} from '@etherealengine/common/src/schema.type.module'
+import { StaticResourceType, UserType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs'
-import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { getMutableState, ImmutableArray, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { ImmutableArray, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { debounce } from '@mui/material'
 import { HiPencil, HiPlus, HiXMark } from 'react-icons/hi2'
 import { RiSave2Line } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import Modal from '../../../../../primitives/tailwind/Modal'
 import Text from '../../../../../primitives/tailwind/Text'
-import { createFileDigest, createStaticResourceDigest, FileType } from '../container'
-import { debounce } from '@mui/material'
+import { FileType, createFileDigest, createStaticResourceDigest } from '../container'
 
-export default function FilePropertiesModal({ projectName, files }: { projectName: string; files: ImmutableArray<FileType> }) {
+export default function FilePropertiesModal({
+  projectName,
+  files
+}: {
+  projectName: string
+  files: ImmutableArray<FileType>
+}) {
   const itemCount = files.length
   if (itemCount === 0) return null
   const { t } = useTranslation()
@@ -57,7 +55,7 @@ export default function FilePropertiesModal({ projectName, files }: { projectNam
   const resourceDigest = useHookstate<StaticResourceType>(createStaticResourceDigest([]))
   const sharedFields = useHookstate<string[]>([])
   const modifiedFields = useHookstate<string[]>([])
-  const editedField = useHookstate<string|null>(null)
+  const editedField = useHookstate<string | null>(null)
   const tagInput = useHookstate<string>('')
   const sharedTags = useHookstate<string[]>([])
 
@@ -69,7 +67,7 @@ export default function FilePropertiesModal({ projectName, files }: { projectNam
     title = t('editor:layout.filebrowser.fileProperties.header', { fileName: filename.toUpperCase() })
   } else {
     filename = ''
-    title = t('editor:layout.filebrowser.fileProperties.header', { itemCount })
+    title = t('editor:layout.filebrowser.fileProperties.header-plural', { itemCount })
   }
 
   const onChange = (fieldName: string, state: State<any>) => {
@@ -115,7 +113,6 @@ export default function FilePropertiesModal({ projectName, files }: { projectNam
       .service(staticResourcePath)
       .find({ query })
       .then((resources) => {
-
         Engine.instance.api
           .service('user')
           .get(resources.data[0].userId)
@@ -136,7 +133,7 @@ export default function FilePropertiesModal({ projectName, files }: { projectNam
   const debouncedQuery = debounce(staticResourcesFindApi, 500)
   debouncedQuery()
 
-  const author = useHookstate<UserType|null>(null)
+  const author = useHookstate<UserType | null>(null)
 
   const handleAddTag = () => {
     if (tagInput.value != '' && resourceDigest.tags.value!.includes(tagInput.value)) {
@@ -175,11 +172,9 @@ export default function FilePropertiesModal({ projectName, files }: { projectNam
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.size')}</Text>
-          <Text className="text-[#9CA0AA]">{
-              files
-                .map((file) => file.size)
-                .reduce((total, value) => total + parseInt(value ?? '0'), 0)
-          }</Text>
+          <Text className="text-[#9CA0AA]">
+            {files.map((file) => file.size).reduce((total, value) => total + parseInt(value ?? '0'), 0)}
+          </Text>
         </div>
         {fileStaticResources.length > 0 && (
           <>
@@ -190,12 +185,12 @@ export default function FilePropertiesModal({ projectName, files }: { projectNam
             <div className="grid grid-cols-2 items-center gap-2">
               <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.attribution')}</Text>
               <span className="flex items-center">
-                {editedField.value === "attribution" ? (
+                {editedField.value === 'attribution' ? (
                   <>
                     <Input
                       value={
                         files.length > 1 && !sharedFields.value.includes('attribution')
-                          ? t('editor:layout.filebrowser.fileProperties.mixed-values')
+                          ? t('editor:layout.filebrowser.fileProperties.mixedValues')
                           : resourceDigest.attribution.value!
                       }
                       onChange={onChange('attribution', resourceDigest.attribution)}
@@ -218,7 +213,7 @@ export default function FilePropertiesModal({ projectName, files }: { projectNam
                       variant="transparent"
                       size="small"
                       startIcon={<HiPencil />}
-                      onClick={() => editedField.set("attribution")}
+                      onClick={() => editedField.set('attribution')}
                     />
                   </>
                 )}
@@ -227,12 +222,12 @@ export default function FilePropertiesModal({ projectName, files }: { projectNam
             <div className="grid grid-cols-2 items-center gap-2">
               <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.licensing')}</Text>
               <span className="flex items-center">
-                {editedField.value === "licensing" ? (
+                {editedField.value === 'licensing' ? (
                   <>
                     <Input
                       value={
                         files.length > 1 && !sharedFields.value.includes('licensing')
-                          ? t('editor:layout.filebrowser.fileProperties.mixed-values')
+                          ? t('editor:layout.filebrowser.fileProperties.mixedValues')
                           : resourceDigest.licensing.value!
                       }
                       onChange={onChange('licensing', resourceDigest.licensing)}
@@ -255,7 +250,7 @@ export default function FilePropertiesModal({ projectName, files }: { projectNam
                       variant="transparent"
                       size="small"
                       startIcon={<HiPencil />}
-                      onClick={() => editedField.set("licensing")}
+                      onClick={() => editedField.set('licensing')}
                     />
                   </>
                 )}
