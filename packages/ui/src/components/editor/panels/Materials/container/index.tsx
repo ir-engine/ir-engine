@@ -36,13 +36,11 @@ import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import {
-  createMaterialEntity,
-  getMaterialsFromSource
-} from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import { getMaterialsFromScene } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTranslation } from 'react-i18next'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
@@ -61,7 +59,7 @@ export default function MaterialLibraryPanel() {
 
   useEffect(() => {
     const materials = selected.value.length
-      ? getMaterialsFromSource(UUIDComponent.getEntityByUUID(selected.value[0]))
+      ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selected.value[0]))
       : materialQuery.map((entity) => getComponent(entity, UUIDComponent))
     const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
       const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
@@ -138,7 +136,7 @@ export default function MaterialLibraryPanel() {
               className="w-full text-xs"
               onClick={() => {
                 const newMaterial = new MeshBasicMaterial({ name: 'New Material' })
-                createMaterialEntity(newMaterial, '', UndefinedEntity)
+                createMaterialEntity(newMaterial, UndefinedEntity)
               }}
             >
               New
