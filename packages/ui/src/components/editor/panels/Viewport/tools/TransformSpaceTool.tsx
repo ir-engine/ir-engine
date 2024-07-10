@@ -35,6 +35,8 @@ import { useTranslation } from 'react-i18next'
 import { PiGlobeSimple } from 'react-icons/pi'
 import Button from '../../../../../primitives/tailwind/Button'
 import Select from '../../../../../primitives/tailwind/Select'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { InfoTooltip } from '../../../layout/Tooltip'
 
 const transformSpaceOptions = [
   {
@@ -56,23 +58,26 @@ const TransformSpaceTool = () => {
 
   return (
     <div id="transform-space" className="flex items-center bg-theme-surfaceInput">
-      <Button
-        startIcon={<PiGlobeSimple />}
-        onClick={toggleTransformSpace}
-        variant="transparent"
-        title={t('editor:toolbar.transformSpace.lbl-toggleTransformSpace')}
-        className="px-0"
-      />
-      {/* <Tooltip title={t('editor:toolbar.transformSpace.description')} direction='bottom'> */}
-      <Select
-        key={transformSpace.value}
-        inputClassName="py-1 h-6 rounded-sm text-xs"
-        className="m-1 w-24 text-[#A3A3A3]"
-        onChange={setTransformSpace}
-        options={transformSpaceOptions}
-        currentValue={transformSpace.value}
-      />
-      {/* </Tooltip> */}
+      <Tooltip title={t('editor:toolbar.transformSpace.lbl-toggleTransformSpace')}>
+        <Button startIcon={<PiGlobeSimple />} onClick={toggleTransformSpace} variant="transparent" className="px-0" />
+      </Tooltip>
+      <InfoTooltip
+        title={
+          transformSpace.value === TransformSpace.local
+            ? t('editor:toolbar.transformSpace.info-selection')
+            : t('editor:toolbar.transformSpace.info-world')
+        }
+        info={t('editor:toolbar.transformSpace.description')}
+      >
+        <Select
+          key={transformSpace.value}
+          inputClassName="py-1 h-6 rounded-sm text-xs"
+          className="m-1 w-24 text-[#A3A3A3]"
+          onChange={setTransformSpace}
+          options={transformSpaceOptions}
+          currentValue={transformSpace.value}
+        />
+      </InfoTooltip>
     </div>
   )
 }

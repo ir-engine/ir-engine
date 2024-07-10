@@ -55,7 +55,6 @@ import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/Sky
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
-import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
@@ -122,9 +121,9 @@ export const ComponentShelfCategoriesState = defineState({
         PostProcessingComponent,
         ReflectionProbeComponent
       ],
-      Scripting: [SystemComponent, VisualScriptComponent],
+      Scripting: [VisualScriptComponent],
       Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
-      Misc: [
+      Visual: [
         EnvMapBakeComponent,
         ScenePreviewCameraComponent,
         SkyboxComponent,

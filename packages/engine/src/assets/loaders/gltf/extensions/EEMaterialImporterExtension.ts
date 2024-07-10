@@ -37,7 +37,7 @@ import {
   getPrototypeEntityFromName,
   injectMaterialDefaults,
   PrototypeNotFoundError
-} from '../../../../scene/materials/functions/materialSourcingFunctions'
+} from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
   EEMaterialExtensionType,
   isOldEEMaterial,

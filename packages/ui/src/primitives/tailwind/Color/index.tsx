@@ -82,7 +82,7 @@ export function ColorInput({
           }}
         />
       </div>
-      <Text fontFamily="Figtree" fontSize="xs" className={textClassName}>
+      <Text fontSize="xs" className={textClassName}>
         {hexColor.toUpperCase()}
       </Text>
     </div>
