@@ -46,11 +46,13 @@ import {
   removeEntity
 } from '@etherealengine/ecs'
 import { createEngine } from '@etherealengine/ecs/src/Engine'
+import { Raycaster } from 'three'
 import { EngineState } from '../../EngineState'
 import { initializeSpatialEngine } from '../../initializeEngine'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { ButtonStateMap, MouseScroll, XRStandardGamepadAxes } from '../state/ButtonState'
 import { DefaultButtonAlias, InputComponent, InputExecutionOrder, InputExecutionSystemGroup } from './InputComponent'
 import { InputSinkComponent } from './InputSinkComponent'
 import { InputSourceComponent } from './InputSourceComponent'
@@ -571,10 +573,187 @@ describe('InputComponent', () => {
     })
   })
 
+  describe('getMergedAxesForInputSources', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    describe('should create an object that ...', () => {
+      it('... contains 4 axes values at ids (0,1,2,3)', () => {
+        setComponent(testEntity, InputSourceComponent)
+        const result = InputComponent.getMergedAxesForInputSources([testEntity])
+        assert.notEqual(result[0], undefined)
+        assert.notEqual(result[1], undefined)
+        assert.notEqual(result[2], undefined)
+        assert.notEqual(result[3], undefined)
+      })
+
+      it('... has all the expected keys for the default mapping', () => {
+        setComponent(testEntity, InputSourceComponent)
+        const result = InputComponent.getMergedAxesForInputSources([testEntity])
+        assert.notEqual(result.HorizontalScroll, undefined)
+        assert.notEqual(result.VerticalScroll, undefined)
+        assert.notEqual(result.FollowCameraZoomScroll, undefined)
+        assert.notEqual(result.FollowCameraShoulderCamScroll, undefined)
+      })
+
+      function getDummyMapping(mapping: GamepadMappingType): XRInputSource {
+        return {
+          gamepad: {
+            axes: [0, 0, 0, 0],
+            buttons: [],
+            connected: true,
+            hapticActuators: [],
+            // id: 'emulated-gamepad-1',  // @note The attached number is unreliable on tests. Requires the entity number
+            index: 0,
+            mapping: mapping,
+            // timestamp: performance.now(),  // @note Unreliable on tests
+            vibrationActuator: null
+          },
+          gripSpace: undefined,
+          hand: undefined,
+          handedness: 'none',
+          profiles: [],
+          targetRayMode: 'screen',
+          targetRaySpace: {}
+        } as unknown as XRInputSource
+      }
+
+      it('... has all the expected keys for the "" mapping', () => {
+        setComponent(testEntity, InputSourceComponent, getDummyMapping(''))
+        const result = InputComponent.getMergedAxesForInputSources([testEntity])
+        assert.notEqual(result.HorizontalScroll, undefined)
+        assert.notEqual(result.VerticalScroll, undefined)
+        assert.notEqual(result.FollowCameraZoomScroll, undefined)
+        assert.notEqual(result.FollowCameraShoulderCamScroll, undefined)
+      })
+
+      it('... has all the expected keys for the "standard" mapping', () => {
+        setComponent(testEntity, InputSourceComponent, getDummyMapping('standard'))
+        const result = InputComponent.getMergedAxesForInputSources([testEntity])
+        assert.notEqual(result.FollowCameraZoomScroll, undefined)
+        assert.notEqual(result.FollowCameraShoulderCamScroll, undefined)
+        assert.notEqual(result.StandardGamepadLeftStickX, undefined)
+        assert.notEqual(result.StandardGamepadLeftStickY, undefined)
+        assert.notEqual(result.StandardGamepadRightStickX, undefined)
+        assert.notEqual(result.StandardGamepadRightStickY, undefined)
+      })
+
+      it('... has all the expected keys for the "xr-standard" mapping', () => {
+        setComponent(testEntity, InputSourceComponent, getDummyMapping('xr-standard'))
+        const result = InputComponent.getMergedAxesForInputSources([testEntity])
+        assert.notEqual(result.FollowCameraZoomScroll, undefined)
+        assert.notEqual(result.FollowCameraShoulderCamScroll, undefined)
+        assert.notEqual(result.XRStandardGamepadTouchpadX, undefined)
+        assert.notEqual(result.XRStandardGamepadTouchpadY, undefined)
+        assert.notEqual(result.XRStandardGamepadThumbstickX, undefined)
+        assert.notEqual(result.XRStandardGamepadThumbstickY, undefined)
+      })
+
+      it('... has all the expected keys for the given `@param inputAlias`', () => {
+        // Create the `@param inputAlias` object
+        const SomeAliasList = {
+          SomeAxisOne: [MouseScroll.HorizontalScroll, MouseScroll.VerticalScroll],
+          SomeAxisTwo: [
+            XRStandardGamepadAxes.XRStandardGamepadTouchpadX,
+            XRStandardGamepadAxes.XRStandardGamepadTouchpadY
+          ]
+        }
+        setComponent(testEntity, InputSourceComponent)
+        const result = InputComponent.getMergedAxesForInputSources([testEntity], SomeAliasList)
+        assert.notEqual(result.SomeAxisOne, undefined)
+        assert.notEqual(result.SomeAxisTwo, undefined)
+      })
+    })
+
+    it('should never return an undefined value when the keys passed in the inputAlias do not exist', () => {
+      // Create the incorrect `@param inputAlias` object
+      const DoesNotExist = { one: 41, two: 42, three: 43, four: 44 }
+      const SomeAliasList = {
+        SomeAxisOne: [DoesNotExist.one, DoesNotExist.two],
+        SomeAxisTwo: [DoesNotExist.three, DoesNotExist.four]
+      }
+      setComponent(testEntity, InputSourceComponent)
+      const result = InputComponent.getMergedAxesForInputSources([testEntity], SomeAliasList)
+      assert.notEqual(result.SomeAxisOne, undefined)
+      assert.notEqual(result.SomeAxisTwo, undefined)
+    })
+
+    it('should return a value of 0 for the keys passed in the inputAlias that do not exist', () => {
+      // Create the incorrect `@param inputAlias` object
+      const DoesNotExist = { one: 41, two: 42, three: 43, four: 44 }
+      const SomeAliasList = {
+        SomeAxisOne: [DoesNotExist.one, DoesNotExist.two],
+        SomeAxisTwo: [DoesNotExist.three, DoesNotExist.four]
+      }
+      setComponent(testEntity, InputSourceComponent)
+      const result = InputComponent.getMergedAxesForInputSources([testEntity], SomeAliasList)
+      assert.equal(result.SomeAxisOne, 0)
+      assert.equal(result.SomeAxisTwo, 0)
+    })
+
+    type Axes = [number, number, number, number]
+    function getDummyAxes(axes: Axes) {
+      return {
+        source: {
+          gamepad: {
+            axes: axes,
+            buttons: [],
+            connected: true,
+            hapticActuators: [],
+            // id: 'emulated-gamepad-1',  // @note The attached number is unreliable on tests. Requires the entity number
+            index: 0,
+            mapping: '' as GamepadMappingType,
+            // timestamp: performance.now(),  // @note Unreliable on tests
+            vibrationActuator: null
+          },
+          gripSpace: undefined,
+          hand: undefined,
+          handedness: 'none',
+          profiles: [],
+          targetRayMode: 'screen',
+          targetRaySpace: {}
+        } as unknown as XRInputSource,
+        buttons: {} as Readonly<ButtonStateMap<typeof DefaultButtonAlias>>,
+        raycaster: new Raycaster(),
+        intersections: [] as Array<{ entity: Entity; distance: number }>
+      }
+    }
+
+    it('should collapse the values of each `inputAlias` field into the single absolute largest value of all keys described by that field, into the result.field of that same name', () => {
+      // Create the `@param inputAlias` object
+      const SomeAliasList = {
+        SomeAxisOne: [MouseScroll.HorizontalScroll, MouseScroll.VerticalScroll],
+        SomeWrongAxis: [2, 3]
+      }
+      const VerticalScroll = 0.42
+      const HorizontalScroll = -0.41
+      const WrongBigger = 42
+      const WrongOther = 21
+      setComponent(testEntity, InputSourceComponent)
+      const DummyAxes = [HorizontalScroll, VerticalScroll, WrongBigger, WrongOther] as Axes
+      getMutableComponent(testEntity, InputSourceComponent).set(getDummyAxes(DummyAxes))
+      const result = InputComponent.getMergedAxesForInputSources([testEntity], SomeAliasList)
+      assert.notEqual(result.SomeAxisOne, undefined)
+      assert.notEqual(result.SomeWrongAxis, undefined)
+      assert.equal(result.SomeAxisOne, VerticalScroll)
+      assert.notEqual(result.SomeAxisOne, HorizontalScroll)
+      assert.equal(result.SomeWrongAxis, WrongBigger)
+      assert.notEqual(result.SomeWrongAxis, WrongOther)
+    })
+  })
+
   /**
   // @todo
   describe('getMergedAxes', () => {})
-  describe('getMergedAxesForInputSources', () => {})
   describe('useExecuteWithInput', () => {})
   describe('useHasFocus', () => {})
   */
