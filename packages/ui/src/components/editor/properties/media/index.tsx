@@ -93,7 +93,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.media.description')}
       icon={<MediaNodeEditor.iconComponent />}
     >
-      <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
+      <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')} childrenClassName="w-auto">
         <Slider
           min={0}
           max={100}

@@ -118,7 +118,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.inclination' as any)}
         />
       </InputGroup>
-      <InputGroup name="Luminance" label={t('editor:properties.skybox.lbl-luminance')}>
+      <InputGroup name="Luminance" label={t('editor:properties.skybox.lbl-luminance')} childrenClassName="w-auto">
         <Slider
           min={0.001}
           max={1}
@@ -128,7 +128,11 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.luminance' as any)}
         />
       </InputGroup>
-      <InputGroup name="Scattering Amount" label={t('editor:properties.skybox.lbl-scattering')}>
+      <InputGroup
+        name="Scattering Amount"
+        label={t('editor:properties.skybox.lbl-scattering')}
+        childrenClassName="w-auto"
+      >
         <Slider
           min={0}
           max={0.1}
@@ -138,7 +142,11 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.mieCoefficient' as any)}
         />
       </InputGroup>
-      <InputGroup name="Scattering Distance" label={t('editor:properties.skybox.lbl-scatteringDistance')}>
+      <InputGroup
+        name="Scattering Distance"
+        label={t('editor:properties.skybox.lbl-scatteringDistance')}
+        childrenClassName="w-auto"
+      >
         <Slider
           min={0}
           max={1}
@@ -148,7 +156,11 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.mieDirectionalG' as any)}
         />
       </InputGroup>
-      <InputGroup name="Horizon Start" label={t('editor:properties.skybox.lbl-horizonStart')}>
+      <InputGroup
+        name="Horizon Start"
+        label={t('editor:properties.skybox.lbl-horizonStart')}
+        childrenClassName="w-auto"
+      >
         <Slider
           min={1}
           max={20}
@@ -157,7 +169,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.turbidity' as any)}
         />
       </InputGroup>
-      <InputGroup name="Horizon End" label={t('editor:properties.skybox.lbl-horizonEnd')}>
+      <InputGroup name="Horizon End" label={t('editor:properties.skybox.lbl-horizonEnd')} childrenClassName="w-auto">
         <Slider
           min={0}
           max={4}

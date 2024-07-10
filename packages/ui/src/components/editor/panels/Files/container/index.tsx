@@ -543,7 +543,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           className="w-45 flex min-w-[300px] flex-col p-2"
         >
           {filesViewMode.value === 'icons' ? (
-            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')} childrenClassName="w-auto">
               <Slider
                 min={10}
                 max={100}
@@ -555,7 +555,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             </InputGroup>
           ) : (
             <>
-              <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
+              <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')} childrenClassName="w-auto">
                 <Slider
                   min={10}
                   max={100}

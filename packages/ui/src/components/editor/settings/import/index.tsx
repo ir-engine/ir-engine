@@ -104,6 +104,7 @@ const ImageCompressionBox = ({ compressProperties }) => {
             name="quality"
             label={t('editor:properties.model.transform.quality')}
             info={t('editor:properties.model.transform.qualityTooltip')}
+            childrenClassName="w-auto"
           >
             <Slider
               value={compressProperties.quality.value}
@@ -118,6 +119,7 @@ const ImageCompressionBox = ({ compressProperties }) => {
             name="compressionLevel"
             label={t('editor:properties.model.transform.compressionLevel')}
             info={t('editor:properties.model.transform.compressionLevelTooltip')}
+            childrenClassName="w-auto"
           >
             <Slider
               value={compressProperties.compressionLevel.value}

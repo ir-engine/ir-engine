@@ -176,6 +176,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
           name="Cascades"
           label={t('editor:properties.renderSettings.lbl-csm-cascades')}
           info={t('editor:properties.renderSettings.info-csm-cascades')}
+          childrenClassName="w-auto"
         >
           <Slider
             min={1}
@@ -204,6 +205,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
         name="Tone Mapping Exposure"
         label={t('editor:properties.renderSettings.lbl-toneMappingExposure')}
         info={t('editor:properties.renderSettings.info-toneMappingExposure')}
+        childrenClassName="w-auto"
       >
         <Slider
           min={0}

@@ -158,7 +158,11 @@ export const EnvMapEditor: EditorComponentType = (props) => {
         </Button>
       )}
       {envmapComponent.type.value !== EnvMapSourceType.None && (
-        <InputGroup name="EnvMap Intensity" label={t('editor:properties.envmap.lbl-intensity')}>
+        <InputGroup
+          name="EnvMap Intensity"
+          label={t('editor:properties.envmap.lbl-intensity')}
+          childrenClassName="w-auto"
+        >
           <Slider
             min={0}
             max={20}

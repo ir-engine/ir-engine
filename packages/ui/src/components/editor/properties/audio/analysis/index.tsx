@@ -55,7 +55,11 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
           onChange={commitProperty(AudioAnalysisComponent, 'bassEnabled')}
         />
       </InputGroup>
-      <InputGroup name="Bass Multiplier" label={t('editor:properties.audioAnalysis.lbl-bassMultiplier')}>
+      <InputGroup
+        name="Bass Multiplier"
+        label={t('editor:properties.audioAnalysis.lbl-bassMultiplier')}
+        childrenClassName="w-auto"
+      >
         <Slider
           min={0}
           max={5}
@@ -71,7 +75,11 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
           onChange={commitProperty(AudioAnalysisComponent, 'midEnabled')}
         />
       </InputGroup>
-      <InputGroup name="Mid Multiplier" label={t('editor:properties.audioAnalysis.lbl-midMultiplier')}>
+      <InputGroup
+        name="Mid Multiplier"
+        label={t('editor:properties.audioAnalysis.lbl-midMultiplier')}
+        childrenClassName="w-auto"
+      >
         <Slider
           min={0}
           max={5}
@@ -87,7 +95,11 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
           onChange={commitProperty(AudioAnalysisComponent, 'trebleEnabled')}
         />
       </InputGroup>
-      <InputGroup name="Treble Multiplier" label={t('editor:properties.audioAnalysis.lbl-trebleMultiplier')}>
+      <InputGroup
+        name="Treble Multiplier"
+        label={t('editor:properties.audioAnalysis.lbl-trebleMultiplier')}
+        childrenClassName="w-auto"
+      >
         <Slider
           min={0}
           max={5}

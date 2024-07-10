@@ -216,7 +216,11 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(PortalComponent, 'spawnPosition')}
         />
       </InputGroup>
-      <InputGroup name="Spawn Rotation" label={t('editor:properties.portal.lbl-spawnRotation')}>
+      <InputGroup
+        name="Spawn Rotation"
+        label={t('editor:properties.portal.lbl-spawnRotation')}
+        childrenClassName="w-auto"
+      >
         <EulerInput
           quaternion={portalComponent.spawnRotation.value}
           onChange={changeSpawnRotation}
