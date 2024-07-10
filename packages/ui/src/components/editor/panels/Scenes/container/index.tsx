@@ -26,7 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
-import { deleteScene, onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
+import CreateSceneDialog from '@etherealengine/editor/src/components/dialogs/CreateScenePanelDialog'
+import { deleteScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useRealtime } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -61,7 +62,8 @@ export default function ScenesPanel() {
   const isCreatingScene = useHookstate(false)
   const handleCreateScene = async () => {
     isCreatingScene.set(true)
-    await onNewScene()
+    //await onNewScene()
+    PopoverState.showPopupover(<CreateSceneDialog />)
     isCreatingScene.set(false)
   }
 
