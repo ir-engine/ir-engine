@@ -158,7 +158,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
 
-      <Button className="mr-6 self-end" onClick={addCallback}>
+      <Button className="self-end" onClick={addCallback}>
         {t('editor:properties.interactable.lbl-addcallback')}
       </Button>
 
@@ -204,7 +204,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
                 )}
               </InputGroup>
 
-              <div className="mr-6 flex justify-end">
+              <div className="flex justify-end">
                 <Button onClick={() => removeCallback(index)}>
                   {t('editor:properties.interactable.lbl-removecallback')}
                 </Button>

@@ -165,7 +165,7 @@ export const EnvMapBakeNodeEditor = (props) => {
       description="For Adding EnvMap bake in your scene"
       icon={<EnvMapBakeNodeEditor.iconComponent />}
     >
-      <Button className="my-1 ml-auto mr-6 px-10" onClick={() => uploadBPCEMBakeToServer(props.entity)}>
+      <Button className="my-1 ml-auto px-10" onClick={() => uploadBPCEMBakeToServer(props.entity)}>
         {t(`editor.projects.bake`)}
       </Button>
       <InputGroup name="Position" label="Position Offset">
