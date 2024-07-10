@@ -36,6 +36,7 @@ import {
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Checkbox from '../../../../../primitives/tailwind/Checkbox'
+import Input from '../../../../../primitives/tailwind/Input'
 import Label from '../../../../../primitives/tailwind/Label'
 import Modal from '../../../../../primitives/tailwind/Modal'
 import Select from '../../../../../primitives/tailwind/Select'
@@ -79,6 +80,13 @@ export default function ImageConvertModal({
         <Text fontWeight="semibold">
           {file.name} {file.isFolder ? t('editor:layout.filebrowser.directory') : t('editor:layout.filebrowser.file')}
         </Text>
+        <div className="flex items-center gap-2">
+          <Label className="w-16">{t('editor:layout.filebrowser.image-convert.newName')}</Label>
+          <Input
+            value={convertProperties.newName.value}
+            onChange={(value) => convertProperties.newName.set(value.target.value)}
+          />
+        </div>
         <div className="flex items-center gap-2">
           <Label className="w-16">{t('editor:layout.filebrowser.image-convert.format')}</Label>
           <Select

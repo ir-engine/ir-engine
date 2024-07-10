@@ -53,10 +53,16 @@ const convertImage =
     const project = inURI.split('/')[1]
 
     async function doConvert(inPath) {
-      const outPath = inPath.replace(/\.[^\.]+$/, `.${data.format}`)
+      let outPath = inPath.replace(/\.[^\.]+$/, `.${data.format}`)
       const outURIDir = isDir ? inURI : path.dirname(inURI)
       const projectRelativeDirectoryPath = outURIDir.split('/').slice(2).join('/')
-      const fileName = /[^\\/]*$/.exec(outPath)![0]
+      let fileName = ''
+      if (data.newName) {
+        fileName = data.newName + '.' + data.format
+        outPath = inPath.replace(/[^\\/]*$/, fileName)
+      } else {
+        fileName = /[^\\/]*$/.exec(outPath)![0]
+      }
       const image = sharp(inPath)
       if (data.width && data.height) {
         image.resize(data.width, data.height)
@@ -68,7 +74,7 @@ const convertImage =
         image.flip(false)
       }
       await image.toFile(outPath)
-      const result = await app.service(fileBrowserPath).patch(null, {
+      let result = await app.service(fileBrowserPath).patch(null, {
         project,
         path: projectRelativeDirectoryPath + '/' + fileName,
         body: fs.readFileSync(outPath),

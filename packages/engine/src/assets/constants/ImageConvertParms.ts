@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export type ImageConvertParms = {
+  newName: string
   src: string
   format: 'jpg' | 'png' | 'webp'
   resize: boolean
@@ -34,6 +35,7 @@ export type ImageConvertParms = {
 }
 
 export const ImageConvertDefaultParms: ImageConvertParms = {
+  newName: '',
   src: '',
   format: 'png',
   resize: false,
