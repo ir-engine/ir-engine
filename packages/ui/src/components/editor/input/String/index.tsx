@@ -39,7 +39,7 @@ const StringInput = ({ value, onChange, onRelease, className, inputRef, ...rest 
     <Input
       containerClassname="w-50 h-10 rounded-lg overflow-hidden"
       className={twMerge(
-        'h-full text-ellipsis rounded-lg border-none bg-[#1A1A1A] bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]',
+        'h-full text-ellipsis rounded-lg border-none bg-[#1A1A1A] px-5 py-2 text-xs font-normal text-[#8B8B8D]',
         className
       )}
       value={value}
@@ -92,7 +92,7 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
       ref={ref}
       containerClassname={twMerge('w-50 h-10 overflow-hidden rounded-lg', containerClassname)}
       className={twMerge(
-        'h-full text-ellipsis rounded-lg border-none bg-[#1A1A1A] bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]',
+        'h-full text-ellipsis rounded-lg border-none bg-[#1A1A1A] px-5 py-2 text-xs font-normal text-[#8B8B8D]',
         className
       )}
       value={tempValue ?? ''}
