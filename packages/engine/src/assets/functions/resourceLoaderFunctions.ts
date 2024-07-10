@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity } from '@etherealengine/ecs'
-import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
 import {
   ResourceAssetType,
   ResourceManager,
@@ -35,6 +35,10 @@ import {
 
 import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
 import { AssetLoader, getLoader } from '../classes/AssetLoader'
+
+interface Cloneable<T> {
+  clone?: () => T
+}
 
 const getLoaderForResourceType = (resourceType: ResourceType) => {
   switch (resourceType) {
@@ -74,7 +78,15 @@ export const loadResource = <T extends ResourceAssetType>(
     //No need for callbacks if the asset has already been loaded
     callbacks = ResourceManager.resourceCallbacks[ResourceType.Unknown]
     resources[url].references.merge([entity])
+
+    // If asset already exists clone it to share GPU memory
+    const asset = getState(ResourceState).resources[url].asset as Cloneable<T> | undefined
+    if (asset && typeof asset.clone === 'function') {
+      onLoad(asset.clone())
+      return
+    }
   }
+
   if (uuid) resources[url].onLoads.merge({ [uuid]: onLoad })
 
   const resource = resources[url]
