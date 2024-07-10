@@ -249,14 +249,14 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               unit="em"
             />
           </InputGroup>
-          <InputGroup name="TextDirection" label={t('editor:properties.text.textDirection')}>
+          {/* <InputGroup name="TextDirection" label={t('editor:properties.text.textDirection')}>
             <SelectInput
               options={SelectOptions.TextDirection}
               value={text.textDirection.value}
               onChange={commitProperty(TextComponent, 'textDirection')}
               //onRelease={commitProperty(TextComponent, 'textDirection')}
             />
-          </InputGroup>
+          </InputGroup> */}
         </div>
       </InputGroup>
       <br></br>
