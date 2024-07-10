@@ -72,6 +72,11 @@ const SelectOptions = {
     { label: 'Whitespace', value: 'normal' },
     { label: 'Break Word', value: 'break-word' }
   ],
+  Font: [
+    { label: 'Default', value: 'Default' }
+    // { label: 'Arial', value: 'Arial' },
+    // { label: 'Times New Roman', value: 'Times New Roman' },
+  ],
   FontMaterial: [
     { label: 'Basic', value: FontMaterialKind.Basic },
     { label: 'Standard', value: FontMaterialKind.Standard }
@@ -133,6 +138,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
     text.lineHeight.set(LineHeightNumericDefault) // 1.2 em
     text.outlineOpacity.set(100) // 100%
     text.outlineWidth.set(3) // 3px
+    text.font.set(SelectOptions.Font[0].value)
   }, [])
 
   return (
@@ -263,43 +269,39 @@ export const TextNodeEditor: EditorComponentType = (props) => {
         </div>
       </InputGroup>
       <br></br>
-      <InputGroup name="FontGroup" label={t('editor:properties.text.fontGroup')}>
-        <div>
-          <InputGroup name="FontFamily" label={t('editor:properties.text.fontFamily')} info={HoverInfo.FontFamily}>
-            <ControlledStringInput
-              value={text.font.value!}
-              onChange={updateProperty(TextComponent, 'font')}
-              onRelease={commitProperty(TextComponent, 'font')}
-            />
-          </InputGroup>
-          <InputGroup name="FontSize" label={t('editor:properties.text.fontSize')}>
-            <NumericInput
-              min={0}
-              smallStep={0.01}
-              mediumStep={0.1}
-              largeStep={0.5}
-              value={text.fontSize.value}
-              onChange={updateProperty(TextComponent, 'fontSize')}
-              onRelease={commitProperty(TextComponent, 'fontSize')}
-              unit="em"
-            />
-          </InputGroup>
-          <InputGroup name="FontColor" label={t('editor:properties.text.fontColor')}>
-            <ColorInput
-              value={text.fontColor.value}
-              onChange={commitProperty(TextComponent, 'fontColor')}
-              //onRelease={commitProperty(TextComponent, 'fontColor')}
-            />
-          </InputGroup>
-          <InputGroup name="FontMaterial" label={t('editor:properties.text.fontMaterial')}>
-            <SelectInput
-              options={SelectOptions.FontMaterial}
-              value={text.fontMaterial.value}
-              onChange={commitProperty(TextComponent, 'fontMaterial')}
-              //onRelease={commitProperty(TextComponent, 'fontMaterial')}
-            />
-          </InputGroup>
-        </div>
+      <InputGroup name="Font" label={t('editor:properties.text.fontGroup')}>
+        <SelectInput
+          options={SelectOptions.Font}
+          value={text.font.value || ''}
+          onChange={(value) => updateProperty(TextComponent, 'font')(value.toString())}
+        />
+      </InputGroup>
+      <InputGroup name="FontSize" label={t('editor:properties.text.fontSize')}>
+        <NumericInput
+          min={0}
+          smallStep={0.01}
+          mediumStep={0.1}
+          largeStep={0.5}
+          value={text.fontSize.value}
+          onChange={updateProperty(TextComponent, 'fontSize')}
+          onRelease={commitProperty(TextComponent, 'fontSize')}
+          unit="em"
+        />
+      </InputGroup>
+      <InputGroup name="FontColor" label={t('editor:properties.text.fontColor')}>
+        <ColorInput
+          value={text.fontColor.value}
+          onChange={commitProperty(TextComponent, 'fontColor')}
+          //onRelease={commitProperty(TextComponent, 'fontColor')}
+        />
+      </InputGroup>
+      <InputGroup name="FontMaterial" label={t('editor:properties.text.fontMaterial')}>
+        <SelectInput
+          options={SelectOptions.FontMaterial}
+          value={text.fontMaterial.value}
+          onChange={commitProperty(TextComponent, 'fontMaterial')}
+          //onRelease={commitProperty(TextComponent, 'fontMaterial')}
+        />
       </InputGroup>
       <br></br>
       <InputGroup name="OutlineGroup" label={t('editor:properties.text.outlineGroup')}>
