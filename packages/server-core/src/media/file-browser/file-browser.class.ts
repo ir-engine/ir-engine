@@ -159,6 +159,7 @@ export class FileBrowserService
     for (const file of result) {
       const resource = resourceMap[file.key]
       if (resource) {
+        file.url = resource.url
         file.thumbnailURL = resource.thumbnailURL
       }
     }
