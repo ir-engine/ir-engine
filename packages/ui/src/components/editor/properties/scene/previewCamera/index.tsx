@@ -48,6 +48,9 @@ import NodeEditor from '../../nodeEditor'
 /**
  * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
  */
+
+const scene = new Scene()
+
 export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const [bufferUrl, setBufferUrl] = useState<string>('')
@@ -62,8 +65,6 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
 
     EditorControlFunctions.commitTransformSave([props.entity])
   }
-
-  const scene = new Scene()
 
   const updateScenePreview = async () => {
     const rootEntity = getState(EngineState).viewerEntity
