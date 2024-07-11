@@ -27,19 +27,18 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ShadowMapResolutionOptions } from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
-import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { RenderModes, RenderModesType } from '@etherealengine/spatial/src/renderer/constants/RenderModes'
 import { GiWireframeGlobe } from 'react-icons/gi'
 import { RiArrowDownSLine } from 'react-icons/ri'
 import { TbBallBowling, TbInnerShadowBottom, TbInnerShadowBottomFilled, TbShadow } from 'react-icons/tb'
-import { ViewportPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { Popup } from '../../../../tailwind/Popup'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
-import PopOver from '../../../layout/Popover'
 
 const renderModes: { name: RenderModesType; icon: JSX.Element }[] = [
   {
@@ -63,22 +62,15 @@ const renderModes: { name: RenderModesType; icon: JSX.Element }[] = [
 
 const RenderModeTool = () => {
   const { t } = useTranslation()
-  const anchorEl = useHookstate<HTMLElement | null>(null)
-  const anchorPosition = useHookstate({ left: 0, top: 0 })
 
   const rendererState = useMutableState(RendererState)
   const options = [] as { label: string; value: string }[]
-  const isVisible = useHookstate(false)
 
   for (let key of Object.keys(RenderModes)) {
     options.push({
       label: RenderModes[key],
       value: RenderModes[key]
     })
-  }
-
-  const onChangeRenderMode = (mode: RenderModesType) => {
-    rendererState.renderMode.set(mode)
   }
 
   const handlePostProcessingChange = () => {
@@ -89,7 +81,7 @@ const RenderModeTool = () => {
   return (
     <div className="flex items-center gap-1">
       {renderModes.map((mode) => (
-        <Tooltip key={mode.name} title={mode.name} direction="bottom">
+        <Tooltip key={mode.name} title={mode.name}>
           <Button
             startIcon={mode.icon}
             variant={rendererState.renderMode.value === mode.name ? 'outline' : 'transparent'}
@@ -98,48 +90,33 @@ const RenderModeTool = () => {
           />
         </Tooltip>
       ))}
-      <Button
-        variant="transparent"
-        className="p-2"
-        onClick={(event) => {
-          anchorEl.set(event.currentTarget)
-          anchorPosition.set({ left: event.clientX - 240, top: event.clientY + 10 })
-        }}
-        startIcon={<RiArrowDownSLine />}
-        id="render-settings-menu"
-      />
-      <PopOver
-        open={!!anchorEl}
-        anchorEl={anchorEl.value as HTMLElement}
-        anchorPosition={anchorPosition.value}
-        panelId={ViewportPanelTab.id!}
-        onClose={() => anchorEl.set(null)}
-        className="w-60 p-2"
-      >
-        <InputGroup
-          name="Use Post Processing"
-          label={t('editor:toolbar.render-settings.lbl-usePostProcessing')}
-          info={t('editor:toolbar.render-settings.info-usePostProcessing')}
-        >
-          <BooleanInput
-            className="bg-gray-500 hover:border-0"
-            value={rendererState.usePostProcessing.value}
-            onChange={handlePostProcessingChange}
-          />
-        </InputGroup>
-        <InputGroup
-          name="Shadow Map Resolution"
-          label={t('editor:toolbar.render-settings.lbl-shadowMapResolution')}
-          info={t('editor:toolbar.render-settings.info-shadowMapResolution')}
-        >
-          <SelectInput
-            options={ShadowMapResolutionOptions as { value: string; label: string }[]}
-            value={rendererState.shadowMapResolution.value}
-            onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
-            disabled={rendererState.renderMode.value !== RenderModes.SHADOW}
-          />
-        </InputGroup>
-      </PopOver>
+      <Popup trigger={<Button variant="transparent" className="p-2" startIcon={<RiArrowDownSLine />} />}>
+        <div className="w-60 rounded-md bg-theme-primary p-2">
+          <InputGroup
+            name="Use Post Processing"
+            label={t('editor:toolbar.render-settings.lbl-usePostProcessing')}
+            info={t('editor:toolbar.render-settings.info-usePostProcessing')}
+          >
+            <BooleanInput
+              className="bg-gray-500 hover:border-0"
+              value={rendererState.usePostProcessing.value}
+              onChange={handlePostProcessingChange}
+            />
+          </InputGroup>
+          <InputGroup
+            name="Shadow Map Resolution"
+            label={t('editor:toolbar.render-settings.lbl-shadowMapResolution')}
+            info={t('editor:toolbar.render-settings.info-shadowMapResolution')}
+          >
+            <SelectInput
+              options={ShadowMapResolutionOptions as { value: string; label: string }[]}
+              value={rendererState.shadowMapResolution.value}
+              onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
+              disabled={rendererState.renderMode.value !== RenderModes.SHADOW}
+            />
+          </InputGroup>
+        </div>
+      </Popup>
     </div>
   )
 }

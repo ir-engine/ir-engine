@@ -289,8 +289,6 @@ export const pushProjectToGithub = async (
   if (!config.kubernetes.enabled || isJob)
     return pushProject(app, project, user, reset, commitSHA, jobId, storageProviderName)
   else {
-    const projectName = project.name.toLowerCase()
-
     const date = await getDateTimeSql()
     const newJob = await app.service(apiJobPath).create({
       name: '',
@@ -299,17 +297,18 @@ export const pushProjectToGithub = async (
       returnData: '',
       status: 'pending'
     })
+    const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
     const jobBody = await getProjectPushJobBody(app, project, user, reset, newJob.id, commitSHA)
     await app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name
     })
-    const jobLabelSelector = `etherealengine/projectField=${project.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/projectPusher=true`
+    const jobLabelSelector = `etherealengine/projectField=${projectJobName},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/projectPusher=true`
     const jobFinishedPromise = createExecutorJob(app, jobBody, jobLabelSelector, PUSH_TIMEOUT, newJob.id)
     try {
       await jobFinishedPromise
       return
     } catch (err) {
-      console.log('Error: project did not exist after completing update', projectName, err)
+      console.log('Error: project did not exist after completing update', projectJobName, err)
       throw new BadRequest('Project did not exist after completing update')
     }
   }
