@@ -42,6 +42,7 @@ import { getNestedVisibleChildren, getSceneParameters } from '@etherealengine/sp
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { Scene } from 'three'
+import Button from '../../../../../primitives/tailwind/Button'
 import ImagePreviewInput from '../../../input/Image/Preview'
 import NodeEditor from '../../nodeEditor'
 
@@ -104,15 +105,17 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.sceneCamera.description')}
       icon={<ScenePreviewCameraNodeEditor.iconComponent />}
     >
-      {/*<Button
-        onClick={() => {
-          onSetFromViewport()
-          updateScenePreview()
-        }}
-      >
-        {t('editor:properties.sceneCamera.lbl-setFromViewPort')}
-      </Button>*/}
       <ImagePreviewInput value={bufferUrl} />
+      <div className="flex h-auto flex-col items-center">
+        <Button
+          onClick={() => {
+            onSetFromViewport()
+            updateScenePreview()
+          }}
+        >
+          {t('editor:properties.sceneCamera.lbl-setFromViewPort')}
+        </Button>
+      </div>
     </NodeEditor>
   )
 }
