@@ -74,7 +74,8 @@ export default function AddEditLocationModal({
 
   const scenes = useFind(staticResourcePath, {
     query: {
-      paginate: false
+      paginate: false,
+      type: 'scene'
     }
   })
 
