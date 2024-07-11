@@ -245,7 +245,7 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
       ? data
       : {
           data: data,
-          total: data.length,
+          total: context.result?.['total'] ?? data.length,
           limit: context.params?.query?.$limit || 1000,
           skip: context.params?.query?.$skip || 0
         }
@@ -542,6 +542,7 @@ const updateProjectJob = async (context: HookContext) => {
       returnData: '',
       status: 'pending'
     })
+    const projectJobName = data.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
     const jobBody = await getProjectUpdateJobBody(
       data,
       context.app,
@@ -552,7 +553,7 @@ const updateProjectJob = async (context: HookContext) => {
     await context.app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name
     })
-    const jobLabelSelector = `etherealengine/projectField=${data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
+    const jobLabelSelector = `etherealengine/projectField=${projectJobName},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
     const jobFinishedPromise = createExecutorJob(context.app, jobBody, jobLabelSelector, 1000, newJob.id)
     try {
       await jobFinishedPromise
