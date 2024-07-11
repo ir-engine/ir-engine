@@ -1037,14 +1037,17 @@ export async function getProjectUpdateJobBody(
     command.push(data.reset.toString())
   }
 
+  const projectJobName = data.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+
   const labels = {
     'etherealengine/projectUpdater': 'true',
     'etherealengine/autoUpdate': 'false',
-    'etherealengine/projectField': data.name,
+    'etherealengine/projectField': projectJobName,
     'etherealengine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-${data.name}-update`
+  const name = `${process.env.RELEASE_NAME}-${projectJobName}-update`
+
   return getJobBody(app, command, name, labels)
 }
 export async function getProjectPushJobBody(
@@ -1082,25 +1085,28 @@ export async function getProjectPushJobBody(
     command.push(storageProviderName)
   }
 
+  const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+
   const labels = {
     'etherealengine/projectPusher': 'true',
-    'etherealengine/projectField': project.name,
+    'etherealengine/projectField': projectJobName,
     'etherealengine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-gh-push`
+  const name = `${process.env.RELEASE_NAME}-${projectJobName}-gh-push`
 
   return getJobBody(app, command, name, labels)
 }
 
 export const getCronJobBody = (project: ProjectType, image: string): object => {
+  const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
+      name: `${process.env.RELEASE_NAME}-${projectJobName}-auto-update`,
       labels: {
         'etherealengine/projectUpdater': 'true',
         'etherealengine/autoUpdate': 'true',
-        'etherealengine/projectField': project.name,
+        'etherealengine/projectField': projectJobName,
         'etherealengine/projectId': project.id,
         'etherealengine/release': process.env.RELEASE_NAME
       }
@@ -1117,7 +1123,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
               labels: {
                 'etherealengine/projectUpdater': 'true',
                 'etherealengine/autoUpdate': 'true',
-                'etherealengine/projectField': project.name,
+                'etherealengine/projectField': projectJobName,
                 'etherealengine/projectId': project.id,
                 'etherealengine/release': process.env.RELEASE_NAME
               }
@@ -1169,13 +1175,15 @@ export async function getDirectoryArchiveJobBody(
     jobId
   ]
 
+  const projectJobName = projectName.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+
   const labels = {
     'etherealengine/directoryArchiver': 'true',
-    'etherealengine/projectField': projectName,
+    'etherealengine/projectField': projectJobName,
     'etherealengine/release': process.env.RELEASE_NAME || ''
   }
 
-  const name = `${process.env.RELEASE_NAME}-${projectName}-archive`
+  const name = `${process.env.RELEASE_NAME}-${projectJobName}-archive`
 
   return getJobBody(app, command, name, labels)
 }
