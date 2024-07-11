@@ -147,13 +147,15 @@ export class FileBrowserService
       })
     }
 
-    const resourceQuery = await this.app.service(staticResourcePath).find({
+    const resourceQuery = (await this.app.service(staticResourcePath).find({
       query: {
-        key: { $in: result.map((file) => file.key) }
-      }
-    })
+        key: { $in: result.map((file) => file.key) },
+        $limit: 10000,
+        paginate: false
+      } as any
+    })) as unknown as StaticResourceType[]
     const resourceMap: Record<string, StaticResourceType> = {}
-    for (const resource of resourceQuery.data) {
+    for (const resource of resourceQuery) {
       resourceMap[resource.key] = resource
     }
     for (const file of result) {
