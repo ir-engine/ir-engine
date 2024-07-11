@@ -29,12 +29,19 @@ import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Texture } from 'three'
 
-import { EntityUUID, getComponent, UndefinedEntity, useComponent, UUIDComponent } from '@etherealengine/ecs'
+import {
+  EntityUUID,
+  getComponent,
+  setComponent,
+  UndefinedEntity,
+  useComponent,
+  UUIDComponent
+} from '@etherealengine/ecs'
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { NO_PROXY } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import {
   MaterialPrototypeComponent,
@@ -193,7 +200,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
         <StringInput
           value={materialComponent.material.value!.name}
-          onChange={(name) => setMaterialName(entity, name)}
+          onChange={(name) => setComponent(entity, NameComponent, name)}
         />
       </InputGroup>
       <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>

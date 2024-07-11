@@ -82,12 +82,11 @@ export function* heirarchyTreeWalker(sceneID: string, treeNode: Entity): Generat
 
     if (entityTreeComponent.children.length !== 0 && !isCollapsed) {
       for (let i = entityTreeComponent.children.length - 1; i >= 0; i--) {
-        const node = hasComponent(entityTreeComponent.children[i], EntityTreeComponent)
-
-        if (node) {
+        const childEntity = entityTreeComponent.children[i]
+        if (hasComponent(childEntity, SourceComponent)) {
           stack.push({
             depth: depth + 1,
-            entity: entityTreeComponent.children[i],
+            entity: childEntity,
             childIndex: i,
             lastChild: i === 0
           })

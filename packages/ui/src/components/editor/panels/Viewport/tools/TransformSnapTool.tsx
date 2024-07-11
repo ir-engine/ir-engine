@@ -36,6 +36,7 @@ import { LuUtilityPole } from 'react-icons/lu'
 import { MdOutlineCenterFocusWeak } from 'react-icons/md'
 import Button from '../../../../../primitives/tailwind/Button'
 import Select from '../../../../../primitives/tailwind/Select'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 const translationSnapOptions = [
   { label: '0.1m', value: 0.1 },
@@ -82,40 +83,42 @@ const TransformSnapTool = () => {
 
   return (
     <div id="transform-snap" className="flex items-center bg-theme-surfaceInput">
-      <Button
-        startIcon={<LuUtilityPole />}
-        onClick={toggleAttachmentPointSnap}
-        variant={objectSnapState.enabled.value ? 'outline' : 'transparent'}
-        title={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')}
-        className="px-0"
-      />
-      <Button
-        startIcon={<MdOutlineCenterFocusWeak />}
-        onClick={toggleSnapMode}
-        variant={editorHelperState.gridSnap.value === SnapMode.Grid ? 'outline' : 'transparent'}
-        title={t('editor:toolbar.transformSnapTool.toggleSnapMode')}
-        className="px-0"
-      />
-      {/* <Tooltip title={t('editor:toolbar.transformSnapTool.info-translate')} direction="right"> */}
-      <Select
-        key={editorHelperState.translationSnap.value}
-        inputClassName="py-1 h-6 rounded-sm text-[#A3A3A3] text-xs"
-        className="w-20 p-1"
-        onChange={onChangeTranslationSnap}
-        options={translationSnapOptions}
-        currentValue={editorHelperState.translationSnap.value}
-      />
-      {/* </Tooltip>
-          <Tooltip title={t('editor:toolbar.transformSnapTool.info-rotate')} direction="right"> */}
-      <Select
-        key={editorHelperState.rotationSnap.value}
-        inputClassName="py-1 h-6 rounded-sm text-[#A3A3A3] text-xs"
-        className="w-20 p-1"
-        onChange={onChangeRotationSnap}
-        options={rotationSnapOptions}
-        currentValue={editorHelperState.rotationSnap.value}
-      />
-      {/* </Tooltip> */}
+      <Tooltip title={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')}>
+        <Button
+          startIcon={<LuUtilityPole />}
+          onClick={toggleAttachmentPointSnap}
+          variant={objectSnapState.enabled.value ? 'outline' : 'transparent'}
+          className="px-0"
+        />
+      </Tooltip>
+      <Tooltip title={t('editor:toolbar.transformSnapTool.toggleSnapMode')}>
+        <Button
+          startIcon={<MdOutlineCenterFocusWeak />}
+          onClick={toggleSnapMode}
+          variant={editorHelperState.gridSnap.value === SnapMode.Grid ? 'outline' : 'transparent'}
+          className="px-0"
+        />
+      </Tooltip>
+      <Tooltip title={t('editor:toolbar.transformSnapTool.info-translate')}>
+        <Select
+          key={editorHelperState.translationSnap.value}
+          inputClassName="py-1 h-6 rounded-sm text-[#A3A3A3] text-xs"
+          className="w-20 p-1"
+          onChange={onChangeTranslationSnap}
+          options={translationSnapOptions}
+          currentValue={editorHelperState.translationSnap.value}
+        />
+      </Tooltip>
+      <Tooltip title={t('editor:toolbar.transformSnapTool.info-rotate')}>
+        <Select
+          key={editorHelperState.rotationSnap.value}
+          inputClassName="py-1 h-6 rounded-sm text-[#A3A3A3] text-xs"
+          className="w-20 p-1"
+          onChange={onChangeRotationSnap}
+          options={rotationSnapOptions}
+          currentValue={editorHelperState.rotationSnap.value}
+        />
+      </Tooltip>
     </div>
   )
 }
