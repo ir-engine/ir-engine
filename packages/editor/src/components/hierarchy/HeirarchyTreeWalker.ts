@@ -58,41 +58,31 @@ function isChild(index: number, nodes: GLTF.INode[]) {
 function buildHeirarchyTree(
   depth: number,
   childIndex: number,
-  nodeIndex: number,
+  node: GLTF.INode,
   nodes: GLTF.INode[],
   array: HeirarchyTreeNode[],
   lastChild = false
 ) {
-  const node = nodes[nodeIndex]
-  if (!node) return
+  const uuid = node.extensions && (node.extensions[UUIDComponent.jsonID] as ComponentType<typeof UUIDComponent>)
+  const entity = UUIDComponent.getEntityByUUID(uuid!)
+  const sceneID = getComponent(entity, SourceComponent)
 
-  const child = isChild(nodeIndex, nodes)
-  const addToArray = (child && depth !== 1) || !child
-
-  if (addToArray) {
-    const uuid = node.extensions && (node.extensions[UUIDComponent.jsonID] as ComponentType<typeof UUIDComponent>)
-    const entity = UUIDComponent.getEntityByUUID(uuid!)
-    const sceneID = getComponent(entity, SourceComponent)
-
-    const item = {
-      depth,
-      childIndex,
-      entity: entity,
-      isCollapsed: !getState(EditorState).expandedNodes[sceneID]?.[entity],
-      children: [],
-      isLeaf: !(node.children && node.children.length > 0),
-      lastChild: lastChild
-    }
-    array.push(item)
-    if (node.children) {
-      for (let i = 0; i < node.children.length; i++) {
-        const childIndex = node.children[i]
-        buildHeirarchyTree(depth + 1, i, childIndex, nodes, item.children, i === node.children.length - 1)
-      }
+  const item = {
+    depth,
+    childIndex,
+    entity: entity,
+    isCollapsed: !getState(EditorState).expandedNodes[sceneID]?.[entity],
+    children: [],
+    isLeaf: !(node.children && node.children.length > 0),
+    lastChild: lastChild
+  }
+  array.push(item)
+  if (node.children) {
+    for (let i = 0; i < node.children.length; i++) {
+      const childIndex = node.children[i]
+      buildHeirarchyTree(depth + 1, i, nodes[childIndex], nodes, item.children, i === node.children.length - 1)
     }
   }
-
-  buildHeirarchyTree(depth, childIndex, nodeIndex + 1, nodes, array)
 }
 
 function flattenTree(array: HeirarchyTreeNode[], outArray: HeirarchyTreeNodeType[]) {
@@ -113,7 +103,11 @@ export function gltfSnapshotTreeWalker(rootEntity: Entity, snapshotNodes: GLTF.I
   const nodes = snapshotNodes.slice()
 
   const outArray = [] as HeirarchyTreeNode[]
-  buildHeirarchyTree(1, 0, 0, nodes, outArray)
+
+  for (let i = 0; i < nodes.length; i++) {
+    if (isChild(i, nodes)) continue
+    buildHeirarchyTree(1, 0, nodes[i], nodes, outArray)
+  }
 
   const tree = [] as HeirarchyTreeNodeType[]
   tree.push({ depth: 0, entity: rootEntity, childIndex: 0, lastChild: true })
