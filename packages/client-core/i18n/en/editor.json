@@ -1199,7 +1199,8 @@
       "file": "File",
       "directory": "Directory",
       "fileProperties": {
-        "header": "{{fileName}} Info",
+        "header": "Info for {{fileName}}",
+        "header-plural": "Info for {{itemCount}} Items",
         "name": "Name",
         "type": "Type",
         "size": "Size",
@@ -1211,7 +1212,8 @@
         "addTag": "Add New Tag",
         "add": "Add",
         "save-changes": "Save Changes",
-        "discard": "Discard"
+        "discard": "Discard",
+        "mixedValues": "Mixed"
       },
       "view-mode": {
         "icons": "View: Icons",
