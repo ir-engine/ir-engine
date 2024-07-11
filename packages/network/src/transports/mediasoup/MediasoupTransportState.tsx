@@ -66,6 +66,7 @@ export class MediasoupTransportActions {
     sctpParameters: matches.object,
     iceParameters: matches.object,
     iceCandidates: matches.arrayOf(matches.object),
+    iceServers: matches.arrayOf(matches.object),
     dtlsParameters: matches.object as Validator<
       unknown,
       {
