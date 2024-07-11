@@ -43,6 +43,7 @@ type Props = {
   accepts?: string[]
 }
 
+/**@deprecated throws error on the server - to be replaced with newer ui implementation */
 export default function useUpload(options: Props = {}) {
   const { t } = useTranslation()
 
