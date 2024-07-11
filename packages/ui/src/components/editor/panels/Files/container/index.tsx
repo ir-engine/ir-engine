@@ -22,13 +22,15 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
 import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
 import {
   FileBrowserContentType,
+  StaticResourceType,
+  UserID,
   archiverPath,
   fileBrowserPath,
   fileBrowserUploadPath,
@@ -45,6 +47,8 @@ import {
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
+import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
+import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
@@ -53,7 +57,14 @@ import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/ser
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import {
+  ImmutableArray,
+  NO_PROXY,
+  getMutableState,
+  getState,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
@@ -65,16 +76,16 @@ import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { PiFolderPlusBold } from 'react-icons/pi'
 import { twMerge } from 'tailwind-merge'
-import { FilesPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Slider from '../../../../../primitives/tailwind/Slider'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { Popup } from '../../../../tailwind/Popup'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
-import Popover from '../../../layout/Popover'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
+import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
 
 type FileBrowserContentPanelProps = {
   projectName?: string
@@ -93,24 +104,71 @@ export type DnDFileType = {
 
 export const FILES_PAGE_LIMIT = 100
 
-export type FileType = {
-  fullName: string
-  isFolder: boolean
-  key: string
-  name: string
-  path: string
-  size: string
-  type: string
-  url: string
+export type FileType = FileDataType
+
+export const createFileDigest = (files: ImmutableArray<FileType>): FileType => {
+  const digest: FileType = {
+    key: '',
+    path: '',
+    name: '',
+    fullName: '',
+    url: '',
+    type: '',
+    isFolder: false
+  }
+  for (const key in digest) {
+    const allValues = new Set(files.map((file) => file[key]))
+    if (allValues.size === 1) {
+      digest[key] = Array.from(allValues).pop()
+    }
+  }
+  return digest
 }
 
-function fileConsistsOfContentType(file: FileDataType, contentType: string): boolean {
-  if (file.isFolder) {
-    return contentType.startsWith('image')
-  } else {
-    const guessedType: string = CommonKnownContentTypes[file.type]
-    return guessedType?.startsWith(contentType)
+export const createStaticResourceDigest = (staticResources: ImmutableArray<StaticResourceType>): StaticResourceType => {
+  const digest: StaticResourceType = {
+    id: '',
+    key: '',
+    mimeType: '',
+    hash: '',
+    type: '',
+    project: '',
+    // dependencies: '',
+    attribution: '',
+    licensing: '',
+    description: '',
+    // stats: '',
+    thumbnailKey: '',
+    thumbnailMode: '',
+    createdAt: '',
+    updatedAt: '',
+
+    url: '',
+    userId: '' as UserID
   }
+  for (const key in digest) {
+    const allValues = new Set(staticResources.map((resource) => resource[key]))
+    if (allValues.size === 1) {
+      digest[key] = Array.from(allValues).pop()
+    }
+  }
+  const allTags: string[] = Array.from(new Set(staticResources.flatMap((resource) => resource.tags))).filter(
+    (tag) => tag != null
+  ) as string[]
+  const commonTags = allTags.filter((tag) => staticResources.every((resource) => resource.tags?.includes(tag)))
+  digest.tags = commonTags
+  return digest
+}
+
+export const filesConsistOfContentType = function (files: ImmutableArray<FileType>, contentType: string): boolean {
+  return files.every((file) => {
+    if (file.isFolder) {
+      return contentType.startsWith('image')
+    } else {
+      const guessedType: string = CommonKnownContentTypes[file.type]
+      return guessedType?.startsWith(contentType)
+    }
+  })
 }
 
 export function isFileDataType(value: any): value is FileDataType {
@@ -169,10 +227,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
   const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
 
+  const fileProperties = useHookstate<FileType[]>([])
   const anchorEl = useHookstate<HTMLButtonElement | null>(null)
 
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
-  const anchorPosition = useHookstate<any>(undefined)
 
   const page = useHookstate(0)
 
@@ -439,7 +497,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       drop: (dropItem) => dropItemsOnPanel(dropItem as any),
       collect: (monitor) => ({ isFileDropOver: monitor.canDrop() && monitor.isOver() })
     })
-    const selectedFileKeys = useHookstate<string[]>([])
 
     const isListView = filesViewMode.value === 'list'
     const staticResourceData = useFind(staticResourcePath, {
@@ -466,23 +523,24 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const handleFileBrowserItemClick = (e: React.MouseEvent, currentFile: FileDataType) => {
       e.stopPropagation()
       if (e.ctrlKey || e.metaKey) {
-        selectedFileKeys.set((prevSelectedKeys) =>
-          prevSelectedKeys.includes(currentFile.key)
-            ? prevSelectedKeys.filter((selectedKey) => selectedKey !== currentFile.key)
-            : [...prevSelectedKeys, currentFile.key]
+        fileProperties.set((prevFileProperties) =>
+          prevFileProperties.some((file) => file.key === currentFile.key)
+            ? prevFileProperties.filter((file) => file.key !== currentFile.key)
+            : [...prevFileProperties, currentFile]
         )
       } else if (e.shiftKey) {
-        const lastIndex = files.findIndex((file) => file.key === selectedFileKeys.value.at(-1))
+        const lastIndex = files.findIndex((file) => file.key === fileProperties.value.at(-1)?.key)
         const clickedIndex = files.findIndex((file) => file.key === currentFile.key)
-        const newSelectedKeys = files
-          .slice(Math.min(lastIndex, clickedIndex), Math.max(lastIndex, clickedIndex) + 1)
-          .map((file) => file.key)
-        selectedFileKeys.set((prevSelectedKeys) => Array.from(new Set([...prevSelectedKeys, ...newSelectedKeys])))
+        const newSelectedFiles = files.slice(Math.min(lastIndex, clickedIndex), Math.max(lastIndex, clickedIndex) + 1)
+        fileProperties.set((prevFileProperties) => [
+          ...prevFileProperties,
+          ...newSelectedFiles.filter((newFile) => !prevFileProperties.some((file) => newFile.key === file.key))
+        ])
       } else {
-        if (selectedFileKeys.value.includes(currentFile.key)) {
-          selectedFileKeys.set([])
+        if (fileProperties.value.some((file) => file.key === currentFile.key)) {
+          fileProperties.set([])
         } else {
-          selectedFileKeys.set([currentFile.key])
+          fileProperties.set([currentFile])
         }
       }
     }
@@ -497,7 +555,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         )}
         onClick={(event) => {
           event.stopPropagation()
-          selectedFileKeys.set([])
+          fileProperties.set([])
         }}
       >
         <div className={twMerge(!isListView && 'flex flex-wrap')}>
@@ -515,13 +573,42 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   }}
                   currentContent={currentContentRef}
                   handleDropItemsOnPanel={(data, dropOn) =>
-                    dropItemsOnPanel(data, dropOn, selectedFileKeys.value as string[])
+                    dropItemsOnPanel(
+                      data,
+                      dropOn,
+                      fileProperties.value.map((file) => file.key)
+                    )
                   }
+                  openFileProperties={() => {
+                    PopoverState.showPopupover(
+                      <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
+                    )
+                  }}
+                  openImageCompress={() => {
+                    if (filesConsistOfContentType(fileProperties.value, 'image')) {
+                      PopoverState.showPopupover(
+                        <ImageCompressionPanel
+                          selectedFiles={fileProperties.value}
+                          refreshDirectory={refreshDirectory}
+                        />
+                      )
+                    }
+                  }}
+                  openModelCompress={() => {
+                    if (filesConsistOfContentType(fileProperties.value, 'model')) {
+                      PopoverState.showPopupover(
+                        <ModelCompressionPanel
+                          selectedFiles={fileProperties.value}
+                          refreshDirectory={refreshDirectory}
+                        />
+                      )
+                    }
+                  }}
                   isFilesLoading={isLoading}
                   addFolder={createNewFolder}
                   isListView={isListView}
                   staticResourceModifiedDates={staticResourceModifiedDates.value}
-                  isSelected={selectedFileKeys.value.includes(file.key)}
+                  isSelected={fileProperties.value.some(({ key }) => key === file.key)}
                   refreshDirectory={refreshDirectory}
                 />
               ))}
@@ -547,74 +634,56 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const ViewModeSettings = () => {
     const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
     return (
-      <>
-        <div id="viewSettings" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')} direction="bottom">
-            <Button
-              variant="transparent"
-              startIcon={<IoSettingsSharp />}
-              className="p-0"
-              onClick={(event) => {
-                anchorPosition.set({ left: event.clientX, top: event.clientY })
-                anchorEl.set(event.currentTarget)
-              }}
-            />
+      <Popup
+        position={'bottom left'}
+        trigger={
+          <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
+            <Button variant="transparent" startIcon={<IoSettingsSharp />} className="p-0" />
           </Tooltip>
-        </div>
-        <Popover
-          open={!!anchorEl.value}
-          anchorEl={anchorEl.value as any}
-          onClose={() => {
-            anchorEl.set(null)
-            anchorPosition.set(undefined)
-          }}
-          panelId={FilesPanelTab.id!}
-          anchorPosition={anchorPosition.value}
-          className="w-45 flex min-w-[300px] flex-col p-2"
-        >
-          {filesViewMode.value === 'icons' ? (
-            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+        }
+      >
+        {filesViewMode.value === 'icons' ? (
+          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+            <Slider
+              min={10}
+              max={100}
+              step={0.5}
+              value={viewModeSettings.icons.iconSize.value}
+              onChange={viewModeSettings.icons.iconSize.set}
+              onRelease={viewModeSettings.icons.iconSize.set}
+            />
+          </InputGroup>
+        ) : (
+          <>
+            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
               <Slider
                 min={10}
                 max={100}
                 step={0.5}
-                value={viewModeSettings.icons.iconSize.value}
-                onChange={viewModeSettings.icons.iconSize.set}
-                onRelease={viewModeSettings.icons.iconSize.set}
+                value={viewModeSettings.list.fontSize.value}
+                onChange={viewModeSettings.list.fontSize.set}
+                onRelease={viewModeSettings.list.fontSize.set}
               />
             </InputGroup>
-          ) : (
-            <>
-              <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
-                <Slider
-                  min={10}
-                  max={100}
-                  step={0.5}
-                  value={viewModeSettings.list.fontSize.value}
-                  onChange={viewModeSettings.list.fontSize.set}
-                  onRelease={viewModeSettings.list.fontSize.set}
-                />
-              </InputGroup>
 
-              <div>
-                <div className="mt-1 flex flex-auto text-white">
-                  <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-                </div>
-                <div className="flex-col">
-                  {availableTableColumns.map((column) => (
-                    <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
-                      <BooleanInput
-                        value={viewModeSettings.list.selectedTableColumns[column].value}
-                        onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                      />
-                    </InputGroup>
-                  ))}
-                </div>
+            <div>
+              <div className="mt-1 flex flex-auto text-white">
+                <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
               </div>
-            </>
-          )}
-        </Popover>
-      </>
+              <div className="flex-col">
+                {availableTableColumns.map((column) => (
+                  <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
+                    <BooleanInput
+                      value={viewModeSettings.list.selectedTableColumns[column].value}
+                      onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
+                    />
+                  </InputGroup>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </Popup>
     )
   }
 
@@ -627,13 +696,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             showBackButton ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
           }`}
         >
-          <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottom" className="left-1">
+          <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
             <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={onBackDirectory} />
           </Tooltip>
         </div>
 
         <div id="refreshDir" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.refresh')} direction="bottom">
+          <Tooltip title={t('editor:layout.filebrowser.refresh')}>
             <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={refreshDirectory} />
           </Tooltip>
         </div>
@@ -670,7 +739,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
 
         <div id="downloadProject" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.downloadProject')} direction="bottom">
+          <Tooltip title={t('editor:layout.filebrowser.downloadProject')}>
             <Button
               variant="transparent"
               startIcon={<FiDownload />}
@@ -682,7 +751,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
 
         <div id="newFolder" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.addNewFolder')} direction="bottom">
+          <Tooltip title={t('editor:layout.filebrowser.addNewFolder')}>
             <Button variant="transparent" startIcon={<PiFolderPlusBold />} className="p-0" onClick={createNewFolder} />
           </Tooltip>
         </div>
