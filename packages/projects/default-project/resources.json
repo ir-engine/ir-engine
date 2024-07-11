@@ -275,14 +275,14 @@
   "assets/prefabs/3d-model.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": []
   },
   "assets/prefabs/ambient-light.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsambient-light.prefab.gltf-thumbnail.png",
@@ -291,7 +291,7 @@
   "assets/prefabs/box-collider.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsbox-collider.prefab.gltf-thumbnail.png",
@@ -300,7 +300,7 @@
   "assets/prefabs/cylinder-collider.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabscylinder-collider.prefab.gltf-thumbnail.png",
@@ -309,7 +309,7 @@
   "assets/prefabs/directional-light.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsdirectional-light.prefab.gltf-thumbnail.png",
@@ -318,7 +318,7 @@
   "assets/prefabs/fog.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsfog.prefab.gltf-thumbnail.png",
@@ -327,7 +327,7 @@
   "assets/prefabs/geo.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsgeo.prefab.gltf-thumbnail.png",
@@ -336,7 +336,7 @@
   "assets/prefabs/hemisphere-light.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabshemisphere-light.prefab.gltf-thumbnail.png",
@@ -345,14 +345,14 @@
   "assets/prefabs/mesh-collider.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": []
   },
   "assets/prefabs/point-light.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabspoint-light.prefab.gltf-thumbnail.png",
@@ -361,7 +361,7 @@
   "assets/prefabs/postprocessing.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabspostprocessing.prefab.gltf-thumbnail.png",
@@ -370,7 +370,7 @@
   "assets/prefabs/skybox.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsskybox.prefab.gltf-thumbnail.png",
@@ -379,7 +379,7 @@
   "assets/prefabs/sphere-collider.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabssphere-collider.prefab.gltf-thumbnail.png",
@@ -388,7 +388,7 @@
   "assets/prefabs/spot-light.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsspot-light.prefab.gltf-thumbnail.png",
@@ -397,7 +397,7 @@
   "assets/prefabs/text.prefab.gltf": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Default Prefab"
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabstext.prefab.gltf-thumbnail.png",
