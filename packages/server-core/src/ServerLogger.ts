@@ -143,8 +143,22 @@ export const logger = pino(
     level: 'debug',
     enabled: useLogger,
     base: {
-      hostname: os.hostname,
-      component: 'server-core'
+      hostname: os.hostname
+    },
+    hooks: {
+      logMethod(inputArgs, method, level) {
+        const { component, userId } = this.bindings()
+
+        if (!component && !userId) {
+          inputArgs.unshift({ component: 'server-core', userId: '' })
+        } else if (component) {
+          inputArgs.unshift({ userId: '' })
+        } else if (userId) {
+          inputArgs.unshift({ component: 'server-core' })
+        }
+
+        return method.apply(this, inputArgs)
+      }
     }
   },
   multiStream
