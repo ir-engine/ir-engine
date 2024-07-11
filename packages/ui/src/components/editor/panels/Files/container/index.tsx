@@ -35,7 +35,6 @@ import {
   projectPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { Engine } from '@etherealengine/ecs'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
@@ -65,15 +64,14 @@ import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { PiFolderPlusBold } from 'react-icons/pi'
 import { twMerge } from 'tailwind-merge'
-import { FilesPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Slider from '../../../../../primitives/tailwind/Slider'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { Popup } from '../../../../tailwind/Popup'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
-import Popover from '../../../layout/Popover'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
 
 type FileBrowserContentPanelProps = {
@@ -102,15 +100,6 @@ export type FileType = {
   size: string
   type: string
   url: string
-}
-
-function fileConsistsOfContentType(file: FileDataType, contentType: string): boolean {
-  if (file.isFolder) {
-    return contentType.startsWith('image')
-  } else {
-    const guessedType: string = CommonKnownContentTypes[file.type]
-    return guessedType?.startsWith(contentType)
-  }
 }
 
 export function isFileDataType(value: any): value is FileDataType {
@@ -169,10 +158,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
   const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
 
-  const anchorEl = useHookstate<HTMLButtonElement | null>(null)
-
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
-  const anchorPosition = useHookstate<any>(undefined)
 
   const page = useHookstate(0)
 
@@ -217,7 +203,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }, [selectedDirectory])
 
   const refreshDirectory = async () => {
-    fileQuery.refetch()
+    await fileQuery.refetch()
   }
 
   const changeDirectoryByPath = (path: string) => {
@@ -247,24 +233,45 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     fileService.create(`${selectedDirectory.value}New_Folder`)
   }
 
-  const dropItemsOnPanel = async (data: FileDataType | DnDFileType, dropOn?: FileDataType) => {
+  const dropItemsOnPanel = async (
+    data: FileDataType | DnDFileType,
+    dropOn?: FileDataType,
+    selectedFileKeys?: string[]
+  ) => {
     if (isLoading) return
 
-    const path = dropOn?.isFolder ? dropOn.key : selectedDirectory.value
-    const folder = path.replace(/(.*\/).*/, '$1')
+    const destinationPath = dropOn?.isFolder ? `${dropOn.key}/` : selectedDirectory.value
 
-    if (isFileDataType(data)) {
+    if (selectedFileKeys && selectedFileKeys.length > 0) {
+      await Promise.all(
+        selectedFileKeys.map(async (fileKey) => {
+          const file = files.find((f) => f.key === fileKey)
+          if (file) {
+            if (file.isFolder) {
+              await fileService.create(`${destinationPath}${file.name}`)
+            } else {
+              const newName = `${file.name}${file.type ? '.' + file.type : ''}`
+              await moveContent(file.fullName, newName, file.path, destinationPath, false)
+            }
+          }
+        })
+      )
+    } else if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
-        moveContent(data.fullName, data.fullName, data.path, path, false)
+        const newName = `${data.name}${data.type ? '.' + data.type : ''}`
+        await moveContent(data.fullName, newName, data.path, destinationPath, false)
       }
     } else {
-      const relativePath = folder.replace('projects/' + projectName + '/', '').replace(/^\//gi, '')
+      const folder = destinationPath.substring(0, destinationPath.lastIndexOf('/') + 1)
+      const projectName = folder.split('/')[1]
+      const relativePath = folder.replace('projects/' + projectName + '/', '')
+
       await Promise.all(
         data.files.map(async (file) => {
           const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
           if (!assetType) {
-            // file is directory
-            fileService.create(`${path}${file.name}`)
+            // creating directory
+            await fileService.create(`${destinationPath}${file.name}`)
           } else {
             try {
               const name = processFileName(file.name)
@@ -307,15 +314,22 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     isCopy = false
   ): Promise<void> => {
     if (isLoading) return
-    fileService.update(null, {
-      oldProject: projectName,
-      newProject: projectName,
-      oldName,
-      newName,
-      oldPath,
-      newPath,
-      isCopy
-    })
+    try {
+      await fileService.update(null, {
+        oldProject: projectName,
+        newProject: projectName,
+        oldName,
+        newName,
+        oldPath,
+        newPath,
+        isCopy
+      })
+
+      await refreshDirectory()
+    } catch (error) {
+      console.error('Error moving file:', error)
+      NotificationService.dispatchNotify((error as Error).message, { variant: 'error' })
+    }
   }
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
@@ -486,7 +500,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     onSelect(file)
                   }}
                   currentContent={currentContentRef}
-                  dropItemsOnPanel={dropItemsOnPanel}
+                  handleDropItemsOnPanel={(data, dropOn) =>
+                    dropItemsOnPanel(data, dropOn, selectedFileKeys.value as string[])
+                  }
                   isFilesLoading={isLoading}
                   addFolder={createNewFolder}
                   isListView={isListView}
@@ -517,74 +533,56 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const ViewModeSettings = () => {
     const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
     return (
-      <>
-        <div id="viewSettings" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')} direction="bottom">
-            <Button
-              variant="transparent"
-              startIcon={<IoSettingsSharp />}
-              className="p-0"
-              onClick={(event) => {
-                anchorPosition.set({ left: event.clientX, top: event.clientY })
-                anchorEl.set(event.currentTarget)
-              }}
-            />
+      <Popup
+        position={'bottom left'}
+        trigger={
+          <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
+            <Button variant="transparent" startIcon={<IoSettingsSharp />} className="p-0" />
           </Tooltip>
-        </div>
-        <Popover
-          open={!!anchorEl.value}
-          anchorEl={anchorEl.value as any}
-          onClose={() => {
-            anchorEl.set(null)
-            anchorPosition.set(undefined)
-          }}
-          panelId={FilesPanelTab.id!}
-          anchorPosition={anchorPosition.value}
-          className="w-45 flex min-w-[300px] flex-col p-2"
-        >
-          {filesViewMode.value === 'icons' ? (
-            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+        }
+      >
+        {filesViewMode.value === 'icons' ? (
+          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+            <Slider
+              min={10}
+              max={100}
+              step={0.5}
+              value={viewModeSettings.icons.iconSize.value}
+              onChange={viewModeSettings.icons.iconSize.set}
+              onRelease={viewModeSettings.icons.iconSize.set}
+            />
+          </InputGroup>
+        ) : (
+          <>
+            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
               <Slider
                 min={10}
                 max={100}
                 step={0.5}
-                value={viewModeSettings.icons.iconSize.value}
-                onChange={viewModeSettings.icons.iconSize.set}
-                onRelease={viewModeSettings.icons.iconSize.set}
+                value={viewModeSettings.list.fontSize.value}
+                onChange={viewModeSettings.list.fontSize.set}
+                onRelease={viewModeSettings.list.fontSize.set}
               />
             </InputGroup>
-          ) : (
-            <>
-              <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
-                <Slider
-                  min={10}
-                  max={100}
-                  step={0.5}
-                  value={viewModeSettings.list.fontSize.value}
-                  onChange={viewModeSettings.list.fontSize.set}
-                  onRelease={viewModeSettings.list.fontSize.set}
-                />
-              </InputGroup>
 
-              <div>
-                <div className="mt-1 flex flex-auto text-white">
-                  <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-                </div>
-                <div className="flex-col">
-                  {availableTableColumns.map((column) => (
-                    <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
-                      <BooleanInput
-                        value={viewModeSettings.list.selectedTableColumns[column].value}
-                        onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                      />
-                    </InputGroup>
-                  ))}
-                </div>
+            <div>
+              <div className="mt-1 flex flex-auto text-white">
+                <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
               </div>
-            </>
-          )}
-        </Popover>
-      </>
+              <div className="flex-col">
+                {availableTableColumns.map((column) => (
+                  <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
+                    <BooleanInput
+                      value={viewModeSettings.list.selectedTableColumns[column].value}
+                      onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
+                    />
+                  </InputGroup>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </Popup>
     )
   }
 
@@ -597,13 +595,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             showBackButton ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
           }`}
         >
-          <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottom" className="left-1">
+          <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
             <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={onBackDirectory} />
           </Tooltip>
         </div>
 
         <div id="refreshDir" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.refresh')} direction="bottom">
+          <Tooltip title={t('editor:layout.filebrowser.refresh')}>
             <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={refreshDirectory} />
           </Tooltip>
         </div>
@@ -640,7 +638,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
 
         <div id="downloadProject" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.downloadProject')} direction="bottom">
+          <Tooltip title={t('editor:layout.filebrowser.downloadProject')}>
             <Button
               variant="transparent"
               startIcon={<FiDownload />}
@@ -652,7 +650,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
 
         <div id="newFolder" className="flex items-center">
-          <Tooltip title={t('editor:layout.filebrowser.addNewFolder')} direction="bottom">
+          <Tooltip title={t('editor:layout.filebrowser.addNewFolder')}>
             <Button variant="transparent" startIcon={<PiFolderPlusBold />} className="p-0" onClick={createNewFolder} />
           </Tooltip>
         </div>

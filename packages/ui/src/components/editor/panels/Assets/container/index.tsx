@@ -40,7 +40,6 @@ import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/as
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import {
@@ -60,6 +59,7 @@ import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import { FileIcon } from '../../Files/icon'
 
 type Category = {
@@ -104,22 +104,12 @@ const generateAssetsBreadcrumb = (categories: Category[], target: string) => {
 const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const { t } = useTranslation()
 
-  const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
     setAnchorEvent(event)
-    setAnchorPosition({
-      top: event.clientY,
-      left: event.clientX
-    })
-  }
-
-  const handleClose = () => {
-    setAnchorEvent(undefined)
-    setAnchorPosition(undefined)
   }
 
   const { onAssetSelectionChanged } = useContext(AssetsPreviewContext)
@@ -160,17 +150,11 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
 
-      <Tooltip title={t(name)} direction="bottom">
+      <Tooltip title={t(name)}>
         <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
       </Tooltip>
 
-      <ContextMenu
-        anchorEvent={anchorEvent}
-        panelId={'asset-browser-panel'}
-        anchorPosition={anchorPosition}
-        onClose={handleClose}
-        className="gap-1"
-      >
+      <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)} className="gap-1">
         <div className="w-full rounded-lg bg-theme-surface-main px-4 py-2 text-sm text-white">
           <MetadataTable
             rows={[
@@ -187,7 +171,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
             size="small"
             variant="transparent"
             className="text-s text-left hover:bg-theme-surfaceInput"
-            onClick={() => handleClose()}
+            onClick={() => () => setAnchorEvent(undefined)}
           >
             {t('editor:visualScript.modal.buttons.close')}
           </Button>
@@ -483,19 +467,19 @@ const AssetPanel = () => {
       <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
         <div className="mr-20 flex gap-2">
           <div id="back" className="pointer-events-auto flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottom" className="left-1">
+            <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
               <Button variant="transparent" startIcon={<HiMiniArrowLeft />} className="p-0" onClick={handleBack} />
             </Tooltip>
           </div>
 
           <div id="refresh" className="flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.refresh')} direction="bottom">
+            <Tooltip title={t('editor:layout.filebrowser.refresh')}>
               <Button variant="transparent" startIcon={<HiMiniArrowPath />} className="p-0" onClick={handleRefresh} />
             </Tooltip>
           </div>
 
           <div id="settings" className="flex items-center">
-            <Tooltip title={t('editor:layout.scene-assets.settings')} direction="bottom">
+            <Tooltip title={t('editor:layout.scene-assets.settings')}>
               <Button
                 variant="transparent"
                 startIcon={<HiOutlineCog6Tooth />}
