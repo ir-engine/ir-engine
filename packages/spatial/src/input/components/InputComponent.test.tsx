@@ -23,7 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
+import React, { useEffect } from 'react'
+import sinon from 'sinon'
 
 import {
   getComponent,
@@ -814,11 +817,84 @@ describe('InputComponent', () => {
     })
   })
 
-  /**
-  // @todo
-  describe('useExecuteWithInput', () => {})
-  describe('useHasFocus', () => {})
-  */
+  describe('useHasFocus', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, InputComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    /**
+     * @todo Why are the Reactor and useEffect only running once? */
+    it.skip('TODO: should update its state to true whenever the ammount of entities returned by InputComponent.getInputSourceEntities is bigger than 0', async () => {
+      const effectSpy = sinon.spy()
+      const reactorSpy = sinon.spy()
+      const Reactor = () => {
+        reactorSpy()
+        const hasFocus = InputComponent.useHasFocus()
+        useEffect(effectSpy, [hasFocus])
+        return null
+      }
+      const tag = <Reactor />
+
+      // Check the data before
+      const before = InputComponent.getInputSourceEntities(testEntity).length == 0
+      assert.ok(before)
+      assert.ok(reactorSpy.notCalled)
+      assert.ok(effectSpy.notCalled)
+      // Mount the reactor before the entity has any sources attached
+      const { rerender, unmount } = render(tag)
+      assert.ok(reactorSpy.called)
+      assert.ok(effectSpy.called)
+
+      // Rerender after setting the testEntity input sources
+      const inputSourceEntity = createEntity()
+      setComponent(inputSourceEntity, InputSourceComponent)
+      getMutableComponent(testEntity, InputComponent).inputSources.set([inputSourceEntity])
+      await act(() => rerender(tag))
+      assert.equal(reactorSpy.callCount, 1)
+      const count = InputComponent.getInputSourceEntities(testEntity).length
+      assert.equal(effectSpy.callCount, 2)
+      const afterOne = InputComponent.getInputSourceEntities(testEntity).length > 0
+      assert.ok(afterOne)
+
+      // Rerender after changing the testEntity input sources
+      getMutableComponent(testEntity, InputComponent).inputSources.set([])
+      await act(() => rerender(tag))
+      assert.equal(reactorSpy.callCount, 1)
+      assert.equal(effectSpy.callCount, 3)
+      const afterTwo = InputComponent.getInputSourceEntities(testEntity).length == 0
+      assert.ok(afterTwo)
+
+      // Cleanup the reactor after everything is done
+      unmount()
+    })
+  })
+
+  // ref: ProductModelReactor
+  // ref: InteractableComponent
+  // ref: TransformGizmoSystem
+  describe('useExecuteWithInput', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, InputComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+  })
 
   describe('reactor', () => {
     beforeEach(() => {
