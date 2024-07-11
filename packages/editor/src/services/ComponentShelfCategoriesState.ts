@@ -126,7 +126,7 @@ export const ComponentShelfCategoriesState = defineState({
       Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
       Visual: [
         EnvMapBakeComponent,
-        ...(FeatureFlagsState.enabled(FeatureFlags.Studio.ComponentShelfCategories.Visual.ScenePreviewCameraComponent)
+        ...(FeatureFlagsState.enabled(FeatureFlags.Studio.ComponentShelfCategories.ScenePreviewCameraComponent)
           ? [ScenePreviewCameraComponent]
           : []),
         SkyboxComponent,
