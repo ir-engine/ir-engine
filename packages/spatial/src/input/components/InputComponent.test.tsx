@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
@@ -37,10 +36,11 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { ReactorReconciler, getState } from '@etherealengine/hyperflux'
+import { ReactorReconciler, ReactorRoot, getState, startReactor } from '@etherealengine/hyperflux'
 
 import {
   Entity,
+  EntityContext,
   EntityUUID,
   InputSystemGroup,
   SystemDefinitions,
@@ -831,9 +831,7 @@ describe('InputComponent', () => {
       return destroyEngine()
     })
 
-    /**
-     * @todo Why are the Reactor and useEffect only running once? */
-    it.skip('TODO: should update its state to true whenever the ammount of entities returned by InputComponent.getInputSourceEntities is bigger than 0', async () => {
+    it('should update its state to true whenever the ammount of entities returned by InputComponent.getInputSourceEntities is bigger than 0', () => {
       const effectSpy = sinon.spy()
       const reactorSpy = sinon.spy()
       const Reactor = () => {
@@ -842,39 +840,63 @@ describe('InputComponent', () => {
         useEffect(effectSpy, [hasFocus])
         return null
       }
-      const tag = <Reactor />
 
       // Check the data before
       const before = InputComponent.getInputSourceEntities(testEntity).length == 0
       assert.ok(before)
       assert.ok(reactorSpy.notCalled)
       assert.ok(effectSpy.notCalled)
-      // Mount the reactor before the entity has any sources attached
-      const { rerender, unmount } = render(tag)
-      assert.ok(reactorSpy.called)
-      assert.ok(effectSpy.called)
 
-      // Rerender after setting the testEntity input sources
+      // Create a reactor root to run the hook's reactor. Goal:
+      //   Be able to use useEntityContext without calling `executeSystems`,
+      //   which deletes the sources from the entity on every frame
+      const root = startReactor(() => {
+        return React.createElement(EntityContext.Provider, { value: testEntity }, React.createElement(Reactor, {}))
+      }) as ReactorRoot
+
+      // Run reactor before the entity has any sources attached
+      root.run()
+      assert.ok(reactorSpy.called)
+      assert.ok(effectSpy.called) // Called when we start the reactor
+
+      // Set the testEntity input sources
+      //  We should react on these changes, and the useHasFocus spy should increment
       const inputSourceEntity = createEntity()
       setComponent(inputSourceEntity, InputSourceComponent)
       getMutableComponent(testEntity, InputComponent).inputSources.set([inputSourceEntity])
-      await act(() => rerender(tag))
-      assert.equal(reactorSpy.callCount, 1)
-      const count = InputComponent.getInputSourceEntities(testEntity).length
+
+      // Extract the useExecute system out of the global list of SystemDefinitions array
+      const list = Array.from(SystemDefinitions.entries())
+      const [uuid, syst] = list[list.length - 1]
+      syst.execute()
+      root.run()
+      // Check that we have run the correct number of times, after having reacted to the inputSources change
+      assert.equal(reactorSpy.callCount, 3)
       assert.equal(effectSpy.callCount, 2)
-      const afterOne = InputComponent.getInputSourceEntities(testEntity).length > 0
-      assert.ok(afterOne)
+      const afterOne = InputComponent.getInputSourceEntities(testEntity)
+      assert.ok(afterOne.length > 0, 'getInputSourceEntities for testEntity should return an array containing entities')
+      assert.equal(
+        afterOne[0],
+        inputSourceEntity,
+        'getInputSourceEntities for testEntity should return an array containing the inputSourceEntity'
+      )
 
-      // Rerender after changing the testEntity input sources
+      // Run again, and clear the list of inputSources for the testEntity
+      root.run()
       getMutableComponent(testEntity, InputComponent).inputSources.set([])
-      await act(() => rerender(tag))
-      assert.equal(reactorSpy.callCount, 1)
-      assert.equal(effectSpy.callCount, 3)
-      const afterTwo = InputComponent.getInputSourceEntities(testEntity).length == 0
-      assert.ok(afterTwo)
+      assert.equal(effectSpy.callCount, 2)
+      syst.execute()
 
-      // Cleanup the reactor after everything is done
-      unmount()
+      // Check the spies and the list of sources after running the system and the reactor
+      assert.equal(reactorSpy.callCount, 4)
+      assert.equal(effectSpy.callCount, 2)
+      const afterTwo = InputComponent.getInputSourceEntities(testEntity).length == 0
+      assert.ok(afterTwo, 'getInputSourceEntities for testEntity should return an empty array after we clear it')
+
+      // Check that everything is updated as expected after running the reactor root
+      root.run()
+      assert.equal(reactorSpy.callCount, 5)
+      assert.equal(effectSpy.callCount, 3)
     })
   })
 
