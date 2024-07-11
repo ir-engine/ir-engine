@@ -184,7 +184,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         <div className="flex flex-col">
           <div className="flex w-auto flex-row gap-1">
             <Button
-              className="h-[30px] w-[100px] bg-neutral-700 font-['Figtree'] text-xs font-normal text-zinc-300"
+              className="h-[30px] w-[100px] bg-neutral-700 text-xs font-normal text-zinc-300"
               onClick={() => {
                 updateCubeMapBake()
               }}
@@ -192,7 +192,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
               {t('editor:properties.portal.lbl-generateImage')}
             </Button>
             <Button
-              className="h-[30px] w-[74px] bg-blue-800 font-['Figtree'] text-xs font-normal text-neutral-400"
+              className="h-[30px] w-[74px] bg-blue-800 text-xs font-normal text-neutral-400"
               onClick={() => {
                 uploadEnvmap()
               }}

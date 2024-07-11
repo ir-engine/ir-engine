@@ -29,9 +29,11 @@ import { EditorHelperState } from '@etherealengine/editor/src/services/EditorHel
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { useMutableState } from '@etherealengine/hyperflux'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { TbPointer, TbRefresh, TbVector, TbWindowMaximize } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 function Placer() {
   return (
@@ -45,53 +47,63 @@ function Placer() {
 export default function GizmoTool() {
   const editorHelperState = useMutableState(EditorHelperState)
   const transformMode = editorHelperState.transformMode.value
+  const { t } = useTranslation()
 
   return (
     <div className="absolute left-4 top-14 z-10 flex flex-col items-center rounded-lg bg-black p-2">
       <Placer />
-      <div className="mt-2 flex flex-col rounded bg-theme-surface-main">
-        <Button
-          variant="transparent"
-          className={twMerge('border-b border-b-theme-primary p-2 text-[#A3A3A3]')}
-          iconContainerClassName="m-0"
-          startIcon={<TbPointer />}
-          title="Pointer"
-          onClick={() => EditorControlFunctions.replaceSelection([])}
-        />
-        <Button
-          variant="transparent"
-          className={twMerge(
-            'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
-            transformMode === TransformMode.translate && 'bg-theme-highlight text-white'
-          )}
-          iconContainerClassName="m-0"
-          startIcon={<TbVector />}
-          title="Translate (key W)"
-          onClick={() => setTransformMode(TransformMode.translate)}
-        />
-        <Button
-          variant="transparent"
-          className={twMerge(
-            'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
-            transformMode === TransformMode.rotate && 'bg-theme-highlight text-white'
-          )}
-          iconContainerClassName="m-0"
-          startIcon={<TbRefresh />}
-          title="Rotate (key E)"
-          onClick={() => setTransformMode(TransformMode.rotate)}
-        />
-        <Button
-          variant="transparent"
-          className={twMerge(
-            'p-2 text-[#A3A3A3]',
-            transformMode === TransformMode.scale && 'bg-theme-highlight text-white'
-          )}
-          iconContainerClassName="m-0"
-          startIcon={<TbWindowMaximize />}
-          title="Scale (key R)"
-          onClick={() => setTransformMode(TransformMode.scale)}
-        />
-      </div>
+      <Tooltip title={t('editor:toolbar.gizmo.description')} position={'top center'}>
+        <div className="mt-2 flex flex-col rounded bg-theme-surface-main">
+          <Tooltip title={t('editor:toolbar.gizmo.pointer')} position={'right center'}>
+            <Button
+              variant="transparent"
+              className={twMerge('border-b border-b-theme-primary p-2 text-[#A3A3A3]')}
+              iconContainerClassName="m-0"
+              startIcon={<TbPointer />}
+              onClick={() => EditorControlFunctions.replaceSelection([])}
+            />
+          </Tooltip>
+          <Tooltip title={t('editor:toolbar.gizmo.translate')} position={'right center'}>
+            <Button
+              variant="transparent"
+              className={twMerge(
+                'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
+                transformMode === TransformMode.translate && 'bg-theme-highlight text-white'
+              )}
+              iconContainerClassName="m-0"
+              startIcon={<TbVector />}
+              title="Translate (key W)"
+              onClick={() => setTransformMode(TransformMode.translate)}
+            />
+          </Tooltip>
+          <Tooltip title={t('editor:toolbar.gizmo.rotate')} position={'right center'}>
+            <Button
+              variant="transparent"
+              className={twMerge(
+                'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
+                transformMode === TransformMode.rotate && 'bg-theme-highlight text-white'
+              )}
+              iconContainerClassName="m-0"
+              startIcon={<TbRefresh />}
+              title="Rotate (key E)"
+              onClick={() => setTransformMode(TransformMode.rotate)}
+            />
+          </Tooltip>
+          <Tooltip title={t('editor:toolbar.gizmo.scale')} position={'right center'}>
+            <Button
+              variant="transparent"
+              className={twMerge(
+                'p-2 text-[#A3A3A3]',
+                transformMode === TransformMode.scale && 'bg-theme-highlight text-white'
+              )}
+              iconContainerClassName="m-0"
+              startIcon={<TbWindowMaximize />}
+              title="Scale (key R)"
+              onClick={() => setTransformMode(TransformMode.scale)}
+            />
+          </Tooltip>
+        </div>
+      </Tooltip>
     </div>
   )
 }

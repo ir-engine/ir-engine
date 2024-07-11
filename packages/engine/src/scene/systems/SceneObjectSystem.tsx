@@ -72,13 +72,13 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
-import { createMaterialEntity } from '../materials/functions/materialSourcingFunctions'
 
 const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {
@@ -142,7 +142,7 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
       newBasicMaterial.side = prevMaterial.side
       newBasicMaterial.plugins = undefined
 
-      createMaterialEntity(newBasicMaterial, '', entity)
+      createMaterialEntity(newBasicMaterial, entity)
       setComponent(entity, MaterialInstanceComponent, { uuid: [basicUUID] })
     } else {
       const UUID = child.material.uuid as EntityUUID
@@ -225,22 +225,24 @@ const ModelEntityReactor = () => {
 const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
   const isMesh = useOptionalComponent(props.entity, MeshComponent)
   const isModelColliders = useOptionalComponent(props.parentEntity, RigidBodyComponent)
+  const isVisible = useOptionalComponent(props.entity, VisibleComponent)
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
-    if (!isMesh) return
+    if (!isMesh || !isVisible) return
     if (shadowComponent)
       setComponent(props.entity, ShadowComponent, serializeComponent(props.parentEntity, ShadowComponent))
     else removeComponent(props.entity, ShadowComponent)
-  }, [isMesh, shadowComponent?.cast, shadowComponent?.receive])
+  }, [isVisible, isMesh, shadowComponent?.cast, shadowComponent?.receive])
 
   const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
   useEffect(() => {
-    if (!isMesh) return
+    if (!isMesh || !isVisible) return
     if (envmapComponent)
       setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
     else removeComponent(props.entity, EnvmapComponent)
   }, [
+    isVisible,
     isMesh,
     envmapComponent,
     envmapComponent?.envMapIntensity,

@@ -42,7 +42,6 @@ import fetch from 'node-fetch'
 import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
-import { v4 as uuidv4 } from 'uuid'
 
 import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/regex'
@@ -308,16 +307,16 @@ export const onProjectEvent = async (
   }
 }
 
-export const getProjectConfig = (projectName: string): ProjectConfigInterface => {
+export const getProjectConfig = (projectName: string) => {
   try {
-    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')).default
+    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts'))
+      .default as ProjectConfigInterface
   } catch (e) {
     logger.error(
       e,
       '[Projects]: WARNING project with ' +
         `name ${projectName} has no xrengine.config.ts file - this is not recommended.`
     )
-    return null!
   }
 }
 export const getProjectManifest = (projectName: string): ManifestJson => {
@@ -1038,14 +1037,17 @@ export async function getProjectUpdateJobBody(
     command.push(data.reset.toString())
   }
 
+  const projectJobName = data.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+
   const labels = {
     'etherealengine/projectUpdater': 'true',
     'etherealengine/autoUpdate': 'false',
-    'etherealengine/projectField': data.name,
+    'etherealengine/projectField': projectJobName,
     'etherealengine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-${data.name}-update`
+  const name = `${process.env.RELEASE_NAME}-${projectJobName}-update`
+
   return getJobBody(app, command, name, labels)
 }
 export async function getProjectPushJobBody(
@@ -1083,25 +1085,28 @@ export async function getProjectPushJobBody(
     command.push(storageProviderName)
   }
 
+  const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+
   const labels = {
     'etherealengine/projectPusher': 'true',
-    'etherealengine/projectField': project.name,
+    'etherealengine/projectField': projectJobName,
     'etherealengine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-gh-push`
+  const name = `${process.env.RELEASE_NAME}-${projectJobName}-gh-push`
 
   return getJobBody(app, command, name, labels)
 }
 
 export const getCronJobBody = (project: ProjectType, image: string): object => {
+  const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
+      name: `${process.env.RELEASE_NAME}-${projectJobName}-auto-update`,
       labels: {
         'etherealengine/projectUpdater': 'true',
         'etherealengine/autoUpdate': 'true',
-        'etherealengine/projectField': project.name,
+        'etherealengine/projectField': projectJobName,
         'etherealengine/projectId': project.id,
         'etherealengine/release': process.env.RELEASE_NAME
       }
@@ -1118,7 +1123,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
               labels: {
                 'etherealengine/projectUpdater': 'true',
                 'etherealengine/autoUpdate': 'true',
-                'etherealengine/projectField': project.name,
+                'etherealengine/projectField': projectJobName,
                 'etherealengine/projectId': project.id,
                 'etherealengine/release': process.env.RELEASE_NAME
               }
@@ -1170,13 +1175,15 @@ export async function getDirectoryArchiveJobBody(
     jobId
   ]
 
+  const projectJobName = projectName.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+
   const labels = {
     'etherealengine/directoryArchiver': 'true',
-    'etherealengine/projectField': projectName,
+    'etherealengine/projectField': projectJobName,
     'etherealengine/release': process.env.RELEASE_NAME || ''
   }
 
-  const name = `${process.env.RELEASE_NAME}-${projectName}-archive`
+  const name = `${process.env.RELEASE_NAME}-${projectJobName}-archive`
 
   return getJobBody(app, command, name, labels)
 }
@@ -1454,7 +1461,7 @@ export const updateProject = async (
 
   const { assetsOnly } = await uploadLocalProjectToProvider(app, projectName)
 
-  const projectConfig = getProjectConfig(projectName) ?? {}
+  const projectConfig = getProjectConfig(projectName)
 
   const enabled = getProjectEnabled(projectName)
 
@@ -1483,7 +1490,6 @@ export const updateProject = async (
     ? // Add to DB
       await app.service(projectPath).create(
         {
-          id: uuidv4(),
           name: projectName,
           enabled,
           repositoryPath,
@@ -1496,9 +1502,7 @@ export const updateProject = async (
           updateUserId: userId || null,
           commitSHA,
           commitDate: toDateTimeSql(commitDate),
-          assetsOnly: assetsOnly,
-          createdAt: await getDateTimeSql(),
-          updatedAt: await getDateTimeSql()
+          assetsOnly
         },
         params || {}
       )
@@ -1543,7 +1547,7 @@ export const updateProject = async (
     )
   }
   // run project install script
-  if (projectConfig.onEvent) {
+  if (projectConfig?.onEvent) {
     await onProjectEvent(app, returned, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
   }
 
