@@ -21,6 +21,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import {
   LocationData,
@@ -161,6 +162,9 @@ export default function PublishSceneModal({ location, sceneID }: { location?: Lo
                       navigator.clipboard.writeText(
                         new URL(window.location.origin + `/location/${location.slugifiedName}`).href
                       )
+                      NotificationService.dispatchNotify(t('editor:toolbar.publishLocation.locationLinkCopied'), {
+                        variant: 'success'
+                      })
                     }}
                   />
                 }
