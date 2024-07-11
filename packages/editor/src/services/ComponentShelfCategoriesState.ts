@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { Component } from '@etherealengine/ecs'
-import { VisualScriptComponent } from '@etherealengine/engine'
+import { FeatureFlagsState, VisualScriptComponent } from '@etherealengine/engine'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
@@ -47,6 +48,7 @@ import { ReflectionProbeComponent } from '@etherealengine/engine/src/scene/compo
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
+import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
@@ -124,7 +126,9 @@ export const ComponentShelfCategoriesState = defineState({
       Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
       Visual: [
         EnvMapBakeComponent,
-        // ScenePreviewCameraComponent,
+        ...(FeatureFlagsState.enabled(FeatureFlags.Studio.ComponentShelfCategories.Visual.ScenePreviewCameraComponent)
+          ? [ScenePreviewCameraComponent]
+          : []),
         SkyboxComponent,
         SplineTrackComponent,
         SplineComponent,

@@ -33,7 +33,7 @@ export const FeatureFlagsState = defineState({
   initial: {} as Record<string, boolean>,
   enabled(flagName: string) {
     const state = getMutableState(FeatureFlagsState)[flagName].value
-    return typeof state === 'boolean' ? state : true
+    return typeof state === 'boolean' ? state : false // returns false if state has not been set
   },
   useEnabled(flagName: string) {
     const state = useHookstate(getMutableState(FeatureFlagsState)[flagName]).value

@@ -31,5 +31,12 @@ export const FeatureFlags = {
       Avaturn: 'ir.client.menu.avaturn',
       ReadyPlayerMe: 'ir.client.menu.readyPlayerMe'
     }
+  },
+  Studio: {
+    ComponentShelfCategories: {
+      Visual: {
+        ScenePreviewCameraComponent: 'ir.studio.componentShelfCategories.visual.scenePreviewCameraComponent'
+      }
+    }
   }
 }
