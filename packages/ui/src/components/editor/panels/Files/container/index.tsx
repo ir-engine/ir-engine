@@ -191,7 +191,7 @@ function extractDirectoryWithoutOrgName(directory: string, orgName: string) {
  * @todo will be optimized away once orgname is fully supported
  */
 export const useValidProjectForFileBrowser = (path: string) => {
-  const [orgName, projectName] = path.split('/').slice(2, 3)
+  const [orgName, projectName] = path.split('/').slice(2, 4)
   const projects = useFind(projectPath, {
     query: {
       $or: [
@@ -199,7 +199,7 @@ export const useValidProjectForFileBrowser = (path: string) => {
           name: `${orgName}/${projectName}`
         },
         {
-          name: projectName
+          name: orgName
         }
       ],
       action: 'studio',
@@ -207,8 +207,8 @@ export const useValidProjectForFileBrowser = (path: string) => {
     }
   })
   return (
-    projects.data.find((project) => project.name === projectName || project.name === `${orgName}/${projectName}`)
-      ?.name ?? ''
+    projects.data.find((project) => project.name === orgName || project.name === `${orgName}/${projectName}`)?.name ??
+    ''
   )
 }
 
