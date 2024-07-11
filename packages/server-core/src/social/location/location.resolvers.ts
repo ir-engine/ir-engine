@@ -74,10 +74,7 @@ export const locationResolver = resolve<LocationType, HookContext>({
     return context.app.service(staticResourcePath).get(location.sceneId)
   }),
   url: virtual(async (location, _context) => {
-    if (!location.url) {
-      return `${config.client.url}/location/${location.slugifiedName}`
-    }
-    return location.url
+    return `${config.client.url}/location/${location.slugifiedName}`
   }),
   createdAt: virtual(async (location) => fromDateTimeSql(location.createdAt)),
   updatedAt: virtual(async (location) => fromDateTimeSql(location.updatedAt))
