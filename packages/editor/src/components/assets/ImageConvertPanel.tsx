@@ -31,11 +31,11 @@ import { State } from '@etherealengine/hyperflux'
 
 import { imageConvertPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs'
+import { FileType } from '@etherealengine/ui/src/components/editor/panels/Files/container'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
-import { FileType } from './FileBrowser/FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
 export default function ImageConvertPanel({
