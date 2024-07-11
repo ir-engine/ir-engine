@@ -119,7 +119,7 @@ const defaultLayout: LayoutData = {
 
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, uiAddons } = useMutableState(EditorState)
-  const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '' } }).data
+  const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '', type: 'scene' } }).data
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
   const dockPanelRef = useRef<DockLayout>(null)
