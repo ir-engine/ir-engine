@@ -45,7 +45,7 @@ export function NumericStepperInput({
   className?: string
   incrementTooltip?: string
   decrementTooltip?: string
-  onChange: (val) => void
+  onChange: (val: number) => void
   value: number
   mediumStep: number
 } & NumericInputProp) {
@@ -54,7 +54,7 @@ export function NumericStepperInput({
 
   return (
     <div className={twMerge('flex h-6 w-full flex-1', className)}>
-      <InfoTooltip title={decrementTooltip} placement="bottom">
+      <InfoTooltip title={decrementTooltip}>
         <button
           className={twMerge('m-0 flex w-5 justify-center p-0 align-middle', 'rounded-bl rounded-tl')}
           onClick={onDecrement}
@@ -63,7 +63,7 @@ export function NumericStepperInput({
         </button>
       </InfoTooltip>
       <NumericInput {...rest} onChange={onChange} value={value} mediumStep={mediumStep} />
-      <InfoTooltip title={incrementTooltip} placement="bottom">
+      <InfoTooltip title={incrementTooltip}>
         <button
           className={twMerge('m-0 flex w-5 justify-center p-0 align-middle', 'rounded-br rounded-tr')}
           onClick={onIncrement}

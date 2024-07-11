@@ -267,22 +267,43 @@ export const TransformComponent = defineComponent({
 
   /**Transforms forward vector*/
   forward: (entity: Entity, outVector: Vector3) => {
-    const matrixElements = getComponent(entity, TransformComponent).matrix.elements
+    const matrixElements = getComponent(entity, TransformComponent).matrixWorld.elements
     outVector.set(matrixElements[8], matrixElements[9], matrixElements[10]).normalize()
+    return outVector
+  },
+
+  /**Transforms back vector*/
+  back: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrixWorld.elements
+    outVector.set(matrixElements[8], matrixElements[9], matrixElements[10]).normalize().negate()
     return outVector
   },
 
   /**Transforms up vector*/
   up: (entity: Entity, outVector: Vector3) => {
-    const matrixElements = getComponent(entity, TransformComponent).matrix.elements
+    const matrixElements = getComponent(entity, TransformComponent).matrixWorld.elements
     outVector.set(matrixElements[4], matrixElements[5], matrixElements[6]).normalize()
+    return outVector
+  },
+
+  /**Transforms down vector*/
+  down: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrixWorld.elements
+    outVector.set(matrixElements[4], matrixElements[5], matrixElements[6]).normalize().negate()
     return outVector
   },
 
   /**Transforms right vector*/
   right: (entity: Entity, outVector: Vector3) => {
-    const matrixElements = getComponent(entity, TransformComponent).matrix.elements
+    const matrixElements = getComponent(entity, TransformComponent).matrixWorld.elements
     outVector.set(matrixElements[0], matrixElements[1], matrixElements[2]).normalize()
+    return outVector
+  },
+
+  /**Transforms left vector*/
+  left: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrixWorld.elements
+    outVector.set(matrixElements[0], matrixElements[1], matrixElements[2]).normalize().negate()
     return outVector
   },
 

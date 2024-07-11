@@ -26,7 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect, useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@etherealengine/ecs'
+import { useState } from '@etherealengine/hyperflux'
 
 import { useAncestorWithComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -34,6 +35,7 @@ import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { Shape, Shapes } from '../types/PhysicsTypes'
 import { RigidBodyComponent } from './RigidBodyComponent'
+import { TriggerComponent } from './TriggerComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
@@ -82,6 +84,8 @@ export const ColliderComponent = defineComponent({
     const transform = useComponent(entity, TransformComponent)
     const rigidbodyEntity = useAncestorWithComponent(entity, RigidBodyComponent)
     const physicsWorld = Physics.useWorld(entity)
+    const triggerComponent = useOptionalComponent(entity, TriggerComponent)
+    const hasCollider = useState(false)
 
     useEffect(() => {
       if (!rigidbodyEntity || !physicsWorld) return
@@ -90,9 +94,11 @@ export const ColliderComponent = defineComponent({
       if (!colliderDesc) return
 
       Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
+      hasCollider.set(true)
 
       return () => {
         Physics.removeCollider(physicsWorld, entity)
+        hasCollider.set(false)
       }
     }, [physicsWorld, component.shape, rigidbodyEntity, transform.scale])
 
@@ -124,6 +130,16 @@ export const ColliderComponent = defineComponent({
       if (!physicsWorld) return
       Physics.setCollisionMask(physicsWorld, entity, component.collisionMask.value)
     }, [physicsWorld, component.collisionMask])
+
+    useEffect(() => {
+      if (!physicsWorld || !triggerComponent?.value || !hasCollider.value) return
+
+      Physics.setTrigger(physicsWorld, entity, true)
+
+      return () => {
+        Physics.setTrigger(physicsWorld, entity, false)
+      }
+    }, [physicsWorld, triggerComponent, hasCollider])
 
     return null
   }
