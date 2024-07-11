@@ -40,7 +40,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { Engine, EntityUUID, UUIDComponent, entityExists, useQuery } from '@etherealengine/ecs'
+import { Engine, EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
@@ -48,7 +48,7 @@ import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
 import CreatePrefabPanel from '@etherealengine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
   HeirarchyTreeNodeType,
-  gltfSnapshotTreeWalker
+  gltfHeirarchyTreeWalker
 } from '@etherealengine/editor/src/components/hierarchy/HeirarchyTreeWalker'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { CopyPasteFunctions } from '@etherealengine/editor/src/functions/CopyPasteFunctions'
@@ -91,10 +91,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const searchHierarchy = useHookstate('')
-  const sourcedEntities = useQuery([SourceComponent])
-  const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
-  const rootEntityTree = useComponent(rootEntity, EntityTreeComponent)
 
+  const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const rootEntitySource = useComponent(rootEntity, SourceComponent)
   const gltfNode = useMutableState(GLTFSnapshotState)
   const gltfSnapshot = gltfNode[rootEntitySource.value].snapshots[props.index]
@@ -126,9 +124,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   }, [])
 
   useEffect(() => {
-    entityHierarchy.set(gltfSnapshotTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[]))
-    // entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, rootEntity, gltfSnapshot.nodes.value as GLTF.INode[])))
-  }, [expandedNodes, index, rootEntityTree.children, sourcedEntities.length, gltfSnapshot])
+    entityHierarchy.set(gltfHeirarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[]))
+  }, [expandedNodes, index, gltfSnapshot])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 

@@ -45,7 +45,7 @@ export type HeirarchyTreeNodeType = {
 
 export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
 
-type HeirarchyTreeNode = HeirarchyTreeNodeType & { children: HeirarchyTreeNode[] }
+type NestedHeirarchyTreeNode = HeirarchyTreeNodeType & { children: NestedHeirarchyTreeNode[] }
 
 function isChild(index: number, nodes: GLTF.INode[]) {
   for (const node of nodes) {
@@ -60,12 +60,12 @@ function buildHeirarchyTree(
   childIndex: number,
   node: GLTF.INode,
   nodes: GLTF.INode[],
-  array: HeirarchyTreeNode[],
+  array: NestedHeirarchyTreeNode[],
+  sceneID: string,
   lastChild = false
 ) {
   const uuid = node.extensions && (node.extensions[UUIDComponent.jsonID] as ComponentType<typeof UUIDComponent>)
   const entity = UUIDComponent.getEntityByUUID(uuid!)
-  const sceneID = getComponent(entity, SourceComponent)
 
   const item = {
     depth,
@@ -77,15 +77,15 @@ function buildHeirarchyTree(
     lastChild: lastChild
   }
   array.push(item)
-  if (node.children) {
+  if (node.children && !item.isCollapsed) {
     for (let i = 0; i < node.children.length; i++) {
       const childIndex = node.children[i]
-      buildHeirarchyTree(depth + 1, i, nodes[childIndex], nodes, item.children, i === node.children.length - 1)
+      buildHeirarchyTree(depth + 1, i, nodes[childIndex], nodes, item.children, sceneID, i === node.children.length - 1)
     }
   }
 }
 
-function flattenTree(array: HeirarchyTreeNode[], outArray: HeirarchyTreeNodeType[]) {
+function flattenTree(array: NestedHeirarchyTreeNode[], outArray: HeirarchyTreeNodeType[]) {
   for (const item of array) {
     outArray.push({
       depth: item.depth,
@@ -99,19 +99,29 @@ function flattenTree(array: HeirarchyTreeNode[], outArray: HeirarchyTreeNodeType
   }
 }
 
-export function gltfSnapshotTreeWalker(rootEntity: Entity, snapshotNodes: GLTF.INode[]): HeirarchyTreeNodeType[] {
+export function gltfHeirarchyTreeWalker(rootEntity: Entity, snapshotNodes: GLTF.INode[]): HeirarchyTreeNodeType[] {
   const nodes = snapshotNodes.slice()
 
-  const outArray = [] as HeirarchyTreeNode[]
+  const sceneID = getComponent(rootEntity, SourceComponent)
+  const outArray = [] as NestedHeirarchyTreeNode[]
 
-  for (let i = 0; i < nodes.length; i++) {
-    if (isChild(i, nodes)) continue
-    buildHeirarchyTree(1, 0, nodes[i], nodes, outArray)
+  const rootNode = {
+    depth: 0,
+    entity: rootEntity,
+    childIndex: 0,
+    lastChild: true,
+    isCollapsed: !getState(EditorState).expandedNodes[sceneID]?.[rootEntity]
   }
+  const tree = [rootNode] as HeirarchyTreeNodeType[]
 
-  const tree = [] as HeirarchyTreeNodeType[]
-  tree.push({ depth: 0, entity: rootEntity, childIndex: 0, lastChild: true })
-  flattenTree(outArray, tree)
+  if (!rootNode.isCollapsed) {
+    for (let i = 0; i < nodes.length; i++) {
+      if (isChild(i, nodes)) continue
+      buildHeirarchyTree(1, 0, nodes[i], nodes, outArray, sceneID)
+    }
+
+    flattenTree(outArray, tree)
+  }
 
   return tree
 }
