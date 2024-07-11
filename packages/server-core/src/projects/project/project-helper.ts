@@ -1478,43 +1478,39 @@ export const updateProject = async (
 
   const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-  const returned = !existingProject
-    ? // Add to DB
-      await app.service(projectPath).create(
-        {
-          name: projectName,
-          enabled,
-          repositoryPath,
-          needsRebuild: data.needsRebuild ? data.needsRebuild : true,
-          hasLocalChanges: false,
-          sourceRepo: data.sourceURL,
-          sourceBranch: data.sourceBranch,
-          updateType: data.updateType,
-          updateSchedule: data.updateSchedule,
-          updateUserId: userId || null,
-          commitSHA,
-          commitDate: toDateTimeSql(commitDate),
-          assetsOnly
-        },
-        params || {}
-      )
-    : await app.service(projectPath).patch(
-        existingProject.id,
-        {
-          enabled,
-          commitSHA,
-          hasLocalChanges: false,
-          commitDate: toDateTimeSql(commitDate),
-          assetsOnly: assetsOnly,
-          sourceRepo: data.sourceURL,
-          sourceBranch: data.sourceBranch,
-          updateType: data.updateType,
-          updateSchedule: data.updateSchedule,
-          updateUserId: userId || null
-        },
-        params
-      )
-
+  let returned: ProjectType
+  if (!existingProject) {
+    const createData = {
+      name: projectName,
+      enabled,
+      repositoryPath,
+      needsRebuild: data.needsRebuild ? data.needsRebuild : true,
+      hasLocalChanges: false,
+      sourceRepo: data.sourceURL,
+      sourceBranch: data.sourceBranch,
+      commitSHA,
+      commitDate: toDateTimeSql(commitDate),
+      assetsOnly
+    } as ProjectType
+    if (data.updateType) createData.updateType = data.updateType
+    if (data.updateSchedule) createData.updateSchedule = data.updateSchedule
+    if (userId) createData.updateUserId = userId
+    returned = await app.service(projectPath).create(createData, params || {})
+  } else {
+    const patchData = {
+      enabled,
+      commitSHA,
+      hasLocalChanges: false,
+      commitDate: toDateTimeSql(commitDate),
+      assetsOnly: assetsOnly,
+      sourceRepo: data.sourceURL,
+      sourceBranch: data.sourceBranch
+    } as ProjectType
+    if (data.updateType) patchData.updateType = data.updateType
+    if (data.updateSchedule) patchData.updateSchedule = data.updateSchedule
+    if (userId) patchData.updateUserId = userId
+    returned = await app.service(projectPath).patch(existingProject.id, patchData, params)
+  }
   returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
 
   if (returned.name !== projectName)
