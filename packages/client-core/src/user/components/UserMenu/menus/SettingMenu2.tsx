@@ -183,13 +183,7 @@ const SettingMenu2 = (): JSX.Element => {
   }
 
   return (
-    <Modal
-      title={'Settings'}
-      // className="fixed left-1/2 top-1/2 z-50 w-[50vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 transform"
-      className="w-[50vw] max-w-2xl"
-      onClose={() => PopupMenuServices.showPopupMenu()}
-      hideFooter
-    >
+    <Modal title={'Settings'} onClose={() => PopupMenuServices.showPopupMenu()} className="fixed inset-0" hideFooter>
       <div className="mb-3 flex">
         {settingTabs.map((tab) => (
           <div className={`${tab.value === selectedTab.value ? 'border-b-2 border-[#6B7280]' : ''} p-2`}>

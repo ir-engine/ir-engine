@@ -126,10 +126,11 @@ const Modal = ({
   submitButtonDisabled,
   showCloseButton = true
 }: ModalProps) => {
-  const twClassName = twMerge('relative z-50 max-h-[80vh] w-full bg-theme-surface-main', className)
+  const twClassName = twMerge('z-50 flex items-center justify-center overflow-y-auto', className)
+
   return (
     <div className={twClassName}>
-      <div className="relative rounded-lg shadow">
+      <div className="relative z-50 max-h-[80vh] w-full max-w-lg rounded-lg bg-theme-surface-main shadow">
         {onClose && <ModalHeader title={title} onClose={onClose} />}
         {rawChildren && rawChildren}
         {children && <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>}
