@@ -23,27 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import React from 'react'
+import { Popup as ReactjsPopup } from 'reactjs-popup'
+import { PopupProps } from 'reactjs-popup/dist/types'
 
-export const SystemComponent = defineComponent({
-  name: 'SystemComponent',
-  jsonID: 'EE_system',
-
-  onInit(entity) {
-    return {
-      filePath: ''
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    if (typeof json.filePath === 'string') component.filePath.set(json.filePath)
-  },
-
-  toJSON(entity, component) {
-    return {
-      filePath: component.filePath.value
-    }
-  }
-})
+export const Popup = ({
+  trigger,
+  keepInside,
+  ...props
+}: { trigger: React.ReactNode; keepInside?: boolean } & Omit<PopupProps, 'trigger'>) => {
+  return (
+    <ReactjsPopup
+      closeOnDocumentClick
+      closeOnEscape
+      repositionOnResize
+      on={'click'}
+      keepTooltipInside={keepInside}
+      arrow={false}
+      trigger={<div style={{ all: 'unset' }}>{trigger}</div>}
+      {...props}
+    />
+  )
+}

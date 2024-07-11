@@ -213,7 +213,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
     >
       <div className="TransformContainer">
         <Accordion className="p-0" title="glTF-Transform" expandIcon={undefined} shrinkIcon={undefined}>
-          <GLTFTransformProperties transformParms={transformParms} />
+          <GLTFTransformProperties transformParms={transformParms} itemCount={1} />
         </Accordion>
         {!transforming.value && (
           <>
