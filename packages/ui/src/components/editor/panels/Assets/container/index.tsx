@@ -49,7 +49,6 @@ import {
   HiMagnifyingGlass,
   HiMiniArrowLeft,
   HiMiniArrowPath,
-  HiOutlineCog6Tooth,
   HiOutlineFolder,
   HiOutlinePlusCircle
 } from 'react-icons/hi2'
@@ -57,6 +56,7 @@ import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import { TablePagination } from '../../../../../primitives/tailwind/Table'
 import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
@@ -304,6 +304,7 @@ const AssetPanel = () => {
   const searchText = useHookstate('')
   const breadcrumbPath = useHookstate('')
   const originalPath = useMutableState(EditorState).projectName.value
+  const staticResourcesPagination = useHookstate({ totalPages: -1, currentPage: 0 })
 
   const CategoriesList = () => {
     return (
@@ -380,15 +381,16 @@ const AssetPanel = () => {
             }
           : undefined,
         $sort: { mimeType: 1 },
-        $paginate: false
+        $skip: staticResourcesPagination.currentPage.value * 10
       } as StaticResourceQuery
 
       Engine.instance.api
         .service(staticResourcePath)
-        .find({ query })
+        .find({ query, paginate: {} })
         .then((resources) => {
           // cast type due to temporary server-side pagination
-          searchedStaticResources.set(resources as any as StaticResourceType[])
+          searchedStaticResources.set(resources.data)
+          staticResourcesPagination.merge({ totalPages: resources.total / 10 })
         })
         .then(() => {
           loading.set(false)
@@ -404,7 +406,7 @@ const AssetPanel = () => {
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
 
     return () => searchTimeoutCancelRef.current?.()
-  }, [searchText, selectedCategory])
+  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
 
   const ResourceItems = () => {
     if (loading.value) {
@@ -458,27 +460,23 @@ const AssetPanel = () => {
     mapCategories()
   }
 
-  const handleSettings = () => {
-    // TODO: add settings functionality
-  }
-
   return (
     <>
       <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
         <div className="mr-20 flex gap-2">
-          <div id="back" className="pointer-events-auto flex items-center">
+          <div className="pointer-events-auto flex items-center">
             <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
               <Button variant="transparent" startIcon={<HiMiniArrowLeft />} className="p-0" onClick={handleBack} />
             </Tooltip>
           </div>
 
-          <div id="refresh" className="flex items-center">
+          <div className="flex items-center">
             <Tooltip title={t('editor:layout.filebrowser.refresh')}>
               <Button variant="transparent" startIcon={<HiMiniArrowPath />} className="p-0" onClick={handleRefresh} />
             </Tooltip>
           </div>
 
-          <div id="settings" className="flex items-center">
+          {/* <div className="flex items-center">
             <Tooltip title={t('editor:layout.scene-assets.settings')}>
               <Button
                 variant="transparent"
@@ -487,7 +485,7 @@ const AssetPanel = () => {
                 onClick={handleSettings}
               />
             </Tooltip>
-          </div>
+          </div> */}
         </div>
 
         <div className="align-center flex h-7 flex-1 justify-center gap-2 pr-2">
@@ -508,7 +506,6 @@ const AssetPanel = () => {
         </div>
 
         <Button
-          id="uploadAssets"
           startIcon={<HiOutlinePlusCircle className="text-lg" />}
           variant="transparent"
           rounded="none"
@@ -530,8 +527,15 @@ const AssetPanel = () => {
       </div>
       <div id="asset-browser-panel" className="flex h-full overflow-y-auto">
         <CategoriesList />
-        <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
-          <ResourceItems />
+        <div className="flex flex-col justify-center">
+          <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
+            <ResourceItems />
+          </div>
+          <TablePagination
+            totalPages={staticResourcesPagination.totalPages.value}
+            currentPage={staticResourcesPagination.currentPage.value}
+            onPageChange={(newPage) => staticResourcesPagination.merge({ currentPage: newPage })}
+          />
         </div>
         {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
       </div>
