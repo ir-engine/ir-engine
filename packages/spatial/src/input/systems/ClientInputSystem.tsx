@@ -250,7 +250,7 @@ const execute = () => {
   for (const eid of xrSpaces()) {
     const space = getComponent(eid, XRSpaceComponent)
     const pose = xrFrame?.getPose(space.space, space.baseSpace)
-    if (!pose) continue // @NOTE: Clause Guard. This was nested as   if (pose) { ... }
+    if (!pose) continue // @note Clause Guard. This was nested as   if (pose) { ... }
     TransformComponent.position.x[eid] = pose.transform.position.x
     TransformComponent.position.y[eid] = pose.transform.position.y
     TransformComponent.position.z[eid] = pose.transform.position.z
@@ -268,10 +268,9 @@ const execute = () => {
 
   // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents
   for (const sourceEid of inputSourceQuery()) {
-    //  @NOTE:
-    //   This function was a ~200 sloc block nested inside this for block,
-    //   which also contained two other sub-nested blocks of 100 and 50 sloc each
-    TODO_assignInputSourcesToInputComponents(sourceEid, capturedEntity)
+    // @note This function was a ~200 sloc block nested inside this `for` block,
+    // which also contained two other sub-nested blocks of 100 and 50 sloc each
+    assignInputSources(sourceEid, capturedEntity)
   }
 
   for (const sourceEid of inputSourceQuery()) {
@@ -716,7 +715,7 @@ type IntersectionData = {
   distance: number
 }
 
-function TODO_applyTargetedInputHeuristics(sourceEid: Entity, intersectionData: Set<IntersectionData>) {
+function applyRaycastedInputHeuristics(sourceEid: Entity, intersectionData: Set<IntersectionData>) {
   const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
   inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
 
@@ -728,28 +727,27 @@ function TODO_applyTargetedInputHeuristics(sourceEid: Entity, intersectionData: 
   const isEditing = getState(EngineState).isEditing
   // only heuristic is scene objects when in the editor
   if (isEditing) {
-    TODO_applyHeuristicEditor(intersectionData)
+    applyHeuristicEditor(intersectionData)
   } else {
     // 1st heuristic is XRUI
-    TODO_applyHeuristicXRUI(intersectionData)
+    applyHeuristicXRUI(intersectionData)
     // 2nd heuristic is physics colliders
-    TODO_applyHeuristicPhysicsColliders(intersectionData)
+    applyHeuristicPhysicsColliders(intersectionData)
 
     // 3rd heuristic is bboxes
-    TODO_applyHeuristicBBoxes(intersectionData)
+    applyHeuristicBBoxes(intersectionData)
   }
   // 4th heuristic is meshes
-  TODO_applyHeuristicMeshes(intersectionData, isEditing)
+  applyHeuristicMeshes(intersectionData, isEditing)
 }
 
-function TODO_assignInputSourcesToInputComponents(sourceEid: Entity, capturedEntity: Entity) {
+function assignInputSources(sourceEid: Entity, capturedEntity: Entity) {
   const isSpatialInput = hasComponent(sourceEid, TransformComponent)
 
   const intersectionData = new Set([] as IntersectionData[])
 
-  //  @NOTE:
-  //   This function was a ~100 sloc block nested inside this if block
-  if (isSpatialInput) TODO_applyTargetedInputHeuristics(sourceEid, intersectionData)
+  // @note This function was a ~100 sloc block nested inside this if block
+  if (isSpatialInput) applyRaycastedInputHeuristics(sourceEid, intersectionData)
 
   const sortedIntersections = Array.from(intersectionData).sort((a, b) => {
     // - if a < b
@@ -769,9 +767,8 @@ function TODO_assignInputSourcesToInputComponents(sourceEid: Entity, capturedEnt
     sortedIntersections.length === 0 &&
     !hasComponent(sourceEid, InputPointerComponent)
   ) {
-    //  @NOTE:
-    //   This function was a ~50sloc block nested inside this if block
-    TODO_applyHeuristicProximity(isSpatialInput, sourceEid, sortedIntersections, intersectionData)
+    // @note This function was a ~50sloc block nested inside this if block
+    applyHeuristicProximity(isSpatialInput, sourceEid, sortedIntersections, intersectionData)
   }
 
   const inputPointerComponent = getOptionalComponent(sourceEid, InputPointerComponent)
@@ -793,7 +790,7 @@ function TODO_assignInputSourcesToInputComponents(sourceEid: Entity, capturedEnt
   }
 }
 
-function TODO_applyHeuristicProximity(
+function applyHeuristicProximity(
   isSpatialInput: boolean,
   sourceEid: Entity,
   sortedIntersections: IntersectionData[],
@@ -804,10 +801,8 @@ function TODO_applyHeuristicProximity(
   const inputSourceEntity =
     getState(XRControlsState).isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
 
-  // Skip [[insert goal of this function]] when the entity is undefined
-  //  @NOTE:
-  //   Clause Guard.
-  //   This entire function was a block nested inside   if (inputSourceEntity !== UndefinedEntity) { ... }
+  // Skip Proximity Heuristic when the entity is undefined
+  // @note Clause Guard. This entire function was a block nested inside   if (inputSourceEntity !== UndefinedEntity) { ... }
   if (inputSourceEntity === UndefinedEntity) return
 
   TransformComponent.getWorldPosition(inputSourceEntity, worldPosInputSourceComponent)
@@ -850,7 +845,7 @@ function TODO_applyHeuristicProximity(
   }
 }
 
-function TODO_applyHeuristicEditor(intersectionData: Set<IntersectionData>) {
+function applyHeuristicEditor(intersectionData: Set<IntersectionData>) {
   const pickerObj = gizmoPickerObjects() // gizmo heuristic
   const inputObj = inputObjects()
 
@@ -869,7 +864,7 @@ function TODO_applyHeuristicEditor(intersectionData: Set<IntersectionData>) {
   }
 }
 
-function TODO_applyHeuristicXRUI(intersectionData: Set<IntersectionData>) {
+function applyHeuristicXRUI(intersectionData: Set<IntersectionData>) {
   for (const entity of xruiQuery()) {
     const xrui = getComponent(entity, XRUIComponent)
     const layerHit = xrui.hitTest(inputRay)
@@ -883,9 +878,9 @@ function TODO_applyHeuristicXRUI(intersectionData: Set<IntersectionData>) {
   }
 }
 
-function TODO_applyHeuristicPhysicsColliders(intersectionData: Set<IntersectionData>) {
+function applyHeuristicPhysicsColliders(intersectionData: Set<IntersectionData>) {
   const physicsWorld = getState(PhysicsState).physicsWorld
-  if (!physicsWorld) return // @NOTE: Guard Clause. The rest of this function was nested inside   if (physicsWorld) { ... }
+  if (!physicsWorld) return // @note Clause Guard. The rest of this function was nested inside   if (physicsWorld) { ... }
 
   const hits = Physics.castRay(physicsWorld, inputRaycast)
   for (const hit of hits) {
@@ -894,7 +889,7 @@ function TODO_applyHeuristicPhysicsColliders(intersectionData: Set<IntersectionD
   }
 }
 
-function TODO_applyHeuristicBBoxes(intersectionData: Set<IntersectionData>) {
+function applyHeuristicBBoxes(intersectionData: Set<IntersectionData>) {
   const inputState = getState(InputState)
   for (const entity of inputState.inputBoundingBoxes) {
     const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
@@ -906,7 +901,7 @@ function TODO_applyHeuristicBBoxes(intersectionData: Set<IntersectionData>) {
   }
 }
 
-function TODO_applyHeuristicMeshes(intersectionData: Set<IntersectionData>, isEditing: boolean) {
+function applyHeuristicMeshes(intersectionData: Set<IntersectionData>, isEditing: boolean) {
   const inputState = getState(InputState)
   const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes)) // gizmo heuristic
     .filter((eid) => hasComponent(eid, GroupComponent))
@@ -926,14 +921,14 @@ function TODO_applyHeuristicMeshes(intersectionData: Set<IntersectionData>, isEd
  * @private
  * @description Private Access Only. Exports for use within unit tests. */
 export const PRIVATE = {
-  TODO_assignInputSourcesToInputComponents,
+  assignInputSources,
 
-  TODO_applyHeuristicProximity,
+  applyHeuristicProximity,
 
-  TODO_applyTargetedInputHeuristics,
-  TODO_applyHeuristicEditor,
-  TODO_applyHeuristicXRUI,
-  TODO_applyHeuristicPhysicsColliders,
-  TODO_applyHeuristicBBoxes,
-  TODO_applyHeuristicMeshes
+  applyRaycastedInputHeuristics,
+  applyHeuristicEditor,
+  applyHeuristicXRUI,
+  applyHeuristicPhysicsColliders,
+  applyHeuristicBBoxes,
+  applyHeuristicMeshes
 }
