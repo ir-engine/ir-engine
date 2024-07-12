@@ -38,6 +38,7 @@ import {
 import { decode } from 'msgpackr'
 import os from 'os'
 
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { dispatchAction, getMutableState, getState, Identifiable, none, PeerID, State } from '@etherealengine/hyperflux'
 import {
   DataChannelRegistryState,
@@ -61,6 +62,10 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
+import { CREDENTIAL_OFFSET, HASH_ALGORITHM } from '@etherealengine/common/src/constants/DefaultWebRTCSettings'
+import { PUBLIC_STUN_SERVERS } from '@etherealengine/common/src/constants/STUNServers'
+import { instanceServerSettingPath } from '@etherealengine/common/src/schema.type.module'
+import crypto from 'crypto'
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupInternalWebRTCDataChannelState } from './MediasoupInternalWebRTCDataChannelState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
@@ -378,7 +383,19 @@ export async function handleWebRtcTransportCreate(
 
     getMutableState(MediasoupTransportObjectsState)[newTransport.id].set(newTransport)
 
-    const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
+    let { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
+
+    const instanceServerSettingsResponse = await Engine.instance.api.service(instanceServerSettingPath).find()
+    const webRTCSettings = instanceServerSettingsResponse.data[0].webRTCSettings
+    const iceServers: {
+      urls: string | string[]
+      username?: string
+      credential?: string
+    }[] = webRTCSettings.useCustomICEServers
+      ? webRTCSettings.iceServers
+      : config.kubernetes.enabled
+      ? PUBLIC_STUN_SERVERS
+      : []
 
     if (config.kubernetes.enabled) {
       const serverState = getState(ServerState)
@@ -398,8 +415,30 @@ export async function handleWebRtcTransportCreate(
         iceCandidates[index].port = thisGs.spec?.ports?.find(
           (portMapping) => portMapping.containerPort === candidate.port
         ).hostPort
+        if (webRTCSettings.usePrivateInstanceserverIP) {
+          const internalIp = thisGs.status.addresses
+            ? thisGs.status.addresses.find((address) => address.type === 'InternalIP').address
+            : thisGs.status.address
+          iceCandidates[index].address = internalIp
+          iceCandidates[index].ip = internalIp
+        }
       }
     }
+
+    if (webRTCSettings.useCustomICEServers && webRTCSettings.useTimeLimitedCredentials) {
+      const timestamp = Math.floor(Date.now() / 1000) + CREDENTIAL_OFFSET
+      const username = [timestamp, peerID.replaceAll('-', '')].join(':')
+      const secret = webRTCSettings.webRTCStaticAuthSecretKey || ''
+
+      const hmac = crypto.createHmac(HASH_ALGORITHM, secret)
+      hmac.setEncoding('base64')
+      hmac.write(username)
+      hmac.end()
+
+      iceServers[0].username = username
+      iceServers[0].credential = hmac.read()
+    }
+
     newTransport.observer.on('dtlsstatechange', (dtlsState) => {
       // if (dtlsState === 'closed') MediasoupTransportState.removeTransport(network.id, newTransport.id)
     })
@@ -416,6 +455,7 @@ export async function handleWebRtcTransportCreate(
         },
         iceParameters,
         iceCandidates,
+        iceServers,
         dtlsParameters,
         $network: network.id,
         $topic: network.topic,
