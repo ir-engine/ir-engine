@@ -330,7 +330,12 @@ const execute = () => {
       // Get top most parent entity that isn't the scene entity
       const selectedParentEntity = findTopLevelParent(closestIntersection.entity)
       // If entity is already selected set closest intersection, otherwise set top parent
-      clickStartEntity = selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
+      const selectedEntity =
+        selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
+
+      const inAuthoringLayer = GLTFSnapshotState.isInAuthoringLayer(selectedEntity)
+      // Only allow selection of entities in the authoring hierarchy
+      clickStartEntity = inAuthoringLayer ? selectedEntity : clickStartEntity
 
       /** @todo decide how we want selection to work with heirarchies */
       // Walks object heirarchy everytime a selected object is clicked again

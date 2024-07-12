@@ -47,7 +47,7 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
-import { HeirarchyTreeNodeType } from '@etherealengine/editor/src/components/hierarchy/HeirarchyTreeWalker'
+import { HierarchyTreeNodeType } from '@etherealengine/editor/src/components/hierarchy/HierarchyTreeWalker'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
@@ -67,7 +67,7 @@ import TransformPropertyGroup from '../../../properties/transform'
  * @param  {object} node
  * @return {string}
  */
-export const getNodeElId = (node: HeirarchyTreeNodeType) => {
+export const getNodeElId = (node: HierarchyTreeNodeType) => {
   return 'hierarchy-node-' + node.entity
 }
 
@@ -77,14 +77,14 @@ export type RenameNodeData = {
 }
 
 export type HierarchyTreeNodeData = {
-  nodes: HeirarchyTreeNodeType[]
+  nodes: HierarchyTreeNodeType[]
   renamingNode: RenameNodeData
-  onToggle: (e: Event, node: HeirarchyTreeNodeType) => void
-  onKeyDown: (e: Event, node: HeirarchyTreeNodeType) => void
-  onMouseDown: (e: MouseEvent, node: HeirarchyTreeNodeType) => void
-  onClick: (e: MouseEvent, node: HeirarchyTreeNodeType) => void
-  onChangeName: (node: HeirarchyTreeNodeType, name: string) => void
-  onRenameSubmit: (node: HeirarchyTreeNodeType, name: string) => void
+  onToggle: (e: Event, node: HierarchyTreeNodeType) => void
+  onKeyDown: (e: Event, node: HierarchyTreeNodeType) => void
+  onMouseDown: (e: MouseEvent, node: HierarchyTreeNodeType) => void
+  onClick: (e: MouseEvent, node: HierarchyTreeNodeType) => void
+  onChangeName: (node: HierarchyTreeNodeType, name: string) => void
+  onRenameSubmit: (node: HierarchyTreeNodeType, name: string) => void
   onUpload: ReturnType<typeof useUpload>
 }
 
@@ -92,7 +92,7 @@ export type HierarchyTreeNodeProps = {
   index: number
   data: HierarchyTreeNodeData
   style: StyleHTMLAttributes<HTMLLIElement>
-  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: HeirarchyTreeNodeType) => void
+  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: HierarchyTreeNodeType) => void
 }
 
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
@@ -179,7 +179,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     })
   })
 
-  const dropItem = (node: HeirarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
+  const dropItem = (node: HierarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
     let parentNode: Entity | undefined
     let beforeNode: Entity
 
@@ -330,7 +330,11 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           className={twMerge(`border-t-[${isOverBefore && canDropBefore ? 2 : 0}px]`, `ml-${marginLeft} bg-inherit`)}
           ref={beforeDropTarget}
         />
-        <div className={twMerge('flex items-center pr-2', `pl-${node.depth * 3} bg-inherit`)} ref={onDropTarget}>
+        <div
+          className={twMerge('flex items-center pr-2', `bg-inherit`)}
+          style={{ paddingLeft: `${node.depth * 1.25}em` }}
+          ref={onDropTarget}
+        >
           {node.isLeaf ? (
             <div className={'w-5 shrink-0'} />
           ) : (

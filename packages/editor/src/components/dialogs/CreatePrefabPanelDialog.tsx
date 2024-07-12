@@ -44,9 +44,9 @@ import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
-import { HeirarchyTreeNodeType } from '../hierarchy/HeirarchyTreeWalker'
+import { HierarchyTreeNodeType } from '../hierarchy/HierarchyTreeWalker'
 
-export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeType }) {
+export default function CreatePrefabPanel({ node }: { node?: HierarchyTreeNodeType }) {
   const entity = node?.entity as Entity
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')

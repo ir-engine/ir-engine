@@ -53,7 +53,7 @@ import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import TransformPropertyGroup from '../properties/TransformPropertyGroup'
-import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
+import { HierarchyTreeNodeType } from './HierarchyTreeWalker'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
 
@@ -63,7 +63,7 @@ import styles from './styles.module.scss'
  * @param  {object} node
  * @return {string}
  */
-export const getNodeElId = (node: HeirarchyTreeNodeType) => {
+export const getNodeElId = (node: HierarchyTreeNodeType) => {
   return 'hierarchy-node-' + node.entity
 }
 
@@ -73,14 +73,14 @@ export type RenameNodeData = {
 }
 
 export type HierarchyTreeNodeData = {
-  nodes: HeirarchyTreeNodeType[]
+  nodes: HierarchyTreeNodeType[]
   renamingNode: RenameNodeData
-  onToggle: (e: Event, node: HeirarchyTreeNodeType) => void
-  onKeyDown: (e: Event, node: HeirarchyTreeNodeType) => void
-  onMouseDown: (e: MouseEvent, node: HeirarchyTreeNodeType) => void
-  onClick: (e: MouseEvent, node: HeirarchyTreeNodeType) => void
-  onChangeName: (node: HeirarchyTreeNodeType, name: string) => void
-  onRenameSubmit: (node: HeirarchyTreeNodeType, name: string) => void
+  onToggle: (e: Event, node: HierarchyTreeNodeType) => void
+  onKeyDown: (e: Event, node: HierarchyTreeNodeType) => void
+  onMouseDown: (e: MouseEvent, node: HierarchyTreeNodeType) => void
+  onClick: (e: MouseEvent, node: HierarchyTreeNodeType) => void
+  onChangeName: (node: HierarchyTreeNodeType, name: string) => void
+  onRenameSubmit: (node: HierarchyTreeNodeType, name: string) => void
   onUpload: ReturnType<typeof useUpload>
 }
 
@@ -88,7 +88,7 @@ export type HierarchyTreeNodeProps = {
   index: number
   data: HierarchyTreeNodeData
   style: StyleHTMLAttributes<HTMLLIElement>
-  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: HeirarchyTreeNodeType) => void
+  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: HierarchyTreeNodeType) => void
 }
 
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
@@ -156,7 +156,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     })
   })
 
-  const dropItem = (node: HeirarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
+  const dropItem = (node: HierarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
     let parentNode: Entity | undefined
     let beforeNode: Entity
 

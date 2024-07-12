@@ -203,6 +203,25 @@ export const GLTFSnapshotState = defineState({
     return useMutableState(GLTFSnapshotState)[source]?.index
   },
 
+  isInAuthoringLayer: (entity: Entity): boolean => {
+    const source = getOptionalComponent(entity, SourceComponent)
+    const uuid = getOptionalComponent(entity, UUIDComponent)
+    if (!source || !uuid) return false
+
+    const gltf = getState(GLTFSnapshotState)[source]
+    if (!gltf) return false
+
+    const snapshot = gltf.snapshots[gltf.index]
+    if (!snapshot.nodes) return false
+
+    for (const node of snapshot.nodes) {
+      const nodeUUID = node.extensions?.[UUIDComponent.jsonID]
+      if (nodeUUID === uuid) return true
+    }
+
+    return false
+  },
+
   cloneCurrentSnapshot: (source: string) => {
     const state = getState(GLTFSnapshotState)[source]
     return JSON.parse(JSON.stringify({ source, data: state.snapshots[state.index] })) as {
