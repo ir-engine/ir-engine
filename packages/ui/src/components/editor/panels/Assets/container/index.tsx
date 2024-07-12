@@ -144,13 +144,13 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
         })
       }
       onContextMenu={handleContextMenu}
-      className={'mt-[10px] flex cursor-pointer flex-col items-center justify-center align-middle'}
+      className={'flex cursor-pointer flex-col items-center justify-center align-middle'}
     >
       <span className="mb-[5px] h-[70px] w-[70px] text-[70px]">
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
 
-      <Tooltip title={t(name)}>
+      <Tooltip title={name}>
         <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
       </Tooltip>
 
@@ -308,7 +308,7 @@ const AssetPanel = () => {
 
   const CategoriesList = () => {
     return (
-      <div className="mb-8 h-[100%] w-[200px] overflow-y-auto bg-[#0E0F11] pb-8">
+      <div className="mb-8 h-full w-52 overflow-y-auto bg-[#0E0F11] pb-8">
         {categories.map((category, index) => (
           <AssetCategory
             key={category.name.value}
@@ -524,13 +524,13 @@ const AssetPanel = () => {
           {t('editor:layout.filebrowser.uploadAssets')}
         </Button>
       </div>
-      <div id="asset-browser-panel" className="flex h-full overflow-y-auto">
+      <div id="asset-browser-panel" className="flex h-full">
         <CategoriesList />
-        <div className="flex h-full w-full flex-col">
+        <div className="flex h-full w-full flex-col overflow-auto">
           <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
             <ResourceItems />
           </div>
-          <div className="mx-auto">
+          <div className="mx-auto mb-10">
             <TablePagination
               totalPages={staticResourcesPagination.totalPages.value}
               currentPage={staticResourcesPagination.currentPage.value}
