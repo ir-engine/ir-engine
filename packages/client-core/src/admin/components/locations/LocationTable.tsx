@@ -25,18 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-
-import { LocationType, SceneID, locationPath } from '@etherealengine/common/src/schema.type.module'
+import { HiPencil, HiTrash } from 'react-icons/hi2'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { locationPath, LocationType } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import { HiPencil, HiTrash } from 'react-icons/hi2'
+
 import { userHasAccess } from '../../../user/userHasAccess'
+import { locationColumns, LocationRowType } from '../../common/constants/location'
 import DataTable from '../../common/Table'
-import { LocationRowType, locationColumns } from '../../common/constants/location'
 import AddEditLocationModal from './AddEditLocationModal'
 
 const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
@@ -57,23 +56,30 @@ export default function LocationTable({ search }: { search: string }) {
   useSearch(
     adminLocationQuery,
     {
-      name: {
-        $like: `%${search}%`
-      },
-      sceneId: {
-        $like: `%${search}%` as SceneID
-      }
+      $or: [
+        {
+          name: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          sceneId: {
+            $like: `%${search}%`
+          }
+        }
+      ]
     },
     search
   )
 
   const adminLocationRemove = useMutation(locationPath).remove
-  const modalProcessing = useHookstate(false)
 
   const createRows = (rows: readonly LocationType[]): LocationRowType[] =>
     rows.map((row) => ({
       name: <a href={`/location/${transformLink(row.name)}`}>{row.name}</a>,
-      sceneId: <a href={`/studio/${row.sceneId.split('/')[0]}`}>{row.sceneId}</a>,
+      sceneId: (
+        <a href={`/studio?projectName=${row.sceneAsset.project!}&scenePath=${row.sceneAsset.key}`}>{row.sceneId}</a>
+      ),
       maxUsersPerInstance: row.maxUsersPerInstance.toString(),
       scene: row.slugifiedName,
       locationType: row.locationSetting.locationType,
@@ -90,7 +96,7 @@ export default function LocationTable({ search }: { search: string }) {
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditLocationModal location={row} />)}
           >
-            <HiPencil className="text-theme-iconGreen place-self-center" />
+            <HiPencil className="place-self-center text-theme-iconGreen" />
           </Button>
           <Button
             rounded="full"
@@ -108,7 +114,7 @@ export default function LocationTable({ search }: { search: string }) {
               )
             }
           >
-            <HiTrash className="text-theme-iconRed place-self-center" />
+            <HiTrash className="place-self-center text-theme-iconRed" />
           </Button>
         </div>
       )

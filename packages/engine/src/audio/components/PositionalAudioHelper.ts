@@ -27,6 +27,7 @@ import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute, Line, Line
 
 import { AudioNodeGroup } from '../../scene/components/MediaComponent'
 
+/** @deprecated Use PositionalAudioHelperComponent instead */
 class PositionalAudioHelper extends Line {
   audio: AudioNodeGroup
   range: number

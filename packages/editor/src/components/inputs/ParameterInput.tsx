@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { Fragment } from 'react'
 
-import { generateDefaults } from '@etherealengine/engine/src/scene/materials/constants/DefaultArgs'
+import { generateDefaults } from '@etherealengine/spatial/src/renderer/materials/constants/DefaultArgs'
 
 import BooleanInput from './BooleanInput'
 import ColorInput from './ColorInput'

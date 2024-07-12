@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { Quaternion, Vector3 } from 'three'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 
 export function getSpawnPoint(spawnPointNodeId: string, userId: UserID): { position: Vector3; rotation: Quaternion } {

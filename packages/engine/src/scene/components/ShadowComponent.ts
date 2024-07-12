@@ -23,8 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEffect } from 'react'
+import { Object3D } from 'three'
+
+import { useEntityContext } from '@etherealengine/ecs'
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { matches } from '@etherealengine/hyperflux'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 
 export const ShadowComponent = defineComponent({
   name: 'ShadowComponent',
@@ -48,5 +53,21 @@ export const ShadowComponent = defineComponent({
     if (!json) return
     if (matches.boolean.test(json.cast)) component.cast.set(json.cast)
     if (matches.boolean.test(json.receive)) component.receive.set(json.receive)
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const shadowComponent = useComponent(entity, ShadowComponent)
+    const groupComponent = useComponent(entity, GroupComponent)
+
+    useEffect(() => {
+      for (const obj of groupComponent.value) {
+        const object = obj as Object3D
+        object.castShadow = shadowComponent.cast.value
+        object.receiveShadow = shadowComponent.receive.value
+      }
+    }, [groupComponent, shadowComponent.cast, shadowComponent.receive])
+
+    return null
   }
 })

@@ -23,20 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { World } from '@dimforge/rapier3d-compat'
 import { CylinderGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
-
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
-import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { Physics, PhysicsWorld, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
@@ -44,6 +42,7 @@ import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/Physic
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
 export const interactionGroups = getInteractionGroups(
@@ -66,7 +65,7 @@ export const autopilotSetPosition = (entity: Entity) => {
 
   const { physicsWorld } = getState(PhysicsState)
 
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
 
@@ -125,7 +124,7 @@ export async function placeMarker(rayNormal: Vector3) {
   const marker = markerState.markerEntity!
   setVisibleComponent(marker, true)
 
-  const newRotation = new Quaternion().setFromUnitVectors(V_010, rayNormal)
+  const newRotation = new Quaternion().setFromUnitVectors(Vector3_Up, rayNormal)
 
   const markerTransform = getComponent(marker, TransformComponent)
   markerTransform.position.copy(markerState.walkTarget)
@@ -138,7 +137,7 @@ export const assessWalkability = (
   entity: Entity,
   rayNormal: Vector3,
   targetPosition: Vector3,
-  world: World
+  world: PhysicsWorld
 ): boolean => {
   const transform = getComponent(entity, TransformComponent)
   autopilotRaycastArgs.origin.copy(transform.position).setY(transform.position.y + 1.5)
@@ -147,7 +146,7 @@ export const assessWalkability = (
 
   toWalkPoint.copy(castedRay[0].position as Vector3).sub(targetPosition)
 
-  const flatEnough = rayNormal.dot(V_010) > minDot && toWalkPoint.lengthSq() < 0.5
+  const flatEnough = rayNormal.dot(Vector3_Up) > minDot && toWalkPoint.lengthSq() < 0.5
   return flatEnough
 }
 

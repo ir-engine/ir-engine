@@ -32,6 +32,7 @@ import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackCo
 import { CollisionComponent } from '@etherealengine/spatial/src/physics/components/CollisionComponent'
 import { PhysicsSystem } from '@etherealengine/spatial/src/physics/systems/PhysicsSystem'
 import { ColliderHitEvent, CollisionEvents } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+
 import { TriggerComponent } from '../components/TriggerComponent'
 
 export const triggerEnter = (triggerEntity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {

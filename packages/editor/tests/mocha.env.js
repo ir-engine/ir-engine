@@ -43,3 +43,12 @@ hook({
   extensions: [ '.scss' ],
   preprocessCss: data => sass.renderSync({ data }).css
 })
+
+// Silence act() warnings
+const originalError = console.error
+console.error = (...args) => {
+  if (/Warning: The current testing environment is not configured to support act/.test(args[0])) {
+    return
+  }
+  originalError.call(console, ...args)
+}

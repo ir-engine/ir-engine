@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { defineQuery } from '@etherealengine/ecs'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { NetworkObjectAuthorityTag } from '@etherealengine/network'
+
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { applyAutopilotInput } from '../functions/moveAvatar'
 import { AvatarMovementSystem } from './AvatarMovementSystem'

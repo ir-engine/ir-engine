@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { Bone, MathUtils, Matrix4, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
 import { Entity, getComponent } from '@etherealengine/ecs'
-import { V_111 } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { Vector3_One } from '@etherealengine/spatial/src/common/constants/MathConstants'
+
 import { AvatarRigComponent, Matrices } from '../components/AvatarAnimationComponent'
 
 const sqrEpsilon = 1e-8
@@ -113,7 +114,7 @@ export function solveTwoBoneIK(
   const midWorldRot = getWorldQuaternion(mid.world, new Quaternion())
   midWorldRot.premultiply(worldBoneRotation)
   worldQuaternionToLocal(midWorldRot, root.world)
-  mid.local.compose(position.setFromMatrixPosition(mid.local), midWorldRot, V_111)
+  mid.local.compose(position.setFromMatrixPosition(mid.local), midWorldRot, Vector3_One)
   mid.world.multiplyMatrices(root.world, mid.local)
   tip.world.multiplyMatrices(mid.world, tip.local)
 
@@ -125,7 +126,7 @@ export function solveTwoBoneIK(
   const rootWorldRot = getWorldQuaternion(root.world, new Quaternion())
   rootWorldRot.premultiply(worldBoneRotation)
   worldQuaternionToLocal(rootWorldRot, parentMatrix)
-  root.local.compose(position.setFromMatrixPosition(root.local), rootWorldRot, V_111)
+  root.local.compose(position.setFromMatrixPosition(root.local), rootWorldRot, Vector3_One)
 
   /** Apply hint */
   if (hint) {
@@ -149,13 +150,13 @@ export function solveTwoBoneIK(
         const rootWorldRot = getWorldQuaternion(root.world, new Quaternion())
         rootWorldRot.premultiply(worldBoneRotation)
         worldQuaternionToLocal(rootWorldRot, parentMatrix)
-        root.local.compose(position.setFromMatrixPosition(root.local), rootWorldRot, V_111)
+        root.local.compose(position.setFromMatrixPosition(root.local), rootWorldRot, Vector3_One)
       }
     }
   }
   /** Apply tip rotation */
   worldQuaternionToLocal(targetRot, mid.world)
-  tip.local.compose(position.setFromMatrixPosition(tip.local), targetRot, V_111)
+  tip.local.compose(position.setFromMatrixPosition(tip.local), targetRot, Vector3_One)
 }
 
 const _v1 = new Vector3()

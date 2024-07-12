@@ -67,6 +67,7 @@ then
     --build-arg VITE_PWA_ENABLED=$VITE_PWA_ENABLED \
     --build-arg VITE_SERVER_HOST=$VITE_SERVER_HOST \
     --build-arg VITE_SERVER_PORT=$VITE_SERVER_PORT \
+    --build-arg VITE_FEATHERS_STORE_KEY=$VITE_FEATHERS_STORE_KEY \
     --build-arg VITE_FILE_SERVER=$VITE_FILE_SERVER \
     --build-arg VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER \
     --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET \
@@ -78,7 +79,10 @@ then
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
-    --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
+    --build-arg VITE_AVATURN_API=$VITE_AVATURN_API \
+    --build-arg VITE_ZENDESK_ENABLED=$VITE_ZENDESK_ENABLED \
+    --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY \
+    --build-arg VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED .
 else
   docker buildx build \
     --builder etherealengine-$PACKAGE \
@@ -112,6 +116,7 @@ else
     --build-arg VITE_PWA_ENABLED=$VITE_PWA_ENABLED \
     --build-arg VITE_SERVER_HOST=$VITE_SERVER_HOST \
     --build-arg VITE_SERVER_PORT=$VITE_SERVER_PORT \
+    --build-arg VITE_FEATHERS_STORE_KEY=$VITE_FEATHERS_STORE_KEY \
     --build-arg VITE_FILE_SERVER=$VITE_FILE_SERVER \
     --build-arg VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER \
     --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET \
@@ -123,14 +128,17 @@ else
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
-    --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
+    --build-arg VITE_AVATURN_API=$VITE_AVATURN_API \
+    --build-arg VITE_ZENDESK_ENABLED=$VITE_ZENDESK_ENABLED \
+    --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY \
+    --build-arg VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED .
 fi
 
 if [ $PRIVATE_REPO == "true" ]
 then
-  node ./scripts/prune_ecr_images.js --repoName $DESTINATION_REPO_NAME_STEM-$PACKAGE --region $REGION --service $PACKAGE --releaseName $STAGE
+  npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-$PACKAGE --region $REGION --service $PACKAGE --releaseName $STAGE
 else
-  node ./scripts/prune_ecr_images.js --repoName $DESTINATION_REPO_NAME_STEM-$PACKAGE --region us-east-1 --service $PACKAGE --releaseName $STAGE --public
+  npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-$PACKAGE --region us-east-1 --service $PACKAGE --releaseName $STAGE --public
 fi
 
 BUILD_END_TIME=`date +"%d-%m-%yT%H-%M-%S"`

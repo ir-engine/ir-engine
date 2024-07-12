@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,24 +19,28 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
 
 import { ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
 import { emailPath } from '@etherealengine/common/src/schemas/user/email.schema'
-import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import {
+  identityProviderPath,
+  IdentityProviderType
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@etherealengine/common/src/schemas/user/login-token.schema'
 import { smsPath } from '@etherealengine/common/src/schemas/user/sms.schema'
 import { UserName } from '@etherealengine/common/src/schemas/user/user.schema'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
 import config from '../../appconfig'
+import logger from '../../ServerLogger'
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
 
@@ -128,15 +132,22 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
     if (data.type === 'email') token = data.email
     else if (data.type === 'sms') token = data.mobile
 
-    let identityProvider
+    let identityProvider: IdentityProviderType
     const identityProviders = (
-      (await identityProviderService.find({
+      await identityProviderService.find({
         query: {
           token: token,
           type: data.type
         }
-      })) as any
+      })
     ).data
+
+    const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+      { accessToken: data.accessToken },
+      {}
+    )
+
+    const identityProviderGuest = authResult[identityProviderPath]
 
     if (identityProviders.length === 0) {
       identityProvider = await identityProviderService.create(
@@ -144,7 +155,7 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
           token: token,
           type: data.type,
           accountIdentifier: token,
-          userId: data.userId
+          userId: identityProviderGuest.userId
         },
         params as any
       )
@@ -153,6 +164,7 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
     }
 
     if (identityProvider) {
+      await this.removePreviousLoginTokensByProvider(identityProvider.id)
       const loginToken = await this.app.service(loginTokenPath).create({
         identityProviderId: identityProvider.id
       })
@@ -164,5 +176,14 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
       }
     }
     return data
+  }
+
+  private async removePreviousLoginTokensByProvider(identityProviderId: string) {
+    const loginTokenService = this.app.service(loginTokenPath)
+    await loginTokenService.remove(null, {
+      query: {
+        identityProviderId
+      }
+    })
   }
 }

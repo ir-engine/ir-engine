@@ -24,7 +24,6 @@
     "rambdax": "9.0.0"
   },
   "devDependencies": {
-    "@testing-library/react": "^14.0.0",
     "@types/mocha": "10.0.1",
     "@types/mock-require": "2.0.1",
     "@types/offscreencanvas": "2019.7.0",

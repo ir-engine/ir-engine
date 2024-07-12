@@ -30,8 +30,8 @@ import dotenv from 'dotenv-flow'
 import { argsToObject } from '@etherealengine/common/src/utils/objectToCommandLineArgs'
 import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
-import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 const modelTransformParameters: ModelTransformParameters = argsToObject(process.argv.slice(3))
 

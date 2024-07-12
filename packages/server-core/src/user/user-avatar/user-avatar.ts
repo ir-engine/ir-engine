@@ -23,26 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  UserAvatarType,
-  userAvatarMethods,
-  userAvatarPath
-} from '@etherealengine/common/src/schemas/user/user-avatar.schema'
+import { Knex } from 'knex'
+import _ from 'lodash'
 
+import {
+  instanceAttendancePath,
+  InstanceAttendanceType
+} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
+import {
+  userAvatarMethods,
+  userAvatarPath,
+  UserAvatarType
+} from '@etherealengine/common/src/schemas/user/user-avatar.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '@etherealengine/server-core/declarations'
-import _ from 'lodash'
-import logger from '../../ServerLogger'
+
 import config from '../../appconfig'
+import logger from '../../ServerLogger'
 import { UserAvatarService } from './user-avatar.class'
 import userAvatarDocs from './user-avatar.docs'
 import hooks from './user-avatar.hooks'
-
-import {
-  InstanceAttendanceType,
-  instanceAttendancePath
-} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
-import { Knex } from 'knex'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {

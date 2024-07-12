@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Static, Type, getValidator, querySyntax } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Static, Type } from '@feathersjs/typebox'
+
 import { TypedString } from '../../types/TypeboxUtils'
 import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
 import { InviteCode, UserID } from '../user/user.schema'

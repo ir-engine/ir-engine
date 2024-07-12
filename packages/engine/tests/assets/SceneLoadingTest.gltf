@@ -1,0 +1,82 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "nodes": [6]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2, 0, 1],
+      "name": "Child 5",
+      "extensions": {
+        "EE_uuid": "child_5"
+      }
+    },
+    {
+      "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2, 0, 0, 1],
+      "children": [0],
+      "name": "Child 4",
+      "extensions": {
+        "EE_uuid": "child_4"
+      }
+    },
+    {
+      "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+      "children": [1],
+      "name": "Child 3",
+      "extensions": {
+        "EE_uuid": "child_3"
+      }
+    },
+    {
+      "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2, 1],
+      "name": "Child 2 _ 1",
+      "extensions": {
+        "EE_uuid": "child_2_1",
+        "EE_fog": {
+          "type": "linear",
+          "color": "#FFFFFF",
+          "density": 0.005,
+          "near": 1,
+          "far": 1000,
+          "timeScale": 1,
+          "height": 0.05
+        }
+      }
+    },
+    {
+      "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1],
+      "children": [2, 3],
+      "name": "Child 2",
+      "extensions": {
+        "EE_uuid": "child_2"
+      }
+    },
+    {
+      "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1],
+      "children": [4],
+      "name": "Child 1",
+      "extensions": {
+        "EE_uuid": "child_1"
+      }
+    },
+    {
+      "children": [5],
+      "name": "Child 0",
+      "extensions": {
+        "EE_uuid": "child_0",
+        "EE_model": {
+          "src": "/packages/projects/default-project/assets/collisioncube.glb",
+          "cameraOcclusion": true,
+          "convertToVRM": false
+        }
+      }
+    }
+  ],
+  "extensionsUsed": ["EE_uuid", "EE_ecs", "EE_fog"]
+}

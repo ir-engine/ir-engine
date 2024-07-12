@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert, NodeCategory, makeEventNodeDefinition } from '../../../VisualScriptModule'
+import { Assert, makeEventNodeDefinition, NodeCategory } from '../../../VisualScriptModule'
 import { ILifecycleEventEmitter } from '../abstractions/ILifecycleEventEmitter'
 
 type State = {
@@ -37,7 +37,7 @@ const makeInitialState = (): State => ({
 export const LifecycleOnStart = makeEventNodeDefinition({
   typeName: 'flow/lifecycle/onStart',
   label: 'On Start',
-  category: NodeCategory.Event,
+  category: NodeCategory.Flow,
   in: {},
   out: {
     flow: 'flow'

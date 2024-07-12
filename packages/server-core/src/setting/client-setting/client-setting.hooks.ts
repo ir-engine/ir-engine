@@ -23,8 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
+import path from 'path'
+
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 
 import {
   ClientSettingData,
@@ -34,16 +38,11 @@ import {
   clientSettingQueryValidator
 } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 
-import { isDev } from '@etherealengine/common/src/config'
-import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
-import { BadRequest } from '@feathersjs/errors'
-import path from 'path'
 import { HookContext } from '../../../declarations'
-import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import verifyScope from '../../hooks/verify-scope'
-import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import logger from '../../ServerLogger'
 import { getContentType } from '../../util/fileUtils'
 import { ClientSettingService } from './client-setting.class'
 import {
@@ -71,11 +70,11 @@ const updateWebManifest = async (context: HookContext<ClientSettingService>) => 
   try {
     const webmanifestResponse = await storageProvider.getObject(webmanifestPath)
     const webmanifest = JSON.parse(webmanifestResponse.Body.toString('utf-8'))
-    context.data![0].startPath = data![0].startPath?.replace(/https:\/\//, '/')
-    const icon192px = /https:\/\//.test(data![0].icon192px!)
+    context.data![0].startPath = data![0].startPath?.replace('https://', '/')
+    const icon192px = data![0].icon192px!.startsWith('https://')
       ? data![0].icon192px
       : path.join('client', data![0].icon192px!)
-    const icon512px = /https:\/\//.test(data![0].icon512px!)
+    const icon512px = data![0].icon512px!.startsWith('https://')
       ? data![0].icon512px
       : path.join('client', data![0].icon512px!)
     webmanifest.name = data![0].title
@@ -86,10 +85,10 @@ const updateWebManifest = async (context: HookContext<ClientSettingService>) => 
         : config.client.url[config.client.url.length - 1] !== '/' && data![0].startPath![0] !== '/'
         ? config.client.url + '/' + data![0].startPath
         : config.client.url + data![0].startPath
-    const cacheDomain = getCacheDomain(storageProvider)
+    const cacheDomain = storageProvider.getCacheDomain()
     webmanifest.icons = [
       {
-        src: /https:\/\//.test(icon192px!)
+        src: icon192px!.startsWith('https://')
           ? icon192px
           : cacheDomain[cacheDomain.length - 1] === '/' && icon192px![0] === '/'
           ? `https://${cacheDomain}${icon192px?.slice(1)}`
@@ -100,7 +99,7 @@ const updateWebManifest = async (context: HookContext<ClientSettingService>) => 
         type: getContentType(icon192px!)
       },
       {
-        src: /https:\/\//.test(icon512px!)
+        src: icon512px!.startsWith('https://')
           ? icon512px
           : cacheDomain[cacheDomain.length - 1] === '/' && icon512px![0] === '/'
           ? `https://${cacheDomain}${icon512px?.slice(1)}`
@@ -111,7 +110,7 @@ const updateWebManifest = async (context: HookContext<ClientSettingService>) => 
         type: getContentType(icon512px!)
       }
     ]
-    if (!isDev)
+    if (config.server.edgeCachingEnabled)
       await context.app.service(invalidationPath).create({
         path: webmanifestPath
       })

@@ -26,17 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { DracoOptions } from '@gltf-transform/functions'
 import { Material, Texture } from 'three'
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  useComponent
+  useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import {
   GeometryTransformParameters,
   ImageTransformParameters,
@@ -46,17 +46,18 @@ import {
 } from '../../../assets/classes/ModelTransform'
 import { ModelComponent } from '../../components/ModelComponent'
 
-export function getModelSceneID(entity: Entity): SceneID {
+export function getModelSceneID(entity: Entity): string {
   if (!hasComponent(entity, ModelComponent) || !hasComponent(entity, UUIDComponent)) {
-    return '' as SceneID
+    return ''
   }
-  return (getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src) as SceneID
+  return getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src
 }
 
-export function useModelSceneID(entity: Entity): SceneID {
-  const uuid = useComponent(entity, UUIDComponent).value
-  const model = useComponent(entity, ModelComponent).value
-  return (uuid + '-' + model.src) as SceneID
+export function useModelSceneID(entity: Entity): string {
+  const uuid = useOptionalComponent(entity, UUIDComponent)?.value
+  const model = useOptionalComponent(entity, ModelComponent)?.value
+  if (!uuid || !model) return ''
+  return uuid + '-' + model.src
 }
 
 export function getModelResources(entity: Entity, defaultParms: ModelTransformParameters): ResourceTransforms {
@@ -119,7 +120,7 @@ export function getModelResources(entity: Entity, defaultParms: ModelTransformPa
         if (/normal/i.test(texture.name)) {
           descriptor = 'normalMap'
         }
-        if (/basecolor/i.test(texture.name) || /diffuse/i.test(texture.name)) {
+        if (/base[-_\s]*color/i.test(texture.name) || /diffuse/i.test(texture.name)) {
           descriptor = 'baseColorMap'
         }
         return [image, descriptor]

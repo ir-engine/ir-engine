@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { getTicketsAssignment } from '@etherealengine/matchmaking/src/functions'
 import {
-  MatchTicketAssignmentType,
-  matchTicketAssignmentQueryValidator
+  matchTicketAssignmentQueryValidator,
+  MatchTicketAssignmentType
 } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import linkMatchUserToMatch from '@etherealengine/server-core/src/hooks/matchmaking-link-match-user-to-match'
 
-import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { getTicketsAssignment } from '@etherealengine/matchmaking/src/functions'
-import { NotFound } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import { emulate_getTicketsAssignment } from '../emulate'
@@ -75,7 +75,7 @@ export default {
 
   before: {
     all: [
-      () => schemaHooks.validateQuery(matchTicketAssignmentQueryValidator),
+      schemaHooks.validateQuery(matchTicketAssignmentQueryValidator),
       schemaHooks.resolveQuery(matchTicketAssignmentQueryResolver)
     ],
     find: [],

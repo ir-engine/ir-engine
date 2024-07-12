@@ -25,47 +25,48 @@ Ethereal Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
-import { Group, Vector3 } from 'three'
+import { CircleGeometry, Group, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import multiLogger from '@etherealengine/common/src/logger'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { applyVideoToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 import {
+  MediasoupMediaProducerConsumerState,
   NetworkObjectComponent,
   NetworkObjectOwnedTag,
   NetworkState,
   webcamVideoDataChannelType
 } from '@etherealengine/network'
-import { easeOutElastic } from '@etherealengine/spatial/src/common/functions/MathFunctions'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { easeOutElastic } from '@etherealengine/spatial/src/common/functions/MathFunctions'
+import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { MediasoupMediaProducerConsumerState } from '@etherealengine/network'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
-import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
+import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { AvatarUIContextMenuState } from './ui/UserMenuView'
 
@@ -132,7 +133,7 @@ const raycastComponentData = {
 
 const onSecondaryClick = () => {
   const { physicsWorld } = getState(PhysicsState)
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const hits = Physics.castRayFromCamera(
@@ -159,9 +160,14 @@ const onSecondaryClick = () => {
 }
 
 const execute = () => {
+  const viewerEntity = getState(EngineState).viewerEntity
+  if (!viewerEntity) return
+
   const ecsState = getState(ECSState)
 
-  const buttons = InputSourceComponent.getMergedButtons()
+  const buttons = InputComponent.getMergedButtons(viewerEntity)
+
+  // const buttons = InputSourceComponent.getMergedButtons()
   if (buttons.PrimaryClick?.down) onPrimaryClick()
   if (buttons.SecondaryClick?.down) onSecondaryClick()
 
@@ -179,14 +185,15 @@ const execute = () => {
     AvatarUITransitions.set(userEntity, transition)
     const root = new Group()
     root.name = `avatar-ui-root-${userEntity}`
-    ui.state.videoPreviewMesh.value.position.y += 0.3
-    ui.state.videoPreviewMesh.value.visible = false
-    root.add(ui.state.videoPreviewMesh.value)
+    const mesh = ui.state.videoPreviewMesh.value as Mesh<CircleGeometry, MeshBasicMaterial>
+    mesh.position.y += 0.3
+    mesh.visible = false
+    root.add(mesh)
     addObjectToGroup(ui.entity, root)
     AvatarUI.set(userEntity, ui)
   }
 
-  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+  const cameraTransform = getComponent(viewerEntity, TransformComponent)
 
   const immersiveMedia = getState(MediaSettingsState).immersiveMedia
   const mediaNetwork = NetworkState.mediaNetwork
@@ -200,7 +207,7 @@ const execute = () => {
     const userTransform = getComponent(userEntity, TransformComponent)
     const xruiTransform = getComponent(ui.entity, TransformComponent)
 
-    const videoPreviewMesh = ui.state.videoPreviewMesh.value
+    const videoPreviewMesh = ui.state.videoPreviewMesh.value as Mesh<CircleGeometry, MeshBasicMaterial>
     _vector3.copy(userTransform.position).y += avatarHeight + (videoPreviewMesh.visible ? 0.1 : 0.3)
 
     const dist = cameraTransform.position.distanceTo(_vector3)

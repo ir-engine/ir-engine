@@ -33,5 +33,3 @@ export const THUMBNAIL_FILE_ALLOWED_EXTENSIONS = '.png,.jpg'
 export const THUMBNAIL_WIDTH = 300
 export const THUMBNAIL_HEIGHT = 300
 export const MAX_ALLOWED_TRIANGLES = 100000
-export const REGEX_VALID_URL =
-  /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g

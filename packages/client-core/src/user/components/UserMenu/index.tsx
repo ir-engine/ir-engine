@@ -23,20 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ClickAwayListener from '@mui/material/ClickAwayListener'
 import React from 'react'
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState, useMutableState } from '@etherealengine/hyperflux'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
-
-import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import { AppState } from '../../../common/services/AppService'
 import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'
-import { PopupMenuServices, PopupMenuState } from './PopupMenuService'
 import styles from './index.module.scss'
+import { PopupMenuServices, PopupMenuState } from './PopupMenuService'
 
 export const UserMenu = () => {
-  const popupMenuState = useHookstate(getMutableState(PopupMenuState))
+  const popupMenuState = useMutableState(PopupMenuState)
   const popupMenu = getState(PopupMenuState)
   const Panel = popupMenu.openMenu ? popupMenu.menus[popupMenu.openMenu] : null
   const hotbarItems = popupMenu.hotbar

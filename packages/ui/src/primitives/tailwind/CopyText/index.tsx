@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiCheck, HiDocument } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
+
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+
 import Button from '../Button'
 
 export interface CopyTextProps extends React.HTMLAttributes<HTMLTextAreaElement> {

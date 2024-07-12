@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+
 import { dataValidator, queryValidator } from '../validators'
 
 export const authenticationSettingPath = 'authentication-setting'
@@ -90,6 +91,7 @@ export interface AuthDefaultsType extends Static<typeof authDefaultsSchema> {}
 
 export const authAppCredentialsSchema = Type.Object(
   {
+    appId: Type.Optional(Type.String()),
     key: Type.String(),
     secret: Type.String(),
     scope: Type.Optional(Type.Array(Type.String())),

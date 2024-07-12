@@ -23,42 +23,90 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { profile } from '@etherealengine/ecs/src/Timer'
-import { State, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
-import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GetGPUTier, getGPUTier } from 'detect-gpu'
 import { debounce } from 'lodash'
 import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
-import { Camera, Scene } from 'three'
+import { Camera, MathUtils, Scene } from 'three'
+
+import { defineSystem, ECSState, PresentationSystemGroup } from '@etherealengine/ecs'
+import { profile } from '@etherealengine/ecs/src/Timer'
+import { defineState, getMutableState, getState, State, useMutableState } from '@etherealengine/hyperflux'
+import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+
 import { EngineState } from '../EngineState'
 import { RendererState } from './RendererState'
 
 type PerformanceTier = 0 | 1 | 2 | 3 | 4 | 5
+type TargetFPS = 30 | 60
+const maxPerformanceTier = 5
+const maxPerformanceOffset = 12
 
 const tieredSettings = {
   [0]: {
-    engine: { useShadows: false, shadowMapResolution: 0, usePostProcessing: false, forceBasicMaterials: true },
+    engine: {
+      useShadows: false,
+      shadowMapResolution: 0,
+      usePostProcessing: false,
+      forceBasicMaterials: true,
+      updateCSMFrustums: false,
+      renderScale: 0.75
+    },
     render: { smaaPreset: SMAAPreset.LOW }
   },
   [1]: {
-    engine: { useShadows: false, shadowMapResolution: 0, usePostProcessing: false, forceBasicMaterials: false },
+    engine: {
+      useShadows: false,
+      shadowMapResolution: 0,
+      usePostProcessing: false,
+      forceBasicMaterials: false,
+      updateCSMFrustums: true,
+      renderScale: 1
+    },
     render: { smaaPreset: SMAAPreset.LOW }
   },
   [2]: {
-    engine: { useShadows: true, shadowMapResolution: 256, usePostProcessing: false, forceBasicMaterials: false },
+    engine: {
+      useShadows: true,
+      shadowMapResolution: 256,
+      usePostProcessing: false,
+      forceBasicMaterials: false,
+      updateCSMFrustums: true,
+      renderScale: 1
+    },
     render: { smaaPreset: SMAAPreset.LOW }
   },
   [3]: {
-    engine: { useShadows: true, shadowMapResolution: 512, usePostProcessing: false, forceBasicMaterials: false },
+    engine: {
+      useShadows: true,
+      shadowMapResolution: 512,
+      usePostProcessing: false,
+      forceBasicMaterials: false,
+      updateCSMFrustums: true,
+      renderScale: 1
+    },
     render: { smaaPreset: SMAAPreset.MEDIUM }
   },
   [4]: {
-    engine: { useShadows: true, shadowMapResolution: 1024, usePostProcessing: true, forceBasicMaterials: false },
+    engine: {
+      useShadows: true,
+      shadowMapResolution: 1024,
+      usePostProcessing: true,
+      forceBasicMaterials: false,
+      updateCSMFrustums: true,
+      renderScale: 1
+    },
     render: { smaaPreset: SMAAPreset.HIGH }
   },
   [5]: {
-    engine: { useShadows: true, shadowMapResolution: 2048, usePostProcessing: true, forceBasicMaterials: false },
+    engine: {
+      useShadows: true,
+      shadowMapResolution: 2048,
+      usePostProcessing: true,
+      forceBasicMaterials: false,
+      updateCSMFrustums: true,
+      renderScale: 1
+    },
     render: { smaaPreset: SMAAPreset.ULTRA }
   }
 } as {
@@ -68,69 +116,189 @@ const tieredSettings = {
   }
 }
 
+type ExponentialMovingAverage = {
+  mean: number
+  multiplier: number
+}
+
+const createExponentialMovingAverage = (timePeriods: number, startingMean: number): ExponentialMovingAverage => {
+  return {
+    mean: startingMean,
+    multiplier: 2 / (timePeriods + 1)
+  }
+}
+
+const updateExponentialMovingAverage = (average: State<ExponentialMovingAverage>, newValue: number) => {
+  const multiplier = average.multiplier.value
+  const prev = average.mean.value
+  const ema = newValue * multiplier + prev * (1 - multiplier)
+  average.mean.set(ema)
+}
+
 export const PerformanceState = defineState({
   name: 'PerformanceState',
+
   initial: () => ({
-    tier: 3 as PerformanceTier,
+    enabled: false,
+
+    isMobileGPU: false,
+    gpuTier: 3 as PerformanceTier,
+    cpuTier: 3 as PerformanceTier,
+
+    supportWebGL2: true,
+    targetFPS: 60 as TargetFPS,
+
+    gpu: 'unknown',
+    device: 'unknown',
+
+    maxTextureSize: 0,
+    max3DTextureSize: 0,
+    maxBufferSize: 0,
+    maxIndices: 0,
+    maxVerticies: 0,
+
+    renderContext: null! as WebGL2RenderingContext,
+
     // The lower the performance the higher the offset
-    performanceOffset: 0,
-    isMobileGPU: false as boolean | undefined,
-    // averageRenderTime: 0,
-    budgets: {
-      maxTextureSize: 0,
-      max3DTextureSize: 0,
-      maxBufferSize: 0,
-      maxIndices: 0,
-      maxVerticies: 0
-    }
+    gpuPerformanceOffset: 0,
+    cpuPerformanceOffset: 0,
+
+    averageFrameTime: createExponentialMovingAverage(180, (1 / 60) * 1000),
+    averageRenderTime: createExponentialMovingAverage(180, (1 / 60) * 1000),
+    averageSystemTime: createExponentialMovingAverage(180, (1 / 60) * 1000),
+
+    performanceSmoothingCycles: 300 as const,
+    performanceSmoothingAccum: 0
   }),
+
   reactor: () => {
     const performanceState = useMutableState(PerformanceState)
     const renderSettings = useMutableState(RenderSettingsState)
     const engineSettings = useMutableState(RendererState)
+    const engineState = useMutableState(EngineState)
+
+    const recreateEMA = () => {
+      const targetFPS = performanceState.targetFPS.value
+      const timePeriods = targetFPS * 3
+      const startingMean = (1 / targetFPS) * 1000
+      performanceState.merge({
+        averageFrameTime: createExponentialMovingAverage(timePeriods, startingMean),
+        averageRenderTime: createExponentialMovingAverage(timePeriods, startingMean),
+        averageSystemTime: createExponentialMovingAverage(timePeriods, startingMean)
+      })
+    }
 
     useEffect(() => {
-      if (getState(EngineState).isEditing) return
+      performanceState.enabled.set(!engineState.isEditing.value && engineSettings.automatic.value)
+    }, [engineState.isEditing, engineSettings.automatic])
 
-      const performanceTier = performanceState.tier.value
+    useEffect(() => {
+      recreateEMA()
+    }, [performanceState.targetFPS])
+
+    useEffect(() => {
+      if (!performanceState.enabled.value) return
+
+      const performanceTier = performanceState.gpuTier.value
       const settings = tieredSettings[performanceTier]
       engineSettings.merge(settings.engine)
       renderSettings.merge(settings.render)
-    }, [performanceState.tier])
+    }, [performanceState.gpuTier, performanceState.enabled])
+
+    useEffect(() => {
+      recreateEMA()
+      performanceState.performanceSmoothingAccum.set(0)
+    }, [performanceState.gpuPerformanceOffset, performanceState.cpuPerformanceOffset])
   }
 })
 
-// API to get GPU timings, not currently in use due to poor support
-// Probably only useful right now as a debug metric for use in the editor
-const timeBeforeCheck = 3
-let timeAccum = 0
-let checkingRenderTime = false
-const startGPUTiming = (renderer: EngineRenderer, dt: number): (() => void) => {
-  timeAccum += dt
-  if (checkingRenderTime || timeAccum < timeBeforeCheck) return () => {}
-  checkingRenderTime = true
+export const PerformanceSystem = defineSystem({
+  uuid: 'ee.engine.PerformanceSystem',
+  insert: { after: PresentationSystemGroup },
 
-  return timeRenderFrameGPU(renderer, (renderTime) => {
+  execute: () => {
+    const performanceState = getState(PerformanceState)
+    if (!performanceState.enabled) return
+
+    {
+      const { performanceSmoothingAccum, performanceSmoothingCycles } = performanceState
+      const performanceStateMut = getMutableState(PerformanceState)
+      const ecsState = getState(ECSState)
+
+      updateExponentialMovingAverage(performanceStateMut.averageSystemTime, ecsState.lastSystemExecutionDuration)
+      updateExponentialMovingAverage(performanceStateMut.averageFrameTime, ecsState.deltaSeconds * 1000)
+
+      if (performanceSmoothingAccum < performanceSmoothingCycles) {
+        performanceStateMut.performanceSmoothingAccum.set(performanceSmoothingAccum + 1)
+        return
+      }
+    }
+
+    const { averageFrameTime, averageRenderTime, averageSystemTime, targetFPS } = performanceState
+    const maxDelta = 1000 / (targetFPS / 2 - 2)
+    const minDelta = 1000 / (targetFPS - 5)
+
+    const frameMean = averageFrameTime.mean
+    const renderMean = averageRenderTime.mean
+    const systemMean = averageSystemTime.mean
+
+    // Frame time is below target
+    if (frameMean > maxDelta) {
+      const maxRatio = 2.5
+      const gpuRatio = frameMean / renderMean
+      const systemRatio = frameMean / systemMean
+
+      // Check if we are GPU bound
+      if (gpuRatio < maxRatio) {
+        decrementGPUPerformance()
+        // Check if we are system bound
+      } else if (systemRatio < maxRatio) {
+        decrementCPUPerformance()
+        // We are CPU bound by something other than systems
+      } else {
+        decrementCPUPerformance()
+      }
+    } else if (frameMean < minDelta) {
+      incrementGPUPerformance()
+      incrementCPUPerformance()
+    }
+  }
+})
+
+let checkingRenderTime = false
+/**
+ * API to get GPU timings, with fallback if WebGL extension is not available (Not available on WebGL1 devices and Safari)
+ * Will only run if not already running and the number of elapsed seconds since it last ran is greater than timeBeforeCheck
+ *
+ * @param renderer EngineRenderer
+ * @returns Function to call after you call your render function
+ */
+const profileGPURender = (): (() => void) => {
+  if (checkingRenderTime || !getState(PerformanceState).enabled) return () => {}
+
+  checkingRenderTime = true
+  return timeRenderFrameGPU((renderTime) => {
     checkingRenderTime = false
-    timeAccum = 0
     const performanceState = getMutableState(PerformanceState)
-    // performanceState.averageRenderTime.set((performanceState.averageRenderTime.value + renderTime) / 2)
+    updateExponentialMovingAverage(performanceState.averageRenderTime, renderTime)
   })
 }
 
-const timeRenderFrameGPU = (renderer: EngineRenderer, callback: (number) => void = () => {}): (() => void) => {
+// Magic number to mimic GPU overhead on fallback timing
+const fallbackMod = 10
+const timeRenderFrameGPU = (callback: (number) => void = () => {}): (() => void) => {
   const fallback = () => {
     const end = profile()
     return () => {
-      callback(end())
+      callback(end() * fallbackMod)
     }
   }
 
-  if (renderer.supportWebGL2) {
-    const gl = renderer.renderContext as WebGL2RenderingContext
+  const { renderContext, supportWebGL2 } = getState(PerformanceState)
+  if (renderContext && supportWebGL2) {
+    const gl = renderContext
     const ext = gl.getExtension('EXT_disjoint_timer_query_webgl2')
 
-    // Not super well supported, no Safari support
     if (ext) {
       const startQuery = gl.createQuery()
       const endQuery = gl.createQuery()
@@ -159,7 +327,6 @@ const timeRenderFrameGPU = (renderer: EngineRenderer, callback: (number) => void
               gl.deleteQuery(startQuery)
               gl.deleteQuery(endQuery)
               checkingRenderTime = false
-              timeAccum = 0
             } else {
               requestAnimationFrame(poll)
             }
@@ -170,8 +337,17 @@ const timeRenderFrameGPU = (renderer: EngineRenderer, callback: (number) => void
   } else return fallback()
 }
 
+/**
+ *
+ * Debug function to get the GPU timings of a scene
+ *
+ * @param renderer EngineRenderer
+ * @param scene Scene
+ * @param camera Camera
+ * @param onFinished Callback with the render time as a parameter
+ */
 const timeRender = (renderer: EngineRenderer, scene: Scene, camera: Camera, onFinished: (ms: number) => void) => {
-  const end = timeRenderFrameGPU(renderer, (renderTime) => {
+  const end = timeRenderFrameGPU((renderTime) => {
     onFinished(renderTime)
   })
   renderer.renderer.render(scene, camera)
@@ -180,59 +356,70 @@ const timeRender = (renderer: EngineRenderer, scene: Scene, camera: Camera, onFi
   scene.remove(camera)
 }
 
-const updatePerformanceState = (
-  performanceState: State<typeof PerformanceState._TYPE>,
-  tier: number,
-  offset: number
-) => {
-  if (tier !== performanceState.tier.value) {
-    performanceState.tier.set(tier as PerformanceTier)
+const updatePerformanceState = (tierState: State<number>, tier: number, offsetState: State<number>, offset: number) => {
+  if (tier !== tierState.value) {
+    tierState.set(tier)
   }
-  if (offset !== performanceState.performanceOffset.value) {
-    performanceState.performanceOffset.set(offset)
+  if (offset !== offsetState.value) {
+    offsetState.set(offset)
   }
 }
 
 const debounceTime = 1000
-const increment = debounce(
-  (state: State<typeof PerformanceState._TYPE>, tier: number, offset: number) => {
-    updatePerformanceState(state, tier, offset)
+const updateStateTierAndOffset = debounce(
+  (tierState: State<number>, tier: number, offsetState: State<number>, offset: number) => {
+    updatePerformanceState(
+      tierState,
+      MathUtils.clamp(tier, 0, maxPerformanceTier),
+      offsetState,
+      MathUtils.clamp(offset, 0, maxPerformanceOffset)
+    )
   },
   debounceTime,
   { trailing: true, maxWait: debounceTime * 2 }
 )
-const decrement = debounce(
-  (state: State<typeof PerformanceState._TYPE>, tier: number, offset: number) => {
-    updatePerformanceState(state, tier, offset)
-  },
-  debounceTime,
-  { trailing: true, maxWait: debounceTime * 2 }
-)
 
-const incrementPerformance = () => {
+const incrementGPUPerformance = () => {
   const performanceState = getMutableState(PerformanceState)
-  increment(
-    performanceState,
-    Math.min(performanceState.tier.value + 1, 5),
-    Math.max(performanceState.performanceOffset.value - 1, 0)
+  updateStateTierAndOffset(
+    performanceState.gpuTier,
+    performanceState.gpuTier.value + 1,
+    performanceState.gpuPerformanceOffset,
+    performanceState.gpuPerformanceOffset.value - 1
   )
 }
 
-const maxOffset = 12
-const decrementPerformance = () => {
+const decrementGPUPerformance = () => {
   const performanceState = getMutableState(PerformanceState)
-  decrement(
-    performanceState,
-    Math.max(performanceState.tier.value - 1, 0),
-    Math.min(performanceState.performanceOffset.value + 1, maxOffset)
+  updateStateTierAndOffset(
+    performanceState.gpuTier,
+    performanceState.gpuTier.value - 1,
+    performanceState.gpuPerformanceOffset,
+    performanceState.gpuPerformanceOffset.value + 1
   )
 }
 
-const buildPerformanceState = async (
-  renderer: EngineRenderer,
-  onFinished: () => void,
-  override?: GetGPUTier['override']
-) => {
+const incrementCPUPerformance = () => {
+  const performanceState = getMutableState(PerformanceState)
+  updateStateTierAndOffset(
+    performanceState.cpuTier,
+    performanceState.cpuTier.value + 1,
+    performanceState.cpuPerformanceOffset,
+    performanceState.cpuPerformanceOffset.value - 1
+  )
+}
+
+const decrementCPUPerformance = () => {
+  const performanceState = getMutableState(PerformanceState)
+  updateStateTierAndOffset(
+    performanceState.cpuTier,
+    performanceState.cpuTier.value - 1,
+    performanceState.cpuPerformanceOffset,
+    performanceState.cpuPerformanceOffset.value + 1
+  )
+}
+
+const buildPerformanceState = async (renderer: EngineRenderer, override?: GetGPUTier['override']) => {
   const performanceState = getMutableState(PerformanceState)
   const gpuTier = await getGPUTier({
     glContext: renderer.renderContext,
@@ -241,12 +428,16 @@ const buildPerformanceState = async (
     mobileTiers: [0, 15, 30, 45, 60, 75],
     override
   })
-  let tier = gpuTier.tier
-  performanceState.isMobileGPU.set(gpuTier.isMobile)
+  let tier = gpuTier.type === 'FALLBACK' ? performanceState.gpuTier.value : gpuTier.tier
+  performanceState.isMobileGPU.set(!!gpuTier.isMobile)
+  if (gpuTier.gpu) performanceState.gpu.set(gpuTier.gpu)
+  if (gpuTier.device) performanceState.device.set(gpuTier.device)
 
   const gl = renderer.renderContext as WebGL2RenderingContext
+  performanceState.supportWebGL2.set(renderer.supportWebGL2)
+  performanceState.renderContext.set(gl)
   const max3DTextureSize = gl.getParameter(gl.MAX_3D_TEXTURE_SIZE)
-  performanceState.budgets.set({
+  performanceState.merge({
     maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
     max3DTextureSize: max3DTextureSize,
     maxBufferSize:
@@ -259,15 +450,19 @@ const buildPerformanceState = async (
     maxVerticies: gl.getParameter(gl.MAX_ELEMENTS_VERTICES) * 2
   })
 
-  if (gpuTier.isMobile) tier = Math.max(tier - 2, 0)
+  if (gpuTier.isMobile) {
+    performanceState.targetFPS.set(30)
+    tier = Math.max(tier - 2, 0)
+  }
 
-  performanceState.tier.set(tier as PerformanceTier)
-  onFinished()
+  performanceState.gpuTier.set(tier as PerformanceTier)
 }
 
 export const PerformanceManager = {
   buildPerformanceState,
-  incrementPerformance,
-  decrementPerformance,
-  startGPUTiming
+  profileGPURender,
+  incrementGPUPerformance,
+  decrementGPUPerformance,
+  incrementCPUPerformance,
+  decrementCPUPerformance
 }

@@ -26,14 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import _ from 'lodash'
 
 import logger from '@etherealengine/common/src/logger'
-
-import {
-  ProjectPermissionType,
-  projectPermissionPath
-} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import { ProjectType, projectMethods, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { ScopeType, ScopeTypeInterface, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { projectMethods, projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { scopePath, ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
+
 import { Application } from '../../../declarations'
 import { ProjectService } from './project.class'
 import projectDocs from './project.docs'
@@ -66,26 +63,30 @@ export default (app: Application): void => {
 
   service.publish('patched', async (data: ProjectType) => {
     try {
-      let targetIds: string[] = []
-      const projectOwners = (await app.service(projectPermissionPath).find({
+      const targetIds: string[] = []
+      const projectOwners = await app.service(projectPermissionPath).find({
         query: {
           projectId: data.id,
           type: 'owner'
         },
         paginate: false
-      })) as any as ProjectPermissionType[]
-      targetIds = targetIds.concat(projectOwners.map((permission) => permission.userId))
+      })
+      projectOwners.forEach((permission) => {
+        targetIds.push(permission.userId)
+      })
 
-      const projectReadScopes = (await app.service(scopePath).find({
+      const projectReadScopes = await app.service(scopePath).find({
         query: {
           type: 'projects:read' as ScopeType
         },
         paginate: false
-      })) as ScopeTypeInterface[]
+      })
+      projectReadScopes.forEach((scope) => {
+        targetIds.push(scope.userId)
+      })
 
-      targetIds = targetIds.concat(projectReadScopes.map((admin) => admin.userId!))
-      targetIds = _.uniq(targetIds)
-      return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
+      const uniqueUserIds = _.uniq(targetIds)
+      return Promise.all(uniqueUserIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {
       logger.error(err)
       throw err

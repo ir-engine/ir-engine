@@ -30,6 +30,7 @@ import {
   botCommandDataValidator,
   botCommandQueryValidator
 } from '@etherealengine/common/src/schemas/bot/bot-command.schema'
+
 import verifyScope from '../../hooks/verify-scope'
 import {
   botCommandDataResolver,
@@ -44,12 +45,12 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(botCommandQueryValidator), schemaHooks.resolveQuery(botCommandQueryResolver)],
+    all: [schemaHooks.validateQuery(botCommandQueryValidator), schemaHooks.resolveQuery(botCommandQueryResolver)],
     find: [iff(isProvider('external'), verifyScope('bot', 'read'))],
     get: [iff(isProvider('external'), verifyScope('bot', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('bot', 'write')),
-      () => schemaHooks.validateData(botCommandDataValidator),
+      schemaHooks.validateData(botCommandDataValidator),
       schemaHooks.resolveData(botCommandDataResolver)
     ],
     update: [disallow()],

@@ -1,22 +1,14 @@
 {
   "name": "ee-template",
   "version": "0.0.0",
-  "description": "",
-  "main": "",
-  "etherealEngine": {
-    "version": "1.6.0"
-  },
   "scripts": {
     "test": "mocha --config .mocharc.js",
     "check-errors": "tsc --noemit",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "format-scss": "stylelint \"**/*.scss\" --fix",
     "format-staged": "lint-staged",
-    "precommit": "no-master-commits -b master"
+    "precommit": "no-master-commits -b main"
   },
-  "peerDependencies": {},
-  "dependencies": {},
-  "devDependencies": {},
   "license": "ISC",
   "pre-commit": [
     "format-staged"

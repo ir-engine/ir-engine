@@ -23,35 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
+import MaterialComponentIcon from '@mui/icons-material/LocalFloristTwoTone'
+import { Grid } from '@mui/material'
 import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 
-import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
-import { MaterialComponentType } from '@etherealengine/engine/src/scene/materials/components/MaterialComponent'
-import { MaterialPrototypeComponentType } from '@etherealengine/engine/src/scene/materials/components/MaterialPrototypeComponent'
-import { MaterialSourceComponentType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
-import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
-import { entryId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { EntityUUID, getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
-import MaterialComponentIcon from '@mui/icons-material/LocalFloristTwoTone'
-import MaterialSourceIcon from '@mui/icons-material/YardTwoTone'
-import { Grid } from '@mui/material'
-
+import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { SelectionState } from '../../services/SelectionServices'
 import styles from '../hierarchy/styles.module.scss'
 
 export type MaterialLibraryEntryType = {
-  uuid: string
-  type: LibraryEntryType
-  entry: MaterialComponentType | MaterialSourceComponentType | MaterialPrototypeComponentType
+  uuid: EntityUUID
+  path: string
   selected?: boolean
-  active?: boolean
-  isCollapsed?: boolean
 }
 
 export type MaterialLibraryEntryData = {
@@ -66,32 +55,22 @@ export type MaterialLibraryEntryProps = {
   style: StyleHTMLAttributes<HTMLElement>
 }
 
-const getNodeElId = (node: MaterialLibraryEntryType) => {
-  return 'material-node-' + entryId(node.entry, node.type)
-}
-
 const nodeDisplayName = (node: MaterialLibraryEntryType) => {
-  switch (node.type) {
-    case LibraryEntryType.MATERIAL:
-      return (node.entry as MaterialComponentType).material.name
-    case LibraryEntryType.MATERIAL_SOURCE:
-      return (
-        pathResolver().exec((node.entry as MaterialSourceComponentType).src.path)?.[2] ??
-        (node.entry as MaterialSourceComponentType).src.path
-      )
-    case LibraryEntryType.MATERIAL_PROTOTYPE:
-      return (node.entry as MaterialPrototypeComponentType).prototypeId
-  }
+  return (
+    getOptionalComponent(UUIDComponent.getEntityByUUID(node.uuid as EntityUUID), MaterialStateComponent)?.material
+      ?.name ?? ''
+  )
 }
 
 export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
   const data = props.data
   const node = data.nodes[props.index]
-  const material = node.entry
 
-  const selectionState = useHookstate(getMutableState(SelectionState))
+  const selectionState = useMutableState(SelectionState)
 
-  const onClickNode = useCallback((e) => data.onClick(e, node), [node, data.onClick])
+  const onClickNode = (e) => {
+    data.onClick(e, node)
+  }
 
   const onCollapseNode = useCallback(
     (e: MouseEvent) => {
@@ -101,61 +80,38 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
     [node, data.onCollapse]
   )
 
-  const [_dragProps, drag, preview] = useDrag({
+  const [_dragProps, drag] = useDrag({
     type: ItemTypes.Material,
     item() {
       const selectedEntities = selectionState.selectedEntities.value
       const multiple = selectedEntities.length > 1
-      switch (node.type) {
-        case LibraryEntryType.MATERIAL:
-          return {
-            type: ItemTypes.Material,
-            multiple,
-            value: (material as MaterialComponentType).material.uuid
-          }
-        default:
-          return null
+      return {
+        type: ItemTypes.Material,
+        multiple,
+        value: node.uuid
       }
-    },
-    canDrag() {
-      return node.type === LibraryEntryType.MATERIAL
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
     })
   })
-
+  const materialSelection = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   return (
     <li
       style={props.style}
       ref={drag}
-      id={getNodeElId(node)}
-      className={
-        styles.treeNodeContainer +
-        (node.selected ? ' ' + styles.selected : '') +
-        (node.active ? ` ${styles.selected}` : '')
-      }
+      id={node.uuid}
+      className={styles.treeNodeContainer + (materialSelection.value === node.uuid ? ' ' + styles.selected : '')}
       onClick={onClickNode}
     >
       <div className={styles.nodeContent}>
         <Grid container columns={16} sx={{ flexWrap: 'unset' }}>
           <Grid item xs={1}>
-            {node.type === LibraryEntryType.MATERIAL_SOURCE ? (
-              node.isCollapsed ? (
-                <ArrowRightIcon className={styles.collapseButton} onClick={onCollapseNode} />
-              ) : (
-                <ArrowDropDownIcon className={styles.collapseButton} onClick={onCollapseNode} />
-              )
-            ) : (
-              <div className={styles.spacer} />
-            )}
-          </Grid>
-          <Grid item xs={1}>
             <div className={styles.nodeIcon}>
-              {node.type === LibraryEntryType.MATERIAL && <MaterialComponentIcon className={styles.nodeIcon} />}
-              {node.type === LibraryEntryType.MATERIAL_SOURCE && <MaterialSourceIcon className={styles.nodeIcon} />}
+              <MaterialComponentIcon className={styles.nodeIcon} />
             </div>
           </Grid>
+          <div className={styles.spacer} />
           <Grid item xs>
             <div className={styles.nodeContent}>{nodeDisplayName(node)}</div>
           </Grid>

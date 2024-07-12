@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { OembedType } from '@etherealengine/common/src/schema.type.module'
+import { OembedType } from '@etherealengine/common/src/schemas/media/oembed.schema'
+import { ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
 import type { Application } from '@etherealengine/server-core/declarations'
 
 export interface ProjectConfigInterface {
@@ -49,6 +50,9 @@ export interface ProjectConfigInterface {
       props?: {
         [x: string]: any
         exact?: boolean
+      }
+      componentProps?: {
+        [x: string]: any
       }
     }
   }
@@ -78,12 +82,15 @@ export interface ProjectConfigInterface {
    * @returns {Array<KnexSeed>}
    */
   databaseSeed?: string
-
-  settings?: Array<ProjectSettingSchema>
 }
 
-type InstallFunctionType = (app: Application) => Promise<any>
-type OEmbedFunctionType = (app: Application, url: URL, currentOEmbed: OembedType) => Promise<OembedType | null>
+type InstallFunctionType = (app: Application, project: ProjectType) => Promise<any>
+type OEmbedFunctionType = (
+  app: Application,
+  project: ProjectType,
+  url: URL,
+  currentOEmbed: OembedType
+) => Promise<OembedType | null>
 
 /**
  *
@@ -95,8 +102,6 @@ export interface ProjectEventHooks {
    * In k8s, the next time the builder is run, OR immediately after the project is updated.
    */
   onInstall?: InstallFunctionType
-  /** Runs any time a server instance spins up */
-  onLoad?: InstallFunctionType
   /** Runs every time a project is updated in a deployment OR when the builder runs */
   onUpdate?: InstallFunctionType
   /** Runs when a project is uninstalled */
@@ -107,12 +112,6 @@ export interface ProjectEventHooks {
    * if null, return default
    */
   onOEmbedRequest?: OEmbedFunctionType
-}
-
-export interface ProjectSettingSchema {
-  key: string
-  type: string
-  scopes: Array<string>
 }
 
 export type ProjectEventHookType = keyof ProjectEventHooks

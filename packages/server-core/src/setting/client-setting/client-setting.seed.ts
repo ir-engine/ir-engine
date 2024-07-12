@@ -32,9 +32,8 @@ import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
-import appConfig from '@etherealengine/server-core/src/appconfig'
-
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export const clientSettingSeedData = {
   logo: process.env.APP_LOGO || '',
@@ -42,7 +41,7 @@ export const clientSettingSeedData = {
   shortTitle: process.env.APP_TITLE || '',
   startPath: '/',
   releaseName: process.env.RELEASE_NAME || 'local',
-  siteDescription: process.env.SITE_DESC || 'Ethereal Engine',
+  siteDescription: process.env.SITE_DESC || 'IR Engine',
   url:
     process.env.APP_URL ||
     (process.env.VITE_LOCAL_BUILD
@@ -53,9 +52,12 @@ export const clientSettingSeedData = {
   favicon16px: '/favicon-16x16.png',
   icon192px: '/android-chrome-192x192.png',
   icon512px: '/android-chrome-512x512.png',
+  siteManifest: '/site.webmanifest',
+  safariPinnedTab: '/safari-pinned-tab.svg',
+  favicon: '/favicon.ico',
   appBackground: 'static/main-background.png',
-  appTitle: 'static/ethereal_watermark_small.png',
-  appSubtitle: 'EtherealEngine.org',
+  appTitle: 'static/ir-logo.svg',
+  appSubtitle: 'IR Engine',
   appDescription: 'FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY',
   appSocialLinks: JSON.stringify([
     { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
@@ -98,24 +100,6 @@ export async function seed(knex: Knex): Promise<void> {
     if (existingData.length === 0 || existingData[0].count === 0) {
       for (const item of seedData) {
         await knex(clientSettingPath).insert(item)
-      }
-    } else {
-      // If data already exists, we need to make sure any newly added column i.e. appleTouchIcon, etc gets default value populated
-      const existingRows = await knex(clientSettingPath).select<ClientSettingDatabaseType[]>()
-
-      for (const item of existingRows) {
-        if (!item.appleTouchIcon) {
-          await knex(clientSettingPath).update({
-            ...item,
-            appleTouchIcon: seedData[0].appleTouchIcon
-          })
-        }
-        if (!item.privacyPolicy) {
-          await knex(clientSettingPath).update({
-            ...item,
-            privacyPolicy: seedData[0].privacyPolicy
-          })
-        }
       }
     }
   }

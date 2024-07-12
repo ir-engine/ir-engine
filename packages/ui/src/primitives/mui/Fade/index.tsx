@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { FadeProps, Fade as MuiFade } from '@mui/material'
 import React from 'react'
 
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-
-import { FadeProps, Fade as MuiFade } from '@mui/material'
 
 const Fade = (props: FadeProps) => <MuiFade {...props} />
 

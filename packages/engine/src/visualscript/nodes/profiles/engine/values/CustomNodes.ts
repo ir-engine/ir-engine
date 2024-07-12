@@ -23,6 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Tween } from '@tweenjs/tween.js'
+import {
+  AdditiveAnimationBlendMode,
+  AnimationActionLoopStyles,
+  AnimationBlendMode,
+  LoopOnce,
+  LoopPingPong,
+  LoopRepeat,
+  Material,
+  MathUtils,
+  Mesh,
+  NormalAnimationBlendMode,
+  Object3D
+} from 'three'
+
 import {
   getComponent,
   getMutableComponent,
@@ -53,25 +68,12 @@ import {
   makeFlowNodeDefinition,
   makeFunctionNodeDefinition
 } from '@etherealengine/visual-script'
-import { Tween } from '@tweenjs/tween.js'
-import {
-  AdditiveAnimationBlendMode,
-  AnimationActionLoopStyles,
-  AnimationBlendMode,
-  LoopOnce,
-  LoopPingPong,
-  LoopRepeat,
-  Material,
-  MathUtils,
-  Mesh,
-  NormalAnimationBlendMode,
-  Object3D
-} from 'three'
+
 import { addMediaComponent } from '../helper/assetHelper'
 
 export const playVideo = makeFlowNodeDefinition({
   typeName: 'engine/media/playVideo',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Play video',
   in: {
     flow: 'flow',
@@ -131,7 +133,7 @@ export const playVideo = makeFlowNodeDefinition({
 
 export const playAudio = makeFlowNodeDefinition({
   typeName: 'engine/media/playAudio',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Play audio',
   in: {
     flow: 'flow',
@@ -188,7 +190,7 @@ export const playAudio = makeFlowNodeDefinition({
 /*
 export const makeRaycast = makeFlowNodeDefinition({
   typeName: 'engine/playAudio',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Play audio',
   in: {
     flow: 'flow',
@@ -232,7 +234,7 @@ export const makeRaycast = makeFlowNodeDefinition({
 
 export const getAnimationPack = makeFunctionNodeDefinition({
   typeName: 'engine/media/getAnimationPack',
-  category: NodeCategory.Query,
+  category: NodeCategory.Engine,
   label: 'Get Avatar Animations',
   in: {
     animationName: (_) => {
@@ -254,7 +256,7 @@ export const getAnimationPack = makeFunctionNodeDefinition({
 
 export const playAnimation = makeFlowNodeDefinition({
   typeName: 'engine/media/playAnimation',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Play animation',
   in: {
     flow: 'flow',
@@ -287,7 +289,7 @@ export const playAnimation = makeFlowNodeDefinition({
 
 export const setAnimationAction = makeFlowNodeDefinition({
   typeName: 'engine/media/setAnimationAction',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Set animation action',
   in: {
     flow: 'flow',
@@ -350,7 +352,7 @@ export const setAnimationAction = makeFlowNodeDefinition({
 const initialState = () => {}
 export const loadAsset = makeAsyncNodeDefinition({
   typeName: 'engine/asset/loadAsset',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Load asset',
   in: {
     flow: 'flow',
@@ -383,7 +385,7 @@ export const loadAsset = makeAsyncNodeDefinition({
 
 export const fadeCamera = makeFlowNodeDefinition({
   typeName: 'engine/camera/cameraFade',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Camera fade',
   in: {
     flow: 'flow',
@@ -403,7 +405,7 @@ export const fadeCamera = makeFlowNodeDefinition({
 
 export const setCameraZoom = makeFlowNodeDefinition({
   typeName: 'engine/camera/setCameraZoom',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Set camera zoom',
   in: {
     flow: 'flow',
@@ -414,14 +416,14 @@ export const setCameraZoom = makeFlowNodeDefinition({
   triggered: ({ read, commit }) => {
     const entity = Engine.instance.cameraEntity
     const zoom = read<number>('zoom')
-    setComponent(entity, FollowCameraComponent, { zoomLevel: zoom })
+    setComponent(entity, FollowCameraComponent, { targetDistance: zoom })
     commit('flow')
   }
 })
 
 export const startXRSession = makeFlowNodeDefinition({
   typeName: 'engine/xr/startSession',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Start XR Session',
   in: {
     flow: 'flow',
@@ -445,7 +447,7 @@ export const startXRSession = makeFlowNodeDefinition({
 
 export const finishXRSession = makeFlowNodeDefinition({
   typeName: 'engine/xr/endSession',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'End XR Session',
   in: {
     flow: 'flow'
@@ -460,7 +462,7 @@ export const finishXRSession = makeFlowNodeDefinition({
 
 export const switchScene = makeFlowNodeDefinition({
   typeName: 'engine/switchScene',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Switch Scene',
   in: {
     flow: 'flow',
@@ -485,7 +487,7 @@ export const group = makeFunctionNodeDefinition({
 
 export const redirectToURL = makeFlowNodeDefinition({
   typeName: 'engine/redirectToURL',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Redirect to URL',
   in: {
     flow: 'flow',
@@ -504,7 +506,7 @@ export const redirectToURL = makeFlowNodeDefinition({
  */
 export const fadeMesh = makeFlowNodeDefinition({
   typeName: 'engine/fadeMesh',
-  category: NodeCategory.Effect,
+  category: NodeCategory.Engine,
   label: 'Fade Mesh',
   in: {
     flow: 'flow',

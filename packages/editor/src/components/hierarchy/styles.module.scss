@@ -42,10 +42,6 @@
     color: #666;
   }
 
-  &.rootNode {
-    background: var(--dropdownMenuSelectedBackground);
-  }
-
   &.selected {
     background: var(--dropdownMenuSelectedBackground);
     color: var(--textColor);
@@ -54,11 +50,6 @@
     &:focus {
       background-color: var(--dropdownMenuSelectedBackground);
     }
-  }
-
-  &:active,
-  &.active {
-    background: var(--dropdownMenuSelectedBackground);
   }
 }
 

@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Quaternion, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
 import {
   ComponentType,
   getComponent,
@@ -40,7 +38,8 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { V_000, V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { getState } from '@etherealengine/hyperflux'
+import { Vector3_Up, Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
@@ -53,6 +52,7 @@ import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/Colli
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -62,20 +62,12 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { applyInputSourcePoseToIKTargets } from '../functions/applyInputSourcePoseToIKTargets'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
-const _quat = new Quaternion()
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
+import { FollowCameraMode } from '@etherealengine/spatial/src/camera/types/FollowCameraMode'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { getThumbstickOrThumbpadAxes } from '@etherealengine/spatial/src/input/functions/getThumbstickOrThumbpadAxes'
 
-/**
- * On 'xr-standard' mapping, get thumbstick input [2,3], fallback to thumbpad input [0,1]
- * On 'standard' mapping, get thumbstick input [0,1]
- */
-export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, handedness: XRHandedness, deadZone = 0.05) {
-  const gamepad = inputSource.gamepad
-  const axes = gamepad!.axes
-  const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' || handedness === 'right' ? 2 : 0
-  const xAxis = Math.abs(axes[axesIndex]) > deadZone ? axes[axesIndex] : 0
-  const zAxis = Math.abs(axes[axesIndex + 1]) > deadZone ? axes[axesIndex + 1] : 0
-  return [xAxis, zAxis] as [number, number]
-}
+const _quat = new Quaternion()
 
 export const InputSourceAxesDidReset = new WeakMap<XRInputSource, boolean>()
 
@@ -111,7 +103,7 @@ export const AvatarAxesControlSchemeBehavior = {
 
     if (canRotate) {
       const angle = (Math.PI / 6) * (x > 0 ? -1 : 1) // 30 degrees
-      translateAndRotateAvatar(selfAvatarEntity, V_000, _quat.setFromAxisAngle(V_010, angle))
+      translateAndRotateAvatar(selfAvatarEntity, Vector3_Zero, _quat.setFromAxisAngle(Vector3_Up, angle))
       InputSourceAxesDidReset.set(inputSource, false)
     } else if (canTeleport) {
       setComponent(selfAvatarEntity, AvatarTeleportComponent, { side: inputSource.handedness })
@@ -243,14 +235,17 @@ const execute = () => {
 
   controller.gamepadLocalInput.set(0, 0, 0)
 
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
-  if (!inputPointerEntity && !xrState.session) return
+  const viewerEntity = Engine.instance.viewerEntity
 
-  const buttons = InputSourceComponent.getMergedButtons()
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(viewerEntity)[0]
+
+  if (!isMobile && !inputPointerEntity && !xrState.session) return
+
+  const buttons = InputComponent.getMergedButtons(viewerEntity)
 
   if (buttons.ShiftLeft?.down) onShiftLeft()
 
-  const gamepadJump = buttons[StandardGamepadButton.ButtonA]?.down
+  const gamepadJump = buttons[StandardGamepadButton.StandardGamepadButtonA]?.down
 
   //** touch input (only for avatar jump)*/
   const doubleClicked = isCameraAttachedToAvatar ? false : getAvatarDoubleClick(buttons)
@@ -258,15 +253,22 @@ const execute = () => {
   const keyDeltaX =
     (buttons.KeyA?.pressed ? -1 : 0) +
     (buttons.KeyD?.pressed ? 1 : 0) +
-    (buttons[StandardGamepadButton.DPadLeft]?.pressed ? -1 : 0) +
-    (buttons[StandardGamepadButton.DPadRight]?.pressed ? 1 : 0)
+    (buttons[StandardGamepadButton.StandardGamepadDPadLeft]?.pressed ? -1 : 0) +
+    (buttons[StandardGamepadButton.StandardGamepadDPadRight]?.pressed ? 1 : 0)
   const keyDeltaZ =
     (buttons.KeyW?.pressed ? -1 : 0) +
     (buttons.KeyS?.pressed ? 1 : 0) +
     (buttons.ArrowUp?.pressed ? -1 : 0) +
     (buttons.ArrowDown?.pressed ? 1 : 0) +
-    (buttons[StandardGamepadButton.DPadUp]?.pressed ? -1 : 0) +
-    (buttons[StandardGamepadButton.DPadDown]?.pressed ? -1 : 0)
+    (buttons[StandardGamepadButton.StandardGamepadDPadUp]?.pressed ? -1 : 0) +
+    (buttons[StandardGamepadButton.StandardGamepadDPadDown]?.pressed ? -1 : 0)
+
+  if (keyDeltaZ === 1) {
+    // todo: auto-adjust target distance in follow camera system based on target velocity
+    const follow = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
+    if (follow?.mode === FollowCameraMode.ThirdPerson || follow?.mode === FollowCameraMode.ShoulderCam)
+      follow.targetDistance = Math.max(follow.targetDistance, follow.effectiveMaxDistance * 0.5)
+  }
 
   controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ).normalize()
 
@@ -274,13 +276,14 @@ const execute = () => {
 
   // TODO: refactor AvatarControlSchemes to allow multiple input sources to be passed
   for (const eid of InputSourceComponent.nonCapturedInputSources()) {
+    if (hasComponent(eid, InputPointerComponent)) continue
     const inputSource = getComponent(eid, InputSourceComponent)
-    if (inputSource.source.handedness === 'none') continue
-    const controlScheme = !isCameraAttachedToAvatar
-      ? AvatarAxesControlScheme.Move
-      : inputSource.source.handedness === inputState.preferredHand
-      ? avatarInputSettings.rightAxesControlScheme
-      : avatarInputSettings.leftAxesControlScheme
+    const controlScheme =
+      !isCameraAttachedToAvatar || inputSource.source.handedness === 'none'
+        ? AvatarAxesControlScheme.Move
+        : inputSource.source.handedness === inputState.preferredHand
+        ? avatarInputSettings.rightAxesControlScheme
+        : avatarInputSettings.leftAxesControlScheme
     AvatarAxesControlSchemeBehavior[controlScheme](
       inputSource.source,
       controller,

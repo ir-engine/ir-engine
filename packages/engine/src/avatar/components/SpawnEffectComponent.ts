@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Easing, Tween } from '@tweenjs/tween.js'
+import { useEffect } from 'react'
 import { AdditiveBlending, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
 import {
@@ -35,21 +37,18 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
+import { ObjectDirection, Vector3_Right, Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/Axis3D'
-import { V_010, V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { AvatarCollisionMask, CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
-import { Easing, Tween } from '@tweenjs/tween.js'
-import { useEffect } from 'react'
 
 export const SpawnEffectComponent = defineComponent({
   name: 'SpawnEffectComponent',
@@ -169,7 +168,7 @@ const createPlateEntity = (entity: Entity) => {
   addObjectToGroup(plateEntity, plateMesh)
   setVisibleComponent(plateEntity, true)
   const transform = getComponent(plateEntity, TransformComponent)
-  transform.rotation.setFromAxisAngle(V_100, -0.5 * Math.PI)
+  transform.rotation.setFromAxisAngle(Vector3_Right, -0.5 * Math.PI)
   transform.position.y = 0.01
   getMutableComponent(entity, SpawnEffectComponent).plateEntity.set(plateEntity)
 }
@@ -195,7 +194,7 @@ const createRayEntities = (entity: Entity) => {
     transform.position.y += 0.5 * ray.geometry.boundingSphere?.radius! * Math.random()
     transform.position.z += r * Math.sin(a)
 
-    transform.rotation.setFromAxisAngle(V_010, Math.random() * 2 * Math.PI)
+    transform.rotation.setFromAxisAngle(Vector3_Up, Math.random() * 2 * Math.PI)
   }
 }
 

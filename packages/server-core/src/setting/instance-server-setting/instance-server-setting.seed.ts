@@ -26,13 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
+import { defaultWebRTCSettings } from '@etherealengine/common/src/constants/DefaultWebRTCSettings'
 import {
   instanceServerSettingPath,
   InstanceServerSettingType
 } from '@etherealengine/common/src/schemas/setting/instance-server-setting.schema'
-import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
@@ -51,7 +52,8 @@ export async function seed(knex: Knex): Promise<void> {
         releaseName: process.env.RELEASE_NAME || 'local',
         port: process.env.INSTANCESERVER_PORT || '3031',
         mode: process.env.INSTANCESERVER_MODE || 'dev',
-        locationName: process.env.PRELOAD_LOCATION_NAME || ''
+        locationName: process.env.PRELOAD_LOCATION_NAME || '',
+        webRTCSettings: defaultWebRTCSettings
       }
     ].map(async (item) => ({
       ...item,

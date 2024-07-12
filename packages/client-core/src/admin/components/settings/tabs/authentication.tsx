@@ -23,7 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AuthenticationSettingType, authenticationSettingPath } from '@etherealengine/common/src/schema.type.module'
+import React, { forwardRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+
+import { authenticationSettingPath, AuthenticationSettingType } from '@etherealengine/common/src/schema.type.module'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import PasswordInput from '@etherealengine/ui/src/components/tailwind/PasswordInput'
@@ -33,9 +37,7 @@ import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
-import React, { forwardRef, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+
 import { initialAuthState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 
@@ -104,7 +106,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       .filter(Boolean)
       .map((prop) => ({ [prop]: state[prop].value }))
 
-    const oauth = { ...authSetting.oauth, ...keySecret.value }
+    const oauth = { ...authSetting.oauth, ...(keySecret.value as any) }
 
     for (const key of Object.keys(oauth)) {
       oauth[key] = JSON.parse(JSON.stringify(oauth[key]))
@@ -143,6 +145,16 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     )
     keySecret.set(tempKeySecret)
     state.set(temp)
+  }
+
+  const handleOnChangeAppId = (event, type) => {
+    keySecret.set({
+      ...JSON.parse(JSON.stringify(keySecret.value)),
+      [type]: {
+        ...JSON.parse(JSON.stringify(keySecret[type].value)),
+        appId: event.target.value
+      }
+    })
   }
 
   const handleOnChangeKey = (event, type) => {
@@ -206,18 +218,22 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       </Text>
 
       <div className="grid grid-cols-6 gap-x-6 gap-y-4">
-        {Object.keys(state.value).map((strategyName, i) => (
-          <Toggle
-            key={i}
-            className="col-span-1 capitalize"
-            containerClassName="justify-start"
-            labelClassName="capitalize"
-            label={strategyName}
-            value={state[strategyName].value}
-            disabled={strategyName === 'jwt'}
-            onChange={(value) => onSwitchHandle(state[strategyName], value)}
-          />
-        ))}
+        {Object.keys(state.value).map((strategyName, i) => {
+          const displayStrategyName =
+            strategyName === 'twitter' ? 'x' : strategyName === 'facebook' ? 'meta' : strategyName
+          return (
+            <Toggle
+              key={i}
+              className="col-span-1 capitalize"
+              containerClassName="justify-start"
+              labelClassName="capitalize"
+              label={displayStrategyName}
+              value={state[strategyName].value}
+              disabled={strategyName === 'jwt'}
+              onChange={(value) => onSwitchHandle(state[strategyName], value)}
+            />
+          )
+        })}
       </div>
 
       <Text component="h3" fontSize="xl" fontWeight="semibold" className="my-4 w-full">
@@ -244,7 +260,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
       </div>
 
-      <hr className="border-theme-primary my-6 border" />
+      <hr className="my-6 border border-theme-primary" />
 
       {holdAuth?.apple?.value && (
         <div className="col-span-1">
@@ -362,7 +378,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         {(holdAuth?.apple?.value ||
           holdAuth?.discord?.value ||
           holdAuth?.linkedin?.value ||
-          holdAuth?.facebook?.value) && <hr className="border-theme-primary col-span-full my-6 border" />}
+          holdAuth?.facebook?.value) && <hr className="col-span-full my-6 border border-theme-primary" />}
 
         {holdAuth?.google?.value && (
           <div className="col-span-1">
@@ -397,6 +413,12 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             <Text component="h4" fontSize="base" fontWeight="medium" className="my-4 w-full">
               {t('admin:components.setting.github')}
             </Text>
+
+            <PasswordInput
+              label={t('admin:components.setting.githubAppId')}
+              value={keySecret?.value?.github?.appId || ''}
+              onChange={(e) => handleOnChangeAppId(e, OAUTH_TYPES.GITHUB)}
+            />
 
             <PasswordInput
               label={t('admin:components.setting.key')}
@@ -450,7 +472,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
-        <Button size="small" className="bg-theme-highlight text-primary col-span-1" onClick={handleCancel} fullWidth>
+        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
           {t('admin:components.common.reset')}
         </Button>
 

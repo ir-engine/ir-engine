@@ -23,22 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, PresentationSystemGroup, defineSystem } from '@etherealengine/ecs'
-import {
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import {
-  ObjectLayerComponents,
-  ObjectLayerMaskComponent
-} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import React, { useEffect } from 'react'
 import {
   BufferGeometry,
@@ -51,8 +35,20 @@ import {
   Raycaster,
   SkinnedMesh
 } from 'three'
-import { MeshBVHHelper, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
-import { MeshOrModelQuery, ModelComponent } from '../components/ModelComponent'
+import { computeBoundsTree, disposeBoundsTree, MeshBVHHelper } from 'three-mesh-bvh'
+
+import { defineSystem, PresentationSystemGroup, QueryReactor, useEntityContext } from '@etherealengine/ecs'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 
 const ray = new Ray()
@@ -113,6 +109,11 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
 }
 
 Mesh.prototype.raycast = acceleratedRaycast
+/**
+ * @todo we need a fast way to raycast skinned meshes - uncommenting this will cause skinned meshes to intersect and be very slow
+ */
+SkinnedMesh.prototype.raycast = () => {}
+
 BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
 BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
@@ -123,20 +124,18 @@ const edgeMaterial = new LineBasicMaterial({
   depthWrite: false
 })
 
-const MeshBVHChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
+const MeshBVHReactor = () => {
+  const entity = useEntityContext()
   const bvhDebug = useHookstate(getMutableState(RendererState).bvhDebug)
-  const model = useOptionalComponent(props.rootEntity, ModelComponent)
-  const generated = useHookstate(false)
-  const mesh = useOptionalComponent(props.entity, MeshComponent)
+  const mesh = useComponent(entity, MeshComponent)
 
   useEffect(() => {
-    const mesh = getOptionalComponent(props.entity, MeshComponent)
+    const mesh = getOptionalComponent(entity, MeshComponent)
     if (!mesh) return
     const abortController = new AbortController()
     if (ValidMeshForBVH(mesh)) {
       generateMeshBVH(mesh!, abortController.signal).then(() => {
         if (abortController.signal.aborted) return
-        generated.set(true)
       })
     }
     return () => {
@@ -145,19 +144,9 @@ const MeshBVHChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   }, [mesh])
 
   useEffect(() => {
-    const occlusion =
-      !!model?.cameraOcclusion?.value || hasComponent(props.entity, ObjectLayerComponents[ObjectLayers.Camera])
-    if (!occlusion || !generated.value) return
-    ObjectLayerMaskComponent.enableLayer(props.entity, ObjectLayers.Camera)
-    return () => {
-      ObjectLayerMaskComponent.disableLayer(props.entity, ObjectLayers.Camera)
-    }
-  }, [model?.cameraOcclusion?.value, generated.value])
+    if (!bvhDebug.value) return
 
-  useEffect(() => {
-    if (!bvhDebug.value || !generated.value) return
-
-    const mesh = getComponent(props.entity, MeshComponent)
+    const mesh = getComponent(entity, MeshComponent)
 
     const meshBVHVisualizer = new MeshBVHHelper(mesh!)
     meshBVHVisualizer.edgeMaterial = edgeMaterial
@@ -165,17 +154,17 @@ const MeshBVHChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     meshBVHVisualizer.displayParents = false
     meshBVHVisualizer.update()
 
-    addObjectToGroup(props.entity, meshBVHVisualizer)
+    addObjectToGroup(entity, meshBVHVisualizer)
 
     return () => {
-      removeObjectFromGroup(props.entity, meshBVHVisualizer)
+      removeObjectFromGroup(entity, meshBVHVisualizer)
     }
-  }, [generated.value, bvhDebug.value])
+  }, [bvhDebug.value])
 
   return null
 }
 export const MeshBVHSystem = defineSystem({
   uuid: 'ee.engine.MeshBVHSystem',
   insert: { after: PresentationSystemGroup },
-  reactor: () => <MeshOrModelQuery ChildReactor={MeshBVHChildReactor} />
+  reactor: () => <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshBVHReactor} />
 })

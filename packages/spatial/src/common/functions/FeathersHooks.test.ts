@@ -26,12 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { act, renderHook } from '@testing-library/react'
 import assert from 'assert'
 import { afterEach } from 'mocha'
+import { useEffect } from 'react'
 
 import { AvatarID, UserName, userPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createState } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { createEngine } from '../../initializeEngine'
+
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { EventDispatcher } from '../classes/EventDispatcher'
 import { useFind, useGet, useMutation } from './FeathersHooks'
 

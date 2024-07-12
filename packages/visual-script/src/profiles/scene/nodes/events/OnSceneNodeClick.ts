@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert, NodeCategory, makeEventNodeDefinition } from '../../../../VisualScriptModule'
+import { Assert, makeEventNodeDefinition, NodeCategory } from '../../../../VisualScriptModule'
 import { IScene } from '../../abstractions/IScene'
 
 type State = {
@@ -36,7 +36,7 @@ const initialState = (): State => ({})
 // very 3D specific.
 export const OnSceneNodeClick = makeEventNodeDefinition({
   typeName: 'scene/nodeClick',
-  category: NodeCategory.Event,
+  category: NodeCategory.None,
   label: 'On Scene Node Click',
   in: {
     jsonPath: (_, graphApi) => {

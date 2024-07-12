@@ -28,6 +28,5 @@ import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
 import * as inviteTypeSeed from './invite-type/invite-type.seed'
 import * as locationSettingSeed from './location-setting/location-setting.seed'
 import * as locationTypeSeed from './location-type/location-type.seed'
-import * as locationSeed from './location/location.seed'
 
-export const socialSeeds: Array<KnexSeed> = [locationTypeSeed, locationSettingSeed, locationSeed, inviteTypeSeed]
+export const socialSeeds: Array<KnexSeed> = [locationTypeSeed, locationSettingSeed, inviteTypeSeed]

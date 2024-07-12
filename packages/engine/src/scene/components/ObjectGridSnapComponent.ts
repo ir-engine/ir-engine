@@ -23,42 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UUIDComponent } from '@etherealengine/ecs'
+import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import {
   defineComponent,
   getComponent,
-  getOptionalComponent,
   hasComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import {
-  createEntity,
-  generateEntityUUID,
-  removeEntity,
-  useEntityContext
-} from '@etherealengine/ecs/src/EntityFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugComponentUtils'
+import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { LineSegmentComponent } from '@etherealengine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import {
-  ObjectLayerMaskComponent,
-  setObjectLayers
-} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
-import { Box3, BufferGeometry, LineBasicMaterial, LineSegments, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
-import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { Box3, BufferGeometry, ColorRepresentation, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { ModelComponent } from './ModelComponent'
 
-function createBBoxGridHelper(matrixWorld: Matrix4, bbox: Box3, density: number): LineSegments {
+function createBBoxGridGeometry(matrixWorld: Matrix4, bbox: Box3, density: number): BufferGeometry {
   const lineSegmentList: Vector3[] = []
   const size = new Vector3()
   bbox.getSize(size)
@@ -109,53 +100,94 @@ function createBBoxGridHelper(matrixWorld: Matrix4, bbox: Box3, density: number)
   for (let i = 0; i < lineSegmentList.length; i++) {
     lineSegmentList[i].applyMatrix4(matrixWorld)
   }
-  const result = new LineSegments(
-    new BufferGeometry().setFromPoints(lineSegmentList),
-    new LineBasicMaterial({ color: 0xff0000 })
-  )
-  return result
+
+  return new BufferGeometry().setFromPoints(lineSegmentList)
 }
+
+export const BoundingBoxHelperComponent = defineComponent({
+  name: 'BoundingBoxHelperComponent',
+
+  onInit: (entity) => {
+    return {
+      name: 'bounding-box-helper',
+      bbox: new Box3(),
+      density: 2,
+      color: 0xff0000 as ColorRepresentation,
+      layerMask: ObjectLayerMasks.NodeHelper,
+      entity: undefined as undefined | Entity
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json || !json.bbox || !json.bbox.isBox3) throw new Error('BoundingBoxHelperComponent: Requires Box3')
+    component.bbox.set(json.bbox)
+
+    if (typeof json.density === 'number') component.density.set(json.density)
+    if (matchesColor.test(json.color)) component.color.set(json.color)
+    if (typeof json.layerMask === 'number') component.layerMask.set(json.layerMask)
+  },
+
+  reactor: function () {
+    const entity = useEntityContext()
+    const component = useComponent(entity, BoundingBoxHelperComponent)
+    const helper = useHelperEntity(entity, component)
+    const lineSegment = useOptionalComponent(helper, LineSegmentComponent)
+
+    useEffect(() => {
+      const bbox = component.bbox.value
+      const density = component.density.value
+      setComponent(helper, LineSegmentComponent, {
+        name: 'bbox-line-segment-' + entity,
+        geometry: createBBoxGridGeometry(new Matrix4().identity(), bbox, density),
+        material: new LineBasicMaterial({ color: component.color.value }),
+        layerMask: component.layerMask.value
+      })
+    }, [])
+
+    useDidMount(() => {
+      if (!lineSegment) return
+      const bbox = component.bbox.value
+      const density = component.density.value
+      lineSegment.geometry.set(createBBoxGridGeometry(new Matrix4().identity(), bbox, density))
+    }, [component.bbox])
+
+    useEffect(() => {
+      if (!lineSegment) return
+      lineSegment.color.set(component.color.value)
+    }, [component.color, lineSegment])
+
+    useEffect(() => {
+      if (!lineSegment) return
+      lineSegment.layerMask.set(component.layerMask.value)
+    }, [component.layerMask, lineSegment])
+
+    return null
+  }
+})
 
 export const ObjectGridSnapComponent = defineComponent({
   name: 'ObjectGridSnapComponent',
 
   onInit: (entity) => {
     return {
-      bbox: new Box3(),
-      helper: null as Entity | null
+      bbox: new Box3()
     }
   },
+
   onSet: (entity, component, json) => {
     if (!json) return
     //if (typeof json.density === 'number') component.density.set(json.density)
     if (typeof json.bbox === 'object' && json.bbox.isBox3) component.bbox.set(json.bbox)
-    if (typeof json.helper === 'number') component.helper.set(json.helper)
   },
+
   reactor: () => {
     const entity = useEntityContext()
-
     const engineState = useState(getMutableState(EngineState))
+    const modelComponent = useComponent(entity, ModelComponent)
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
 
-    const assetLoading = useOptionalComponent(entity, SceneAssetPendingTagComponent)
     useEffect(() => {
-      const helper = createEntity()
-      setComponent(helper, NameComponent, 'helper')
-      setComponent(helper, VisibleComponent)
-      setComponent(helper, TransformComponent)
-      setComponent(helper, UUIDComponent, generateEntityUUID())
-      setComponent(helper, EntityTreeComponent, { parentEntity: entity })
-      setComponent(helper, ObjectLayerMaskComponent, ObjectLayers.NodeHelper)
-
-      setComponent(entity, ObjectGridSnapComponent, { helper })
-      return () => {
-        const helper = getOptionalComponent(entity, ObjectGridSnapComponent)?.helper
-        !!helper && removeEntity(helper)
-      }
-    }, [])
-
-    useEffect(() => {
-      if (assetLoading?.value) return
+      if (!modelComponent.scene.value) return
       const originalPosition = new Vector3()
       const originalRotation = new Quaternion()
       const originalScale = new Vector3()
@@ -169,9 +201,11 @@ export const ObjectGridSnapComponent = defineComponent({
       const meshes: Mesh[] = []
       //iterate through children and update their transforms to reflect identity from parent
       iterateEntityNode(entity, (childEntity: Entity) => {
-        computeTransformMatrix(childEntity)
-        if (hasComponent(childEntity, MeshComponent)) {
-          meshes.push(getComponent(childEntity, MeshComponent))
+        if (hasComponent(childEntity, TransformComponent)) {
+          computeTransformMatrix(childEntity)
+          if (hasComponent(childEntity, MeshComponent)) {
+            meshes.push(getComponent(childEntity, MeshComponent))
+          }
         }
       })
       //compute bounding box
@@ -190,26 +224,20 @@ export const ObjectGridSnapComponent = defineComponent({
         rotation: originalRotation,
         scale: originalScale
       })
-      iterateEntityNode(entity, computeTransformMatrix)
+      iterateEntityNode(entity, computeTransformMatrix, (childEntity) => hasComponent(childEntity, TransformComponent))
       //set bounding box in component
-      setComponent(entity, ObjectGridSnapComponent, {
-        bbox
-      })
-    }, [assetLoading])
+      snapComponent.bbox.set(bbox)
+    }, [modelComponent.scene])
 
     useEffect(() => {
       if (!engineState.isEditing.value) return
       const bbox = snapComponent.bbox.value
-      const helperEntity = snapComponent.helper.value
-      if (!helperEntity) return
-      const matrixWorld = getComponent(helperEntity, TransformComponent).matrixWorld
-      const helperMesh = createBBoxGridHelper(new Matrix4().identity(), bbox, 2)
-      addObjectToGroup(helperEntity, helperMesh)
-      setObjectLayers(helperMesh, ObjectLayers.NodeHelper)
+      setComponent(entity, BoundingBoxHelperComponent, { bbox })
+
       return () => {
-        removeObjectFromGroup(helperEntity, helperMesh)
+        removeComponent(entity, BoundingBoxHelperComponent)
       }
-    }, [snapComponent.bbox, snapComponent.helper, engineState.isEditing])
+    }, [snapComponent.bbox, engineState.isEditing])
 
     return null
   }

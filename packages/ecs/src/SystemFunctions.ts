@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 /** Functions to provide system level functionalities. */
 
-import { FC, useEffect } from 'react'
+import { FC } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, getState, startReactor } from '@etherealengine/hyperflux'
+import { getMutableState, getState, startReactor, useImmediateEffect } from '@etherealengine/hyperflux'
 
-import { v4 as uuidv4 } from 'uuid'
 import { SystemState } from './SystemState'
 import { nowMilliseconds } from './Timer'
 
@@ -48,21 +48,12 @@ export type InsertSystem = {
 export interface SystemArgs {
   uuid: string
   insert: InsertSystem
-  timeStep?: number | 'variable'
   execute?: () => void
   reactor?: FC
 }
 
 export interface System {
   uuid: SystemUUID
-  /**
-   * The timestep for the system.
-   * If set to 'variable', the system will run every frame.
-   * If set to a number, the system will run every n milliseconds.
-   * Defaults to 'variable'.
-   */
-  timeStep: number | 'variable'
-  /** @deprecated use defineState reactor instead */
   reactor?: FC
   insert?: InsertSystem
   preSystems: SystemUUID[]
@@ -72,7 +63,28 @@ export interface System {
   postSystems: SystemUUID[]
   sceneSystem?: boolean
   // debug
-  systemDuration?: number
+  systemDuration: number
+  avgSystemDuration: number
+}
+
+export const filterAndSortSystemsByAvgDuration = (minAvg = 0.0): System[] => {
+  const systems = SystemDefinitions
+  const sorted = [...systems.values()]
+    .filter((system: System) => system.avgSystemDuration > minAvg)
+    .sort((left: System, right: System) => {
+      return right.avgSystemDuration - left.avgSystemDuration
+    })
+
+  return sorted
+}
+
+export const sortSystemsByAvgDuration = (): System[] => {
+  const systems = SystemDefinitions
+  const sorted = [...systems.values()].sort((left: System, right: System) => {
+    return right.avgSystemDuration - left.avgSystemDuration
+  })
+
+  return sorted
 }
 
 export const SystemDefinitions = new Map<SystemUUID, System>()
@@ -111,10 +123,10 @@ export function executeSystem(systemUUID: SystemUUID) {
   }
 
   const endTime = nowMilliseconds()
-
+  const systemDuration = endTime - startTime
+  system.systemDuration = systemDuration
+  if (system.systemDuration != 0) system.avgSystemDuration = (systemDuration + system.avgSystemDuration) * 0.5
   if (getState(SystemState).performanceProfilingEnabled) {
-    const systemDuration = endTime - startTime
-    system.systemDuration = systemDuration
     if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
       lastWarningTime.set(systemUUID, endTime)
       logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
@@ -144,12 +156,12 @@ export function defineSystem(systemConfig: SystemArgs) {
     subSystems: [],
     postSystems: [],
     sceneSystem: false,
-    timeStep: 'variable',
     execute: () => {},
     ...systemConfig,
     uuid: systemConfig.uuid as SystemUUID,
     enabled: false,
-    systemDuration: 0
+    systemDuration: 0,
+    avgSystemDuration: 0
   } as Required<System>
 
   SystemDefinitions.set(system.uuid, system)
@@ -195,7 +207,7 @@ export function defineSystem(systemConfig: SystemArgs) {
 }
 
 export const useExecute = (execute: () => void, insert: InsertSystem) => {
-  useEffect(() => {
+  useImmediateEffect(() => {
     const handle = defineSystem({ uuid: uuidv4(), execute, insert })
     return () => {
       destroySystem(handle)

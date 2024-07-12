@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Variant } from '@mui/material/styles/createTypography'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -30,8 +31,6 @@ import Button from '@etherealengine/client-core/src/common/components/Button'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-
-import { Variant } from '@mui/material/styles/createTypography'
 
 type RetryCallback = () => void
 

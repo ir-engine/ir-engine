@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { routePath, RouteType } from '@etherealengine/common/src/schemas/route/route.schema'
+import { deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { RouteType, routePath } from '@etherealengine/common/src/schemas/route/route.schema'
-import { deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
-import { Paginated } from '@feathersjs/feathers/lib'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -72,7 +72,7 @@ const updateXREngineConfigForTest = (projectName: string, customRoute: string) =
   const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
   const xrEngineConfigFilePath = path.resolve(projectLocalDirectory, 'xrengine.config.ts')
 
-  fs.rmSync(xrEngineConfigFilePath)
+  if (fs.existsSync(xrEngineConfigFilePath)) fs.rmSync(xrEngineConfigFilePath)
   fs.writeFileSync(xrEngineConfigFilePath, testXREngineConfig)
 }
 

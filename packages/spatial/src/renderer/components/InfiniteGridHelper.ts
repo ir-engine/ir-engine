@@ -23,38 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
 import {
   BufferAttribute,
   BufferGeometry,
   Color,
   DoubleSide,
   LineBasicMaterial,
-  LineSegments,
-  Mesh,
   NormalBlending,
   Plane,
   PlaneGeometry,
   ShaderMaterial
 } from 'three'
 
-import {
-  defineComponent,
-  getComponent,
-  getMutableComponent,
-  setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity } from '@etherealengine/ecs'
+import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
+
 import { NameComponent } from '../../common/NameComponent'
-import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
-import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
-import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { RendererState } from '../RendererState'
+import { useResource } from '../../resources/resourceHooks'
 import LogarithmicDepthBufferMaterialChunk from '../constants/LogarithmicDepthBufferMaterialChunk'
+import { RendererState } from '../RendererState'
+import { LineSegmentComponent } from './LineSegmentComponent'
+import { useMeshComponent } from './MeshComponent'
 
 /**
  * Original Author: Fyrestar
@@ -100,13 +94,13 @@ float getGrid(float size) {
 }
 
 float getXAxisLine() {
-  float lineWidth = 0.02; // Adjust line width if needed
+  float lineWidth = 0.1; // Adjust line width if needed
   float xLine = smoothstep(-lineWidth, lineWidth, abs(worldPosition.x));
   return 1.0 - xLine;
 }
 
 float getZAxisLine() {
-  float lineWidth = 0.02; // Adjust line width if needed
+  float lineWidth = 0.1; // Adjust line width if needed
   float zLine = smoothstep(-lineWidth, lineWidth, abs(worldPosition.z));
   return 1.0 - zLine;
 }
@@ -120,116 +114,26 @@ void main() {
   float g2 = getGrid(uSize2);
   float xAxisLine = getXAxisLine();
   float zAxisLine = getZAxisLine();
-  vec3 xAxisColor = vec3(1.0, 0.0, 0.0);
-  vec3 zAxisColor = vec3(0.0, 0.0, 1.0);
 
   if (xAxisLine > 0.0 || zAxisLine > 0.0) {
     discard;
   } else {
-    gl_FragColor = vec4(uColor.rgb, mix(g2, g1, g1) * pow(d, 3.0));
+    gl_FragColor = vec4(uColor.rgb, mix(g2, g1, g1));
     gl_FragColor.a = mix(0.5 * gl_FragColor.a, gl_FragColor.a, g2);
+    gl_FragColor.a *= pow(d, 3.0);
 }
 
   if ( gl_FragColor.a <= 0.0 ) discard;
 }
 `
 
-export class InfiniteGridHelper extends Mesh<PlaneGeometry, ShaderMaterial> {
-  plane: Plane
-
-  constructor(size1 = 1, size2 = 10, color = new Color('white'), distance = 8000) {
-    const geometry = new PlaneGeometry(2, 2, 1, 1)
-    const material = new ShaderMaterial({
-      side: DoubleSide,
-      uniforms: {
-        uSize1: {
-          value: size1
-        },
-        uSize2: {
-          value: size2
-        },
-        uColor: {
-          value: color
-        },
-        uDistance: {
-          value: distance
-        }
-      },
-      transparent: true,
-      vertexShader: vertexShaderGrid,
-      fragmentShader: fragmentShaderGrid,
-      polygonOffset: true,
-      polygonOffsetFactor: -1,
-      polygonOffsetUnits: 0.01,
-      extensions: {
-        derivatives: true
-      }
-    })
-
-    super(geometry, material)
-
-    this.name = 'InfiniteGridHelper'
-    setObjectLayers(this, ObjectLayers.Gizmos)
-    this.frustumCulled = false
-    this.plane = new Plane(this.up)
-  }
-
-  setSize(size) {
-    this.material.uniforms.uSize1.value = size
-    this.material.uniforms.uSize2.value = size * 10
-  }
-
-  setDistance(distance) {
-    this.material.uniforms.uDistance.value = distance
-  }
-
-  setGridColor(color) {
-    this.material.uniforms.uColor.value = color
-  }
-
-  setGridHeight(value) {
-    this.position.y = value
-    this.updateMatrixWorld(true)
-  }
-
-  static createLines(distance: number) {
-    const lines = [] as LineSegments[]
-    const lineColors = ['red', 'green', 'blue']
-    for (let i = 0; i < lineColors.length; i++) {
-      const lineGeometry = new BufferGeometry()
-      const floatArray = [0, 0, 0, 0, 0, 0]
-      floatArray[i] = -distance
-      floatArray[i + 3] = distance
-      const linePositions = new Float32Array(floatArray)
-      lineGeometry.setAttribute('position', new BufferAttribute(linePositions, 3))
-      const lineMaterial = new LineBasicMaterial({
-        side: DoubleSide,
-        color: lineColors[i],
-        transparent: true,
-        opacity: 0.3,
-        linewidth: 2,
-        blending: NormalBlending,
-        depthTest: true,
-        depthWrite: true
-      })
-      const line = new LineSegments(lineGeometry, lineMaterial)
-      lines.push(line)
-      setObjectLayers(line, ObjectLayers.Gizmos)
-    }
-    return lines
-  }
-}
-
 export const InfiniteGridComponent = defineComponent({
   name: 'Infinite Grid',
   onInit(entity) {
     return {
       size: 1,
-      color: new Color('white'),
-      distance: 8000,
-      // internal
-      helper: new InfiniteGridHelper(),
-      lineEntities: [] as Entity[]
+      color: new Color(0x535353),
+      distance: 200
     }
   },
 
@@ -252,64 +156,89 @@ export const InfiniteGridComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const component = useHookstate(getMutableComponent(entity, InfiniteGridComponent))
-    const engineRendererSettings = useHookstate(getMutableState(RendererState))
+
+    const component = useComponent(entity, InfiniteGridComponent)
+    const engineRendererSettings = useMutableState(RendererState)
+    const mesh = useMeshComponent(
+      entity,
+      () => new PlaneGeometry(2, 2, 1, 1),
+      () =>
+        new ShaderMaterial({
+          side: DoubleSide,
+          uniforms: {},
+          transparent: true,
+          vertexShader: vertexShaderGrid,
+          fragmentShader: fragmentShaderGrid,
+          polygonOffset: true,
+          polygonOffsetFactor: -1,
+          polygonOffsetUnits: 0.01,
+          extensions: {
+            derivatives: true
+          }
+        })
+    )
+    const [plane] = useResource(() => new Plane(mesh.up.value), entity)
 
     useEffect(() => {
-      const helper = getComponent(entity, InfiniteGridComponent).helper
-      addObjectToGroup(entity, helper)
+      mesh.position.y.set(engineRendererSettings.gridHeight.value)
+      mesh.value.updateMatrixWorld(true)
+    }, [engineRendererSettings.gridHeight])
 
-      const distance = component.distance.value
+    useEffect(() => {
+      mesh.material.uniforms.uColor.set({
+        value: component.color.value
+      })
+    }, [component.color])
+
+    useEffect(() => {
+      const size = component.size.value
+      mesh.material.uniforms.uSize1.set({
+        value: size
+      })
+      mesh.material.uniforms.uSize2.set({
+        value: size * 10
+      })
+    }, [component.size])
+
+    useEffect(() => {
+      mesh.material.uniforms.uDistance.set({
+        value: component.distance.value
+      })
 
       const lineEntities = [] as Entity[]
+      const lineColors = ['red', 'green', 'blue']
+      for (let i = 0; i < lineColors.length; i++) {
+        const lineGeometry = new BufferGeometry()
+        const floatArray = [0, 0, 0, 0, 0, 0]
+        floatArray[i] = -component.distance.value
+        floatArray[i + 3] = component.distance.value
+        const linePositions = new Float32Array(floatArray)
+        lineGeometry.setAttribute('position', new BufferAttribute(linePositions, 3))
+        const lineMaterial = new LineBasicMaterial({
+          side: DoubleSide,
+          color: lineColors[i],
+          transparent: true,
+          opacity: 0.3,
+          linewidth: 2,
+          blending: NormalBlending,
+          depthTest: true,
+          depthWrite: true
+        })
 
-      const lines = InfiniteGridHelper.createLines(distance)
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i]
         const lineEntity = createEntity()
-        addObjectToGroup(lineEntity, line)
-        setComponent(lineEntity, NameComponent, 'Infinite Grid Helper Line ' + i)
-        setVisibleComponent(lineEntity, true)
+        setComponent(lineEntity, LineSegmentComponent, {
+          name: `infinite-grid-helper-line-${i}`,
+          geometry: lineGeometry,
+          material: lineMaterial
+        })
         setComponent(lineEntity, EntityTreeComponent, { parentEntity: entity })
         lineEntities.push(lineEntity)
       }
 
-      component.lineEntities.set(lineEntities)
-
       return () => {
-        removeObjectFromGroup(entity, helper)
         for (const lineEntity of lineEntities) removeEntity(lineEntity)
       }
-    }, [])
-
-    useEffect(() => {
-      const component = getComponent(entity, InfiniteGridComponent)
-      component.helper.setGridHeight(engineRendererSettings.gridHeight.value)
-    }, [engineRendererSettings.gridHeight])
-
-    useEffect(() => {
-      const component = getComponent(entity, InfiniteGridComponent)
-      component.helper.setGridColor(component.color)
-    }, [component.color])
-
-    useEffect(() => {
-      const component = getComponent(entity, InfiniteGridComponent)
-      component.helper.setSize(component.size)
-    }, [component.size])
-
-    useEffect(() => {
-      const component = getComponent(entity, InfiniteGridComponent)
-      component.helper.setDistance(component.distance)
-      for (let i = 0; i < component.lineEntities.length; i++) {
-        const lineEntity = component.lineEntities[i]
-        const line = getComponent(lineEntity, GroupComponent)[0] as any as LineSegments
-        const floatArray = [0, 0, 0, 0, 0, 0]
-        floatArray[i] = -component.distance
-        floatArray[i + 3] = component.distance
-        const linePositions = new Float32Array(floatArray)
-        line.geometry.setAttribute('position', new BufferAttribute(linePositions, 3))
-      }
-    }, [component.distance, component.lineEntities])
+    }, [component.distance])
 
     return null
   }

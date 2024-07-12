@@ -36,7 +36,7 @@ import { ProjectService, ProjectState } from '@etherealengine/client-core/src/co
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
@@ -45,28 +45,23 @@ import Component from './index'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'
-
-const initializeEngineForRecorder = async () => {
-  getMutableState(SceneState).sceneLoaded.set(true)
-}
 
 const argTypes = {}
 const decorators = [
   (Story) => {
     const notistackRef = useRef<SnackbarProvider>()
-    const authState = useHookstate(getMutableState(AuthState))
+    const authState = useMutableState(AuthState)
     const selfUser = authState.user
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [projectComponents, setProjectComponents] = useState<Array<any>>([])
     const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
-    const projectState = useHookstate(getMutableState(ProjectState))
+    const projectState = useMutableState(ProjectState)
 
-    const notificationstate = useHookstate(getMutableState(NotificationState))
+    const notificationstate = useMutableState(NotificationState)
 
     useEffect(() => {
       notificationstate.snackbar.set(notistackRef.current)
@@ -79,7 +74,6 @@ const decorators = [
           setFetchedProjectComponents(true)
           loadEngineInjection().then((result) => {
             LocationState.setLocationName(locationName)
-            initializeEngineForRecorder()
             setProjectComponents(result)
           })
         }
@@ -95,7 +89,7 @@ const decorators = [
       // This would normally cause doLoginAuto to make a guest user, which we do not want.
       // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
       // The client and auth settigns will not be needed on these routes
-      if (!/auth\/oauth/.test(location.pathname)) {
+      if (!location.pathname.startsWith('/auth')) {
         AuthService.doLoginAuto()
       }
 
@@ -112,7 +106,7 @@ const decorators = [
 
     const locationName = 'default'
 
-    // const engineState = useHookstate(getMutableState(EngineState))
+    // const engineState = useMutableState(EngineState)
 
     return (
       <div className="container mx-auto h-full w-full">

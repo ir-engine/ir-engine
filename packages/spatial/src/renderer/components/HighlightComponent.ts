@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine, defineQuery, defineSystem } from '@etherealengine/ecs'
+import { defineQuery, defineSystem, Engine } from '@etherealengine/ecs'
 import { defineComponent, getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
 import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
+import { VisibleComponent } from './VisibleComponent'
 
 export const HighlightComponent = defineComponent({ name: 'HighlightComponent' })
 
@@ -38,7 +39,8 @@ const execute = () => {
   /** @todo support multiple scenes */
   if (!hasComponent(Engine.instance.viewerEntity, RendererComponent)) return
 
-  getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.HighlightEffect?.selection.set(
+  // @ts-ignore @todo why does typescript freak out here?
+  getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.OutlineEffect?.selection.set(
     highlightQuery().map((entity) => getComponent(entity, MeshComponent))
   )
 }

@@ -34,31 +34,32 @@ import {
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
+  ShaderMaterial,
   SphereGeometry,
   SRGBColorSpace,
   Texture,
   Vector2
 } from 'three'
 
-import { Engine, EntityUUID } from '@etherealengine/ecs'
-import { useHookstate } from '@etherealengine/hyperflux'
-
 import config from '@etherealengine/common/src/config'
 import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
+import { Engine, EntityUUID } from '@etherealengine/ecs'
 import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+
+import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AssetClass } from '../../assets/enum/AssetClass'
-import { useTexture } from '../../assets/functions/resourceHooks'
+import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
-export const PLANE_GEO = new PlaneGeometry(1, 1, 1, 1)
-export const SPHERE_GEO = new SphereGeometry(1, 64, 32)
-export const PLANE_GEO_FLIPPED = flipNormals(new PlaneGeometry(1, 1, 1, 1))
-export const SPHERE_GEO_FLIPPED = flipNormals(new SphereGeometry(1, 64, 32))
+// Making these functions to make it more explicit, otherwise .clone() needs to be called any time these are referenced between components
+export const PLANE_GEO = () => new PlaneGeometry(1, 1, 1, 1)
+export const SPHERE_GEO = () => new SphereGeometry(1, 64, 32)
+export const PLANE_GEO_FLIPPED = () => flipNormals(new PlaneGeometry(1, 1, 1, 1))
+export const SPHERE_GEO_FLIPPED = () => flipNormals(new SphereGeometry(1, 64, 32))
 
 export type ImageResource = {
   source?: string
@@ -79,9 +80,7 @@ export const ImageComponent = defineComponent({
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
       alphaCutoff: 0.5,
       projection: ImageProjection.Flat as ImageProjectionType,
-      side: DoubleSide,
-      // runtime props
-      mesh: new Mesh(PLANE_GEO as PlaneGeometry | SphereGeometry, new MeshBasicMaterial())
+      side: DoubleSide
     }
   },
 
@@ -106,17 +105,6 @@ export const ImageComponent = defineComponent({
     if (typeof json.projection === 'string' && json.projection !== component.projection.value)
       component.projection.set(json.projection)
     if (typeof json.side === 'number' && json.side !== component.side.value) component.side.set(json.side)
-
-    /**
-     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
-     */
-    // if (!getState(SceneState).sceneLoaded && hasComponent(entity, SourceComponent))
-    //   SceneAssetPendingTagComponent.addResource(entity, ImageComponent.jsonID)
-  },
-
-  onRemove: (entity, component) => {
-    component.mesh.material.map.value?.dispose()
-    component.mesh.value.removeFromParent()
   },
 
   errors: ['MISSING_TEXTURE_SOURCE', 'UNSUPPORTED_ASSET_CLASS', 'LOADING_ERROR', 'INVALID_URL'],
@@ -130,6 +118,19 @@ export function getTextureSize(texture: Texture | CompressedTexture | null, size
   const width = image?.videoWidth || image?.naturalWidth || image?.width || 0
   const height = image?.videoHeight || image?.naturalHeight || image?.height || 0
   return size.set(width, height)
+}
+
+export function resizeVideoMesh(mesh: Mesh<any, ShaderMaterial>) {
+  if (!mesh.material.uniforms.map?.value) return
+
+  const { width, height } = getTextureSize(mesh.material.uniforms.map.value as Texture | CompressedTexture)
+
+  if (!width || !height) return
+
+  const ratio = (height || 1) / (width || 1)
+  const _width = Math.min(1.0, 1.0 / ratio)
+  const _height = Math.min(1.0, ratio)
+  mesh.scale.set(_width, _height, 1)
 }
 
 export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
@@ -157,91 +158,72 @@ function flipNormals<G extends BufferGeometry>(geometry: G) {
 export function ImageReactor() {
   const entity = useEntityContext()
   const image = useComponent(entity, ImageComponent)
-  const texture = useHookstate(null as Texture | null)
-
-  const [imgTexture, error] = useTexture(image.source.value, entity)
-
-  useEffect(() => {
-    if (imgTexture) {
-      texture.set(imgTexture)
-      // SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
-    }
-  }, [imgTexture])
+  const [texture, error] = useTexture(image.source.value, entity)
+  const mesh = useMeshComponent<PlaneGeometry | SphereGeometry, MeshBasicMaterial>(
+    entity,
+    PLANE_GEO,
+    () => new MeshBasicMaterial()
+  )
 
   useEffect(() => {
     if (!error) return
     addError(entity, ImageComponent, `LOADING_ERROR`, error.message)
-    // SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
   }, [error])
 
   useEffect(() => {
     if (!image.source.value) {
       addError(entity, ImageComponent, `MISSING_TEXTURE_SOURCE`)
-      // SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
       return
     }
 
     const assetType = AssetLoader.getAssetClass(image.source.value)
-    if (assetType !== AssetClass.Image) {
+    if (assetType !== AssetType.Image) {
       addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
-      // SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
     }
   }, [image.source])
 
   useEffect(
     function updateTexture() {
-      if (!image) return
-      if (!texture.value) return
+      if (!texture) return
 
       clearErrors(entity, ImageComponent)
 
-      texture.value.colorSpace = SRGBColorSpace
-      texture.value.minFilter = LinearMipmapLinearFilter
+      texture.colorSpace = SRGBColorSpace
+      texture.minFilter = LinearMipmapLinearFilter
 
-      image.mesh.material.map.ornull?.value.dispose()
-      image.mesh.material.map.set(texture.value)
-      image.mesh.visible.set(true)
-      image.mesh.material.value.needsUpdate = true
+      mesh.material.map.set(texture)
+      mesh.visible.set(true)
 
       // upload to GPU immediately
-      getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.initTexture(texture.value)
-
-      const imageMesh = image.mesh.value
-      addObjectToGroup(entity, imageMesh)
-
-      return () => {
-        removeObjectFromGroup(entity, imageMesh)
-      }
+      getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.initTexture(texture)
     },
     [texture]
   )
 
   useEffect(
     function updateGeometry() {
-      if (!image.mesh.material.map.value) return
+      if (!mesh.material.map.value) return
 
-      const flippedTexture = image.mesh.material.map.value.flipY
+      const flippedTexture = mesh.material.map.value.flipY
       switch (image.projection.value) {
         case ImageProjection.Equirectangular360:
-          image.mesh.value.geometry = flippedTexture ? SPHERE_GEO : SPHERE_GEO_FLIPPED
-          image.mesh.scale.value.set(-1, 1, 1)
+          mesh.geometry.set(flippedTexture ? SPHERE_GEO() : SPHERE_GEO_FLIPPED())
+          mesh.scale.value.set(-1, 1, 1)
           break
         case ImageProjection.Flat:
         default:
-          image.mesh.value.geometry = flippedTexture ? PLANE_GEO : PLANE_GEO_FLIPPED
-          resizeImageMesh(image.mesh.value)
+          mesh.geometry.set(flippedTexture ? PLANE_GEO() : PLANE_GEO_FLIPPED())
+          resizeImageMesh(mesh.value as Mesh<PlaneGeometry, MeshBasicMaterial>)
       }
     },
-    [image.mesh.material.map, image.projection]
+    [mesh.material.map, image.projection]
   )
 
   useEffect(
     function updateMaterial() {
-      const material = image.mesh.material.value
-      material.transparent = image.alphaMode.value === ImageAlphaMode.Blend
-      material.alphaTest = image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0
-      material.side = image.side.value
-      material.needsUpdate = true
+      mesh.material.transparent.set(image.alphaMode.value === ImageAlphaMode.Blend)
+      mesh.material.alphaTest.set(image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0)
+      mesh.material.side.set(image.side.value)
     },
     [image.alphaMode, image.alphaCutoff, image.side]
   )

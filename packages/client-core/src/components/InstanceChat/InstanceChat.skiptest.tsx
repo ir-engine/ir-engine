@@ -28,11 +28,10 @@ import assert from 'assert'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { ChannelID, MessageID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { createEngine } from '@etherealengine/ecs'
 import { getMutableState } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
-import { ChannelID, MessageID } from '@etherealengine/common/src/schema.type.module'
 import { InstanceChat } from '.'
 import { createDOM } from '../../../tests/createDOM'
 import { createMockAPI } from '../../../tests/createMockAPI'
@@ -46,8 +45,8 @@ describe('Instance Chat Component', () => {
     createDOM()
     rootContainer = document.createElement('div')
     document.body.appendChild(rootContainer)
-    API.instance = createMockAPI()
     createEngine()
+    API.instance = createMockAPI()
   })
 
   afterEach(() => {

@@ -23,16 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID } from '@etherealengine/ecs'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 import { LayoutData } from 'rc-dock'
 
+import { EntityUUID, getComponent } from '@etherealengine/ecs'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { defineState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+
 interface IExpandedNodes {
-  [scene: SceneID]: {
+  [scene: string]: {
     [entity: Entity]: true
   }
+}
+
+export enum UIMode {
+  BASIC = 'BASIC',
+  ADVANCED = 'ADVANCED'
+}
+
+export type StudioUIAddons = {
+  container: Record<string, JSX.Element>
+  newScene: Record<string, JSX.Element>
+  //more addon points to come here
 }
 
 export const EditorState = defineState({
@@ -40,12 +53,25 @@ export const EditorState = defineState({
   initial: () => ({
     projectName: null as string | null,
     sceneName: null as string | null,
-    sceneID: null as SceneID | null,
+    /** the url of the current scene file */
+    scenePath: null as string | null,
+    /** just used to store the id of the current scene asset */
+    sceneAssetID: null as string | null,
     expandedNodes: {} as IExpandedNodes,
     lockPropertiesPanel: '' as EntityUUID,
-    panelLayout: {} as LayoutData
+    panelLayout: {} as LayoutData,
+    rootEntity: UndefinedEntity,
+    uiEnabled: true,
+    uiMode: UIMode.ADVANCED,
+    uiAddons: {
+      container: {},
+      newScene: {}
+    } as StudioUIAddons
   }),
-  onCreate: () => {
-    syncStateWithLocalStorage(EditorState, ['expandedNodes'])
-  }
+  isModified: () => {
+    const rootEntity = getState(EditorState).rootEntity
+    if (!rootEntity) return false
+    return !!getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
+  },
+  extension: syncStateWithLocalStorage(['expandedNodes'])
 })

@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+
 import { dataValidator, queryValidator } from '../validators'
 
 export const clientSettingPath = 'client-setting'
@@ -147,6 +148,9 @@ export const clientSettingSchema = Type.Object(
     favicon16px: Type.String(),
     icon192px: Type.String(),
     icon512px: Type.String(),
+    siteManifest: Type.String(),
+    safariPinnedTab: Type.String(),
+    favicon: Type.String(),
     webmanifestLink: Type.String(),
     swScriptLink: Type.String(),
     appBackground: Type.String(),

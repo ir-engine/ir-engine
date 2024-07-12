@@ -24,34 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import {
-  BoxGeometry,
-  CapsuleGeometry,
-  CircleGeometry,
-  CylinderGeometry,
-  DodecahedronGeometry,
-  IcosahedronGeometry,
-  Mesh,
-  MeshLambertMaterial,
-  OctahedronGeometry,
-  PlaneGeometry,
-  RingGeometry,
-  SphereGeometry,
-  TetrahedronGeometry,
-  TorusGeometry,
-  TorusKnotGeometry
-} from 'three'
+import { MeshLambertMaterial } from 'three'
 
-import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { Geometry } from '@etherealengine/engine/src/assets/constants/Geometry'
-import { NO_PROXY, NO_PROXY_STEALTH, useState } from '@etherealengine/hyperflux'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { GeometryTypeEnum } from '../constants/GeometryTypeEnum'
+import { Geometry } from '@etherealengine/spatial/src/common/constants/Geometry'
+import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { Shape, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import { GeometryTypeEnum, GeometryTypeToClass } from '../constants/GeometryTypeEnum'
+
+const createGeometry = (geometryType: GeometryTypeEnum, geometryParams: Record<string, any>): Geometry => {
+  const GeometryClass = GeometryTypeToClass[geometryType]
+  const geometry = new GeometryClass(...Object.values(geometryParams))
+  return geometry
+}
 
 export const PrimitiveGeometryComponent = defineComponent({
   name: 'PrimitiveGeometryComponent',
@@ -60,8 +48,7 @@ export const PrimitiveGeometryComponent = defineComponent({
   onInit: (entity) => {
     return {
       geometryType: GeometryTypeEnum.BoxGeometry as GeometryTypeEnum,
-      geometry: null! as Geometry,
-      geometryParams: null! as Record<string, any>
+      geometryParams: {} as Record<string, any>
     }
   },
 
@@ -78,126 +65,41 @@ export const PrimitiveGeometryComponent = defineComponent({
     if (typeof json.geometryParams === 'object') component.geometryParams.set(json.geometryParams)
   },
 
-  onRemove: (entity, component) => {
-    if (component.geometry.value) {
-      component.geometry.value.dispose()
-    }
-  },
+  reactor: () => {
+    const entity = useEntityContext()
+    const geometryComponent = useComponent(entity, PrimitiveGeometryComponent)
+    const mesh = useMeshComponent(
+      entity,
+      () => createGeometry(geometryComponent.geometryType.value, geometryComponent.geometryParams.value),
+      () => new MeshLambertMaterial()
+    )
+    const colliderComponent = useOptionalComponent(entity, ColliderComponent)
 
-  reactor: GeometryReactor
+    useLayoutEffect(() => {
+      mesh.geometry.set(createGeometry(geometryComponent.geometryType.value, geometryComponent.geometryParams.value))
+    }, [geometryComponent.geometryType, geometryComponent.geometryParams])
+
+    useLayoutEffect(() => {
+      if (!colliderComponent) return
+      colliderComponent.shape.set(GeometryToColliderShape[geometryComponent.geometryType.value])
+    }, [mesh.geometry, !!colliderComponent])
+
+    return null
+  }
 })
 
-function GeometryReactor() {
-  const entity = useEntityContext()
-  const geometryComponent = useComponent(entity, PrimitiveGeometryComponent)
-  const transform = useComponent(entity, TransformComponent)
-  const mesh = useState<Mesh>(new Mesh())
-
-  function areKeysDifferentTypes(obj1: Record<string, any>, obj2: Record<string, any>): boolean {
-    if (!obj1 || !obj2) {
-      return true
-    }
-    const keys1 = Object.keys(obj1)
-    const keys2 = Object.keys(obj2)
-
-    if (keys1.length !== keys2.length) {
-      return true // Objects have different numbers of keys
-    }
-
-    for (const key of keys1) {
-      if (!keys2.includes(key)) {
-        return true // Objects have different keys
-      }
-
-      if (typeof obj1[key] !== typeof obj2[key]) {
-        return true // Keys have different types
-      }
-    }
-
-    return false // Objects have the same keys with the same types
-  }
-
-  function createGeometry(geometryType: new (...args: any[]) => Geometry, params: Record<string, any>): Geometry {
-    const argList = params ? Object.values(params) : null
-    let currGeometry = new geometryType()
-    if (areKeysDifferentTypes(params, (currGeometry as any).parameters)) {
-      geometryComponent.geometryParams.set((currGeometry as any).parameters)
-      return currGeometry
-    }
-    currGeometry.dispose()
-    currGeometry = argList ? new geometryType(...argList) : new geometryType()
-    return currGeometry
-  }
-
-  useLayoutEffect(() => {
-    geometryComponent.geometry.set(new BoxGeometry()) // set default geometry
-    const material = new MeshLambertMaterial() // set material later
-    mesh.set(new Mesh(geometryComponent.geometry.value, material))
-    addObjectToGroup(entity, mesh.value)
-    setComponent(entity, MeshComponent, mesh.value)
-    setObjectLayers(mesh.value, ObjectLayers.Scene)
-
-    return () => {
-      removeObjectFromGroup(entity, mesh.value)
-    }
-  }, [])
-
-  useLayoutEffect(() => {
-    if (!mesh) return
-    mesh.value.geometry = geometryComponent.geometry.get(NO_PROXY)
-    mesh.set(mesh.get(NO_PROXY_STEALTH)) // reactivly update mesh
-  }, [geometryComponent.geometry])
-
-  useLayoutEffect(() => {
-    const params = geometryComponent.geometryParams.get(NO_PROXY)
-    let currentGeometry: Geometry
-    // can we get the params for a geometry type before its initialized? that would simplify this
-    // can we make the GeometryTypeEnum, contain the typeof geometry? that would simplify this switch case into a single line
-    switch (geometryComponent.geometryType.value) {
-      case GeometryTypeEnum.BoxGeometry:
-        currentGeometry = createGeometry(BoxGeometry, params)
-        break
-      case GeometryTypeEnum.SphereGeometry:
-        currentGeometry = createGeometry(SphereGeometry, params)
-        break
-      case GeometryTypeEnum.CylinderGeometry:
-        currentGeometry = createGeometry(CylinderGeometry, params)
-        break
-      case GeometryTypeEnum.CapsuleGeometry:
-        currentGeometry = createGeometry(CapsuleGeometry, params)
-        break
-      case GeometryTypeEnum.PlaneGeometry:
-        currentGeometry = createGeometry(PlaneGeometry, params)
-        break
-      case GeometryTypeEnum.CircleGeometry:
-        currentGeometry = createGeometry(CircleGeometry, params)
-        break
-      case GeometryTypeEnum.RingGeometry:
-        currentGeometry = createGeometry(RingGeometry, params)
-        break
-      case GeometryTypeEnum.TorusGeometry:
-        currentGeometry = createGeometry(TorusGeometry, params)
-        break
-      case GeometryTypeEnum.TorusKnotGeometry:
-        currentGeometry = createGeometry(TorusKnotGeometry, params)
-        break
-      case GeometryTypeEnum.DodecahedronGeometry:
-        currentGeometry = createGeometry(DodecahedronGeometry, params)
-        break
-      case GeometryTypeEnum.IcosahedronGeometry:
-        currentGeometry = createGeometry(IcosahedronGeometry, params)
-        break
-      case GeometryTypeEnum.OctahedronGeometry:
-        currentGeometry = createGeometry(OctahedronGeometry, params)
-        break
-      case GeometryTypeEnum.TetrahedronGeometry:
-        currentGeometry = createGeometry(TetrahedronGeometry, params)
-        break
-      default:
-        return
-    }
-    geometryComponent.geometry.set(currentGeometry)
-    // change the geometry on the model
-  }, [geometryComponent.geometryType, geometryComponent.geometryParams])
-  return null
-}
+const GeometryToColliderShape = {
+  [GeometryTypeEnum.BoxGeometry]: Shapes.Box,
+  [GeometryTypeEnum.SphereGeometry]: Shapes.Sphere,
+  [GeometryTypeEnum.CylinderGeometry]: Shapes.Cylinder,
+  [GeometryTypeEnum.CapsuleGeometry]: Shapes.Capsule,
+  [GeometryTypeEnum.PlaneGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.CircleGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.RingGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.TorusGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.DodecahedronGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.IcosahedronGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.OctahedronGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.TetrahedronGeometry]: Shapes.Mesh,
+  [GeometryTypeEnum.TorusKnotGeometry]: Shapes.Mesh
+} as Record<GeometryTypeEnum, Shape>

@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
-import { State, useHookstate } from '@etherealengine/hyperflux'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdClose } from 'react-icons/io'
+
+import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
+import { State, useHookstate } from '@etherealengine/hyperflux'
+
 import Button from '../Button'
 import Input from '../Input'
 import Label from '../Label'
@@ -93,7 +95,7 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
     const emails = paste.match(/[\w\d\.-]+@[\w\d\.-]+\.[\w\d\.-]+/g)
 
     if (emails) {
-      const toBeAdded = emails.filter((email) => !isInList(email, emailList.value))
+      const toBeAdded = emails.filter((email) => !isInList(email, emailList.value as string[]))
       emailList.merge(toBeAdded)
     }
   }
@@ -102,7 +104,7 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
     state.errorLabel.set('')
     let error = ''
 
-    if (isInList(email, emailList.value)) {
+    if (isInList(email, emailList.value as string[])) {
       error = t('common:multiEmailInput.alreadyAdded', { email })
     }
 
@@ -128,10 +130,10 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
       {label && <Label className="self-stretch">{label}</Label>}
 
       {emailList.length > 0 && (
-        <div className="bg-theme-surfaceInput border-theme-primary flex flex-wrap gap-2	rounded-lg border px-3.5 py-1.5">
+        <div className="flex flex-wrap gap-2 rounded-lg border	border-theme-primary bg-theme-surfaceInput px-3.5 py-1.5">
           {emailList.value.map((item) => (
             <div
-              className="bg-theme-surface-main text-theme-primary flex w-fit items-center justify-between gap-1 rounded px-2 py-1 text-black"
+              className="flex w-fit items-center justify-between gap-1 rounded bg-theme-surface-main px-2 py-1 text-black text-theme-primary"
               key={item}
             >
               {item}

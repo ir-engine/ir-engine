@@ -23,10 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { pathJoin, relativePathTo } from '@etherealengine/common/src/utils/miscUtils'
 import { Material, Object3D, Object3DEventMap, Texture } from 'three'
-import { materialFromId } from '../../../../scene/materials/functions/MaterialLibraryFunctions'
-import { pathResolver } from '../../../functions/pathResolver'
+
+import { pathJoin, relativePathTo } from '@etherealengine/common/src/utils/miscUtils'
+import { EntityUUID, UUIDComponent, getOptionalComponent } from '@etherealengine/ecs'
+
+import { STATIC_ASSET_REGEX } from '@etherealengine/common/src/regex'
+import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -40,14 +43,21 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
 
   writeMaterial(material: Material, materialDef: { [key: string]: any }): void {
     if (this.writer.options.binary || this.writer.options.embedImages) return
-    const materialComponent = materialFromId(material.uuid)
-    if (!materialComponent) return
-    const src = materialComponent.src
-    const resolvedPath = pathResolver().exec(src.path)!
-    let relativeSrc = resolvedPath[2]
-    relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
+    const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
+    if (!materialEntity) return
+    const src = getOptionalComponent(materialEntity, SourceComponent)
+    if (!src) return
+    const resolvedPath = STATIC_ASSET_REGEX.exec(src)!
+    const projectDst = this.writer.options.projectName!
+    let projectSrc = this.writer.options.projectName!
+    let relativeSrc = './assets/'
+    if (resolvedPath) {
+      projectSrc = resolvedPath[1]
+      relativeSrc = resolvedPath[2]
+      relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
+    }
     const dst = this.writer.options.relativePath!.replace(/\/[^\/]*$/, '')
-    const relativeBridge = relativePathTo(dst, relativeSrc)
+    const relativeBridge = relativePathTo(pathJoin(projectDst, dst), pathJoin(projectSrc, relativeSrc))
 
     for (const [field, value] of Object.entries(material)) {
       if (field === 'envMap') continue
@@ -56,9 +66,16 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
         if (texture.image instanceof ImageBitmap) continue
         let oldURI = texture.userData.src
         if (!oldURI) {
-          const resolved = pathResolver().exec(texture.image.src)!
+          const resolved = STATIC_ASSET_REGEX.exec(texture.image.src)!
+          const oldProject = resolved[1]
           const relativeOldURL = resolved[2]
-          oldURI = relativePathTo(relativeSrc, relativeOldURL)
+          if (oldProject !== projectSrc) {
+            const srcWithProject = pathJoin(projectSrc, relativeSrc)
+            const dstWithProject = pathJoin(oldProject, relativeOldURL)
+            oldURI = relativePathTo(srcWithProject, dstWithProject)
+          } else {
+            oldURI = relativePathTo(relativeSrc, relativeOldURL)
+          }
         }
         const newURI = pathJoin(relativeBridge, oldURI)
         if (!texture.image.src) {

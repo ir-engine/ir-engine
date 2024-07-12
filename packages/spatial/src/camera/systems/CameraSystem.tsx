@@ -24,296 +24,108 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
-
-import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
-import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { PerspectiveCamera } from 'three'
 
 import {
   AnimationSystemGroup,
-  Engine,
-  Entity,
   defineQuery,
   defineSystem,
+  Engine,
+  EntityUUID,
   getComponent,
-  getOptionalComponent,
-  removeComponent,
-  setComponent
+  getOptionalMutableComponent,
+  setComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { getState } from '@etherealengine/hyperflux'
-import { NetworkObjectComponent, NetworkObjectOwnedTag } from '@etherealengine/network'
-import { createConeOfVectors } from '../../common/functions/MathFunctions'
-import { smoothDamp } from '../../common/functions/MathLerpFunctions'
-import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import {
-  ComputedTransformComponent,
-  setComputedTransformComponent
-} from '../../transform/components/ComputedTransformComponent'
+import { defineState, getMutableState, none, useMutableState } from '@etherealengine/hyperflux'
+import { NetworkObjectOwnedTag, WorldNetworkAction } from '@etherealengine/network'
+
+import { EngineState } from '../../EngineState'
+import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
-import { FlyControlComponent } from '../components/FlyControlComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
-import { SpectatorComponent } from '../components/SpectatorComponent'
-import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { switchCameraMode } from '../functions/switchCameraMode'
 
-const direction = new Vector3()
-const upVector = new Vector3(0, 1, 0)
-const empty = new Vector3()
-const mx = new Matrix4()
-const tempVec1 = new Vector3()
-const raycaster = new Raycaster()
+export const CameraEntityState = defineState({
+  name: 'CameraEntityState',
+  initial: {} as Record<EntityUUID, true>,
 
-/**
- * Calculates and returns view vector for give angle. View vector will be at the given angle after the calculation
- * @param viewVector Current view vector
- * @param angle angle to which view vector will be rotated
- * @param isDegree Whether the angle is in degree or radian
- * @returns View vector having given angle in the world space
- */
-export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?: boolean): Vector3 => {
-  if (isDegree) {
-    angle = (angle * Math.PI) / 180 // Convert to Radian
+  receptors: {
+    onCameraSpawn: CameraActions.spawnCamera.receive((action) => {
+      getMutableState(CameraEntityState)[action.entityUUID].set(true)
+    }),
+    onEntityDestroy: WorldNetworkAction.destroyEntity.receive((action) => {
+      getMutableState(CameraEntityState)[action.entityUUID].set(none)
+    })
+  },
+
+  reactor: () => {
+    const state = useMutableState(CameraEntityState)
+    return (
+      <>
+        {state.keys.map((entityUUID: EntityUUID) => (
+          <CameraEntity key={entityUUID} entityUUID={entityUUID} />
+        ))}
+      </>
+    )
   }
+})
 
-  const oldAngle = Math.atan2(viewVector.x, viewVector.z)
+const CameraEntity = (props: { entityUUID: EntityUUID }) => {
+  const entity = UUIDComponent.useEntityByUUID(props.entityUUID)
 
-  // theta - newTheta ==> To rotate Left on mouse drage Right -> Left
-  // newTheta - theta ==> To rotate Right on mouse drage Right -> Left
-  const dif = oldAngle - angle
+  useEffect(() => {
+    if (!entity) return
+    setComponent(entity, CameraComponent)
+  }, [entity])
 
-  if (Math.abs(dif) % Math.PI > 0.0001) {
-    viewVector.setX(Math.sin(oldAngle - dif))
-    viewVector.setZ(Math.cos(oldAngle - dif))
-  }
-
-  return viewVector
+  return null
 }
 
-export const updateCameraTargetRotation = (cameraEntity: Entity) => {
-  if (!cameraEntity) return
-  const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-  const target = getOptionalComponent(cameraEntity, TargetCameraRotationComponent)
-  if (!target) return
-
-  const epsilon = 0.001
-
-  target.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, target.phi))
-
-  if (Math.abs(target.phi - followCamera.phi) < epsilon && Math.abs(target.theta - followCamera.theta) < epsilon) {
-    removeComponent(followCamera.targetEntity, TargetCameraRotationComponent)
-    return
-  }
-
-  const delta = getState(ECSState).deltaSeconds
-  followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
-  followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
-}
-
-const cameraLayerQuery = defineQuery([VisibleComponent, ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
-
-export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
-  const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-
-  // Cache the raycast result for 0.1 seconds
-  const raycastProps = followCamera.raycastProps
-  const { camRayCastCache, camRayCastClock, cameraRays, rayConeAngle } = raycastProps
-  if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < raycastProps.rayFrequency) {
-    return camRayCastCache
-  }
-
-  camRayCastClock.start()
-
-  const sceneObjects = cameraLayerQuery().flatMap((e) => getComponent(e, MeshComponent))
-
-  // Raycast to keep the line of sight with avatar
-  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-  const targetToCamVec = tempVec1.subVectors(cameraTransform.position, target)
-  // raycaster.ray.origin.sub(targetToCamVec.multiplyScalar(0.1)) // move origin behind camera
-
-  createConeOfVectors(targetToCamVec, cameraRays, rayConeAngle)
-
-  let maxDistance = Math.min(followCamera.maxDistance, raycastProps.rayLength)
-
-  // Check hit with mid ray
-  raycaster.layers.set(ObjectLayers.Camera) // Ignore avatars
-  // @ts-ignore - todo figure out why typescript freaks out at this
-  raycaster.firstHitOnly = true // three-mesh-bvh setting
-  raycaster.far = followCamera.maxDistance
-  raycaster.set(target, targetToCamVec.normalize())
-  const hits = raycaster.intersectObjects(sceneObjects, false)
-
-  if (hits[0] && hits[0].distance < maxDistance) {
-    maxDistance = hits[0].distance
-  }
-
-  //Check the cone for minimum distance
-  cameraRays.forEach((rayDir, i) => {
-    raycaster.set(target, rayDir)
-    const hits = raycaster.intersectObjects(sceneObjects, false)
-
-    if (hits[0] && hits[0].distance < maxDistance) {
-      maxDistance = hits[0].distance
-    }
-  })
-
-  camRayCastCache.maxDistance = maxDistance
-  camRayCastCache.targetHit = !!hits[0]
-
-  return camRayCastCache
-}
-
-const targetPosition = new Vector3()
-
-const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
-  const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-  const cameraTransform = getComponent(cameraEntity, TransformComponent)
-  const targetTransform = getComponent(referenceEntity, TransformComponent)
-
-  if (!targetTransform || !followCamera) return
-
-  // Limit the pitch
-  followCamera.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, followCamera.phi))
-
-  let maxDistance = followCamera.zoomLevel
-  let isInsideWall = false
-
-  targetPosition
-    .copy(followCamera.offset)
-    .applyQuaternion(targetTransform.rotation)
-    .add(TransformComponent.getWorldPosition(referenceEntity, new Vector3()))
-
-  // Run only if not in first person mode
-  if (followCamera.raycastProps.enabled && followCamera.zoomLevel >= followCamera.minDistance) {
-    const distanceResults = getMaxCamDistance(cameraEntity, targetPosition)
-    maxDistance = distanceResults.maxDistance
-    isInsideWall = distanceResults.targetHit
-  }
-
-  const newZoomDistance = Math.min(followCamera.zoomLevel, maxDistance)
-
-  // Zoom smoothing
-  const smoothingSpeed = isInsideWall ? 0.1 : 0.3
-  const deltaSeconds = getState(ECSState).deltaSeconds
-
-  followCamera.distance = smoothDamp(
-    followCamera.distance,
-    newZoomDistance,
-    followCamera.zoomVelocity,
-    smoothingSpeed,
-    deltaSeconds
-  )
-
-  const theta = followCamera.theta
-  const thetaRad = MathUtils.degToRad(theta)
-  const phiRad = MathUtils.degToRad(followCamera.phi)
-
-  cameraTransform.position.set(
-    targetPosition.x + followCamera.distance * Math.sin(thetaRad) * Math.cos(phiRad),
-    targetPosition.y + followCamera.distance * Math.sin(phiRad),
-    targetPosition.z + followCamera.distance * Math.cos(thetaRad) * Math.cos(phiRad)
-  )
-
-  direction.copy(cameraTransform.position).sub(targetPosition).normalize()
-
-  mx.lookAt(direction, empty, upVector)
-  cameraTransform.rotation.setFromRotationMatrix(mx)
-
-  updateCameraTargetRotation(cameraEntity)
-}
-
-export function cameraSpawnReceptor(spawnAction: ReturnType<typeof CameraActions.spawnCamera>) {
-  const entity = NetworkObjectComponent.getNetworkObject(spawnAction.$peer, spawnAction.networkId)
-  if (!entity) return
-
-  console.log('Camera Spawn Receptor Call', entity)
-
-  setComponent(entity, CameraComponent)
-}
-
-const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
 const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
-const spectatorQuery = defineQuery([SpectatorComponent])
-const cameraSpawnActions = defineActionQueue(CameraActions.spawnCamera.matches)
-const spectateUserActions = defineActionQueue(CameraActions.spectateUser.matches)
-const exitSpectateActions = defineActionQueue(CameraActions.exitSpectate.matches)
 
 function CameraReactor() {
-  const cameraSettings = useHookstate(getMutableState(CameraSettingsState))
+  const cameraSettings = useMutableState(CameraSettingsState)
 
   useEffect(() => {
     if (!cameraSettings?.cameraNearClip) return
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent) as PerspectiveCamera
     if (camera?.isPerspectiveCamera) {
+      camera.fov = cameraSettings.fov.value
       camera.near = cameraSettings.cameraNearClip.value
       camera.far = cameraSettings.cameraFarClip.value
       camera.updateProjectionMatrix()
     }
-    switchCameraMode(Engine.instance.cameraEntity, cameraSettings.value)
-  }, [cameraSettings.cameraNearClip, cameraSettings.cameraFarClip])
+  }, [cameraSettings.fov, cameraSettings.cameraNearClip, cameraSettings.cameraFarClip])
+
+  // TODO: this is messy and not properly reactive; we need a better way to handle camera settings
+  useEffect(() => {
+    if (!cameraSettings?.fov) return
+    const follow = getOptionalMutableComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+    if (follow) {
+      follow.thirdPersonMinDistance.set(cameraSettings.minCameraDistance.value)
+      follow.thirdPersonMaxDistance.set(cameraSettings.maxCameraDistance.value)
+      follow.distance.set(cameraSettings.startCameraDistance.value)
+    }
+  }, [cameraSettings])
 
   return null
 }
 
 const execute = () => {
-  for (const action of cameraSpawnActions()) cameraSpawnReceptor(action)
-
-  for (const action of spectateUserActions()) {
-    const cameraEntity = Engine.instance.cameraEntity
-    if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserID })
-    else
-      setComponent(cameraEntity, FlyControlComponent, {
-        boostSpeed: 4,
-        moveSpeed: 4,
-        lookSensitivity: 5,
-        maxXRotation: MathUtils.degToRad(80)
-      })
-  }
-
-  for (const action of exitSpectateActions()) {
-    const cameraEntity = Engine.instance.cameraEntity
-    removeComponent(cameraEntity, SpectatorComponent)
-    deleteSearchParams('spectate')
-  }
-
-  for (const cameraEntity of followCameraQuery.enter()) {
-    const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-    setComputedTransformComponent(cameraEntity, followCamera.targetEntity, computeCameraFollow)
-  }
-
-  for (const cameraEntity of followCameraQuery.exit()) {
-    removeComponent(cameraEntity, ComputedTransformComponent)
-  }
-
-  // as spectator: update local camera from network camera
-  for (const cameraEntity of spectatorQuery.enter()) {
-    const cameraTransform = getComponent(cameraEntity, TransformComponent)
-    const spectator = getComponent(cameraEntity, SpectatorComponent)
-    const networkCameraEntity = NetworkObjectComponent.getOwnedNetworkObjectWithComponent(
-      spectator.userId,
-      CameraComponent
-    )
-    const networkTransform = getComponent(networkCameraEntity, TransformComponent)
-    setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
-      cameraTransform.position.copy(networkTransform.position)
-      cameraTransform.rotation.copy(networkTransform.rotation)
-    })
-  }
-
   // as spectatee: update network camera from local camera
+  /** @todo event source this */
   for (const networkCameraEntity of ownedNetworkCamera.enter()) {
     const networkTransform = getComponent(networkCameraEntity, TransformComponent)
     const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    setComputedTransformComponent(networkCameraEntity, Engine.instance.cameraEntity, () => {
-      networkTransform.position.copy(cameraTransform.position)
-      networkTransform.rotation.copy(cameraTransform.rotation)
+    setComponent(networkCameraEntity, ComputedTransformComponent, {
+      referenceEntities: [Engine.instance.viewerEntity],
+      computeFunction: () => {
+        networkTransform.position.copy(cameraTransform.position)
+        networkTransform.rotation.copy(cameraTransform.rotation)
+      }
     })
   }
 }
@@ -326,5 +138,8 @@ export const CameraSystem = defineSystem({
   uuid: 'ee.engine.CameraSystem',
   insert: { with: AnimationSystemGroup },
   execute,
-  reactor
+  reactor: () => {
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <CameraReactor />
+  }
 })

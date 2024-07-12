@@ -18,24 +18,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserType, userPath } from '@etherealengine/common/src/schema.type.module'
-import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
-import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
+import { Id, NullableId } from '@feathersjs/feathers'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 
+import { userPath, UserType } from '@etherealengine/common/src/schema.type.module'
+import { getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 import { UserParams } from '@etherealengine/server-core/src/user/user/user.class'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
+import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import { Id, NullableId } from '@feathersjs/feathers'
+import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
+
+import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthState } from '../../../user/services/AuthService'
 import { userHasAccess } from '../../../user/userHasAccess'
+import { userColumns, UserRowType } from '../../common/constants/user'
 import DataTable from '../../common/Table'
-import { UserRowType, userColumns } from '../../common/constants/user'
 import AccountIdentifiers from './AccountIdentifiers'
 import AddEditUserModal from './AddEditUserModal'
 
@@ -84,7 +86,18 @@ export default function UserTable({
   useSearch(
     adminUserQuery,
     {
-      search
+      $or: [
+        {
+          id: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          name: {
+            $like: `%${search}%`
+          }
+        }
+      ]
     },
     search
   )
@@ -108,15 +121,7 @@ export default function UserTable({
         name: row.name,
         avatar: <AvatarImage src={row?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
-        lastLogin: row.lastLogin
-          ? new Date(row.lastLogin).toLocaleString('en-us', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric'
-            })
-          : '-',
+        lastLogin: toDisplayDateTime(row.lastLogin),
         isGuest: row.isGuest.toString(),
         action: (
           <div className="flex items-center justify-start gap-3">
@@ -128,7 +133,7 @@ export default function UserTable({
               title={t('admin:components.common.view')}
               onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
             >
-              <HiPencil className="text-theme-iconGreen place-self-center" />
+              <HiPencil className="place-self-center text-theme-iconGreen" />
             </Button>
             <Button
               rounded="full"
@@ -147,7 +152,7 @@ export default function UserTable({
                 )
               }}
             >
-              <HiTrash className="text-theme-iconRed place-self-center" />
+              <HiTrash className="place-self-center text-theme-iconRed" />
             </Button>
           </div>
         )

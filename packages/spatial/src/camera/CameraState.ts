@@ -26,12 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import matches from 'ts-matches'
 
 import { defineAction, defineState } from '@etherealengine/hyperflux'
+
 import { SpawnObjectActions } from '../transform/SpawnObjectActions'
 
 export const CameraSettings = defineState({
   name: 'xre.engine.CameraSettings',
   initial: () => ({
-    cameraRotationSpeed: 100
+    cameraRotationSpeed: 200
   })
 })
 
@@ -41,15 +42,6 @@ export class CameraActions {
       type: 'ee.engine.world.SPAWN_CAMERA'
     })
   )
-
-  static spectateUser = defineAction({
-    type: 'ee.engine.Engine.SPECTATE_USER' as const,
-    user: matches.string.optional()
-  })
-
-  static exitSpectate = defineAction({
-    type: 'ee.engine.Engine.EXIT_SPECTATE' as const
-  })
 
   static fadeToBlack = defineAction({
     type: 'xre.engine.CameraActions.FadeToBlack' as const,

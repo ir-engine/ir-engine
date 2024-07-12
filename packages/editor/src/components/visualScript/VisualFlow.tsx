@@ -23,22 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { VisualScriptComponent } from '@etherealengine/engine'
-import { getState } from '@etherealengine/hyperflux'
-import { VisualScriptState } from '@etherealengine/visual-script'
 import { isEqual } from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { ReactFlowProvider } from 'reactflow'
+
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { VisualScriptComponent } from '@etherealengine/engine'
+import { getState } from '@etherealengine/hyperflux'
+import { VisualScriptState } from '@etherealengine/visual-script'
+
 import 'reactflow/dist/style.css'
+
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
-import { PropertiesPanelButton } from '../inputs/Button'
 import { commitProperty } from '../properties/Util'
+
 import './ReactFlowStyle.css'
+
 import { Flow } from './VisualScriptUIModule'
 
 export const ActiveVisualScript = (props: { entity }) => {
@@ -80,21 +85,16 @@ const VisualFlow = () => {
   return (
     <AutoSizer>
       {({ width, height }) => (
-        <div style={{ width, height }}>
+        <div className="flex items-center justify-center" style={{ width, height }}>
           {entities.length && !validEntity ? (
-            <PropertiesPanelButton
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)'
-              }}
+            <Button
+              variant="outline"
               onClick={() => {
                 addVisualScript()
               }}
             >
               {t('editor:visualScript.panel.addVisualScript')}
-            </PropertiesPanelButton>
+            </Button>
           ) : (
             <></>
           )}

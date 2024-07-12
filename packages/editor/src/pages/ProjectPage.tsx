@@ -28,14 +28,11 @@ import React from 'react'
 import { EditorNavbar } from '../components/projects/EditorNavbar'
 import Projects from '../components/projects/ProjectsPage'
 
-import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
-
-export const ProjectPage = () => {
-  useRemoveEngineCanvas()
+export const ProjectPage = ({ studioPath }: { studioPath: string }) => {
   return (
     <>
       <EditorNavbar />
-      <Projects />
+      <Projects studioPath={studioPath} />
     </>
   )
 }

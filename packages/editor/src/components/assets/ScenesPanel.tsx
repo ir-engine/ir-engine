@@ -23,23 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
-import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-
 import MoreVert from '@mui/icons-material/MoreVert'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
+import { TabData } from 'rc-dock'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { SceneDataType, SceneID } from '@etherealengine/common/src/schema.type.module'
-import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import config from '@etherealengine/common/src/config'
+import multiLogger from '@etherealengine/common/src/logger'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { getComponent } from '@etherealengine/ecs'
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
+import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-import { TabData } from 'rc-dock'
-import { deleteScene, getScenes, onNewScene, renameScene, setSceneInState } from '../../functions/sceneFunctions'
+
+import { deleteScene, onNewScene, renameScene } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { DialogState } from '../dialogs/DialogState'
 import ErrorDialog from '../dialogs/ErrorDialog'
@@ -56,45 +60,28 @@ const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
  */
 export default function ScenesPanel() {
   const { t } = useTranslation()
-  const [scenes, setScenes] = useState<SceneDataType[]>([])
+  const editorState = useMutableState(EditorState)
+  const scenesQuery = useFind(staticResourcePath, {
+    query: { project: editorState.projectName.value, type: 'scene', paginate: false }
+  })
+  const scenes = scenesQuery.data
+
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
   const [isDeleteOpen, setDeleteOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null)
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
-  const [loadedScene, setLoadedScene] = useState<SceneDataType | null>(null)
-  const editorState = useHookstate(getMutableState(EditorState))
-  const sceneState = useHookstate(getMutableState(SceneState))
-  const [scenesLoading, setScenesLoading] = useState(true)
-
-  const [thumbnails, setThumbnails] = useState<Map<string, string>>(new Map<string, string>())
-  const fetchItems = async () => {
-    try {
-      const data = await getScenes(editorState.projectName.value!)
-      for (let i = 0; i < data.length; i++) {
-        const ktx2url = await getSceneURL(data[i].thumbnailUrl)
-        thumbnails.set(data[i].name, ktx2url!)
-      }
-      setScenes(data ?? [])
-    } catch (error) {
-      logger.error(error, 'Error fetching scenes')
-    }
-    setScenesLoading(false)
-  }
-
-  useEffect(() => {
-    fetchItems()
-  }, [editorState.sceneName])
+  const [loadedScene, setLoadedScene] = useState<StaticResourceType | null>(null)
+  const scenesLoading = scenesQuery.status === 'pending'
 
   const onCreateScene = async () => {
     await onNewScene()
-    fetchItems()
+    scenesQuery.refetch()
   }
 
-  const onClickExisting = async (e, scene: SceneDataType) => {
+  const onClickExisting = async (e, scene: StaticResourceType) => {
     e.preventDefault()
-    setSceneInState(scene.scenePath)
-    fetchItems()
+    getMutableState(EditorState).scenePath.set(scene.key)
   }
 
   const openDeleteDialog = () => {
@@ -110,13 +97,12 @@ export default function ScenesPanel() {
 
   const deleteActiveScene = async () => {
     if (loadedScene) {
-      await deleteScene(editorState.projectName.value, loadedScene.name)
-      if (editorState.sceneName.value === loadedScene.name) {
-        getMutableState(SceneState).sceneLoaded.set(false)
+      await deleteScene(loadedScene.key)
+      scenesQuery.refetch()
+      if (editorState.sceneAssetID.value === loadedScene.id) {
         editorState.sceneName.set(null)
+        editorState.sceneAssetID.set(null)
       }
-
-      fetchItems()
     }
 
     closeDeleteDialog()
@@ -136,28 +122,34 @@ export default function ScenesPanel() {
   }
 
   const startRenaming = () => {
-    if (sceneState.sceneModified.value) {
-      DialogState.setDialog(
-        <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
-      )
-      return
+    const rootEntity = getState(EditorState).rootEntity
+    if (rootEntity) {
+      const modified = getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
+      if (modified) {
+        DialogState.setDialog(
+          <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
+        )
+        return
+      }
     }
     setContextMenuOpen(false)
     setAnchorEl(null)
     setRenaming(true)
-    setNewName(loadedScene!.name)
+    setNewName(loadedScene!.key.split('/').pop()!.replace('.gltf', '').replace('.scene.json', ''))
   }
 
-  const finishRenaming = async () => {
+  const finishRenaming = async (resource: StaticResourceType) => {
     setRenaming(false)
-    await renameScene(editorState.projectName.value as string, newName, loadedScene!.name)
-    if (loadedScene) setSceneInState(loadedScene.scenePath.replace(loadedScene.name, newName) as SceneID)
+    const currentURL = loadedScene!.key
+    const newURL = currentURL.replace(currentURL.split('/').pop()!, newName + '.gltf')
+    const newData = await renameScene(resource, newURL, loadedScene!.project!)
+    scenesQuery.refetch()
+    getMutableState(EditorState).scenePath.set(newData[0].key)
     setNewName('')
-    fetchItems()
   }
 
-  const renameSceneToNewName = async (e) => {
-    if (e.key == 'Enter' && loadedScene) finishRenaming()
+  const renameSceneToNewName = async (e, resource: StaticResourceType) => {
+    if (e.key == 'Enter' && loadedScene) finishRenaming(resource)
   }
 
   const getSceneURL = async (url) => {
@@ -187,12 +179,12 @@ export default function ScenesPanel() {
         ) : (
           <div className={styles.contentContainer + ' ' + styles.sceneGridContainer}>
             {scenes.map((scene) => (
-              <div className={styles.sceneContainer} key={scene.name}>
+              <div className={styles.sceneContainer} key={scene.id}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
                     <img
                       style={{ height: 'auto', maxWidth: '100%' }}
-                      src={thumbnails.get(scene.name)}
+                      src={config.client.fileServer + '/' + scene.thumbnailURL}
                       alt=""
                       crossOrigin="anonymous"
                     />
@@ -200,7 +192,7 @@ export default function ScenesPanel() {
                   <div className={styles.detailBlock}>
                     {loadedScene === scene && isRenaming ? (
                       <Paper component="div" className={styles.inputContainer}>
-                        <ClickAwayListener onClickAway={finishRenaming}>
+                        <ClickAwayListener onClickAway={() => finishRenaming(scene)}>
                           <InputBase
                             className={styles.input}
                             name="name"
@@ -211,13 +203,13 @@ export default function ScenesPanel() {
                               e.stopPropagation()
                             }}
                             onChange={(e) => setNewName(e.target.value)}
-                            onKeyPress={renameSceneToNewName}
+                            onKeyPress={(e) => renameSceneToNewName(e, scene)}
                           />
                         </ClickAwayListener>
                       </Paper>
                     ) : (
-                      <InfoTooltip title={scene.name}>
-                        <span>{scene.name}</span>
+                      <InfoTooltip title={scene.key.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')}>
+                        <span>{scene.key.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')}</span>
                       </InfoTooltip>
                     )}
                     <IconButton onClick={(e) => openContextMenu(e, scene)}>

@@ -23,21 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Validator, matches } from 'ts-matches'
-
-import { defineAction, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { matches, Validator } from 'ts-matches'
 
 import { hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { defineAction, defineActionQueue, getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { VisualScriptState } from '@etherealengine/visual-script'
-import { useEffect } from 'react'
-import { VisualScriptComponent, VisualScriptDomain } from '../VisualScriptModule'
+
 import { registerEngineProfile } from '../nodes/profiles/ProfileModule'
+import { VisualScriptComponent, VisualScriptDomain } from '../VisualScriptModule'
 
 export const VisualScriptActions = {
   execute: defineAction({
@@ -77,29 +76,9 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const engineState = useHookstate(getMutableState(EngineState))
-  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
-
   useEffect(() => {
     VisualScriptState.registerProfile(registerEngineProfile, VisualScriptDomain.ECS)
   }, [])
-
-  useEffect(() => {
-    if (!sceneLoaded.value || engineState.isEditor.value) return
-
-    const visualScriptQuery = defineQuery([VisualScriptComponent])
-
-    for (const entity of visualScriptQuery.enter()) {
-      setComponent(entity, VisualScriptComponent, { run: true })
-    }
-
-    return () => {
-      removeQuery(visualScriptQuery)
-    }
-  }, [sceneLoaded])
-
-  // run scripts when loaded a scene, joined a world, scene entity changed, scene data changed
-
   return null
 }
 

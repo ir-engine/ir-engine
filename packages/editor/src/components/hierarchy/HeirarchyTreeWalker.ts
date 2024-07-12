@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { EditorState } from '../../services/EditorServices'
 
 export type HeirarchyTreeNodeType = {
@@ -39,7 +39,6 @@ export type HeirarchyTreeNodeType = {
   lastChild: boolean
   isLeaf?: boolean
   isCollapsed?: boolean
-  active?: boolean
 }
 
 export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
@@ -50,11 +49,7 @@ export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
  * @param  {entityNode}    expandedNodes
  */
 
-export function* heirarchyTreeWalker(
-  sceneID: SceneID,
-  treeNode: Entity,
-  selectedEntities: Entity[]
-): Generator<HeirarchyTreeNodeType> {
+export function* heirarchyTreeWalker(sceneID: string, treeNode: Entity): Generator<HeirarchyTreeNodeType> {
   if (!treeNode) return
 
   const stack = [] as HeirarchyTreeNodeType[]
@@ -74,27 +69,24 @@ export function* heirarchyTreeWalker(
     const entityTreeComponent = getComponent(entityNode as Entity, EntityTreeComponent)
 
     // treat entites with all helper children as leaf nodes
-    const allhelperChildren =
-      false || entityTreeComponent.children.every((child) => !hasComponent(child, SourceComponent))
+    const allhelperChildren = entityTreeComponent.children.every((child) => !hasComponent(child, SourceComponent))
 
     yield {
       isLeaf: entityTreeComponent.children.length === 0 || allhelperChildren,
       isCollapsed,
       depth,
       entity: entityNode,
-      active: selectedEntities.length > 0 && entityNode === selectedEntities[selectedEntities.length - 1],
       childIndex,
       lastChild
     }
 
     if (entityTreeComponent.children.length !== 0 && !isCollapsed) {
       for (let i = entityTreeComponent.children.length - 1; i >= 0; i--) {
-        const node = hasComponent(entityTreeComponent.children[i], EntityTreeComponent)
-
-        if (node) {
+        const childEntity = entityTreeComponent.children[i]
+        if (hasComponent(childEntity, SourceComponent)) {
           stack.push({
             depth: depth + 1,
-            entity: entityTreeComponent.children[i],
+            entity: childEntity,
             childIndex: i,
             lastChild: i === 0
           })

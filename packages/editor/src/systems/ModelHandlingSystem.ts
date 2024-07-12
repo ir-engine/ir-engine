@@ -26,10 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import BufferHandlerExtension from '@etherealengine/engine/src/assets/exporters/gltf/extensions/BufferHandlerExtension'
-import { defineActionQueue } from '@etherealengine/hyperflux'
-
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import BufferHandlerExtension from '@etherealengine/engine/src/assets/exporters/gltf/extensions/BufferHandlerExtension'
+import { defineActionQueue, getState } from '@etherealengine/hyperflux'
+
+import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { clearModelResources, uploadProjectFiles } from '../functions/assetFunctions'
 
 const beginModelExportQueue = defineActionQueue(BufferHandlerExtension.beginModelExport.matches)
@@ -56,11 +57,14 @@ const execute = () => {
     const { saveParms, projectName, modelName } = action
     const blob = new Blob([saveParms.buffer])
     const file = new File([blob], saveParms.uri)
+    const importSettings = getState(ImportSettingsState)
     const currentPromise = getPromise({ projectName, modelName })
     executionPromises.set(
       executionPromiseKey({ projectName, modelName }),
       currentPromise.then(() =>
-        Promise.all(uploadProjectFiles(projectName, [file], true).promises).then(() => Promise.resolve())
+        Promise.all(
+          uploadProjectFiles(projectName, [file], [`projects/${projectName}${importSettings.importFolder}`]).promises
+        ).then(() => Promise.resolve())
       )
     )
   }

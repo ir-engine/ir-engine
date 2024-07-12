@@ -24,18 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { VideoTexture } from 'three'
-
-import { getState } from '@etherealengine/hyperflux'
+import { MeshBasicMaterial, VideoTexture } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { getComponent, getMutableComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getState } from '@etherealengine/hyperflux'
 import { StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { MediaComponent } from '../../scene/components/MediaComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+
+import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { getAudioAsync } from '../../assets/functions/resourceLoaderHooks'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
 import { AudioState, useAudioState } from '../AudioState'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
@@ -60,7 +61,7 @@ export class AudioEffectPlayer {
   bufferMap = {} as { [path: string]: AudioBuffer }
 
   loadBuffer = async (path: string) => {
-    const buffer = await AssetLoader.loadAsync(path)
+    const [buffer] = await getAudioAsync(path)
     return buffer
   }
 
@@ -84,7 +85,8 @@ export class AudioEffectPlayer {
 
     if (!this.bufferMap[sound]) {
       // create buffer if doesn't exist
-      this.bufferMap[sound] = await AudioEffectPlayer?.instance?.loadBuffer(sound)
+      const [buffer] = await getAudioAsync(sound)
+      if (buffer) this.bufferMap[sound] = buffer
     }
 
     const source = getState(AudioState).audioContext.createBufferSource()
@@ -109,15 +111,28 @@ const execute = () => {
     const media = getMutableComponent(entity, MediaComponent)
     setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
     setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
-  }
+    setCallback(entity, StandardCallbacks.RESET, () => {
+      media.paused.set(!media.autoplay.value)
 
-  for (const entity of audioQuery()) getComponent(entity, PositionalAudioComponent).helper?.update()
+      //using to force the react to update the seek time if already set to 0
+      //due to media's seekTime is not being updated with the media elements current time
+      let seekTime = media.seekTime.value
+      if (seekTime == 0) {
+        seekTime = 0.000001
+      } else {
+        seekTime = 0
+      }
+      media.seekTime.set(seekTime)
+    })
+  }
 
   const videoPriorityQueue = getState(VideoTexturePriorityQueueState).queue
 
   /** Use a priority queue with videos to ensure only a few are updated each frame */
   for (const entity of VideoComponent.uniqueVideoEntities) {
-    const videoTexture = getComponent(entity, VideoComponent).videoMesh.material.map as VideoTexture
+    const videoMeshEntity = getComponent(entity, VideoComponent).videoMeshEntity
+    const videoTexture = (getComponent(videoMeshEntity, MeshComponent).material as MeshBasicMaterial)
+      .map as VideoTexture
     if (videoTexture?.isVideoTexture) {
       const video = videoTexture.image
       const hasVideoFrameCallback = 'requestVideoFrameCallback' in video
@@ -130,8 +145,9 @@ const execute = () => {
 
   for (const entity of videoPriorityQueue.priorityEntities) {
     if (!hasComponent(entity, VideoComponent)) continue
-    const videoComponent = getComponent(entity, VideoComponent)
-    const videoTexture = videoComponent.videoMesh.material.map as VideoTexture
+    const videoMeshEntity = getComponent(entity, VideoComponent).videoMeshEntity
+    const videoTexture = (getComponent(videoMeshEntity, MeshComponent).material as MeshBasicMaterial)
+      .map as VideoTexture
     if (!videoTexture?.isVideoTexture) continue
     videoTexture.needsUpdate = true
   }

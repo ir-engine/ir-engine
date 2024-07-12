@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import assert, { strictEqual } from 'assert'
+
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { getMutableState } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import assert, { strictEqual } from 'assert'
+
 import { NetworkObjectComponent } from '../NetworkObjectComponent'
 import {
   createViewCursor,

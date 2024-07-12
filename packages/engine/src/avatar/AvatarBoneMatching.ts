@@ -30,6 +30,7 @@ import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBones, VRMHumanoid, VRMParameters 
 import { Bone, Euler, Group, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
+
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 
 export type MixamoBoneNames =
@@ -679,7 +680,6 @@ export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
     if (removeSuffix) boneName = boneName.slice(0, 9) + target.name.slice(10)
     const bone = mixamoVRMRigMap[boneName] as string
     if (bone) {
-      target.name = bone
       bones[bone] = { node: target } as VRMHumanBone
     }
   })

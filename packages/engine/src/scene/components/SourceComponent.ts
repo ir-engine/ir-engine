@@ -23,19 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { hookstate, none } from '@etherealengine/hyperflux'
 
-const entitiesBySource = {} as Record<SceneID, Entity[]>
+const entitiesBySource = {} as Record<string, Entity[]>
 
 export const SourceComponent = defineComponent({
   name: 'SourceComponent',
 
-  onInit: (entity) => '' as SceneID,
+  onInit: (entity) => '',
 
-  onSet: (entity, component, src: SceneID) => {
+  onSet: (entity, component, src) => {
     if (typeof src !== 'string') throw new Error('SourceComponent expects a non-empty string')
 
     component.set(src)

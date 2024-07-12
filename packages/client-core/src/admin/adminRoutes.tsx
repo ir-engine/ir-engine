@@ -26,18 +26,21 @@ Ethereal Engine. All Rights Reserved.
 import React, { lazy, useEffect } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 
-import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { ThemeState } from '@etherealengine/client-core/src/common/services/ThemeService'
+import { getMutableState, getState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import { AuthState } from '../user/services/AuthService'
 import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'
 import Projects from './components/project'
 
-import { ThemeState } from '@etherealengine/client-core/src/common/services/ThemeService'
 import '@etherealengine/engine/src/EngineModule'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
+
 import { useTranslation } from 'react-i18next'
 import { HiMiniMoon, HiMiniSun } from 'react-icons/hi2'
+
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
+
 import { RouterState } from '../common/services/RouterService'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
@@ -52,8 +55,8 @@ const AdminTopBar = () => {
   }
 
   return (
-    <div className="bg-theme-surface-main flex h-16 w-full items-center justify-between px-8 py-4">
-      <img src="static/etherealengine_logo.png" alt="iR Engine Logo" className="h-7 w-7" />
+    <div className="flex h-16 w-full items-center justify-between bg-theme-surface-main px-8 py-4">
+      <img src="static/ir.svg" alt="iR Engine Logo" className={`h-7 w-7${theme.value === 'light' ? ' invert' : ''}`} />
       <div className="">
         <Button onClick={toggleTheme} className="pointer-events-auto bg-transparent p-0">
           {theme.value === 'light' ? (
@@ -77,7 +80,7 @@ const AdminSideBar = () => {
   const relativePath = fullPathName.split('/').slice(2).join('/')
 
   return (
-    <aside className="bg-theme-surface-main mx-8 h-fit max-h-[calc(100vh_-_88px_-_4rem)] overflow-y-auto overflow-x-hidden rounded-2xl px-2 py-4">
+    <aside className="mx-8 h-fit max-h-[calc(100vh_-_88px_-_4rem)] overflow-y-auto overflow-x-hidden rounded-2xl bg-theme-surface-main px-2 py-4">
       <ul className="space-y-2">
         {Object.entries(allowedRoutes)
           .filter(([_, sidebarItem]) => sidebarItem.access)
@@ -86,9 +89,9 @@ const AdminSideBar = () => {
               <li key={index}>
                 <Link to={path}>
                   <Button
-                    className={`text-theme-secondary hover:bg-theme-highlight] flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium ${
+                    className={`hover:bg-theme-highlight] flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium text-theme-secondary ${
                       relativePath === path
-                        ? 'text-theme-primary bg-theme-highlight font-semibold '
+                        ? 'bg-theme-highlight font-semibold text-theme-primary '
                         : 'bg-theme-surface-main'
                     }`}
                     startIcon={sidebarItem.icon}
@@ -108,7 +111,7 @@ const AdminRoutes = () => {
   const location = useLocation()
   const admin = useHookstate(getMutableState(AuthState)).user
 
-  const allowedRoutes = useHookstate(getMutableState(AllowedAdminRoutesState))
+  const allowedRoutes = useMutableState(AllowedAdminRoutesState)
 
   const scopes = admin?.scopes?.value
 

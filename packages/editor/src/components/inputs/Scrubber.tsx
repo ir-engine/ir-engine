@@ -23,17 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import MultipleStopIcon from '@mui/icons-material/MultipleStop'
 import React, { ReactNode, useEffect, useRef } from 'react'
 
-import { clamp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
-
-import MultipleStopIcon from '@mui/icons-material/MultipleStop'
-
-import { getStepSize, toPrecision } from '../../functions/utils'
-import Overlay from '../layout/Overlay'
 // Import the CSS file
 import { useHookstate } from '@etherealengine/hyperflux'
-import Portal from '../layout/Portal'
+import { clamp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
+
+import { getStepSize, toPrecision } from '../../functions/utils'
 
 type ScrubberContainerProps = {
   tag?: any
@@ -177,13 +174,6 @@ const Scrubber: React.FC<ScrubberProps> = ({
   return (
     <ScrubberContainer tag={tag} ref={scrubberEl} onMouseDown={handleMouseDown} {...rest}>
       {children}
-      {state.isDragging.value && (
-        <Portal>
-          <Overlay pointerEvents="none">
-            <Cursor x={state.mouseX.value!} y={state.mouseY.value!} />
-          </Overlay>
-        </Portal>
-      )}
     </ScrubberContainer>
   )
 }

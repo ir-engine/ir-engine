@@ -23,9 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import LockIcon from '@mui/icons-material/Lock'
+import UnlockIcon from '@mui/icons-material/LockOpen'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Entity, EntityUUID } from '@etherealengine/ecs'
 import {
   getOptionalComponent,
   hasComponent,
@@ -33,14 +36,11 @@ import {
   setComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-
-import { Entity, EntityUUID } from '@etherealengine/ecs'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import LockIcon from '@mui/icons-material/Lock'
-import UnlockIcon from '@mui/icons-material/LockOpen'
+
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
@@ -68,17 +68,16 @@ const visibleInputGroupStyle = {
 
 export const CoreNodeEditor = (props: { entity: Entity }) => {
   const { t } = useTranslation()
-  const editorState = useHookstate(getMutableState(EditorState))
+  const editorState = useMutableState(EditorState)
 
   const exportAsGLTF = () => {
     setComponent(props.entity, ModelComponent)
-    exportRelativeGLTF(props.entity, editorState.projectName.value!, editorState.sceneName.value + '-scene.gltf')
+    exportRelativeGLTF(props.entity, editorState.projectName.value!, editorState.sceneName.value + '.gltf')
     removeComponent(props.entity, ModelComponent)
   }
 
-  useOptionalComponent(props.entity, VisibleComponent)
   const [locked, setLocked] = useState(editorState.lockPropertiesPanel.value !== '')
-  const [visible, setVisible] = useState(hasComponent(props.entity, VisibleComponent))
+  const visible = useOptionalComponent(props.entity, VisibleComponent)
 
   useEffect(() => {
     const entities = getMutableState(SelectionState).selectedEntities.value
@@ -95,10 +94,10 @@ export const CoreNodeEditor = (props: { entity: Entity }) => {
     }
   }, [locked])
 
-  useEffect(() => {
+  const setVisible = (visible: boolean) => {
     const entities = SelectionState.getSelectedEntities()
     EditorControlFunctions.addOrRemoveComponent(entities, VisibleComponent, visible)
-  }, [visible])
+  }
 
   return (
     <div style={propertiesHeaderStyle}>
@@ -137,7 +136,10 @@ export const CoreNodeEditor = (props: { entity: Entity }) => {
               label={t('editor:properties.lbl-visible')}
               {...{ style: { visibleInputGroupStyle } }}
             >
-              <BooleanInput value={hasComponent(props.entity, VisibleComponent)} onChange={setVisible} />
+              <BooleanInput
+                value={hasComponent(props.entity, VisibleComponent)}
+                onChange={() => setVisible(!visible?.value)}
+              />
             </InputGroup>
             <TransformPropertyGroup entity={props.entity} />
           </>

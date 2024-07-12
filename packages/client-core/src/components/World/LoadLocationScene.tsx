@@ -27,15 +27,17 @@ import { t } from 'i18next'
 import { useEffect } from 'react'
 
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
+import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
-import { SceneServices } from '../../world/SceneServices'
 
 export const useLoadLocation = (props: { locationName: string }) => {
-  const locationState = useHookstate(getMutableState(LocationState))
+  const locationState = useMutableState(LocationState)
+  const scene = useGet(staticResourcePath, locationState.currentLocation.location.sceneId.value).data
 
   useEffect(() => {
     LocationState.setLocationName(props.locationName)
@@ -74,20 +76,23 @@ export const useLoadLocation = (props: { locationName: string }) => {
     if (
       !locationState.currentLocation.location.sceneId.value ||
       locationState.invalidLocation.value ||
-      locationState.currentLocation.selfNotAuthorized.value
+      locationState.currentLocation.selfNotAuthorized.value ||
+      !scene
     )
       return
-    const scenePath = locationState.currentLocation.location.sceneId.value
-    return SceneServices.setCurrentScene(scenePath)
-  }, [locationState.currentLocation.location.sceneId])
+    const sceneURL = scene.url
+    return GLTFAssetState.loadScene(sceneURL, scene.id)
+  }, [locationState.currentLocation.location.sceneId, scene])
 }
 
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
+  const sceneKey = `projects/${props.projectName}/${props.sceneName}`
+  const assetID = useFind(staticResourcePath, { query: { key: sceneKey, type: 'scene' } })
+
   useEffect(() => {
     if (!props.sceneName || !props.projectName) return
-    const sceneID = `projects/${props.projectName}/${props.sceneName}.scene.json` as SceneID
-    LocationState.setLocationName(sceneID)
-    getMutableState(LocationState).currentLocation.location.sceneId.set(sceneID)
-    SceneServices.loadSceneJsonOffline(props.projectName, props.sceneName)
-  }, [])
+    if (!assetID.data.length) return
+    getMutableState(LocationState).currentLocation.location.sceneId.set(assetID.data[0].id)
+    return GLTFAssetState.loadScene(assetID.data[0].url, assetID.data[0].id)
+  }, [assetID.data.length])
 }

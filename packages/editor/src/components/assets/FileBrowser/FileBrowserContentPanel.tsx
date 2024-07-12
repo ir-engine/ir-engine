@@ -23,71 +23,72 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Downgraded } from '@hookstate/core'
-import React, { useEffect, useRef } from 'react'
-import { useDrop } from 'react-dnd'
-import { useTranslation } from 'react-i18next'
-
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import {
-  FileBrowserService,
-  FileBrowserState,
-  FILES_PAGE_LIMIT
-} from '@etherealengine/client-core/src/common/services/FileBrowserService'
+import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
+import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
+import {
+  FileBrowserContentType,
+  archiverPath,
+  fileBrowserPath,
+  fileBrowserUploadPath,
+  staticResourcePath
+} from '@etherealengine/common/src/schema.type.module'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-
+import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import {
+  filesConsistOfContentType,
+  useValidProjectForFileBrowser
+} from '@etherealengine/ui/src/components/editor/panels/Files/container'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
+import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
 import DownloadIcon from '@mui/icons-material/Download'
 import SettingsIcon from '@mui/icons-material/Settings'
-
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-
 import { Breadcrumbs, Link, Popover, TablePagination } from '@mui/material'
-
-import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
-import { archiverPath, fileBrowserUploadPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Button from '@etherealengine/ui/src/primitives/mui/Button'
-import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
-import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import React, { useEffect, useRef } from 'react'
+import { useDrop } from 'react-dnd'
+import { useTranslation } from 'react-i18next'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
-import { EditorState } from '../../../services/EditorServices'
+import { EditorHelperState, PlacementMode } from '../../../services/EditorHelperState'
+import { ClickPlacementState } from '../../../systems/ClickPlacementSystem'
+import BooleanInput from '../../inputs/BooleanInput'
+import InputGroup from '../../inputs/InputGroup'
 import StringInput from '../../inputs/StringInput'
 import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
 import ImageCompressionPanel from '../ImageCompressionPanel'
 import ImageConvertPanel from '../ImageConvertPanel'
-import ModelCompressionPanel from '../ModelCompressionPanel'
 import styles from '../styles.module.scss'
-import { canDropItemOverFolder, FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
-import { availableTableColumns, FilesViewModeSettings, FilesViewModeState } from './FileBrowserState'
+import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from './FileBrowserGrid'
+import { FilesViewModeSettings, FilesViewModeState, availableTableColumns } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
 import { FilePropertiesPanel } from './FilePropertiesPanel'
 
 type FileBrowserContentPanelProps = {
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
   disableDnD?: boolean
+  projectName?: string
   selectedFile?: string
   folderName?: string
-  nestingDirectory?: string
 }
 
 type DnDFileType = {
@@ -96,25 +97,9 @@ type DnDFileType = {
   items: DataTransferItemList
 }
 
-export type FileType = {
-  fullName: string
-  isFolder: boolean
-  key: string
-  name: string
-  path: string
-  size: string
-  type: string
-  url: string
-}
+export const FILES_PAGE_LIMIT = 100
 
-const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
-  if (file.isFolder) {
-    return contentType.startsWith('image')
-  } else {
-    const guessedType: string = CommonKnownContentTypes[file.type]
-    return guessedType?.startsWith(contentType)
-  }
-}
+type FileType = FileDataType
 
 export function isFileDataType(value: any): value is FileDataType {
   return value && value.key
@@ -127,10 +112,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const { t } = useTranslation()
 
   const originalPath = `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
+
   const selectedDirectory = useHookstate(originalPath)
-  const nestingDirectory = useHookstate(props.nestingDirectory || 'projects')
-  const fileProperties = useHookstate<FileType | null>(null)
-  const isLoading = useHookstate(true)
+  const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
+  const nestingDirectory = useHookstate('projects')
+  const fileProperties = useHookstate<FileType[]>([])
 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
@@ -143,12 +129,33 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const filesViewMode = useHookstate(getMutableState(FilesViewModeState).viewMode)
   const viewModeSettingsAnchorPosition = useHookstate({ left: 0, top: 0 })
 
-  const fileState = useHookstate(getMutableState(FileBrowserState))
-  const filesValue = fileState.files.attach(Downgraded).value
-  const { skip, total, retrieving } = fileState.value
+  const page = useHookstate(0)
 
-  let page = skip / FILES_PAGE_LIMIT
-  const files = fileState.files.value.map((file) => {
+  const fileQuery = useFind(fileBrowserPath, {
+    query: {
+      $skip: page.value,
+      $limit: FILES_PAGE_LIMIT * 100,
+      directory: selectedDirectory.value
+    }
+  })
+
+  const searchText = useHookstate('')
+
+  useSearch(
+    fileQuery,
+    {
+      key: {
+        $like: `%${searchText.value}%`
+      }
+    },
+    searchText.value
+  )
+
+  const fileService = useMutation(fileBrowserPath)
+
+  const isLoading = fileQuery.status === 'pending'
+
+  const files = fileQuery.data.map((file: FileBrowserContentType) => {
     const isFolder = file.type === 'folder'
     const fullName = isFolder ? file.name : file.name + '.' + file.type
 
@@ -162,22 +169,20 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   })
 
   useEffect(() => {
-    if (filesValue) {
-      isLoading.set(false)
-    }
-  }, [filesValue])
+    //FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
+  }, [fileQuery.data])
 
   useEffect(() => {
     refreshDirectory()
   }, [selectedDirectory])
 
   const refreshDirectory = async () => {
-    await FileBrowserService.fetchFiles(selectedDirectory.value, page)
+    fileQuery.refetch()
   }
 
   const changeDirectoryByPath = (path: string) => {
     selectedDirectory.set(path)
-    FileBrowserService.resetSkip()
+    fileQuery.setPage(0)
   }
 
   const onSelect = (params: FileDataType) => {
@@ -188,6 +193,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         contentType: params.type,
         size: params.size
       })
+      const editorHelperState = getState(EditorHelperState)
+      if (editorHelperState.placementMode === PlacementMode.CLICK) {
+        getMutableState(ClickPlacementState).selectedAsset.set(params.url)
+      }
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
       changeDirectoryByPath(newPath)
@@ -195,39 +204,43 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const handlePageChange = async (_event, newPage: number) => {
-    await FileBrowserService.fetchFiles(selectedDirectory.value, newPage)
+    page.set(newPage)
   }
 
   const createNewFolder = async () => {
-    await FileBrowserService.addNewFolder(`${selectedDirectory.value}New_Folder`)
-    page = 0 // more efficient than requesting the files again
-    await refreshDirectory()
+    fileService.create(`${selectedDirectory.value}New_Folder`)
   }
 
   const dropItemsOnPanel = async (data: FileDataType | DnDFileType, dropOn?: FileDataType) => {
-    if (isLoading.value) return
+    if (isLoading) return
 
     const path = dropOn?.isFolder ? dropOn.key : selectedDirectory.value
+    const folder = path.replace(/(.*\/).*/, '$1')
 
     if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
         moveContent(data.fullName, data.fullName, data.path, path, false)
       }
     } else {
-      isLoading.set(true)
+      const projectName = folder.split('/')[1] // TODO: support projects with / in the name
+      const relativePath = folder.replace('projects/' + projectName + '/', '')
       await Promise.all(
         data.files.map(async (file) => {
           const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
           if (!assetType) {
             // file is directory
-            await FileBrowserService.addNewFolder(`${path}${file.name}`)
+            fileService.create(`${path}${file.name}`)
           } else {
             try {
               const name = processFileName(file.name)
               await uploadToFeathersService(fileBrowserUploadPath, [file], {
-                fileName: name,
-                path,
-                contentType: file.type
+                args: [
+                  {
+                    project: projectName,
+                    path: relativePath + name,
+                    contentType: file.type
+                  }
+                ]
               }).promise
             } catch (err) {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -258,10 +271,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     newPath: string,
     isCopy = false
   ): Promise<void> => {
-    if (isLoading.value) return
-    isLoading.set(true)
-    await FileBrowserService.moveContent(oldName, newName, oldPath, newPath, isCopy)
-    await refreshDirectory()
+    if (isLoading) return
+    fileService.update(null, {
+      oldProject: projectName,
+      newProject: projectName,
+      oldName,
+      newName,
+      oldPath,
+      newPath,
+      isCopy
+    })
   }
 
   const handleConfirmDelete = (contentPath: string, type: string) => {
@@ -277,12 +296,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const deleteContent = async (): Promise<void> => {
-    if (isLoading.value) return
-    isLoading.set(true)
+    if (isLoading) return
     openConfirm.set(false)
-    await FileBrowserService.deleteContent(contentToDeletePath.value)
+    fileService.remove(contentToDeletePath.value)
     props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '', size: '' })
-    await refreshDirectory()
   }
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
@@ -293,10 +310,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const showBackButton = selectedDirectory.value !== originalPath
 
   const handleDownloadProject = async () => {
-    const url = selectedDirectory.value
     const data = await Engine.instance.api
       .service(archiverPath)
-      .get(null, { query: { directory: url } })
+      .get(null, { query: { project: projectName } })
       .catch((err: Error) => {
         NotificationService.dispatchNotify(err.message, { variant: 'warning' })
         return null
@@ -361,19 +377,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     )
   }
 
-  const searchText = useHookstate('')
-  const validFiles = useHookstate<typeof files>([])
-
-  useEffect(() => {
-    validFiles.set(files.filter((file) => file.fullName.toLowerCase().includes(searchText.value.toLowerCase())))
-  }, [searchText.value, fileState.files])
-
-  const projectName = useHookstate(getMutableState(EditorState).projectName)
-
-  const makeAllThumbnails = async () => {
-    await FileBrowserService.fetchAllFiles(`/projects/${projectName.value}`)
-  }
-
   const DropArea = () => {
     const [{ isFileDropOver }, fileDropRef] = useDrop({
       accept: [...SupportedFileTypes],
@@ -386,8 +389,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const staticResourceData = useFind(staticResourcePath, {
       query: {
         key: {
-          $in: isListView ? validFiles.value.map((file) => file.key) : []
+          $in: isListView ? files.map((file) => file.key) : []
         },
+        project: props.projectName,
         $select: ['key', 'updatedAt'] as any,
         $limit: FILES_PAGE_LIMIT
       }
@@ -411,12 +415,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <div className={styles.contentContainer}>
           <FileTableWrapper wrap={isListView}>
             <>
-              {unique(validFiles.get(NO_PROXY), (file) => file.key).map((file, i) => (
+              {unique(files, (file) => file.key).map((file, i) => (
                 <FileBrowserItem
                   key={file.key}
                   item={file}
                   disableDnD={props.disableDnD}
                   onClick={onSelect}
+                  projectName={projectName}
                   moveContent={moveContent}
                   deleteContent={handleConfirmDelete}
                   currentContent={currentContentRef}
@@ -427,7 +432,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   dropItemsOnPanel={dropItemsOnPanel}
                   isFilesLoading={isLoading}
                   addFolder={createNewFolder}
-                  refreshDirectory={refreshDirectory}
                   isListView={isListView}
                   staticResourceModifiedDates={staticResourceModifiedDates.value}
                 />
@@ -435,12 +439,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             </>
           </FileTableWrapper>
 
-          {total > 0 && validFiles.value.length < total && (
+          {fileQuery.total > 0 && files.length < fileQuery.total && (
             <TablePagination
               className={styles.pagination}
               component="div"
-              count={total}
-              page={page}
+              count={fileQuery.total}
+              page={page.value}
               rowsPerPage={FILES_PAGE_LIMIT}
               rowsPerPageOptions={[]}
               onPageChange={handlePageChange}
@@ -452,7 +456,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const ViewModeSettings = () => {
-    const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+    const viewModeSettings = useMutableState(FilesViewModeSettings)
+    const forceRegenerateThumbnails = useHookstate(false)
     return (
       <>
         <ToolButton
@@ -522,7 +527,19 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             </div>
           </div>
           <div style={{ display: 'flex', width: '200px', flexDirection: 'column' }}>
-            <Button className={'medium-button button'} style={{ width: '100%' }} onClick={() => makeAllThumbnails()}>
+            <InputGroup name="Force Regenerate Thumbnails" label="Force Regenerate">
+              <BooleanInput
+                value={forceRegenerateThumbnails.value}
+                onChange={() => forceRegenerateThumbnails.set(!forceRegenerateThumbnails.value)}
+              />
+            </InputGroup>
+            <Button
+              className={'medium-button button'}
+              style={{ width: '100%' }}
+              onClick={() =>
+                FileThumbnailJobState.processAllFiles(selectedDirectory.value, forceRegenerateThumbnails.value)
+              }
+            >
               Generate thumbnails
             </Button>
           </div>
@@ -606,16 +623,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         )}
         {showUploadAndDownloadButtons && (
           <ToolButton
-            tooltip={t('editor:layout.filebrowser.uploadAsset')}
+            tooltip={t('editor:layout.filebrowser.uploadAssets')}
             onClick={async () => {
-              await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+              await inputFileWithAddToScene({ projectName, directoryPath: selectedDirectory.value })
                 .then(refreshDirectory)
                 .catch((err) => {
                   NotificationService.dispatchNotify(err.message, { variant: 'error' })
                 })
             }}
             icon={AddIcon}
-            id="uploadAsset"
+            id="uploadAssets"
           />
         )}
       </span>
@@ -642,38 +659,24 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           onChange={searchText.set}
         />
       </div>
-      {retrieving && (
-        <LoadingView className={styles.filesLoading} title={t('editor:layout.filebrowser.loadingFiles')} />
-      )}
+      {isLoading && <LoadingView className={styles.filesLoading} title={t('editor:layout.filebrowser.loadingFiles')} />}
       <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
         <DndWrapper id="file-browser-panel">
           <DropArea />
         </DndWrapper>
       </div>
 
-      {openConvert.value && fileProperties.value && (
+      {openConvert.value && fileProperties.value.length > 0 && (
         <ImageConvertPanel
           openConvert={openConvert}
-          fileProperties={fileProperties}
+          fileProperties={fileProperties.value?.[0]}
           convertProperties={convertProperties}
           onRefreshDirectory={refreshDirectory}
         />
       )}
 
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model') && (
-        <ModelCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
-          onRefreshDirectory={refreshDirectory}
-        />
-      )}
-
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
-        <ImageCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
-          onRefreshDirectory={refreshDirectory}
-        />
+      {openCompress.value && fileProperties.value && filesConsistOfContentType(fileProperties.value, 'image') && (
+        <ImageCompressionPanel selectedFiles={fileProperties.value} refreshDirectory={refreshDirectory} />
       )}
 
       {openProperties.value && fileProperties.value && (

@@ -23,19 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { Not } from 'bitecs'
+import { useEffect } from 'react'
 
 import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { getState, useMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { usePerformanceOffset } from '@etherealengine/spatial/src/renderer/functions/performanceHooks'
+import { PerformanceState } from '@etherealengine/spatial/src/renderer/PerformanceState'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { Not } from 'bitecs'
-import { useEffect } from 'react'
+
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { VariantComponent } from '../components/VariantComponent'
@@ -65,7 +65,7 @@ export const instancedMeshVariantQuery = defineQuery([
 
 function execute() {
   const engineState = getState(EngineState)
-  if (!getState(SceneState).sceneLoaded || engineState.isEditing) return
+  if (engineState.isEditing) return
 
   const ecsState = getState(ECSState)
 
@@ -84,16 +84,15 @@ function execute() {
 }
 
 function reactor() {
-  const performanceOffset = usePerformanceOffset()
-  const sceneState = useHookstate(getMutableState(SceneState))
+  const performanceOffset = useMutableState(PerformanceState).gpuPerformanceOffset
 
   useEffect(() => {
-    if (!sceneState.sceneLoaded.value || getState(EngineState).isEditing) return
+    if (getState(EngineState).isEditing) return
     const offset = performanceOffset.value
     for (const entity of modelVariantQuery()) {
       setModelVariantLOD(entity, offset)
     }
-  }, [performanceOffset, sceneState.sceneLoaded])
+  }, [performanceOffset])
 
   return null
 }

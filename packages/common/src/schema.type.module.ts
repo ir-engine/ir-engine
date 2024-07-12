@@ -31,7 +31,9 @@ export type * from './schemas/bot/bot.schema'
 export type * from './schemas/cluster/api-job.schema'
 export type * from './schemas/cluster/build-status.schema'
 export type * from './schemas/cluster/logs-api.schema'
+export type * from './schemas/cluster/migrations-info.schema'
 export type * from './schemas/cluster/pods.schema'
+export type * from './schemas/integrations/zendesk/zendesk.schema'
 export type * from './schemas/matchmaking/match-instance.schema'
 export type * from './schemas/matchmaking/match-user.schema'
 export type * from './schemas/media/archiver.schema'
@@ -39,7 +41,6 @@ export type * from './schemas/media/file-browser-upload.schema'
 export type * from './schemas/media/file-browser.schema'
 export type * from './schemas/media/invalidation.schema'
 export type * from './schemas/media/oembed.schema'
-export type * from './schemas/media/static-resource-filters.schema'
 export type * from './schemas/media/static-resource.schema'
 export type * from './schemas/networking/instance-active.schema'
 export type * from './schemas/networking/instance-attendance.schema'
@@ -48,7 +49,6 @@ export type * from './schemas/networking/instance-friends.schema'
 export type * from './schemas/networking/instance-provision.schema'
 export type * from './schemas/networking/instance.schema'
 export type * from './schemas/projects/builder-info.schema'
-export type * from './schemas/projects/portal.schema'
 export type * from './schemas/projects/project-branches.schema'
 export type * from './schemas/projects/project-build.schema'
 export type * from './schemas/projects/project-builder-tags.schema'
@@ -62,9 +62,6 @@ export type * from './schemas/projects/project-permission-type.schema'
 export type * from './schemas/projects/project-permission.schema'
 export type * from './schemas/projects/project.schema'
 export type * from './schemas/projects/projects.schema'
-export type * from './schemas/projects/scene-data.schema'
-export type * from './schemas/projects/scene-upload.schema'
-export type * from './schemas/projects/scene.schema'
 export type * from './schemas/recording/recording-resource-upload.schema'
 export type * from './schemas/recording/recording-resource.schema'
 export type * from './schemas/recording/recording.schema'
@@ -77,11 +74,14 @@ export type * from './schemas/setting/chargebee-setting.schema'
 export type * from './schemas/setting/client-setting.schema'
 export type * from './schemas/setting/coil-setting.schema'
 export type * from './schemas/setting/email-setting.schema'
+export type * from './schemas/setting/feature-flag-setting.schema'
 export type * from './schemas/setting/helm-setting.schema'
 export type * from './schemas/setting/instance-server-setting.schema'
+export type * from './schemas/setting/project-setting.schema'
 export type * from './schemas/setting/redis-setting.schema'
 export type * from './schemas/setting/server-setting.schema'
 export type * from './schemas/setting/task-server-setting.schema'
+export type * from './schemas/setting/zendesk-setting.schema'
 export type * from './schemas/social/channel-user.schema'
 export type * from './schemas/social/channel.schema'
 export type * from './schemas/social/invite-code-lookup.schema'
@@ -114,6 +114,7 @@ export type * from './schemas/user/user-relationship-type.schema'
 export type * from './schemas/user/user-relationship.schema'
 export type * from './schemas/user/user-setting.schema'
 export type * from './schemas/user/user.schema'
+export type * from './schemas/world/spawn-point.schema'
 export const locationPath = 'location'
 
 export const userRelationshipPath = 'user-relationship'
@@ -200,8 +201,6 @@ export const oembedPath = 'oembed'
 
 export const instanceActivePath = 'instance-active'
 
-export const staticResourceFiltersPath = 'static-resource-filters'
-
 export const archiverPath = 'archiver'
 
 export const instanceProvisionPath = 'instance-provision'
@@ -217,6 +216,8 @@ export const routePath = 'route'
 export const helmMainVersionPath = 'helm-main-version'
 export const helmBuilderVersionPath = 'helm-builder-version'
 
+export const projectSettingPath = 'project-setting'
+
 export const coilSettingPath = 'coil-setting'
 
 export const awsSettingPath = 'aws-setting'
@@ -224,6 +225,8 @@ export const awsSettingPath = 'aws-setting'
 export const taskServerSettingPath = 'task-server-setting'
 
 export const emailSettingPath = 'email-setting'
+
+export const featureFlagSettingPath = 'feature-flag-setting'
 
 export const instanceServerSettingPath = 'instance-server-setting'
 
@@ -243,6 +246,8 @@ export const analyticsPath = 'analytics'
 
 export const serverSettingPath = 'server-setting'
 
+export const zendeskSettingPath = 'zendesk-setting'
+
 export const scopeTypePath = 'scope-type'
 
 export const scopePath = 'scope'
@@ -259,8 +264,6 @@ export const projectPath = 'project'
 
 export const projectsPath = 'projects'
 
-export const scenePath = 'scene'
-
 export const builderInfoPath = 'builder-info'
 
 export const projectCheckSourceDestinationMatchPath = 'project-check-source-destination-match'
@@ -273,15 +276,11 @@ export const projectPermissionTypePath = 'project-permission-type'
 
 export const projectDestinationCheckPath = 'project-destination-check'
 
-export const sceneDataPath = 'scene-data'
-
-export const portalPath = 'portal'
+export const spawnPointPath = 'spawn-point'
 
 export const projectCheckUnfetchedCommitPath = 'project-check-unfetched-commit'
 
 export const projectBuilderTagsPath = 'project-builder-tags'
-
-export const sceneUploadPath = 'scene-upload'
 
 export const logsApiPath = 'logs-api'
 
@@ -295,6 +294,12 @@ export const buildStatusPath = 'build-status'
 export const helmSettingPath = 'helm-setting'
 export const apiJobPath = 'api-job'
 
+export const migrationsInfoPath = 'knex_migrations'
+
 export const uploadAssetPath = 'upload-asset'
 
 export const invalidationPath = 'invalidation'
+
+export const imageConvertPath = 'image-convert'
+
+export const zendeskPath = 'zendesk'

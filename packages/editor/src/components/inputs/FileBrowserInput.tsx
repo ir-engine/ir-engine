@@ -29,6 +29,7 @@ import { useDrop } from 'react-dnd'
 
 import config from '@etherealengine/common/src/config'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+
 import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from '../assets/useUpload'
 import { ControlledStringInput, StringInputProps } from './StringInput'
@@ -88,13 +89,7 @@ export function FileBrowserInput({
     async drop(item: any, monitor) {
       const isDropType = acceptDropItems.find((element) => element === item.type)
       if (isDropType) {
-        // Below url fix is applied when item is folder
-        let url = item.url
-        if (!url.endsWith(item.fullName)) {
-          url += item.fullName
-        }
-
-        onRelease?.(url)
+        onRelease?.(item.url)
       } else {
         // https://github.com/react-dnd/react-dnd/issues/1345#issuecomment-538728576
         const dndItem: any = monitor.getItem()

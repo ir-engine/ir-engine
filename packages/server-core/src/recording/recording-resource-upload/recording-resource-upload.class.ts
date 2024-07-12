@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { recordingResourcePath } from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
-import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 
@@ -57,14 +57,12 @@ export class RecordingResourceUploadService implements ServiceInterface<void, Re
       ContentType: mimeType
     })
 
-    const url = getCachedURL(key, storageProvider.cacheDomain)
     const localHash = hash || createStaticResourceHash(body)
 
     const staticResource = await this.app.service(staticResourcePath).create(
       {
         hash: localHash,
-        key: key,
-        url,
+        key,
         mimeType: mimeType
       },
       { isInternal: true }

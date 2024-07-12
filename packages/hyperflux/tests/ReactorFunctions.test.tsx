@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect, useLayoutEffect } from 'react'
-import { ReactorReconciler, createHyperStore, disposeStore, hookstate, startReactor, useHookstate } from '..'
+
+import { createHyperStore, disposeStore, hookstate, ReactorReconciler, startReactor, useHookstate } from '..'
 
 describe('ReactorFunctions', () => {
   beforeEach(() => {
     createHyperStore({
-      getDispatchId: () => '0',
       getDispatchTime: () => 0
     })
   })
@@ -131,7 +131,6 @@ describe('ReactorFunctions', () => {
 
   it('should not update unrelated reactor when forcing run synchronously', async () => {
     createHyperStore({
-      getDispatchId: () => '0',
       getDispatchTime: () => 0
     })
 
@@ -272,5 +271,28 @@ describe('ReactorFunctions', () => {
     assert.equal(layoutEffectCount, 3)
     assert.equal(nestedRenderCount, 4)
     assert.equal(effectCount, 3)
+  })
+
+  it('should be able to run nested reactor mount effects synchronously inside effects of another reactor', () => {
+    let renderCount = 0
+
+    const effectTrigger = hookstate({} as Record<string, number>)
+
+    const reactorRoot = startReactor(() => {
+      useLayoutEffect(() => {
+        startReactor(() => {
+          const trigger = useHookstate(effectTrigger)
+
+          useLayoutEffect(() => {
+            renderCount++
+          }, [trigger])
+          return null
+        })
+      }, [])
+
+      return null
+    })
+
+    assert.equal(renderCount, 1)
   })
 })

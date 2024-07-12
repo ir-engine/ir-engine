@@ -24,23 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers'
-import { State } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import logger from '@etherealengine/common/src/logger'
-import { defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/network'
-
 import {
   InstanceID,
   instancePath,
   instanceProvisionPath,
   InstanceType,
   LocationID,
-  RoomCode,
-  SceneID
+  RoomCode
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineState, getMutableState, getState, Identifiable, State, useState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
+
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -48,7 +46,7 @@ export type InstanceState = {
   ipAddress: string
   port: string
   locationId?: LocationID
-  sceneId?: SceneID
+  sceneId?: string
   roomCode: RoomCode
 }
 
@@ -63,7 +61,9 @@ export const LocationInstanceState = defineState({
 export function useWorldNetwork() {
   const worldNetworkState = useState(getMutableState(NetworkState).networks)
   const worldHostId = useState(getMutableState(NetworkState).hostIds.world)
-  return worldHostId.value ? (worldNetworkState[worldHostId.value] as State<SocketWebRTCClientNetwork>) : null
+  return worldHostId.value
+    ? (worldNetworkState[worldHostId.value] as State<SocketWebRTCClientNetwork, Identifiable>)
+    : null
 }
 
 export function useWorldInstance() {
@@ -77,7 +77,7 @@ export const LocationInstanceConnectionService = {
   provisionServer: async (
     locationId?: LocationID,
     instanceId?: InstanceID,
-    sceneId?: SceneID,
+    sceneId?: string,
     roomCode?: RoomCode,
     createPrivateRoom?: boolean
   ) => {
@@ -121,7 +121,7 @@ export const LocationInstanceConnectionService = {
       }, 1000)
     }
   },
-  provisionExistingServer: async (locationId: LocationID, instanceId: InstanceID, sceneId: SceneID) => {
+  provisionExistingServer: async (locationId: LocationID, instanceId: InstanceID, sceneId: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision Existing World Server')
     const token = getState(AuthState).authUser.accessToken
     const instance = (await Engine.instance.api.service(instancePath).find({
@@ -162,7 +162,7 @@ export const LocationInstanceConnectionService = {
       console.warn('Failed to connect to expected existing instance')
     }
   },
-  provisionExistingServerByRoomCode: async (locationId: LocationID, roomCode: RoomCode, sceneId: SceneID) => {
+  provisionExistingServerByRoomCode: async (locationId: LocationID, roomCode: RoomCode, sceneId: string) => {
     logger.info({ locationId, roomCode, sceneId }, 'Provision Existing World Server')
     const token = getState(AuthState).authUser.accessToken
     const instance = (await Engine.instance.api.service(instancePath).find({

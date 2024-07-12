@@ -23,23 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Types } from 'bitecs'
+
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const RenderOrderComponent = defineComponent({
   name: 'RenderOrderComponent',
-  schema: { renderOrder: Types.i32 },
-
-  onInit() {
-    return 0 as number
-  },
-
-  onSet(entity, component, renderOrder: number) {
-    RenderOrderComponent.renderOrder[entity] = renderOrder
-    component.set(renderOrder)
-  },
-
-  toJSON(entity, component) {
-    return component.value
-  }
+  schema: { renderOrder: Types.i32 }
 })

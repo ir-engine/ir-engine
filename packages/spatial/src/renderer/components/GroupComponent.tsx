@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { FC, memo } from 'react'
 import { Camera, Object3D } from 'three'
 
-import { none } from '@etherealengine/hyperflux'
-
 import {
   defineComponent,
   getComponent,
@@ -40,6 +38,8 @@ import {
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryComponents, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
+import { none } from '@etherealengine/hyperflux'
+
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Layer } from './ObjectLayerComponent'
@@ -83,12 +83,16 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.matrix = transform.matrix
   obj.matrixWorld = transform.matrixWorld
   obj.layers = new Layer(entity)
+
   obj.frustumCulled = false
 
-  if (!hasComponent(entity, RenderOrderComponent)) setComponent(entity, RenderOrderComponent, obj.renderOrder)
+  if (!hasComponent(entity, RenderOrderComponent)) {
+    setComponent(entity, RenderOrderComponent)
+    RenderOrderComponent.renderOrder[entity] = obj.renderOrder
+  }
   Object.defineProperty(obj, 'renderOrder', {
     get: () => RenderOrderComponent.renderOrder[entity],
-    set: (val: number) => setComponent(entity, RenderOrderComponent, val)
+    set: (val: number) => (RenderOrderComponent.renderOrder[entity] = val)
   })
 
   Object.assign(obj, {
@@ -134,7 +138,7 @@ export const GroupReactor = memo((props: { GroupChildReactor: FC<GroupReactorPro
   return (
     <>
       {groupComponent.value.map((obj, i) => (
-        <props.GroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
+        <props.GroupChildReactor key={obj.uuid} entity={entity} obj={obj as Object3D} />
       ))}
     </>
   )

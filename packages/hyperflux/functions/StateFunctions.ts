@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createState, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
+import { extend, ExtensionFactory, hookstate, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
+import { Identifiable, identifiable } from '@hookstate/identifiable'
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
@@ -36,6 +37,11 @@ import { startReactor } from './ReactorFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
 export * from '@hookstate/core'
+export { useHookstate as useState } from '@hookstate/core'
+export * from '@hookstate/identifiable'
+
+/** @deprecated */
+export const createState = hookstate
 
 const logger = multiLogger.child({ component: 'hyperflux:State' })
 
@@ -44,23 +50,28 @@ export const NO_PROXY_STEALTH = { noproxy: true, stealth: true }
 
 export type ReceptorMap = Record<string, ActionReceptor<any>>
 
-export type StateDefinition<S, Receptors extends ReceptorMap> = {
+export type StateDefinition<S, I, E, Receptors extends ReceptorMap> = {
   name: string
   initial: SetInitialStateAction<S>
+  extension?: ExtensionFactory<S, I, E>
   receptors?: Receptors
   receptorActionQueue?: ActionQueueHandle
   reactor?: any // why does React.FC break types?
-  onCreate?: (store: HyperStore, state: State<S>) => void
+  /** @deprecated use `extension` */
+  onCreate?: (store: HyperStore, state: State<S, I & E>) => void
 }
 
-export const StateDefinitions = new Map<string, StateDefinition<any, ReceptorMap>>()
+export const StateDefinitions = new Map<string, StateDefinition<any, any, any, any>>()
 
-export const setInitialState = (def: StateDefinition<any, ReceptorMap>) => {
+export const setInitialState = (def: StateDefinition<any, any, any, any>) => {
   const initial = typeof def.initial === 'function' ? (def.initial as any)() : JSON.parse(JSON.stringify(def.initial))
   if (HyperFlux.store.stateMap[def.name]) {
     HyperFlux.store.stateMap[def.name].set(initial)
   } else {
-    const state = (HyperFlux.store.stateMap[def.name] = createState(initial))
+    const state = (HyperFlux.store.stateMap[def.name] = hookstate(
+      initial,
+      extend(identifiable(def.name), def.extension)
+    ))
     if (def.onCreate) def.onCreate(HyperFlux.store, state)
     if (def.reactor) {
       const reactor = startReactor(def.reactor)
@@ -69,35 +80,35 @@ export const setInitialState = (def: StateDefinition<any, ReceptorMap>) => {
   }
 }
 
-export function defineState<S, R extends ReceptorMap, StateExtras = unknown>(
-  definition: StateDefinition<S, R> & StateExtras
+export function defineState<S, I, E, R extends ReceptorMap, StateExtras = Record<string, any>>(
+  definition: StateDefinition<S, I, E, R> & StateExtras
 ) {
   if (StateDefinitions.has(definition.name)) throw new Error(`State ${definition.name} already defined`)
   StateDefinitions.set(definition.name, definition)
-  return definition as StateDefinition<S, R> & { _TYPE: S } & StateExtras
+  return definition as StateDefinition<S, I, E, R> & { _TYPE: S } & StateExtras
 }
 
-export function getMutableState<S, R extends ReceptorMap>(StateDefinition: StateDefinition<S, R>) {
+export function getMutableState<S, I, E, R extends ReceptorMap>(StateDefinition: StateDefinition<S, I, E, R>) {
   if (!HyperFlux.store.stateMap[StateDefinition.name]) setInitialState(StateDefinition)
-  return HyperFlux.store.stateMap[StateDefinition.name] as State<S>
+  return HyperFlux.store.stateMap[StateDefinition.name] as State<S, I & E & Identifiable>
 }
 
-export function getState<S, R extends ReceptorMap>(StateDefinition: StateDefinition<S, R>) {
+export function getState<S>(StateDefinition: StateDefinition<S, any, any, any>) {
   if (!HyperFlux.store.stateMap[StateDefinition.name]) setInitialState(StateDefinition)
   return HyperFlux.store.stateMap[StateDefinition.name].get(NO_PROXY_STEALTH) as DeepReadonly<S>
 }
 
-export function useMutableState<S, R extends ReceptorMap, P extends string>(
-  StateDefinition: StateDefinition<S, R>
-): State<S>
-export function useMutableState<S, R extends ReceptorMap, P extends string>(
-  StateDefinition: StateDefinition<S, R>,
-  path: Function.AutoPath<State<S>, P>
-): _Object.Path<State<S>, String.Split<P, '.'>>
-export function useMutableState<S, R extends ReceptorMap, P extends string>(
-  StateDefinition: StateDefinition<S, R>,
-  path?: Function.AutoPath<State<S>, P>
-): _Object.Path<State<S>, String.Split<P, '.'>> {
+export function useMutableState<S, I, E, R extends ReceptorMap, P extends string>(
+  StateDefinition: StateDefinition<S, I, E, R>
+): State<S, I & E & Identifiable>
+export function useMutableState<S, I, E, R extends ReceptorMap, P extends string>(
+  StateDefinition: StateDefinition<S, I, E, R>,
+  path: Function.AutoPath<State<S, E>, P>
+): _Object.Path<State<S, I & E & Identifiable>, String.Split<P, '.'>>
+export function useMutableState<S, I, E, R extends ReceptorMap, P extends string>(
+  StateDefinition: StateDefinition<S, I, E, R>,
+  path?: Function.AutoPath<State<S, E>, P>
+): _Object.Path<State<S, I & E & Identifiable>, String.Split<P, '.'>> {
   const rootState = getMutableState(StateDefinition)
   const resolvedState = path ? resolveObject(rootState, path as any) : rootState
   return useHookstate(resolvedState) as any
@@ -105,10 +116,11 @@ export function useMutableState<S, R extends ReceptorMap, P extends string>(
 
 const stateNamespaceKey = 'ee.hyperflux'
 
+export interface SyncStateWithLocalAPI {}
+
 /**
  * Automatically synchronises specific root paths of a hyperflux state definition with the localStorage.
  * Values get automatically populated if they exist in localStorage and saved when they are changed.
- * @param {StateDefinition} stateDefinition
  * @param {string[]} keys the root paths to synchronise
  *
  * TODO: #7384 this api need to be revisited; we are syncing local state without doing any validation,
@@ -116,32 +128,31 @@ const stateNamespaceKey = 'ee.hyperflux'
  * or fallback to a default value, but we can't do that without knowing what the acceptable values are, which means
  * we need to pass in a schema or validator function to this function (we should use ts-pattern for this).
  */
-export const syncStateWithLocalStorage = (
-  stateDefinition: ReturnType<typeof defineState<any, any>>,
+export function syncStateWithLocalStorage<S, E extends Identifiable>(
   keys: string[]
-) => {
-  if (!isClient) return
-  const state = getMutableState(stateDefinition)
+): ExtensionFactory<S, E, SyncStateWithLocalAPI> {
+  return () => {
+    if (!isClient) return {}
 
-  for (const key of keys) {
-    const storedValue = localStorage.getItem(`${stateNamespaceKey}.${stateDefinition.name}.${key}`)
-    if (storedValue !== null && storedValue !== 'undefined') state[key].set(JSON.parse(storedValue))
-  }
+    let rootState: State<S, E>
 
-  state.attach(() => ({
-    id: Symbol('syncStateWithLocalStorage'),
-    init: () => ({
-      onSet(arg) {
+    return {
+      onInit: (state) => {
+        rootState = state
         for (const key of keys) {
-          if (state[key].value === undefined)
-            localStorage.removeItem(`${stateNamespaceKey}.${stateDefinition.name}.${key}`)
-          else
-            localStorage.setItem(
-              `${stateNamespaceKey}.${stateDefinition.name}.${key}`,
-              JSON.stringify(state[key].get({ noproxy: true }))
-            )
+          const storedValue = localStorage.getItem(`${stateNamespaceKey}.${state.identifier}.${key}`)
+          if (storedValue !== null && storedValue !== 'undefined') state[key].set(JSON.parse(storedValue))
+        }
+      },
+      onSet: (state, desc) => {
+        for (const key of keys) {
+          const storageKey = `${stateNamespaceKey}.${rootState.identifier}.${key}`
+          const value = rootState[key]?.get(NO_PROXY)
+          // We should still store flags that have been set to false or null
+          if (value === undefined) localStorage.removeItem(storageKey)
+          else localStorage.setItem(storageKey, JSON.stringify(value))
         }
       }
-    })
-  }))
+    } as any
+  }
 }

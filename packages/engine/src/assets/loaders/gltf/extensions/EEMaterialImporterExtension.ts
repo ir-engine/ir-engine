@@ -24,17 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Color, Material, SRGBColorSpace } from 'three'
-
-import { getState } from '@etherealengine/hyperflux'
-
 import matches from 'ts-matches'
+
+import { getComponent, UUIDComponent } from '@etherealengine/ecs'
 import {
-  materialIdToDefaultArgs,
-  protoIdToFactory,
-  prototypeFromId,
+  MaterialPrototypeComponent,
+  MaterialPrototypeObjectConstructor,
+  MaterialStateComponent
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+
+import {
+  getPrototypeEntityFromName,
+  injectMaterialDefaults,
   PrototypeNotFoundError
-} from '../../../../scene/materials/functions/MaterialLibraryFunctions'
-import { MaterialLibraryState } from '../../../../scene/materials/MaterialLibrary'
+} from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
   EEMaterialExtensionType,
   isOldEEMaterial,
@@ -51,9 +54,12 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     const materialDef = parser.json.materials![materialIndex]
     if (!materialDef.extensions?.[this.name]) return null
     const eeMaterial: EEMaterialExtensionType = materialDef.extensions[this.name] as any
-    let factory: ((parms: any) => Material) | null = null
+    let constructor: MaterialPrototypeObjectConstructor | null = null
     try {
-      factory = protoIdToFactory(eeMaterial.prototype)
+      constructor = getComponent(
+        getPrototypeEntityFromName(eeMaterial.prototype)!,
+        MaterialPrototypeComponent
+      ).prototypeConstructor
     } catch (e) {
       if (e instanceof PrototypeNotFoundError) {
         console.warn('prototype ' + eeMaterial.prototype + ' not found')
@@ -61,9 +67,9 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
         throw e
       }
     }
-    return factory
+    return constructor
       ? (function (args) {
-          const material = factory!(args)
+          const material = new constructor![eeMaterial.prototype](args)
           typeof eeMaterial.uuid === 'string' && (material.uuid = eeMaterial.uuid)
           return material
         } as unknown as typeof Material)
@@ -78,17 +84,23 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     if (extension.plugins) {
       if (!materialDef.extras) materialDef.extras = {}
       materialDef.extras['plugins'] = extension.plugins
+      for (const plugin of extension.plugins) {
+        if (!plugin?.uniforms) continue
+        for (const v of Object.values(plugin.uniforms)) {
+          if (v.type === 'texture') {
+            parser.assignTexture(materialParams, v.name, v.contents)
+          }
+        }
+      }
     }
-    const materialLibrary = getState(MaterialLibraryState)
-    const materialComponent = materialLibrary.materials[extension.uuid]
-    let defaultArgs: { [_: string]: any } = {}
+    const materialComponent = getComponent(UUIDComponent.getEntityByUUID(extension.uuid), MaterialStateComponent)
     let foundPrototype = false
     if (materialComponent) {
-      foundPrototype = !!materialLibrary.prototypes[materialComponent.prototype]
-      defaultArgs = materialIdToDefaultArgs(extension.uuid)!
+      foundPrototype = !!materialComponent.prototypeEntity
+      injectMaterialDefaults(extension.uuid)
     } else {
       try {
-        defaultArgs = prototypeFromId(extension.prototype).arguments
+        getComponent(getPrototypeEntityFromName(extension.prototype)!, MaterialPrototypeComponent).prototypeArguments
         foundPrototype = true
       } catch (e) {
         if (e instanceof PrototypeNotFoundError) {

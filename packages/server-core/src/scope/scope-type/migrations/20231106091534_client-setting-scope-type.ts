@@ -23,21 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ScopeTypeType, scopeTypePath } from '@etherealengine/common/src/schemas/scope/scope-type.schema'
+import type { Knex } from 'knex'
+
+import { scopeTypePath, ScopeTypeType } from '@etherealengine/common/src/schemas/scope/scope-type.schema'
 import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { clientSettingPath } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import type { Knex } from 'knex'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(scopeTypePath)
+  const tableExists = await knex.schema.hasTable(scopeTypePath)
 
   if (tableExists === true) {
     const scopeTypeData: ScopeTypeType[] = [
@@ -52,10 +52,9 @@ export async function up(knex: Knex): Promise<void> {
         updatedAt: await getDateTimeSql()
       }
     ]
-    await trx.table(scopeTypePath).insert(scopeTypeData)
+    await knex.table(scopeTypePath).insert(scopeTypeData)
   }
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**

@@ -26,18 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, CubeTexture, LightProbe, Vector3, WebGLCubeRenderTarget } from 'three'
 
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
 import { Engine } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { V_000 } from '../common/constants/MathConstants'
-import { RendererComponent } from '../renderer/WebGLRendererSystem'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+
+import { Vector3_Zero } from '../common/constants/MathConstants'
 import { DirectionalLightComponent } from '../renderer/components/DirectionalLightComponent'
 import { addObjectToGroup } from '../renderer/components/GroupComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
+import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 import { XRSystem } from './XRSystem'
@@ -142,15 +142,15 @@ const execute = () => {
     directionalLightState.intensity.set(intensityScalar)
 
     getComponent(xrLightProbeState.directionalLightEntity, TransformComponent).rotation.setFromUnitVectors(
-      V_000,
+      Vector3_Zero,
       lightEstimate.primaryLightDirection as any as Vector3
     )
   }
 }
 
 const reactor = () => {
-  const xrState = useHookstate(getMutableState(XRState))
-  const xrLightProbeState = useHookstate(getMutableState(XRLightProbeState))
+  const xrState = useMutableState(XRState)
+  const xrLightProbeState = useMutableState(XRLightProbeState)
 
   useEffect(() => {
     const xrLightProbeState = getState(XRLightProbeState)
@@ -196,7 +196,7 @@ const reactor = () => {
       cameraFar: 2000,
       castShadow: true
     })
-    addObjectToGroup(directionalLightEntity, xrLightProbeState.lightProbe.value)
+    addObjectToGroup(directionalLightEntity, getState(XRLightProbeState).lightProbe)
     setVisibleComponent(directionalLightEntity, true)
 
     xrLightProbeState.directionalLightEntity.set(directionalLightEntity)
@@ -207,7 +207,7 @@ const reactor = () => {
   }, [xrLightProbeState.isEstimatingLight])
 
   useEffect(() => {
-    const session = xrState.session.value
+    const session = getState(XRState).session
     const probe = xrLightProbeState.probe.value
     if (!probe || !session) return
 

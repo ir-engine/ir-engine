@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { isEmpty } from 'lodash'
 
-import { none } from '@etherealengine/hyperflux'
-
 import {
   Component,
   ComponentErrorsType,
@@ -36,6 +34,8 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { none } from '@etherealengine/hyperflux'
+
 import { ErrorComponent } from '../components/ErrorComponent'
 
 export const addError = <C extends Component>(
@@ -64,4 +64,5 @@ export const clearErrors = (entity: Entity, Component: Component) => {
   if (!hasComponent(entity, ErrorComponent)) return
   const errors = getMutableComponent(entity, ErrorComponent)
   errors[Component.name].set(none)
+  if (isEmpty(errors.value)) removeComponent(entity, ErrorComponent)
 }

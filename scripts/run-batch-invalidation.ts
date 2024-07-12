@@ -28,9 +28,9 @@ import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
 import { invalidationPath } from '@etherealengine/common/src/schema.type.module'
-import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 dotenv.config({
   path: appRootPath.path,
@@ -58,6 +58,24 @@ const options = cli.parse({
   startTime: [false, 'Timestamp of image', 'string']
 })
 
+const encodeCloudfrontInvalidation = (uri: string) =>
+  uri
+    .replaceAll('%', '%25')
+    .replaceAll(' ', '%20')
+    .replaceAll('"', '%22')
+    .replaceAll('#', '%23')
+    .replaceAll('<', '%3C')
+    .replaceAll('>', '%3E')
+    .replaceAll('[', '%5B')
+    .replaceAll('\\', '%5C')
+    .replaceAll(']', '%5D')
+    .replaceAll('^', '%5E')
+    .replaceAll('`', `%60`)
+    .replaceAll('{', '%7B')
+    .replaceAll('|', '%7C')
+    .replaceAll('}', '%7D')
+    .replaceAll('~', '%7E')
+
 cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
@@ -75,7 +93,7 @@ cli.main(async () => {
       let pathArray: string[] = []
       let idArray: string[] = []
       for (let invalidation of invalidations) {
-        pathArray.push(invalidation.path)
+        pathArray.push(encodeCloudfrontInvalidation(invalidation.path))
         idArray.push(invalidation.id)
       }
       pathArray = [...new Set(pathArray)]

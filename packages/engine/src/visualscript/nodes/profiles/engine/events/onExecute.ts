@@ -24,15 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  defineSystem,
+  destroySystem,
   ECSState,
   InputSystemGroup,
   SystemDefinitions,
-  SystemUUID,
-  defineSystem,
-  destroySystem
+  SystemUUID
 } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
-import { NodeCategory, makeEventNodeDefinition } from '@etherealengine/visual-script'
+import { makeEventNodeDefinition, NodeCategory } from '@etherealengine/visual-script'
 
 let onExecuteSystemCounter = 0
 const onExecuteSystemUUID = 'visual-script-onExecute-'
@@ -47,7 +47,7 @@ const initialState = (): State => ({
 // very 3D specific.
 export const OnExecute = makeEventNodeDefinition({
   typeName: 'flow/lifecycle/onExecute',
-  category: NodeCategory.Event,
+  category: NodeCategory.Flow,
   label: 'On Execute',
   in: {
     system: (_, graphApi) => {

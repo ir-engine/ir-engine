@@ -23,38 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createState, useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { hookstate, State } from '@etherealengine/hyperflux'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
+import { useXRUIState } from '@etherealengine/spatial/src/xrui/functions/useXRUIState'
 
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
 
 export function createLoaderDetailView() {
-  const xrui = createXRUI(
-    function Loading() {
-      return <LoadingDetailView />
-    },
-    createState({
-      colors: {
-        main: '',
-        background: '',
-        alternate: ''
-      }
-    })
-  )
+  const xrui = createXRUI(LoadingDetailView, hookstate({ progress: 0 }))
   return xrui
 }
 
 const LoadingDetailView = () => {
-  const engineState = useHookstate(getMutableState(SceneState))
   const { t } = useTranslation()
+  const state = useXRUIState() as State<{ progress: number }>
 
-  const sceneLoaded = engineState.sceneLoaded.value
+  const sceneLoaded = state.progress.value === 100
   const loadingDetails = sceneLoaded ? t('common:loader.loadingComplete') : t('common:loader.loadingObjects')
 
   return (
@@ -69,7 +57,7 @@ const LoadingDetailView = () => {
             {t('common:loader.loading')}
           </div>
           <div id="progress-text" xr-layer="true" xr-pixel-ratio="2" xr-prerasterized="0-9">
-            {`${engineState.loadingProgress.value}%`}
+            {`${state.progress.value}%`}
           </div>
           <div id="progress-container" xr-layer="true" xr-scalable="true">
             <ProgressBar

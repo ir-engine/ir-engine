@@ -23,10 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, getOptionalComponent, removeComponent } from '@etherealengine/ecs'
+import { Mesh, Object3D } from 'three'
+
+import { Entity, hasComponent, removeComponent } from '@etherealengine/ecs'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { Mesh, Object3D } from 'three'
+
+import { GroundPlaneComponent } from '../../../../scene/components/GroundPlaneComponent'
 import { PrimitiveGeometryComponent } from '../../../../scene/components/PrimitiveGeometryComponent'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -43,8 +46,8 @@ export default class IgnoreGeometryExporterExtension extends ExporterExtension i
   beforeParse(input: Object3D | Object3D[]) {
     const root = (Array.isArray(input) ? input[0] : input) as Object3D
     iterateEntityNode(root.entity, (entity) => {
-      const primitiveGeo = getOptionalComponent(entity, PrimitiveGeometryComponent)
-      if (primitiveGeo == undefined) return
+      const removeMesh = hasComponent(entity, PrimitiveGeometryComponent) || hasComponent(entity, GroundPlaneComponent)
+      if (!removeMesh) return
       removeComponent(entity, MeshComponent)
     })
   }

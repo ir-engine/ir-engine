@@ -25,30 +25,23 @@ Ethereal Engine. All Rights Reserved.
 
 import { BufferGeometry, Material, Mesh, Scene } from 'three'
 
-import { v4 as uuidv4 } from 'uuid'
-import { MaterialComponentType } from '../../scene/materials/components/MaterialComponent'
-import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
+import { Entity, getComponent } from '@etherealengine/ecs'
+import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+
 import { GLTFExporterOptions } from '../exporters/gltf/GLTFExporter'
 import createGLTFExporter from './createGLTFExporter'
 
 export default async function exportMaterialsGLTF(
-  materials: MaterialComponentType[],
+  materialEntities: Entity[],
   options: GLTFExporterOptions
 ): Promise<ArrayBuffer | { [key: string]: any } | undefined> {
-  if (materials.length === 0) return
+  if (materialEntities.length === 0) return
   const scene = new Scene()
   scene.name = 'Root'
   const dudGeo = new BufferGeometry()
-  dudGeo.groups = materials.map((_, i) => ({ count: 0, start: 0, materialIndex: i }))
-  const nuMats: Material[] = []
-  for (const material of materials) {
-    const nuMat: Material = material.material.clone()
-    nuMat.uuid = uuidv4()
-
-    registerMaterial(nuMat, material.src)
-    nuMats.push(nuMat)
-  }
-  const lib = new Mesh(dudGeo, nuMats)
+  dudGeo.groups = materialEntities.map((_, i) => ({ count: 0, start: 0, materialIndex: i }))
+  const materials = materialEntities.map((entity) => getComponent(entity, MaterialStateComponent).material as Material)
+  const lib = new Mesh(dudGeo, materials)
   lib.name = 'Materials'
   scene.add(lib)
   const exporter = createGLTFExporter()
@@ -66,9 +59,6 @@ export default async function exportMaterialsGLTF(
       }
     )
   })
-  for (const material of nuMats) {
-    unregisterMaterial(material)
-    material.dispose()
-  }
+
   return gltf
 }

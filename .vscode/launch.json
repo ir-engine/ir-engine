@@ -13,6 +13,7 @@
         }
     ],
     "configurations": [
+    
         {
             "command": "cd packages/ui && npm run test:watch",
             "name": "ui-jest",
@@ -81,6 +82,30 @@
         {
             "command": "npm run test",
             "name": "npm run test",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "cd packages/editor && npm run test",
+            "name": "npm run test - editor",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "cd packages/spatial && npm run test",
+            "name": "npm run test - spatial",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "cd packages/ecs && npm run test",
+            "name": "npm run test - ecs",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "cd packages/engine && npm run test",
+            "name": "npm run test - engine",
             "request": "launch",
             "type": "node-terminal",
         },

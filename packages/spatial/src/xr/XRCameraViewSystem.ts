@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+
 import { XRSystem } from './XRSystem'
 
 /**

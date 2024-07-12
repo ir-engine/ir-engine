@@ -28,9 +28,8 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import { LocationBanQuery, LocationBanType } from '@etherealengine/common/src/schemas/social/location-ban.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const locationBanResolver = resolve<LocationBanType, HookContext>({
   createdAt: virtual(async (locationBan) => fromDateTimeSql(locationBan.createdAt)),

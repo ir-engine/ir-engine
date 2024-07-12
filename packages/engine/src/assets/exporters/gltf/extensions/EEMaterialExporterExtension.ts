@@ -24,12 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { CubeTexture, Material, Texture } from 'three'
-
-import { getState } from '@etherealengine/hyperflux'
-
 import matches from 'ts-matches'
-import { MaterialLibraryState } from '../../../../scene/materials/MaterialLibrary'
-import { materialToDefaultArgs } from '../../../../scene/materials/functions/MaterialLibraryFunctions'
+
+import { EntityUUID, getComponent, hasComponent, UUIDComponent } from '@etherealengine/ecs'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import {
+  MaterialPlugins,
+  MaterialPrototypeComponent,
+  MaterialStateComponent
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+
+import { injectMaterialDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -53,8 +58,10 @@ export function isOldEEMaterial(extension: any) {
     .test(argValues)
 }
 
+export type MaterialExtensionPluginType = { id: string; uniforms: { [key: string]: any } }
+
 export type EEMaterialExtensionType = {
-  uuid: string
+  uuid: EntityUUID
   name: string
   prototype: string
   args: {
@@ -63,7 +70,7 @@ export type EEMaterialExtensionType = {
       contents: any
     }
   }
-  plugins: string[]
+  plugins: MaterialExtensionPluginType[]
 }
 
 export default class EEMaterialExporterExtension extends ExporterExtension {
@@ -76,7 +83,9 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
   matCache: Map<any, any>
 
   writeMaterial(material: Material, materialDef) {
-    const argData = materialToDefaultArgs(material)
+    const materialEntityUUID = material.uuid as EntityUUID
+    const materialEntity = UUIDComponent.getEntityByUUID(materialEntityUUID)
+    const argData = injectMaterialDefaults(materialEntityUUID)
     if (!argData) return
     const result: any = {}
     Object.entries(argData).map(([k, v]) => {
@@ -89,17 +98,17 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
         if ((material[k] as CubeTexture).isCubeTexture) return //for skipping environment maps which cause errors
         const texture = material[k] as Texture
         if (texture.source.data && this.matCache.has(texture.source.data)) {
-          argEntry.contents = this.matCache.get(texture)
+          argEntry.contents = this.matCache.get(texture.source.data)
         } else {
           const mapDef = {
-            index: this.writer.processTexture(texture),
-            texCoord: k === 'lightMap' ? 1 : 0
+            index: this.writer.processTexture(texture)
           }
-          this.writer.options.flipY && (texture.repeat.y *= -1)
-          this.writer.applyTextureTransform(mapDef, texture)
+          this.matCache.set(texture.source.data, { ...mapDef })
           argEntry.contents = mapDef
-          this.matCache.set(texture.source.data, mapDef)
         }
+        argEntry.contents.texCoord = texture.channel
+        this.writer.options.flipY && (texture.repeat.y *= -1)
+        this.writer.applyTextureTransform(argEntry.contents, texture)
       }
       result[k] = argEntry
     })
@@ -107,13 +116,25 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.normalTexture
     delete materialDef.emissiveTexture
     delete materialDef.emissiveFactor
-    const materialEntry = getState(MaterialLibraryState).materials[material.uuid]
+    const materialComponent = getComponent(materialEntity, MaterialStateComponent)
+    const prototype = getComponent(materialComponent.prototypeEntity!, MaterialPrototypeComponent)
+    const plugins = Object.keys(MaterialPlugins)
+      .map((plugin) => {
+        if (!hasComponent(materialEntity, MaterialPlugins[plugin])) return
+        const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin])
+        const uniforms = {}
+        for (const key in pluginComponent) {
+          uniforms[key] = pluginComponent[key].value
+        }
+        return { id: plugin, uniforms }
+      })
+      .filter(Boolean)
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
-      uuid: material.uuid,
-      name: material.name,
-      prototype: materialEntry?.prototype ?? material.userData.type ?? material.type,
-      plugins: materialEntry?.plugins ?? material.userData.plugins ?? [],
+      uuid: getComponent(materialEntity, UUIDComponent),
+      name: getComponent(materialEntity, NameComponent),
+      prototype: Object.keys(prototype.prototypeConstructor!)[0],
+      plugins: plugins,
       args: result
     }
     this.writer.extensionsUsed[this.name] = true

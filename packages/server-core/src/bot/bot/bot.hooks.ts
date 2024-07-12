@@ -28,15 +28,16 @@ import { disallow, discard, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   BotCommandData,
-  BotCommandType,
-  botCommandPath
+  botCommandPath,
+  BotCommandType
 } from '@etherealengine/common/src/schemas/bot/bot-command.schema'
 import {
-  BotType,
   botDataValidator,
   botPatchValidator,
-  botQueryValidator
+  botQueryValidator,
+  BotType
 } from '@etherealengine/common/src/schemas/bot/bot.schema'
+
 import { HookContext } from '../../../declarations'
 import {
   botDataResolver,
@@ -75,12 +76,12 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(botQueryValidator), schemaHooks.resolveQuery(botQueryResolver)],
+    all: [schemaHooks.validateQuery(botQueryValidator), schemaHooks.resolveQuery(botQueryResolver)],
     find: [iff(isProvider('external'), verifyScope('bot', 'read'))],
     get: [iff(isProvider('external'), verifyScope('bot', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('bot', 'write')),
-      () => schemaHooks.validateData(botDataValidator),
+      schemaHooks.validateData(botDataValidator),
       schemaHooks.resolveData(botDataResolver),
       persistData,
       discard('botCommands')
@@ -88,7 +89,7 @@ export default {
     update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('bot', 'write')),
-      () => schemaHooks.validateData(botPatchValidator),
+      schemaHooks.validateData(botPatchValidator),
       schemaHooks.resolveData(botPatchResolver)
     ],
     remove: [iff(isProvider('external'), verifyScope('bot', 'write'))]

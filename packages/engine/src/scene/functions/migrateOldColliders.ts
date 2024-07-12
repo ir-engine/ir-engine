@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBodyType } from '@dimforge/rapier3d-compat'
-import { SerializedComponentType } from '@etherealengine/ecs'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
-import { ColliderComponent as OldColliderComponent } from '../components/ColliderComponent'
+
 import { ModelComponent } from '../components/ModelComponent'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
+
+const oldColliderJSONID = 'collider'
 
 /**
  * Converts old ColliderComponent to RigidbodyComponent, new ColliderComponent and TriggerComponent
@@ -42,18 +42,16 @@ export const migrateOldColliders = (oldJSON: EntityJsonType) => {
 
   const newComponents = [] as ComponentJsonType[]
   for (const component of oldJSON.components) {
-    if (component.name !== OldColliderComponent.jsonID) continue
+    if (component.name !== oldColliderJSONID) continue
 
-    const data = component.props as SerializedComponentType<typeof OldColliderComponent>
-    /** shapeType is undefined for GLTF metadata */
-    // if (typeof data.shapeType === 'undefined') continue
+    const data = component.props
     newComponents.push({
       name: RigidBodyComponent.jsonID,
       props: {
         type:
-          data.bodyType === RigidBodyType.Fixed || (data.bodyType as any) === 'Fixed'
+          data.bodyType === 1 || data.bodyType === 'Fixed'
             ? 'fixed'
-            : data.bodyType === RigidBodyType.Dynamic || (data.bodyType as any) === 'Dynamic'
+            : data.bodyType === 0 || data.bodyType === 'Dynamic'
             ? 'dynamic'
             : 'kinematic'
       }
@@ -79,5 +77,5 @@ export const migrateOldColliders = (oldJSON: EntityJsonType) => {
   if (!newComponents.length) return
 
   oldJSON.components.push(...newComponents)
-  oldJSON.components = oldJSON.components.filter((component) => component.name !== OldColliderComponent.jsonID)
+  oldJSON.components = oldJSON.components.filter((component) => component.name !== oldColliderJSONID)
 }

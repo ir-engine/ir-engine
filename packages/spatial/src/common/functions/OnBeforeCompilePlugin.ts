@@ -39,7 +39,6 @@ import {
   MeshToonMaterial,
   PointsMaterial,
   RawShaderMaterial,
-  Shader,
   ShaderMaterial,
   ShadowMaterial,
   SpriteMaterial
@@ -51,16 +50,19 @@ import {
 export type PluginObjectType = {
   id: string
   priority?: number
-  compile: typeof Material.prototype.onBeforeCompile
+  compile
 }
 
 export type PluginType = PluginObjectType | typeof Material.prototype.onBeforeCompile
 
+/**@deprecated Use setPlugin instead */
 export function addOBCPlugin(material: Material, plugin: PluginType): void {
   material.onBeforeCompile = plugin as any
+  console.log(material.onBeforeCompile)
   material.needsUpdate = true
 }
 
+/**@deprecated Use removePlugin instead */
 export function removeOBCPlugin(material: Material, plugin: PluginType): void {
   if (material.plugins) {
     const index = indexOfPlugin(plugin, material.plugins)
@@ -69,6 +71,7 @@ export function removeOBCPlugin(material: Material, plugin: PluginType): void {
   }
 }
 
+/**@deprecated use hasPlugin instead */
 export function hasOBCPlugin(material: Material, plugin: PluginType): boolean {
   if (!material.plugins) return false
   return indexOfPlugin(plugin, material.plugins) > -1
@@ -134,7 +137,7 @@ const onBeforeCompile = {
       this.plugins.sort(sortPluginsByPriority)
 
       this.customProgramCacheKey = () => {
-        let result = ''
+        let result = this.shader ? this.shader.fragmentShader + this.shader.vertexShader : ''
         for (let i = 0; i < this.plugins!.length; i++) {
           const plugin = this.plugins![i]
           const pluginObj = plugin as PluginObjectType
@@ -195,14 +198,5 @@ export function overrideOnBeforeCompile() {
     }
 
     Object.defineProperty(Material.prototype, 'onBeforeCompile', onBeforeCompile)
-  }
-}
-
-declare module 'three/src/materials/Material' {
-  export interface Material {
-    shader: Shader
-    plugins?: PluginType[]
-    _onBeforeCompile: typeof Material.prototype.onBeforeCompile
-    needsUpdate: boolean
   }
 }

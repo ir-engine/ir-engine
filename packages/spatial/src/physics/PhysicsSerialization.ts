@@ -39,6 +39,8 @@ import {
   writeVector3,
   writeVector4
 } from '@etherealengine/network'
+
+import { Physics } from './classes/Physics'
 import { RigidBodyComponent, RigidBodyDynamicTagComponent } from './components/RigidBodyComponent'
 
 export const readBodyPosition = readVector3(RigidBodyComponent.position)
@@ -51,21 +53,31 @@ export const readRigidBody = (v: ViewCursor, entity: Entity) => {
   let b = 0
   const rigidBody = getOptionalComponent(entity, RigidBodyComponent)
   const dynamic = hasComponent(entity, RigidBodyDynamicTagComponent)
+  let changed = false
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyPosition(v, entity)
-    if (dynamic && rigidBody) rigidBody.body.setTranslation(rigidBody.position, false)
+    changed = true
   }
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyRotation(v, entity)
-    if (dynamic && rigidBody) rigidBody.body.setRotation(rigidBody.rotation, false)
+    changed = true
   }
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyLinearVelocity(v, entity)
-    if (dynamic && rigidBody) rigidBody.body.setLinvel(rigidBody.linearVelocity, false)
+    changed = true
   }
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyAngularVelocity(v, entity)
-    if (dynamic && rigidBody) rigidBody.body.setAngvel(rigidBody.angularVelocity, false)
+    changed = true
+  }
+  if (dynamic && rigidBody && changed) {
+    Physics.setRigidbodyPose(
+      entity,
+      rigidBody.position,
+      rigidBody.rotation,
+      rigidBody.linearVelocity,
+      rigidBody.angularVelocity
+    )
   }
   if (!dynamic && rigidBody) {
     const position = rigidBody.position

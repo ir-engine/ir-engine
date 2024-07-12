@@ -23,26 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import AnimationIcon from '@mui/icons-material/Animation'
+import { VRM } from '@pixiv/three-vrm'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getOptionalComponent, useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { useState } from '@etherealengine/hyperflux'
 import { getCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 
-import AnimationIcon from '@mui/icons-material/Animation'
-import { VRM } from '@pixiv/three-vrm'
-
-import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
-import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
+import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -86,7 +85,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Loop Animation" label={t('editor:properties.loopAnimation.lbl-loopAnimation')}>
         <SelectInput
           key={props.entity}
-          options={animationOptions.value}
+          options={animationOptions.value as { label: string; value: number }[]}
           value={loopAnimationComponent.value.activeClipIndex}
           onChange={onChangePlayingAnimation}
         />

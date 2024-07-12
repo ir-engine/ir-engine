@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBoneList, VRMHumanoid } from '@pixiv/three-vrm'
 import { AnimationClip, AnimationMixer, Box3, Matrix4, Vector3 } from 'three'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-
+// import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
+import config from '@etherealengine/common/src/config'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   getComponent,
   getMutableComponent,
@@ -37,28 +38,27 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial'
+import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { AnimationState } from '../AnimationManager'
-// import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import config from '@etherealengine/common/src/config'
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
+
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import avatarBoneMatching from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { preloadedAnimations } from '../animation/Util'
+import { AnimationState } from '../AnimationManager'
+import avatarBoneMatching from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
-import { TransparencyDitheringComponent, ditherCalculationType } from '../components/TransparencyDitheringComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { LocalAvatarState } from '../state/AvatarState'
 import { bindAnimationClipFromMixamo } from './retargetMixamoRig'
@@ -76,28 +76,30 @@ declare module '@pixiv/three-vrm/types/VRM' {
 export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
   const scene = model.scene ?? model // FBX assets do not have 'scene' property
   if (!scene) return null!
-
-  //vrm1's vrm object is in the userData property
+  let foundModel = model
+  //sometimes, for some exporters, the vrm object is stored in the userData
   if (model.userData?.vrm instanceof VRM) {
-    return model.userData.vrm
+    if (model.userData.vrmMeta.metaVersion > 0) return model.userData.vrm
+    foundModel = model.userData.vrm
   }
 
   //vrm0 is an instance of the vrm object
-  if (model instanceof VRM) {
-    const bones = model.humanoid.rawHumanBones
-    model.humanoid.normalizedHumanBonesRoot.removeFromParent()
+  if (foundModel instanceof VRM) {
+    const bones = foundModel.humanoid.rawHumanBones
+    foundModel.humanoid.normalizedHumanBonesRoot.removeFromParent()
     bones.hips.node.rotateY(Math.PI)
     const humanoid = new VRMHumanoid(bones)
     const vrm = new VRM({
+      ...foundModel,
       humanoid,
-      scene: model.scene,
-      meta: { name: model.scene.children[0].name } as VRM1Meta
+      scene: foundModel.scene,
+      meta: { name: foundModel.scene.children[0].name } as VRM1Meta
     })
     if (!vrm.userData) vrm.userData = {}
     return vrm
   }
 
-  return avatarBoneMatching(model)
+  return avatarBoneMatching(foundModel)
 }
 
 export const isAvaturn = (url: string) => {
@@ -138,7 +140,7 @@ const hipsPos = new Vector3(),
   box = new Box3()
 
 export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
-  iterateEntityNode(entity, computeTransformMatrix)
+  iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
   box.expandByObject(vrm.scene).getSize(size)
 
@@ -186,10 +188,6 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
  */
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  if (entity == selfAvatarEntity) {
-    setComponent(entity, TransparencyDitheringComponent[0], { calculationType: ditherCalculationType.worldTransformed })
-    setComponent(entity, TransparencyDitheringComponent[1], { calculationType: ditherCalculationType.localPosition })
-  }
 
   setComponent(entity, AvatarRigComponent, {
     normalizedRig: model.humanoid.normalizedHumanBones,

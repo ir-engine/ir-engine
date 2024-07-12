@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
-
 import DockLayout, { DockMode, TabData } from 'rc-dock'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { DockContainer } from '../EditorContainer'
+
 import { MaterialPreviewPanel } from '../assets/AssetPreviewPanels/MaterialPreviewPanel'
+import { DockContainer } from '../EditorContainer'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import MaterialLibraryPanel from './MaterialLibraryPanelContainer'
 
@@ -56,7 +55,7 @@ export const MaterialLibraryPanelTitle = () => {
               tabs: [
                 {
                   id: 'materialLibraryPanel',
-                  title: t('editor:layout.filebrowser.tab-name'),
+                  title: t('editor:materialLibrary.tab-materials'),
                   content: <MaterialLibraryPanel />
                 }
               ]

@@ -23,19 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { UserID } from '@etherealengine/common/src/schema.type.module'
-import * as Hyperflux from '@etherealengine/hyperflux'
-import { ReactorReconciler, createHyperStore, getState } from '@etherealengine/hyperflux'
-import { HyperFlux, HyperStore, disposeStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
-import * as bitECS from 'bitecs'
-
 import type { FeathersApplication } from '@feathersjs/feathers'
+import * as bitECS from 'bitecs'
+import { getAllEntities } from 'bitecs'
+import { Cache } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
+import type { UserID } from '@etherealengine/common/src/schema.type.module'
+import * as Hyperflux from '@etherealengine/hyperflux'
+import { createHyperStore, getState, NO_PROXY_STEALTH, ReactorReconciler } from '@etherealengine/hyperflux'
+import { disposeStore, HyperFlux, HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
-import { getAllEntities } from 'bitecs'
 import { ECSState } from './ECSState'
-import { Entity, UndefinedEntity } from './Entity'
+import { Entity } from './Entity'
 import { removeEntity } from './EntityFunctions'
 import { removeQuery } from './QueryFunctions'
 import { SystemState } from './SystemState'
@@ -52,18 +52,27 @@ export class Engine {
 
   /**
    * Represents the reference space of the xr session local floor.
+   * @deprecated use "getState(EngineState).localFloorEntity" instead
    */
-  localFloorEntity = UndefinedEntity
+  get localFloorEntity() {
+    return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).localFloorEntity as Entity
+  }
 
   /**
    * Represents the reference space for the absolute origin of the rendering context.
+   * @deprecated use "getState(EngineState).originEntity" instead
    */
-  originEntity = UndefinedEntity
+  get originEntity() {
+    return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).originEntity as Entity
+  }
 
   /**
    * Represents the reference space for the viewer.
+   * @deprecated use "getState(EngineState).viewerEntity" instead
    */
-  viewerEntity = UndefinedEntity
+  get viewerEntity() {
+    return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).viewerEntity as Entity
+  }
 
   /** @deprecated use viewerEntity instead */
   get cameraEntity() {
@@ -74,7 +83,7 @@ export class Engine {
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
-export function startEngine() {
+export function createEngine() {
   if (Engine.instance) throw new Error('Store already exists')
   Engine.instance = new Engine()
   Engine.instance.store = bitECS.createWorld(
@@ -88,6 +97,8 @@ export function startEngine() {
 }
 
 export async function destroyEngine() {
+  Cache.clear()
+
   getState(ECSState).timer?.clear()
 
   if (Engine.instance.api) {

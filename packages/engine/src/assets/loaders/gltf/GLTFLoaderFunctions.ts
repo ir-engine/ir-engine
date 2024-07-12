@@ -33,11 +33,11 @@ import {
   Quaternion,
   Sphere,
   TriangleFanDrawMode,
-  TriangleStripDrawMode,
   TrianglesDrawMode,
+  TriangleStripDrawMode,
   Vector3
 } from 'three'
-import { ResourceType } from '../../state/ResourceState'
+
 import { ATTRIBUTES, WEBGL_COMPONENT_TYPES } from './GLTFConstants'
 import { EXTENSIONS } from './GLTFExtensions'
 
@@ -430,9 +430,6 @@ export function addPrimitiveAttributes(geometry, primitiveDef, parser) {
   computeBounds(geometry, primitiveDef, parser)
 
   return Promise.all(pending).then(function () {
-    if (parser.fileLoader.manager.itemEndFor)
-      parser.fileLoader.manager.itemEndFor(parser.options.url, ResourceType.Geometry, geometry.uuid, geometry)
-
     return primitiveDef.targets !== undefined ? addMorphTargets(geometry, primitiveDef.targets, parser) : geometry
   })
 }

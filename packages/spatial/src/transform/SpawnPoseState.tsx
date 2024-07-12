@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, setComponent } from '@etherealengine/ecs'
-import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
-import { SpawnObjectActions } from './SpawnObjectActions'
+
+import { EntityUUID, setComponent, UUIDComponent } from '@etherealengine/ecs'
+import { defineState, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+
 import { TransformComponent } from './components/TransformComponent'
+import { SpawnObjectActions } from './SpawnObjectActions'
 
 export const SpawnPoseState = defineState({
   name: 'ee.SpawnPoseState',
@@ -51,7 +53,7 @@ export const SpawnPoseState = defineState({
   },
 
   reactor: () => {
-    const state = useHookstate(getMutableState(SpawnPoseState))
+    const state = useMutableState(SpawnPoseState)
     return (
       <>
         {state.keys.map((uuid: EntityUUID) => (

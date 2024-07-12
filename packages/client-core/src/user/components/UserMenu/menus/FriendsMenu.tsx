@@ -23,42 +23,42 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import { cloneDeep } from 'lodash'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
+import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import {
   ChannelID,
+  channelPath,
   ChannelType,
   UserID,
   UserName,
-  channelPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { ChannelService, ChannelState } from '../../../../social/services/ChannelService'
 import { FriendService, FriendState } from '../../../../social/services/FriendService'
 import { AvatarMenus } from '../../../../systems/AvatarUISystem'
 import { AvatarUIContextMenuService } from '../../../../systems/ui/UserMenuView'
-import { UserMenus } from '../../../UserUISystem'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../services/AuthService'
-import { PopupMenuServices } from '../PopupMenuService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
+import { PopupMenuServices } from '../PopupMenuService'
 
 type TabsType = 'friends' | 'blocked' | 'find' | 'messages'
 
@@ -94,13 +94,13 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
 
   const channels = useFind(channelPath)
 
-  const friendState = useHookstate(getMutableState(FriendState))
-  const selfUser = useHookstate(getMutableState(AuthState).user)
+  const friendState = useMutableState(FriendState)
+  const selfUser = useMutableState(AuthState).user
   const userId = selfUser.id.value
 
   const privateChannels = channels.data.filter((channel) => !channel.instanceId)
 
-  const channelState = useHookstate(getMutableState(ChannelState))
+  const channelState = useMutableState(ChannelState)
 
   const startMediaCall = (channelID: ChannelID) => {
     const inChannelCall = channelState.targetChannelId.value === channelID

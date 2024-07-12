@@ -1,0 +1,43 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "name": "New Object",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "Cylinder Collider",
+      "extensions": {
+        "EE_uuid": "0649b0d9-b7eb-4562-b92e-10ab810d9516",
+        "EE_visible": true,
+        "EE_collider": {
+          "shape": "cylinder",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 0.5,
+          "collisionLayer": 1,
+          "collisionMask": 7
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_collider",
+    "EE_ecs"
+  ]
+}

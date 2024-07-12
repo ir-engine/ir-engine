@@ -23,85 +23,106 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Dialog, DialogTitle, Grid, Typography } from '@mui/material'
+import { debounce, Dialog, DialogTitle, Grid, Typography } from '@mui/material'
 import React, { useCallback, useEffect } from 'react'
-
-import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import styles from '../styles.module.scss'
-import { FileType } from './FileBrowserContentPanel'
+import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 
-import { logger } from '@etherealengine/client-core/src/user/services/AuthService'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import {
+  createFileDigest,
+  createStaticResourceDigest,
+  FileType
+} from '@etherealengine/ui/src/components/editor/panels/Files/container'
 import { Button } from '../../inputs/Button'
+import styles from '../styles.module.scss'
 
-export const FilePropertiesPanel = (props: {
-  openProperties: State<boolean>
-  fileProperties: State<FileType | null>
-}) => {
+export const FilePropertiesPanel = (props: { openProperties: State<boolean>; fileProperties: State<FileType[]> }) => {
   const { openProperties, fileProperties } = props
-  const { t } = useTranslation()
   if (!fileProperties.value) return null
 
-  const modifiableProperties: State<FileType> = useHookstate(
-    JSON.parse(JSON.stringify(fileProperties.get(NO_PROXY))) as FileType
-  )
+  const { t } = useTranslation()
 
-  const isModified = useHookstate(false)
+  const fileStaticResources = useHookstate<StaticResourceType[]>([])
+  const fileDigest = createFileDigest(fileProperties.value)
+  const resourceDigest = useHookstate<StaticResourceType>(createStaticResourceDigest([]))
+  const sharedFields = useHookstate<string[]>([])
+  const modifiedFields = useHookstate<string[]>([])
+  const sharedTags = useHookstate<string[]>([])
 
-  const onChange = useCallback((state: State<any>) => {
-    isModified.set(true)
+  let title: string
+  let filename: string
+  if (fileProperties.value.length === 1) {
+    const firstFile = fileProperties.value[0]
+    filename = firstFile.name
+    title = `${filename} ${firstFile.type == 'folder' ? 'folder' : 'file'} Properties`
+  } else {
+    filename = ''
+    title = `Properties of ${fileProperties.value.length} Items`
+  }
+
+  const onChange = (fieldName: string, state: State<any>) => {
     return (e) => {
+      if (!modifiedFields.value.includes(fieldName)) {
+        modifiedFields.set([...modifiedFields.value, fieldName])
+      }
       state.set(e.target.value)
     }
-  }, [])
+  }
 
   const onSaveChanges = useCallback(async () => {
-    if (isModified.value && resourceProperties.value.id) {
-      const key = fileProperties.value!.key
-      await Engine.instance.api.service(staticResourcePath).patch(resourceProperties.id.value, {
-        key,
-        tags: resourceProperties.tags.value,
-        licensing: resourceProperties.licensing.value,
-        attribution: resourceProperties.attribution.value
-      })
-      await Engine.instance.api.service(projectResourcesPath).create({ project: resourceProperties.project.value })
-      isModified.set(false)
+    if (modifiedFields.value.length > 0) {
+      const addedTags: string[] = resourceDigest.tags.value!.filter((tag) => !sharedTags.value.includes(tag))
+      const removedTags: string[] = sharedTags.value!.filter((tag) => !resourceDigest.tags.value!.includes(tag))
+      for (const resource of fileStaticResources.value) {
+        const oldTags = resource.tags ?? []
+        const newTags = Array.from(new Set([...addedTags, ...oldTags.filter((tag) => !removedTags.includes(tag))]))
+        await Engine.instance.api.service(staticResourcePath).patch(resource.id, {
+          key: resource.key,
+          tags: newTags,
+          licensing: resourceDigest.licensing.value,
+          attribution: resourceDigest.attribution.value
+        })
+      }
+      modifiedFields.set([])
       openProperties.set(false)
     }
   }, [])
 
-  const staticResource = useFind(staticResourcePath, {
-    query: {
-      key: fileProperties.value!.key
-    }
-  })
-
-  const resourceProperties = useHookstate({
-    tags: [] as string[],
-    id: '',
-    project: '',
-    attribution: '',
-    licensing: ''
-  })
   useEffect(() => {
-    if (staticResource.data.length > 0) {
-      if (staticResource.data.length > 1) logger.warn('Multiple resources with same key found')
-      const resources = JSON.parse(JSON.stringify(staticResource.data[0])) as StaticResourceType
-      if (resources) {
-        resourceProperties.tags.set(resources.tags ?? [])
-        resourceProperties.id.set(resources.id)
-        resourceProperties.attribution.set(resources.attribution ?? '')
-        resourceProperties.licensing.set(resources.licensing ?? '')
-        resourceProperties.project.set(resources.project ?? '')
+    const staticResourcesFindApi = () => {
+      const query = {
+        key: {
+          $like: undefined,
+          $or: fileProperties.value.map(({ key }) => ({
+            key
+          }))
+        },
+        $limit: 10000
       }
+
+      Engine.instance.api
+        .service(staticResourcePath)
+        .find({ query })
+        .then((resources) => {
+          fileStaticResources.set(resources.data)
+          const digest = createStaticResourceDigest(resources.data)
+          resourceDigest.set(digest)
+          sharedFields.set(
+            Object.keys(resourceDigest).filter((key) => {
+              const value = resourceDigest[key]
+              return value.length !== ''
+            })
+          )
+          sharedTags.set(resourceDigest.tags.get(NO_PROXY)!.slice() as string[])
+        })
     }
-  }, [staticResource.data])
+    const debouncedQuery = debounce(staticResourcesFindApi, 500)
+    debouncedQuery()
+  }, [fileProperties])
 
   return (
     <Dialog
@@ -109,63 +130,80 @@ export const FilePropertiesPanel = (props: {
       onClose={() => openProperties.set(false)}
       classes={{ paper: styles.paperDialog }}
     >
-      <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }}>
-        {`${fileProperties.value.name} ${fileProperties.value.type == 'folder' ? 'folder' : 'file'} Properties`}
-      </DialogTitle>
+      <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }}>{title}</DialogTitle>
       <form style={{ marginTop: '15px' }}>
-        <InputText
-          name="name"
-          label={t('editor:layout.filebrowser.fileProperties.name')}
-          onChange={onChange(modifiableProperties.name)}
-          value={modifiableProperties.name.value}
-          disabled={true}
-        />
+        {fileProperties.value.length === 1 && (
+          <InputText
+            name="name"
+            label={t('editor:layout.filebrowser.fileProperties.name')}
+            value={filename}
+            disabled={true}
+          />
+        )}
         <Grid container spacing={5}>
           <Grid item xs={6}>
             <Typography className={styles.primaryText}>{t('editor:layout.filebrowser.fileProperties.type')}</Typography>
             <Typography className={styles.primaryText}>{t('editor:layout.filebrowser.fileProperties.size')}</Typography>
           </Grid>
           <Grid item xs={6}>
-            <Typography className={styles.secondaryText}>{modifiableProperties.type.value}</Typography>
-            <Typography className={styles.secondaryText}>{modifiableProperties.size.value}</Typography>
+            <Typography className={styles.secondaryText}>{fileDigest.type}</Typography>
+            <Typography className={styles.secondaryText}>
+              {fileProperties.value
+                .map((file) => file.size)
+                .reduce((total, value) => total + parseInt(value ?? '0'), 0)}
+            </Typography>
           </Grid>
         </Grid>
-        {resourceProperties.id.value && (
+        {fileStaticResources.value.length > 0 && (
           <>
             <hr style={{ margin: '16px' }} />
             <InputText
               name="attribution"
               label={t('editor:layout.filebrowser.fileProperties.attribution')}
-              onChange={onChange(resourceProperties.attribution)}
-              value={resourceProperties.attribution.value}
+              onChange={onChange('attribution', resourceDigest.attribution)}
+              value={
+                fileProperties.value?.length > 1 && !sharedFields.value.includes('attribution')
+                  ? ' Mixed '
+                  : resourceDigest.attribution.value
+              }
             />
             <InputText
               name="licensing"
               label={t('editor:layout.filebrowser.fileProperties.licensing')}
-              onChange={onChange(resourceProperties.licensing)}
-              value={resourceProperties.licensing.value}
+              onChange={onChange('licensing', resourceDigest.licensing)}
+              value={
+                fileProperties.value?.length > 1 && !sharedFields.value.includes('licensing')
+                  ? ' Mixed '
+                  : resourceDigest.licensing.value
+              }
             />
             <Button
               onClick={() => {
-                resourceProperties.tags.set([...(resourceProperties.tags.value ?? []), ''])
+                if (!modifiedFields.value.includes('tags')) {
+                  modifiedFields.set([...modifiedFields.value, 'tags'])
+                }
+                resourceDigest.tags.set([...(resourceDigest.tags.value ?? []), ''])
               }}
             >
               {t('editor:layout.filebrowser.fileProperties.addTag')}
             </Button>
             <div style={{ marginTop: '16px' }}>
-              {(resourceProperties.tags.value ?? []).map((tag, index) => (
+              {(resourceDigest.tags.value ?? []).map((_, index) => (
                 <div style={{ display: 'flex', flexDirection: 'row', margin: '0, 16px 0 0' }}>
                   <InputText
                     key={index}
                     name={`tag${index}`}
                     label={t('editor:layout.filebrowser.fileProperties.tag')}
-                    onChange={onChange(resourceProperties.tags[index])}
-                    value={resourceProperties.tags[index].value}
+                    onChange={onChange('tags', resourceDigest.tags[index])}
+                    value={resourceDigest.tags[index].value}
                     sx={{ width: '100%', marginRight: '32px' }}
                   />
                   <Button
                     onClick={() => {
-                      resourceProperties.tags.set(resourceProperties.tags.value.filter((_, i) => i !== index))
+                      if (!modifiedFields.value.includes('tags')) {
+                        modifiedFields.set([...modifiedFields.value, 'tags'])
+                      }
+                      resourceDigest.tags.set(resourceDigest.tags.value!.filter((_, i) => i !== index))
                     }}
                     style={{ width: '16px', height: '16px', margin: '8px 0 0 10px' }}
                   >
@@ -175,7 +213,7 @@ export const FilePropertiesPanel = (props: {
                 </div>
               ))}
             </div>
-            {isModified.value && (
+            {modifiedFields.value.length > 0 && (
               <Button onClick={onSaveChanges} style={{ marginTop: '15px' }}>
                 {t('editor:layout.filebrowser.fileProperties.save-changes')}
               </Button>

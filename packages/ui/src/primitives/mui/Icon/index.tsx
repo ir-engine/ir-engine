@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import Accessibility from '@mui/icons-material/Accessibility'
 import AccessibilityNew from '@mui/icons-material/AccessibilityNew'
 import AccountCircle from '@mui/icons-material/AccountCircle'
@@ -74,9 +72,9 @@ import Email from '@mui/icons-material/Email'
 import ErrorOutline from '@mui/icons-material/ErrorOutline'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import Face from '@mui/icons-material/Face'
-import FaceRetouchingOff from '@mui/icons-material/FaceRetouchingOff'
 import Facebook from '@mui/icons-material/Facebook'
 import FacebookOutlined from '@mui/icons-material/FacebookOutlined'
+import FaceRetouchingOff from '@mui/icons-material/FaceRetouchingOff'
 import FileCopy from '@mui/icons-material/FileCopy'
 import FileUpload from '@mui/icons-material/FileUpload'
 import FilterList from '@mui/icons-material/FilterList'
@@ -101,8 +99,8 @@ import KeyboardDoubleArrowDown from '@mui/icons-material/KeyboardDoubleArrowDown
 import KeyboardDoubleArrowUp from '@mui/icons-material/KeyboardDoubleArrowUp'
 import Launch from '@mui/icons-material/Launch'
 import Link from '@mui/icons-material/Link'
-import LinkOff from '@mui/icons-material/LinkOff'
 import LinkedIn from '@mui/icons-material/LinkedIn'
+import LinkOff from '@mui/icons-material/LinkOff'
 import List from '@mui/icons-material/List'
 import ListAlt from '@mui/icons-material/ListAlt'
 import LocationOn from '@mui/icons-material/LocationOn'
@@ -154,7 +152,6 @@ import ThumbUp from '@mui/icons-material/ThumbUp'
 import Timeline from '@mui/icons-material/Timeline'
 import TouchApp from '@mui/icons-material/TouchApp'
 import Toys from '@mui/icons-material/Toys'
-import Twitter from '@mui/icons-material/Twitter'
 import Upload from '@mui/icons-material/Upload'
 import Videocam from '@mui/icons-material/Videocam'
 import VideocamOff from '@mui/icons-material/VideocamOff'
@@ -168,8 +165,10 @@ import VolumeMute from '@mui/icons-material/VolumeMute'
 import VolumeOff from '@mui/icons-material/VolumeOff'
 import VolumeUp from '@mui/icons-material/VolumeUp'
 import WarningAmber from '@mui/icons-material/WarningAmber'
+import X from '@mui/icons-material/X'
 import ZoomOutMap from '@mui/icons-material/ZoomOutMap'
 import { SvgIconProps } from '@mui/material'
+import React from 'react'
 
 const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
   switch (type) {
@@ -425,13 +424,15 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
     case 'TouchApp':
       return <TouchApp {...props} />
     case 'Twitter':
-      return <Twitter {...props} />
+      return <X {...props} />
     case 'Upload':
       return <Upload {...props} />
     case 'Visibility':
       return <Visibility {...props} />
     case 'VisibilityOff':
       return <VisibilityOff {...props} />
+    case 'X':
+      return <X {...props} />
     case 'Dashboard':
       return <Dashboard {...props} />
     case 'Storage':

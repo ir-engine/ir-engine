@@ -23,17 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import { Application } from '@etherealengine/server-core/declarations'
+import { BadRequest } from '@feathersjs/errors/lib'
 import { ServiceInterface } from '@feathersjs/feathers/lib'
+import { KnexAdapterParams } from '@feathersjs/knex/lib'
 import appRootPath from 'app-root-path'
 import path from 'path'
-import config from '../../appconfig'
 
+import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
-import { BadRequest } from '@feathersjs/errors/lib'
-import { KnexAdapterParams } from '@feathersjs/knex/lib'
-import { createExecutorJob } from '../../projects/project/project-helper'
+import { Application } from '@etherealengine/server-core/declarations'
+
+import config from '../../appconfig'
+import { createExecutorJob } from '../../k8s-job-helper'
 import { getModelTransformJobBody } from './model-transform.helpers'
 
 export interface ModelTransformParams extends KnexAdapterParams {
@@ -63,7 +64,8 @@ export class ModelTransformService implements ServiceInterface<void> {
     const createParams: ModelTransformParameters = data
     console.log('config', config)
     if (!config.kubernetes?.enabled) {
-      return transformModel(createParams)
+      await transformModel(createParams)
+      return
     }
     try {
       const transformParms = createParams

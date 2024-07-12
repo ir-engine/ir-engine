@@ -24,18 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRMLoaderPlugin } from '@pixiv/three-vrm'
-
-import { getState } from '@etherealengine/hyperflux'
+import { Group, WebGLRenderer } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Engine, getComponent } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { Group } from 'three'
+
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
-import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
-import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
-import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 import { CachedImageLoadExtension } from '../loaders/gltf/extensions/CachedImageLoadExtension'
 import EEECSImporterExtension from '../loaders/gltf/extensions/EEECSImporterExtension'
 import { EEMaterialImporterExtension } from '../loaders/gltf/extensions/EEMaterialImporterExtension'
@@ -43,25 +38,30 @@ import { GPUInstancingExtension } from '../loaders/gltf/extensions/GPUInstancing
 import { HubsComponentsExtension } from '../loaders/gltf/extensions/HubsComponentsExtension'
 import { KHRMaterialsPBRSpecularGlossinessExtension } from '../loaders/gltf/extensions/KHRMaterialsPBRSpecularGlossinessExtension'
 import { HubsLightMapExtension } from '../loaders/gltf/extensions/LightMapExtension'
-import RegisterMaterialsExtension from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import { RemoveMaterialsExtension } from '../loaders/gltf/extensions/RemoveMaterialsExtension'
+import { ResourceManagerLoadExtension } from '../loaders/gltf/extensions/ResourceManagerLoadExtension'
+import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
+import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { MeshoptDecoder } from '../loaders/gltf/meshopt_decoder.module'
+import { loadDRACODecoderNode, NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
   const ktxLoader = new KTX2Loader()
   ktxLoader.setTranscoderPath(getState(EngineState).publicPath + '/loader_decoders/basis/')
-  ktxLoader.detectSupport(getComponent(Engine.instance.viewerEntity, RendererComponent).renderer)
+  const renderer = new WebGLRenderer()
+  ktxLoader.detectSupport(renderer)
+  renderer.dispose()
   loader.setKTX2Loader(ktxLoader)
 }
 
 export const createGLTFLoader = (keepMaterials = false) => {
   const loader = new GLTFLoader()
+  if (isClient) initializeKTX2Loader(loader)
 
   if (isClient || keepMaterials) {
     loader.register((parser) => new GPUInstancingExtension(parser))
     loader.register((parser) => new HubsLightMapExtension(parser))
-    loader.register((parser) => new EEMaterialImporterExtension(parser))
-    loader.register((parser) => new RegisterMaterialsExtension(parser))
+    loader.registerFirst((parser) => new EEMaterialImporterExtension(parser))
   } else {
     loader.register((parser) => new RemoveMaterialsExtension(parser))
   }
@@ -70,17 +70,21 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.register((parser) => new HubsComponentsExtension(parser))
   loader.register((parser) => new VRMLoaderPlugin(parser, { helperRoot: new Group(), autoUpdateHumanBones: false }))
   loader.register((parser) => new CachedImageLoadExtension(parser))
+  loader.register((parser) => new ResourceManagerLoadExtension(parser))
+
   if (MeshoptDecoder.useWorkers) {
     MeshoptDecoder.useWorkers(2)
   }
   loader.setMeshoptDecoder(MeshoptDecoder)
 
   if (isClient) {
+    initializeKTX2Loader(loader)
     const dracoLoader = new DRACOLoader()
     dracoLoader.setDecoderPath(getState(EngineState).publicPath + '/loader_decoders/')
     dracoLoader.setWorkerLimit(1)
     loader.setDRACOLoader(dracoLoader)
   } else {
+    loadDRACODecoderNode()
     const dracoLoader = new NodeDRACOLoader()
     /* @ts-ignore */
     dracoLoader.preload = () => {}

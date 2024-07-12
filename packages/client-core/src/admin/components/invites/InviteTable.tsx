@@ -28,13 +28,14 @@ import { useTranslation } from 'react-i18next'
 import { HiTrash } from 'react-icons/hi2'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { InviteType, UserName, invitePath } from '@etherealengine/common/src/schema.type.module'
+import { invitePath, InviteType, UserName } from '@etherealengine/common/src/schema.type.module'
 import { State } from '@etherealengine/hyperflux'
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
+
+import { inviteColumns, InviteRowType } from '../../common/constants/invite'
 import DataTable from '../../common/Table'
-import { InviteRowType, inviteColumns } from '../../common/constants/invite'
 import AddEditInviteModal from './AddEditInviteModal'
 import RemoveInviteModal from './RemoveInviteModal'
 
@@ -60,6 +61,16 @@ export default function InviteTable({
     adminInviteQuery,
     {
       $or: [
+        {
+          userId: {
+            $like: '%' + search + '%'
+          }
+        },
+        {
+          inviteeId: {
+            $like: '%' + search + '%'
+          }
+        },
         {
           inviteType: {
             $like: '%' + search + '%'
@@ -104,7 +115,7 @@ export default function InviteTable({
           </Button>
           <Button
             variant="outline"
-            startIcon={<HiTrash className="text-theme-iconRed place-self-center" />}
+            startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
             onClick={() => PopoverState.showPopupover(<RemoveInviteModal invites={[row]} />)}
           />
         </div>

@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,10 +19,11 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated } from '@feathersjs/feathers'
 import i18n from 'i18next'
 import { useEffect } from 'react'
@@ -31,16 +32,8 @@ import { v4 as uuidv4 } from 'uuid'
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
 import multiLogger from '@etherealengine/common/src/logger'
-import { AuthStrategiesType } from '@etherealengine/common/src/schema.type.module'
 import {
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  syncStateWithLocalStorage
-} from '@etherealengine/hyperflux'
-
-import {
+  AuthStrategiesType,
   AvatarID,
   IdentityProviderType,
   InstanceID,
@@ -56,7 +49,6 @@ import {
   UserType,
   generateTokenPath,
   identityProviderPath,
-  locationBanPath,
   loginPath,
   loginTokenPath,
   magicLinkPath,
@@ -65,13 +57,17 @@ import {
   userPath,
   userSettingPath
 } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { AuthenticationResult } from '@feathersjs/authentication'
+import {
+  defineState,
+  getMutableState,
+  getState,
+  syncStateWithLocalStorage,
+  useHookstate
+} from '@etherealengine/hyperflux'
+
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { LocationState } from '../../social/services/LocationService'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
@@ -137,9 +133,7 @@ export const AuthState = defineState({
     authUser: AuthUserSeed,
     user: UserSeed
   }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(AuthState, ['authUser'])
-  }
+  extension: syncStateWithLocalStorage(['authUser'])
 })
 
 export interface EmailLoginForm {
@@ -188,7 +182,7 @@ export const AuthService = {
     // This would normally cause doLoginAuto to make a guest user, which we do not want.
     // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
     // The client and auth settigns will not be needed on these routes
-    if (/auth\/oauth/.test(location.pathname)) return
+    if (location.pathname.startsWith('/auth')) return
     const authState = getMutableState(AuthState)
     try {
       const accessToken = !forceClientAuthReset && authState?.authUser?.accessToken?.value
@@ -493,6 +487,8 @@ export const AuthService = {
     const enableEmailMagicLink = authData?.emailMagicLink
     const enableSmsMagicLink = authData?.smsMagicLink
 
+    const storedToken = authState.authUser?.accessToken?.value
+
     if (linkType === 'email') {
       type = 'email'
       paramName = 'email'
@@ -528,7 +524,9 @@ export const AuthService = {
     }
 
     try {
-      await Engine.instance.api.service(magicLinkPath).create({ type, [paramName]: emailPhone })
+      await Engine.instance.api
+        .service(magicLinkPath)
+        .create({ type, [paramName]: emailPhone, accessToken: storedToken })
       const message = {
         email: 'email-sent-msg',
         sms: 'sms-sent-msg',
@@ -545,7 +543,7 @@ export const AuthService = {
     }
   },
 
-  async addConnectionByPassword(form: EmailLoginForm, userId: UserID) {
+  async addConnectionByPassword(form: EmailLoginForm) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -660,15 +658,6 @@ export const AuthService = {
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
-  async updateUsername(userId: UserID, name: UserName) {
-    const { name: updatedName } = (await Engine.instance.api
-      .service(userPath)
-      .patch(userId, { name: name })) as UserType
-    NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
-    getMutableState(AuthState).user.merge({ name: updatedName })
-    dispatchAction(AvatarNetworkAction.setName({ entityUUID: (userId + '_avatar') as EntityUUID, name: updatedName }))
-  },
-
   async createLoginToken() {
     return Engine.instance.api.service(loginTokenPath).create({})
   },
@@ -700,25 +689,12 @@ export const AuthService = {
         }
       }
 
-      const locationBanCreatedListener = async (params) => {
-        const selfUser = getState(AuthState).user
-        const currentLocation = getState(LocationState).currentLocation.location
-        const locationBan = params.locationBan
-        if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
-          const userId = selfUser.id ?? ''
-          const user = await Engine.instance.api.service(userPath).get(userId)
-          getMutableState(AuthState).merge({ user })
-        }
-      }
-
       Engine.instance.api.service(userPath).on('patched', userPatchedListener)
       Engine.instance.api.service(userAvatarPath).on('patched', userAvatarPatchedListener)
-      Engine.instance.api.service(locationBanPath).on('created', locationBanCreatedListener)
 
       return () => {
         Engine.instance.api.service(userPath).off('patched', userPatchedListener)
         Engine.instance.api.service(userAvatarPath).off('patched', userAvatarPatchedListener)
-        Engine.instance.api.service(locationBanPath).off('created', locationBanCreatedListener)
       }
     }, [])
   }
@@ -764,4 +740,18 @@ function parseLoginDisplayCredential(credentials) {
   const displayIcon = loginDisplayVc.credentialSubject.displayIcon || DEFAULT_ICON
 
   return { displayName, displayIcon }
+}
+
+export const useAuthenticated = () => {
+  const authState = useHookstate(getMutableState(AuthState))
+
+  useEffect(() => {
+    AuthService.doLoginAuto()
+  }, [])
+
+  useEffect(() => {
+    Engine.instance.userID = authState.user.id.value
+  }, [authState.user.id])
+
+  return authState.isLoggedIn.value
 }

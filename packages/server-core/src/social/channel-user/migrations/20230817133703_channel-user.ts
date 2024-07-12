@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
 import { Knex } from 'knex'
+
+import { channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
 
 /**
  * @param { import("knex").Knex } knex
@@ -35,22 +36,22 @@ export async function up(knex: Knex): Promise<void> {
 
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
-  let tableExists = await trx.schema.hasTable(channelUserPath)
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  let tableExists = await knex.schema.hasTable(channelUserPath)
 
   if (oldNamedTableExists) {
     // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await trx.schema.dropTable(channelUserPath)
-    await trx.schema.renameTable(oldTableName, channelUserPath)
+    if (tableExists) await knex.schema.dropTable(channelUserPath)
+    await knex.schema.renameTable(oldTableName, channelUserPath)
   }
 
-  tableExists = await trx.schema.hasTable(channelUserPath)
+  tableExists = await knex.schema.hasTable(channelUserPath)
 
   if (!tableExists && !oldNamedTableExists) {
-    await trx.schema.createTable(channelUserPath, (table) => {
+    await knex.schema.createTable(channelUserPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.boolean('isOwner').notNullable().defaultTo(false)
@@ -67,20 +68,17 @@ export async function up(knex: Knex): Promise<void> {
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(channelUserPath)
+  const tableExists = await knex.schema.hasTable(channelUserPath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(channelUserPath)
+    await knex.schema.dropTable(channelUserPath)
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

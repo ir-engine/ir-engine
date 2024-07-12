@@ -23,17 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   ScopeData,
-  ScopeTypeInterface,
   scopeDataValidator,
+  ScopeID,
   scopePath,
-  scopeQueryValidator
+  scopeQueryValidator,
+  ScopeTypeInterface
 } from '@etherealengine/common/src/schemas/scope/scope.schema'
-import { BadRequest } from '@feathersjs/errors'
+
 import { HookContext } from '../../../declarations'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
@@ -53,42 +55,27 @@ const checkExistingScopes = async (context: HookContext<ScopeService>) => {
 
   const data: ScopeData[] = Array.isArray(context.data) ? context.data : [context.data]
 
+  // TODO: Make this generic so that even if request contains different user ids, it should work
   const oldScopes = (await context.app.service(scopePath).find({
     query: { userId: data[0].userId },
     paginate: false
   })) as any as ScopeTypeInterface[]
 
-  const existingData: ScopeData[] = []
-  const createData: ScopeData[] = []
+  const existingData: ScopeID[] = []
 
   for (const item of data) {
     const existingScope = oldScopes && oldScopes.find((el) => el.type === item.type)
-    if (existingScope) {
-      existingData.push(existingScope)
-    } else {
-      createData.push(item)
+    if (existingScope) existingData.push(existingScope.id)
+  }
+
+  await context.app.service(scopePath).remove(null, {
+    query: {
+      id: {
+        $in: existingData
+      },
+      userId: data[0].userId
     }
-  }
-
-  if (createData.length > 0) {
-    context.data = createData
-    context.existingData = existingData
-  } else {
-    context.result = existingData
-  }
-}
-
-/**
- * Append existing scopes with the newly created scopes
- * @param context
- * @returns
- */
-const addExistingScopes = async (context: HookContext<ScopeService>) => {
-  if (context.existingData?.length > 0) {
-    let result = (Array.isArray(context.result) ? context.result : [context.result]) as ScopeTypeInterface[]
-    result = [...result, ...context.existingData]
-    context.result = result
-  }
+  })
 }
 
 export default {
@@ -114,7 +101,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [addExistingScopes],
+    create: [],
     update: [],
     patch: [],
     remove: []

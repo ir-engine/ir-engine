@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import RAPIER, { ActiveCollisionTypes, RigidBodyType, ShapeType, Vector } from '@dimforge/rapier3d-compat'
+import { BoxGeometry, CapsuleGeometry, CylinderGeometry, SphereGeometry, Vector3 } from 'three'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { Vector3 } from 'three'
+
 import { CollisionGroups } from '../enums/CollisionGroups'
 
 export interface Vec3 {
@@ -108,6 +109,26 @@ export const Shapes = {
   Heightfield: 'heightfield' as const
 }
 
+export const RapierShapeToString = {
+  [ShapeType.Ball]: 'sphere' as const,
+  [ShapeType.Cuboid]: 'box' as const,
+  [ShapeType.Capsule]: 'capsule' as const,
+  // [ShapeType.Segment]:
+  // [ShapeType.Polyline]:
+  // [ShapeType.Triangle]:
+  [ShapeType.TriMesh]: 'mesh' as const,
+  [ShapeType.HeightField]: 'heightfield' as const,
+  [ShapeType.ConvexPolyhedron]: 'convex_hull' as const,
+  [ShapeType.Cylinder]: 'cylinder' as const
+  // [ShapeType.Cone]:
+  // [ShapeType.RoundCuboid]:
+  // [ShapeType.RoundTriangle]:
+  // [ShapeType.RoundCylinder]:
+  // [ShapeType.RoundCone]:
+  // [ShapeType.RoundConvexPolyhedron]:
+  // [ShapeType.HalfSpace]:
+}
+
 export type Shape = (typeof Shapes)[keyof typeof Shapes]
 
 export type ColliderOptions = {
@@ -137,3 +158,11 @@ export const OldShapeTypes = {
   [2]: 'capsule',
   [6]: 'mesh'
 }
+
+/** Maps Three.js geometry types to physics shapes */
+export const ThreeToPhysics = {
+  [SphereGeometry.prototype.type]: 'sphere',
+  [CapsuleGeometry.prototype.type]: 'capsule',
+  [CylinderGeometry.prototype.type]: 'cylinder',
+  [BoxGeometry.prototype.type]: 'box'
+} as Record<string, Shape>

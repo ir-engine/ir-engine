@@ -20,7 +20,8 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { StringEnum, Type, getValidator } from '@feathersjs/typebox'
+import { getValidator, StringEnum, Type } from '@feathersjs/typebox'
+
 import { dataValidator } from '../validators'
 import { projectUpdateTypes } from './project.schema'
 
@@ -38,7 +39,8 @@ export const ProjectBuildUpdateItemSchema = Type.Object(
     commitSHA: Type.String(),
     sourceBranch: Type.String(),
     updateType: StringEnum(projectUpdateTypes),
-    updateSchedule: Type.String()
+    updateSchedule: Type.String(),
+    token: Type.Optional(Type.Boolean())
   },
   { $id: 'ProjectUpdate', additionalProperties: false }
 )

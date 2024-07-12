@@ -26,15 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { createEngine } from '../../initializeEngine'
+
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { addObjectToGroup } from './GroupComponent'
 import { RenderOrderComponent } from './RenderOrderComponent'
 
 describe('RenderOrderComponent', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     createEngine()
   })
 
@@ -42,7 +42,7 @@ describe('RenderOrderComponent', () => {
     return destroyEngine()
   })
 
-  it('Sets renderOrder to 0 as default', async () => {
+  it('Sets renderOrder to 0 as default', () => {
     const entity = createEntity()
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial({ color: 0xffff00 })
@@ -50,11 +50,10 @@ describe('RenderOrderComponent', () => {
 
     addObjectToGroup(entity, mesh)
     assert.equal(mesh.renderOrder, 0)
-    assert.equal(getComponent(entity, RenderOrderComponent), 0)
     assert.equal(RenderOrderComponent.renderOrder[entity], 0)
   })
 
-  it('Sets renderOrder on object', async () => {
+  it('Sets renderOrder on object', () => {
     const entity = createEntity()
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial({ color: 0xffff00 })
@@ -63,12 +62,10 @@ describe('RenderOrderComponent', () => {
     addObjectToGroup(entity, mesh)
 
     mesh.renderOrder = 2
-    assert.equal(getComponent(entity, RenderOrderComponent), 2)
     assert.equal(RenderOrderComponent.renderOrder[entity], 2)
     assert.equal(mesh.renderOrder, 2)
 
-    setComponent(entity, RenderOrderComponent, 42)
-    assert.equal(getComponent(entity, RenderOrderComponent), 42)
+    RenderOrderComponent.renderOrder[entity] = 42
     assert.equal(RenderOrderComponent.renderOrder[entity], 42)
     assert.equal(mesh.renderOrder, 42)
   })

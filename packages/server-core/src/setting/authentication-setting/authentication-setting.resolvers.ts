@@ -33,16 +33,15 @@ import {
   AuthCallbackType,
   AuthDefaultsType,
   AuthenticationSettingDatabaseType,
+  AuthenticationSettingPatch,
   AuthenticationSettingQuery,
   AuthenticationSettingType,
   AuthJwtOptionsType,
   AuthOauthType,
   AuthStrategiesType
 } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
-import { AuthenticationSettingPatch } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const authenticationSettingSchemaToDb = (patch: AuthenticationSettingPatch) => {
   return {

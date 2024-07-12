@@ -28,8 +28,9 @@ import { FaCaretRight } from 'react-icons/fa6'
 import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
 import { InputSocketSpecJSON } from '@etherealengine/visual-script'
+
+import { valueTypeColorMap } from '@etherealengine/ui/src/components/editor/panels/VisualScript/util/colors'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
-import { colors, valueTypeColorMap } from '../util/colors'
 import { isValidConnection } from '../util/isValidConnection'
 import { AutoSizeInput } from './AutoSizeInput'
 
@@ -49,7 +50,7 @@ const InputFieldForValue = ({
   valueType
 }: Pick<InputSocketProps, 'choices' | 'value' | 'defaultValue' | 'name' | 'onChange' | 'valueType'>) => {
   const showChoices = choices?.length
-  const inputVal = String(value) ?? defaultValue ?? ''
+  const inputVal = String(value) // ?? defaultValue ?? ''
   const inputSocketStyle = {
     backgroundColor: 'var(--panelCards)',
     cursor: 'pointer',

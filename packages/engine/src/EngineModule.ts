@@ -26,10 +26,12 @@ Ethereal Engine. All Rights Reserved.
 /** World Module */
 import '@etherealengine/spatial'
 
+export * from './FeatureFlagsState'
 export * from './avatar/AvatarModule'
 export * from './interaction/InteractionModule'
 export * from './interaction/MediaModule'
 export * from './mocap/MocapModule'
+export * from './postprocessing/PopulateEffectRegistry'
 export * from './recording/RecordingModule'
 export * from './scene/SceneModule'
 export * from './visualscript/VisualScriptModule'

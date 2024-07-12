@@ -23,16 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Raycaster } from 'three'
+
 import { defineQuery } from '@etherealengine/ecs'
 import { defineComponent, getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
-import { Raycaster } from 'three'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
+import { DefaultButtonAlias } from './InputComponent'
 
 export const InputSourceComponent = defineComponent({
   name: 'InputSourceComponent',
@@ -40,7 +42,7 @@ export const InputSourceComponent = defineComponent({
   onInit: () => {
     return {
       source: {} as XRInputSource,
-      buttons: {} as Readonly<ButtonStateMap>,
+      buttons: {} as Readonly<ButtonStateMap<typeof DefaultButtonAlias>>,
       raycaster: new Raycaster(),
       intersections: [] as Array<{
         entity: Entity
@@ -66,7 +68,7 @@ export const InputSourceComponent = defineComponent({
             hapticActuators: [],
             id: 'emulated-gamepad-' + entity,
             index: 0,
-            mapping: 'standard',
+            mapping: '',
             timestamp: performance.now(),
             vibrationActuator: null
           } as Gamepad),
@@ -89,32 +91,6 @@ export const InputSourceComponent = defineComponent({
     if (source.hand) {
       setComponent(entity, XRHandComponent)
     }
-
-    setComponent(entity, TransformComponent)
-  },
-
-  getMergedButtons(inputSourceEntities = inputSourceQuery()) {
-    return Object.assign(
-      {} as ButtonStateMap,
-      ...inputSourceEntities.map((eid) => {
-        return getComponent(eid, InputSourceComponent).buttons
-      })
-    ) as ButtonStateMap
-  },
-
-  getMergedAxes(inputSourceEntities = inputSourceQuery()) {
-    const axes = [0, 0, 0, 0] as [number, number, number, number]
-    for (const eid of inputSourceEntities) {
-      const inputSource = getComponent(eid, InputSourceComponent)
-      if (inputSource.source.gamepad?.axes) {
-        for (let i = 0; i < 4; i++) {
-          // keep the largest value (positive or negative)
-          const newAxis = inputSource.source.gamepad?.axes[i] ?? 0
-          axes[i] = Math.abs(axes[i]) > Math.abs(newAxis) ? axes[i] : newAxis
-        }
-      }
-    }
-    return axes
   },
 
   nonCapturedInputSources(entities = inputSourceQuery()) {
@@ -141,6 +117,10 @@ export const InputSourceComponent = defineComponent({
 
   getClosestIntersectedEntity(inputSourceEntity: Entity) {
     return getComponent(inputSourceEntity, InputSourceComponent).intersections[0]?.entity
+  },
+
+  getClosestIntersection(inputSourceEntity: Entity) {
+    return getComponent(inputSourceEntity, InputSourceComponent).intersections[0]
   },
 
   entitiesByInputSource: new WeakMap<XRInputSource, Entity>()

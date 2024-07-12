@@ -38,6 +38,7 @@ Ethereal Engine. All Rights Reserved.
 import type { FeathersApplication } from '@feathersjs/feathers'
 import NodeCache from 'node-cache'
 import schedule from 'node-schedule'
+
 import { ServiceTypes } from '../declarations'
 import config from './config'
 import { logsApiPath } from './schema.type.module'
@@ -163,15 +164,15 @@ const multiLogger = {
         }
       }
 
-      return config.client.logs.disabled
-        ? nullLogger
-        : {
+      return config.client.logs.disabled === 'false'
+        ? {
             debug: send('debug'),
             info: send('info'),
             warn: send('warn'),
             error: send('error'),
             fatal: send('fatal')
           }
+        : nullLogger
     }
   }
 }

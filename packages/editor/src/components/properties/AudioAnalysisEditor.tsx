@@ -23,15 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useComponent } from '@etherealengine/ecs'
-import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { useComponent } from '@etherealengine/ecs'
+import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
+
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 export const AudioAnalysisEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

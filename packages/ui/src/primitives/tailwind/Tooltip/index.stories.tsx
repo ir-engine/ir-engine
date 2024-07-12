@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 import { ArgTypes } from '@storybook/react'
 import React from 'react'
+
 import Button from '../Button'
 import Tooltip from './index'
 
@@ -32,7 +33,7 @@ const argTypes: ArgTypes = {}
 const TooltipStory = (title) => {
   return (
     <div className="flex h-screen items-center justify-center">
-      <Tooltip title={title} direction="top">
+      <Tooltip title={title}>
         <Button title="Submit" />
       </Tooltip>
     </div>

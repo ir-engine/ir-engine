@@ -25,9 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { defaultThemeSettings, getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 
-import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { AuthState } from '../../user/services/AuthService'
 
 /** @deprected this is the thene for mui pages, it will be replaced with ThemeService / ThemeState */
@@ -47,8 +46,8 @@ export const AppThemeState = defineState({
 })
 
 export const useAppThemeName = (): string => {
-  const themeState = useHookstate(getMutableState(AppThemeState))
-  const authState = useHookstate(getMutableState(AuthState))
+  const themeState = useMutableState(AppThemeState)
+  const authState = useMutableState(AuthState)
 
   if (themeState.mode.value === 'custom' && themeState.customThemeName.value) return themeState.customThemeName.value
 
@@ -70,9 +69,5 @@ export const getAppTheme = () => {
 
   const authState = getState(AuthState)
   const theme = getCurrentTheme(authState.user?.userSetting?.themeModes)
-  const clientSettingState = getState(AdminClientSettingsState)
-  const themeSettings = clientSettingState?.client?.[0]?.themeSettings
-  if (themeSettings) return themeSettings[theme]
-
   return defaultThemeSettings[theme]
 }

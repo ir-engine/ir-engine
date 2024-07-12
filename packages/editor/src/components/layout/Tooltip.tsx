@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import { Tooltip, TooltipProps } from '@mui/material'
 import createStyles from '@mui/styles/createStyles'
 import makeStyles from '@mui/styles/makeStyles'
+import React from 'react'
 
 const useStyles = makeStyles<any, any, any>((theme: any) => {
   return createStyles({

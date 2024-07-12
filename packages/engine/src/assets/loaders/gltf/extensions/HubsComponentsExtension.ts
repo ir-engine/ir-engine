@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // https://github.com/mozilla/hubs/blob/27eb7f3d9eba3b938f1ca47ed5b161547b6fb3f2/src/components/gltf-model-plus.js
 import { SRGBColorSpace } from 'three'
+
 import { GLTFParser } from '../GLTFParser'
 
 function mapMaterials(object3D, fn) {

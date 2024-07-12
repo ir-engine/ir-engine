@@ -22,20 +22,23 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
 import { t } from 'i18next'
 import React from 'react'
+
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { useHookstate } from '@etherealengine/hyperflux'
+
 import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
 import Text from '../../../primitives/tailwind/Text'
 
 interface ConfirmDialogProps {
   text: string
-  onSubmit: () => Promise<void>
+  onSubmit: () => Promise<void> | void
+  onClose?: () => void
   modalProps?: Partial<ModalProps>
 }
 
-export const ConfirmDialog = ({ text, onSubmit, modalProps }: ConfirmDialogProps) => {
+export const ConfirmDialog = ({ text, onSubmit, onClose, modalProps }: ConfirmDialogProps) => {
   const errorText = useHookstate('')
   const modalProcessing = useHookstate(false)
 
@@ -54,7 +57,10 @@ export const ConfirmDialog = ({ text, onSubmit, modalProps }: ConfirmDialogProps
     <Modal
       title={t('admin:components.common.confirmation')}
       onSubmit={handled}
-      onClose={PopoverState.hidePopupover}
+      onClose={() => {
+        PopoverState.hidePopupover()
+        onClose?.()
+      }}
       className="w-[50vw] max-w-2xl"
       submitLoading={modalProcessing.value}
       {...modalProps}

@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EMAIL_REGEX } from './regex'
+import type { MediaSettingsType } from './schema.type.module'
+
 /**
  * Config settings (for client and isomorphic engine usage).
  */
@@ -30,7 +33,7 @@ const localBuildOrDev =
   globalThis.process.env.APP_ENV === 'development' || globalThis.process.env.VITE_LOCAL_BUILD === 'true'
 
 export function validateEmail(email: string): boolean {
-  return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)
+  return EMAIL_REGEX.test(email)
 }
 
 export function validatePhoneNumber(phone: string): boolean {
@@ -77,6 +80,7 @@ const client = {
     forceClientAggregate: globalThis.process.env.VITE_FORCE_CLIENT_LOG_AGGREGATE,
     disabled: globalThis.process.env.VITE_DISABLE_LOG
   },
+  mediaSettings: null! as MediaSettingsType,
   rootRedirect: globalThis.process.env.VITE_ROOT_REDIRECT,
   tosAddress: globalThis.process.env.VITE_TERMS_OF_SERVICE_ADDRESS,
   readyPlayerMeUrl: globalThis.process.env.VITE_READY_PLAYER_ME_URL,
@@ -84,7 +88,13 @@ const client = {
   avaturnAPI: globalThis.process.env.VITE_AVATURN_API,
   key8thWall: globalThis.process.env.VITE_8TH_WALL!,
   featherStoreKey: globalThis.process.env.VITE_FEATHERS_STORE_KEY,
-  gaMeasurementId: globalThis.process.env.VITE_GA_MEASUREMENT_ID
+  gaMeasurementId: globalThis.process.env.VITE_GA_MEASUREMENT_ID,
+
+  zendesk: {
+    enabled: globalThis.process.env.VITE_ZENDESK_ENABLED,
+    authenticationEnabled: globalThis.process.env.VITE_ZENDESK_AUTHENTICATION_ENABLED,
+    key: globalThis.process.env.VITE_ZENDESK_KEY
+  }
 }
 
 /**

@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NotAuthenticated } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
 import { UserID, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
-import { NotAuthenticated } from '@feathersjs/errors'
 import { Application } from '../../declarations'
 import verifyScope from './verify-scope'
 

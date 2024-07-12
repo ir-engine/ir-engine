@@ -23,13 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Not } from 'bitecs'
+import { Vector3 } from 'three'
+
 import {
-  SimulationSystemGroup,
-  UUIDComponent,
   defineQuery,
   defineSystem,
   getComponent,
-  setComponent
+  setComponent,
+  SimulationSystemGroup,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 import { NetworkObjectAuthorityTag } from '@etherealengine/network'
@@ -40,10 +43,9 @@ import {
 } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
-import { Not } from 'bitecs'
-import { Vector3 } from 'three'
+
 import { updateReferenceSpaceFromAvatarMovement } from '../../avatar/functions/moveAvatar'
-import { SceneSettingsComponent } from '../components/SceneSettingsComponent'
+import { DefaultKillHeight, SceneSettingsComponent } from '../components/SceneSettingsComponent'
 
 const heightKillApplicableQuery = defineQuery([
   RigidBodyComponent,
@@ -58,7 +60,7 @@ const execute = () => {
   const settingsEntities = settingsQuery()
   const sceneKillHeight = settingsEntities.reduce((min, entity) => {
     return Math.min(min, getComponent(entity, SceneSettingsComponent).sceneKillHeight)
-  }, Number.MAX_VALUE)
+  }, DefaultKillHeight)
   const killableEntities = heightKillApplicableQuery()
 
   for (const entity of killableEntities) {

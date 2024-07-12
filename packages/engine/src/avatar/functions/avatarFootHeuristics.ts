@@ -23,14 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
+
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
+
 import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
@@ -139,7 +141,7 @@ export const setIkFootTarget = (userID: UserID, delta: number) => {
         .copy(footOffset)
         .add(walkDirection.normalize().multiplyScalar((stepDistance * playerDisplacement) / delta))
 
-      nextStep[key].rotation.identity().setFromUnitVectors(V_010, walkDirection.normalize())
+      nextStep[key].rotation.identity().setFromUnitVectors(Vector3_Up, walkDirection.normalize())
     }
 
     //if we're at the target, switch to the other foot

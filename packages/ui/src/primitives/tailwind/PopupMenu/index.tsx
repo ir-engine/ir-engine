@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
+
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+
 import ClickawayListener from '../ClickawayListener'
 
 const PopupMenu = () => {
@@ -34,7 +36,7 @@ const PopupMenu = () => {
     <>
       {popoverElement.get(NO_PROXY).map((element, idx) => {
         return (
-          <div key={idx} className={idx === popoverElement.length - 1 ? 'block' : 'hidden'}>
+          <div key={idx} className="block">
             <ClickawayListener>{element ?? undefined}</ClickawayListener>
           </div>
         )

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert, NodeCategory, makeEventNodeDefinition } from '../../../VisualScriptModule'
+import { Assert, makeEventNodeDefinition, NodeCategory } from '../../../VisualScriptModule'
 import { ILifecycleEventEmitter } from '../abstractions/ILifecycleEventEmitter'
 
 // inspired by: https://docs.unrealengine.com/4.27/en-US/ProgrammingAndScripting/Blueprints/UserGuide/Events/
@@ -39,7 +39,7 @@ const makeInitialState = (): State => ({
 export const LifecycleOnEnd = makeEventNodeDefinition({
   typeName: 'flow/lifecycle/onEnd',
   label: 'On End',
-  category: NodeCategory.Event,
+  category: NodeCategory.Flow,
   in: {},
   out: {
     flow: 'flow'

@@ -23,29 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Material, Mesh, Raycaster, Vector2 } from 'three'
+
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
+import { addAuthoringHook } from '@etherealengine/engine/src/gltf/AuthoringHookState'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
-import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
-import {
-  getMaterialSource,
-  materialFromId,
-  materialIsRegistered,
-  registerMaterial,
-  registerMaterialInstance,
-  unregisterMaterial,
-  unregisterMaterialInstance
-} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
@@ -53,7 +46,8 @@ import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterat
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { Material, Mesh, Raycaster, Vector2 } from 'three'
+import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -79,40 +73,58 @@ export async function addMediaNode(
       const objectLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
       const sceneObjects = objectLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
       //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
-      let mouse = new Vector2()
+      const mouse = new Vector2()
       const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
       const pointerScreenRaycaster = new Raycaster()
 
       const mouseEvent = event as MouseEvent // Type assertion
       mouse.x = (mouseEvent.clientX / window.innerWidth) * 2 - 1
       mouse.y = -(mouseEvent.clientY / window.innerHeight) * 2 + 1
-      pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
 
       pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
 
-      const intersect = pointerScreenRaycaster.intersectObjects(sceneObjects, true)
       //change states
       const intersected = pointerScreenRaycaster.intersectObjects(sceneObjects)[0]
       const gltfLoader = getState(AssetLoaderState).gltfLoader
       gltfLoader.load(url, (gltf) => {
-        let material = iterateObject3D(
+        const material = iterateObject3D(
           gltf.scene,
           (mesh: Mesh) => mesh.material as Material,
           (mesh: Mesh) => mesh?.isMesh
         )[0]
         if (!material) return
-        if (materialIsRegistered(material)) material = materialFromId(material.uuid).material
+        createMaterialEntity(material, UndefinedEntity)
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
-          const src = getMaterialSource(mesh.material as Material)
-          if (!src) return
-          if (!materialIsRegistered(material)) registerMaterial(material, { type: SourceType.MODEL, path: src })
-          registerMaterialInstance(material, mesh.entity)
-          if (unregisterMaterialInstance(mesh.material as Material, mesh.entity) === 0) {
-            unregisterMaterial(mesh.material as Material)
-          }
-          mesh.material = material
+          const materialInstanceComponent = getMutableComponent(mesh.entity, MaterialInstanceComponent)
+          if (materialInstanceComponent.uuid.value) materialInstanceComponent.uuid.set([material.uuid as EntityUUID])
         })
+      })
+    } else if (contentType.startsWith('model/lookdev')) {
+      const gltfLoader = getState(AssetLoaderState).gltfLoader
+      gltfLoader.load(url, (gltf) => {
+        const componentJson = gltf.scene.children[0].userData.componentJson
+        EditorControlFunctions.overwriteLookdevObject(
+          [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+          componentJson,
+          parent!,
+          before
+        )
+      })
+    } else if (contentType.startsWith('model/prefab')) {
+      const { entityUUID, sceneID } = EditorControlFunctions.createObjectFromSceneElement(
+        [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+        parent!,
+        before
+      )
+      addAuthoringHook({
+        entityUUID,
+        sceneID,
+        callback: (entityUUID) => {
+          const entity = UUIDComponent.getEntityByUUID(entityUUID)
+          const modelComponent = getMutableComponent(entity, ModelComponent)
+          modelComponent.dereference.set(true)
+        }
       })
     } else {
       EditorControlFunctions.createObjectFromSceneElement(

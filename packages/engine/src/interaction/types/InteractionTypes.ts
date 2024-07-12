@@ -27,7 +27,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 
 export type InteractionCheckHandler = (
   clientEntity: Entity,
-  interactiveEntity: Entity,
+  interactableEntity: Entity,
   focusedPart?: number,
   args?: any
 ) => boolean

@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { forwardRef } from 'react'
+import { HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2'
+
 import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input, { InputProps } from '@etherealengine/ui/src/primitives/tailwind/Input'
-import React, { forwardRef } from 'react'
-import { HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2'
 
 const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
   (props: InputProps, ref: React.Ref<HTMLInputElement>) => {

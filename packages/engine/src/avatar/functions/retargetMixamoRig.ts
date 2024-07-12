@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM } from '@pixiv/three-vrm'
 import { AnimationClip, KeyframeTrack, Object3D, Quaternion, QuaternionKeyframeTrack, VectorKeyframeTrack } from 'three'
+
 import { mixamoVRMRigMap, recursiveHipsLookup } from '../AvatarBoneMatching'
 
 const restRotationInverse = new Quaternion()
@@ -77,8 +78,9 @@ export const bindAnimationClipFromMixamo = (clip: AnimationClip, vrm: VRM) => {
   for (let i = 0; i < clip.tracks.length; i++) {
     const trackClone = clip.tracks[i].clone()
     const trackSplitted = trackClone.name.split('.')
-    const mixamoRigName = trackSplitted[0]
-    const vrmBoneName = mixamoVRMRigMap[mixamoRigName]
+    const mixamoPrefix = trackSplitted[0].includes('mixamorig') ? '' : 'mixamorig'
+    const mixamoBoneName = mixamoPrefix + trackSplitted[0]
+    const vrmBoneName = mixamoVRMRigMap[mixamoBoneName]
     const vrmNodeName = vrm.humanoid?.getNormalizedBoneNode(vrmBoneName)?.name
 
     if (vrmNodeName != null) {

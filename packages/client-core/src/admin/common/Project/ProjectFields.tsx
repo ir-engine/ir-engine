@@ -32,6 +32,9 @@ import InputRadio from '@etherealengine/client-core/src/common/components/InputR
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
+import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import { toDateTimeSql, toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -39,11 +42,8 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
-
-import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
-import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../old-styles/admin.module.scss'
@@ -233,8 +233,8 @@ const ProjectFields = ({
       ProjectUpdateService.setSourceProjectName(project.name, '')
       return
     }
-    const valueRegex = new RegExp(`^${value}`, 'g')
-    let matchingCommit = commitData.find((data) => valueRegex.test(data.commitSHA))
+
+    let matchingCommit = commitData.find((data) => data.commitSHA.startsWith(value))
     if (!matchingCommit) {
       const commitResponse = (await ProjectService.checkUnfetchedCommit({
         url: projectUpdateStatus.value.sourceURL,
@@ -251,7 +251,7 @@ const ProjectFields = ({
             resolve(null)
           }, 100)
         })
-        matchingCommit = commitData.find((data) => valueRegex.test(data.commitSHA))
+        matchingCommit = commitData.find((data) => data.commitSHA.startsWith(value))
       }
     }
     ProjectUpdateService.setSourceProjectName(project.name, matchingCommit?.projectName || '')
@@ -273,13 +273,8 @@ const ProjectFields = ({
     if (el.projectVersion) label += ` -- Project Ver. ${el.projectVersion}`
     if (el.engineVersion) label += ` -- Engine Ver. ${el.engineVersion}`
     if (el.datetime) {
-      const datetime = new Date(el.datetime).toLocaleString('en-us', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric'
-      })
+      const datetime = toDisplayDateTime(el.datetime)
+
       label += ` -- Pushed ${datetime}`
     }
     return {

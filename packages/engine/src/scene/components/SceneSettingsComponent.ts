@@ -25,6 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
+export const DefaultKillHeight = -10
+
 export const SceneSettingsComponent = defineComponent({
   name: 'SceneSettingsComponent',
   jsonID: 'EE_scene_settings',
@@ -36,7 +38,7 @@ export const SceneSettingsComponent = defineComponent({
       primaryColor: '#000000',
       backgroundColor: '#FFFFFF',
       alternativeColor: '#000000',
-      sceneKillHeight: -10
+      sceneKillHeight: DefaultKillHeight
     }
   },
 

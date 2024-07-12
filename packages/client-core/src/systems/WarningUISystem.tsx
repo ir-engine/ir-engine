@@ -33,7 +33,8 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
@@ -79,7 +80,7 @@ export const WarningUIService = {
 const WarningSystemXRUI = function () {
   const { t } = useTranslation()
 
-  const state = useHookstate(getMutableState(WarningUIState))
+  const state = useMutableState(WarningUIState)
   const { title, body, timeRemaining } = state.value
 
   return (
@@ -151,19 +152,15 @@ export const WarningUISystemState = defineState({
     const transitionPeriodSeconds = 0.2
     const transition = createTransitionState(transitionPeriodSeconds, 'OUT')
 
-    const ui = createXRUI(WarningSystemXRUI)
-    removeComponent(ui.entity, VisibleComponent)
-    setComponent(ui.entity, NameComponent, 'Warning XRUI')
-
     return {
-      ui,
+      ui: null as null | ReturnType<typeof createXRUI>,
       transition
     }
   }
 })
 
 function TransitionReactor() {
-  const state = useHookstate(getMutableState(WarningUIState))
+  const state = useMutableState(WarningUIState)
 
   useEffect(() => {
     if (state.open.value) {
@@ -179,8 +176,10 @@ function TransitionReactor() {
 let accumulator = 0
 
 const execute = () => {
-  const state = getState(WarningUIState)
   const { transition, ui } = getState(WarningUISystemState)
+  if (!ui) return
+
+  const state = getState(WarningUIState)
 
   const deltaSeconds = getState(ECSState).deltaSeconds
 
@@ -206,9 +205,9 @@ const execute = () => {
 
   if (transition.state === 'IN') {
     setComponent(ui.entity, ComputedTransformComponent, {
-      referenceEntity: Engine.instance.cameraEntity,
+      referenceEntities: [Engine.instance.viewerEntity],
       computeFunction: () => {
-        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+        const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
         const distance = camera.near * 1.1 // 10% in front of camera
         ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, 0.3, distance)
       }
@@ -226,10 +225,14 @@ const execute = () => {
   })
 }
 
-const reactor = () => {
+const Reactor = () => {
   useEffect(() => {
+    const ui = createXRUI(WarningSystemXRUI)
+    removeComponent(ui.entity, VisibleComponent)
+    setComponent(ui.entity, NameComponent, 'Warning XRUI')
+    getMutableState(WarningUISystemState).ui.set(ui)
+
     return () => {
-      const ui = getState(WarningUISystemState).ui
       removeEntity(ui.entity)
     }
   }, [])
@@ -240,5 +243,8 @@ export const WarningUISystem = defineSystem({
   uuid: 'ee.client.WarningUISystem',
   insert: { after: PresentationSystemGroup },
   execute,
-  reactor
+  reactor: () => {
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <Reactor />
+  }
 })

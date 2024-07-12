@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { Types } from 'bitecs'
 
 import { useEntityContext } from '@etherealengine/ecs'
@@ -33,8 +32,9 @@ import {
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getState } from '@etherealengine/hyperflux'
-import { useLayoutEffect } from 'react'
+
+import { World } from '@dimforge/rapier3d-compat'
+import { useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { PhysicsState } from '../state/PhysicsState'
@@ -64,12 +64,11 @@ export const RigidBodyComponent = defineComponent({
       type: 'fixed' as Body,
       ccd: false,
       allowRolling: true,
-      enabledRotations: [true, true, true],
+      enabledRotations: [true, true, true] as [boolean, boolean, boolean],
       // rigidbody desc values
       canSleep: true,
       gravityScale: 1,
       // internal
-      body: null! as RigidBody,
       previousPosition: proxifyVector3(this.previousPosition, entity),
       previousRotation: proxifyQuaternion(this.previousRotation, entity),
       position: proxifyVector3(this.position, entity),
@@ -91,8 +90,15 @@ export const RigidBodyComponent = defineComponent({
     if (typeof json.allowRolling === 'boolean') component.allowRolling.set(json.allowRolling)
     if (typeof json.canSleep === 'boolean') component.canSleep.set(json.canSleep)
     if (typeof json.gravityScale === 'number') component.gravityScale.set(json.gravityScale)
-    if (Array.isArray(json.enabledRotations) && json.enabledRotations.length === 3)
+    if (
+      Array.isArray(json.enabledRotations) &&
+      json.enabledRotations.length === 3 &&
+      typeof json.enabledRotations[0] === 'boolean' &&
+      typeof json.enabledRotations[1] === 'boolean' &&
+      typeof json.enabledRotations[2] === 'boolean'
+    ) {
       component.enabledRotations.set(json.enabledRotations)
+    }
   },
 
   toJSON: (entity, component) => {
@@ -109,39 +115,18 @@ export const RigidBodyComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, RigidBodyComponent)
+    const physicsWorld = useMutableState(PhysicsState).physicsWorld
 
-    useLayoutEffect(() => {
-      let rigidBodyDesc: RigidBodyDesc = undefined!
-      switch (component.type.value) {
-        case 'fixed':
-        default:
-          rigidBodyDesc = RigidBodyDesc.fixed()
-          break
-
-        case 'dynamic':
-          rigidBodyDesc = RigidBodyDesc.dynamic()
-          break
-
-        case 'kinematic':
-          rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
-          break
-      }
-      rigidBodyDesc.setCanSleep(component.canSleep.value)
-      rigidBodyDesc.setGravityScale(component.gravityScale.value)
-      const world = getState(PhysicsState).physicsWorld
-      const rigidBody = Physics.createRigidBody(entity, world, rigidBodyDesc)
-      component.body.set(rigidBody)
-
+    useImmediateEffect(() => {
+      const world = physicsWorld.value as World
+      if (!world) return
+      Physics.createRigidBody(entity, world)
       return () => {
-        const world = getState(PhysicsState).physicsWorld
-        if (!world) return
-        if (world.bodies.contains(rigidBody.handle)) {
-          world.removeRigidBody(rigidBody)
-        }
+        Physics.removeRigidbody(entity, world)
       }
-    }, [])
+    }, [physicsWorld])
 
-    useLayoutEffect(() => {
+    useImmediateEffect(() => {
       const type = component.type.value
       setComponent(entity, getTagComponentForRigidBody(type))
       Physics.setRigidBodyType(entity, type)
@@ -150,25 +135,25 @@ export const RigidBodyComponent = defineComponent({
       }
     }, [component.type])
 
-    useLayoutEffect(() => {
-      const rigidBody = component.body.value
-      rigidBody.enableCcd(component.ccd.value)
+    useImmediateEffect(() => {
+      Physics.enabledCcd(entity, component.ccd.value)
     }, [component.ccd])
 
-    useLayoutEffect(() => {
-      const rigidBody = component.body.value
-      rigidBody.lockRotations(component.allowRolling.value, false)
-    }, [component.allowRolling])
+    useImmediateEffect(() => {
+      const value = component.allowRolling.value
+      /**
+       * @todo Change this back to `Physics.lockRotations( entity, !value )` when we update to Rapier >= 0.12.0
+       * https://github.com/dimforge/rapier.js/issues/282  */
+      Physics.setEnabledRotations(entity, [value, value, value])
+    }, [component.allowRolling.value])
 
-    useLayoutEffect(() => {
-      const rigidBody = component.body.value
-      rigidBody.setEnabledRotations(
-        component.enabledRotations.value[0],
-        component.enabledRotations.value[1],
-        component.enabledRotations.value[2],
-        false
-      )
-    }, [component.enabledRotations])
+    /**
+     * @todo Should these be three useffects instead?
+     *       It wasn't triggering with just one, because the array reference never changed
+     */
+    useImmediateEffect(() => {
+      Physics.setEnabledRotations(entity, component.enabledRotations.value as [boolean, boolean, boolean])
+    }, [component.enabledRotations[0].value, component.enabledRotations[1].value, component.enabledRotations[2].value])
 
     return null
   }

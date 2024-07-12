@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
+import { v4 as uuidv4 } from 'uuid'
 
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -36,35 +37,38 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { TransformComponent } from '@etherealengine/spatial'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
-import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
-export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
+export const parseECSData = (userData: Record<string, any>): ComponentJsonType[] => {
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
-
+  const keysToRemove: string[] = []
+  const data = [...Object.entries(userData)]
   for (const [key, value] of data) {
     const parts = key.split('.')
     if (parts.length > 1) {
       if (parts[0] === 'xrengine') {
+        keysToRemove.push(key)
         const componentExists = ComponentMap.has(parts[1])
         const _toLoad = componentExists ? components : prefabs
         if (typeof _toLoad[parts[1]] === 'undefined') {
@@ -78,6 +82,11 @@ export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
         }
       }
     }
+  }
+
+  // remove keys that have been processed as they will be exported in different format
+  for (const key of keysToRemove) {
+    delete userData[key]
   }
 
   const result: ComponentJsonType[] = []
@@ -103,7 +112,7 @@ export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
 }
 
 export const createObjectEntityFromGLTF = (obj3d: Object3D): ComponentJsonType[] => {
-  return parseECSData(Object.entries(obj3d.userData))
+  return parseECSData(obj3d.userData)
 }
 
 export const parseObjectComponentsFromGLTF = (
@@ -152,7 +161,9 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
   for (const child of children) {
     child.parent = model.scene
     iterateObject3D(child, (obj: Object3D) => {
-      const uuid = obj.uuid as EntityUUID
+      const uuid =
+        (obj.userData?.gltfExtensions?.EE_uuid as EntityUUID) || (obj.uuid as EntityUUID) || (uuidv4() as EntityUUID)
+      obj.uuid = uuid
       const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
       entityJson[uuid] = eJson
     })
@@ -220,6 +231,8 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
 }
 
 export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, entityJson?: EntityJsonType) => {
+  if (!obj.uuid) throw new Error('Object3D must have a UUID')
+
   // create entity outside of scene loading reactor since we need to access it before the reactor is guaranteed to have executed
   const objEntity = UUIDComponent.getOrCreateEntityByUUID(obj.uuid as EntityUUID)
   const parentEntity = obj.parent ? obj.parent.entity : rootEntity
@@ -240,9 +253,6 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   })
   setComponent(objEntity, UUIDComponent, uuid)
 
-  if (hasComponent(rootEntity, SceneAssetPendingTagComponent))
-    SceneAssetPendingTagComponent.addResource(objEntity, `${rootEntity}`)
-
   setComponent(objEntity, NameComponent, name)
   setComponent(objEntity, TransformComponent, {
     position: obj.position.clone(),
@@ -256,14 +266,15 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
       setComponent(objEntity, ComponentJSONIDMap.get(component.name)!, component.props)
   }
 
-  eJson.components.push({
-    name: TransformComponent.jsonID,
-    props: {
-      position: obj.position.clone(),
-      rotation: obj.quaternion.clone(),
-      scale: obj.scale.clone()
-    }
-  })
+  if (!eJson.components.find((c) => c.name === TransformComponent.jsonID))
+    eJson.components.push({
+      name: TransformComponent.jsonID,
+      props: {
+        position: obj.position.clone(),
+        rotation: obj.quaternion.clone(),
+        scale: obj.scale.clone()
+      }
+    })
 
   addObjectToGroup(objEntity, obj)
   setComponent(objEntity, GLTFLoadedComponent, ['entity'])
@@ -281,14 +292,18 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   const findColliderData = (obj: Object3D) => {
     if (
+      hasComponent(obj.entity, ColliderComponent) ||
       Object.keys(obj.userData).find(
         (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
       )
     ) {
       return true
     } else if (obj.parent) {
-      return Object.keys(obj.parent.userData).some(
-        (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+      return (
+        hasComponent(obj.parent.entity, ColliderComponent) ||
+        Object.keys(obj.parent.userData).some(
+          (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+        )
       )
     }
     return false
@@ -323,8 +338,21 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   else setComponent(objEntity, FrustumCullCameraComponent)
 
   if (obj.userData['componentJson']) {
-    eJson.components.push(...obj.userData['componentJson'])
+    for (const json of obj.userData['componentJson']) {
+      if (!eJson.components.find((c) => c.name === json.name)) eJson.components.push(json)
+    }
   }
+
+  if (!hasComponent(objEntity, MeshComponent)) {
+    setComponent(objEntity, Object3DComponent, obj)
+  }
+
+  const material = mesh.material
+  if (!material) return eJson
+
+  delete mesh.userData['componentJson']
+  delete mesh.userData['gltfExtensions']
+  delete mesh.userData['useVisible']
 
   return eJson
 }

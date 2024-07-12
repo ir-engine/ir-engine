@@ -23,26 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
+import { VRM } from '@pixiv/three-vrm'
 
-import {
-  getComponent,
-  getOptionalComponent,
-  getOptionalMutableComponent,
-  hasComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getOptionalMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { getState } from '@etherealengine/hyperflux'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
-import { traverseEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { VRM } from '@pixiv/three-vrm'
-import { ModelComponent } from '../../scene/components/ModelComponent'
-
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
+
+import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
@@ -63,14 +56,6 @@ const execute = () => {
     const animationComponent = getComponent(entity, AnimationComponent)
     const modifiedDelta = deltaSeconds
     animationComponent.mixer.update(modifiedDelta)
-    /** @todo for some reason, the animation clips do not apply their data to the proxified quaternions */
-    if (hasComponent(entity, ModelComponent))
-      traverseEntityNode(entity, (childEntity) => {
-        const mesh = getOptionalComponent(childEntity, MeshComponent)
-        if (!mesh) return
-        const rotation = getComponent(childEntity, TransformComponent).rotation
-        rotation.copy(mesh.quaternion)
-      })
     const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
     animationActionComponent?._action.value &&
       animationActionComponent?.time.set(animationActionComponent._action.value.time)

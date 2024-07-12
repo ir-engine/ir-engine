@@ -24,23 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { BufferGeometry, Color, DirectionalLight, Float32BufferAttribute, LineBasicMaterial, LineSegments } from 'three'
+import { BufferGeometry, Color, DirectionalLight, Float32BufferAttribute } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import {
+  defineComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { matches, useMutableState } from '@etherealengine/hyperflux'
 
-import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { NameComponent } from '../../common/NameComponent'
+import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
+import { useDisposable } from '../../resources/resourceHooks'
 import { RendererState } from '../RendererState'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { useUpdateLight } from '../functions/useUpdateLight'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { setVisibleComponent } from './VisibleComponent'
+import { LineSegmentComponent } from './LineSegmentComponent'
 
-const material = new LineBasicMaterial()
 const size = 1
 const lightPlaneGeometry = new BufferGeometry()
 lightPlaneGeometry.setAttribute(
@@ -95,33 +97,21 @@ targetLineGeometry.setAttribute(
   new Float32BufferAttribute([-t, t, 0, 0, 0, 1, t, t, 0, 0, 0, 1, t, -t, 0, 0, 0, 1, -t, -t, 0, 0, 0, 1], 3)
 )
 
-type DirectionalLightHelper = {
-  lightPlane: LineSegments<BufferGeometry, LineBasicMaterial>
-  targetLine: LineSegments<BufferGeometry, LineBasicMaterial>
-  name: string
-  size: number
-  lightHelperEntity: Entity
-}
+const mergedGeometry = mergeBufferGeometries([targetLineGeometry, lightPlaneGeometry])
 
 export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
   jsonID: 'EE_directional_light',
 
   onInit: (entity) => {
-    const light = new DirectionalLight()
-    light.target.position.set(0, 0, 1)
-    light.target.name = 'light-target'
-    light.shadow.camera.near = 0.01
-    light.shadow.camera.updateProjectionMatrix()
     return {
-      light,
+      light: null! as DirectionalLight,
       color: new Color(),
       intensity: 1,
       castShadow: false,
       shadowBias: -0.00001,
       shadowRadius: 1,
-      cameraFar: 200,
-      helper: null as DirectionalLightHelper | null
+      cameraFar: 200
     }
   },
 
@@ -135,16 +125,6 @@ export const DirectionalLightComponent = defineComponent({
     /** backwards compat */
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
-
-    const light = component.light.value
-    light.color.copy(component.color.value)
-    light.intensity = component.intensity.value
-    light.castShadow = component.castShadow.value
-    light.shadow.bias = component.shadowBias.value
-    light.shadow.radius = component.shadowRadius.value
-    light.shadow.camera.far = component.cameraFar.value
-    light.shadow.camera.updateProjectionMatrix()
-    light.shadow.needsUpdate = true
   },
 
   toJSON: (entity, component) => {
@@ -154,19 +134,20 @@ export const DirectionalLightComponent = defineComponent({
       cameraFar: component.cameraFar.value,
       castShadow: component.castShadow.value,
       shadowBias: component.shadowBias.value,
-      shadowRadius: component.shadowRadius.value,
-      helper: component.helper.value
+      shadowRadius: component.shadowRadius.value
     }
   },
 
   reactor: function () {
     const entity = useEntityContext()
-    const renderState = useHookstate(getMutableState(RendererState))
+    const renderState = useMutableState(RendererState)
     const debugEnabled = renderState.nodeHelperVisibility
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
+    const [light] = useDisposable(DirectionalLight, entity)
+    const lightHelper = useOptionalComponent(entity, LineSegmentComponent)
 
     useEffect(() => {
-      const light = directionalLightComponent.light.value
+      directionalLightComponent.light.set(light)
       addObjectToGroup(entity, light)
       return () => {
         removeObjectFromGroup(entity, light)
@@ -174,86 +155,54 @@ export const DirectionalLightComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      directionalLightComponent.light.value.color.set(directionalLightComponent.color.value)
-      if (directionalLightComponent.helper.value) {
-        const helper = directionalLightComponent.helper.value
-        if (directionalLightComponent.color.value) {
-          helper.lightPlane.material.color.set(directionalLightComponent.color.value)
-          helper.targetLine.material.color.set(directionalLightComponent.color.value)
-        }
-      }
+      light.color.set(directionalLightComponent.color.value)
+      if (!lightHelper) return
+      lightHelper.color.set(directionalLightComponent.color.value)
     }, [directionalLightComponent.color])
 
     useEffect(() => {
-      directionalLightComponent.light.value.intensity = directionalLightComponent.intensity.value
+      light.intensity = directionalLightComponent.intensity.value
     }, [directionalLightComponent.intensity])
 
     useEffect(() => {
-      directionalLightComponent.light.value.castShadow =
-        directionalLightComponent.castShadow.value &&
-        renderState.csm.value?.sourceLight !== directionalLightComponent.light.value
-    }, [directionalLightComponent.castShadow, renderState.csm])
-
-    useEffect(() => {
-      directionalLightComponent.light.value.shadow.camera.far = directionalLightComponent.cameraFar.value
-      directionalLightComponent.light.shadow.camera.value.updateProjectionMatrix()
+      light.shadow.camera.far = directionalLightComponent.cameraFar.value
+      light.shadow.camera.updateProjectionMatrix()
     }, [directionalLightComponent.cameraFar])
 
     useEffect(() => {
-      directionalLightComponent.light.value.shadow.bias = directionalLightComponent.shadowBias.value
+      light.shadow.bias = directionalLightComponent.shadowBias.value
     }, [directionalLightComponent.shadowBias])
 
     useEffect(() => {
-      directionalLightComponent.light.value.shadow.radius = directionalLightComponent.shadowRadius.value
+      light.shadow.radius = directionalLightComponent.shadowRadius.value
     }, [directionalLightComponent.shadowRadius])
 
     useEffect(() => {
-      if (directionalLightComponent.light.value.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
-        directionalLightComponent.light.value.shadow.mapSize.setScalar(renderState.shadowMapResolution.value)
-        directionalLightComponent.light.value.shadow.map?.dispose()
-        directionalLightComponent.light.value.shadow.map = null as any
-        directionalLightComponent.light.value.shadow.camera.updateProjectionMatrix()
-        directionalLightComponent.light.value.shadow.needsUpdate = true
+      if (light.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
+        light.shadow.mapSize.setScalar(renderState.shadowMapResolution.value)
+        light.shadow.map?.dispose()
+        light.shadow.map = null as any
+        light.shadow.camera.updateProjectionMatrix()
+        light.shadow.needsUpdate = true
       }
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (!debugEnabled.value) return
-
-      const size = 1
-      const name = `directional-light-helper-${entity}`
-
-      const lightHelperEntity = createEntity()
-      const lightPlane = new LineSegments(lightPlaneGeometry, material)
-      setComponent(lightHelperEntity, NameComponent, name)
-      addObjectToGroup(lightHelperEntity, lightPlane)
-      setComponent(lightHelperEntity, EntityTreeComponent, { parentEntity: entity })
-      setVisibleComponent(lightHelperEntity, true)
-
-      const targetLine = new LineSegments(targetLineGeometry, material)
-      addObjectToGroup(lightHelperEntity, targetLine)
-      targetLine.layers.set(ObjectLayers.NodeHelper)
-
-      directionalLightComponent.helper.set({
-        lightPlane: lightPlane,
-        targetLine: targetLine,
-        name: name,
-        size: size,
-        lightHelperEntity: lightHelperEntity
-      })
+      if (debugEnabled.value) {
+        setComponent(entity, LineSegmentComponent, {
+          name: 'directional-light-helper',
+          // Clone geometry because LineSegmentComponent disposes it when removed
+          geometry: mergedGeometry?.clone(),
+          color: directionalLightComponent.color.value
+        })
+      }
 
       return () => {
-        removeEntity(lightHelperEntity)
-        lightPlane.geometry.dispose()
-        lightPlane.material.dispose()
-        targetLine.geometry.dispose()
-        targetLine.material.dispose()
-        if (!hasComponent(entity, DirectionalLightComponent)) return
-        directionalLightComponent.helper.set(none)
+        removeComponent(entity, LineSegmentComponent)
       }
     }, [debugEnabled])
 
-    useUpdateLight(directionalLightComponent.light.value)
+    useUpdateLight(light)
 
     return null
   }

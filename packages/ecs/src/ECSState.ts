@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineState } from '@etherealengine/hyperflux'
+
 import { Timer } from './Timer'
 
 export const ECSState = defineState({
@@ -35,6 +36,7 @@ export const ECSState = defineState({
     frameTime: Date.now(),
     simulationTime: Date.now(),
     deltaSeconds: 0,
-    elapsedSeconds: 0
+    elapsedSeconds: 0,
+    lastSystemExecutionDuration: 0
   }
 })

@@ -24,12 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
+import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+import { v4 as uuidv4 } from 'uuid'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-
+import {
+  ScopeData,
+  ScopeType,
+  projectPermissionPath,
+  scopePath,
+  staticResourcePath
+} from '@etherealengine/common/src/schema.type.module'
 import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import {
   ProjectData,
@@ -40,20 +48,21 @@ import {
 } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { getState } from '@etherealengine/hyperflux'
-import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
-import { v4 as uuidv4 } from 'uuid'
+
+import { isDev } from '@etherealengine/common/src/config'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
 import config from '../../appconfig'
+import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 import {
   deleteProjectFilesInStorageProvider,
+  engineVersion,
   getCommitSHADate,
-  getEnginePackageJson,
   getGitProjectData,
   getProjectConfig,
   getProjectEnabled,
-  getProjectPackageJson,
+  getProjectManifest,
   onProjectEvent,
   uploadLocalProjectToProvider
 } from './project-helper'
@@ -62,7 +71,9 @@ const UPDATE_JOB_TIMEOUT = 60 * 5 //5 minute timeout on project update jobs comp
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
-export interface ProjectParams extends KnexAdapterParams<ProjectQuery>, ProjectUpdateParams {}
+export interface ProjectParams extends KnexAdapterParams<ProjectQuery>, ProjectUpdateParams {
+  appJWT?: string
+}
 
 export type ProjectParamsClient = Omit<ProjectParams, 'user'>
 
@@ -77,38 +88,39 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
   constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
-
-    this.app.isSetup.then(() => this._callOnLoad())
-  }
-
-  async _callOnLoad() {
-    try {
-      const projects = (await super._find({
-        query: { $select: ['name'] },
-        paginate: false
-      })) as Array<{ name }>
-      await Promise.all(
-        projects.map(async ({ name }) => {
-          if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
-          const config = getProjectConfig(name)
-          if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
-        })
-      )
-    } catch (err) {
-      logger.error(err)
-      throw err
-    }
   }
 
   async _seedProject(projectName: string): Promise<any> {
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
-    const projectConfig = getProjectConfig(projectName) ?? {}
+    const projectConfig = getProjectConfig(projectName)
     const enabled = getProjectEnabled(projectName)
+
+    // if no manifest.json exists, add one
+    const packageJsonPath = path.resolve(projectsRootFolder, projectName, 'package.json')
+    const manifestJsonPath = path.resolve(projectsRootFolder, projectName, 'manifest.json')
+    if (!fs.existsSync(manifestJsonPath) && fs.existsSync(packageJsonPath)) {
+      const json = getProjectManifest(projectName)
+      fs.writeFileSync(manifestJsonPath, JSON.stringify(json, null, 2))
+      const sceneJsonFiles = fs
+        .readdirSync(path.resolve(projectsRootFolder, projectName))
+        .filter((file) => file.endsWith('.scene.json'))
+      for (const scene of sceneJsonFiles) {
+        const sceneName = scene.split('/').pop()!.replace('.scene.json', '')
+        await this.app.service(staticResourcePath).create({
+          key: `projects/${projectName}/${sceneName}`,
+          mimeType: 'application/json',
+          hash: createStaticResourceHash(fs.readFileSync(scene)),
+          project: projectName,
+          type: 'scene',
+          thumbnailKey: `projects/${projectName}/${sceneName.replace('.scene.json', '.thumbnail.jpg')}`
+        })
+      }
+    }
 
     const gitData = getGitProjectData(projectName)
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-    await super._create({
+    const project = await super._create({
       id: uuidv4(),
       name: projectName,
       enabled,
@@ -124,9 +136,26 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
     })
+
+    await uploadLocalProjectToProvider(this.app, projectName)
+
     // run project install script
-    if (projectConfig.onEvent) {
-      return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
+    if (projectConfig?.onEvent) {
+      return onProjectEvent(this.app, project, projectConfig.onEvent, 'onInstall')
+    }
+
+    // if in dev mode, give all admins access to the project
+    if (isDev) {
+      const admins = (await this.app
+        .service(scopePath)
+        .find({ query: { type: 'static_resource:write' as ScopeType, paginate: false } })) as any as ScopeData[]
+      for (const admin of admins) {
+        await this.app.service(projectPermissionPath).create({
+          projectId: project.id,
+          userId: admin.userId,
+          type: 'owner'
+        })
+      }
     }
 
     return Promise.resolve()
@@ -136,6 +165,10 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
    * On dev, sync the db with any projects installed locally
    */
   async _fetchDevLocalProjects() {
+    return this._syncDevLocalProjects(true)
+  }
+
+  async _syncDevLocalProjects(removeProjects) {
     if (getState(ServerState).serverMode !== ServerMode.API) return
 
     const data = (await super._find({ paginate: false })) as ProjectType[]
@@ -152,7 +185,9 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     const promises: Promise<any>[] = []
 
     for (const projectName of locallyInstalledProjects) {
+      let seeded = false
       if (!data.find((e) => e.name === projectName)) {
+        seeded = true
         try {
           promises.push(this._seedProject(projectName))
         } catch (e) {
@@ -164,9 +199,8 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
       const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-      const engineVersion = getProjectPackageJson(projectName).etherealEngine?.version
-      const version = getEnginePackageJson().version
-      const enabled = config.allowOutOfDateProjects ? true : engineVersion === version
+      const projectEngineVersion = getProjectManifest(projectName).engineVersion
+      const enabled = config.allowOutOfDateProjects ? true : projectEngineVersion === engineVersion
 
       await super._patch(
         null,
@@ -174,19 +208,18 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
         { query: { name: projectName } }
       )
 
-      promises.push(uploadLocalProjectToProvider(this.app, projectName))
+      if (!seeded) promises.push(uploadLocalProjectToProvider(this.app, projectName))
     }
 
     await Promise.all(promises)
 
-    await this._callOnLoad()
-
-    for (const { name, id } of data) {
-      if (!locallyInstalledProjects.includes(name)) {
-        await deleteProjectFilesInStorageProvider(this.app, name)
-        logger.warn(`[Projects]: Project ${name} not found, assuming removed`)
-        await super._remove(id)
+    if (removeProjects)
+      for (const { name, id } of data) {
+        if (!locallyInstalledProjects.includes(name)) {
+          await deleteProjectFilesInStorageProvider(this.app, name)
+          logger.warn(`[Projects]: Project ${name} not found, assuming removed`)
+          await super._remove(id)
+        }
       }
-    }
   }
 }

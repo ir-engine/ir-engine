@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { CameraSettingsState } from '@etherealengine/spatial/src/camera/CameraSceneMetadata'
 
 export const CameraSettingsComponent = defineComponent({
@@ -48,7 +47,8 @@ export const CameraSettingsComponent = defineComponent({
     if (typeof json.cameraNearClip === 'number') component.cameraNearClip.set(json.cameraNearClip)
     if (typeof json.cameraFarClip === 'number') component.cameraFarClip.set(json.cameraFarClip)
     if (typeof json.projectionType === 'number') component.projectionType.set(json.projectionType)
-    if (typeof json.minCameraDistance === 'number') component.minCameraDistance.set(json.minCameraDistance)
+    if (typeof json.minCameraDistance === 'number')
+      component.minCameraDistance.set(Math.max(json.minCameraDistance, 1.5))
     if (typeof json.maxCameraDistance === 'number') component.maxCameraDistance.set(json.maxCameraDistance)
     if (typeof json.startCameraDistance === 'number') component.startCameraDistance.set(json.startCameraDistance)
     if (typeof json.cameraMode === 'number') component.cameraMode.set(json.cameraMode)

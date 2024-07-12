@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { KinematicCharacterController } from '@dimforge/rapier3d-compat'
+import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
 import {
@@ -37,13 +37,18 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
-import { useEffect } from 'react'
+
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
+import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
+
+export const eyeOffset = 0.25
 
 export const AvatarControllerComponent = defineComponent({
   name: 'AvatarControllerComponent',
@@ -51,8 +56,7 @@ export const AvatarControllerComponent = defineComponent({
   onInit(entity) {
     return {
       /** The camera entity that should be updated by this controller */
-      cameraEntity: Engine.instance.cameraEntity,
-      controller: null! as KinematicCharacterController,
+      cameraEntity: getState(EngineState).viewerEntity || UndefinedEntity,
       movementCaptured: [] as Array<Entity>,
       isJumping: false,
       isWalking: false,
@@ -72,7 +76,6 @@ export const AvatarControllerComponent = defineComponent({
     if (!json) return
 
     if (matches.number.test(json.cameraEntity)) component.cameraEntity.set(json.cameraEntity)
-    if (matches.object.test(json.controller)) component.controller.set(json.controller as KinematicCharacterController)
     if (matches.array.test(json.movementCaptured)) component.movementCaptured.set(json.movementCaptured)
     if (matches.boolean.test(json.isJumping)) component.isJumping.set(json.isJumping)
     if (matches.boolean.test(json.isWalking)) component.isWalking.set(json.isWalking)
@@ -100,19 +103,18 @@ export const AvatarControllerComponent = defineComponent({
     const avatarComponent = useComponent(entity, AvatarComponent)
     const avatarControllerComponent = useComponent(entity, AvatarControllerComponent)
     const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
+    const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
 
     useEffect(() => {
-      /** @todo fix this */
-      // getState(PhysicsState).physicsWorld.removeCollider(avatarControllerComponent.bodyCollider.value, false)
-      // const collider = createAvatarCollider(entity)
-      // avatarControllerComponent.bodyCollider.set(collider)
+      setAvatarColliderTransform(entity)
 
       const cameraEntity = avatarControllerComponent.cameraEntity.value
       if (cameraEntity && entityExists(cameraEntity) && hasComponent(cameraEntity, FollowCameraComponent)) {
         const cameraComponent = getComponent(cameraEntity, FollowCameraComponent)
-        cameraComponent.offset.set(0, avatarComponent.eyeHeight.value, 0)
+        cameraComponent.firstPersonOffset.set(0, avatarComponent.eyeHeight.value, eyeOffset)
+        cameraComponent.thirdPersonOffset.set(0, avatarComponent.eyeHeight.value, 0)
       }
-    }, [avatarComponent.avatarHeight])
+    }, [avatarComponent.avatarHeight, camera.near])
 
     useEffect(() => {
       if (isCameraAttachedToAvatar.value) {

@@ -23,32 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
-import { WebLayer3D } from '@etherealengine/xrui'
+import { Vector3 } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { Engine, getMutableComponent, InputSystemGroup, UndefinedEntity } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { addInteractableUI } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { getState } from '@etherealengine/hyperflux'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
+import { WebLayer3D } from '@etherealengine/xrui'
+
 import { createMediaControlsView } from './ui/MediaControlsUI'
+
+const controlsUiPosVec3 = new Vector3()
+let clicking = false
+const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
+const mediaQuery = defineQuery([MediaComponent])
 
 export const createMediaControlsUI = (entity: Entity) => {
   const ui = createMediaControlsView(entity)
 
-  setComponent(ui.entity, EntityTreeComponent, { parentEntity: entity })
+  setComponent(ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
   setComponent(ui.entity, NameComponent, 'mediacontrols-ui-' + entity)
 
   ui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
@@ -56,28 +63,61 @@ export const createMediaControlsUI = (entity: Entity) => {
     mat.transparent = true
   })
 
-  const transform = getComponent(entity, TransformComponent)
-  const uiTransform = getComponent(ui.entity, TransformComponent)
-  uiTransform.position.copy(transform.position)
-
   return ui
 }
 
-export const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
-
-const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaControlsUI>) => {
-  const xrui = getComponent(mediaControls.entity, XRUIComponent)
+const onUpdate = (entity: Entity) => {
+  const mediaComponent = getMutableComponent(entity, MediaComponent)
+  if (!mediaComponent.controls.value) return
+  const xrui = getComponent(mediaComponent.xruiEntity.value, XRUIComponent)
   const transition = MediaFadeTransitions.get(entity)!
-  const buttonLayer = xrui.rootLayer.querySelector('button')
-  const group = getOptionalComponent(entity, GroupComponent)
-  const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
-  const intersectObjects = group ? pointerScreenRaycaster.intersectObjects(group, true) : []
-  if (intersectObjects.length) {
-    transition.setState('IN')
+  const buttonLayer = xrui.rootLayer.querySelector('#button')
+
+  const inputComponent = getComponent(entity, InputComponent)
+  const inputSourceEntity = inputComponent?.inputSources[0]
+
+  //inputsource and entity 0 = hover
+  //inputsource and entity 3 = clicking HERE
+  //noinput and entity 3 = clicking somewhere else or still clicking
+  //noinputsource and entity 0 = no hover, no click
+  const capturingEntity = getState(InputState).capturingEntity
+
+  if (inputSourceEntity) {
+    const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
+
+    if (capturingEntity !== UndefinedEntity) {
+      const buttons = inputSource?.buttons
+      clicking = !!buttons //clicking on our boundingbox this frame
+
+      mediaComponent.paused.set(!mediaComponent.paused.value)
+    }
   }
-  if (!intersectObjects.length) {
+
+  const hover = inputSourceEntity && capturingEntity === UndefinedEntity
+  const showUI = hover || clicking
+
+  //fires one frame late to prevent mouse up frame issue
+  if (clicking && !inputSourceEntity && capturingEntity === UndefinedEntity) {
+    clicking = false
+  }
+  if (showUI) {
+    transition.setState('IN')
+  } else {
     transition.setState('OUT')
   }
+  const uiTransform = getComponent(mediaComponent.xruiEntity.value, TransformComponent)
+  const transform = getComponent(entity, TransformComponent)
+
+  //logic for positioning the controls on the border of the video no matter the resolution/scale
+  // if (buttonLayer) {
+  //   let buttonOffset = buttonLayer.domSize.y * xrui.rootLayer.domSize.y * 1.2 //HACK 1.2 is a magic number here to include the button border (10px on a 100px button)
+  //   controlsUiPosVec3.set(transform.scale.x * 0.5 - buttonOffset, -transform.scale.y * 0.5 - buttonOffset, 0)
+  // }
+
+  controlsUiPosVec3.copy(mediaComponent.uiOffset.value) //used to add - might be nice to allow for some pre-placed anchor positions
+  controlsUiPosVec3.add(transform.position)
+  uiTransform.position.copy(controlsUiPosVec3)
+
   const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (opacity) => {
     buttonLayer?.scale.setScalar(0.9 + 0.1 * opacity * opacity)
@@ -88,26 +128,30 @@ const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaCo
   })
 }
 
-const mediaQuery = defineQuery([MediaComponent])
-
 const execute = () => {
   if (getState(EngineState).isEditor || !isClient) return
 
   for (const entity of mediaQuery.enter()) {
-    if (!getComponent(entity, MediaComponent).controls) continue
-    addInteractableUI(entity, createMediaControlsUI(entity), onUpdate)
-    const transition = createTransitionState(0.25)
-    transition.setState('OUT')
+    const mediaComponent = getComponent(entity, MediaComponent)
+    if (!mediaComponent.controls) continue
+
+    const transition = createTransitionState(0.25, 'IN')
     MediaFadeTransitions.set(entity, transition)
+    mediaComponent.xruiEntity = createMediaControlsUI(entity).entity
+    setComponent(mediaComponent.xruiEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
   }
 
   for (const entity of mediaQuery.exit()) {
     if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
   }
+
+  for (const entity of mediaQuery()) {
+    onUpdate(entity)
+  }
 }
 
 export const MediaControlSystem = defineSystem({
   uuid: 'ee.engine.MediaControlSystem',
-  insert: { before: TransformSystem },
+  insert: { after: InputSystemGroup },
   execute
 })

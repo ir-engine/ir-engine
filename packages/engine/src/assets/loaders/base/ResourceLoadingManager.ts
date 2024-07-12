@@ -31,7 +31,6 @@ class ResourceLoadingManager {
   onLoad?: () => void
   onProgress?: (url: string, loaded: number, total: number) => void
   onError?: (url: string) => void
-  itemEndFor?: any
 
   isLoading = false
   itemsLoaded = 0

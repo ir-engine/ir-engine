@@ -217,6 +217,8 @@
       "rebuilding": "Rebuilding",
       "updateEngine": "Update Engine",
       "updateSelector": "Update projects",
+      "currentEngineVersion": "Current Engine Version: {{version}}",
+      "currentEngineCommit": "Current Engine Commit: {{commit}}",
       "projectWarning": "WARNING: Updating projects along with the Engine version may result in loss of work. If you revert to an old engine project and update projects with it, your copy of these projects will also be reverted. It is recommended that you back up the destination branch of these projects if you have made modifications that might be lost.",
       "updateAndRebuild": "Update Engine/Rebuild",
       "checking": "Checking Rebuild",
@@ -353,6 +355,7 @@
         "subtitle": "Edit Authentication Settings"
       },
       "service": "Service",
+      "githubAppId": "App ID (Enter for GitHub App, omit for OAuth App)",
       "secret": "Secret",
       "entity": "Entity",
       "authStrategies": "Authentication Strategies",
@@ -365,11 +368,11 @@
       "protocol": "Protocol",
       "apple": "Apple",
       "discord": "Discord",
-      "facebook": "Facebook",
+      "facebook": "Meta",
       "google": "Google",
       "github": "Github",
       "linkedIn": "LinkedIn",
-      "twitter": "Twitter",
+      "twitter": "X",
       "key": "Key",
       "callback": "Callback",
       "appTitle": "App Title",
@@ -383,6 +386,10 @@
       "aws": {
         "header": "AWS",
         "subtitle": "Edit AWS Settings"
+      },
+      "features": {
+        "header": "Features",
+        "subtitle": "Edit Feature Flag Settings"
       },
       "keys": "Keys",
       "accessKeyId": "Access Key ID",
@@ -508,12 +515,27 @@
       "screenshareMidResMaxBitrate": "Screenshare mid-res video max bitrate (kbps)",
       "screenshareHighResMaxBitrate": "Screenshare high-res video max bitrate (kbps)",
       "privacyPolicy": "Privacy Policy",
+      "webRTCSettings": {
+        "main": "WebRTC Settings",
+        "useCustomICEServers": "Use custom iceServers configuration",
+        "iceServers": "iceServers (STUN/TURN configuration; must provide proper JSON)",
+        "useTimeLimitedCredentials": "Use time-limited credentials to authenticate STUN/TURN server",
+        "webRTCStaticAuthSecretKey": "Shared static-auth-secret for authenticating STUN/TURN server",
+        "usePrivateInstanceserverIP": "Return instanceservers' raw private IP address instead of DNS record"
+      },
       "project": {
         "header": "Project",
         "subtitle": "Edit Project Settings",
         "submit": "Submit",
         "clear": "Clear",
-        "noSettingsMessage": "No schema available in xrengine.config.ts"
+        "save": "Save",
+        "delete": "Delete",
+        "add": "Add",
+        "noSettingsMessage": "No settings available",
+        "lastUpdatedBy": "Last updated by user id: {{userId}}",
+        "duplicateKey": "Duplicate keys cannot exist",
+        "keyName": "Key Name",
+        "value": "Value"
       },
       "server": {
         "header": "Server",
@@ -535,7 +557,13 @@
         "processInterval": "Process Interval"
       },
 
-      "plugins": "Plugins"
+      "plugins": "Plugins",
+      "zendesk": {
+        "header": "Zendesk",
+        "subtitle": "Edit Zendesk Settings"
+      }, 
+      "keyName": "key Name",
+      "kid": "Key Id"
     },
     "avatar": {
       "columns": {
@@ -628,11 +656,11 @@
       "linkedAccounts": "Linked Accounts",
       "apple": "Apple",
       "discord": "Discord",
-      "facebook": "Facebook",
+      "facebook": "Meta",
       "google": "Google",
       "github": "Github",
       "linkedIn": "LinkedIn",
-      "twitter": "Twitter",
+      "twitter": "X",
       "sms": "SMS",
       "email": "Email",
       "selectAvatar": "Select an Avatar",
@@ -640,6 +668,7 @@
     },
     "server": {
       "servers": "Servers",
+      "migrations": "Migrations",
       "loading": "Fetching Server Info",
       "loadingLogs": "Fetching Server Logs",
       "name": "Name",
@@ -670,7 +699,13 @@
       "downloadLogs": "Download Logs",
       "removePod": "Remove Pod",
       "confirmPodDelete": "Do you want to delete pod",
-      "viewLogs": "View Logs"
+      "viewLogs": "View Logs",
+      "columns": {
+        "id": "ID",
+        "name": "Name",
+        "batch": "Batch",
+        "migration_time": "Migration Time"
+      }
     },
     "recording": {
       "columns": {

@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+
 import { XRDetectedMeshComponent } from './XRDetectedMeshComponent'
 import { XRDetectedPlaneComponent } from './XRDetectedPlaneComponent'
 import { ReferenceSpace, XRState } from './XRState'

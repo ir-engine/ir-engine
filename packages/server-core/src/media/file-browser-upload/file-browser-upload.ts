@@ -29,6 +29,7 @@ import {
   fileBrowserUploadMethods,
   fileBrowserUploadPath
 } from '@etherealengine/common/src/schemas/media/file-browser-upload.schema'
+
 import { Application } from '../../../declarations'
 import { FileBrowserUploadService } from './file-browser-upload.class'
 import fileBrowserUploadDocs from './file-browser-upload.docs'

@@ -27,6 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { Mesh, MeshBasicMaterial, MeshStandardMaterial, RepeatWrapping, Texture } from 'three'
 
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+
 import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 

@@ -1,0 +1,1276 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "nodes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "Settings",
+      "extensions": {
+        "EE_uuid": "51d71835-68a8-430b-96f6-4c618b8ea407",
+        "EE_envmapbake": {
+          "bakePosition": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "bakePositionOffset": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "bakeScale": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "bakeType": "Baked",
+          "resolution": 2048,
+          "refreshMode": "OnAwake",
+          "envMapOrigin": "__$project$__/default-project/public/scenes/apartment.envmap.ktx2",
+          "boxProjection": false
+        },
+        "EE_camera_settings": {
+          "fov": 50,
+          "cameraNearClip": 0.1,
+          "cameraFarClip": 1000,
+          "projectionType": 1,
+          "minCameraDistance": 1,
+          "maxCameraDistance": 50,
+          "startCameraDistance": 3,
+          "cameraMode": 5,
+          "cameraModeDefault": 2,
+          "minPhi": -70,
+          "maxPhi": 85
+        },
+        "EE_postprocessing": {
+          "effects": {
+            "SSAOEffect": {
+              "isActive": false,
+              "blendFunction": 21,
+              "distanceScaling": true,
+              "depthAwareUpsampling": true,
+              "samples": 16,
+              "rings": 7,
+              "distanceThreshold": 0.125,
+              "distanceFalloff": 0.02,
+              "minRadiusScale": 1,
+              "bias": 0.25,
+              "radius": 0.01,
+              "intensity": 2,
+              "fade": 0.05
+            },
+            "SSREffect": {
+              "isActive": false,
+              "distance": 10,
+              "thickness": 10,
+              "autoThickness": false,
+              "maxRoughness": 1,
+              "blend": 0.9,
+              "denoiseIterations": 1,
+              "denoiseKernel": 2,
+              "denoiseDiffuse": 10,
+              "denoiseSpecular": 10,
+              "depthPhi": 2,
+              "normalPhi": 50,
+              "roughnessPhi": 1,
+              "envBlur": 0.5,
+              "importanceSampling": true,
+              "directLightMultiplier": 1,
+              "steps": 20,
+              "refineSteps": 5,
+              "spp": 1,
+              "resolutionScale": 1,
+              "missedRays": false
+            },
+            "DepthOfFieldEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "focusDistance": 0.02,
+              "focalLength": 0.5,
+              "bokehScale": 1
+            },
+            "BloomEffect": {
+              "isActive": true,
+              "blendFunction": 28,
+              "kernelSize": 2,
+              "luminanceThreshold": 1,
+              "luminanceSmoothing": 0.1,
+              "intensity": 0.2
+            },
+            "ToneMappingEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "adaptive": true,
+              "resolution": 512,
+              "middleGrey": 0.6,
+              "maxLuminance": 32,
+              "averageLuminance": 1,
+              "adaptationRate": 2
+            },
+            "BrightnessContrastEffect": {
+              "isActive": false,
+              "brightness": 0.05,
+              "contrast": 0.1
+            },
+            "HueSaturationEffect": {
+              "isActive": false,
+              "hue": 0,
+              "saturation": -0.15
+            },
+            "ColorDepthEffect": {
+              "isActive": false,
+              "bits": 16
+            },
+            "LinearTosRGBEffect": {
+              "isActive": false
+            },
+            "SSGIEffect": {
+              "isActive": false,
+              "distance": 10,
+              "thickness": 10,
+              "autoThickness": false,
+              "maxRoughness": 1,
+              "blend": 0.9,
+              "denoiseIterations": 1,
+              "denoiseKernel": 2,
+              "denoiseDiffuse": 10,
+              "denoiseSpecular": 10,
+              "depthPhi": 2,
+              "normalPhi": 50,
+              "roughnessPhi": 1,
+              "envBlur": 0.5,
+              "importanceSampling": true,
+              "directLightMultiplier": 1,
+              "steps": 20,
+              "refineSteps": 5,
+              "spp": 1,
+              "resolutionScale": 1,
+              "missedRays": false
+            },
+            "TRAAEffect": {
+              "isActive": false,
+              "blend": 0.8,
+              "constantBlend": true,
+              "dilation": true,
+              "blockySampling": false,
+              "logTransform": false,
+              "depthDistance": 10,
+              "worldDistance": 5,
+              "neighborhoodClamping": true
+            },
+            "MotionBlurEffect": {
+              "isActive": false,
+              "intensity": 1,
+              "jitter": 1,
+              "samples": 16
+            }
+          },
+          "enabled": false
+        },
+        "EE_fog": {
+          "type": "disabled",
+          "color": "#FFFFFF",
+          "density": 0.005,
+          "near": 1,
+          "far": 1000,
+          "timeScale": 1,
+          "height": 0.05
+        },
+        "EE_media_settings": {
+          "immersiveMedia": false,
+          "refDistance": 20,
+          "rolloffFactor": 1,
+          "maxDistance": 10000,
+          "distanceModel": "linear",
+          "coneInnerAngle": 360,
+          "coneOuterAngle": 0,
+          "coneOuterGain": 0
+        },
+        "EE_render_settings": {
+          "primaryLight": "c4e80371-a13b-42f1-b5e1-6d61f572bb34",
+          "csm": false,
+          "cascades": 5,
+          "toneMapping": 1,
+          "toneMappingExposure": 0.8,
+          "shadowMapType": 2
+        },
+        "EE_visible": true,
+        "EE_scene_settings": {
+          "thumbnailURL": "__$project$__/default-project/public/scenes/apartment.thumbnail.jpg",
+          "loadingScreenURL": "__$project$__/default-project/public/scenes/apartment.loadingscreen.ktx2",
+          "primaryColor": "#A8B6C6",
+          "backgroundColor": "rgb(64, 70, 71)",
+          "alternativeColor": "#8EBBAE",
+          "sceneKillHeight": -10
+        }
+      }
+    },
+    {
+      "matrix": [
+        0.9985554300035313,
+        1.0842021724855044e-19,
+        -0.053731305683582656,
+        0,
+        0.0010012117547803867,
+        0.9998263779823392,
+        0.018606758603761105,
+        0,
+        0.05372197674587832,
+        -0.018633676253400677,
+        0.9983820587950281,
+        0,
+        -2.3184722251170213,
+        1.6898777584130713,
+        8.731049954361012,
+        1
+      ],
+      "name": "scene preview camera",
+      "extensions": {
+        "EE_uuid": "a0a03866-c1d0-46d4-94ce-6f6bb0098c20",
+        "EE_scene_preview_camera": {}
+      }
+    },
+    {
+      "name": "EE_skybox",
+      "extensions": {
+        "EE_uuid": "86bda8f8-a9bc-4447-b92a-6514815a5b22",
+        "EE_visible": true,
+        "EE_skybox": {
+          "backgroundColor": 0,
+          "equirectangularPath": "__$project$__/default-project/assets/apartment_skybox.jpg",
+          "cubemapPath": "",
+          "backgroundType": 2,
+          "skyboxProps": {
+            "turbidity": 10.95,
+            "rayleigh": 4,
+            "luminance": 0.836,
+            "mieCoefficient": 0,
+            "mieDirectionalG": 0.442,
+            "inclination": 0.5890311692555663,
+            "azimuth": 0.5208333333333334
+          }
+        }
+      }
+    },
+    {
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0.019999999552965164,
+        0,
+        1
+      ],
+      "name": "ground plane",
+      "extensions": {
+        "EE_uuid": "45113aff-0bdb-4670-917a-dbf2a3b86bf0",
+        "EE_ground_plane": {
+          "color": 3561699,
+          "visible": true
+        },
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "plane",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 0.5,
+          "collisionLayer": 4,
+          "collisionMask": 3
+        }
+      }
+    },
+    {
+      "matrix": [
+        -4.599999904632568,
+        5.633375159286406e-16,
+        -5.633375159286405e-16,
+        0,
+        5.633375159286406e-16,
+        4.599999904632568,
+        5.633375159286406e-16,
+        0,
+        5.633375159286405e-16,
+        5.633375159286406e-16,
+        -4.599999904632568,
+        0,
+        -2.5,
+        0.5,
+        6,
+        1
+      ],
+      "name": "spawn point",
+      "extensions": {
+        "EE_uuid": "23816114-e405-47d7-bfff-0baa2339b773",
+        "EE_visible": true,
+        "EE_spawn_point": {
+          "permissionedUsers": []
+        }
+      }
+    },
+    {
+      "name": "hemisphere light",
+      "extensions": {
+        "EE_uuid": "1452a9a3-3271-4989-b341-90cf215325a3",
+        "EE_visible": true,
+        "EE_hemisphere_light": {
+          "skyColor": 16777215,
+          "groundColor": 16777215,
+          "intensity": 1
+        }
+      }
+    },
+    {
+      "matrix": [
+        0.8972583704807329,
+        0.41190443398052046,
+        0.1589407243894624,
+        0,
+        1.8100639098683757e-8,
+        0.35999683542667715,
+        -0.9329535242887386,
+        0,
+        -0.44150585115291474,
+        0.837100361814499,
+        0.3230101664774274,
+        0,
+        0.5,
+        0,
+        0.5,
+        1
+      ],
+      "name": "directional light",
+      "extensions": {
+        "EE_uuid": "c4e80371-a13b-42f1-b5e1-6d61f572bb34",
+        "EE_directional_light": {
+          "color": 16777215,
+          "intensity": 1,
+          "cameraFar": 200,
+          "castShadow": true,
+          "shadowBias": -0.00001,
+          "shadowRadius": 1
+        }
+      }
+    },
+    {
+      "matrix": [
+        0.75,
+        0,
+        0,
+        0,
+        0,
+        0.75,
+        0,
+        0,
+        0,
+        0,
+        0.75,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "extras": {
+        "src": "__$project$__/default-project/assets/apartment.glb"
+      },
+      "name": "model",
+      "extensions": {
+        "EE_uuid": "b46b57c1-bd37-43cc-b000-8b4411fe728b",
+        "EE_visible": true,
+        "EE_model": {
+          "src": "__$project$__/default-project/assets/apartment.glb",
+          "cameraOcclusion": true,
+          "convertToVRM": false
+        },
+        "EE_loop_animation": {
+          "activeClipIndex": -1,
+          "animationPack": "",
+          "paused": false,
+          "time": 0,
+          "timeScale": 1,
+          "blendMode": 2500,
+          "loop": 2201,
+          "clampWhenFinished": false,
+          "zeroSlopeAtStart": true,
+          "zeroSlopeAtEnd": true,
+          "weight": 1
+        },
+        "EE_shadow": {
+          "cast": false,
+          "receive": false
+        },
+        "EE_envmap": {
+          "type": "Bake",
+          "envMapTextureType": "Equirectangular",
+          "envMapSourceColor": 1193046,
+          "envMapSourceURL": "",
+          "envMapSourceEntityUUID": "1f374932-e649-4b30-b6e7-de990fdee2a1",
+          "envMapIntensity": 1
+        }
+      }
+    },
+    {
+      "matrix": [
+        0.8799999952316284,
+        0,
+        0,
+        0,
+        0,
+        11.379999923706055,
+        0,
+        0,
+        0,
+        0,
+        28.25999984741211,
+        0,
+        8.400000381469727,
+        5.699999809265137,
+        2.499999999999999,
+        1
+      ],
+      "name": "Box Collider 25",
+      "extensions": {
+        "EE_uuid": "46add0e6-cbc5-4caa-8845-03defdc40e29",
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "box",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 1,
+          "collisionLayer": 1,
+          "collisionMask": 7
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "matrix": [
+        0.5799999952316284,
+        0,
+        0,
+        0,
+        0,
+        11.979999923706055,
+        0,
+        0,
+        0,
+        0,
+        27.85999984741211,
+        0,
+        -15.5,
+        5.699999809265137,
+        2.5,
+        1
+      ],
+      "name": "Box Collider 26",
+      "extensions": {
+        "EE_uuid": "78a26534-fdd6-4a79-a7fe-97e83895640c",
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "box",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 1,
+          "collisionLayer": 1,
+          "collisionMask": 7
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "matrix": [
+        0.3800000011920929,
+        0,
+        0,
+        0,
+        0,
+        11.579999923706055,
+        0,
+        0,
+        0,
+        0,
+        23.8600004196167,
+        0,
+        -9,
+        5.699999809265137,
+        5.5,
+        1
+      ],
+      "name": "Box Collider 27",
+      "extensions": {
+        "EE_uuid": "1052a07b-414f-4887-a7aa-c70c972598b1",
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "box",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 1,
+          "collisionLayer": 1,
+          "collisionMask": 7
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "matrix": [
+        24.179999923706056,
+        0,
+        0,
+        0,
+        0,
+        11.679999923706056,
+        0,
+        0,
+        0,
+        0,
+        0.639999994635582,
+        0,
+        -3.499999999999999,
+        5.699999809265137,
+        -10.4,
+        1
+      ],
+      "name": "Box Collider 28",
+      "extensions": {
+        "EE_uuid": "ab324600-7600-455f-a116-4ed957603b71",
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "box",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 1,
+          "collisionLayer": 1,
+          "collisionMask": 7
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "matrix": [
+        24.179999923706056,
+        0,
+        0,
+        0,
+        0,
+        11.579999923706055,
+        0,
+        0,
+        0,
+        0,
+        0.43999999463558204,
+        0,
+        -3.5,
+        5.699999809265137,
+        16.5,
+        1
+      ],
+      "name": "Box Collider 29",
+      "extensions": {
+        "EE_uuid": "c8992c75-4881-4186-a47f-614d2fa61c67",
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "box",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 1,
+          "collisionLayer": 1,
+          "collisionMask": 7
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "matrix": [
+        12.579999923706055,
+        0,
+        0,
+        0,
+        0,
+        11.479999923706055,
+        0,
+        0,
+        0,
+        0,
+        0.439999994635582,
+        0,
+        -3,
+        5.699999809265137,
+        11,
+        1
+      ],
+      "name": "Box Collider 30",
+      "extensions": {
+        "EE_uuid": "9c073abf-9ce3-4cd7-be90-b0ace33aca5c",
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "box",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 1,
+          "collisionLayer": 1,
+          "collisionMask": 7
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "matrix": [
+        0.9983418166418103,
+        2.776182378447577e-16,
+        -0.05756402647774106,
+        0,
+        -3.3299198020319258e-16,
+        1.200000023841858,
+        1.2196394734588239e-17,
+        0,
+        0.09785884569837647,
+        9.905599949421538e-18,
+        1.6971811001922392,
+        0,
+        -3.4000000953674316,
+        0,
+        3,
+        1
+      ],
+      "name": "Box Collider 31",
+      "extensions": {
+        "EE_uuid": "ac0c4391-8394-4601-85d5-64bca9df30dc",
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "box",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 1,
+          "collisionLayer": 1,
+          "collisionMask": 7
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "matrix": [
+        0.7940369210618097,
+        0,
+        0.09749547677036895,
+        0,
+        0,
+        1.2,
+        0,
+        0,
+        -0.09749547677036895,
+        0,
+        0.7940369210618097,
+        0,
+        -3.3722314834594727,
+        0,
+        -2.3505780696868896,
+        1
+      ],
+      "name": "Box Collider 32",
+      "extensions": {
+        "EE_uuid": "aee1caa8-e502-489b-aca7-425b14da4cf6",
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "box",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 1,
+          "collisionLayer": 1,
+          "collisionMask": 7
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -12,
+        1,
+        14,
+        1
+      ],
+      "name": "EE_portal",
+      "extensions": {
+        "EE_uuid": "da8a8f5a-7a72-4dae-acef-9ef013cb31b6",
+        "EE_shadow": {
+          "cast": true,
+          "receive": true
+        },
+        "EE_portal": {
+          "location": "sky-station",
+          "linkedPortalId": "6a1cf0d6-ddfe-4058-b5ca-5bb18bc7efae",
+          "redirect": false,
+          "effectType": "Hyperspace",
+          "previewType": "Spherical",
+          "previewImageURL": "__$project$__/default-project/public/scenes/apartment-Portal.ktx2",
+          "spawnPosition": {
+            "x": -12,
+            "y": 1,
+            "z": 14
+          },
+          "spawnRotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+          }
+        },
+        "EE_visible": true,
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "sphere",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 0.5,
+          "collisionLayer": 8,
+          "collisionMask": 2
+        },
+        "EE_trigger": {
+          "triggers": [
+            {
+              "onEnter": "teleport",
+              "onExit": null,
+              "target": ""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Trigger Volume",
+      "extensions": {
+        "EE_uuid": "0f5b5b02-67f9-4682-b687-d8ef95448c16",
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "box",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 1,
+          "collisionLayer": 1,
+          "collisionMask": 7
+        },
+        "EE_trigger": {
+          "triggers": [
+            {
+              "onEnter": null,
+              "onExit": null,
+              "target": null
+            }
+          ]
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -9,
+        1.5,
+        -8,
+        1
+      ],
+      "name": "Door",
+      "extensions": {
+        "EE_uuid": "d8a020bd-0795-44f2-b00a-97c6bc9984a7",
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "box",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 1,
+          "collisionLayer": 1,
+          "collisionMask": 8
+        },
+        "EE_trigger": {
+          "triggers": [
+            {
+              "onEnter": null,
+              "onExit": null,
+              "target": null
+            }
+          ]
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "matrix": [
+        0.0010000000474974513,
+        0,
+        0,
+        0,
+        0,
+        0.0010000000474974513,
+        0,
+        0,
+        0,
+        0,
+        0.0010000000474974513,
+        0,
+        -1,
+        0.5,
+        4,
+        1
+      ],
+      "extras": {
+        "src": "__$project$__/default-project/assets/keycard.glb"
+      },
+      "name": "Model",
+      "extensions": {
+        "EE_uuid": "61304262-c00c-4f1f-80a2-e4163d97a007",
+        "EE_visible": true,
+        "EE_shadow": {
+          "cast": true,
+          "receive": true
+        },
+        "EE_model": {
+          "src": "__$project$__/default-project/assets/keycard.glb",
+          "cameraOcclusion": false,
+          "convertToVRM": false
+        },
+        "EE_loop_animation": {
+          "activeClipIndex": -1,
+          "animationPack": "",
+          "paused": false,
+          "time": 0,
+          "timeScale": 1,
+          "blendMode": 2500,
+          "loop": 2201,
+          "clampWhenFinished": false,
+          "zeroSlopeAtStart": true,
+          "zeroSlopeAtEnd": true,
+          "weight": 1
+        },
+        "EE_envmap": {
+          "type": "Skybox",
+          "envMapTextureType": "Cubemap",
+          "envMapSourceColor": 1193046,
+          "envMapSourceURL": "__$project$__/default-project/assets/skyboxsun25deg/",
+          "envMapSourceEntityUUID": "",
+          "envMapIntensity": 1
+        }
+      }
+    },
+    {
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0,
+        4,
+        1
+      ],
+      "name": "VCKey Trigger Volume",
+      "extensions": {
+        "EE_uuid": "9d06e7cb-bd8f-4537-80ad-d62dcc8b89c3",
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "box",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 1,
+          "collisionLayer": 1,
+          "collisionMask": 8
+        },
+        "EE_trigger": {
+          "triggers": [
+            {
+              "onEnter": null,
+              "onExit": null,
+              "target": null
+            }
+          ]
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -0.6517807171857612,
+        3.1700513124390657,
+        1.5277829229407551,
+        1
+      ],
+      "name": "New EnvMap Bake",
+      "extensions": {
+        "EE_uuid": "1f374932-e649-4b30-b6e7-de990fdee2a1",
+        "EE_envmapbake": {
+          "bakePosition": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "bakePositionOffset": {
+            "x": 0,
+            "y": 4.4,
+            "z": 0
+          },
+          "bakeScale": {
+            "x": 17.200000000000003,
+            "y": 8.2,
+            "z": 20.5
+          },
+          "bakeType": "Baked",
+          "resolution": 1024,
+          "refreshMode": "OnAwake",
+          "envMapOrigin": "__$project$__/default-project/public/scenes/apartment-New-EnvMap%20Bake.ktx2",
+          "boxProjection": true
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "matrix": [
+        2.220446049250313e-16,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1,
+        0,
+        2.220446049250313e-16,
+        0,
+        -3.4,
+        0.5,
+        -2.4,
+        1
+      ],
+      "name": "EE_mount_point",
+      "extensions": {
+        "EE_uuid": "4e6a56be-a4d8-4091-a741-10fbefaea21d",
+        "EE_mount_point": {
+          "type": "seat",
+          "dismountOffset": {
+            "x": 0,
+            "y": 0,
+            "z": 1
+          }
+        },
+        "EE_visible": true
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_envmapbake",
+    "EE_camera_settings",
+    "EE_postprocessing",
+    "EE_fog",
+    "EE_media_settings",
+    "EE_render_settings",
+    "EE_visible",
+    "EE_scene_settings",
+    "EE_ecs",
+    "EE_scene_preview_camera",
+    "EE_skybox",
+    "EE_ground_plane",
+    "EE_rigidbody",
+    "EE_collider",
+    "EE_spawn_point",
+    "EE_hemisphere_light",
+    "EE_directional_light",
+    "EE_model",
+    "EE_loop_animation",
+    "EE_shadow",
+    "EE_envmap",
+    "EE_portal",
+    "EE_trigger",
+    "EE_mount_point"
+  ]
+}

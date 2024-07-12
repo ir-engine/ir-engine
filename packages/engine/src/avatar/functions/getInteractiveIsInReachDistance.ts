@@ -26,16 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { Vector3 } from 'three'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
+
 import { getHandTarget } from '../components/AvatarIKComponents'
 
-export const interactiveReachDistance = 3
+export const interactableReachDistance = 3
 
 export const getInteractiveIsInReachDistance = (
   entityUser: Entity,
-  interactivePosition: Vector3,
+  interactablePosition: Vector3,
   side: XRHandedness
 ): boolean => {
   const target = getHandTarget(entityUser, side)
   if (!target) return false
-  return target.position.distanceTo(interactivePosition) < interactiveReachDistance
+  return target.position.distanceTo(interactablePosition) < interactableReachDistance
 }

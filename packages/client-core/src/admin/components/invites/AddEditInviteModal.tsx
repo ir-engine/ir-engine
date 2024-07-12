@@ -23,20 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { InviteService } from '@etherealengine/client-core/src/social/services/InviteService'
 import {
+  instancePath,
   InviteCode,
   InviteData,
-  InviteType,
-  instancePath,
   invitePath,
+  InviteType,
   locationPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { convertDateTimeSqlToLocal, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
@@ -44,9 +47,6 @@ import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import MultiEmailInput from '@etherealengine/ui/src/primitives/tailwind/MultiEmailInput'
 import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { AdminSceneState } from '../../services/SceneService'
 
 type InviteTypeOptionsType = 'new-user' | 'location' | 'instance'
 const inviteTypeOptions = ['new-user', 'location', 'instance'] as InviteTypeOptionsType[]
@@ -91,12 +91,8 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
   const errors = useHookstate(getDefaultErrors())
   const submitLoading = useHookstate(false)
 
-  const adminSceneState = useHookstate(getMutableState(AdminSceneState))
-  const spawnPoints = adminSceneState.singleScene?.scene?.entities.value
-    ? Object.entries(adminSceneState.singleScene.scene.entities.value).filter(([, value]) =>
-        value.components.find((component) => component.name === 'spawn-point')
-      )
-    : []
+  /** @todo spawn point support */
+  const spawnPoints = [] as any[]
   const spawnPointOptions = [
     ...spawnPoints.map(([id, value]) => {
       const transform = value.components.find((component) => component.name === 'transform')
@@ -234,7 +230,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
               { value: '', label: t('admin:components.invite.selectLocation'), disabled: true },
               ...adminLocations.map((location) => ({
                 value: location.id,
-                label: `${location.name} (${location.sceneId})`
+                label: location.name
               }))
             ]}
             currentValue={inviteLocation.value}

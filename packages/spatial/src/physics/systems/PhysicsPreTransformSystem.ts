@@ -23,37 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Matrix4, Quaternion, Vector3 } from 'three'
+
 import {
-  Entity,
   defineQuery,
   defineSystem,
+  Entity,
   getComponent,
   getOptionalComponent,
   hasComponent
 } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
-import { Matrix4, Quaternion, Vector3 } from 'three'
-import { V_000 } from '../../common/constants/MathConstants'
+
+import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { TransformSystem, computeTransformMatrix, isDirty } from '../../transform/systems/TransformSystem'
+import { computeTransformMatrix, isDirty, TransformSystem } from '../../transform/systems/TransformSystem'
+import { Physics } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
-
-export const teleportRigidbody = (entity: Entity) => {
-  const transform = getComponent(entity, TransformComponent)
-  const rigidBody = getComponent(entity, RigidBodyComponent)
-  const isAwake = !rigidBody.body.isSleeping()
-  rigidBody.body.setTranslation(transform.position, isAwake)
-  rigidBody.body.setRotation(transform.rotation, isAwake)
-  rigidBody.body.setLinvel(V_000, isAwake)
-  rigidBody.body.setAngvel(V_000, isAwake)
-  rigidBody.previousPosition.copy(transform.position)
-  rigidBody.position.copy(transform.position)
-  rigidBody.previousRotation.copy(transform.rotation)
-  rigidBody.rotation.copy(transform.rotation)
-}
 
 const position = new Vector3()
 const rotation = new Quaternion()
@@ -152,10 +141,7 @@ export const copyTransformToRigidBody = (entity: Entity) => {
       rotation.w
 
   const rigidbody = getComponent(entity, RigidBodyComponent)
-  rigidbody.body.setTranslation(rigidbody.position, false)
-  rigidbody.body.setRotation(rigidbody.rotation, false)
-  rigidbody.body.setLinvel(V_000, false)
-  rigidbody.body.setAngvel(V_000, false)
+  Physics.setRigidbodyPose(entity, rigidbody.position, rigidbody.rotation, Vector3_Zero, Vector3_Zero)
 
   TransformComponent.dirtyTransforms[entity] = false
 
@@ -165,24 +151,15 @@ export const copyTransformToRigidBody = (entity: Entity) => {
 }
 
 const copyTransformToCollider = (entity: Entity) => {
-  const collider = getComponent(entity, ColliderComponent).collider
-  if (!collider) return
-
-  const transform = getComponent(entity, TransformComponent)
-
   computeTransformMatrix(entity)
-
-  mat4.copy(transform.matrixWorld).decompose(position, rotation, scale)
-
-  collider.setTranslation(position)
-  collider.setRotation(rotation)
+  getComponent(entity, TransformComponent).matrixWorld.decompose(position, rotation, scale)
+  Physics.setColliderPose(entity, position, rotation)
 }
 
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
 const colliderQuery = defineQuery([TransformComponent, ColliderComponent])
 
-const filterAwakeCleanRigidbodies = (entity: Entity) =>
-  !isDirty(entity) && !getComponent(entity, RigidBodyComponent).body.isSleeping()
+const filterAwakeCleanRigidbodies = (entity: Entity) => !isDirty(entity) && !Physics.isSleeping(entity)
 
 export const execute = () => {
   const ecsState = getState(ECSState)

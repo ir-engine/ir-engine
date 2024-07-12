@@ -23,26 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion, Vector3 } from 'three'
 
-import { API } from '@etherealengine/client-core/src/API'
+import { spawnPointPath } from '@etherealengine/common/src/schema.type.module'
 import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { imageDataToBlob } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import {
   PortalComponent,
   PortalEffects,
   PortalPreviewTypes
 } from '@etherealengine/engine/src/scene/components/PortalComponent'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
-
-import { PortalType, portalPath } from '@etherealengine/common/src/schema.type.module'
-import { imageDataToBlob } from '@etherealengine/engine/src/scene/classes/ImageUtils'
-import { useHookstate } from '@hookstate/core'
 import { bakeEnvmapTexture, uploadCubemapBakeToServer } from '../../functions/uploadEnvMapBake'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
@@ -53,7 +52,7 @@ import SelectInput from '../inputs/SelectInput'
 import StringInput, { ControlledStringInput } from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
+import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
 
 type PortalOptions = {
   label: string
@@ -69,18 +68,20 @@ const rotation = new Quaternion()
  */
 export const PortalNodeEditor: EditorComponentType = (props) => {
   const state = useHookstate({
-    portals: [] as PortalOptions[],
     previewImageData: null as ImageData | null,
     previewImageURL: ''
   })
 
+  const spawnPointQuery = useFind(spawnPointPath) // todo pagination UI
+  const availableSpawnPoints = spawnPointQuery.data
+    .filter((portal) => portal.id !== getComponent(props.entity, UUIDComponent))
+    .map(({ id, name, sceneId: sceneID }) => {
+      return { value: id, label: sceneID + ': ' + name }
+    }) as PortalOptions[]
+
   const { t } = useTranslation()
   const transformComponent = useComponent(props.entity, TransformComponent)
   const portalComponent = useComponent(props.entity, PortalComponent)
-
-  useEffect(() => {
-    loadPortals()
-  }, [])
 
   const updateCubeMapBake = async () => {
     const imageData = await bakeEnvmapTexture(
@@ -89,25 +90,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     const blob = await imageDataToBlob(imageData)
     state.previewImageData.set(imageData)
     state.previewImageURL.set(URL.createObjectURL(blob!))
-  }
-
-  const loadPortals = async () => {
-    const portalsDetail: PortalType[] = []
-    try {
-      portalsDetail.push(
-        ...((await API.instance.client.service(portalPath).find({ query: { paginate: false } })) as PortalType[])
-      )
-      console.log('portalsDetail', portalsDetail, getComponent(props.entity, UUIDComponent))
-    } catch (error) {
-      throw new Error(error)
-    }
-    state.portals.set(
-      portalsDetail
-        .filter((portal) => portal.portalEntityId !== getComponent(props.entity, UUIDComponent))
-        .map(({ portalEntityId, portalEntityName, sceneName }) => {
-          return { value: portalEntityId, label: sceneName + ': ' + portalEntityName }
-        })
-    )
   }
 
   const uploadEnvmap = async () => {
@@ -124,7 +106,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
 
   const changePreviewType = (val) => {
     commitProperties(PortalComponent, { previewType: val })
-    loadPortals()
   }
 
   return (
@@ -139,7 +120,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-portal')}>
         <SelectInput
           key={props.entity}
-          options={state.portals.value}
+          options={availableSpawnPoints}
           value={portalComponent.linkedPortalId.value}
           onChange={commitProperty(PortalComponent, 'linkedPortalId')}
         />

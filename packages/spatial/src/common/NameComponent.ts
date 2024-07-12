@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hookstate, none } from '@etherealengine/hyperflux'
-
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { hookstate, none } from '@etherealengine/hyperflux'
 
 const entitiesByName = {} as Record<string, Entity[]>
 
@@ -37,11 +36,20 @@ export const NameComponent = defineComponent({
 
   onSet: (entity, component, name?: string) => {
     if (typeof name !== 'string') throw new Error('NameComponent expects a non-empty string')
+    // remove the entity from the previous name state
+    if (component.value && entitiesByName[component.value]) {
+      const index = entitiesByName[component.value].indexOf(entity)
+      NameComponent.entitiesByNameState[component.value][index].set(none)
+      if (!entitiesByName[component.value].length) NameComponent.entitiesByNameState[component.value].set(none)
+    }
+    // set the new name
     component.set(name)
+    // add the entity to the new name state
     const exists = NameComponent.entitiesByName[name]
     const entitiesByNameState = NameComponent.entitiesByNameState
-    if (exists) entitiesByNameState.merge({ [name]: [...exists, entity] })
-    else entitiesByNameState.merge({ [name]: [entity] })
+    if (exists) {
+      if (!exists.includes(entity)) entitiesByNameState.merge({ [name]: [...exists, entity] })
+    } else entitiesByNameState.merge({ [name]: [entity] })
   },
 
   onRemove: (entity, component) => {

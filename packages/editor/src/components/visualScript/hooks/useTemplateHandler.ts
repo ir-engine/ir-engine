@@ -22,20 +22,18 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { useMemo } from 'react'
 import { Edge, Node } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { GraphTemplate, VisualScriptState } from '@etherealengine/visual-script'
-import { useHookstate } from '@hookstate/core'
-import { uniqueId } from 'lodash'
-import { useMemo } from 'react'
+
 import { useSelectionHandler } from './useSelectionHandler'
 import { useVisualScriptFlow } from './useVisualScriptFlow'
 
 type selectionHandler = ReturnType<typeof useSelectionHandler>
 type visualScriptFlow = ReturnType<typeof useVisualScriptFlow>
-
 export const useTemplateHandler = ({
   selectedNodes,
   selectedEdges,
@@ -46,11 +44,11 @@ export const useTemplateHandler = ({
     selectedNodes: Node[]
     selectedEdges: Edge[]
   }) => {
-  const visualScriptState = useHookstate(getMutableState(VisualScriptState))
+  const visualScriptState = useMutableState(VisualScriptState)
 
   const createGraphTemplate = (nodes: Node[], edges: Edge[]): GraphTemplate => ({
     id: uuidv4(),
-    name: uniqueId('New template '),
+    name: 'New template ' + Math.random().toString(36).slice(-6),
     nodes,
     edges
   })

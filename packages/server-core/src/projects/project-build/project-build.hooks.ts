@@ -19,9 +19,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import { projectBuildPatchValidator } from '@etherealengine/common/src/schemas/projects/project-build.schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+
 import verifyScope from '../../hooks/verify-scope'
 import {
   projectBuildExternalResolver,
@@ -42,7 +43,7 @@ export default {
     update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('projects', 'write')),
-      () => schemaHooks.validateData(projectBuildPatchValidator),
+      schemaHooks.validateData(projectBuildPatchValidator),
       schemaHooks.resolveData(projectBuildPatchResolver)
     ],
     remove: [disallow()]

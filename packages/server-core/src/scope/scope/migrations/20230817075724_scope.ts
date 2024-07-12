@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import type { Knex } from 'knex'
+
+import { scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
 
 /**
  * @param { import("knex").Knex } knex
@@ -33,13 +34,13 @@ import type { Knex } from 'knex'
 export async function up(knex: Knex): Promise<void> {
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(scopePath)
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const tableExists = await knex.schema.hasTable(scopePath)
 
   if (tableExists === false) {
-    await trx.schema.createTable(scopePath, (table) => {
+    await knex.schema.createTable(scopePath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
@@ -53,8 +54,7 @@ export async function up(knex: Knex): Promise<void> {
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -62,15 +62,13 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(scopePath)
+  const tableExists = await knex.schema.hasTable(scopePath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(scopePath)
+    await knex.schema.dropTable(scopePath)
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
-import { HyperFlux, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import * as bitECS from 'bitecs'
-import React, { ErrorInfo, FC, Suspense, memo, useEffect, useLayoutEffect, useMemo } from 'react'
+import React, { ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from 'react'
+
+import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
+import { getState, HyperFlux, startReactor, useImmediateEffect } from '@etherealengine/hyperflux'
+
 import { Component, useOptionalComponent } from './ComponentFunctions'
 import { Entity } from './Entity'
 import { EntityContext } from './EntityFunctions'
@@ -67,31 +69,32 @@ export const ReactiveQuerySystem = defineSystem({
   uuid: 'ee.hyperflux.ReactiveQuerySystem',
   insert: { after: PresentationSystemGroup },
   execute: () => {
-    for (const { query, result } of getState(SystemState).reactiveQueryStates) {
+    for (const { query, forceUpdate } of getState(SystemState).reactiveQueryStates) {
       const entitiesAdded = query.enter().length
       const entitiesRemoved = query.exit().length
-      if (entitiesAdded || entitiesRemoved) {
-        result.set(query())
-      }
+      if (entitiesAdded || entitiesRemoved) forceUpdate()
     }
   }
 })
 
 /**
  * Use a query in a reactive context (a React component)
+ * - "components" argument must not change
  */
 export function useQuery(components: QueryComponents) {
-  const result = useHookstate([] as Entity[])
+  const query = defineQuery(components)
+  const eids = query()
+  removeQuery(query)
+
   const forceUpdate = useForceUpdate()
 
-  // Use an immediate (layout) effect to ensure that `queryResult`
+  // Use a layout effect to ensure that `queryResult`
   // is deleted from the `reactiveQueryStates` map immediately when the current
   // component is unmounted, before any other code attempts to set it
   // (component state can't be modified after a component is unmounted)
   useLayoutEffect(() => {
     const query = defineQuery(components)
-    result.set(query())
-    const queryState = { query, result, components }
+    const queryState = { query, forceUpdate, components }
     getState(SystemState).reactiveQueryStates.add(queryState)
     return () => {
       removeQuery(query)
@@ -100,21 +103,47 @@ export function useQuery(components: QueryComponents) {
   }, [])
 
   // create an effect that forces an update when any components in the query change
-  useEffect(() => {
-    const entities = [...result.value]
-    const root = startReactor(function useQueryReactor() {
-      for (const entity of entities) {
-        components.forEach((C) => ('isComponent' in C ? useOptionalComponent(entity, C as any)?.value : undefined))
-      }
+  // use an immediate effect to ensure that the reactor is initialized even if this component becomes suspended during this render
+  useImmediateEffect(() => {
+    function UseQueryEntityReactor({ entity }: { entity: Entity }) {
+      return (
+        <>
+          {components.map((C) => {
+            const Component = ('isComponent' in C ? C : (C as any)()[0]) as Component
+            return (
+              <UseQueryComponentReactor
+                entity={entity}
+                key={Component.name}
+                Component={Component}
+              ></UseQueryComponentReactor>
+            )
+          })}
+        </>
+      )
+    }
+
+    function UseQueryComponentReactor(props: { entity: Entity; Component: Component }) {
+      useOptionalComponent(props.entity, props.Component)
       forceUpdate()
       return null
+    }
+
+    const root = startReactor(function UseQueryReactor() {
+      return (
+        <>
+          {eids.map((entity) => (
+            <UseQueryEntityReactor key={entity} entity={entity}></UseQueryEntityReactor>
+          ))}
+        </>
+      )
     })
+
     return () => {
       root.stop()
     }
-  }, [result])
+  }, [JSON.stringify(eids)])
 
-  return result.value
+  return eids
 }
 
 export type Query = ReturnType<typeof defineQuery>
@@ -139,18 +168,11 @@ export const QueryReactor = memo((props: { Components: QueryComponents; ChildEnt
   return (
     <>
       {entities.map((entity) => (
-        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} props={props} />
+        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} props={props.props} />
       ))}
     </>
   )
 })
-
-/**
- * @deprecated use QueryReactor directly
- */
-export const createQueryReactor = (Components: QueryComponents, ChildEntityReactor: FC) => {
-  return () => <QueryReactor Components={Components} ChildEntityReactor={ChildEntityReactor} />
-}
 
 interface ErrorState {
   error: Error | null

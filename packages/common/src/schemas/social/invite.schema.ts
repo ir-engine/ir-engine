@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
+
 import { TypedString } from '../../types/TypeboxUtils'
 import { identityProviderTypes } from '../user/identity-provider.schema'
 import { InviteCode, UserID, userSchema } from '../user/user.schema'

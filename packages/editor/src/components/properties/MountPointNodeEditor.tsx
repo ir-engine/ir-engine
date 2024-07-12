@@ -23,18 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Vector3 } from 'three'
 
-import { getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { UUIDComponent } from '@etherealengine/ecs'
+import {
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 
-import { Vector3 } from 'three'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorPropType, commitProperty } from './Util'
+import { commitProperty, EditorPropType } from './Util'
 
 const MountPointTypes = [{ label: 'Seat', value: MountPoint.seat }]
 
@@ -46,6 +54,20 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
   const onChangeOffset = (value: Vector3) => {
     getMutableComponent(props.entity, MountPointComponent).dismountOffset.set(value)
   }
+  useEffect(() => {
+    if (!hasComponent(props.entity, InteractableComponent)) {
+      const mountPoint = getComponent(props.entity, MountPointComponent)
+      EditorControlFunctions.addOrRemoveComponent([props.entity], InteractableComponent, true, {
+        label: MountPointComponent.mountPointInteractMessages[mountPoint.type],
+        callbacks: [
+          {
+            callbackID: MountPointComponent.mountCallbackName,
+            target: getComponent(props.entity, UUIDComponent)
+          }
+        ]
+      })
+    }
+  }, [])
 
   return (
     <NodeEditor

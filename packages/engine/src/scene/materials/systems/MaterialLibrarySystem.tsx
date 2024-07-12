@@ -25,86 +25,100 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactElement, useEffect } from 'react'
 
-import { NO_PROXY, getMutableState, useState } from '@etherealengine/hyperflux'
-
-import { PresentationSystemGroup } from '@etherealengine/ecs'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibrary'
 import {
-  protoIdToFactory,
-  registerMaterial,
-  replaceMaterial,
-  unregisterMaterial
-} from '../functions/MaterialLibraryFunctions'
-import { applyMaterialPlugin, removeMaterialPlugin } from '../functions/MaterialPluginFunctions'
+  EntityUUID,
+  getComponent,
+  getOptionalComponent,
+  PresentationSystemGroup,
+  QueryReactor,
+  removeEntity,
+  useComponent,
+  useEntityContext,
+  useOptionalComponent
+} from '@etherealengine/ecs'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import {
+  MaterialPrototypeDefinition,
+  MaterialPrototypeDefinitions
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  createMaterialEntity,
+  createMaterialPrototype,
+  materialPrototypeMatches,
+  setMeshMaterial,
+  updateMaterialPrototype
+} from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 
-function MaterialReactor({ materialId }: { materialId: string }) {
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
-  const component = materialLibrary.materials[materialId]
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { isArray } from 'lodash'
+import { Material } from 'three'
+import { SourceComponent } from '../../components/SourceComponent'
+
+const reactor = (): ReactElement => {
   useEffect(() => {
-    const material = component.material.value
-    component.plugins.value.forEach((plugin) => {
-      removeMaterialPlugin(material, plugin)
-      applyMaterialPlugin(material, plugin)
-    })
-  }, [component.plugins])
-  return null
-}
-
-function PluginReactor({ pluginId }: { pluginId: string }) {
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
-  const component = materialLibrary.plugins[pluginId]
-  return null
-}
-
-function reactor(): ReactElement {
-  useEffect(() => {
-    initializeMaterialLibrary()
-    return () => {
-      const materialLibraryState = getMutableState(MaterialLibraryState)
-      // todo, to make extensible only clear those initialized in initializeMaterialLibrary
-      materialLibraryState.materials.set({})
-      materialLibraryState.prototypes.set({})
-      materialLibraryState.sources.set({})
-      materialLibraryState.plugins.set({})
-    }
+    MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition) => createMaterialPrototype(prototype))
   }, [])
 
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
-
-  useEffect(() => {
-    const materialIds = materialLibrary.materials.keys
-    for (const materialId of materialIds) {
-      const component = materialLibrary.materials[materialId]
-      //if the material is missing, check if its prototype is present now
-      if (component.status.value === 'MISSING' && !!materialLibrary.prototypes[component.prototype.value]) {
-        //if the prototype is present, create the material
-        const material = component.material.get(NO_PROXY)
-        const parms = material.userData.args
-        const factory = protoIdToFactory(component.prototype.value)
-        const newMaterial = factory(parms)
-        replaceMaterial(material, newMaterial)
-        newMaterial.userData = material.userData
-        delete newMaterial.userData.args
-        const comp = component.get(NO_PROXY)
-        const src = JSON.parse(JSON.stringify(component.src.value))
-        registerMaterial(newMaterial, src)
-        unregisterMaterial(material)
-      }
-    }
-  }, [materialLibrary.prototypes])
-
-  const plugins = materialLibrary.plugins
   return (
     <>
-      {materialLibrary.materials.keys.map((materialId) => (
-        <MaterialReactor key={materialId} materialId={materialId} />
-      ))}
-      {plugins.keys.map((pluginId) => (
-        <PluginReactor pluginId={pluginId} key={pluginId} />
-      ))}
+      <QueryReactor Components={[MaterialInstanceComponent]} ChildEntityReactor={MaterialInstanceReactor} />
+      <QueryReactor Components={[MaterialStateComponent]} ChildEntityReactor={MaterialEntityReactor} />
+      <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshReactor} />
     </>
   )
+}
+
+const MeshReactor = () => {
+  const entity = useEntityContext()
+  const materialComponent = useOptionalComponent(entity, MaterialInstanceComponent)
+  const meshComponent = useComponent(entity, MeshComponent)
+  useEffect(() => {
+    if (materialComponent) return
+    const material = meshComponent.material.value as Material
+    if (!isArray(material)) createMaterialEntity(material, entity)
+    else for (const mat of material) createMaterialEntity(mat, entity)
+  }, [])
+  return null
+}
+
+const MaterialEntityReactor = () => {
+  const entity = useEntityContext()
+  const materialComponent = useComponent(entity, MaterialStateComponent)
+  useEffect(() => {
+    if (!materialComponent.instances.value!) return
+    for (const sourceEntity of materialComponent.instances.value) {
+      const sourceComponent = getComponent(sourceEntity, SourceComponent)
+      if (!SourceComponent.entitiesBySource[sourceComponent]) return
+      for (const entity of SourceComponent.entitiesBySource[getComponent(sourceEntity, SourceComponent)]) {
+        const uuid = getOptionalComponent(entity, MaterialInstanceComponent)?.uuid as EntityUUID[] | undefined
+        if (uuid) setMeshMaterial(entity, uuid)
+      }
+    }
+  }, [materialComponent.material])
+
+  useEffect(() => {
+    if (materialComponent.prototypeEntity.value && !materialPrototypeMatches(entity)) updateMaterialPrototype(entity)
+  }, [materialComponent.prototypeEntity])
+
+  useEffect(() => {
+    if (materialComponent.instances.value?.length === 0) removeEntity(entity)
+  }, [materialComponent.instances])
+
+  return null
+}
+
+const MaterialInstanceReactor = () => {
+  const entity = useEntityContext()
+  const materialComponent = useComponent(entity, MaterialInstanceComponent)
+  const uuid = materialComponent.uuid
+  useEffect(() => {
+    if (uuid.value) setMeshMaterial(entity, uuid.value as EntityUUID[])
+  }, [materialComponent.uuid])
+  return null
 }
 
 export const MaterialLibrarySystem = defineSystem({

@@ -58,3 +58,19 @@ export const ObjectLayers = {
 
   UVOL: 30 as const
 } as Record<string, number>
+
+export const ObjectLayerMasks = {
+  Scene: 1 << ObjectLayers.Scene,
+  Camera: 1 << ObjectLayers.Camera,
+  Portal: 1 << ObjectLayers.Portal,
+  Avatar: 1 << ObjectLayers.Avatar,
+  Gizmos: 1 << ObjectLayers.Gizmos,
+  UI: 1 << ObjectLayers.UI,
+  PhysicsHelper: 1 << ObjectLayers.PhysicsHelper,
+  AvatarHelper: 1 << ObjectLayers.AvatarHelper,
+  NodeHelper: 1 << ObjectLayers.NodeHelper,
+  Panel: 1 << ObjectLayers.Panel,
+  TransformGizmo: 1 << ObjectLayers.TransformGizmo,
+  HighlightEffect: 1 << ObjectLayers.HighlightEffect,
+  UVOL: 1 << ObjectLayers.UVOL
+} as Record<string, number>

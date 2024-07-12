@@ -24,12 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import {
-  MediaInstanceState,
-  useMediaNetwork
-} from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
   toggleMicrophonePaused,
@@ -37,23 +35,24 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import logger from '@etherealengine/common/src/logger'
+import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
+import { Engine } from '@etherealengine/ecs'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/network'
-import { endXRSession, requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
-import { XRState } from '@etherealengine/spatial/src/xr/XRState'
-import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-
 import {
   ECSRecordingActions,
   PlaybackState,
   RecordingState
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
+import { dispatchAction, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
+import { SpectateActions, SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
+import { endXRSession, requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
-import { useTranslation } from 'react-i18next'
+
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
@@ -62,8 +61,8 @@ import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
   const { t } = useTranslation()
-  const playbackState = useHookstate(getMutableState(PlaybackState))
-  const recordingState = useHookstate(getMutableState(RecordingState))
+  const playbackState = useMutableState(PlaybackState)
+  const recordingState = useMutableState(RecordingState)
 
   const location = useLocation()
   const hasAudioDevice = useHookstate(false)
@@ -71,12 +70,9 @@ export const MediaIconsBox = () => {
   const { topShelfStyle } = useShelfStyles()
 
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
-  const channelConnectionState = useHookstate(getMutableState(MediaInstanceState))
-  const networkState = useHookstate(getMutableState(NetworkState))
+  const networkState = useMutableState(NetworkState)
   const mediaNetworkState = useMediaNetwork()
-  const mediaNetworkID = NetworkState.mediaNetwork?.id
   const mediaNetworkReady = mediaNetworkState?.ready?.value
-  const currentChannelInstanceConnection = mediaNetworkID && channelConnectionState.instances[mediaNetworkID].ornull
   const videoEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.videoEnabled?.value
     : false
@@ -87,15 +83,15 @@ export const MediaIconsBox = () => {
     ? currentLocation?.locationSetting?.screenSharingEnabled?.value
     : false
 
-  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const mediaStreamState = useMutableState(MediaStreamState)
   const isMotionCaptureEnabled = mediaStreamState.faceTracking.value
   const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
   const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
   const isScreenVideoEnabled =
     mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
 
-  const spectating = false /**@todo add back spectator support */
-  const xrState = useHookstate(getMutableState(XRState))
+  const spectating = !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value
+  const xrState = useMutableState(XRState)
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
@@ -135,7 +131,10 @@ export const MediaIconsBox = () => {
   }
 
   const xrSessionActive = xrState.sessionActive.value
-  const handleExitSpectatorClick = () => dispatchAction(CameraActions.exitSpectate({}))
+  const handleExitSpectatorClick = () => {
+    deleteSearchParams('spectate')
+    dispatchAction(SpectateActions.exitSpectate({ spectatorUserID: Engine.instance.userID }))
+  }
 
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>

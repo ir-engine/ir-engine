@@ -26,11 +26,36 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+
 import { dataValidator, queryValidator } from '../validators'
 
 export const instanceServerSettingPath = 'instance-server-setting'
 
 export const instanceServerSettingMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+
+export const iceServerSchema = Type.Object(
+  {
+    urls: Type.String() || Type.Array(Type.String()),
+    username: Type.Optional(Type.String()),
+    credential: Type.Optional(Type.String())
+  },
+  { $id: 'IceServerSchema', additionalProperties: false }
+)
+
+export interface IceServerType extends Static<typeof iceServerSchema> {}
+
+export const webRTCSettingsSchema = Type.Object(
+  {
+    iceServers: Type.Array(Type.Ref(iceServerSchema)),
+    useCustomICEServers: Type.Boolean(),
+    useTimeLimitedCredentials: Type.Boolean(),
+    webRTCStaticAuthSecretKey: Type.String(),
+    usePrivateInstanceserverIP: Type.Boolean()
+  },
+  { $id: 'webRTCSettingsSchema', additionalProperties: false }
+)
+
+export interface webRTCSettingsType extends Static<typeof webRTCSettingsSchema> {}
 
 // Main data model schema
 export const instanceServerSettingSchema = Type.Object(
@@ -49,6 +74,7 @@ export const instanceServerSettingSchema = Type.Object(
     port: Type.String(),
     mode: Type.String(),
     locationName: Type.String(),
+    webRTCSettings: Type.Ref(webRTCSettingsSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -70,7 +96,8 @@ export const instanceServerSettingDataSchema = Type.Pick(
     'releaseName',
     'port',
     'mode',
-    'locationName'
+    'locationName',
+    'webRTCSettings'
   ],
   {
     $id: 'InstanceServerSettingData'
@@ -109,6 +136,8 @@ export const instanceServerSettingQuerySchema = Type.Intersect(
 )
 export interface InstanceServerSettingQuery extends Static<typeof instanceServerSettingQuerySchema> {}
 
+export const iceServerValidator = /* @__PURE__ */ getValidator(iceServerSchema, dataValidator)
+export const webRTCSettingsValidator = /* @__PURE__ */ getValidator(webRTCSettingsSchema, dataValidator)
 export const instanceServerSettingValidator = /* @__PURE__ */ getValidator(instanceServerSettingSchema, dataValidator)
 export const instanceServerSettingDataValidator = /* @__PURE__ */ getValidator(
   instanceServerSettingDataSchema,

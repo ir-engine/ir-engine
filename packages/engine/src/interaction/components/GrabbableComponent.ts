@@ -23,8 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, hasComponent, useEntityContext } from '@etherealengine/ecs'
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { getState } from '@etherealengine/hyperflux'
+import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { dropEntity, grabEntity } from '../functions/grabbableFunctions'
+import { InteractableComponent, XRUIVisibilityOverride } from './InteractableComponent'
+
+const grabbableCallbackName = 'grabCallback'
 
 /**
  * GrabbableComponent
@@ -33,8 +47,57 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 export const GrabbableComponent = defineComponent({
   name: 'GrabbableComponent',
   jsonID: 'EE_grabbable', // TODO: rename to grabbable
-  toJSON: () => true
+
+  toJSON: () => true,
+
+  grabbableCallbackName,
+
+  reactor: function () {
+    const entity = useEntityContext()
+    useEffect(() => {
+      if (isClient) {
+        setCallback(entity, grabbableCallbackName, () => grabCallback(entity))
+      }
+    }, [])
+    return null
+  }
 })
+
+const grabCallback = (targetEntity: Entity) => {
+  const nonCapturedInputSources = InputSourceComponent.nonCapturedInputSources()
+  for (const entity of nonCapturedInputSources) {
+    const inputSource = getComponent(entity, InputSourceComponent)
+    onGrab(targetEntity, inputSource.source.handedness === 'left' ? 'left' : 'right')
+  }
+}
+const updateUI = (entity: Entity) => {
+  const isGrabbed = hasComponent(entity, GrabbedComponent)
+  const interactable = getComponent(entity, InteractableComponent)
+  interactable.uiVisibilityOverride = isGrabbed ? XRUIVisibilityOverride.off : XRUIVisibilityOverride.none
+}
+
+const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferredHand) => {
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  if (!hasComponent(targetEntity, GrabbableComponent)) return
+  const grabber = getComponent(selfAvatarEntity, GrabberComponent)
+  const grabbedEntity = grabber[handedness]!
+  if (!grabbedEntity) return
+  if (grabbedEntity) {
+    onDrop()
+  } else {
+    grabEntity(selfAvatarEntity, targetEntity, handedness)
+  }
+  updateUI(targetEntity)
+}
+export const onDrop = () => {
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  const grabber = getComponent(selfAvatarEntity, GrabberComponent)
+  const handedness = getState(InputState).preferredHand
+  const grabbedEntity = grabber[handedness]!
+  if (!grabbedEntity) return
+  dropEntity(selfAvatarEntity)
+  updateUI(grabbedEntity)
+}
 
 /**
  * GrabbedComponent

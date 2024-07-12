@@ -29,7 +29,8 @@ import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { createEngine } from '../../initializeEngine'
+
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { addObjectToGroup } from './GroupComponent'
 import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 
@@ -40,6 +41,21 @@ describe('ObjectLayerComponent', () => {
 
   afterEach(() => {
     return destroyEngine()
+  })
+
+  it('Sets mask and layer', () => {
+    const entity = createEntity()
+
+    const layer = 8
+    const layerMask = 1 << layer
+
+    setComponent(entity, ObjectLayerMaskComponent, layerMask)
+
+    assert(hasComponent(entity, ObjectLayerMaskComponent))
+    const componentLayerMask = getComponent(entity, ObjectLayerMaskComponent)
+    assert(componentLayerMask === layerMask)
+    assert(componentLayerMask !== layer)
+    assert(hasComponent(entity, ObjectLayerComponents[layer]))
   })
 
   it('Sets objectLayers on group', () => {

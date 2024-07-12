@@ -26,11 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Mesh, MeshStandardMaterial, Shader } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
 import { Entity, PresentationSystemGroup, QueryReactor, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { getState } from '@etherealengine/hyperflux'
 import {
   PluginType,
   addOBCPlugin,
@@ -38,6 +37,7 @@ import {
 } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+
 import { FogSettingsComponent, FogType } from './components/FogSettingsComponent'
 
 export const FogShaders = [] as Shader[]
@@ -79,7 +79,7 @@ function FogGroupReactor(props: { fogEntity: Entity }) {
   useEffect(() => {
     const customShader = fogComponent.type.value === FogType.Brownian || fogComponent.type.value === FogType.Height
     if (customShader) {
-      const objs = [...group]
+      const objs = [...group.value]
       for (const obj of objs) addFogShaderPlugin(obj as any)
       return () => {
         for (const obj of objs) removeFogShaderPlugin(obj as any)

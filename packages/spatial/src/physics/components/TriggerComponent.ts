@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, defineComponent } from '@etherealengine/ecs'
-import { NO_PROXY } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
+
+import { defineComponent, EntityUUID, useEntityContext } from '@etherealengine/ecs'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 
 export const TriggerComponent = defineComponent({
   name: 'TriggerComponent',
@@ -80,5 +81,10 @@ export const TriggerComponent = defineComponent({
     return {
       triggers: component.triggers.get(NO_PROXY)
     }
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    return null
   }
 })

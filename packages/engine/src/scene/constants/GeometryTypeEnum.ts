@@ -23,6 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  BoxGeometry,
+  CapsuleGeometry,
+  CircleGeometry,
+  CylinderGeometry,
+  DodecahedronGeometry,
+  IcosahedronGeometry,
+  OctahedronGeometry,
+  PlaneGeometry,
+  RingGeometry,
+  SphereGeometry,
+  TetrahedronGeometry,
+  TorusGeometry,
+  TorusKnotGeometry
+} from 'three'
+
 export enum GeometryTypeEnum {
   'BoxGeometry',
   'SphereGeometry',
@@ -37,4 +53,20 @@ export enum GeometryTypeEnum {
   'OctahedronGeometry',
   'TetrahedronGeometry',
   'TorusKnotGeometry'
+}
+
+export const GeometryTypeToClass = {
+  [GeometryTypeEnum.BoxGeometry]: BoxGeometry,
+  [GeometryTypeEnum.SphereGeometry]: SphereGeometry,
+  [GeometryTypeEnum.CylinderGeometry]: CylinderGeometry,
+  [GeometryTypeEnum.CapsuleGeometry]: CapsuleGeometry,
+  [GeometryTypeEnum.PlaneGeometry]: PlaneGeometry,
+  [GeometryTypeEnum.CircleGeometry]: CircleGeometry,
+  [GeometryTypeEnum.RingGeometry]: RingGeometry,
+  [GeometryTypeEnum.TorusGeometry]: TorusGeometry,
+  [GeometryTypeEnum.DodecahedronGeometry]: DodecahedronGeometry,
+  [GeometryTypeEnum.IcosahedronGeometry]: IcosahedronGeometry,
+  [GeometryTypeEnum.OctahedronGeometry]: OctahedronGeometry,
+  [GeometryTypeEnum.TetrahedronGeometry]: TetrahedronGeometry,
+  [GeometryTypeEnum.TorusKnotGeometry]: TorusKnotGeometry
 }

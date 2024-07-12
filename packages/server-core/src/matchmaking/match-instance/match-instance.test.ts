@@ -27,18 +27,17 @@ import assert from 'assert'
 import nock from 'nock'
 
 import { matchInstancePath } from '@etherealengine/common/src/schemas/matchmaking/match-instance.schema'
+import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { LocationSettingType } from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import { LocationID, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
 import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import { MatchTicketType, matchTicketPath } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
-import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
-import { LocationSettingType } from '@etherealengine/common/src/schemas/social/location-setting.schema'
-import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -110,7 +109,7 @@ describe.skip('matchmaking match-instance service', () => {
       name: `game-${gameMode}`,
       slugifiedName: `game-${gameMode}`,
       maxUsersPerInstance: 20,
-      sceneId: `test/game-${gameMode}` as SceneID,
+      sceneId: `test/game-${gameMode}`,
       locationSetting: commonlocationSetting,
       isLobby: false,
       isFeatured: false

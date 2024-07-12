@@ -44,8 +44,9 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
+import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 const PlayModeOptions = [
   {
@@ -96,6 +97,14 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       ) : (
         <></>
       )}
+      <InputGroup name="UI Offset" label={t('editor:properties.media.lbl-ui-offset')}>
+        <Vector3Input
+          value={media.uiOffset.value}
+          onChange={updateProperty(MediaComponent, 'uiOffset')}
+          onRelease={commitProperty(MediaComponent, 'uiOffset')}
+        />
+      </InputGroup>
+
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
         <CompoundNumericInput
           min={0}
@@ -140,7 +149,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       <ArrayInputGroup
         name="Source Paths"
         prefix="Content"
-        values={media.resources.value}
+        values={media.resources.value as string[]}
         onRelease={commitProperty(MediaComponent, 'resources')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={AllFileTypes}

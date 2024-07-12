@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-
+import { NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
+import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import {
   BufferAttribute,
   BufferGeometry,
@@ -35,28 +34,28 @@ import {
   LineSegments,
   MathUtils,
   Matrix4,
+  Mesh,
+  MeshBasicMaterial,
   Plane,
   Quaternion,
   SphereGeometry,
   Vector3
 } from 'three'
 
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-
-import { Mesh, MeshBasicMaterial } from 'three'
-
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
+import { Vector3_Right, Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { V_010, V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
-import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+
+import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { LandmarkIndices } from './MocapConstants'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
@@ -491,7 +490,7 @@ export const solveSpine = (
   const shoulderRight = new Vector3(-leftShoulder.x, lowestWorldY - leftShoulder.y, -leftShoulder.z)
 
   const shoulderCenter = new Vector3().copy(shoulderLeft).add(shoulderRight).multiplyScalar(0.5)
-  hipToShoulderQuaternion.setFromUnitVectors(V_010, vec3.subVectors(shoulderCenter, hipCenter).normalize())
+  hipToShoulderQuaternion.setFromUnitVectors(Vector3_Up, vec3.subVectors(shoulderCenter, hipCenter).normalize())
 
   /**@todo better hips rotation calculation needed */
   const hipWorldQuaterion = getQuaternionFromPointsAlongPlane(
@@ -520,7 +519,10 @@ export const solveSpine = (
   } else {
     if (leftHip.visibility! + rightHip.visibility! > 1) spineRotation.copy(hipWorldQuaterion)
     else {
-      fallbackShoulderQuaternion.setFromUnitVectors(V_100, new Vector3().subVectors(shoulderRight, shoulderLeft))
+      fallbackShoulderQuaternion.setFromUnitVectors(
+        Vector3_Right,
+        new Vector3().subVectors(shoulderRight, shoulderLeft)
+      )
       spineRotation.copy(fallbackShoulderQuaternion)
     }
   }

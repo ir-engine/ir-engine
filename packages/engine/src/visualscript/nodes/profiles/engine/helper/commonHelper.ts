@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { toQuat, toVector3, toVector4 } from '@etherealengine/visual-script'
 import { Color, Matrix3, Matrix4, Quaternion, Vector2, Vector3, Vector4 } from 'three'
+
+import { toQuat, toVector3, toVector4 } from '@etherealengine/visual-script'
 
 export const getSocketType = (name, value) => {
   switch (typeof value) {

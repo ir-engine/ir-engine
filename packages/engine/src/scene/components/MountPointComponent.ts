@@ -24,28 +24,123 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { ArrowHelper, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-import { getMutableState, matches, none, useHookstate } from '@etherealengine/hyperflux'
-
-import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import {
+  dispatchAction,
+  getMutableState,
+  getState,
+  matches,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial'
+import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { SpawnPointComponent } from './SpawnPointComponent'
+
+import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
+import { teleportAvatar } from '../../avatar/functions/moveAvatar'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
+import { InteractableComponent, XRUIVisibilityOverride } from '../../interaction/components/InteractableComponent'
+import { MountPointActions, MountPointState } from '../../interaction/functions/MountPointActions'
+import { SittingComponent } from './SittingComponent'
 
 export const MountPoint = {
   seat: 'seat' as const
 }
 
 export type MountPointTypes = (typeof MountPoint)[keyof typeof MountPoint]
+
+/**
+ * @todo refactor this into i18n and configurable
+ */
+const mountPointInteractMessages = {
+  [MountPoint.seat]: 'Press E to Sit'
+}
+
+const mountCallbackName = 'mountEntity'
+
+const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
+  if (avatarEntity === UndefinedEntity) return //No avatar found, likely in edit mode for now
+  const mountedEntities = getState(MountPointState)
+  if (mountedEntities[getComponent(mountEntity, UUIDComponent)]) return //already sitting, exiting
+
+  const avatarUUID = getComponent(avatarEntity, UUIDComponent)
+  const mountPoint = getOptionalComponent(mountEntity, MountPointComponent)
+  if (!mountPoint || mountPoint.type !== MountPoint.seat) return
+  const mountPointUUID = getComponent(mountEntity, UUIDComponent)
+
+  //check if we're already sitting or if the seat is occupied
+  if (getState(MountPointState)[mountPointUUID] || hasComponent(avatarEntity, SittingComponent)) return
+
+  setComponent(avatarEntity, SittingComponent, {
+    mountPointEntity: mountEntity!
+  })
+
+  AvatarControllerComponent.captureMovement(avatarEntity, mountEntity)
+  dispatchAction(
+    AvatarNetworkAction.setAnimationState({
+      animationAsset: preloadedAnimations.emotes,
+      clipName: emoteAnimations.seated,
+      loop: true,
+      layer: 1,
+      entityUUID: avatarUUID
+    })
+  )
+  dispatchAction(
+    MountPointActions.mountInteraction({
+      mounted: true,
+      mountedEntity: getComponent(avatarEntity, UUIDComponent),
+      targetMount: getComponent(mountEntity, UUIDComponent)
+    })
+  )
+}
+
+const unmountEntity = (entity: Entity) => {
+  if (!hasComponent(entity, SittingComponent)) return
+
+  dispatchAction(
+    AvatarNetworkAction.setAnimationState({
+      animationAsset: preloadedAnimations.emotes,
+      clipName: emoteAnimations.seated,
+      needsSkip: true,
+      entityUUID: getComponent(entity, UUIDComponent)
+    })
+  )
+
+  const sittingComponent = getComponent(entity, SittingComponent)
+
+  AvatarControllerComponent.releaseMovement(entity, sittingComponent.mountPointEntity)
+  dispatchAction(
+    MountPointActions.mountInteraction({
+      mounted: false,
+      mountedEntity: getComponent(entity, UUIDComponent),
+      targetMount: getComponent(sittingComponent.mountPointEntity, UUIDComponent)
+    })
+  )
+  const mountTransform = getComponent(sittingComponent.mountPointEntity, TransformComponent)
+  const mountComponent = getComponent(sittingComponent.mountPointEntity, MountPointComponent)
+  //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
+  const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrixWorld)
+  teleportAvatar(entity, dismountPoint)
+  removeComponent(entity, SittingComponent)
+}
 
 export const MountPointComponent = defineComponent({
   name: 'MountPointComponent',
@@ -54,7 +149,6 @@ export const MountPointComponent = defineComponent({
   onInit: (entity) => {
     return {
       type: MountPoint.seat as MountPointTypes,
-      helperEntity: null as Entity | null,
       dismountOffset: new Vector3(0, 0, 0.75)
     }
   },
@@ -71,30 +165,43 @@ export const MountPointComponent = defineComponent({
       dismountOffset: component.dismountOffset.value
     }
   },
+  mountEntity,
+  unmountEntity,
+  mountCallbackName,
+  mountPointInteractMessages,
 
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const mountPoint = useComponent(entity, MountPointComponent)
+    const mountedEntities = useMutableState(MountPointState)
 
     useEffect(() => {
-      if (!debugEnabled.value) return
+      setCallback(entity, mountCallbackName, () => mountEntity(AvatarComponent.getSelfAvatarEntity(), entity))
+      // setComponent(entity, BoundingBoxComponent, {
+      //   box: new Box3().setFromCenterAndSize(
+      //     getComponent(entity, TransformComponent).position,
+      //     new Vector3(0.1, 0.1, 0.1)
+      //   )
+      // })
+    }, [])
 
-      const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
-      helper.name = `mount-point-helper-${entity}`
+    useEffect(() => {
+      // manually hide interactable's XRUI when mounted through visibleComponent - (as interactable uses opacity to toggle visibility)
+      const interactableComponent = getComponent(entity, InteractableComponent)
+      if (interactableComponent) {
+        interactableComponent.uiVisibilityOverride = mountedEntities[getComponent(entity, UUIDComponent)].value
+          ? XRUIVisibilityOverride.off
+          : XRUIVisibilityOverride.none
+      }
+    }, [mountedEntities])
 
-      const helperEntity = createEntity()
-      addObjectToGroup(helperEntity, helper)
-      setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      setVisibleComponent(helperEntity, true)
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-      mountPoint.helperEntity.set(helperEntity)
-
+    useEffect(() => {
+      if (debugEnabled.value) {
+        setComponent(entity, ArrowHelperComponent, { name: 'mount-point-helper' })
+      }
       return () => {
-        removeEntity(helperEntity)
-        if (!hasComponent(entity, SpawnPointComponent)) return
-        mountPoint.helperEntity.set(none)
+        removeComponent(entity, ArrowHelperComponent)
       }
     }, [debugEnabled])
 

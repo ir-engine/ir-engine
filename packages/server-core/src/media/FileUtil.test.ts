@@ -27,10 +27,10 @@ import assert from 'assert'
 import fs from 'fs'
 import path from 'path/posix'
 
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { copyRecursiveSync, getIncrementalName } from './FileUtil'
+import { createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+
 import { projectsRootFolder } from './file-browser/file-browser.class'
+import { copyRecursiveSync, getIncrementalName } from './FileUtil'
 import LocalStorage from './storageprovider/local.storage'
 
 const TEST_DIR = 'FileUtil-test-project'

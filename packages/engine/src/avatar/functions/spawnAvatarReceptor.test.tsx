@@ -23,20 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
+import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/ecs'
+import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine, createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { ReactorReconciler, applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-
-import { AvatarID, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
-import { SystemDefinitions } from '@etherealengine/ecs'
-import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@etherealengine/network'
 import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import {
   RigidBodyComponent,
@@ -44,10 +44,8 @@ import {
 } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { act, render } from '@testing-library/react'
-import React from 'react'
+
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { SceneState } from '../../scene/SceneState'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -55,13 +53,15 @@ import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
 describe('spawnAvatarReceptor', () => {
+  let sceneEntity: Entity
   beforeEach(async () => {
     createEngine()
+    initializeSpatialEngine()
     await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.userID = 'user' as UserID
-    loadEmptyScene()
+    sceneEntity = loadEmptyScene()
     createMockNetwork()
 
     const eventDispatcher = new EventDispatcher()
@@ -96,7 +96,7 @@ describe('spawnAvatarReceptor', () => {
     // mock entity to apply incoming unreliable updates to
     dispatchAction(
       AvatarNetworkAction.spawn({
-        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
+        parentUUID: getComponent(sceneEntity, UUIDComponent),
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,

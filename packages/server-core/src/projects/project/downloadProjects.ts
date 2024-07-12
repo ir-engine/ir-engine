@@ -28,9 +28,10 @@ import fs from 'fs'
 import path from 'path'
 
 import { deleteFolderRecursive, writeFileSyncRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
-import logger from '../../ServerLogger'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import logger from '../../ServerLogger'
 
 /**
  * Downloads a specific project to the local file system from the storage provider cache
@@ -40,12 +41,17 @@ import { getStorageProvider } from '../../media/storageprovider/storageprovider'
  * @returns {Promise<boolean>}
  */
 export const download = async (projectName: string, storageProviderName?: string) => {
+  if (projectName === 'default-project') return
+
   const storageProvider = getStorageProvider(storageProviderName)
   try {
     logger.info(`[ProjectLoader]: Installing project "${projectName}"...`)
     let files = await getFileKeysRecursive(`projects/${projectName}/`)
-    const assetsRegex = new RegExp(`^projects/${projectName}/assets`)
-    files = files.filter((file) => !assetsRegex.test(file))
+
+    files = files.filter(
+      (file) =>
+        !file.startsWith(`/projects/${projectName}/assets/`) && !file.startsWith(`/projects/${projectName}/public/`)
+    )
     logger.info('[ProjectLoader]: Found files:' + files)
 
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects', projectName)
@@ -94,6 +100,4 @@ export const download = async (projectName: string, storageProviderName?: string
     logger.error(e, errorMsg)
     throw e
   }
-
-  return true
 }

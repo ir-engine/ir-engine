@@ -27,9 +27,8 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 
 import { ScopeTypeQuery, ScopeTypeType } from '@etherealengine/common/src/schemas/scope/scope-type.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const scopeTypeResolver = resolve<ScopeTypeType, HookContext>({
   createdAt: virtual(async (scopeType) => fromDateTimeSql(scopeType.createdAt)),

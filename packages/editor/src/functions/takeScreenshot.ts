@@ -30,29 +30,28 @@ import {
   LinearFilter,
   PerspectiveCamera,
   RGBAFormat,
-  SRGBColorSpace,
   Scene,
+  SRGBColorSpace,
   UnsignedByteType,
   Vector2,
   WebGLRenderTarget
 } from 'three'
 
+import { getCanvasBlob } from '@etherealengine/client-core/src/common/utils'
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@etherealengine/hyperflux'
-import { RendererComponent, render } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { render, RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
-import { getCanvasBlob } from '@etherealengine/client-core/src/common/utils'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { EditorState } from '../services/EditorServices'
 
 function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
@@ -101,7 +100,7 @@ export async function previewScreenshot(
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       setComponent(entity, EntityTreeComponent, {
-        parentEntity: SceneState.getRootEntity(getState(EditorState).sceneID!)
+        parentEntity: getState(EditorState).rootEntity
       })
       scenePreviewCamera.updateMatrixWorld(true)
     }
@@ -186,7 +185,7 @@ export async function takeScreenshot(
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       setComponent(entity, EntityTreeComponent, {
-        parentEntity: SceneState.getRootEntity(getState(EditorState).sceneID!)
+        parentEntity: getState(EditorState).rootEntity
       })
       scenePreviewCamera.updateMatrixWorld(true)
     }
@@ -203,7 +202,7 @@ export async function takeScreenshot(
   const { renderer, effectComposer, renderContext } = getComponent(Engine.instance.viewerEntity, RendererComponent)
 
   if (hideHelpers) {
-    effectComposer.HighlightEffect?.clearSelection()
+    effectComposer.OutlineEffect?.clearSelection()
   }
 
   const originalSize = renderer.getSize(new Vector2())

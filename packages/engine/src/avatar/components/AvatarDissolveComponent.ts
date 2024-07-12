@@ -23,19 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  defineComponent,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getState, matches } from '@etherealengine/hyperflux'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import {
   Material,
@@ -47,7 +34,20 @@ import {
   UniformsLib,
   UniformsUtils
 } from 'three'
-import { setupObject } from '../../scene/systems/SceneObjectSystem'
+
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { matches } from '@etherealengine/hyperflux'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { SkinnedMeshComponent } from './SkinnedMeshComponent'
 
 export type MaterialMap = {
@@ -108,9 +108,6 @@ export const AvatarDissolveComponent = defineComponent({
           const avatarObject = getComponent(originalMaterial.entity, MeshComponent)
           if (avatarObject) {
             avatarObject.material = originalMaterial.material
-
-            // todo - this will be unnecessary when materials are reactive
-            setupObject(avatarObject, getState(RendererState).forceBasicMaterials)
           }
         }
       }

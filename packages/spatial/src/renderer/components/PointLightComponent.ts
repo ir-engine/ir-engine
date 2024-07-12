@@ -24,30 +24,30 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, DoubleSide, IcosahedronGeometry, Mesh, MeshBasicMaterial, PointLight } from 'three'
+import { Color, PointLight } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
-
-import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { NameComponent } from '../../common/NameComponent'
-import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { matches, useMutableState } from '@etherealengine/hyperflux'
+
+import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
+import { useDisposable } from '../../resources/resourceHooks'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { RendererState } from '../RendererState'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { setObjectLayers } from './ObjectLayerComponent'
-import { setVisibleComponent } from './VisibleComponent'
 
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
   jsonID: 'EE_point_light',
 
   onInit: (entity) => {
-    const light = new PointLight()
     return {
       color: new Color(),
       intensity: 1,
@@ -56,7 +56,6 @@ export const PointLightComponent = defineComponent({
       castShadow: false,
       shadowBias: 0.5,
       shadowRadius: 1,
-      light,
       helperEntity: null as Entity | null
     }
   },
@@ -88,81 +87,65 @@ export const PointLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const renderState = useHookstate(getMutableState(RendererState))
+    const renderState = useMutableState(RendererState)
     const debugEnabled = renderState.nodeHelperVisibility
-    const light = useComponent(entity, PointLightComponent)
+    const pointLightComponent = useComponent(entity, PointLightComponent)
+    const [light] = useDisposable(PointLight, entity)
+    const lightHelper = useOptionalComponent(entity, LightHelperComponent)
+
     useEffect(() => {
       if (isMobileXRHeadset) return
-      const lightObj = light.light.value
-      addObjectToGroup(entity, lightObj)
+      addObjectToGroup(entity, light)
       return () => {
-        removeObjectFromGroup(entity, lightObj)
+        removeObjectFromGroup(entity, light)
       }
     }, [])
 
     useEffect(() => {
-      light.light.value.color.set(light.color.value)
-    }, [light.color])
+      light.color.set(pointLightComponent.color.value)
+      if (lightHelper) lightHelper.color.set(pointLightComponent.color.value)
+    }, [pointLightComponent.color])
 
     useEffect(() => {
-      light.light.value.intensity = light.intensity.value
-    }, [light.intensity])
+      light.intensity = pointLightComponent.intensity.value
+    }, [pointLightComponent.intensity])
 
     useEffect(() => {
-      light.light.value.distance = light.range.value
-    }, [light.range])
+      light.distance = pointLightComponent.range.value
+    }, [pointLightComponent.range])
 
     useEffect(() => {
-      light.light.value.decay = light.decay.value
-    }, [light.decay])
+      light.decay = pointLightComponent.decay.value
+    }, [pointLightComponent.decay])
 
     useEffect(() => {
-      light.light.value.castShadow = light.castShadow.value
-    }, [light.castShadow])
+      light.castShadow = pointLightComponent.castShadow.value
+    }, [pointLightComponent.castShadow])
 
     useEffect(() => {
-      light.light.value.shadow.bias = light.shadowBias.value
-    }, [light.shadowBias])
+      light.shadow.bias = pointLightComponent.shadowBias.value
+    }, [pointLightComponent.shadowBias])
 
     useEffect(() => {
-      light.light.value.shadow.radius = light.shadowRadius.value
-    }, [light.shadowRadius])
+      light.shadow.radius = pointLightComponent.shadowRadius.value
+    }, [pointLightComponent.shadowRadius])
 
     useEffect(() => {
-      if (light.light.value.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
-        light.light.value.shadow.mapSize.set(
-          renderState.shadowMapResolution.value,
-          renderState.shadowMapResolution.value
-        )
-        light.light.value.shadow.map?.dispose()
-        light.light.value.shadow.map = null as any
-        light.light.value.shadow.camera.updateProjectionMatrix()
-        light.light.value.shadow.needsUpdate = true
+      if (light.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
+        light.shadow.mapSize.set(renderState.shadowMapResolution.value, renderState.shadowMapResolution.value)
+        light.shadow.map?.dispose()
+        light.shadow.map = null as any
+        light.shadow.camera.updateProjectionMatrix()
+        light.shadow.needsUpdate = true
       }
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (!debugEnabled.value) return
-
-      const helper = new Mesh(
-        mergeBufferGeometries([new IcosahedronGeometry(0.25), new IcosahedronGeometry(0.15)])!,
-        new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
-      )
-      helper.name = `pointlight-helper-${entity}`
-
-      const helperEntity = createEntity()
-      addObjectToGroup(helperEntity, helper)
-      setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      setVisibleComponent(helperEntity, true)
-
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-
-      light.helperEntity.set(helperEntity)
-
+      if (debugEnabled.value) {
+        setComponent(entity, LightHelperComponent, { name: 'pointlight-helper', light: light })
+      }
       return () => {
-        removeEntity(helperEntity)
-        light.helperEntity.set(none)
+        removeComponent(entity, LightHelperComponent)
       }
     }, [debugEnabled])
 

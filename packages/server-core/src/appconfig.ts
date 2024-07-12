@@ -36,7 +36,14 @@ import { discordBotAuthPath } from '@etherealengine/common/src/schemas/user/disc
 import { githubRepoAccessWebhookPath } from '@etherealengine/common/src/schemas/user/github-repo-access-webhook.schema'
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { loginPath } from '@etherealengine/common/src/schemas/user/login.schema'
+
 import multiLogger from './ServerLogger'
+import {
+  DISCORD_SCOPES,
+  GITHUB_SCOPES,
+  GOOGLE_SCOPES,
+  LINKEDIN_SCOPES
+} from './setting/authentication-setting/authentication-setting.seed'
 
 const logger = multiLogger.child({ component: 'server-core:config' })
 
@@ -160,6 +167,7 @@ const server = {
   local: process.env.LOCAL === 'true',
   releaseName: process.env.RELEASE_NAME || 'local',
   matchmakerEmulationMode: process.env.MATCHMAKER_EMULATION_MODE === 'true',
+  edgeCachingEnabled: process.env.STORAGE_PROVIDER! === 's3' && process.env.S3_DEV_MODE! !== 'local',
   instanceserverUnreachableTimeoutSeconds: process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS
     ? parseInt(process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS)
     : 10
@@ -301,7 +309,7 @@ const authentication = {
     discord: {
       key: process.env.DISCORD_CLIENT_ID!,
       secret: process.env.DISCORD_CLIENT_SECRET!,
-      scope: ['identify', 'email'],
+      scope: DISCORD_SCOPES,
       custom_params: {
         prompt: 'none'
       }
@@ -311,19 +319,20 @@ const authentication = {
       secret: process.env.FACEBOOK_CLIENT_SECRET!
     },
     github: {
+      appId: process.env.GITHUB_APP_ID!,
       key: process.env.GITHUB_CLIENT_ID!,
       secret: process.env.GITHUB_CLIENT_SECRET!,
-      scope: ['repo', 'user', 'workflow']
+      scope: GITHUB_SCOPES
     },
     google: {
       key: process.env.GOOGLE_CLIENT_ID!,
       secret: process.env.GOOGLE_CLIENT_SECRET!,
-      scope: ['profile', 'email']
+      scope: GOOGLE_SCOPES
     },
     linkedin: {
       key: process.env.LINKEDIN_CLIENT_ID!,
       secret: process.env.LINKEDIN_CLIENT_SECRET!,
-      scope: ['r_liteprofile', 'r_emailaddress']
+      scope: LINKEDIN_SCOPES
     },
     twitter: {
       key: process.env.TWITTER_CLIENT_ID!,
@@ -402,6 +411,12 @@ const ipfs = {
   enabled: process.env.USE_IPFS
 }
 
+const zendesk = {
+  name: process.env.ZENDESK_KEY_NAME,
+  secret: process.env.ZENDESK_SECRET,
+  kid: process.env.ZENDESK_KID
+}
+
 /**
  * Full config
  */
@@ -431,7 +446,9 @@ const config = {
   testEnabled,
   /** @todo when project versioning is fully implemented, remove 'undefined' check here */
   allowOutOfDateProjects:
-    typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true'
+    typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true',
+  fsProjectSyncEnabled: process.env.FS_PROJECT_SYNC_ENABLED === 'false' ? false : true,
+  zendesk
 }
 
 chargebeeInst.configure({

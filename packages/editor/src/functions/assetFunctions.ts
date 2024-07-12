@@ -23,124 +23,90 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { API } from '@etherealengine/client-core/src/API'
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
   uploadToFeathersService
 } from '@etherealengine/client-core/src/util/upload'
-import multiLogger from '@etherealengine/common/src/logger'
 import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { Engine } from '@etherealengine/ecs'
-import { ModelFormat } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
-import { Heuristic } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import { getState } from '@etherealengine/hyperflux'
-import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
-import { createLODVariants } from '../components/assets/ModelCompressionPanel'
-import { LODVariantDescriptor } from '../constants/GLTFPresets'
 
-const logger = multiLogger.child({ component: 'editor:assetFunctions' })
+import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
+
+const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList) => {
+  return Promise.all(
+    Array.from(files).map((file) => {
+      const fileDirectory = file.webkitRelativePath || file.name
+      return uploadToFeathersService(fileBrowserUploadPath, [file], {
+        args: [
+          {
+            project: projectName,
+            path: directoryPath.replace('projects/' + projectName + '/', '') + fileDirectory,
+            contentType: file.type
+          }
+        ]
+      }).promise
+    })
+  )
+}
 
 /**
  * @param config
  * @param config.projectName input and upload the file to the assets directory of the project
  * @param config.directoryPath input and upload the file to the `directoryPath`
  */
-export const inputFileWithAddToScene = async ({
+export const inputFileWithAddToScene = ({
   projectName,
-  directoryPath
+  directoryPath,
+  preserveDirectory
 }: {
-  projectName?: string
-  directoryPath?: string
+  projectName: string
+  directoryPath: string
+  preserveDirectory?: boolean
 }): Promise<null> =>
   new Promise((resolve, reject) => {
     const el = document.createElement('input')
     el.type = 'file'
+    if (preserveDirectory) {
+      el.setAttribute('webkitdirectory', 'webkitdirectory')
+    }
     el.multiple = true
-    el.accept =
-      '.bin,.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
     el.style.display = 'none'
 
     el.onchange = async () => {
       try {
-        let uploadedURLs: string[] = []
-        if (el.files && el.files.length > 0) {
-          const files = Array.from(el.files)
-          if (projectName) {
-            uploadedURLs = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map(
-              (url) => url[0]
-            )
-            for (const url of uploadedURLs) {
-              if (url.endsWith('.gltf') || url.endsWith('.glb') || url.endsWith('.wrm')) {
-                const importSettings = getState(ImportSettingsState)
-                if (importSettings.LODsEnabled) {
-                  const LODSettings = JSON.parse(JSON.stringify(importSettings.selectedLODS)) as LODVariantDescriptor[]
-                  for (const lod of LODSettings) {
-                    const fileName = url.match(/\/([^\/]+)\.\w+$/)!
-                    const fileType = url.match(/\.(\w+)$/)!
-                    const dst = (fileName[1] + lod.suffix).replace(/\s/g, '')
-
-                    lod.params.src = url
-                    lod.params.dst = `${importSettings.LODFolder}${dst}`
-                    lod.params.modelFormat = fileType[1] as ModelFormat
-                  }
-                  await createLODVariants(LODSettings, true, Heuristic.BUDGET, true)
-                }
-              }
-            }
-          } else if (directoryPath) {
-            uploadedURLs = await Promise.all(
-              files.map(
-                (file) =>
-                  uploadToFeathersService(fileBrowserUploadPath, [file], {
-                    fileName: file.name,
-                    path: directoryPath,
-                    contentType: ''
-                  }).promise
-              )
-            )
-          }
-
-          await Promise.all(uploadedURLs.filter((url) => /\.zip$/.test(url)).map(extractZip)).then(() =>
-            logger.info('zip files extracted')
-          )
-
-          // if (projectName) {
-          //   uploadedURLs.forEach((url) => addMediaNode(url))
-          // }
-
-          resolve(null)
-        }
+        if (el.files?.length) await handleUploadFiles(projectName, directoryPath, el.files)
+        resolve(null)
       } catch (err) {
         reject(err)
+      } finally {
+        el.remove()
       }
     }
 
     el.click()
-    el.remove()
   })
 
-export const uploadProjectFiles = (projectName: string, files: File[], isAsset = false, onProgress?) => {
+export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], onProgress?) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
-  const importSettings = getState(ImportSettingsState)
 
-  for (const file of files) {
-    const path = `projects/${projectName}${isAsset ? importSettings.importFolder : ''}`
-    // if (importSettings.LODsEnabled) {
-    //   path = `projects/${projectName}${isAsset ? importSettings.LODFolder : ''}`
-    // }
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    const fileDirectory = paths[i].replace('projects/' + projectName + '/', '')
+    const filePath = fileDirectory ? pathJoin(fileDirectory, file.name) : file.name
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: file.name, path, contentType: '' }, onProgress)
+      uploadToFeathersService(
+        fileBrowserUploadPath,
+        [file],
+        {
+          args: [{ project: projectName, path: filePath, contentType: '' }]
+        },
+        onProgress
+      )
     )
   }
-
-  const uploadPromises = [...promises]
-  Promise.all(uploadPromises).then(() =>
-    Engine.instance.api.service('project-resources').create({ project: projectName })
-  )
 
   return {
     cancel: () => promises.forEach((promise) => promise.cancel()),
@@ -150,9 +116,9 @@ export const uploadProjectFiles = (projectName: string, files: File[], isAsset =
 
 export async function clearModelResources(projectName: string, modelName: string) {
   const resourcePath = `projects/${projectName}/assets/${modelResourcesPath(modelName)}`
-  const exists = await API.instance.client.service(fileBrowserPath).get(resourcePath)
+  const exists = await Engine.instance.api.service(fileBrowserPath).get(resourcePath)
   if (exists) {
-    await FileBrowserService.deleteContent(resourcePath)
+    await Engine.instance.api.service(fileBrowserPath).remove(resourcePath)
   }
 }
 
@@ -190,11 +156,11 @@ export const processEntry = async (
 
   if (item.isFile) {
     const file = await getFile(item)
-    const path = `projects/${projectName}/assets${directory}`
     const name = processFileName(file.name)
+    const path = `assets${directory}/` + name
 
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: name, path, contentType: '' }, onProgress)
+      uploadToFeathersService(fileBrowserUploadPath, [file], { projectName, path, contentType: '' }, onProgress)
     )
   }
 }

@@ -23,26 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import PanToolIcon from '@mui/icons-material/PanTool'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UUIDComponent } from '@etherealengine/ecs'
+import { getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { useState } from '@etherealengine/hyperflux'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import PanToolIcon from '@mui/icons-material/PanTool'
-
-import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
+import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
 
 type OptionsType = Array<{
   callbacks: Array<{
@@ -63,11 +62,24 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
 
   useEffect(() => {
     const options = [] as OptionsType
-    options.push({
-      label: 'Self',
-      value: 'Self',
-      callbacks: []
-    })
+
+    const entityCallbacks = getOptionalComponent(props.entity, CallbackComponent)
+    if (entityCallbacks) {
+      options.push({
+        label: 'Self',
+        value: getComponent(props.entity, UUIDComponent),
+        callbacks: Object.keys(entityCallbacks).map((cb) => {
+          return { label: cb, value: cb }
+        })
+      })
+    } else {
+      options.push({
+        label: 'Self',
+        value: 'Self',
+        callbacks: []
+      })
+    }
+
     for (const entity of callbackQuery()) {
       if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
       const callbacks = getComponent(entity, CallbackComponent)
@@ -114,7 +126,7 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
                   key={props.entity}
                   value={trigger.target.value ?? 'Self'}
                   onChange={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
-                  options={targets.value}
+                  options={targets.value as OptionsType}
                   disabled={props.multiEdit}
                 />
               </InputGroup>
@@ -131,7 +143,14 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
                     key={props.entity}
                     value={trigger.onEnter.value!}
                     onChange={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
-                    options={targetOption?.callbacks ? targetOption.callbacks : []}
+                    options={
+                      targetOption?.callbacks
+                        ? (targetOption.callbacks as Array<{
+                            label: string
+                            value: string
+                          }>)
+                        : []
+                    }
                     disabled={props.multiEdit || !target}
                   />
                 )}
@@ -150,7 +169,14 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
                     key={props.entity}
                     value={trigger.onExit.value!}
                     onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
-                    options={targetOption?.callbacks ? targetOption.callbacks : []}
+                    options={
+                      targetOption?.callbacks
+                        ? (targetOption.callbacks as Array<{
+                            label: string
+                            value: string
+                          }>)
+                        : []
+                    }
                     disabled={props.multiEdit || !target}
                   />
                 )}

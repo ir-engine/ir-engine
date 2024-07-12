@@ -23,19 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-
-import { UserID, identityProviderPath, locationPath } from '@etherealengine/common/src/schema.type.module'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { getState } from '@etherealengine/hyperflux'
-import { Application } from '@etherealengine/server-core/declarations'
 import appRootPath from 'app-root-path'
+import assert from 'assert'
 import { ChildProcess } from 'child_process'
 import { v4 as uuidv4 } from 'uuid'
+
+import { identityProviderPath, locationPath, UserID } from '@etherealengine/common/src/schema.type.module'
+import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { getState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
+import { Application } from '@etherealengine/server-core/declarations'
+
 import { StartTestFileServer } from '../../server-core/src/createFileServer'
 import { onConnection } from '../src/channels'
+import { InstanceServerState } from '../src/InstanceServerState'
 import { start } from '../src/start'
 
 describe('InstanceLoad', () => {
@@ -95,7 +96,8 @@ describe('InstanceLoad', () => {
 
     await loadLocation(query)
 
-    assert.equal(getState(SceneState).sceneLoaded, true)
+    assert.equal(NetworkState.worldNetwork.ready, true)
+    assert.equal(getState(InstanceServerState).ready, true)
   })
 
   after(() => {

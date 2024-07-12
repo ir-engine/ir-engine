@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { FogSystem } from '@etherealengine/spatial/src/renderer/FogSystem'
+import { NoiseOffsetSystem } from '@etherealengine/spatial/src/renderer/materials/constants/plugins/NoiseOffsetPlugin'
+
 import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '../interaction/components/GrabbableComponent'
 import { MountPointSystem } from '../interaction/systems/MountPointSystem'
-import { NoiseOffsetSystem } from '../scene/materials/constants/plugins/NoiseOffsetPlugin'
 import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
 import { CameraSettingsComponent } from './components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'
@@ -40,8 +42,9 @@ import { LinkComponent } from './components/LinkComponent'
 import { MediaComponent } from './components/MediaComponent'
 import { MediaSettingsComponent } from './components/MediaSettingsComponent'
 import { MountPointComponent } from './components/MountPointComponent'
+import { NewVolumetricComponent } from './components/NewVolumetricComponent'
+import { OldColliderComponent } from './components/OldColliderComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
-import { PostProcessingComponent } from './components/PostProcessingComponent'
 import { PrimitiveGeometryComponent } from './components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from './components/RenderSettingsComponent'
 import { SceneDynamicLoadTagComponent } from './components/SceneDynamicLoadTagComponent'
@@ -53,7 +56,6 @@ import { SkyboxComponent } from './components/SkyboxComponent'
 import { SpawnPointComponent } from './components/SpawnPointComponent'
 import { SplineComponent } from './components/SplineComponent'
 import { SplineTrackComponent } from './components/SplineTrackComponent'
-import { SystemComponent } from './components/SystemComponent'
 import { TextComponent } from './components/TextComponent'
 import { VariantComponent } from './components/VariantComponent'
 import { VideoComponent } from './components/VideoComponent'
@@ -62,9 +64,7 @@ import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { MeshBVHSystem } from './systems/MeshBVHSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
-import { SDFSystem } from './systems/SDFSystem'
 import { SceneKillHeightSystem } from './systems/SceneKillHeightSystem'
-import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
 import { ShadowSystem } from './systems/ShadowSystem'
@@ -94,37 +94,34 @@ export const SceneComponents = [
   SceneDynamicLoadTagComponent,
   ScenePreviewCameraComponent,
   SceneSettingsComponent,
-  PostProcessingComponent,
   ScreenshareTargetComponent,
   ShadowComponent,
   SkyboxComponent,
   SpawnPointComponent,
   SplineComponent,
   SplineTrackComponent,
-  SystemComponent,
-  SystemComponent,
   VariantComponent,
   VideoComponent,
   VolumetricComponent,
+  NewVolumetricComponent,
   // WaterComponent,
   LinkComponent,
-  TextComponent
+  TextComponent,
+  OldColliderComponent
 ]
 
 export {
   EnvironmentSystem,
   FogSystem,
   MaterialLibrarySystem,
+  MeshBVHSystem,
   MountPointSystem,
   NoiseOffsetSystem,
-  MeshBVHSystem,
   ParticleSystem,
   PortalSystem,
-  SceneLoadingSystem,
   SceneKillHeightSystem,
   SceneObjectDynamicLoadSystem,
   SceneObjectSystem,
-  SDFSystem,
   ShadowSystem,
   VariantSystem
 }

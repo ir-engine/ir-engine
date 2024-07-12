@@ -23,29 +23,62 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import config, { isDev } from '@etherealengine/common/src/config'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
-import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
-import { ProjectState } from '../../../common/services/ProjectService'
+
+import { isDev } from '@etherealengine/common/src/config'
+import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
+import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
+
+import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
+import { AuthState } from '../../../user/services/AuthService'
+import BuildStatusTable from './build-status/BuildStatusTable'
 import ProjectTable from './ProjectTable'
 import ProjectTopMenu from './ProjectTopMenu'
-import BuildStatusTable from './build-status/BuildStatusTable'
 
 export default function AdminProject() {
   const { t } = useTranslation()
+  const search = useHookstate({ local: '', query: '' })
 
-  const projectState = useHookstate(getMutableState(ProjectState))
+  const projectState = useMutableState(ProjectState)
+  const authState = useMutableState(AuthState)
+  const user = authState.user
+
+  ProjectService.useAPIListeners()
+
+  useEffect(() => {
+    if (user?.scopes?.value?.find((scope) => scope.type === 'projects:read')) {
+      ProjectService.getBuilderInfo()
+    }
+  }, [user])
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null
+
+    ProjectService.checkReloadStatus()
+
+    if (projectState.rebuilding.value) {
+      interval = setInterval(ProjectService.checkReloadStatus, 10000)
+    } else {
+      if (interval) clearInterval(interval)
+      ProjectService.fetchProjects()
+    }
+
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [projectState.rebuilding.value])
 
   return (
     <>
       <div className="mb-2 flex justify-start gap-3">
         {projectState.builderInfo.engineVersion.value && (
           <Badge
-            label={`Current Engine Version: ${projectState.builderInfo.engineVersion.value}`}
+            label={t('admin:components.project.currentEngineVersion', {
+              version: projectState.builderInfo.engineVersion.value
+            })}
             variant="neutral"
             className="py-2"
           />
@@ -53,7 +86,9 @@ export default function AdminProject() {
 
         {projectState.builderInfo.engineCommit.value && (
           <Badge
-            label={`Current Engine Commit: ${projectState.builderInfo.engineCommit.value}`}
+            label={t('admin:components.project.currentEngineCommit', {
+              commit: projectState.builderInfo.engineCommit.value
+            })}
             variant="neutral"
             className="py-2"
           />
@@ -65,7 +100,8 @@ export default function AdminProject() {
             title: t('admin:components.project.project'),
             tabLabel: t('admin:components.common.all'),
             rightComponent: <ProjectTopMenu />,
-            bottomComponent: <ProjectTable />
+            bottomComponent: <ProjectTable search={search.query.value} />,
+            search: search
           },
           {
             title: t('admin:components.buildStatus.buildStatus'),
@@ -80,14 +116,16 @@ export default function AdminProject() {
                         ? 'bg-green-500'
                         : projectState.failed.value === true
                         ? 'bg-red-500'
-                        : 'bg-yellow-400'
+                        : projectState.rebuilding.value === true
+                        ? 'bg-yellow-500'
+                        : 'hidden'
                     )}
                   />
                 )}
               </span>
             ),
             bottomComponent: <BuildStatusTable />,
-            disabled: config.client.localBuildOrDev
+            disabled: false //config.client.localBuildOrDev
           }
         ]}
         tabcontainerClassName="bg-theme-primary"

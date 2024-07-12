@@ -25,16 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { defineComponent, useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
-
+import {
+  defineComponent,
+  getOptionalComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { AudioNodeGroups, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { PositionalAudioHelper } from './PositionalAudioHelper'
+
+import { PositionalAudioHelperComponent } from './PositionalAudioHelperComponent'
 
 export interface PositionalAudioInterface {
   refDistance: number
@@ -60,14 +65,13 @@ export const PositionalAudioComponent = defineComponent({
       maxDistance: 40,
       coneInnerAngle: 360,
       coneOuterAngle: 0,
-      coneOuterGain: 0,
-      helper: null as PositionalAudioHelper | null
+      coneOuterGain: 0
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (typeof json.distanceModel === 'number' && component.distanceModel.value !== json.distanceModel)
+    if (typeof json.distanceModel === 'string' && component.distanceModel.value !== json.distanceModel)
       component.distanceModel.set(json.distanceModel)
     if (typeof json.rolloffFactor === 'number' && component.rolloffFactor.value !== json.rolloffFactor)
       component.rolloffFactor.set(json.rolloffFactor)
@@ -95,10 +99,6 @@ export const PositionalAudioComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
@@ -106,25 +106,25 @@ export const PositionalAudioComponent = defineComponent({
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
     useEffect(() => {
-      if (!debugEnabled.value || !mediaElement || !mediaElement.element.value) return
-
-      const audioNodes = AudioNodeGroups.get(mediaElement.element.value)
-      if (!audioNodes) return
-      const helper = new PositionalAudioHelper(audioNodes)
-      helper.name = `positional-audio-helper-${entity}`
-      addObjectToGroup(entity, helper)
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-      audio.helper.set(helper)
+      if (debugEnabled.value) {
+        if (!mediaElement || !mediaElement.element.value) return
+        const audioNodes = AudioNodeGroups.get(mediaElement.element.value as HTMLMediaElement)
+        if (!audioNodes) return
+        const name = getOptionalComponent(entity, NameComponent)
+        setComponent(entity, PositionalAudioHelperComponent, {
+          audio: audioNodes,
+          name: name ? `${name}-positional-audio-helper` : undefined
+        })
+      }
 
       return () => {
-        removeObjectFromGroup(entity, helper)
-        audio.helper.set(none)
+        removeComponent(entity, PositionalAudioHelperComponent)
       }
     }, [debugEnabled, mediaElement?.element])
 
     useEffect(() => {
       if (!mediaElement?.element.value) return
-      const audioNodes = AudioNodeGroups.get(mediaElement.element.value)
+      const audioNodes = AudioNodeGroups.get(mediaElement.element.value as HTMLMediaElement)
       if (!audioNodes?.panner) return
       audioNodes.panner.refDistance = audio.refDistance.value
       audioNodes.panner.rolloffFactor = audio.rolloffFactor.value

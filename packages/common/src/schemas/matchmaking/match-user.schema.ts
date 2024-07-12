@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+
 import { TypedString } from '../../types/TypeboxUtils'
 import { UserID } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
@@ -56,7 +57,7 @@ export const matchUserSchema = Type.Object(
 export interface MatchUserType extends Static<typeof matchUserSchema> {}
 
 // Schema for creating new entries
-export const matchUserDataSchema = Type.Pick(matchUserSchema, ['ticketId', 'gameMode', 'connection'], {
+export const matchUserDataSchema = Type.Pick(matchUserSchema, ['ticketId', 'gameMode', 'userId'], {
   $id: 'MatchUserData'
 })
 export interface MatchUserData extends Static<typeof matchUserDataSchema> {}

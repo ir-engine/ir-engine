@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Query, defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineQuery, Query, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem, destroySystem, SystemUUID } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import {
@@ -35,7 +35,7 @@ import {
   StandardGamepadButton,
   XRStandardGamepadButton
 } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { Choices, NodeCategory, makeEventNodeDefinition } from '@etherealengine/visual-script'
+import { Choices, makeEventNodeDefinition, NodeCategory } from '@etherealengine/visual-script'
 
 let systemCounter = 0
 
@@ -52,7 +52,7 @@ const initialState = (): State => ({
 const buttonStates = ['down', 'pressed', 'touched', 'up'] as Array<keyof ButtonState>
 export const OnButton = makeEventNodeDefinition({
   typeName: 'engine/onButton',
-  category: NodeCategory.Event,
+  category: NodeCategory.Engine,
   label: 'On Button',
   in: {
     button: (_) => {

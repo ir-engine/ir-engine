@@ -23,27 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { AddOutlined, CancelOutlined } from '@mui/icons-material'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { XYPosition, useReactFlow } from 'reactflow'
-import { v4 as uuidv4 } from 'uuid'
+import { useReactFlow } from 'reactflow'
 
 import { UndefinedEntity } from '@etherealengine/ecs'
 import { NodetoEnginetype } from '@etherealengine/engine'
-import { VariableJSON, VisualScriptDomain, VisualScriptState } from '@etherealengine/visual-script'
+import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
+import { GraphTemplate, VariableJSON, VisualScriptDomain, VisualScriptState } from '@etherealengine/visual-script'
+
 import { Button, PropertiesPanelButton } from '../../inputs/Button'
 import ParameterInput from '../../inputs/ParameterInput'
 import SelectInput from '../../inputs/SelectInput'
 import StringInput from '../../inputs/StringInput'
 import CollapsibleBlock from '../../layout/CollapsibleBlock'
 import PaginatedList from '../../layout/PaginatedList'
-import Panel from '../../layout/Panel'
 import NodeEditor from '../../properties/NodeEditor'
-import { useVisualScriptFlow, visualToFlow } from '../VisualScriptUIModule'
 import { useTemplateHandler } from '../hooks/useTemplateHandler'
 import { useVariableHandler } from '../hooks/useVariableHandler'
+import { useVisualScriptFlow, visualToFlow } from '../VisualScriptUIModule'
 import { Examples } from './modals/LoadModal'
 
 type templateHandler = ReturnType<typeof useTemplateHandler>
@@ -73,7 +72,7 @@ export const SidePanel = ({
   Pick<visualScriptFlow, 'onNodesChange'> &
   Pick<variableHandler, 'handleAddVariable' | 'handleDeleteVariable' | 'handleEditVariable'>) => {
   const reactFlow = useReactFlow()
-  const visualScriptState = useHookstate(getMutableState(VisualScriptState))
+  const visualScriptState = useMutableState(VisualScriptState)
   const { t } = useTranslation()
   const graphTypes = visualScriptState.registries[VisualScriptDomain.ECS].values.get(NO_PROXY)
 
@@ -97,7 +96,7 @@ export const SidePanel = ({
         paddingBottom: '5px'
       }}
     >
-      <CollapsibleBlock label={t('editor:visualScript.sidePanel.node.name')}>
+      {/*<CollapsibleBlock label={t('editor:visualScript.sidePanel.node.name')}>
         <NodeEditor entity={UndefinedEntity} description={t('editor:visualScript.sidePanel.node.description')}>
           <PaginatedList
             options={{ countPerPage: 10 }}
@@ -134,13 +133,13 @@ export const SidePanel = ({
             }}
           ></PaginatedList>
         </NodeEditor>
-      </CollapsibleBlock>
+      </CollapsibleBlock>*/}
 
       <CollapsibleBlock label={t('editor:visualScript.sidePanel.template.name')}>
         <NodeEditor entity={UndefinedEntity} description={t('editor:visualScript.sidePanel.template.description')}>
           <PaginatedList
             options={{ countPerPage: 5 }}
-            list={visualScriptState.templates.get(NO_PROXY)}
+            list={visualScriptState.templates.get(NO_PROXY) as GraphTemplate[]}
             element={(template: any, index) => {
               return (
                 <div style={{ display: 'flex', width: '100%' }}>

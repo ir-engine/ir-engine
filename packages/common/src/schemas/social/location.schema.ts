@@ -28,8 +28,9 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+
 import { TypedString } from '../../types/TypeboxUtils'
-import { SceneID } from '../projects/scene.schema'
+import { staticResourceSchema } from '../media/static-resource.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { locationAdminSchema } from './location-admin.schema'
 import { locationAuthorizedUserSchema } from './location-authorized-user.schema'
@@ -50,7 +51,8 @@ export const locationSchema = Type.Object(
       format: 'uuid'
     }),
     name: Type.String(),
-    sceneId: TypedString<SceneID>({
+    sceneId: Type.String(),
+    projectId: Type.String({
       format: 'uuid'
     }),
     slugifiedName: Type.String(),
@@ -58,6 +60,7 @@ export const locationSchema = Type.Object(
     isLobby: Type.Boolean(),
     /** @todo review */
     isFeatured: Type.Boolean(),
+    sceneAsset: Type.Ref(staticResourceSchema),
     maxUsersPerInstance: Type.Number(),
     locationSetting: Type.Ref(locationSettingSchema),
     locationAdmin: Type.Optional(Type.Ref(locationAdminSchema)),
@@ -94,6 +97,7 @@ export const locationQueryProperties = Type.Pick(locationSchema, [
   'id',
   'name',
   'sceneId',
+  'projectId',
   'slugifiedName',
   'isLobby',
   'isFeatured',
@@ -106,7 +110,7 @@ export const locationQuerySchema = Type.Intersect(
         $like: Type.String()
       },
       sceneId: {
-        $like: TypedString<SceneID>({
+        $like: Type.String({
           format: 'uuid'
         })
       }

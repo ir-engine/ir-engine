@@ -23,18 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Box from '@mui/material/Box'
 import React from 'react'
 
-import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import RoomMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/RoomMenu'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
-import Box from '@mui/material/Box'
-
-export const RoomPage = (): any => {
-  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
-  const [clientSetting] = clientSettingState?.client?.value || []
+export const RoomPage = () => {
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSetting = clientSettingQuery.data[0]
 
   return (
     <div className="lander">
@@ -47,20 +46,20 @@ export const RoomPage = (): any => {
       </style>
       <MetaTags>
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;600;800&display=swap"
           rel="stylesheet"
         />
       </MetaTags>
       <div className="main-background">
         <div className="img-container">
-          {clientSetting?.appBackground && <img src={clientSetting.appBackground} alt="" crossOrigin="anonymous" />}
+          {clientSetting?.appBackground && <img src={clientSetting?.appBackground} alt="" crossOrigin="anonymous" />}
         </div>
       </div>
       <nav className="navbar">
         <div className="logo-section">
-          {clientSetting?.appTitle && <object className="lander-logo" data={clientSetting.appTitle} />}
+          {clientSetting?.appTitle && <object className="lander-logo" data={clientSetting?.appTitle} />}
           <div className="logo-bottom">
-            {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting.appSubtitle}</span>}
+            {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting?.appSubtitle}</span>}
           </div>
         </div>
       </nav>

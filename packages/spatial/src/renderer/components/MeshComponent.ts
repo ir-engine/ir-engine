@@ -23,9 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh } from 'three'
+import { useEffect } from 'react'
+import { BufferGeometry, Material, Mesh } from 'three'
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, useEntityContext } from '@etherealengine/ecs'
+import {
+  defineComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { State } from '@etherealengine/hyperflux'
+
+import { useResource } from '../../resources/resourceHooks'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const MeshComponent = defineComponent({
   name: 'Mesh Component',
@@ -36,5 +48,75 @@ export const MeshComponent = defineComponent({
   onSet: (entity, component, mesh: Mesh) => {
     if (!mesh || !mesh.isMesh) throw new Error('MeshComponent: Invalid mesh')
     component.set(mesh)
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const meshComponent = useComponent(entity, MeshComponent)
+    const [meshResource] = useResource(meshComponent.value, entity, meshComponent.uuid.value)
+    const [geometryResource] = useResource(meshComponent.geometry.value, entity, meshComponent.geometry.uuid.value)
+    const [materialResource] = useResource<Material | Material[]>(
+      meshComponent.material.value as Material,
+      entity,
+      !Array.isArray(meshComponent.material.value) ? (meshComponent.material.value as Material).uuid : undefined
+    )
+
+    useEffect(() => {
+      if (meshComponent.value !== meshResource.value) meshResource.set(meshComponent.value)
+    }, [meshComponent])
+
+    useEffect(() => {
+      const mesh = meshComponent.value
+      if (mesh.geometry !== geometryResource.value) geometryResource.set(mesh.geometry)
+    }, [meshComponent.geometry])
+
+    useEffect(() => {
+      const mesh = meshComponent.value
+      if (mesh.material !== materialResource.value) materialResource.set(mesh.material)
+
+      if (Array.isArray(mesh.material)) {
+        for (const material of mesh.material) material.needsUpdate = true
+      } else {
+        ;(mesh.material as Material).needsUpdate = true
+      }
+    }, [meshComponent.material])
+
+    return null
   }
 })
+
+/**
+ *
+ * Adds a MeshComponent to an entity with the passed in Geometry and Material
+ * Functionally no different than calling setComponent(entity, MeshComponent, new Mesh(geometry, material)), but retains the typing for the Geometry and Material objects
+ *
+ * @param entity entity to add the mesh component to
+ * @param geometry a Geometry instance to add to the mesh
+ * @param material a Material instance to add to the mesh
+ * @returns [Mesh, State<Geometry>, State<Material>]
+ */
+export function useMeshComponent<TGeometry extends BufferGeometry, TMaterial extends Material>(
+  entity: Entity,
+  geometry: TGeometry | (() => TGeometry),
+  material: TMaterial | (() => TMaterial)
+): State<Mesh<TGeometry, TMaterial>> {
+  if (!hasComponent(entity, MeshComponent)) {
+    const geo = typeof geometry === 'function' ? geometry() : geometry
+    const mat = typeof material === 'function' ? material() : material
+    setComponent(entity, MeshComponent, new Mesh<TGeometry, TMaterial>(geo, mat))
+  }
+
+  const meshComponent = useComponent(entity, MeshComponent)
+
+  // todo: move this into MeshComponent reactor
+  useEffect(() => {
+    const mesh = meshComponent.value as Mesh
+    addObjectToGroup(entity, mesh)
+    return () => {
+      removeObjectFromGroup(entity, mesh)
+      removeComponent(entity, MeshComponent)
+    }
+  }, [])
+
+  return meshComponent as unknown as State<Mesh<TGeometry, TMaterial>>
+}

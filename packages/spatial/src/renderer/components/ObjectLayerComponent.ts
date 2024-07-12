@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Types } from 'bitecs'
+import { Object3D } from 'three'
+
 import { entityExists } from '@etherealengine/ecs'
 import {
   defineComponent,
@@ -31,8 +34,6 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { Types } from 'bitecs'
-import { Object3D } from 'three'
 
 const maxBitWidth = 32
 
@@ -58,6 +59,11 @@ export const ObjectLayerMaskComponent = defineComponent({
     return 1 << 0 // enable layer 0
   },
 
+  /**
+   * Takes a layer mask as a parameter, not a layer (eg. layer mask with value 256 enables layer 8)
+   * Incorrect usage setComponent(entity, ObjectLayerMaskComponent, ObjectLayers.NodeHelper)
+   * Correct usage setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.NodeHelper)
+   */
   onSet(entity, component, mask = 1 << 0) {
     for (let i = 0; i < maxBitWidth; i++) {
       const isSet = (mask & ((1 << i) | 0)) !== 0
@@ -67,7 +73,8 @@ export const ObjectLayerMaskComponent = defineComponent({
         removeComponent(entity, ObjectLayerComponents[i])
       }
     }
-    component.set(ObjectLayerMaskComponent.mask[entity])
+    component.set(mask)
+    ObjectLayerMaskComponent.mask[entity] = mask
   },
 
   onRemove(entity, component) {

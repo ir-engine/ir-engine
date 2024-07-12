@@ -38,7 +38,7 @@ const componentTypes = {
 }
 
 export interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
-  fontFamily?: 'Inter' | 'Figtree' | string
+  fontFamily?: 'Figtree' | string
   fontSize?: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl'
   fontWeight?: 'light' | 'normal' | 'semibold' | 'medium' | 'bold'
   component?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span'
@@ -47,23 +47,28 @@ export interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const Text = ({
-  fontFamily = 'Inter',
+  fontFamily = 'Figtree',
   fontSize = 'base',
   fontWeight = 'normal',
   className,
   children,
   component = 'span',
-  theme = 'primary'
+  theme = 'primary',
+  ...props
 }: TextProps): JSX.Element => {
   const Component = componentTypes[component]
 
   const twClassName = twMerge(
     'inline-block leading-normal',
-    `font-${fontWeight} font-[${fontFamily}] text-${fontSize} text-theme-${theme}`,
+    `font-${fontWeight} font-['${fontFamily}'] text-${fontSize} text-theme-${theme}`,
     className
   )
 
-  return <Component className={twClassName}>{children}</Component>
+  return (
+    <Component className={twClassName} {...props}>
+      {children}
+    </Component>
+  )
 }
 
 export default Text

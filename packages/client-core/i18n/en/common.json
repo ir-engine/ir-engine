@@ -12,7 +12,10 @@
     "close": "Close",
     "submit": "Submit",
     "search": "Search",
-    "copyText": "Copy Text"
+    "copyText": "Copy Text",
+    "edit": "Edit",
+    "save": "Save",
+    "none": "None"
   },
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"
@@ -29,10 +32,12 @@
     "loadingClient": "Loading client...",
     "authenticating": "Authenticating...",
     "starting": "Starting...",
+    "loadingApp": "Loading app...",
     "loadingLocation": "Loading locations...",
     "loadingProjects": "Loading projects...",
     "loadingEngine": "Loading engine...",
     "loadingEditor": "Loading editor...",
+    "loadingStudio": "Loading studio...",
     "loadingRoutes": "Loading routes...",
     "loadingRoute": "Loading route...",
     "loadingAuth": "Loading auth routes...",
@@ -76,6 +81,7 @@
     "tick": "Tick",
     "state": "State",
     "systems": "Systems",
+    "avgDuration": "Avg Duration: ",
     "entities": "Entities",
     "networks": "Networks",
     "actionsHistory": "Actions History",

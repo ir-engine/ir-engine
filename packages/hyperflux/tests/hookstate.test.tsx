@@ -27,7 +27,7 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 
-import { NO_PROXY, NO_PROXY_STEALTH, createHyperStore, defineState, getMutableState, none, useHookstate } from '..'
+import { createHyperStore, defineState, getMutableState, NO_PROXY, NO_PROXY_STEALTH, none, useHookstate } from '..'
 
 let testID = 0
 
@@ -42,7 +42,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -87,7 +86,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -134,7 +132,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -179,7 +176,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -224,7 +220,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -271,7 +266,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -316,7 +310,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -363,7 +356,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -408,7 +400,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -455,7 +446,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -502,7 +492,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -552,7 +541,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -600,7 +588,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -648,7 +635,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -698,7 +684,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -748,7 +733,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -796,7 +780,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -844,7 +827,6 @@ describe('hookstate reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 
@@ -896,7 +878,6 @@ describe('hookstate nested reactivity', () => {
       })
 
       const store = createHyperStore({
-        getDispatchId: () => 'id',
         getDispatchTime: () => Date.now()
       })
 

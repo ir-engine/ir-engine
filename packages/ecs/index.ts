@@ -26,7 +26,8 @@ Ethereal Engine. All Rights Reserved.
 // ensure dependency modules are imported
 import '@etherealengine/hyperflux'
 
-import { Not, Types, getAllEntities } from 'bitecs'
+import { getAllEntities, Not, Types } from 'bitecs'
+
 import {
   defineComponent,
   getAllComponentData,
@@ -47,7 +48,7 @@ import {
 import { executeFixedSystem, executeSystems } from './src/EngineFunctions'
 import { UndefinedEntity } from './src/Entity'
 import { createEntity, entityExists, removeEntity, useEntityContext } from './src/EntityFunctions'
-import { QueryReactor, defineQuery, removeQuery, useQuery } from './src/QueryFunctions'
+import { defineQuery, QueryReactor, removeQuery, useQuery } from './src/QueryFunctions'
 import { defineSystem, destroySystem, executeSystem, useExecute } from './src/SystemFunctions'
 import { UUIDComponent } from './src/UUIDComponent'
 
@@ -98,6 +99,7 @@ globalThis.ECS = ECS
 
 export default ECS
 
+export { Not } from 'bitecs'
 export * from './src/ComponentFunctions'
 export * from './src/ECSState'
 export * from './src/Engine'
