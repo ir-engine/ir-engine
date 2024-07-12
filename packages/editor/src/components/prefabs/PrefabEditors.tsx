@@ -38,12 +38,6 @@ export const PrefabShelfState = defineState({
         detail: 'Blank 3D model ready for your own assets'
       },
       {
-        name: '3D Model',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/3d-model.prefab.gltf`,
-        category: 'Geo',
-        detail: 'Blank 3D model ready for your own assets'
-      },
-      {
         name: 'Primitive Geometry',
         url: `${config.client.fileServer}/projects/default-project/assets/prefabs/geo.prefab.gltf`,
         category: 'Geo'
