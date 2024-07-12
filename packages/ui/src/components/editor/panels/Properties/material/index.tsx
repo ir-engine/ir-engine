@@ -34,6 +34,7 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
+  removeEntity,
   setComponent,
   useComponent,
   useOptionalComponent,
@@ -54,11 +55,7 @@ import {
   MaterialStateComponent,
   prototypeQuery
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import {
-  formatMaterialArgs,
-  getMaterial,
-  removeMaterialEntity
-} from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { formatMaterialArgs, getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
@@ -310,10 +307,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         className="w-full text-xs"
         onClick={() => {
           getMutableState(MaterialSelectionState).selectedMaterial.set(null)
-          removeMaterialEntity(entity)
-
-          //const newMaterial = new MeshBasicMaterial({ name: 'New Material' })
-          //createMaterialEntity(newMaterial, UndefinedEntity)
+          removeEntity(entity)
         }}
       >
         Delete
