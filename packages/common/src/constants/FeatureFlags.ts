@@ -31,5 +31,12 @@ export const FeatureFlags = {
       Avaturn: 'ir.client.menu.avaturn',
       ReadyPlayerMe: 'ir.client.menu.readyPlayerMe'
     }
+  },
+  Editor: {
+    UI: {
+      Hierarchy: {
+        HideModelChildren: 'ir.editor.ui.hierarchy.hideModelChildren'
+      }
+    }
   }
 }

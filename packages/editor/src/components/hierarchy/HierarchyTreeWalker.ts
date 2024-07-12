@@ -30,7 +30,9 @@ import { SourceComponent } from '@etherealengine/engine/src/scene/components/Sou
 import { getState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { UUIDComponent } from '@etherealengine/ecs'
+import { FeatureFlagsState } from '@etherealengine/engine'
 import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
@@ -81,7 +83,10 @@ function buildHierarchyTree(
   }
   array.push(item)
 
-  if (hasComponent(entity, ModelComponent)) {
+  if (
+    hasComponent(entity, ModelComponent) &&
+    !FeatureFlagsState.enabled(FeatureFlags.Editor.UI.Hierarchy.HideModelChildren)
+  ) {
     const modelSceneID = getModelSceneID(entity)
     const snapshotState = getState(GLTFSnapshotState)
     const snapshots = snapshotState[modelSceneID]
