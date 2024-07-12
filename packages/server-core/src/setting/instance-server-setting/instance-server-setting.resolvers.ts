@@ -34,23 +34,67 @@ import {
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export const instanceServerSettingResolver = resolve<InstanceServerSettingType, HookContext>({
-  createdAt: virtual(async (instanceServerSetting) => fromDateTimeSql(instanceServerSetting.createdAt)),
-  updatedAt: virtual(async (instanceServerSetting) => fromDateTimeSql(instanceServerSetting.updatedAt))
-})
+export const instanceServerSettingResolver = resolve<InstanceServerSettingType, HookContext>(
+  {
+    createdAt: virtual(async (instanceServerSetting) => fromDateTimeSql(instanceServerSetting.createdAt)),
+    updatedAt: virtual(async (instanceServerSetting) => fromDateTimeSql(instanceServerSetting.updatedAt))
+  },
+  {
+    converter: async (rawData): Promise<InstanceServerSettingType> => {
+      const webRTCSettings = JSON.parse(rawData.webRTCSettings)
+      return {
+        ...rawData,
+        webRTCSettings
+      }
+    }
+  }
+)
 
 export const instanceServerSettingExternalResolver = resolve<InstanceServerSettingType, HookContext>({})
 
-export const instanceServerSettingDataResolver = resolve<InstanceServerSettingType, HookContext>({
-  id: async () => {
-    return uuidv4()
+export const instanceServerSettingDataResolver = resolve<InstanceServerSettingType, HookContext>(
+  {
+    id: async () => {
+      return uuidv4()
+    },
+    createdAt: getDateTimeSql,
+    updatedAt: getDateTimeSql
   },
-  createdAt: getDateTimeSql,
-  updatedAt: getDateTimeSql
-})
+  {
+    converter: async (rawData, context) => {
+      try {
+        if (typeof rawData.webRTCSettings.iceServers === 'string')
+          rawData.webRTCSettings.iceServers = JSON.parse(rawData.webRTCSettings.iceServers)
+      } catch (err) {
+        // Do nothing
+      }
 
-export const instanceServerSettingPatchResolver = resolve<InstanceServerSettingType, HookContext>({
-  updatedAt: getDateTimeSql
-})
+      return {
+        ...rawData,
+        webRTCSettings: JSON.stringify(rawData.webRTCSettings)
+      }
+    }
+  }
+)
+
+export const instanceServerSettingPatchResolver = resolve<InstanceServerSettingType, HookContext>(
+  {
+    updatedAt: getDateTimeSql
+  },
+  {
+    converter: async (rawData, context) => {
+      try {
+        if (typeof rawData.webRTCSettings.iceServers === 'string')
+          rawData.webRTCSettings.iceServers = JSON.parse(rawData.webRTCSettings.iceServers)
+      } catch (err) {
+        // Do nothing
+      }
+      return {
+        ...rawData,
+        webRTCSettings: JSON.stringify(rawData.webRTCSettings)
+      }
+    }
+  }
+)
 
 export const instanceServerSettingQueryResolver = resolve<InstanceServerSettingQuery, HookContext>({})
