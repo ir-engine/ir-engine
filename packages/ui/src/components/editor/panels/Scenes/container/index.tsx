@@ -62,7 +62,6 @@ export default function ScenesPanel() {
   const isCreatingScene = useHookstate(false)
   const handleCreateScene = async () => {
     isCreatingScene.set(true)
-    //await onNewScene()
     PopoverState.showPopupover(<CreateSceneDialog />)
     isCreatingScene.set(false)
   }

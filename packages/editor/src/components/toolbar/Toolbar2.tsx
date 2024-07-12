@@ -83,7 +83,6 @@ const generateToolbarMenu = () => {
   return [
     {
       name: t('editor:menubar.newScene'),
-      // action: () => onNewScene()
       action: () => {
         PopoverState.showPopupover(<CreateSceneDialog />)
       }
