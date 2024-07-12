@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
-import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
@@ -536,9 +535,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             <Button
               className={'medium-button button'}
               style={{ width: '100%' }}
-              onClick={() =>
-                FileThumbnailJobState.processAllFiles(selectedDirectory.value, forceRegenerateThumbnails.value)
-              }
+              onClick={() => {
+                //   FileThumbnailJobState.processAllFiles(selectedDirectory.value, forceRegenerateThumbnails.value)
+              }}
             >
               Generate thumbnails
             </Button>
