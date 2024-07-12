@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { MdEmail } from 'react-icons/md'
 import {
+  RiAppleFill,
   RiDiscordFill,
   RiGithubFill,
   RiGoogleFill,
@@ -53,7 +54,7 @@ export default function AccountIdentifiers({ user }: { user: UserType }) {
     <div className="flex items-center gap-2">
       {appleIp ? (
         <Tooltip title={appleIp.accountIdentifier!}>
-          <RiTwitterFill className="h-6 w-6" />
+          <RiAppleFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {discordIp ? (
