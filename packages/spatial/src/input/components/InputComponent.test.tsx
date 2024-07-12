@@ -148,6 +148,12 @@ function getDummyAxes(axes: Axes) {
   }
 }
 
+/** @description Returns whether or not the given `@param pos` should be true for the given `@param id` iteration index
+ *  @why Used to iterate through a matrix of boolean arguments when creating test cases for all of their branches/variations. */
+export function getBoolAtPositionForIndex(id: number, pos: number): boolean {
+  return Boolean(id & (1 << pos))
+}
+
 describe('InputComponent', () => {
   describe('IDs', () => {
     it('should initialize the InputComponent.name field with the expected value', () => {
@@ -900,10 +906,9 @@ describe('InputComponent', () => {
     })
   })
 
-  // ref: ProductModelReactor
-  // ref: InteractableComponent
-  // ref: TransformGizmoSystem
-  describe('useExecuteWithInput', () => {
+  /** @note This `describe` block is testing a function that creates a matrix of 4*4*3 different branches.
+   *  As such, it is programatically creating a total of 48 different unit test cases. */
+  describe.skip('useExecuteWithInput', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
@@ -916,7 +921,159 @@ describe('InputComponent', () => {
       removeEntity(testEntity)
       return destroyEngine()
     })
+
+    // Define the top-level cases. Will run all `cases` for each of them individually
+    // const orders = [ InputExecutionOrder.Before, InputExecutionOrder.With, InputExecutionOrder.After  ] as InputExecutionOrder[]
+    const orders = [InputExecutionOrder.With] as InputExecutionOrder[]
+
+    // Create the test case variations
+    type CaseData = { executeWhenEditing: boolean; isEditing: boolean; isCaptured: boolean; isAncestor: boolean }
+    const args = 4 // Amount of separate arguments/conditions that we are testing
+    // Populate the test cases variations
+    const cases = [] as CaseData[]
+    for (let id = 0; id < 1 << args; ++id) {
+      cases[id] = {
+        executeWhenEditing: getBoolAtPositionForIndex(id, 0),
+        isEditing: getBoolAtPositionForIndex(id, 1),
+        isCaptured: getBoolAtPositionForIndex(id, 2),
+        isAncestor: getBoolAtPositionForIndex(id, 3)
+      }
+    }
+
+    // Run all tests once for every InputExecutionOrder
+    orders.forEach(function (data_order: InputExecutionOrder) {
+      let OrderName = ''
+      switch (
+        data_order // small hack to get the name of the enum string back
+      ) {
+        case InputExecutionOrder.Before:
+          OrderName = 'Before'
+          break
+        case InputExecutionOrder.With:
+          OrderName = 'With'
+          break
+        case InputExecutionOrder.After:
+          OrderName = 'After'
+          break
+      }
+
+      // Run a test for every condition we defined in the test cases matrix
+      cases.forEach(function (data: CaseData) {
+        // Expected condition for whether we should run the execute or not
+        // This mirrors the condition checked internally inside the function that we are testing
+        const ShouldRun = (!data.executeWhenEditing && data.isEditing) || (data.isCaptured && !data.isAncestor)
+
+        // Generate the name of the current iteration for the test
+        //   These variables will be used to programmatically generate the `it( ... )` statement name for each individual condition
+        const run = ShouldRun ? 'run' : 'not run'
+        const want = data.executeWhenEditing ? 'want' : 'dont want'
+        const editing = data.isEditing ? 'editing' : 'not editing'
+        const captured = data.isCaptured ? 'captured' : 'not captured'
+        const ancestor = data.isAncestor ? 'an ancestor' : 'not an ancestor'
+        const orderIs = `order is set to InputExecutionOrder.${OrderName}`
+
+        it(`should ${run} the executeOnInput function when we ${want} to executeWhenEditing, we are ${editing}, the entity is ${captured}, the entity is ${ancestor} of the entityContext and ${orderIs}`, () => {
+          // Create the function spies
+          const executeSpy = sinon.spy()
+          const reactorSpy = sinon.spy()
+          // Create the Reactor setup
+          const Reactor = () => {
+            reactorSpy()
+            useEffect(() => {
+              InputComponent.useExecuteWithInput(executeSpy, data.executeWhenEditing, data_order) // omitted defaults: (_, false, With)
+            }, []) // Mount it once, so that only one useExecute is created
+            return null
+          }
+          assert.equal(reactorSpy.callCount, 0)
+          assert.ok(!executeSpy.called)
+
+          // Create a reactor root to run the hook's reactor. Goal:
+          //   Set an entityContext for useEntityContext within this UnitTest, and being able to access it from here too
+          const root = startReactor(() => {
+            return React.createElement(EntityContext.Provider, { value: testEntity }, React.createElement(Reactor, {}))
+          }) as ReactorRoot
+          assert.equal(reactorSpy.callCount, 2)
+          assert.ok(!executeSpy.called)
+          root.run()
+          // Extract the useExecute system out of the global list of SystemDefinitions array
+          const list = Array.from(SystemDefinitions.entries())
+          const [_, syst] = list[list.length - 1]
+          syst.execute()
+
+          // Expected cases
+          // (!executeWhenEditing && getState(EngineState).isEditing) ||
+          // (capturingEntity && !isAncestor(capturingEntity, entity, true))
+          // TODO: setup isEditing
+          // TODO: setup isAncestor
+          // TODO: setup isCaptured
+
+          console.log('ShouldRun: ', ShouldRun)
+          console.log('executeSpy.callCount : ', executeSpy.callCount)
+          console.log('reactorSpy.callCount : ', reactorSpy.callCount)
+
+          assert.equal(reactorSpy.callCount, 2)
+          assert.equal(executeSpy.called, ShouldRun)
+        })
+      })
+    })
+
+    //....................
+    // Usage references
+    // ref: ProductModelReactor
+    // ref: InteractableComponent
+    // ref: TransformGizmoSystem
+    //....................
+
+    // it("should not run `@param executeOnInput` when InputState.capturingEntity is a valid entity and an ancestor (or self) of the entity is currently set as useEntityContext", () => {})
+    // it("should run `@param executeOnInput` when we want to execute when editing, and we are currently editing", () => {})
+
+    //______________________________________
+    // Logic Table   (sketch, incomplete)
+    //____________________________
+    // !true                and   true
+    // !executeWhenEditing  and  isEditing
+    // we are editing, and we want to run when editing:   don't return early
+    //____________________________
+    // !false               and   true
+    // !executeWhenEditing  and  isEditing
+    // we are editing, but don't want to run when editing:   return early
+    //
+    //____________________________
+    // true             and  true
+    // capturingEntity  and !isAncestor(capturingEntity, entity, true))
+    // we have a capturingEntity
+    //   but that entity is not an ancestor of the current entityContext
+    //   : return early
+    //____________________________
+    // false            and  true
+    // capturingEntity  and !isAncestor(capturingEntity, entity, true))
+    // we don't have a capturingEntity
+    //   :  return early
+    //____________________________
+    // true             and  false
+    // capturingEntity  and !isAncestor(capturingEntity, entity, true))
+    // we have a capturingEntity
+    //   and that entity is an ancestor of the current entityContext
+    //   :  don't return early
   })
+
+  // useExecuteWithInput(
+  //   executeOnInput: () => void,
+  //   executeWhenEditing = false,
+  //   order: InputExecutionOrder = InputExecutionOrder.With
+  // ) {
+  //   const entity = useEntityContext()
+  //
+  //   return useExecute(() => {
+  //     const capturingEntity = getState(InputState).capturingEntity
+  //     if (
+  //       (!executeWhenEditing && getState(EngineState).isEditing) ||
+  //       (capturingEntity && !isAncestor(capturingEntity, entity, true))
+  //     )
+  //       return
+  //     executeOnInput()
+  //   }, getInputExecutionInsert(order))
+  // },
 
   describe('reactor', () => {
     beforeEach(() => {
