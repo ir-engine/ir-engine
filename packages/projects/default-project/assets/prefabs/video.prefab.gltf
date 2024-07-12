@@ -1,0 +1,297 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "nodes": [
+        1
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "video-group-44",
+      "mesh": 0
+    },
+    {
+      "name": "video",
+      "children": [
+        0
+      ],
+      "extensions": {
+        "EE_uuid": "5a33064d-dc00-4ab8-b4fe-361205eee785",
+        "EE_visible": true,
+        "EE_video": {
+          "mediaUUID": "",
+          "side": 2,
+          "size": {
+            "x": 1,
+            "y": 1
+          },
+          "uvOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "uvScale": {
+            "x": 1,
+            "y": 1
+          },
+          "alphaUVOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "alphaUVScale": {
+            "x": 1,
+            "y": 1
+          },
+          "wrapS": 1001,
+          "wrapT": 1001,
+          "useAlpha": false,
+          "useAlphaUVTransform": false,
+          "alphaThreshold": 0.5,
+          "fit": "contain",
+          "projection": "Flat"
+        },
+        "EE_media": {
+          "controls": false,
+          "autoplay": true,
+          "resources": [],
+          "volume": 1,
+          "uiOffset": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "synchronize": true,
+          "playMode": "loop",
+          "isMusic": false,
+          "seekTime": 0
+        },
+        "EE_input": {
+          "inputSinks": [
+            "Self"
+          ],
+          "activationDistance": 2
+        }
+      }
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 48,
+      "target": 34962,
+      "byteStride": 12
+    },
+    {
+      "buffer": 1,
+      "byteOffset": 0,
+      "byteLength": 48,
+      "target": 34962,
+      "byteStride": 12
+    },
+    {
+      "buffer": 2,
+      "byteOffset": 0,
+      "byteLength": 32,
+      "target": 34962,
+      "byteStride": 8
+    },
+    {
+      "buffer": 3,
+      "byteOffset": 0,
+      "byteLength": 24,
+      "target": 34963
+    }
+  ],
+  "buffers": [
+    {
+      "name": "acf3e4ba5ba12ca23539572a5fbc3348b62821a3cb9e21f1d35a60da53a12622",
+      "byteLength": 48,
+      "uri": "model-resources/video/buffers/acf3e4ba5ba12ca23539572a5fbc3348b62821a3cb9e21f1d35a60da53a12622.bin"
+    },
+    {
+      "name": "1c0fad78f1058960dc3e32873413e5ff33e96f4724b9cb61944185c189be7ea8",
+      "byteLength": 48,
+      "uri": "model-resources/video/buffers/1c0fad78f1058960dc3e32873413e5ff33e96f4724b9cb61944185c189be7ea8.bin"
+    },
+    {
+      "name": "7ddbfec44f0a3193ccb8ab3a385ae5407929ec1e547ecf9d6e8526b67bf2ed03",
+      "byteLength": 32,
+      "uri": "model-resources/video/buffers/7ddbfec44f0a3193ccb8ab3a385ae5407929ec1e547ecf9d6e8526b67bf2ed03.bin"
+    },
+    {
+      "name": "79e1efdd5fc321117fcb4f64c7de406106c3176b573b216559e102e54644311c",
+      "byteLength": 24,
+      "uri": "model-resources/video/buffers/79e1efdd5fc321117fcb4f64c7de406106c3176b573b216559e102e54644311c.bin"
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        0.5,
+        0.5,
+        0
+      ],
+      "min": [
+        -0.5,
+        -0.5,
+        0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        0,
+        0,
+        1
+      ],
+      "min": [
+        0,
+        0,
+        1
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        1,
+        1
+      ],
+      "min": [
+        0,
+        0
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5125,
+      "count": 6,
+      "max": [
+        3
+      ],
+      "min": [
+        0
+      ],
+      "type": "SCALAR"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "extensions": {
+        "EE_material": {
+          "uuid": "8ea72a77-1df6-4492-a0d0-a5f58067dba7",
+          "name": "",
+          "prototype": "ShaderMaterial",
+          "plugins": [],
+          "args": {
+            "uniforms": {
+              "type": "object",
+              "contents": {
+                "map": {
+                  "value": null
+                },
+                "alphaMap": {
+                  "value": null
+                },
+                "uvOffset": {
+                  "value": {
+                    "x": 0,
+                    "y": 0
+                  }
+                },
+                "uvScale": {
+                  "value": {
+                    "x": 1,
+                    "y": 1
+                  }
+                },
+                "useAlpha": {
+                  "value": false
+                },
+                "alphaThreshold": {
+                  "value": 0.5
+                },
+                "useAlphaUVTransform": {
+                  "value": false
+                },
+                "alphaUVOffset": {
+                  "value": {
+                    "x": 0,
+                    "y": 0
+                  }
+                },
+                "alphaUVScale": {
+                  "value": {
+                    "x": 1,
+                    "y": 1
+                  }
+                },
+                "wrapS": {
+                  "value": 1001
+                },
+                "wrapT": {
+                  "value": 1001
+                }
+              }
+            },
+            "vertexShader": {
+              "type": "shader",
+              "contents": "\n        varying vec2 vUv;\n        void main() {\n          vUv = uv;\n          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n        }\n\n      "
+            },
+            "fragmentShader": {
+              "type": "shader",
+              "contents": "\n      #ifdef USE_MAP\n        uniform sampler2D map;\n      #endif\n        uniform bool useAlpha;\n        uniform float alphaThreshold;\n        uniform vec2 uvOffset;\n        uniform vec2 uvScale;\n        uniform bool useAlphaUVTransform;\n        uniform vec2 alphaUVOffset;\n        uniform vec2 alphaUVScale;\n        uniform int wrapS;\n        uniform int wrapT;\n\n        varying vec2 vUv;\n\n        vec2 applyWrapping(vec2 uv, int wrapS, int wrapT) {\n          vec2 wrappedUv = uv;\n          // Repeat Wrapping\n          if (wrapS == 1000) {\n            wrappedUv.x = fract(wrappedUv.x);\n          } else if (wrapS == 1002) {\n            float mirrored = mod(wrappedUv.x, 2.0);\n            if (mirrored > 1.0) mirrored = 2.0 - mirrored;\n            wrappedUv.x = mirrored;\n          } else {\n            wrappedUv.x = clamp(wrappedUv.x, 0.0, 1.0);\n          }\n          \n          if (wrapT == 1000) {\n            wrappedUv.y = fract(wrappedUv.y);\n          } else if (wrapT == 1002) {\n            float mirrored = mod(wrappedUv.y, 2.0);\n            if (mirrored > 1.0) mirrored = 2.0 - mirrored;\n            wrappedUv.y = mirrored;\n          } else {\n            wrappedUv.y = clamp(wrappedUv.y, 0.0, 1.0);\n          }\n          return wrappedUv;\n        }\n\n\n\n        void main() {\n        #ifdef USE_MAP\n          vec2 mapUv = applyWrapping(vUv * uvScale + uvOffset, wrapS, wrapT);\n          vec4 color = texture2D(map, mapUv);\n          color.rgb = pow(color.rgb, vec3(2.2));\n          if (useAlpha) {\n            if (useAlphaUVTransform) {\n                vec2 alphaMapUv = applyWrapping(vUv * alphaUVScale + alphaUVOffset, wrapS, wrapT);\n                vec4 alphaColor = texture2D(map, alphaMapUv);\n                float intensity = alphaColor.r * 0.3 + alphaColor.g * 0.59 + alphaColor.b * 0.11;\n                if (intensity < alphaThreshold) discard;\n            } else {\n                float intensity = color.r * 0.3 + color.g * 0.59 + color.b * 0.11;\n                if (intensity < alphaThreshold) discard;\n            }\n          }\n          gl_FragColor = color;\n        #else\n          gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n        #endif\n        }\n      "
+            }
+          }
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "mode": 4,
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0
+        }
+      ],
+      "extensions": {
+        "EE_resourceId": {
+          "resourceId": "e11dbdd3-9101-40b2-8119-fdc02b2ebf64"
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_material",
+    "EE_resourceId",
+    "EE_uuid",
+    "EE_visible",
+    "EE_video",
+    "EE_media",
+    "EE_input",
+    "EE_ecs"
+  ]
+}

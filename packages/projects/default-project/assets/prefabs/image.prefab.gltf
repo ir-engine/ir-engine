@@ -1,0 +1,284 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "mesh": 0,
+      "name": "image",
+      "extensions": {
+        "EE_uuid": "39bc4142-94df-4a79-91dc-45e56e7a4261",
+        "EE_visible": true,
+        "EE_image": {
+          "source": "__$project$__/default-project/assets/sample_etc1s.ktx2",
+          "alphaMode": "Opaque",
+          "alphaCutoff": 0.5,
+          "projection": "Flat",
+          "side": 2
+        }
+      }
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 48,
+      "target": 34962,
+      "byteStride": 12
+    },
+    {
+      "buffer": 1,
+      "byteOffset": 0,
+      "byteLength": 48,
+      "target": 34962,
+      "byteStride": 12
+    },
+    {
+      "buffer": 2,
+      "byteOffset": 0,
+      "byteLength": 32,
+      "target": 34962,
+      "byteStride": 8
+    },
+    {
+      "buffer": 3,
+      "byteOffset": 0,
+      "byteLength": 24,
+      "target": 34963
+    }
+  ],
+  "buffers": [
+    {
+      "name": "acf3e4ba5ba12ca23539572a5fbc3348b62821a3cb9e21f1d35a60da53a12622",
+      "byteLength": 48,
+      "uri": "model-resources/image/buffers/acf3e4ba5ba12ca23539572a5fbc3348b62821a3cb9e21f1d35a60da53a12622.bin"
+    },
+    {
+      "name": "1c0fad78f1058960dc3e32873413e5ff33e96f4724b9cb61944185c189be7ea8",
+      "byteLength": 48,
+      "uri": "model-resources/image/buffers/1c0fad78f1058960dc3e32873413e5ff33e96f4724b9cb61944185c189be7ea8.bin"
+    },
+    {
+      "name": "376c4c17507c9701f3cc96a70e0fda88ade4184993edb83939459f0dbb57c1a5",
+      "byteLength": 32,
+      "uri": "model-resources/image/buffers/376c4c17507c9701f3cc96a70e0fda88ade4184993edb83939459f0dbb57c1a5.bin"
+    },
+    {
+      "name": "79e1efdd5fc321117fcb4f64c7de406106c3176b573b216559e102e54644311c",
+      "byteLength": 24,
+      "uri": "model-resources/image/buffers/79e1efdd5fc321117fcb4f64c7de406106c3176b573b216559e102e54644311c.bin"
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        0.5,
+        0.5,
+        0
+      ],
+      "min": [
+        -0.5,
+        -0.5,
+        0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        0,
+        0,
+        1
+      ],
+      "min": [
+        0,
+        0,
+        1
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        1,
+        1
+      ],
+      "min": [
+        0,
+        0
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5125,
+      "count": 6,
+      "max": [
+        3
+      ],
+      "min": [
+        0
+      ],
+      "type": "SCALAR"
+    }
+  ],
+  "materials": [
+    {
+      "extensions": {
+        "KHR_materials_unlit": {},
+        "EE_material": {
+          "uuid": "4bc7a870-eb9c-4c10-a785-a5d4e5774036",
+          "name": "",
+          "prototype": "MeshBasicMaterial",
+          "plugins": [],
+          "args": {
+            "alphaTest": {
+              "type": "float",
+              "contents": 0
+            },
+            "alphaMap": {
+              "type": "texture",
+              "contents": null
+            },
+            "map": {
+              "type": "texture",
+              "contents": null
+            },
+            "color": {
+              "type": "color",
+              "contents": 16777215
+            },
+            "opacity": {
+              "type": "float",
+              "contents": 1
+            },
+            "blending": {
+              "type": "select",
+              "contents": 1
+            },
+            "depthTest": {
+              "type": "boolean",
+              "contents": true
+            },
+            "depthWrite": {
+              "type": "boolean",
+              "contents": true
+            },
+            "side": {
+              "type": "select",
+              "contents": 0
+            },
+            "toneMapped": {
+              "type": "boolean",
+              "contents": false
+            },
+            "transparent": {
+              "type": "boolean",
+              "contents": false
+            },
+            "vertexColors": {
+              "type": "boolean",
+              "contents": false
+            },
+            "emissive": {
+              "type": "color",
+              "contents": 0
+            },
+            "emissiveMap": {
+              "type": "texture"
+            },
+            "emissiveIntensity": {
+              "type": "float"
+            },
+            "lightMap": {
+              "type": "texture",
+              "contents": null
+            },
+            "lightMapIntensity": {
+              "type": "float",
+              "contents": 0
+            },
+            "aoMap": {
+              "type": "texture",
+              "contents": null
+            },
+            "aoMapIntensity": {
+              "type": "float",
+              "contents": 0
+            },
+            "combine": {
+              "type": "select",
+              "contents": 0
+            },
+            "envMap": {
+              "type": "texture",
+              "contents": null
+            },
+            "envMapIntensity": {
+              "type": "float"
+            },
+            "reflectivity": {
+              "type": "float",
+              "contents": 0
+            },
+            "refractionRatio": {
+              "type": "float",
+              "contents": 0.98
+            },
+            "specularMap": {
+              "type": "texture",
+              "contents": null
+            }
+          }
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "mode": 4,
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0
+        }
+      ],
+      "extensions": {
+        "EE_resourceId": {
+          "resourceId": "b4307e73-1514-42f6-a845-7311509f164f"
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "KHR_materials_unlit",
+    "EE_material",
+    "EE_resourceId",
+    "EE_uuid",
+    "EE_visible",
+    "EE_image",
+    "EE_ecs"
+  ]
+}

@@ -38,8 +38,19 @@ export const PrefabShelfState = defineState({
         detail: 'Blank 3D model ready for your own assets'
       },
       {
+        name: '3D Model',
+        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/3d-model.prefab.gltf`,
+        category: 'Geo',
+        detail: 'Blank 3D model ready for your own assets'
+      },
+      {
         name: 'Primitive Geometry',
         url: `${config.client.fileServer}/projects/default-project/assets/prefabs/geo.prefab.gltf`,
+        category: 'Geo'
+      },
+      {
+        name: 'Ground Plane',
+        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/ground-plane.prefab.gltf`,
         category: 'Geo'
       },
       {
@@ -95,6 +106,26 @@ export const PrefabShelfState = defineState({
         name: 'Text',
         url: `${config.client.fileServer}/projects/default-project/assets/prefabs/text.prefab.gltf`,
         category: 'Text'
+      },
+      {
+        name: 'Title',
+        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/title.prefab.gltf`,
+        category: 'Text'
+      },
+      {
+        name: 'Body',
+        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/body.prefab.gltf`,
+        category: 'Text'
+      },
+      {
+        name: 'Image',
+        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/image.prefab.gltf`,
+        category: 'Image'
+      },
+      {
+        name: 'Video',
+        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/video.prefab.gltf`,
+        category: 'Video'
       },
       {
         name: 'Skybox',
