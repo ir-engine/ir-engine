@@ -23,24 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RenderInfoSystem } from '@etherealengine/spatial/src/renderer/RenderInfoSystem'
-// import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
-import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
-import { EditorControlSystem } from './systems/EditorControlSystem'
-import { GizmoSystem } from './systems/GizmoSystem'
-import { HighlightSystem } from './systems/HighlightSystem'
-import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
-import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
-import { UploadRequestSystem } from './systems/UploadRequestSystem'
+export const CREDENTIAL_OFFSET = 60 * 10
+//coturn requires the password be hashed via SHA1, tried SHA256 and it didn't work
+export const HASH_ALGORITHM = 'sha1'
 
-export {
-  ClickPlacementSystem,
-  EditorControlSystem,
-  // EditorInstanceNetworkingSystem,
-  GizmoSystem,
-  HighlightSystem,
-  ModelHandlingSystem,
-  ObjectGridSnapSystem,
-  RenderInfoSystem,
-  UploadRequestSystem
+export const defaultWebRTCSettings = {
+  iceServers: [],
+  useCustomICEServers: false,
+  useTimeLimitedCredentials: false,
+  webRTCStaticAuthSecretKey: '',
+  usePrivateInstanceserverIP: false
 }

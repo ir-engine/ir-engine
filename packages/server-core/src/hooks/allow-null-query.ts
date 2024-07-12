@@ -23,24 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RenderInfoSystem } from '@etherealengine/spatial/src/renderer/RenderInfoSystem'
-// import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
-import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
-import { EditorControlSystem } from './systems/EditorControlSystem'
-import { GizmoSystem } from './systems/GizmoSystem'
-import { HighlightSystem } from './systems/HighlightSystem'
-import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
-import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
-import { UploadRequestSystem } from './systems/UploadRequestSystem'
+import { HookContext } from '@feathersjs/feathers'
 
-export {
-  ClickPlacementSystem,
-  EditorControlSystem,
-  // EditorInstanceNetworkingSystem,
-  GizmoSystem,
-  HighlightSystem,
-  ModelHandlingSystem,
-  ObjectGridSnapSystem,
-  RenderInfoSystem,
-  UploadRequestSystem
+import { Application } from '../../declarations'
+
+/**
+ * https://feathersjs.com/help/faq#my-queries-with-null-values-aren-t-working
+ */
+export default (...fieldNames: string[]) => {
+  return async (context: HookContext<Application>) => {
+    const query = context?.params?.query
+    if (!query) return context
+
+    for (const field of fieldNames) {
+      if (query[field] === 'null') {
+        query[field] = null
+      }
+    }
+
+    return context
+  }
 }
