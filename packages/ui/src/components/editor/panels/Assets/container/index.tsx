@@ -386,9 +386,8 @@ const AssetPanel = () => {
 
       Engine.instance.api
         .service(staticResourcePath)
-        .find({ query, paginate: {} })
+        .find({ query })
         .then((resources) => {
-          // cast type due to temporary server-side pagination
           searchedStaticResources.set(resources.data)
           staticResourcesPagination.merge({ totalPages: resources.total / 10 })
         })
@@ -527,15 +526,17 @@ const AssetPanel = () => {
       </div>
       <div id="asset-browser-panel" className="flex h-full overflow-y-auto">
         <CategoriesList />
-        <div className="flex flex-col justify-center">
+        <div className="flex h-full w-full flex-col">
           <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
             <ResourceItems />
           </div>
-          <TablePagination
-            totalPages={staticResourcesPagination.totalPages.value}
-            currentPage={staticResourcesPagination.currentPage.value}
-            onPageChange={(newPage) => staticResourcesPagination.merge({ currentPage: newPage })}
-          />
+          <div className="mx-auto">
+            <TablePagination
+              totalPages={staticResourcesPagination.totalPages.value}
+              currentPage={staticResourcesPagination.currentPage.value}
+              onPageChange={(newPage) => staticResourcesPagination.merge({ currentPage: newPage })}
+            />
+          </div>
         </div>
         {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
       </div>
