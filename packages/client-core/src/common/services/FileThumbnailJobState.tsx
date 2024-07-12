@@ -140,8 +140,7 @@ export const FileThumbnailJobState = defineState({
             .filter((key) => !seenResources.has(key))
             .slice(0, 100)
         },
-        thumbnailKey: 'null',
-        $limit: 100
+        thumbnailKey: 'null'
       }
     })
 
@@ -149,8 +148,6 @@ export const FileThumbnailJobState = defineState({
      * This useEffect will continuously check for new resources that need thumbnails generated until all resources have thumbnails
      */
     useEffect(() => {
-      if (resourceQuery.total === 0) return
-
       for (const resource of resourceQuery.data) {
         if (seenResources.has(resource.key)) continue
         seenResources.add(resource.key)
@@ -166,7 +163,8 @@ export const FileThumbnailJobState = defineState({
         ])
       }
 
-      resourceQuery.refetch()
+      // If there are more files left to be processed in the list we have specified, refetch the query
+      if (resourceQuery.total > resourceQuery.data.length) resourceQuery.refetch()
     }, [resourceQuery.data])
   }
 })
@@ -187,6 +185,7 @@ for (const { extensions, thumbnailType } of extensionThumbnailTypes) {
 }
 
 const stripSearchFromURL = (url: string): string => {
+  if (!url.includes('?')) return url
   const cleanURL = new URL(url)
   cleanURL.search = ''
   return cleanURL.href
