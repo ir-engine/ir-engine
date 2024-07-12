@@ -28,13 +28,19 @@ import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { onNewScene } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
 
 export default function CreateSceneDialog() {
   const element = useMutableState(EditorState).uiAddons.newScene.get(NO_PROXY)
+  const { t } = useTranslation()
   return (
-    <Modal title="New Scene" className="w-[15vw] max-w-2xl" onClose={PopoverState.hidePopupover}>
+    <Modal
+      title={t('editor:dialog.createScene.title')}
+      className="w-[15vw] max-w-2xl"
+      onClose={PopoverState.hidePopupover}
+    >
       <div className="flex justify-center">
         <Button
           size="small"
@@ -45,14 +51,10 @@ export default function CreateSceneDialog() {
             PopoverState.hidePopupover()
           }}
         >
-          New Empty Scene
+          {t('editor:dialog.createScene.create')}
         </Button>
       </div>
-      <div className="flex justify-center">
-        {Object.entries(element).map(([key, value]) => {
-          return value
-        })}
-      </div>
+      <div className="flex justify-center">{Object.values(element).map((value) => value)}</div>
     </Modal>
   )
 }
