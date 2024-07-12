@@ -147,7 +147,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
     if (location?.id) {
       submitLoading.set(true)
       try {
-        await locationMutation.remove(location.id)
+        await locationMutation.remove(location.id, { query: { projectId: location.projectId } })
         PopoverState.hidePopupover()
       } catch (err) {
         errors.serverError.set(err.message)
