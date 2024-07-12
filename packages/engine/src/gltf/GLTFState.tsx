@@ -203,8 +203,7 @@ export const GLTFSnapshotState = defineState({
     return useMutableState(GLTFSnapshotState)[source]?.index
   },
 
-  isInAuthoringLayer: (entity: Entity): boolean => {
-    const source = getOptionalComponent(entity, SourceComponent)
+  isInSnapshot: (source: string | undefined, entity: Entity): boolean => {
     const uuid = getOptionalComponent(entity, UUIDComponent)
     if (!source || !uuid) return false
 

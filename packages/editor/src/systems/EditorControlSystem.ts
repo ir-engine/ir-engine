@@ -70,6 +70,8 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
+import { FeatureFlagsState } from '@etherealengine/engine'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
@@ -333,9 +335,16 @@ const execute = () => {
       const selectedEntity =
         selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
 
-      const inAuthoringLayer = GLTFSnapshotState.isInAuthoringLayer(selectedEntity)
-      // Only allow selection of entities in the authoring hierarchy
-      clickStartEntity = inAuthoringLayer ? selectedEntity : clickStartEntity
+      // If not showing model children in hierarchy don't allow those objects to be selected
+      if (FeatureFlagsState.enabled(FeatureFlags.Editor.UI.Hierarchy.HideModelChildren)) {
+        const inAuthoringLayer = GLTFSnapshotState.isInSnapshot(
+          getOptionalComponent(selectedParentEntity, SourceComponent),
+          selectedEntity
+        )
+        clickStartEntity = inAuthoringLayer ? selectedEntity : clickStartEntity
+      } else {
+        clickStartEntity = selectedEntity
+      }
 
       /** @todo decide how we want selection to work with heirarchies */
       // Walks object heirarchy everytime a selected object is clicked again
