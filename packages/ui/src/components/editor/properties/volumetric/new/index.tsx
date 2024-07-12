@@ -94,7 +94,7 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.volumetric.description')}
       icon={<NewVolumetricNodeEditor.iconComponent />}
     >
-      <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')} childrenClassName="w-auto">
+      <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')} className="w-auto">
         <Slider
           min={0}
           max={1}

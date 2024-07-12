@@ -119,10 +119,10 @@ export interface InputGroupProps {
   info?: string
   disabled?: boolean
   children: React.ReactNode
-  className?: string
+  containerClassName?: string
   labelClassName?: string
   infoClassName?: string
-  childrenClassName?: string
+  className?: string
 }
 
 /**
@@ -132,13 +132,13 @@ export function InputGroup({
   children,
   info,
   label,
-  className,
+  containerClassName,
   labelClassName,
   infoClassName,
-  childrenClassName
+  className
 }: InputGroupProps) {
   return (
-    <div className={twMerge('my-1 flex flex-wrap items-center justify-end', className)}>
+    <div className={twMerge('my-1 flex flex-wrap items-center justify-end', containerClassName)}>
       <div className="mr-2 flex">
         <Label className={twMerge('mr-2.5 text-wrap text-end text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
         {info && (
@@ -147,8 +147,7 @@ export function InputGroup({
           </Tooltip>
         )}
       </div>
-      {/* default width of 240px. This value can be overrride or removed by passing w-auto */}
-      <div className={twMerge('w-60', childrenClassName)}>{children}</div>
+      <div className={twMerge('w-60', className)}>{children}</div>
     </div>
   )
 }

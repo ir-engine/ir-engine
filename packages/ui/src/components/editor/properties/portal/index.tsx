@@ -205,22 +205,14 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         previewOnly={true}
         value={state.previewImageURL.value ?? portalComponent.previewImageURL.value}
       />
-      <InputGroup
-        name="Spawn Position"
-        label={t('editor:properties.portal.lbl-spawnPosition')}
-        childrenClassName="w-auto"
-      >
+      <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')} className="w-auto">
         <Vector3Input
           value={portalComponent.spawnPosition.value}
           onChange={updateProperty(PortalComponent, 'spawnPosition')}
           onRelease={commitProperty(PortalComponent, 'spawnPosition')}
         />
       </InputGroup>
-      <InputGroup
-        name="Spawn Rotation"
-        label={t('editor:properties.portal.lbl-spawnRotation')}
-        childrenClassName="w-auto"
-      >
+      <InputGroup name="Spawn Rotation" label={t('editor:properties.portal.lbl-spawnRotation')} className="w-auto">
         <EulerInput
           quaternion={portalComponent.spawnRotation.value}
           onChange={changeSpawnRotation}

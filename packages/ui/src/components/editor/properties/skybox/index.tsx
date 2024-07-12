@@ -118,7 +118,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.inclination' as any)}
         />
       </InputGroup>
-      <InputGroup name="Luminance" label={t('editor:properties.skybox.lbl-luminance')} childrenClassName="w-auto">
+      <InputGroup name="Luminance" label={t('editor:properties.skybox.lbl-luminance')} className="w-auto">
         <Slider
           min={0.001}
           max={1}
@@ -128,11 +128,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.luminance' as any)}
         />
       </InputGroup>
-      <InputGroup
-        name="Scattering Amount"
-        label={t('editor:properties.skybox.lbl-scattering')}
-        childrenClassName="w-auto"
-      >
+      <InputGroup name="Scattering Amount" label={t('editor:properties.skybox.lbl-scattering')} className="w-auto">
         <Slider
           min={0}
           max={0.1}
@@ -145,7 +141,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
       <InputGroup
         name="Scattering Distance"
         label={t('editor:properties.skybox.lbl-scatteringDistance')}
-        childrenClassName="w-auto"
+        className="w-auto"
       >
         <Slider
           min={0}
@@ -156,11 +152,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.mieDirectionalG' as any)}
         />
       </InputGroup>
-      <InputGroup
-        name="Horizon Start"
-        label={t('editor:properties.skybox.lbl-horizonStart')}
-        childrenClassName="w-auto"
-      >
+      <InputGroup name="Horizon Start" label={t('editor:properties.skybox.lbl-horizonStart')} className="w-auto">
         <Slider
           min={1}
           max={20}
@@ -169,7 +161,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.turbidity' as any)}
         />
       </InputGroup>
-      <InputGroup name="Horizon End" label={t('editor:properties.skybox.lbl-horizonEnd')} childrenClassName="w-auto">
+      <InputGroup name="Horizon End" label={t('editor:properties.skybox.lbl-horizonEnd')} className="w-auto">
         <Slider
           min={0}
           max={4}

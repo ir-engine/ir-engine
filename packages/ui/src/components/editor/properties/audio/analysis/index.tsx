@@ -58,7 +58,7 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
       <InputGroup
         name="Bass Multiplier"
         label={t('editor:properties.audioAnalysis.lbl-bassMultiplier')}
-        childrenClassName="w-auto"
+        className="w-auto"
       >
         <Slider
           min={0}
@@ -78,7 +78,7 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
       <InputGroup
         name="Mid Multiplier"
         label={t('editor:properties.audioAnalysis.lbl-midMultiplier')}
-        childrenClassName="w-auto"
+        className="w-auto"
       >
         <Slider
           min={0}
@@ -98,7 +98,7 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
       <InputGroup
         name="Treble Multiplier"
         label={t('editor:properties.audioAnalysis.lbl-trebleMultiplier')}
-        childrenClassName="w-auto"
+        className="w-auto"
       >
         <Slider
           min={0}

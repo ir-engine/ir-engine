@@ -237,7 +237,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
 
-      <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')} childrenClassName="w-auto">
+      <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')} className="w-auto">
         <Slider
           min={0}
           max={1}
@@ -263,7 +263,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         <VolumetricCurrentTimeScrubber entity={props.entity} />
       )}
 
-      <InputGroup name="Playback Rate" label="Playback Rate" childrenClassName="w-auto">
+      <InputGroup name="Playback Rate" label="Playback Rate" className="w-auto">
         <Slider
           value={volumetricComponent.currentTrackInfo.playbackRate.value}
           min={0.5}

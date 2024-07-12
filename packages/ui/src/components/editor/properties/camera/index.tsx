@@ -155,7 +155,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <Button onClick={calculateClippingPlanes}>Calculate Clipping Planes</Button>
-      <InputGroup name="cameraNearClip" label={'Projection distance'} className="gap-2">
+      <InputGroup name="cameraNearClip" label={'Projection distance'} containerClassName="gap-2">
         <div className="flex gap-2">
           <NumericInput
             onChange={updateProperty(CameraSettingsComponent, 'cameraNearClip')}
@@ -179,7 +179,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           />
         </div>
       </InputGroup>
-      <InputGroup name="minCameraDistance" label={'Camera distance'} className="gap-2">
+      <InputGroup name="minCameraDistance" label={'Camera distance'} containerClassName="gap-2">
         <div className="flex gap-2">
           <NumericInput
             onChange={updateProperty(CameraSettingsComponent, 'minCameraDistance')}
@@ -214,7 +214,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           value={cameraSettings.startCameraDistance.value}
         />
       </InputGroup>
-      <InputGroup name="minPhi" label={'Phi'} className="gap-2">
+      <InputGroup name="minPhi" label={'Phi'} containerClassName="gap-2">
         <div className="flex gap-2">
           <NumericInput
             onChange={updateProperty(CameraSettingsComponent, 'minPhi')}

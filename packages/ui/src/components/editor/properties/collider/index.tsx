@@ -68,7 +68,7 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
       <InputGroup name="Mass" label={t('editor:properties.collider.lbl-mass')}>
         <NumericInput value={colliderComponent.mass.value} onChange={commitProperty(ColliderComponent, 'mass')} />
       </InputGroup>
-      <InputGroup name="Mass Center" label={t('editor:properties.collider.lbl-massCenter')} childrenClassName="w-auto">
+      <InputGroup name="Mass Center" label={t('editor:properties.collider.lbl-massCenter')} className="w-auto">
         <Vector3Input
           value={colliderComponent.massCenter.value}
           onChange={commitProperty(ColliderComponent, 'massCenter')}

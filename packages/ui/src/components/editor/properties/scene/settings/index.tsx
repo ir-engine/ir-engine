@@ -174,7 +174,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         name="Thumbnail"
         label={t('editor:properties.sceneSettings.lbl-thumbnail')}
         info={t('editor:properties.sceneSettings.info-thumbnail')}
-        childrenClassName="w-auto"
+        className="w-auto"
       >
         <div>
           <ImagePreviewInput value={state.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
@@ -195,7 +195,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         name="Loading Screen"
         label={t('editor:properties.sceneSettings.lbl-loading')}
         info={t('editor:properties.sceneSettings.info-loading')}
-        childrenClassName="w-auto"
+        className="w-auto"
       >
         <div>
           <ImagePreviewInput value={state.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value} />
