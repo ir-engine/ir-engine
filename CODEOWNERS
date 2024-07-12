@@ -2,9 +2,9 @@
 * @Hexafield
 
 /packages/client/ @barankyle @hanzlamateen @aditya-mitra
-/packages/client-core/ @barankyle @hanzlamateen @aditya-mitra
+/packages/client-core/ @barankyle @hanzlamateen @aditya-mitra @AidanCaruso
 /packages/ecs/ @speigg @DanielBelmes @heysokam
-/packages/editor/ @dinomut1 @aditya-mitra @SYBIOTE
+/packages/editor/ @dinomut1 @aditya-mitra @SYBIOTE @AidanCaruso
 /packages/engine/ @speigg @DanielBelmes @AidanCaruso @MichaelEstes @dinomut1 @CITIZENDOT @heysokam @MbfloydIR @SamMazerIR
 /packages/hyperflux/ @speigg
 /packages/matchmaking/ @speigg @hanzlamateen @barankyle
