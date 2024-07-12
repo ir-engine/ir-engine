@@ -375,7 +375,15 @@ const AssetPanel = () => {
           ? {
               $or: tags.flatMap((tag) => [
                 { tags: { $like: `%${tag.toLowerCase()}%` } },
-                { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } }
+                { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } },
+                {
+                  tags: {
+                    $like: `%${tag
+                      .split(' ')
+                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                      .join(' ')}%`
+                  }
+                }
               ])
             }
           : undefined,
