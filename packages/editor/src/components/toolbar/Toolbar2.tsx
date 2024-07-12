@@ -180,7 +180,10 @@ export default function Toolbar() {
                 variant="sidebar"
                 size="small"
                 fullWidth
-                onClick={action}
+                onClick={() => {
+                  action()
+                  anchorEvent.set(null)
+                }}
                 endIcon={hotkey}
               >
                 {name}

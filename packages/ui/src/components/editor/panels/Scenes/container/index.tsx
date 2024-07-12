@@ -133,7 +133,7 @@ export default function ScenesPanel() {
                             variant="outline"
                             size="small"
                             fullWidth
-                            onClick={() =>
+                            onClick={() => {
                               PopoverState.showPopupover(
                                 <RenameSceneModal
                                   sceneName={getSceneName(scene)}
@@ -141,7 +141,8 @@ export default function ScenesPanel() {
                                   scene={scene}
                                 />
                               )
-                            }
+                              isContextMenuOpen.set('')
+                            }}
                           >
                             {t('editor:hierarchy.lbl-rename')}
                           </Button>
@@ -150,12 +151,15 @@ export default function ScenesPanel() {
                             size="small"
                             fullWidth
                             onClick={() => {
-                              PopoverState.showPopupover(
-                                <ConfirmDialog
-                                  text={t('editor:hierarchy.lbl-deleteScene')}
-                                  onSubmit={async () => deleteSelectedScene(scene)}
-                                />
-                              )
+                              {
+                                PopoverState.showPopupover(
+                                  <ConfirmDialog
+                                    text={t('editor:hierarchy.lbl-deleteScene')}
+                                    onSubmit={async () => deleteSelectedScene(scene)}
+                                  />
+                                )
+                                isContextMenuOpen.set('')
+                              }
                             }}
                           >
                             {t('editor:hierarchy.lbl-delete')}
