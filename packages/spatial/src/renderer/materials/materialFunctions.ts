@@ -34,6 +34,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
@@ -201,7 +202,11 @@ export const assignMaterial = (entity: Entity, materialEntity: Entity) => {
 export const createMaterialEntity = (material: Material, user: Entity): Entity => {
   const materialEntity = createEntity()
   const uuid = material.uuid as EntityUUID
-  if (user) setComponent(user, MaterialInstanceComponent, { uuid: [uuid] })
+  if (user) {
+    if (!hasComponent(user, MaterialInstanceComponent)) setComponent(user, MaterialInstanceComponent, { uuid: [uuid] })
+    const materialInstanceComponent = getMutableComponent(user, MaterialInstanceComponent)
+    materialInstanceComponent.uuid.set([...materialInstanceComponent.uuid.value, uuid])
+  }
   const existingMaterial = UUIDComponent.getEntityByUUID(uuid)
   const existingUsers = existingMaterial ? getComponent(existingMaterial, MaterialStateComponent).instances : []
   if (existingMaterial) removeEntity(existingMaterial)

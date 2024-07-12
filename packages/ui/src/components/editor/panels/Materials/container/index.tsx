@@ -135,8 +135,11 @@ export default function MaterialLibraryPanel() {
             <Button
               className="w-full text-xs"
               onClick={() => {
-                const newMaterial = new MeshBasicMaterial({ name: 'New Material' })
-                createMaterialEntity(newMaterial, UndefinedEntity)
+                const selectedEntities = getState(SelectionState).selectedEntities
+                createMaterialEntity(
+                  new MeshBasicMaterial({ name: 'New Material' }),
+                  UUIDComponent.getEntityByUUID(selectedEntities[selectedEntities.length - 1] ?? UndefinedEntity)
+                )
               }}
             >
               New
