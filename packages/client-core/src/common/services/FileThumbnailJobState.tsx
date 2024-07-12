@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   FileBrowserContentType,
+  StaticResourceType,
   fileBrowserPath,
   fileBrowserUploadPath,
   staticResourcePath
@@ -132,37 +133,31 @@ export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
   initial: [] as ThumbnailJob[],
   reactor: () => <ThumbnailJobReactor />,
-  processFiles: (files: FileBrowserContentType[]) => {
-    return Promise.all(
-      files
-        .filter((file) => !seenThumbnails.has(file.key) && extensionCanHaveThumbnail(file.key.split('.').pop() ?? ''))
-        .map(async (file) => {
-          const { key, url } = file
-
-          seenThumbnails.add(key)
-
-          const resources = await Engine.instance.api.service(staticResourcePath).find({
-            query: { key }
-          })
-
-          if (resources.data.length === 0) {
-            return
-          }
-          const resource = resources.data[0]
-          if (resource.thumbnailKey != null) {
-            return
-          }
-          getMutableState(FileThumbnailJobState).merge([
-            {
-              key: url,
-              project: resource.project!,
-              id: resource.id
-            }
-          ])
-
-          // TODO: cache pending thumbnail promises by static resource key
-        })
-    )
+  processFiles: async (files: FileBrowserContentType[]) => {
+    const resourceQuery = (await Engine.instance.api.service(staticResourcePath).find({
+      query: {
+        key: { $in: files.map((file) => file.key) },
+        paginate: false,
+        $limit: 10000
+      } as any
+    })) as unknown as StaticResourceType[]
+    const resourceMap: Record<string, StaticResourceType> = {}
+    for (const resource of resourceQuery) {
+      resourceMap[resource.key] = resource
+    }
+    for (const file of files) {
+      if (seenThumbnails.has(file.key) || !extensionCanHaveThumbnail(file.key.split('.').pop() ?? '')) continue
+      const resource = resourceMap[file.key]
+      if (!resource || resource.thumbnailKey != null) continue
+      seenThumbnails.add(file.key)
+      getMutableState(FileThumbnailJobState).merge([
+        {
+          key: file.url,
+          project: resource.project!,
+          id: resource.id
+        }
+      ])
+    }
   },
 
   processAllFiles: async (topDirectory: string, forceRegenerate = false) => {
