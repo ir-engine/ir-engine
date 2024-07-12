@@ -65,7 +65,6 @@ import { checkScope } from '@etherealengine/spatial/src/common/functions/checkSc
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
-import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import { isSignedByAppJWT } from '../../hooks/is-signed-by-app-jwt'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
@@ -587,7 +586,6 @@ export default createSkippableHooks(
     before: {
       all: [schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
       find: [
-        enableClientPagination(),
         iffElse(isAction('admin'), [], filterDisabledProjects),
         discardQuery('action'),
         ensurePushStatus,

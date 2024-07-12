@@ -188,16 +188,28 @@ function extractDirectoryWithoutOrgName(directory: string, orgName: string) {
 
 /**
  * Gets the project name that may or may not have a single slash it in from a list of valid project names
+ * @todo will be optimized away once orgname is fully supported
  */
-export const useValidProjectForFileBrowser = (projectName: string) => {
+export const useValidProjectForFileBrowser = (path: string) => {
+  const [orgName, projectName] = path.split('/').slice(2, 4)
   const projects = useFind(projectPath, {
     query: {
-      paginate: false,
+      $or: [
+        {
+          name: `${orgName}/${projectName}`
+        },
+        {
+          name: orgName
+        }
+      ],
       action: 'studio',
       allowed: true
     }
   })
-  return projects.data.find((project) => projectName.startsWith(`/projects/${project.name}/`))?.name ?? ''
+  return (
+    projects.data.find((project) => project.name === orgName || project.name === `${orgName}/${projectName}`)?.name ??
+    ''
+  )
 }
 
 function GeneratingThumbnailsProgress() {

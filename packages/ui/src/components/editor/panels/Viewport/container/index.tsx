@@ -111,10 +111,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
   return (
     <div
       ref={dropRef}
-      className={twMerge(
-        'h-full w-full border border-white',
-        isDragging ? 'pointer-events-auto border-4' : 'pointer-events-none border-none'
-      )}
+      className={twMerge('h-full w-full border border-white', isDragging ? 'border-4' : 'border-none')}
     >
       {children}
     </div>
