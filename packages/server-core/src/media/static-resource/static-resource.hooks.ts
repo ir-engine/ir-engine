@@ -29,6 +29,7 @@ import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
 import { HookContext } from '../../../declarations'
+import allowNullQuery from '../../hooks/allow-null-query'
 import checkScope from '../../hooks/check-scope'
 import collectAnalytics from '../../hooks/collect-analytics'
 import enableClientPagination from '../../hooks/enable-client-pagination'
@@ -195,6 +196,7 @@ export default {
         )
       ),
       enableClientPagination() /** @todo we should either constrain this only for when type='scene' or remove it in favour of comprehensive front end pagination */,
+      allowNullQuery('thumbnailKey'),
       discardQuery('action', 'projectId'),
       collectAnalytics()
     ],
