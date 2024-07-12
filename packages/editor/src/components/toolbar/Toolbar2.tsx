@@ -41,6 +41,7 @@ import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
+import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import CreateSceneDialog from '../dialogs/CreateScenePanelDialog'
@@ -84,7 +85,12 @@ const generateToolbarMenu = () => {
     {
       name: t('editor:menubar.newScene'),
       action: () => {
-        PopoverState.showPopupover(<CreateSceneDialog />)
+        const newSceneUIAddons = getState(EditorState).uiAddons.newScene
+        if (Object.keys(newSceneUIAddons).length > 0) {
+          PopoverState.showPopupover(<CreateSceneDialog />)
+        } else {
+          onNewScene()
+        }
       }
     },
     {
