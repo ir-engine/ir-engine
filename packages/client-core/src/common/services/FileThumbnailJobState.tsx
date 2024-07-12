@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   FileBrowserContentType,
-  StaticResourceType,
-  fileBrowserPath,
   fileBrowserUploadPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
@@ -66,8 +64,8 @@ import { Color, Euler, MathUtils, Matrix4, Quaternion, Scene, Sphere, Vector3 } 
 
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { Paginated } from '@feathersjs/feathers'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -127,94 +125,49 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
     .patch(staticResourceId, { thumbnailKey: pathname.slice(1), thumbnailMode })
 }
 
-const seenThumbnails = new Set<string>()
+const seenResources = new Set<string>()
 
 export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
   initial: [] as ThumbnailJob[],
   reactor: () => <ThumbnailJobReactor />,
-  processFiles: async (files: FileBrowserContentType[]) => {
-    const resourceQuery = (await Engine.instance.api.service(staticResourcePath).find({
+  useGenerateThumbnails: async (files: readonly FileBrowserContentType[]) => {
+    const resourceQuery = useFind(staticResourcePath, {
       query: {
-        key: { $in: files.map((file) => file.key) },
-        paginate: false,
-        $limit: 10000
-      } as any
-    })) as unknown as StaticResourceType[]
-    const resourceMap: Record<string, StaticResourceType> = {}
-    for (const resource of resourceQuery) {
-      resourceMap[resource.key] = resource
-    }
-    for (const file of files) {
-      if (seenThumbnails.has(file.key) || !extensionCanHaveThumbnail(file.key.split('.').pop() ?? '')) continue
-      const resource = resourceMap[file.key]
-      if (!resource || resource.thumbnailKey != null) continue
-      seenThumbnails.add(file.key)
-      getMutableState(FileThumbnailJobState).merge([
-        {
-          key: file.url,
-          project: resource.project!,
-          id: resource.id
-        }
-      ])
-    }
-  },
-
-  processAllFiles: async (topDirectory: string, forceRegenerate = false) => {
-    let directories = [topDirectory]
-    let needThumbnails: FileBrowserContentType[] = []
-
-    while (directories.length > 0) {
-      const directory = `${directories.pop()}/`
-
-      const files = (await Engine.instance.api.service(fileBrowserPath).find({
-        query: {
-          $skip: 0,
-          $limit: 10000, // TODO: pagination requests
-          directory
-        }
-      })) as Paginated<FileBrowserContentType>
-      directories = files.data
-        .filter((file) => file.type === 'folder')
-        .map((file) => directory + file.url.match(/([^/]+)\/*$/)?.pop())
-        .concat(directories)
-      let theseThumbnails = files.data.filter((file) => extensionCanHaveThumbnail(file.key.split('.').pop() ?? ''))
-      if (!forceRegenerate) {
-        theseThumbnails = theseThumbnails.filter((file) => !seenThumbnails.has(file.key))
+        key: {
+          $in: files
+            .map((file) => file.key)
+            .filter((key) => !seenResources.has(key))
+            .slice(0, 100)
+        },
+        thumbnailKey: 'null',
+        $limit: 100
       }
-      needThumbnails = needThumbnails.concat(theseThumbnails)
-    }
+    })
 
-    //needThumbnails = needThumbnails.slice(10, 15) // for testing
+    /**
+     * This useEffect will continuously check for new resources that need thumbnails generated until all resources have thumbnails
+     */
+    useEffect(() => {
+      if (resourceQuery.total === 0) return
 
-    Promise.all(
-      needThumbnails.map(async (file) => {
-        const { key, url } = file
+      for (const resource of resourceQuery.data) {
+        if (seenResources.has(resource.key)) continue
+        seenResources.add(resource.key)
 
-        seenThumbnails.add(key)
+        if (resource.thumbnailKey != null || !extensionCanHaveThumbnail(resource.key.split('.').pop() ?? '')) continue
 
-        const resources = await Engine.instance.api.service(staticResourcePath).find({
-          query: { key }
-        })
-
-        if (resources.data.length === 0) {
-          return
-        }
-        const resource = resources.data[0]
-        if (!forceRegenerate && resource.thumbnailKey != null) {
-          return
-        }
         getMutableState(FileThumbnailJobState).merge([
           {
-            key: url,
+            key: resource.url,
             project: resource.project!,
             id: resource.id
           }
         ])
+      }
 
-        // TODO: cache pending thumbnail promises by static resource key
-      })
-    )
+      resourceQuery.refetch()
+    }, [resourceQuery.data])
   }
 })
 
@@ -233,13 +186,19 @@ for (const { extensions, thumbnailType } of extensionThumbnailTypes) {
   }
 }
 
+const stripSearchFromURL = (url: string): string => {
+  const cleanURL = new URL(url)
+  cleanURL.search = ''
+  return cleanURL.href
+}
+
 export const extensionCanHaveThumbnail = (ext: string): boolean => extensionThumbnailTypeMap.has(ext)
 
 const ThumbnailJobReactor = () => {
   const jobState = useHookstate(getMutableState(FileThumbnailJobState))
   const currentJob = useHookstate(null as ThumbnailJob | null)
   const { key: src, project, id } = currentJob.value ?? { key: '', project: '', id: '' }
-  const extension = src.split('.').pop() ?? ''
+  const extension = stripSearchFromURL(src).split('.').pop() ?? ''
   const fileType = extensionThumbnailTypeMap.get(extension)
 
   const state = useHookstate({

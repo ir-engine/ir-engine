@@ -65,7 +65,12 @@ import {
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
-import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import {
+  useFind,
+  useMutation,
+  useRealtime,
+  useSearch
+} from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
@@ -264,9 +269,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       isFolder
     }
   })
-  useEffect(() => {
-    FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
-  }, [fileQuery.data])
+
+  useRealtime(staticResourcePath, fileQuery.refetch)
+
+  FileThumbnailJobState.useGenerateThumbnails(fileQuery.data)
 
   const fileService = useMutation(fileBrowserPath)
 
