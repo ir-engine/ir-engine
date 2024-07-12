@@ -478,8 +478,9 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
   }
 
   /**
-   * A method which gets and instance of Instanceserver
+   * A method which gets an instance of Instanceserver
    * @param availableLocationInstances for Instanceserver
+   * @param headers
    * @param locationId
    * @param channelId
    * @param roomCode
