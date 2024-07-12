@@ -1,0 +1,39 @@
+
+* @Hexafield
+
+/packages/client/ @barankyle @hanzlamateen @aditya-mitra
+/packages/client-core/ @barankyle @hanzlamateen @aditya-mitra
+/packages/ecs/ @speigg @DanielBelmes @heysokam
+/packages/editor/ @dinomut1 @aditya-mitra @SYBIOTE
+/packages/engine/ @speigg @DanielBelmes @AidanCaruso @MichaelEstes @dinomut1 @CITIZENDOT @heysokam @MbfloydIR @SamMazerIR
+/packages/hyperflux/ @speigg
+/packages/matchmaking/ @speigg @hanzlamateen @barankyle
+/packages/network/ @speigg
+/packages/projects/ @barankyle
+/packages/server/ @barankyle @MoizAdnan @hanzlamateen @muradkhateeb78 @hurairahmateen
+/packages/server-core/ @barankyle @MoizAdnan @hanzlamateen @muradkhateeb78 @hurairahmateen @aditya-mitra
+/packages/spatial/ @speigg @DanielBelmes @AidanCaruso @MichaelEstes @dinomut1 @CITIZENDOT @heysokam @MbfloydIR @SamMazerIR
+/packages/taskserver/ @barankyle @hanzlamateen
+/packages/ui/ @aditya-mitra @SYBIOTE @DanielBelmes
+/packages/visual-script/ @SYBIOTE
+/packages/xrui/ @speigg
+
+
+/packages/engine/src/postprocessing/ @DanielBelmes @MbfloydIR
+/packages/engine/src/mocap/ @AidanCaruso
+/packages/engine/src/avatar/ @AidanCaruso
+/packages/engine/src/assets/ @MichaelEstes @dinomut1 @speigg
+/packages/engine/src/scene/ @dinomut1 @speigg @CITIZENDOT @AidanCaruso
+/packages/engine/src/audio/ @speigg
+/packages/engine/src/interaction/ @SamMazerIR @speigg
+/packages/spatial/src/camera/ @SamMazerIR @DanielBelmes @speigg
+/packages/spatial/src/input/ @SamMazerIR @DanielBelmes @speigg
+/packages/spatial/src/resources/ @MichaelEstes
+/packages/spatial/src/xrui/ @speigg
+/scripts/ @barankyle @hanzlamateen @DanielBelmes
+/patches/postprocessing+6.34.1.patch @DanielBelmes
+/patches/three+0.158.0.patch @DanielBelmes
+/patches/realism-effects+1.1.2.patch @DanielBelmes
+/dockerfiles/ @barankyle
+/certs/ @DanielBelmes
+/.github/ @DanielBelmes
