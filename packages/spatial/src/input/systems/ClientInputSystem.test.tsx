@@ -23,6 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import assert from 'assert'
+import sinon from 'sinon'
+
+import { InputSystemGroup, SystemDefinitions } from '@etherealengine/ecs'
+import { ClientInputSystem, PRIVATE } from './ClientInputSystem'
+
 // describe('addClientInputListeners', () => {
 //   let documentAddEvent
 //   let documentRemoveEvent
@@ -254,4 +260,61 @@ describe('client input system reactor', () => {
   //   assert(sourceState.assignedAxesEntity == 0)
   //   assert(sourceState.assignedButtonEntity == 0)
   // })
+})
+
+describe('ClientInputSystem', () => {
+  describe('Fields', () => {
+    const System = SystemDefinitions.get(ClientInputSystem)
+
+    it('should initialize the ClientInputSystem.uuid field with the expected value', () => {
+      assert.equal(System!.uuid, 'ee.engine.input.ClientInputSystem')
+    })
+
+    it('should initialize the ClientInputSystem.insert field with the expected value', () => {
+      assert.notEqual(System!.insert, undefined)
+      assert.notEqual(System!.insert!.before, undefined)
+      assert.equal(System!.insert!.before!, InputSystemGroup)
+    })
+  })
+
+  /**
+  // @todo
+  describe('execute', () => {})
+  describe('reactor', () => {})
+  */
+})
+
+describe('ClientInputSystem: PRIVATE', () => {
+  describe('preventDefault', () => {
+    it('should call the `preventDefault` function of the given object/event', () => {
+      const eventSpy = sinon.spy()
+      const Event = { preventDefault: eventSpy }
+      assert.ok(!eventSpy.called)
+      PRIVATE.preventDefault(Event)
+      assert.ok(eventSpy.called)
+    })
+  })
+
+  describe('preventDefaultKeyDown', () => {
+    // should do nothing if document.activeElement.tagName is INPUT or TEXTAREA
+    // should call the `preventDefault` function of the event/object when its `code` property is Tab
+    // should call the `preventDefault` function of the event/object when its `code` property is Space
+    // should call the `preventDefault` function of the event/object when its `code` property is Enter
+    // should not call the `preventDefault` function of the event/object when its `code` property is an unexpected value
+
+    it('should call the `preventDefault` function of the given object/event', () => {
+      const eventSpy = sinon.spy()
+      const Event = { preventDefault: eventSpy }
+      assert.ok(!eventSpy.called)
+      PRIVATE.preventDefaultKeyDown(Event)
+      assert.ok(eventSpy.called)
+    })
+
+    // const preventDefaultKeyDown = (evt) => {
+    //   if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return
+    //   if (evt.code === 'Tab') evt.preventDefault()
+    //   // prevent DOM tab selection and spacebar/enter button toggling (since it interferes with avatar controls)
+    //   if (evt.code === 'Space' || evt.code === 'Enter') evt.preventDefault()
+    // }
+  })
 })
