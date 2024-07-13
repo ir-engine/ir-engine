@@ -47,11 +47,13 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
+import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
 import { LoadingCircle } from '../../../../components/LoadingCircle'
-import { AuthState } from '../../../services/AuthService'
 import { UserMenus } from '../../../UserUISystem'
-import styles from '../index.module.scss'
+import { AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
 
 const AVATAR_PAGE_LIMIT = 100
 
@@ -62,6 +64,8 @@ const AvatarMenu = () => {
   const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as AvatarID)
   const avatarLoading = useHookstate(false)
   const isUserReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
+
+  const createAvatarEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.CreateAvatar)
 
   const page = useHookstate(0)
   const selectedAvatarId = useHookstate('' as AvatarID)
@@ -190,16 +194,18 @@ const AvatarMenu = () => {
                 onClick={() => page.set((prevPage) => prevPage + 1)}
               />
             </Box>
-            <Button
-              fullWidth
-              startIcon={<Icon type="PersonAdd" />}
-              title={t('user:avatar.createAvatar')}
-              type="gradientRounded"
-              sx={{ mb: 0 }}
-              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify)}
-            >
-              {t('user:avatar.createAvatar')}
-            </Button>
+            {createAvatarEnabled && (
+              <Button
+                fullWidth
+                startIcon={<Icon type="PersonAdd" />}
+                title={t('user:avatar.createAvatar')}
+                type="gradientRounded"
+                sx={{ mb: 0 }}
+                onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify)}
+              >
+                {t('user:avatar.createAvatar')}
+              </Button>
+            )}
           </Grid>
         </Grid>
       </Box>
