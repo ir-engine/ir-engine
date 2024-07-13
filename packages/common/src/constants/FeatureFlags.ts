@@ -39,5 +39,10 @@ export const FeatureFlags = {
         HideModelChildren: 'ir.editor.ui.hierarchy.hideModelChildren'
       }
     }
+  },
+  Studio: {
+    ComponentShelfCategories: {
+      ScenePreviewCameraComponent: 'ir.studio.componentShelfCategories.visual.scenePreviewCameraComponent'
+    }
   }
 }
