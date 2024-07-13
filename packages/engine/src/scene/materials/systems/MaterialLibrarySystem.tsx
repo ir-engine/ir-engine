@@ -42,7 +42,7 @@ import {
   MaterialPrototypeDefinitions
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import {
-  createMaterialEntity,
+  createAndAssignMaterial,
   createMaterialPrototype,
   materialPrototypeMatches,
   setMeshMaterial,
@@ -79,8 +79,8 @@ const MeshReactor = () => {
   useEffect(() => {
     if (materialComponent) return
     const material = meshComponent.material.value as Material
-    if (!isArray(material)) createMaterialEntity(material, entity)
-    else for (const mat of material) createMaterialEntity(mat, entity)
+    if (!isArray(material)) createAndAssignMaterial(entity, material)
+    else for (const mat of material) createAndAssignMaterial(entity, mat)
   }, [])
   return null
 }

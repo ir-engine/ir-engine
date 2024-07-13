@@ -40,7 +40,7 @@ import { getMaterialsFromScene } from '@etherealengine/engine/src/scene/material
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { createAndAssignMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTranslation } from 'react-i18next'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
@@ -136,9 +136,9 @@ export default function MaterialLibraryPanel() {
               className="w-full text-xs"
               onClick={() => {
                 const selectedEntities = getState(SelectionState).selectedEntities
-                createMaterialEntity(
-                  new MeshBasicMaterial({ name: 'New Material' }),
-                  UUIDComponent.getEntityByUUID(selectedEntities[selectedEntities.length - 1] ?? UndefinedEntity)
+                createAndAssignMaterial(
+                  UUIDComponent.getEntityByUUID(selectedEntities[selectedEntities.length - 1] ?? UndefinedEntity),
+                  new MeshBasicMaterial({ name: 'New Material' })
                 )
               }}
             >
