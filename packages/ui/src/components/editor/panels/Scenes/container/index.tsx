@@ -25,13 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
 import CreateSceneDialog from '@etherealengine/editor/src/components/dialogs/CreateScenePanelDialog'
 import { deleteScene, onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useRealtime } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import React, { useRef } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiDotsHorizontal } from 'react-icons/hi'
 import { HiOutlinePlusCircle } from 'react-icons/hi2'
@@ -39,6 +38,7 @@ import Button from '../../../../../primitives/tailwind/Button'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
 import ConfirmDialog from '../../../../tailwind/ConfirmDialog'
+import { Popup } from '../../../../tailwind/Popup'
 import RenameSceneModal from '../modals/RenameScene'
 
 export default function ScenesPanel() {
@@ -49,8 +49,6 @@ export default function ScenesPanel() {
   })
   const scenes = scenesQuery.data
 
-  const contextMenuRef = useRef(null)
-  const isContextMenuOpen = useHookstate<StaticResourceType['id']>('')
   const scenesLoading = scenesQuery.status === 'pending'
 
   const onClickScene = (scene: StaticResourceType) => {
@@ -84,8 +82,6 @@ export default function ScenesPanel() {
 
   const getSceneName = (scene: StaticResourceType) =>
     scene.key.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')
-
-  useClickOutside(contextMenuRef, () => isContextMenuOpen.set(''))
 
   return (
     <div className="h-full bg-theme-primary">
@@ -127,14 +123,17 @@ export default function ScenesPanel() {
                   <div className="flex items-center justify-between px-4 py-1">
                     <Text className="truncate text-sm leading-5 dark:text-[#A3A3A3]">{getSceneName(scene)}</Text>
                     <div className="relative">
-                      <Button
-                        variant="transparent"
-                        startIcon={<HiDotsHorizontal />}
-                        iconContainerClassName="mx-0"
-                        onClick={() => isContextMenuOpen.set(scene.id)}
-                      />
-                      {isContextMenuOpen.value === scene.id ? (
-                        <div className={'absolute top-1 flex flex-col'} ref={contextMenuRef}>
+                      <Popup
+                        keepInside
+                        trigger={
+                          <Button
+                            variant="transparent"
+                            startIcon={<HiDotsHorizontal />}
+                            iconContainerClassName="mx-0"
+                          />
+                        }
+                      >
+                        <div className="flex flex-col">
                           <Button
                             variant="outline"
                             size="small"
@@ -147,7 +146,6 @@ export default function ScenesPanel() {
                                   scene={scene}
                                 />
                               )
-                              isContextMenuOpen.set('')
                             }}
                           >
                             {t('editor:hierarchy.lbl-rename')}
@@ -164,14 +162,13 @@ export default function ScenesPanel() {
                                     onSubmit={async () => deleteSelectedScene(scene)}
                                   />
                                 )
-                                isContextMenuOpen.set('')
                               }
                             }}
                           >
                             {t('editor:hierarchy.lbl-delete')}
                           </Button>
                         </div>
-                      ) : null}
+                      </Popup>
                     </div>
                   </div>
                 </div>
