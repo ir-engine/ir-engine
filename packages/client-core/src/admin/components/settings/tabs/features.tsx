@@ -85,7 +85,7 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
           .toSorted()
           .sort((a, b) => a.flagName.localeCompare(b.flagName))
           .map((feature) => (
-            <FeatureItem key={feature.id} feature={feature} />
+            <FeatureItem key={feature.flagName} feature={feature} />
           ))}
       </div>
     </Accordion>

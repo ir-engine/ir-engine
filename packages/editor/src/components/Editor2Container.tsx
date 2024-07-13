@@ -39,7 +39,7 @@ import { VisualScriptPanelTab } from '@etherealengine/ui/src/components/editor/p
 import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
-import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
+import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import Toolbar from '../components/toolbar/Toolbar2'
@@ -87,42 +87,42 @@ const onEditorError = (error) => {
   )
 }
 
-const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => ({
-  dockbox: {
-    mode: 'horizontal' as DockMode,
-    children: [
-      {
-        mode: 'vertical' as DockMode,
-        size: 8,
-        children: [
-          {
-            tabs: [ViewportPanelTab]
-          },
-          {
-            tabs: [
-              ScenePanelTab,
-              FilesPanelTab,
-              AssetsPanelTab,
-              flags.visualScriptPanelEnabled ? VisualScriptPanelTab : ({} as TabData)
-            ]
-          }
-        ]
-      },
-      {
-        mode: 'vertical' as DockMode,
-        size: 3,
-        children: [
-          {
-            tabs: [HierarchyPanelTab, MaterialsPanelTab]
-          },
-          {
-            tabs: [PropertiesPanelTab]
-          }
-        ]
-      }
-    ]
+const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
+  const tabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
+  flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
+
+  return {
+    dockbox: {
+      mode: 'horizontal' as DockMode,
+      children: [
+        {
+          mode: 'vertical' as DockMode,
+          size: 8,
+          children: [
+            {
+              tabs: [ViewportPanelTab]
+            },
+            {
+              tabs: tabs
+            }
+          ]
+        },
+        {
+          mode: 'vertical' as DockMode,
+          size: 3,
+          children: [
+            {
+              tabs: [HierarchyPanelTab, MaterialsPanelTab]
+            },
+            {
+              tabs: [PropertiesPanelTab]
+            }
+          ]
+        }
+      ]
+    }
   }
-})
+}
 
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, uiAddons } = useMutableState(EditorState)
