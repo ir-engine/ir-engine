@@ -146,7 +146,6 @@ export default function ScenesPanel() {
                                   scene={scene}
                                 />
                               )
-                              isContextMenuOpen.set('')
                             }}
                           >
                             {t('editor:hierarchy.lbl-rename')}
@@ -163,7 +162,6 @@ export default function ScenesPanel() {
                                     onSubmit={async () => deleteSelectedScene(scene)}
                                   />
                                 )
-                                isContextMenuOpen.set('')
                               }
                             }}
                           >
