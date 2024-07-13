@@ -921,6 +921,15 @@ function applyHeuristicMeshes(intersectionData: Set<IntersectionData>, isEditing
  * @private
  * @description Private Access Only. Exports for use within unit tests. */
 export const PRIVATE = {
+  preventDefault,
+  preventDefaultKeyDown,
+  inputRaycast,
+  setInputSources,
+  useNonSpatialInputSources,
+  useGamepadInputSources,
+  CanvasInputReactor,
+  useXRInputSources,
+
   assignInputSources,
 
   applyHeuristicProximity,
