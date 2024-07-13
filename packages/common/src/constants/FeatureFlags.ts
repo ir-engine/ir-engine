@@ -32,5 +32,10 @@ export const FeatureFlags = {
       ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
       NPC: 'ir.client.menu.npc'
     }
+  },
+  Studio: {
+    ComponentShelfCategories: {
+      ScenePreviewCameraComponent: 'ir.studio.componentShelfCategories.visual.scenePreviewCameraComponent'
+    }
   }
 }
