@@ -30,6 +30,7 @@
   "help": "Help",
   "menubar": {
     "newScene": "New Scene",
+    "newEmptyScene": "New Empty Scene",
     "saveScene": "Save Scene",
     "saveAs": "Save As",
     "importAsset": "Import Asset",
@@ -1201,7 +1202,8 @@
       "file": "File",
       "directory": "Directory",
       "fileProperties": {
-        "header": "{{fileName}} Info",
+        "header": "Info for {{fileName}}",
+        "header-plural": "Info for {{itemCount}} Items",
         "name": "Name",
         "type": "Type",
         "size": "Size",
@@ -1213,7 +1215,8 @@
         "addTag": "Add New Tag",
         "add": "Add",
         "save-changes": "Save Changes",
-        "discard": "Discard"
+        "discard": "Discard",
+        "mixedValues": "Mixed"
       },
       "view-mode": {
         "icons": "View: Icons",
@@ -1338,7 +1341,7 @@
     "saveNewScene": {
       "title": "Save As",
       "lbl-name": "Scene Name",
-      "info-name": "Name must be between 4 and 64 characters and cannot contain underscores",
+      "info-name": "Name must be between 4 and 64 characters (with only alphabets, numbers, dashes allowed)",
       "lbl-confirm": "Save Scene"
     },
     "support": {
@@ -1350,6 +1353,10 @@
     "delete": {
       "confirm-content": "Do you want to delete {{content}}?",
       "not-allowed-local-dev": "To prevent accidental loss of data, projects cannot be deleted from this menu in a local dev environment. Use the file system instead."
+    },
+    "createScene": {
+      "title": "New Scene",
+      "create": "New Empty Scene"
     },
     "file": "file",
     "folder": "folder"

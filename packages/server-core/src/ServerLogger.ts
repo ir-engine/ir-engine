@@ -51,7 +51,7 @@ const isLogStashRunning = () => {
     const timer = setTimeout(() => {
       reject(new Error(`Timeout trying to connect to logstash ${logStashAddress}:${logStashPort}`))
       socket.destroy()
-    }, 2000)
+    }, 3000)
 
     // Connect to the port
     socket.connect(parseInt(logStashPort.toString()), logStashAddress, () => {
@@ -143,8 +143,22 @@ export const logger = pino(
     level: 'debug',
     enabled: useLogger,
     base: {
-      hostname: os.hostname,
-      component: 'server-core'
+      hostname: os.hostname
+    },
+    hooks: {
+      logMethod(inputArgs, method, level) {
+        const { component, userId } = this.bindings()
+
+        if (!component && !userId) {
+          inputArgs.unshift({ component: 'server-core', userId: '' })
+        } else if (component) {
+          inputArgs.unshift({ userId: '' })
+        } else if (userId) {
+          inputArgs.unshift({ component: 'server-core' })
+        }
+
+        return method.apply(this, inputArgs)
+      }
     }
   },
   multiStream
@@ -152,11 +166,11 @@ export const logger = pino(
 
 isLogStashRunning()
   .then(() => {
-    console.info('Logstash is running')
+    console.info(`Logstash is running on ${logStashAddress}:${logStashPort}`)
     multiStream.add(streamToLogstash)
   })
   .catch(() => {
-    console.error('Logstash is not running')
+    console.error(`Logstash is not running on ${logStashAddress}:${logStashPort}`)
   })
 
 logger.debug('Debug message for testing')

@@ -23,31 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { BadRequest } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
-import { Application, HookContext } from '../../declarations'
-/**
- * resolve project id from name in query
- * @param context
- * @returns
- */
-export default () => {
-  return async (context: HookContext<Application>) => {
-    if (!context.params.query?.project && !context.data?.project) {
-      return context
-    }
+export const CREDENTIAL_OFFSET = 60 * 10
+//coturn requires the password be hashed via SHA1, tried SHA256 and it didn't work
+export const HASH_ALGORITHM = 'sha1'
 
-    const projectName: string = context.params.query.project || context.data.project
-
-    const projectResult = (await context.app.service(projectPath).find({
-      query: { name: projectName, $limit: 1 }
-    })) as Paginated<ProjectType>
-
-    if (projectResult.data.length === 0) {
-      throw new BadRequest(`No project named ${projectName} exists`)
-    }
-    context.params.query.projectId = projectResult.data[0].id
-    return context
-  }
+export const defaultWebRTCSettings = {
+  iceServers: [],
+  useCustomICEServers: false,
+  useTimeLimitedCredentials: false,
+  webRTCStaticAuthSecretKey: '',
+  usePrivateInstanceserverIP: false
 }

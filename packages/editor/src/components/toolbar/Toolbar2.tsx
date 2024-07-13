@@ -44,6 +44,7 @@ import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
+import CreateSceneDialog from '../dialogs/CreateScenePanelDialog'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog2'
 import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog2'
 
@@ -83,7 +84,14 @@ const generateToolbarMenu = () => {
   return [
     {
       name: t('editor:menubar.newScene'),
-      action: () => onNewScene()
+      action: () => {
+        const newSceneUIAddons = getState(EditorState).uiAddons.newScene
+        if (Object.keys(newSceneUIAddons).length > 0) {
+          PopoverState.showPopupover(<CreateSceneDialog />)
+        } else {
+          onNewScene()
+        }
+      }
     },
     {
       name: t('editor:menubar.saveScene'),
@@ -180,7 +188,10 @@ export default function Toolbar() {
                 variant="sidebar"
                 size="small"
                 fullWidth
-                onClick={action}
+                onClick={() => {
+                  action()
+                  anchorEvent.set(null)
+                }}
                 endIcon={hotkey}
               >
                 {name}
