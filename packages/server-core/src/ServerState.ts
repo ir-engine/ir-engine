@@ -43,7 +43,6 @@ export const ServerState = defineState({
     k8AppsClient: null! as k8s.AppsV1Api,
     k8BatchClient: null! as k8s.BatchV1Api,
     agonesSDK: null! as Record<any, any>,
-    serverMode: null! as ServerTypeMode,
-    port: 3030
+    serverMode: null! as ServerTypeMode
   }
 })

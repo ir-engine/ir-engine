@@ -182,10 +182,11 @@ const initializeInstance = async ({
 }) => {
   logger.info('Initializing new instance')
 
-  const serverState = getState(ServerState)
-  const localIp = await getLocalServerIp(serverState.port === 3032)
+  const instanceServerState = getState(InstanceServerState)
   const selfIpAddress = `${status.address}:${status.portsList[0].port}`
-  const ipAddress = config.kubernetes.enabled ? selfIpAddress : `${localIp.ipAddress}:${localIp.port}`
+  const ipAddress = config.kubernetes.enabled
+    ? selfIpAddress
+    : `${await getLocalServerIp()}:${instanceServerState.port}`
   const existingInstanceQuery = {
     ipAddress: ipAddress,
     ended: false

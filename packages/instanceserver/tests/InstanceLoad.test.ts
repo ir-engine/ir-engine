@@ -84,10 +84,10 @@ describe('InstanceLoad', () => {
       }
     })
 
-    const localIp = await getLocalServerIp(false)
+    const localIp = await getLocalServerIp()
     console.log('localIp', localIp)
     await app.service(instancePath).create({
-      ipAddress: `${localIp.ipAddress}:${localIp.port}`,
+      ipAddress: `${localIp}:3031`,
       currentUsers: 0,
       locationId: skyStationScene.data[0].id,
       assigned: false,

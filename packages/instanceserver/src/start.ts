@@ -44,6 +44,7 @@ import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerS
 
 import { startTimer } from '@etherealengine/spatial/src/startTimer'
 import channels from './channels'
+import { InstanceServerState } from './InstanceServerState'
 import { setupSocketFunctions } from './SocketFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver' })
@@ -185,7 +186,7 @@ export const start = async (): Promise<Application> => {
   server.on('listening', () =>
     logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
   )
-  serverState.port.set(port)
+  getMutableState(InstanceServerState).port.set(port)
   await new Promise((resolve) => {
     const primusWaitInterval = setInterval(() => {
       if (app.primus) {
