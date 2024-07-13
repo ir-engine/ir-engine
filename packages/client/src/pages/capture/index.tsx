@@ -25,25 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { t } from 'i18next'
 import React, { Suspense } from 'react'
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
-import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { FeatureFlagsState } from '@etherealengine/engine'
 import Capture from './capture'
 
 const LocationRoutes = () => {
   const projectsLoaded = useEngineInjection()
-
-  const motionCaptureEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Location.Menu.MotionCapture)
-
-  const navigate = useNavigate()
-
-  if (!motionCaptureEnabled) {
-    navigate('/admin')
-  }
 
   if (!projectsLoaded) return <LoadingView title={t('common:loader.loadingProjects')} />
 

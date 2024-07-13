@@ -61,7 +61,7 @@ const AppPage = (props: { children: React.ReactNode }) => {
       <NotificationSnackbar />
       <LoadWebappInjection>{props.children}</LoadWebappInjection>
       <InviteToast />
-      {import.meta.env.VITE_DEBUG_MODE === 'true' && <Debug />}
+      <Debug />
     </>
   )
 }

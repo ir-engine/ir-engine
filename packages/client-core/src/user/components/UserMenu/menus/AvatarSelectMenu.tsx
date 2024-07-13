@@ -65,7 +65,7 @@ const AvatarMenu = () => {
   const avatarLoading = useHookstate(false)
   const isUserReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
-  const createAvatarEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Admin.CreateAvatar)
+  const createAvatarEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.CreateAvatar)
 
   const page = useHookstate(0)
   const selectedAvatarId = useHookstate('' as AvatarID)

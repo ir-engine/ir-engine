@@ -29,16 +29,8 @@ export const FeatureFlags = {
       Social: 'ir.client.menu.social',
       Emote: 'ir.client.menu.emote',
       Avaturn: 'ir.client.menu.avaturn',
-      NPC: 'ir.client.menu.npc',
-      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe'
-    },
-    Admin: {
+      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
       CreateAvatar: 'ir.client.menu.createAvatar'
-    },
-    Location: {
-      Menu: {
-        MotionCapture: 'ir.client.location.menu.motionCapture'
-      }
     }
   },
   Editor: {
