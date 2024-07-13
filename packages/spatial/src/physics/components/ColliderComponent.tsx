@@ -23,13 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { World } from '@dimforge/rapier3d-compat'
+import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@etherealengine/ecs'
+import { useMutableState, useState } from '@etherealengine/hyperflux'
 import { useEffect, useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
-
-import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { useMutableState } from '@etherealengine/hyperflux'
-
-import { World } from '@dimforge/rapier3d-compat'
 import { useAncestorWithComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
@@ -37,6 +35,7 @@ import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 import { Shape, Shapes } from '../types/PhysicsTypes'
 import { RigidBodyComponent } from './RigidBodyComponent'
+import { TriggerComponent } from './TriggerComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
@@ -85,6 +84,8 @@ export const ColliderComponent = defineComponent({
     const transform = useComponent(entity, TransformComponent)
     const rigidbodyEntity = useAncestorWithComponent(entity, RigidBodyComponent)
     const physicsWorld = useMutableState(PhysicsState).physicsWorld
+    const triggerComponent = useOptionalComponent(entity, TriggerComponent)
+    const hasCollider = useState(false)
 
     useEffect(() => {
       if (!rigidbodyEntity) return
@@ -96,9 +97,11 @@ export const ColliderComponent = defineComponent({
       if (!colliderDesc) return
 
       Physics.attachCollider(world, colliderDesc, rigidbodyEntity, entity)
+      hasCollider.set(true)
 
       return () => {
         Physics.removeCollider(world, entity)
+        hasCollider.set(false)
       }
     }, [component.shape, rigidbodyEntity, physicsWorld, transform.scale])
 
@@ -125,6 +128,16 @@ export const ColliderComponent = defineComponent({
     useLayoutEffect(() => {
       Physics.setCollisionMask(entity, component.collisionMask.value)
     }, [component.collisionMask])
+
+    useEffect(() => {
+      if (!triggerComponent?.value || !hasCollider.value) return
+
+      Physics.setTrigger(entity, true)
+
+      return () => {
+        Physics.setTrigger(entity, false)
+      }
+    }, [triggerComponent, hasCollider])
 
     return null
   }

@@ -33,7 +33,7 @@ import { locationPath } from '@etherealengine/common/src/schema.type.module'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import ContextMenu from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
+import { ContextMenu } from '@etherealengine/ui/src/components/tailwind/ContextMenu'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { t } from 'i18next'
 import React from 'react'
@@ -44,6 +44,7 @@ import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
+import CreateSceneDialog from '../dialogs/CreateScenePanelDialog'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog2'
 import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog2'
 
@@ -83,7 +84,14 @@ const generateToolbarMenu = () => {
   return [
     {
       name: t('editor:menubar.newScene'),
-      action: () => onNewScene()
+      action: () => {
+        const newSceneUIAddons = getState(EditorState).uiAddons.newScene
+        if (Object.keys(newSceneUIAddons).length > 0) {
+          PopoverState.showPopupover(<CreateSceneDialog />)
+        } else {
+          onNewScene()
+        }
+      }
     },
     {
       name: t('editor:menubar.saveScene'),
@@ -169,25 +177,28 @@ export default function Toolbar() {
       </div>
       <ContextMenu
         anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
-        anchorPosition={anchorPosition.value}
-        panelId="toolbar-menu"
         onClose={() => anchorEvent.set(null)}
       >
-        {toolbarMenu.map(({ name, action, hotkey }, index) => (
-          <div key={index}>
-            <Button
-              className="px-4 py-[10px] text-left font-light text-[#9CA0AA]"
-              textContainerClassName="text-xs"
-              variant="sidebar"
-              size="small"
-              fullWidth
-              onClick={action}
-              endIcon={hotkey}
-            >
-              {name}
-            </Button>
-          </div>
-        ))}
+        <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+          {toolbarMenu.map(({ name, action, hotkey }, index) => (
+            <div key={index}>
+              <Button
+                className="px-4 py-2.5 text-left font-light text-[#9CA0AA]"
+                textContainerClassName="text-xs"
+                variant="sidebar"
+                size="small"
+                fullWidth
+                onClick={() => {
+                  action()
+                  anchorEvent.set(null)
+                }}
+                endIcon={hotkey}
+              >
+                {name}
+              </Button>
+            </div>
+          ))}
+        </div>
       </ContextMenu>
     </>
   )
