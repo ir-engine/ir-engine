@@ -98,7 +98,7 @@ export const MediaIconsBox = () => {
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
 
-  const motionCaptureEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Location.Menu.MotionCapture)
+  const motionCaptureEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.MotionCapture)
 
   useEffect(() => {
     navigator.mediaDevices
