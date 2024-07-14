@@ -5,7 +5,6 @@
   },
   "scenes": [
     {
-      "name": "New Object",
       "nodes": [
         0
       ]
@@ -14,7 +13,7 @@
   "scene": 0,
   "nodes": [
     {
-      "name": "Box Collider",
+      "name": "Box_Collider",
       "extensions": {
         "EE_uuid": "3b2ca4e3-7640-4d50-a665-5f14388a2868",
         "EE_visible": true,
@@ -30,7 +29,49 @@
           "restitution": 0.5,
           "collisionLayer": 1,
           "collisionMask": 7
+        },
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
         }
+      },
+      "extras": {
+        "name": "Box Collider",
+        "useVisible": true,
+        "componentJson": [
+          {
+            "name": "EE_uuid",
+            "props": "3b2ca4e3-7640-4d50-a665-5f14388a2868"
+          },
+          {
+            "name": "EE_visible",
+            "props": true
+          },
+          {
+            "name": "EE_collider",
+            "props": {
+              "shape": "box",
+              "mass": 1,
+              "massCenter": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "friction": 0.5,
+              "restitution": 0.5,
+              "collisionLayer": 1,
+              "collisionMask": 7
+            }
+          }
+        ]
       }
     }
   ],
@@ -38,6 +79,7 @@
     "EE_uuid",
     "EE_visible",
     "EE_collider",
+    "EE_rigidbody",
     "EE_ecs"
   ]
 }
