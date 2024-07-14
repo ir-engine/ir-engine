@@ -1204,6 +1204,7 @@
       "fileProperties": {
         "header": "Info for {{fileName}}",
         "header-plural": "Info for {{itemCount}} Items",
+        "regenerateThumbnail": "Regenerate Thumbnail",
         "name": "Name",
         "type": "Type",
         "size": "Size",
