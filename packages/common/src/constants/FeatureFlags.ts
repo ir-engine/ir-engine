@@ -37,12 +37,10 @@ export const FeatureFlags = {
   Editor: {
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript'
-    }
-  },
-  Editor: {
+    },
     UI: {
       Hierarchy: {
-        HideModelChildren: 'ir.editor.ui.hierarchy.hideModelChildren'
+        ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
       }
     }
   },

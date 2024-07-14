@@ -77,7 +77,7 @@ export type HierarchyTreeNodeData = {
   renamingNode: RenameNodeData
   onToggle: (e: Event, node: HierarchyTreeNodeType) => void
   onKeyDown: (e: Event, node: HierarchyTreeNodeType) => void
-  onMouseDown: (e: MouseEvent, node: HierarchyTreeNodeType) => void
+  onMouseDown?: (e: MouseEvent, node: HierarchyTreeNodeType) => void
   onClick: (e: MouseEvent, node: HierarchyTreeNodeType) => void
   onChangeName: (node: HierarchyTreeNodeType, name: string) => void
   onRenameSubmit: (node: HierarchyTreeNodeType, name: string) => void
@@ -130,7 +130,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   )
 
   const onClickNode = useCallback((e) => data.onClick(e, node), [node, data.onClick])
-  const onMouseDownNode = useCallback((e) => data.onMouseDown(e, node), [node, data.onMouseDown])
+  const onMouseDownNode = useCallback((e) => data.onMouseDown && data.onMouseDown(e, node), [node, data.onMouseDown])
 
   const onChangeNodeName = useCallback((e) => data.onChangeName(node, e.target.value), [node, data.onChangeName])
 

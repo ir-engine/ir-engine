@@ -85,7 +85,7 @@ function buildHierarchyTree(
 
   if (
     hasComponent(entity, ModelComponent) &&
-    !FeatureFlagsState.enabled(FeatureFlags.Editor.UI.Hierarchy.HideModelChildren)
+    FeatureFlagsState.enabled(FeatureFlags.Editor.UI.Hierarchy.ShowModelChildren)
   ) {
     const modelSceneID = getModelSceneID(entity)
     const snapshotState = getState(GLTFSnapshotState)
