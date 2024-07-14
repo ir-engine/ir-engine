@@ -18,9 +18,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import {
   LocationData,
@@ -31,10 +32,13 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import { ModalHeader } from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
+import { HiLink } from 'react-icons/hi2'
 
 const getDefaultErrors = () => ({
   name: '',
@@ -49,28 +53,41 @@ const locationTypeOptions = [
   { label: 'Showroom', value: 'showroom' }
 ]
 
-export default function AddEditLocationModal({
-  location,
-  sceneID
-}: {
-  location?: LocationType
-  sceneID?: string | null
-}) {
+export default function AddEditLocationModal(props: { location?: LocationType; sceneID?: string | null }) {
   const { t } = useTranslation()
+
+  const locationID = useHookstate(props.location?.id || null)
+
+  const locationQuery = useFind(locationPath, { query: { id: locationID.value } })
+  const location = locationID.value ? locationQuery.data[0] : undefined
 
   const locationMutation = useMutation(locationPath)
 
   const submitLoading = useHookstate(false)
+  const isLoading = submitLoading.value || locationQuery.status === 'pending'
   const errors = useHookstate(getDefaultErrors())
 
   const name = useHookstate(location?.name || '')
   const maxUsers = useHookstate(location?.maxUsersPerInstance || 20)
 
-  const scene = useHookstate((location ? location.sceneId : sceneID) ?? '')
+  const scene = useHookstate((location ? location.sceneId : props.sceneID) || '')
   const videoEnabled = useHookstate<boolean>(location?.locationSetting.videoEnabled || true)
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
+
+  useEffect(() => {
+    if (location) {
+      name.set(location.name)
+      maxUsers.set(location.maxUsersPerInstance)
+      videoEnabled.set(location.locationSetting.videoEnabled)
+      audioEnabled.set(location.locationSetting.audioEnabled)
+      screenSharingEnabled.set(location.locationSetting.screenSharingEnabled)
+      locationType.set(location.locationSetting.locationType)
+
+      if (!props.sceneID) scene.set(location.sceneId)
+    }
+  }, [location])
 
   const scenes = useFind(staticResourcePath, {
     query: {
@@ -119,91 +136,159 @@ export default function AddEditLocationModal({
 
     try {
       if (location?.id) {
-        await locationMutation.patch(location.id, locationData)
+        await locationMutation.patch(location.id, locationData, { query: { projectId: location.projectId } })
       } else {
-        await locationMutation.create(locationData)
+        const response = await locationMutation.create(locationData)
+        locationID.set(response.id)
       }
-      PopoverState.hidePopupover()
+      await locationQuery.refetch()
     } catch (err) {
       errors.serverError.set(err.message)
     }
     submitLoading.set(false)
   }
 
-  return (
-    <Modal
-      title={
-        location?.id ? t('admin:components.location.updateLocation') : t('admin:components.location.createLocation')
+  const unpublishLocation = async () => {
+    if (location?.id) {
+      submitLoading.set(true)
+      try {
+        await locationMutation.remove(location.id, { query: { projectId: location.projectId } })
+        locationID.set(null)
+        await locationQuery.refetch()
+      } catch (err) {
+        errors.serverError.set(err.message)
       }
-      className="w-[50vw] max-w-2xl"
-      onSubmit={handleSubmit}
-      onClose={PopoverState.hidePopupover}
-      submitLoading={submitLoading.value}
-    >
-      <div className="relative grid w-full gap-6">
-        {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
-        <Input
-          label={t('admin:components.location.lbl-name')}
-          value={name.value}
-          onChange={(event) => name.set(event.target.value)}
-          error={errors.name.value}
-          disabled={submitLoading.value}
+      submitLoading.set(false)
+    }
+  }
+
+  return (
+    <div className="relative z-50 max-h-[80vh] w-[50vw] bg-theme-surface-main">
+      <div className="relative rounded-lg shadow">
+        <ModalHeader
+          onClose={PopoverState.hidePopupover}
+          title={location?.id ? t('editor:toolbar.publishLocation.update') : t('editor:toolbar.publishLocation.create')}
         />
-        <Input
-          type="number"
-          label={t('admin:components.location.lbl-maxuser')}
-          value={maxUsers.value}
-          onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
-          error={errors.maxUsers.value}
-          disabled={submitLoading.value}
-        />
-        <Select
-          label={t('admin:components.location.lbl-scene')}
-          currentValue={scene.value}
-          onChange={(value) => scene.set(value)}
-          disabled={scenes.status !== 'success' || submitLoading.value}
-          options={
-            scenes.status === 'pending'
-              ? [{ value: '', label: t('common:select.fetching') }]
-              : [
-                  { value: '', label: t('admin:components.location.selectScene'), disabled: true },
-                  ...scenes.data.map((scene) => {
-                    const project = scene.project
-                    const name = scene.key.split('/').pop()!.split('.').at(0)!
-                    return {
-                      label: `${name} (${project})`,
-                      value: scene.id
-                    }
-                  })
-                ]
-          }
-          error={errors.scene.value}
-        />
-        <Select
-          label={t('admin:components.location.type')}
-          currentValue={locationType.value}
-          onChange={(value) => locationType.set(value as 'private' | 'public' | 'showroom')}
-          options={locationTypeOptions}
-        />
-        <Toggle
-          label={t('admin:components.location.lbl-ve')}
-          value={videoEnabled.value}
-          onChange={videoEnabled.set}
-          disabled={submitLoading.value}
-        />
-        <Toggle
-          label={t('admin:components.location.lbl-ae')}
-          value={audioEnabled.value}
-          onChange={audioEnabled.set}
-          disabled={submitLoading.value}
-        />
-        <Toggle
-          label={t('admin:components.location.lbl-se')}
-          value={screenSharingEnabled.value}
-          onChange={screenSharingEnabled.set}
-          disabled={submitLoading.value}
-        />
+        <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">
+          <div className="relative grid w-full gap-6">
+            {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
+            {location && (
+              <Button
+                size="medium"
+                variant="transparent"
+                className="w-full cursor-default text-left text-xs"
+                endIcon={
+                  <HiLink
+                    className="z-10 h-4 w-4 cursor-pointer"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        new URL(window.location.origin + `/location/${location.slugifiedName}`).href
+                      )
+                      NotificationService.dispatchNotify(t('editor:toolbar.publishLocation.locationLinkCopied'), {
+                        variant: 'success'
+                      })
+                    }}
+                  />
+                }
+              >
+                <div
+                  className="cursor-pointer text-blue-primary hover:underline"
+                  onClick={() => window.open(new URL(location.url))}
+                >
+                  {location.url}
+                </div>
+              </Button>
+            )}
+            <Input
+              label={t('admin:components.location.lbl-name')}
+              value={name.value}
+              onChange={(event) => name.set(event.target.value)}
+              error={errors.name.value}
+              disabled={isLoading}
+            />
+            <Input
+              type="number"
+              label={t('admin:components.location.lbl-maxuser')}
+              value={maxUsers.value}
+              onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
+              error={errors.maxUsers.value}
+              disabled={isLoading}
+            />
+            <Select
+              label={t('admin:components.location.lbl-scene')}
+              currentValue={scene.value}
+              onChange={(value) => scene.set(value)}
+              disabled={!!props.sceneID || scenes.status !== 'success' || isLoading}
+              options={
+                scenes.status === 'pending'
+                  ? [{ value: '', label: t('common:select.fetching') }]
+                  : [
+                      { value: '', label: t('admin:components.location.selectScene'), disabled: true },
+                      ...scenes.data.map((scene) => {
+                        const project = scene.project
+                        const name = scene.key.split('/').pop()!.split('.').at(0)!
+                        return {
+                          label: `${name} (${project})`,
+                          value: scene.id
+                        }
+                      })
+                    ]
+              }
+              error={errors.scene.value}
+            />
+            <Select
+              label={t('admin:components.location.type')}
+              currentValue={locationType.value}
+              onChange={(value) => locationType.set(value as 'private' | 'public' | 'showroom')}
+              options={locationTypeOptions}
+              disabled={isLoading}
+            />
+            <Toggle
+              label={t('admin:components.location.lbl-ve')}
+              value={videoEnabled.value}
+              onChange={videoEnabled.set}
+              disabled={isLoading}
+            />
+            <Toggle
+              label={t('admin:components.location.lbl-ae')}
+              value={audioEnabled.value}
+              onChange={audioEnabled.set}
+              disabled={isLoading}
+            />
+            <Toggle
+              label={t('admin:components.location.lbl-se')}
+              value={screenSharingEnabled.value}
+              onChange={screenSharingEnabled.set}
+              disabled={isLoading}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
+          <Button variant="outline" onClick={() => PopoverState.hidePopupover()}>
+            {t('common:components.cancel')}
+          </Button>
+          <div className="ml-auto flex items-center gap-2">
+            {location?.id && (
+              <Button
+                className="bg-[#162546]"
+                endIcon={isLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
+                disabled={isLoading}
+                onClick={unpublishLocation}
+              >
+                {t('editor:toolbar.publishLocation.unpublish')}
+              </Button>
+            )}
+            <Button
+              endIcon={isLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
+              disabled={isLoading}
+              onClick={handleSubmit}
+            >
+              {location?.id ? t('common:components.update') : t('editor:toolbar.publishLocation.title')}
+            </Button>
+          </div>
+        </div>
       </div>
-    </Modal>
+    </div>
   )
 }
