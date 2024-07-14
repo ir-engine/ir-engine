@@ -96,8 +96,6 @@ export async function addMediaNode(
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
           assignMaterial(mesh.entity, materialEntity)
-          //const materialInstanceComponent = getMutableComponent(mesh.entity, MaterialInstanceComponent)
-          //if (materialInstanceComponent.uuid.value) materialInstanceComponent.uuid.set([material.uuid as EntityUUID])
         })
       })
     } else if (contentType.startsWith('model/lookdev')) {
