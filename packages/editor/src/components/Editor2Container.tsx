@@ -142,13 +142,19 @@ const EditorContainer = () => {
 
   useEffect(() => {
     const scene = sceneQuery[0]
-    if (!scene || !viewerEntity) return
+    if (!scene) return
 
     projectName.set(scene.project!)
     sceneName.set(scene.key.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
+  }, [sceneQuery[0]?.key])
+
+  useEffect(() => {
+    const scene = sceneQuery[0]
+    if (!sceneAssetID.value || !scene || !viewerEntity) return
+
     return setCurrentEditorScene(sceneQuery[0].url, sceneAssetID.value as EntityUUID)
-  }, [viewerEntity, sceneQuery[0]?.key])
+  }, [viewerEntity, sceneAssetID.value])
 
   useEffect(() => {
     return () => {
