@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+export const CREDENTIAL_OFFSET = 60 * 10
+//coturn requires the password be hashed via SHA1, tried SHA256 and it didn't work
+export const HASH_ALGORITHM = 'sha1'
 
-const Overlay = ({ pointerEvents, children }) => {
-  const overlayClassName = twMerge('fixed inset-0', `pointer-events-${pointerEvents} ?? 'auto'`)
-  return <div className={overlayClassName}>{children}</div>
+export const defaultWebRTCSettings = {
+  iceServers: [],
+  useCustomICEServers: false,
+  useTimeLimitedCredentials: false,
+  webRTCStaticAuthSecretKey: '',
+  usePrivateInstanceserverIP: false
 }
-
-export default Overlay

@@ -23,17 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
 import { ChildProcess } from 'child_process'
 import { v4 as uuidv4 } from 'uuid'
 
-import { identityProviderPath, locationPath, UserID } from '@etherealengine/common/src/schema.type.module'
+import {
+  identityProviderPath,
+  InstanceData,
+  instancePath,
+  locationPath,
+  RoomCode,
+  UserID
+} from '@etherealengine/common/src/schema.type.module'
 import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { getState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { Application } from '@etherealengine/server-core/declarations'
 
+import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { StartTestFileServer } from '../../server-core/src/createFileServer'
 import { onConnection } from '../src/channels'
 import { InstanceServerState } from '../src/InstanceServerState'
@@ -74,6 +83,17 @@ describe('InstanceLoad', () => {
         slugifiedName: 'sky-station'
       }
     })
+
+    const localIp = await getLocalServerIp()
+    console.log('localIp', localIp)
+    await app.service(instancePath).create({
+      ipAddress: `${localIp}:3031`,
+      currentUsers: 0,
+      locationId: skyStationScene.data[0].id,
+      assigned: false,
+      assignedAt: toDateTimeSql(new Date()),
+      roomCode: '' as RoomCode
+    } as InstanceData)
 
     const query = {
       provider: 'test',

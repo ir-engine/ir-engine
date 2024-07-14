@@ -29,7 +29,19 @@ export const FeatureFlags = {
       Social: 'ir.client.menu.social',
       Emote: 'ir.client.menu.emote',
       Avaturn: 'ir.client.menu.avaturn',
-      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe'
+      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
+      CreateAvatar: 'ir.client.menu.createAvatar',
+      MotionCapture: 'ir.client.location.menu.motionCapture'
+    }
+  },
+  Editor: {
+    Panel: {
+      VisualScript: 'ir.editor.panel.visualScript'
+    }
+  },
+  Studio: {
+    ComponentShelfCategories: {
+      ScenePreviewCameraComponent: 'ir.studio.componentShelfCategories.visual.scenePreviewCameraComponent'
     }
   }
 }

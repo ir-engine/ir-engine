@@ -126,11 +126,12 @@ export class ArchiverService implements ServiceInterface<string, ArchiverParams>
         returnData: '',
         status: 'pending'
       })
+      const projectJobName = project.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
       const jobBody = await getDirectoryArchiveJobBody(this.app, project, newJob.id)
       await this.app.service(apiJobPath).patch(newJob.id, {
         name: jobBody.metadata!.name
       })
-      const jobLabelSelector = `etherealengine/projectField=${project},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/directoryArchiver=true`
+      const jobLabelSelector = `etherealengine/projectField=${projectJobName},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/directoryArchiver=true`
       const jobFinishedPromise = createExecutorJob(
         this.app,
         jobBody,

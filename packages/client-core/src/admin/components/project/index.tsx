@@ -27,8 +27,8 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 
-import config, { isDev } from '@etherealengine/common/src/config'
-import { useMutableState } from '@etherealengine/hyperflux'
+import { isDev } from '@etherealengine/common/src/config'
+import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
 
@@ -40,6 +40,7 @@ import ProjectTopMenu from './ProjectTopMenu'
 
 export default function AdminProject() {
   const { t } = useTranslation()
+  const search = useHookstate({ local: '', query: '' })
 
   const projectState = useMutableState(ProjectState)
   const authState = useMutableState(AuthState)
@@ -99,7 +100,8 @@ export default function AdminProject() {
             title: t('admin:components.project.project'),
             tabLabel: t('admin:components.common.all'),
             rightComponent: <ProjectTopMenu />,
-            bottomComponent: <ProjectTable />
+            bottomComponent: <ProjectTable search={search.query.value} />,
+            search: search
           },
           {
             title: t('admin:components.buildStatus.buildStatus'),
@@ -123,7 +125,7 @@ export default function AdminProject() {
               </span>
             ),
             bottomComponent: <BuildStatusTable />,
-            disabled: config.client.localBuildOrDev
+            disabled: false //config.client.localBuildOrDev
           }
         ]}
         tabcontainerClassName="bg-theme-primary"

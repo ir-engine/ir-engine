@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 import { Texture, Uniform } from 'three'
 
 import {
-  defineQuery,
   Entity,
   EntityUUID,
   getComponent,
@@ -44,15 +43,16 @@ import styles from '@etherealengine/editor/src/components/layout/styles.module.s
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
-import { NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
+import { NO_PROXY, none, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import { getDefaultType } from '@etherealengine/spatial/src/renderer/materials/constants/DefaultArgs'
 import {
   MaterialPlugins,
   MaterialPrototypeComponent,
-  MaterialStateComponent
+  MaterialStateComponent,
+  prototypeQuery
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { formatMaterialArgs, getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -76,7 +76,6 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
   return blobs
 }
 
-const prototypeQuery = defineQuery([MaterialPrototypeComponent])
 export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const { t } = useTranslation()
   const prototypes = prototypeQuery().map((prototype) => ({
@@ -143,8 +142,14 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
   const prototypeName = useHookstate('')
   //workaround for useComponent NameComponent causing rerenders every frame
-  const materialName = useHookstate(getComponent(entity, NameComponent))
+
   prototypeName.set(material.userData.type || material.type)
+
+  const currentSelectedMaterial = useMutableState(MaterialSelectionState).selectedMaterial
+  const materialName = useOptionalComponent(
+    UUIDComponent.getEntityByUUID(currentSelectedMaterial.value!),
+    NameComponent
+  )
 
   useEffect(() => {
     clearThumbs().then(createThumbnails).then(checkThumbs)
@@ -204,10 +209,10 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     <div className="relative flex flex-col gap-2">
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
         <StringInput
-          value={materialName.value}
+          value={materialName?.value ?? ''}
           onChange={(name) => {
-            setMaterialName(entity, name)
-            materialName.set(name)
+            setComponent(entity, NameComponent, name)
+            materialName?.set(name)
           }}
         />
       </InputGroup>

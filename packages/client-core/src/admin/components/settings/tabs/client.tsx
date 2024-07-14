@@ -55,12 +55,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   const settingsState = useHookstate(null as null | ClientSettingType)
 
   useEffect(() => {
-    if (clientSettingQuery) {
-      state.set({ loading: clientSettingQuery.status === 'pending', errorMessage: clientSettingQuery.error })
-    }
-  }, [clientSettingQuery])
-
-  useEffect(() => {
     if (clientSettings) {
       settingsState.set(clientSettings)
       state.set({ loading: false, errorMessage: '' })
@@ -109,6 +103,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
       createdAt: undefined!,
       updatedAt: undefined!
     } as any as ClientSettingType
+
     Engine.instance.api
       .service(clientSettingPath)
       .patch(id, newSettings)

@@ -30,6 +30,7 @@
   "help": "Help",
   "menubar": {
     "newScene": "New Scene",
+    "newEmptyScene": "New Empty Scene",
     "saveScene": "Save Scene",
     "saveAs": "Save As",
     "importAsset": "Import Asset",
@@ -106,6 +107,7 @@
     "lbl-simple": "Simple",
     "lbl-advanced": "Advanced",
     "gizmo": {
+      "pointer": "Pointer",
       "description": "Transform Gizmo",
       "translate": "[T] Translate",
       "rotate": "[R] Rotate",
@@ -193,8 +195,10 @@
     },
     "publishLocation": {
       "title": "Publish",
-      "lbl": "Publish Location",
-      "info": "Publish location for the selected scene."
+      "create": "Publish Location",
+      "update": "Update Published Location",
+      "unpublish": "Unpublish Location",
+      "locationLinkCopied": "Location link copied"
     }
   },
   "properties": {
@@ -1192,12 +1196,15 @@
       "downloadProject": "Download Project",
       "uploadAssets": "Upload Assets",
       "uploadFiles": "Upload Files",
+      "uploadFolder": "Upload Folder",
       "search-placeholder": "Search folders",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
       "directory": "Directory",
       "fileProperties": {
-        "header": "{{fileName}} Info",
+        "header": "Info for {{fileName}}",
+        "header-plural": "Info for {{itemCount}} Items",
+        "regenerateThumbnail": "Regenerate Thumbnail",
         "name": "Name",
         "type": "Type",
         "size": "Size",
@@ -1209,7 +1216,8 @@
         "addTag": "Add New Tag",
         "add": "Add",
         "save-changes": "Save Changes",
-        "discard": "Discard"
+        "discard": "Discard",
+        "mixedValues": "Mixed"
       },
       "view-mode": {
         "icons": "View: Icons",
@@ -1334,7 +1342,7 @@
     "saveNewScene": {
       "title": "Save As",
       "lbl-name": "Scene Name",
-      "info-name": "Name must be between 4 and 64 characters and cannot contain underscores",
+      "info-name": "Name must be between 4 and 64 characters (with only alphabets, numbers, dashes allowed)",
       "lbl-confirm": "Save Scene"
     },
     "support": {
@@ -1346,6 +1354,10 @@
     "delete": {
       "confirm-content": "Do you want to delete {{content}}?",
       "not-allowed-local-dev": "To prevent accidental loss of data, projects cannot be deleted from this menu in a local dev environment. Use the file system instead."
+    },
+    "createScene": {
+      "title": "New Scene",
+      "create": "New Empty Scene"
     },
     "file": "file",
     "folder": "folder"
