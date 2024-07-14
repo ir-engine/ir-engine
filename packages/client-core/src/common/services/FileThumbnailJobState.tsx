@@ -101,7 +101,7 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
 const uploadThumbnail = async (src: string, projectName: string, staticResourceId: string, blob: Blob | null) => {
   if (!blob) return
   const thumbnailMode = 'automatic'
-  const thumbnailKey = `${decodeURI(src.replace(/^.*?\/projects\//, ''))
+  const thumbnailKey = `${decodeURI(stripSearchFromURL(src).replace(/^.*?\/projects\//, ''))
     .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '')
     .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
@@ -135,10 +135,7 @@ export const FileThumbnailJobState = defineState({
     const resourceQuery = useFind(staticResourcePath, {
       query: {
         key: {
-          $in: files
-            .map((file) => file.key)
-            .filter((key) => !seenResources.has(key))
-            .slice(0, 100)
+          $in: files.map((file) => file.key).filter((key) => !seenResources.has(key))
         },
         thumbnailKey: 'null'
       }
@@ -458,30 +455,39 @@ const ThumbnailJobReactor = () => {
         .children.map((entity) => getComponent(entity, GroupComponent))
         .flat()
       const canvas = getComponent(cameraEntity, RendererComponent).canvas
-
-      requestAnimationFrame(() => {
-        const tmpCanvas = document.createElement('canvas')
-        tmpCanvas.width = 256
-        tmpCanvas.height = 256
-        const ctx = tmpCanvas.getContext('2d')!
-        ctx.drawImage(canvas, 0, 0, 256, 256)
-
-        function cleanup() {
-          tmpCanvas.remove()
-          jobState.set(jobState.get(NO_PROXY).slice(1))
-          rendering.set(false)
-        }
-
-        tmpCanvas.toBlob((blob: Blob) => {
-          try {
-            uploadThumbnail(src, project, id, blob).then(cleanup)
-          } catch (e) {
-            console.error('failed to upload model thumbnail for', src)
-            console.error(e)
-            cleanup()
+      const maxTryCount = 10
+      function doRender(tryCount = 0) {
+        requestAnimationFrame(() => {
+          const tmpCanvas = document.createElement('canvas')
+          tmpCanvas.width = 256
+          tmpCanvas.height = 256
+          const ctx = tmpCanvas.getContext('2d')!
+          ctx.drawImage(canvas, 0, 0, 256, 256)
+          //repeat if image is blank
+          if (ctx.getImageData(0, 0, 256, 256).data.every((v) => v === 0)) {
+            if (tryCount < maxTryCount) {
+              doRender(tryCount + 1)
+              return
+            }
           }
+          function cleanup() {
+            tmpCanvas.remove()
+            jobState.set(jobState.get(NO_PROXY).slice(1))
+            rendering.set(false)
+          }
+
+          tmpCanvas.toBlob((blob: Blob) => {
+            try {
+              uploadThumbnail(src, project, id, blob).then(cleanup)
+            } catch (e) {
+              console.error('failed to upload model thumbnail for', src)
+              console.error(e)
+              cleanup()
+            }
+          })
         })
-      })
+      }
+      doRender()
     } catch (e) {
       console.error('failed to generate model thumbnail for', src)
       console.error(e)

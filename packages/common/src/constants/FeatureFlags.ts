@@ -30,7 +30,13 @@ export const FeatureFlags = {
       Emote: 'ir.client.menu.emote',
       Avaturn: 'ir.client.menu.avaturn',
       ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
-      NPC: 'ir.client.menu.npc'
+      CreateAvatar: 'ir.client.menu.createAvatar',
+      MotionCapture: 'ir.client.location.menu.motionCapture'
+    }
+  },
+  Editor: {
+    Panel: {
+      VisualScript: 'ir.editor.panel.visualScript'
     }
   },
   Editor: {
