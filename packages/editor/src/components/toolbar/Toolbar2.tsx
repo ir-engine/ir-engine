@@ -44,6 +44,7 @@ import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
+import CreateSceneDialog from '../dialogs/CreateScenePanelDialog'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog2'
 import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog2'
 
@@ -83,7 +84,14 @@ const generateToolbarMenu = () => {
   return [
     {
       name: t('editor:menubar.newScene'),
-      action: () => onNewScene()
+      action: () => {
+        const newSceneUIAddons = getState(EditorState).uiAddons.newScene
+        if (Object.keys(newSceneUIAddons).length > 0) {
+          PopoverState.showPopupover(<CreateSceneDialog />)
+        } else {
+          onNewScene()
+        }
+      }
     },
     {
       name: t('editor:menubar.saveScene'),
@@ -122,7 +130,7 @@ export default function Toolbar() {
   const permission = useProjectPermissions(projectName.value!)
   const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
   const locationQuery = useFind(locationPath, { query: { sceneId: sceneAssetID.value } })
-  const currentLocation = locationQuery.data.length === 1 ? locationQuery.data[0] : undefined
+  const currentLocation = locationQuery.data[0]
 
   return (
     <>
@@ -180,7 +188,10 @@ export default function Toolbar() {
                 variant="sidebar"
                 size="small"
                 fullWidth
-                onClick={action}
+                onClick={() => {
+                  action()
+                  anchorEvent.set(null)
+                }}
                 endIcon={hotkey}
               >
                 {name}

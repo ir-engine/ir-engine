@@ -52,7 +52,9 @@ import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
 import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { EntityUUID } from '@etherealengine/ecs'
+import { FeatureFlagsState } from '@etherealengine/engine'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import 'rc-dock/dist/rc-dock.css'
@@ -85,41 +87,46 @@ const onEditorError = (error) => {
   )
 }
 
-const defaultLayout: LayoutData = {
-  dockbox: {
-    mode: 'horizontal' as DockMode,
-    children: [
-      {
-        mode: 'vertical' as DockMode,
-        size: 8,
-        children: [
-          {
-            tabs: [ViewportPanelTab]
-          },
-          {
-            tabs: [ScenePanelTab, FilesPanelTab, AssetsPanelTab, VisualScriptPanelTab]
-          }
-        ]
-      },
-      {
-        mode: 'vertical' as DockMode,
-        size: 3,
-        children: [
-          {
-            tabs: [HierarchyPanelTab, MaterialsPanelTab]
-          },
-          {
-            tabs: [PropertiesPanelTab]
-          }
-        ]
-      }
-    ]
+const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
+  const tabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
+  flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
+
+  return {
+    dockbox: {
+      mode: 'horizontal' as DockMode,
+      children: [
+        {
+          mode: 'vertical' as DockMode,
+          size: 8,
+          children: [
+            {
+              tabs: [ViewportPanelTab]
+            },
+            {
+              tabs: tabs
+            }
+          ]
+        },
+        {
+          mode: 'vertical' as DockMode,
+          size: 3,
+          children: [
+            {
+              tabs: [HierarchyPanelTab, MaterialsPanelTab]
+            },
+            {
+              tabs: [PropertiesPanelTab]
+            }
+          ]
+        }
+      ]
+    }
   }
 }
 
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, uiAddons } = useMutableState(EditorState)
-  const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '' } }).data
+  const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '', type: 'scene' } }).data
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
   const dockPanelRef = useRef<DockLayout>(null)
@@ -130,6 +137,8 @@ const EditorContainer = () => {
 
   const { initialized, isWidgetVisible, openChat } = useZendesk()
   const { t } = useTranslation()
+
+  const visualScriptPanelEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Editor.Panel.VisualScript)
 
   useEffect(() => {
     const scene = sceneQuery[0]
@@ -168,7 +177,7 @@ const EditorContainer = () => {
               <DockContainer>
                 <DockLayout
                   ref={dockPanelRef}
-                  defaultLayout={defaultLayout}
+                  defaultLayout={defaultLayout({ visualScriptPanelEnabled })}
                   style={{ position: 'absolute', left: 5, top: 45, right: 5, bottom: 5 }}
                 />
               </DockContainer>

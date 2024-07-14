@@ -15,7 +15,8 @@
     "copyText": "Copy Text",
     "edit": "Edit",
     "save": "Save",
-    "none": "None"
+    "none": "None",
+    "update": "Update"
   },
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"
