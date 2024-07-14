@@ -145,7 +145,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   )
 
   const onClickNode = useCallback((e) => data.onClick(e, node), [node, data.onClick])
-  const onMouseDownNode = useCallback((e) => data.onMouseDown(e, node), [node, data.onMouseDown])
+  const onMouseDownNode = useCallback((e) => data.onMouseDown && data.onMouseDown(e, node), [node, data.onMouseDown])
 
   const onChangeNodeName = useCallback((e) => data.onChangeName(node, e.target.value), [node, data.onChangeName])
 
