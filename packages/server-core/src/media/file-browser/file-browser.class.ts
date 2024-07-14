@@ -225,10 +225,10 @@ export class FileBrowserService
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
-        key: { $like: `%${path.join(oldDirectory, oldName)}%` }
-      },
-      paginate: false
-    })) as StaticResourceType[]
+        key: { $like: `%${path.join(oldDirectory, oldName)}%` },
+        paginate: false
+      } as any
+    })) as unknown as StaticResourceType[]
 
     if (!staticResources?.length) throw new Error('Static resources not found')
 

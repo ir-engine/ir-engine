@@ -41,6 +41,7 @@ export const InstanceServerState = defineState({
     ready: false,
     instance: null! as InstanceType,
     isMediaInstance: false,
-    instanceServer: null! as AgonesGameServer
+    instanceServer: null! as AgonesGameServer,
+    port: 3031
   }
 })

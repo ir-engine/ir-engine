@@ -130,7 +130,7 @@ export default function Toolbar() {
   const permission = useProjectPermissions(projectName.value!)
   const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
   const locationQuery = useFind(locationPath, { query: { sceneId: sceneAssetID.value } })
-  const currentLocation = locationQuery.data.length === 1 ? locationQuery.data[0] : undefined
+  const currentLocation = locationQuery.data[0]
 
   return (
     <>
