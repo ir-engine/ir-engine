@@ -63,7 +63,6 @@ import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToG
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
-import { PrimitiveGeometryComponent } from './PrimitiveGeometryComponent'
 import { SourceComponent } from './SourceComponent'
 
 /**
@@ -256,9 +255,8 @@ export const useMeshOrModel = (entity: Entity) => {
   const isModel = !!useOptionalComponent(entity, ModelComponent)
   const isChildOfModel = !!useAncestorWithComponent(entity, ModelComponent)
   const hasMesh = !!useOptionalComponent(entity, MeshComponent)
-  const isPrimitiveGeom = !!useOptionalComponent(entity, PrimitiveGeometryComponent)
 
-  return ((isModel && !isChildOfModel) || isPrimitiveGeom) && hasMesh
+  return isModel && !isChildOfModel && hasMesh
 }
 
 export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {
