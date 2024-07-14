@@ -31,7 +31,7 @@ import {
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
@@ -56,11 +56,15 @@ const locationTypeOptions = [
 export default function AddEditLocationModal(props: { location?: LocationType; sceneID?: string | null }) {
   const { t } = useTranslation()
 
-  const location = useGet(locationPath, props.location?.id).data
+  const locationID = useHookstate(props.location?.id || null)
+
+  const locationQuery = useFind(locationPath, { query: { id: locationID.value } })
+  const location = locationID.value ? locationQuery.data[0] : undefined
 
   const locationMutation = useMutation(locationPath)
 
   const submitLoading = useHookstate(false)
+  const isLoading = submitLoading.value || locationQuery.status === 'pending'
   const errors = useHookstate(getDefaultErrors())
 
   const name = useHookstate(location?.name || '')
@@ -134,9 +138,10 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
       if (location?.id) {
         await locationMutation.patch(location.id, locationData, { query: { projectId: location.projectId } })
       } else {
-        await locationMutation.create(locationData)
+        const response = await locationMutation.create(locationData)
+        locationID.set(response.id)
       }
-      PopoverState.hidePopupover()
+      await locationQuery.refetch()
     } catch (err) {
       errors.serverError.set(err.message)
     }
@@ -148,11 +153,12 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
       submitLoading.set(true)
       try {
         await locationMutation.remove(location.id, { query: { projectId: location.projectId } })
-        PopoverState.hidePopupover()
+        locationID.set(null)
+        await locationQuery.refetch()
       } catch (err) {
         errors.serverError.set(err.message)
-        submitLoading.set(false)
       }
+      submitLoading.set(false)
     }
   }
 
@@ -198,7 +204,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               value={name.value}
               onChange={(event) => name.set(event.target.value)}
               error={errors.name.value}
-              disabled={submitLoading.value}
+              disabled={isLoading}
             />
             <Input
               type="number"
@@ -206,13 +212,13 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               value={maxUsers.value}
               onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
               error={errors.maxUsers.value}
-              disabled={submitLoading.value}
+              disabled={isLoading}
             />
             <Select
               label={t('admin:components.location.lbl-scene')}
               currentValue={scene.value}
               onChange={(value) => scene.set(value)}
-              disabled={!!props.sceneID || scenes.status !== 'success' || submitLoading.value}
+              disabled={!!props.sceneID || scenes.status !== 'success' || isLoading}
               options={
                 scenes.status === 'pending'
                   ? [{ value: '', label: t('common:select.fetching') }]
@@ -235,24 +241,25 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               currentValue={locationType.value}
               onChange={(value) => locationType.set(value as 'private' | 'public' | 'showroom')}
               options={locationTypeOptions}
+              disabled={isLoading}
             />
             <Toggle
               label={t('admin:components.location.lbl-ve')}
               value={videoEnabled.value}
               onChange={videoEnabled.set}
-              disabled={submitLoading.value}
+              disabled={isLoading}
             />
             <Toggle
               label={t('admin:components.location.lbl-ae')}
               value={audioEnabled.value}
               onChange={audioEnabled.set}
-              disabled={submitLoading.value}
+              disabled={isLoading}
             />
             <Toggle
               label={t('admin:components.location.lbl-se')}
               value={screenSharingEnabled.value}
               onChange={screenSharingEnabled.set}
-              disabled={submitLoading.value}
+              disabled={isLoading}
             />
           </div>
         </div>
@@ -265,16 +272,16 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
             {location?.id && (
               <Button
                 className="bg-[#162546]"
-                endIcon={submitLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
-                disabled={submitLoading.value}
+                endIcon={isLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
+                disabled={isLoading}
                 onClick={unpublishLocation}
               >
                 {t('editor:toolbar.publishLocation.unpublish')}
               </Button>
             )}
             <Button
-              endIcon={submitLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
-              disabled={submitLoading.value}
+              endIcon={isLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
+              disabled={isLoading}
               onClick={handleSubmit}
             >
               {location?.id ? t('common:components.update') : t('editor:toolbar.publishLocation.title')}
