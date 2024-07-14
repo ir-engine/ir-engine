@@ -32,6 +32,7 @@ import {
   PresentationSystemGroup,
   QueryReactor,
   removeEntity,
+  UndefinedEntity,
   useComponent,
   useEntityContext,
   useOptionalComponent
@@ -55,12 +56,17 @@ import {
   MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { isArray } from 'lodash'
-import { Material } from 'three'
+import { Material, MeshBasicMaterial } from 'three'
 import { SourceComponent } from '../../components/SourceComponent'
 
 const reactor = (): ReactElement => {
   useEffect(() => {
-    MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition) => createMaterialPrototype(prototype))
+    MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition, uuid) =>
+      createMaterialPrototype(prototype)
+    )
+    const fallbackMaterial = new MeshBasicMaterial({ name: 'Fallback Material', color: 0xff69b4 })
+    fallbackMaterial.uuid = MaterialStateComponent.fallbackMaterial
+    createAndAssignMaterial(UndefinedEntity, fallbackMaterial)
   }, [])
 
   return (
