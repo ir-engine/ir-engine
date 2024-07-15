@@ -113,7 +113,11 @@ export const MaterialStateComponent = defineComponent({
   onRemove: (entity) => {
     const materialComponent = getComponent(entity, MaterialStateComponent)
     for (const entity of materialComponent.instances) {
-      assignMaterial(entity, UUIDComponent.getEntityByUUID(MaterialStateComponent.fallbackMaterial))
+      const instanceComponent = getMutableComponent(entity, MaterialInstanceComponent)
+      //find index of this material's uuid in instance uuid array
+      const index = instanceComponent.uuid.value.indexOf(getComponent(entity, UUIDComponent))
+      if (index != -1)
+        assignMaterial(entity, UUIDComponent.getEntityByUUID(MaterialStateComponent.fallbackMaterial), index)
     }
   }
 })
