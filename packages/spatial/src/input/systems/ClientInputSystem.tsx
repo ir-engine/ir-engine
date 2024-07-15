@@ -834,6 +834,7 @@ function applyHeuristicProximity(
       return Math.sign(a.distance - b.distance) + (aNum - bNum)
     })
   }
+  // @note DRY change. This code was duplicated because the `if closestEntities.length` check was inverted
   sortedIntersections.push({
     entity: closestEntities[0].entity,
     distance: Math.sqrt(closestEntities[0].distance)
