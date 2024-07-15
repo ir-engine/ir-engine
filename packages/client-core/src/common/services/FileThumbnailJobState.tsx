@@ -101,7 +101,7 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
 const uploadThumbnail = async (src: string, projectName: string, staticResourceId: string, blob: Blob | null) => {
   if (!blob) return
   const thumbnailMode = 'automatic'
-  const thumbnailKey = `${decodeURI(src.replace(/^.*?\/projects\//, ''))
+  const thumbnailKey = `${decodeURI(stripSearchFromURL(src).replace(/^.*?\/projects\//, ''))
     .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '')
     .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
