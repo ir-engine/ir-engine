@@ -26,7 +26,21 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import sinon from 'sinon'
 
-import { InputSystemGroup, SystemDefinitions } from '@etherealengine/ecs'
+import {
+  Entity,
+  InputSystemGroup,
+  SystemDefinitions,
+  UndefinedEntity,
+  createEngine,
+  createEntity,
+  destroyEngine,
+  getComponent,
+  removeEntity,
+  setComponent
+} from '@etherealengine/ecs'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { InputComponent } from '../components/InputComponent'
+import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ClientInputSystem, PRIVATE } from './ClientInputSystem'
 
 // describe('addClientInputListeners', () => {
@@ -341,6 +355,45 @@ describe('ClientInputSystem: PRIVATE', () => {
       assert.ok(!eventSpy.called)
       PRIVATE.preventDefaultKeyDown(Event)
       assert.equal(eventSpy.called, false)
+    })
+  })
+
+  describe('setInputSources', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should add the `@param inputSources` to the `InputComponent.inputSources` of each entity in the ancestor.InputComponent.inputSinks list', () => {
+      const sourceOne = createEntity()
+      const sourceTwo = createEntity()
+      setComponent(sourceOne, InputSourceComponent)
+      setComponent(sourceTwo, InputSourceComponent)
+      const SourcesList = [sourceOne, sourceTwo] as Entity[]
+
+      const parentEntity = createEntity()
+      setComponent(parentEntity, InputComponent)
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+
+      // Sanity check before running
+      const before = getComponent(parentEntity, InputComponent).inputSources
+      for (const source of SourcesList) {
+        assert.equal(before.includes(source), false)
+      }
+
+      // Run the function and chech the result
+      PRIVATE.setInputSources(parentEntity, SourcesList)
+      const result = getComponent(parentEntity, InputComponent).inputSources
+      for (const source of SourcesList) {
+        assert.equal(result.includes(source), true)
+      }
     })
   })
 })
