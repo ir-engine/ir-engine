@@ -75,6 +75,7 @@ const encodeCloudfrontInvalidation = (uri: string) =>
     .replaceAll('|', '%7C')
     .replaceAll('}', '%7D')
     .replaceAll('~', '%7E')
+    .replaceAll("'", '%27')
 
 cli.main(async () => {
   try {
@@ -84,7 +85,7 @@ cli.main(async () => {
       query: {
         $limit: 3000,
         $sort: {
-          createdAt: -1
+          createdAt: 1
         }
       },
       paginate: false
@@ -92,10 +93,16 @@ cli.main(async () => {
     if (invalidations.length > 0) {
       let pathArray: string[] = []
       let idArray: string[] = []
+      let numWildcards = 0
+
       for (let invalidation of invalidations) {
+        const isWildcard = invalidation.path.match(/\*/)
+        if (isWildcard && numWildcards > 5) continue
         pathArray.push(encodeCloudfrontInvalidation(invalidation.path))
         idArray.push(invalidation.id)
+        if (isWildcard) numWildcards++
       }
+
       pathArray = [...new Set(pathArray)]
       const storageProvider = getStorageProvider()
       await storageProvider.createInvalidation(pathArray)
