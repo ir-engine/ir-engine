@@ -37,6 +37,11 @@ export const FeatureFlags = {
   Editor: {
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript'
+    },
+    UI: {
+      Hierarchy: {
+        ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
+      }
     }
   },
   Studio: {

@@ -177,14 +177,16 @@ const ViewPortPanelContainer = () => {
         </div>
         {sceneName.value ? <GizmoTool /> : null}
         {sceneName.value ? (
-          <>{rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}</>
+          <>
+            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
+            <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
+          </>
         ) : (
           <div className="flex h-full w-full flex-col justify-center gap-2">
             <img src={clientSettings?.appTitle} className="block scale-[.8]" />
             <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
           </div>
         )}
-        <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
       </div>
     </ViewportDnD>
   )
