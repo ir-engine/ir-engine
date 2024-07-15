@@ -23,29 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import TuneIcon from '@mui/icons-material/Tune'
+import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Modal } from './Modal'
+import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
+import { InfoTooltip } from '../layout/Tooltip'
+import styles from '../styles.module.scss'
+import PropertiesPanelContainer from './PropertiesPanelContainer'
 
-export type HelpModalProps = {
-  open?: boolean
-  onClose: () => void
-}
-
-export const HelpModal: React.FC<HelpModalProps> = ({ open = false, onClose }) => {
+export const PropertiesPanelTitle = () => {
   const { t } = useTranslation()
 
   return (
-    <Modal
-      title={t('editor:visualScript.modal.help.title')}
-      actions={[{ label: t('editor:visualScript.modal.buttons.close'), onClick: onClose }]}
-      open={open}
-      onClose={onClose}
-    >
-      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.addNodeHelp')}</p>
-      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.addConnectionHelp')}</p>
-      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.deleteNodeHelp')}</p>
-    </Modal>
+    <div className={styles.dockableTab}>
+      <PanelDragContainer>
+        <PanelIcon as={TuneIcon} size={12} />
+        <PanelTitle>
+          <InfoTooltip title={t('editor:properties.info')}>
+            <span>{t('editor:properties.title')}</span>
+          </InfoTooltip>
+        </PanelTitle>
+      </PanelDragContainer>
+    </div>
   )
+}
+
+export const PropertiesPanelTab: TabData = {
+  id: 'propertiesPanel',
+  closable: true,
+  cached: true,
+  title: <PropertiesPanelTitle />,
+  content: <PropertiesPanelContainer />
 }

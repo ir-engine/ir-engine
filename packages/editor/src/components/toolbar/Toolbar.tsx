@@ -45,8 +45,8 @@ import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import CreateSceneDialog from '../dialogs/CreateScenePanelDialog'
-import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog'
-import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog'
+import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog2'
+import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog2'
 
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)

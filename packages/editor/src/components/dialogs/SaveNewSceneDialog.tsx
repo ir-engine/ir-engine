@@ -23,41 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import FormField from '../inputs/FormField'
+import StringInput from '../inputs/StringInput'
 import Dialog from './Dialog'
 
 /**
- * SaveSceneDialog used to show dialog when to save scene.
+ * SaveNewSceneDialog used to show dialog when to save new scene.
  */
-export function SaveSceneDialog({
+export function SaveNewSceneDialog({
+  initialName,
   onConfirm,
   onCancel
 }: {
-  onConfirm: (val: boolean) => void
-  onCancel: (val?: boolean) => void
+  initialName: string
+  onConfirm: (value: { name: string }) => void
+  onCancel: () => void
 }) {
+  const [name, setName] = useState(initialName)
   const { t } = useTranslation()
 
-  /**
-   * onConfirmCallback callback function is used handle confirm dialog.
-   *
-   * @type {function}
-   */
   const onConfirmCallback = useCallback(
     (e) => {
       e.preventDefault()
-      onConfirm(true)
+      onConfirm({ name })
     },
-    [onConfirm]
+    [name, onConfirm]
   )
 
-  /**
-   * onCancelCallback callback function used to handle cancel of dialog.
-   *
-   * @type {function}
-   */
   const onCancelCallback = useCallback(
     (e) => {
       e.preventDefault()
@@ -66,15 +61,30 @@ export function SaveSceneDialog({
     [onCancel]
   )
 
-  //returning view for dialog view.
   return (
     <Dialog
-      title={t('editor:dialog.saveScene.title')}
+      title={t('editor:dialog.saveNewScene.title')}
       onConfirm={onConfirmCallback}
       onCancel={onCancelCallback}
       confirmLabel={t('editor:dialog.saveScene.lbl-confirm')}
-    />
+    >
+      <div style={{ width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <FormField>
+            <label htmlFor="name">{t('editor:dialog.saveNewScene.lbl-name')}</label>
+            <StringInput
+              id="name"
+              required
+              pattern={'[A-Za-z0-9-\':"!@#$%^&*(),.?~ ]{4,64}'}
+              title={t('editor:dialog.saveNewScene.info-name')}
+              value={name}
+              onChange={setName}
+            />
+          </FormField>
+        </div>
+      </div>
+    </Dialog>
   )
 }
 
-export default SaveSceneDialog
+export default SaveNewSceneDialog

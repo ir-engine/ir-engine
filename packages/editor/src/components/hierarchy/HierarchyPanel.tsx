@@ -23,42 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import AccountTreeIcon from '@mui/icons-material/AccountTree'
+import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useReactFlow } from 'reactflow'
 
-import { Modal } from './Modal'
+import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
+import { InfoTooltip } from '../layout/Tooltip'
+import styles from '../styles.module.scss'
+import HierarchyPanelContainer from './HierarchyPanelContainer'
 
-export type ClearModalProps = {
-  open?: boolean
-  onClose: () => void
-}
-
-export const ClearModal: React.FC<ClearModalProps> = ({ open = false, onClose }) => {
-  const instance = useReactFlow()
+export const HierarchyPanelTitle = () => {
   const { t } = useTranslation()
 
-  const handleClear = () => {
-    instance.setNodes([])
-    instance.setEdges([])
-    // TODO better way to call fit vew after edges render
-    setTimeout(() => {
-      instance.fitView()
-    }, 100)
-    onClose()
-  }
-
   return (
-    <Modal
-      title={t('editor:visualScript.modal.clear.title')}
-      actions={[
-        { label: t('editor:visualScript.modal.buttons.cancel'), onClick: onClose },
-        { label: t('editor:visualScript.modal.buttons.clear'), onClick: handleClear }
-      ]}
-      open={open}
-      onClose={onClose}
-    >
-      <p>{t('editor:visualScript.modal.clear.confirm')}</p>
-    </Modal>
+    <div className={styles.dockableTab}>
+      <PanelDragContainer>
+        <PanelIcon as={AccountTreeIcon} size={12} />
+        <PanelTitle>
+          <InfoTooltip title={t('editor:hierarchy.info')}>
+            <span>{t('editor:hierarchy.lbl')}</span>
+          </InfoTooltip>
+        </PanelTitle>
+      </PanelDragContainer>
+    </div>
   )
+}
+
+export const HierarchyPanelTab: TabData = {
+  id: 'hierarchyPanel',
+  closable: true,
+  cached: true,
+  title: <HierarchyPanelTitle />,
+  content: <HierarchyPanelContainer />
 }

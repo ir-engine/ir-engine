@@ -23,19 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export * from './hooks/useChangeNode'
-export * from './hooks/useCustomNodeTypes'
-export * from './hooks/useFlowHandlers'
-export * from './hooks/useMergeMap'
-export * from './hooks/useNodeSpecGenerator'
-export * from './hooks/useOnPressKey'
-export * from './hooks/useVisualScriptFlow'
-export * from './transformers/VisualToFlow'
-export * from './transformers/flowToVisual'
-export * from './util/autoLayout'
-export * from './util/calculateNewEdge'
-export * from './util/getPickerFilters'
-export * from './util/getSocketsByNodeTypeAndHandleType'
-export * from './util/hasPositionMetaData'
-export * from './util/isHandleConnected'
-export * from './util/isValidConnection'
+import WarningSharp from '@mui/icons-material/WarningSharp'
+import React from 'react'
+
+import PopUp from './PopUp'
+
+/**
+ * ErrorPopup is used to render error message.
+ *
+ * @param {Object} props
+ * @returns {JSX.Element}
+ */
+export function WarningPopup(props) {
+  if (!props) return null
+  return (
+    <PopUp
+      className="warning-pop-up-container"
+      iconClassName="warning-pop-up-icon-box"
+      icon={WarningSharp}
+      {...props}
+    />
+  )
+}
+
+export default WarningPopup
