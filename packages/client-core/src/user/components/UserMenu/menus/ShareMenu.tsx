@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { FormControl, InputLabel } from '@mui/material'
 import { QRCodeSVG } from 'qrcode.react'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
+import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import { OculusIcon } from '@etherealengine/client-core/src/common/components/Icons/OculusIcon'
 import InputCheck from '@etherealengine/client-core/src/common/components/InputCheck'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
@@ -42,6 +44,7 @@ import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import OutlinedInput from '@etherealengine/ui/src/primitives/mui/OutlinedInput'
 
 import { InviteService } from '../../../../social/services/InviteService'
 import { AuthState } from '../../../services/AuthService'
@@ -175,6 +178,8 @@ const ShareMenu = (): JSX.Element => {
   const questShareLink = new URL('https://oculus.com/open_url/')
   questShareLink.searchParams.set('url', shareLink)
 
+  const iframeString = `<iframe src="${window.location.href}" height="100%" width="100%" allow="camera 'src'; microphone 'src';xr-spatial-tracking" style="pointer-events:all;user-select:none;border:none;"></iframe>`
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     NotificationService.dispatchNotify(t('user:usermenu.share.linkCopied'), { variant: 'success' })
@@ -217,6 +222,35 @@ const ShareMenu = (): JSX.Element => {
           value={shareLink}
           onEndIconClick={copyLinkToClipboard}
         />
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', mt: 2, mb: 3 }}>
+          <Box sx={{ display: 'flex' }}>
+            <FormControl
+              variant="outlined"
+              className={`${commonStyles.inputField}`}
+              disabled={true}
+              focused={true}
+              size="small"
+            >
+              <InputLabel sx={{ zIndex: 999 }}>{t('user:usermenu.share.shareEmbed')}</InputLabel>
+              <OutlinedInput
+                disabled={true}
+                fullWidth
+                label={t('user:usermenu.share.shareEmbed')}
+                size={'small'}
+                endAdornment={
+                  <IconButton
+                    className={styles.iconButton}
+                    icon={<Icon type="ContentCopy" />}
+                    sx={{ mr: -1.5 }}
+                    onClick={() => copyToClipboard(iframeString)}
+                  />
+                }
+                value={iframeString}
+              />
+            </FormControl>
+          </Box>
+        </Box>
 
         <InputText
           endIcon={<Icon type="Send" />}

@@ -62,15 +62,11 @@ export class AppleStrategy extends CustomOAuthStrategy {
         )
     const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
+
     console.log(`[AppleSSO]: user ID is ${userId}`)
-    console.log(`[AppleSSO]: profile is ${profile.firstName}`)
-    console.log(`[AppleSSO]: profile is ${profile}`)
-    console.log(`[AppleSSO]: baseData is ${baseData}`)
-    console.log(`[AppleSSO]: profile.id is ${profile.id}`)
-    console.log(`[AppleSSO]: profile.sub is ${profile.sub}`)
-    console.log(`[AppleSSO]: profile.AccTok ${profile.access_token}`)
-    console.log(`[AppleSSO]: profile.Refres ${profile.refresh_token}`)
-    console.log(`[AppleSSO]: profile.email ${profile?.sub?.email}`)
+    console.log(`[AppleSSO]: profile is ${JSON.stringify(profile)}`)
+    console.log(`[AppleSSO]: baseData is ${JSON.stringify(baseData)}`)
+
     return {
       ...baseData,
       accountIdentifier: `$${profile.firstName} ${profile.lastName}`,

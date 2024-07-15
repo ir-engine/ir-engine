@@ -196,6 +196,11 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     rendererState.automatic.set(!rendererState.automatic.value)
   }
 
+  const handleShadowMapResolutionChange = (value: number) => {
+    rendererState.shadowMapResolution.set(value)
+    rendererState.automatic.set(false)
+  }
+
   return (
     <Menu
       open
@@ -492,7 +497,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                 label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
                 value={rendererState.shadowMapResolution.value}
                 menu={ShadowMapResolutionOptions}
-                onChange={(event) => rendererState.shadowMapResolution.set(event.target.value)}
+                onChange={(event) => handleShadowMapResolutionChange(event.target.value)}
               />
             )}
           </>
