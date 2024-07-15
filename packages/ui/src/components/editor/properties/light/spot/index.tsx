@@ -57,7 +57,11 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
       icon={<SpotLightNodeEditor.iconComponent />}
     >
       <InputGroup name="Color" label={t('editor:properties.spotLight.lbl-color')}>
-        <ColorInput value={lightComponent.color.value} onChange={updateProperty(SpotLightComponent, 'color')} />
+        <ColorInput
+          value={lightComponent.color.value}
+          onChange={updateProperty(SpotLightComponent, 'color')}
+          onRelease={commitProperty(SpotLightComponent, 'color')}
+        />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.spotLight.lbl-intensity')}>
         <NumericInput
