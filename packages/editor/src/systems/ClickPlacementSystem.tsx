@@ -32,6 +32,7 @@ import {
   defineSystem,
   getComponent,
   getOptionalComponent,
+  removeComponent,
   removeEntity,
   setComponent,
   useComponent,
@@ -80,12 +81,18 @@ export const ClickPlacementState = defineState({
   name: 'ClickPlacementState',
   initial: {
     placementEntity: UndefinedEntity as Entity,
-    selectedAsset: undefined as undefined | string,
+    selectedAsset: '',
     yawOffset: 0,
     pitchOffset: 0,
     rollOffset: 0,
     maxDistance: 25,
     materialCache: [] as [Mesh, Material][]
+  },
+  setSelectedAsset: (src: string) => {
+    getMutableState(ClickPlacementState).selectedAsset.set(src)
+  },
+  resetSelectedAsset: () => {
+    getMutableState(ClickPlacementState).selectedAsset.set('')
   }
 })
 
@@ -127,8 +134,8 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
   }, [editorState.placementMode, gltfComponent.progress])
 
   useEffect(() => {
-    if (!clickState.selectedAsset.value || !clickState.placementEntity.value) return
-    const assetURL = clickState.selectedAsset.get(NO_PROXY)!
+    if (!clickState.placementEntity.value) return
+    const assetURL = clickState.selectedAsset.get(NO_PROXY)
     const placementEntity = clickState.placementEntity.value
     if (getComponent(placementEntity, ModelComponent)?.src === assetURL) return
     updatePlacementEntitySnapshot(placementEntity)
@@ -167,7 +174,10 @@ const getParentEntity = () => {
 }
 
 const updatePlacementEntitySnapshot = (placementEntity: Entity) => {
-  setComponent(placementEntity, ModelComponent, { src: getState(ClickPlacementState).selectedAsset })
+  const selectedAsset = getState(ClickPlacementState).selectedAsset
+  if (selectedAsset) setComponent(placementEntity, ModelComponent, { src: getState(ClickPlacementState).selectedAsset })
+  else removeComponent(placementEntity, ModelComponent)
+
   const sceneID = getComponent(placementEntity, SourceComponent)
   const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
   const uuid = getComponent(placementEntity, UUIDComponent)

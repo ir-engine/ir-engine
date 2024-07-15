@@ -24,7 +24,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { clone, debounce, isEmpty, last } from 'lodash'
-import React, { createContext, useContext, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
@@ -38,8 +38,17 @@ import { AssetsPanelCategories } from '@etherealengine/editor/src/components/ass
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
+import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  State,
+  getState,
+  hookstate,
+  useHookstate,
+  useMutableState,
+  useState
+} from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import {
@@ -70,7 +79,13 @@ type Category = {
   depth: number
 }
 
-const AssetsPreviewContext = createContext({ onAssetSelectionChanged: (props: AssetSelectionChangePropsType) => {} })
+const AssetsPreviewContext = hookstate({
+  selectAssetURL: '',
+  onAssetSelectionChanged: (props: AssetSelectionChangePropsType) => {
+    AssetsPreviewContext.selectAssetURL.set(props.resourceUrl)
+    if (props.contentType === 'gltf') ClickPlacementState.setSelectedAsset(props.resourceUrl)
+  }
+})
 
 const generateAssetsBreadcrumb = (categories: Category[], target: string) => {
   let path: string[] = []
@@ -101,9 +116,10 @@ const generateAssetsBreadcrumb = (categories: Category[], target: string) => {
   return categories.filter(({ name }) => name === target).map(({ name }) => name)
 }
 
-const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
+const ResourceFile = (props: { resource: StaticResourceType; selected: boolean }) => {
   const { t } = useTranslation()
 
+  const { resource, selected } = props
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -111,8 +127,6 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
     event.stopPropagation()
     setAnchorEvent(event)
   }
-
-  const { onAssetSelectionChanged } = useContext(AssetsPreviewContext)
 
   const assetType = AssetLoader.getAssetType(resource.key)
   const splitResourceKey = resource.key.split('/')
@@ -136,7 +150,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
       key={resource.id}
       ref={drag}
       onClick={() =>
-        onAssetSelectionChanged?.({
+        AssetsPreviewContext.get(NO_PROXY).onAssetSelectionChanged({
           contentType: assetType,
           name,
           resourceUrl: resource.url,
@@ -144,7 +158,9 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
         })
       }
       onContextMenu={handleContextMenu}
-      className={'flex cursor-pointer flex-col items-center justify-center align-middle'}
+      className={`flex cursor-pointer flex-col items-center justify-center align-middle ${
+        selected ? 'border border-gray-100' : ''
+      }`}
     >
       <span className="mb-[5px] h-[70px] w-[70px] text-[70px]">
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
@@ -305,6 +321,7 @@ const AssetPanel = () => {
   const breadcrumbPath = useHookstate('')
   const originalPath = useMutableState(EditorState).projectName.value
   const staticResourcesPagination = useHookstate({ totalPages: -1, currentPage: 0 })
+  const assetsPreviewContext = useState(AssetsPreviewContext)
 
   const CategoriesList = () => {
     return (
@@ -433,7 +450,11 @@ const AssetPanel = () => {
         {!isEmpty(searchedStaticResources.value) && (
           <>
             {searchedStaticResources.value.map((resource) => (
-              <ResourceFile key={resource.id} resource={resource as StaticResourceType} />
+              <ResourceFile
+                key={resource.id}
+                resource={resource as StaticResourceType}
+                selected={resource.url === assetsPreviewContext.selectAssetURL.value}
+              />
             ))}
           </>
         )}
