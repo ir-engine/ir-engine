@@ -23,30 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const FeatureFlags = {
-  Client: {
-    Menu: {
-      Social: 'ir.client.menu.social',
-      Emote: 'ir.client.menu.emote',
-      Avaturn: 'ir.client.menu.avaturn',
-      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
-      CreateAvatar: 'ir.client.menu.createAvatar',
-      MotionCapture: 'ir.client.location.menu.motionCapture'
-    }
-  },
-  Editor: {
-    Panel: {
-      VisualScript: 'ir.editor.panel.visualScript'
-    },
-    UI: {
-      Hierarchy: {
-        ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
+import { HookContext } from '@feathersjs/feathers'
+
+import { Application } from '../../declarations'
+
+/**
+ * https://feathersjs.com/help/faq#my-queries-with-null-values-aren-t-working
+ */
+export default (...fieldNames: string[]) => {
+  return async (context: HookContext<Application>) => {
+    const query = context?.params?.query
+    if (!query) return context
+
+    for (const field of fieldNames) {
+      if (query[field] === 'null') {
+        query[field] = null
       }
     }
-  },
-  Studio: {
-    ComponentShelfCategories: {
-      ScenePreviewCameraComponent: 'ir.studio.componentShelfCategories.visual.scenePreviewCameraComponent'
-    }
+
+    return context
   }
 }
