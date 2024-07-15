@@ -113,59 +113,59 @@ export function updateGamepadInput(eid: Entity) {
 
   if (!gamepad) return
   const gamepadButtons = gamepad.buttons
-  if (gamepadButtons.length) {
-    const pointer = getOptionalComponent(eid, InputPointerComponent)
-    const xrTransform = getOptionalComponent(eid, TransformComponent)
+  if (!gamepadButtons.length) return // @note Clause Guard. The rest of this function was nested inside `if (gamepadButtons.length) { ... }`
 
-    for (let i = 0; i < gamepadButtons.length; i++) {
-      const button = gamepadButtons[i]
-      if (!buttons[i] && (button.pressed || button.touched)) {
-        buttons[i] = createInitialButtonState(eid, button)
+  const pointer = getOptionalComponent(eid, InputPointerComponent)
+  const xrTransform = getOptionalComponent(eid, TransformComponent)
+
+  for (let i = 0; i < gamepadButtons.length; i++) {
+    const button = gamepadButtons[i]
+    if (!buttons[i] && (button.pressed || button.touched)) {
+      buttons[i] = createInitialButtonState(eid, button)
+    }
+    if (buttons[i] && (button.pressed || button.touched)) {
+      if (!buttons[i].pressed && button.pressed) {
+        buttons[i].down = true
+        buttons[i].downPosition = new Vector3()
+        buttons[i].downRotation = new Quaternion()
+
+        if (pointer) {
+          buttons[i].downPosition.set(pointer.position.x, pointer.position.y, 0)
+          //TODO maybe map pointer rotation/swing/twist to downRotation here once we map the pointer events to that (think Apple pencil)
+        } else if (hasComponent(eid, XRSpaceComponent) && xrTransform) {
+          buttons[i].downPosition.copy(xrTransform.position)
+          buttons[i].downRotation.copy(xrTransform.rotation)
+        }
       }
-      if (buttons[i] && (button.pressed || button.touched)) {
-        if (!buttons[i].pressed && button.pressed) {
-          buttons[i].down = true
-          buttons[i].downPosition = new Vector3()
-          buttons[i].downRotation = new Quaternion()
+      buttons[i].pressed = button.pressed
+      buttons[i].touched = button.touched
+      buttons[i].value = button.value
 
-          if (pointer) {
-            buttons[i].downPosition.set(pointer.position.x, pointer.position.y, 0)
-            //TODO maybe map pointer rotation/swing/twist to downRotation here once we map the pointer events to that (think Apple pencil)
-          } else if (hasComponent(eid, XRSpaceComponent) && xrTransform) {
-            buttons[i].downPosition.copy(xrTransform.position)
-            buttons[i].downRotation.copy(xrTransform.rotation)
+      if (buttons[i].downPosition) {
+        //if not yet dragging, compare distance to drag threshold and begin if appropriate
+        if (!buttons[i].dragging) {
+          if (pointer) pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
+          const squaredDistance = buttons[i].downPosition.squaredDistance(
+            pointer ? pointerPositionVector3 : xrTransform?.position ?? Vector3_Zero
+          )
+
+          if (squaredDistance > DRAGGING_THRESHOLD) {
+            buttons[i].dragging = true
           }
         }
-        buttons[i].pressed = button.pressed
-        buttons[i].touched = button.touched
-        buttons[i].value = button.value
 
-        if (buttons[i].downPosition) {
-          //if not yet dragging, compare distance to drag threshold and begin if appropriate
-          if (!buttons[i].dragging) {
-            if (pointer) pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
-            const squaredDistance = buttons[i].downPosition.squaredDistance(
-              pointer ? pointerPositionVector3 : xrTransform?.position ?? Vector3_Zero
-            )
-
-            if (squaredDistance > DRAGGING_THRESHOLD) {
-              buttons[i].dragging = true
-            }
-          }
-
-          //if not yet rotating, compare distance to drag threshold and begin if appropriate
-          if (!buttons[i].rotating) {
-            const angleRadians = buttons[i].downRotation.angleTo(
-              pointer ? Q_IDENTITY : xrTransform?.rotation ?? Q_IDENTITY
-            )
-            if (angleRadians > ROTATING_THRESHOLD) {
-              buttons[i].rotating = true
-            }
+        //if not yet rotating, compare distance to drag threshold and begin if appropriate
+        if (!buttons[i].rotating) {
+          const angleRadians = buttons[i].downRotation.angleTo(
+            pointer ? Q_IDENTITY : xrTransform?.rotation ?? Q_IDENTITY
+          )
+          if (angleRadians > ROTATING_THRESHOLD) {
+            buttons[i].rotating = true
           }
         }
-      } else if (buttons[i]) {
-        buttons[i].up = true
       }
+    } else if (buttons[i]) {
+      buttons[i].up = true
     }
   }
 }
@@ -219,9 +219,10 @@ const execute = () => {
   const capturedEntity = getMutableState(InputState).capturingEntity.value
   InputState.setCapturingEntity(UndefinedEntity, true)
 
-  for (const eid of inputs())
-    if (getComponent(eid, InputComponent).inputSources.length)
-      getMutableComponent(eid, InputComponent).inputSources.set([])
+  for (const eid of inputs()) {
+    if (!getComponent(eid, InputComponent).inputSources.length) continue
+    getMutableComponent(eid, InputComponent).inputSources.set([]) // @note Clause Guard. This line was nested inside the `if ...` right above
+  }
 
   // update 2D screen-based (driven by pointer api) input sources
   for (const eid of pointers()) {
@@ -854,9 +855,8 @@ function applyHeuristicEditor(intersectionData: Set<IntersectionData>) {
   const hits = raycaster.intersectObjects<Object3D>(objects, true)
   for (const hit of hits) {
     const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
-    if (parentObject?.entity) {
-      intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
-    }
+    if (!parentObject?.entity) continue // @note Clause Guard. The next line was nested inside   if (parentObject?.entity) { ... }
+    intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
   }
 }
 
@@ -891,9 +891,8 @@ function applyHeuristicBBoxes(intersectionData: Set<IntersectionData>) {
     const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
     if (!boundingBox) continue
     const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
-    if (hit) {
-      intersectionData.add({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
-    }
+    if (!hit) continue // @note Clause Guard. The next line was nested inside   if (hit) { ... }
+    intersectionData.add({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
   }
 }
 
@@ -907,9 +906,8 @@ function applyHeuristicMeshes(intersectionData: Set<IntersectionData>, isEditing
   const hits = raycaster.intersectObjects<Object3D>(objects, true)
   for (const hit of hits) {
     const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
-    if (parentObject) {
-      intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
-    }
+    if (!parentObject) continue // @note Clause Guard. The next line was nested inside   if (parentObject) { ... }
+    intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
   }
 }
 
