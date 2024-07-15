@@ -184,7 +184,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         <div className="flex flex-col">
           <div className="flex w-auto flex-row gap-1">
             <Button
-              className="bg-neutral-700"
+              className="h-10 bg-neutral-700 text-xs"
               onClick={() => {
                 updateCubeMapBake()
               }}
@@ -195,6 +195,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
               onClick={() => {
                 uploadEnvmap()
               }}
+              className="h-10 text-xs"
             >
               {t('editor:properties.portal.lbl-saveImage')}
             </Button>
