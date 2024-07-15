@@ -23,31 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { BadRequest } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
-import { Application, HookContext } from '../../declarations'
+import { HookContext } from '@feathersjs/feathers'
+
+import { Application } from '../../declarations'
+
 /**
- * resolve project id from name in query
- * @param context
- * @returns
+ * https://feathersjs.com/help/faq#my-queries-with-null-values-aren-t-working
  */
-export default () => {
+export default (...fieldNames: string[]) => {
   return async (context: HookContext<Application>) => {
-    if (!context.params.query?.project && !context.data?.project) {
-      return context
+    const query = context?.params?.query
+    if (!query) return context
+
+    for (const field of fieldNames) {
+      if (query[field] === 'null') {
+        query[field] = null
+      }
     }
 
-    const projectName: string = context.params.query.project || context.data.project
-
-    const projectResult = (await context.app.service(projectPath).find({
-      query: { name: projectName, $limit: 1 }
-    })) as Paginated<ProjectType>
-
-    if (projectResult.data.length === 0) {
-      throw new BadRequest(`No project named ${projectName} exists`)
-    }
-    context.params.query.projectId = projectResult.data[0].id
     return context
   }
 }

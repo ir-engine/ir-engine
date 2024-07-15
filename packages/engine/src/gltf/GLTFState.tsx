@@ -195,8 +195,26 @@ export const GLTFSnapshotState = defineState({
     )
   },
 
-  useSnapshotIndex(source: string) {
-    return useHookstate(getMutableState(GLTFSnapshotState)[source].index)
+  useSnapshotIndex(source: string): State<number> | undefined {
+    return useMutableState(GLTFSnapshotState)[source]?.index
+  },
+
+  isInSnapshot: (source: string | undefined, entity: Entity): boolean => {
+    const uuid = getOptionalComponent(entity, UUIDComponent)
+    if (!source || !uuid) return false
+
+    const gltf = getState(GLTFSnapshotState)[source]
+    if (!gltf) return false
+
+    const snapshot = gltf.snapshots[gltf.index]
+    if (!snapshot.nodes) return false
+
+    for (const node of snapshot.nodes) {
+      const nodeUUID = node.extensions?.[UUIDComponent.jsonID]
+      if (nodeUUID === uuid) return true
+    }
+
+    return false
   },
 
   cloneCurrentSnapshot: (source: string) => {

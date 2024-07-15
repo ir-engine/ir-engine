@@ -139,9 +139,9 @@ export const PerformanceState = defineState({
   name: 'PerformanceState',
 
   initial: () => ({
+    initialized: false,
     enabled: false,
 
-    isMobileGPU: false,
     gpuTier: 3 as PerformanceTier,
     cpuTier: 3 as PerformanceTier,
 
@@ -197,13 +197,13 @@ export const PerformanceState = defineState({
     }, [performanceState.targetFPS])
 
     useEffect(() => {
-      if (!performanceState.enabled.value) return
+      if (!performanceState.initialized.value) return
 
       const performanceTier = performanceState.gpuTier.value
       const settings = tieredSettings[performanceTier]
       engineSettings.merge(settings.engine)
       renderSettings.merge(settings.render)
-    }, [performanceState.gpuTier, performanceState.enabled])
+    }, [performanceState.gpuTier, performanceState.initialized])
 
     useEffect(() => {
       recreateEMA()
@@ -429,17 +429,21 @@ const buildPerformanceState = async (renderer: EngineRenderer, override?: GetGPU
     override
   })
   let tier = gpuTier.type === 'FALLBACK' ? performanceState.gpuTier.value : gpuTier.tier
-  performanceState.isMobileGPU.set(!!gpuTier.isMobile)
-  if (gpuTier.gpu) performanceState.gpu.set(gpuTier.gpu)
-  if (gpuTier.device) performanceState.device.set(gpuTier.device)
+  if (gpuTier.isMobile) {
+    tier = Math.max(tier - 2, 0)
+  }
 
   const gl = renderer.renderContext as WebGL2RenderingContext
-  performanceState.supportWebGL2.set(renderer.supportWebGL2)
-  performanceState.renderContext.set(gl)
-  const max3DTextureSize = gl.getParameter(gl.MAX_3D_TEXTURE_SIZE)
   performanceState.merge({
+    initialized: true,
+    gpu: gpuTier.device || 'unknown',
+    device: gpuTier.device || 'unknown',
+    gpuTier: tier as PerformanceTier,
+    targetFPS: gpuTier.isMobile ? 30 : 60,
+    supportWebGL2: renderer.supportWebGL2,
+    renderContext: gl,
     maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
-    max3DTextureSize: max3DTextureSize,
+    max3DTextureSize: gl.getParameter(gl.MAX_3D_TEXTURE_SIZE),
     maxBufferSize:
       window.screen.availWidth *
       window.screen.availHeight *
@@ -449,13 +453,6 @@ const buildPerformanceState = async (renderer: EngineRenderer, override?: GetGPU
     maxIndices: gl.getParameter(gl.MAX_ELEMENTS_INDICES) * 2,
     maxVerticies: gl.getParameter(gl.MAX_ELEMENTS_VERTICES) * 2
   })
-
-  if (gpuTier.isMobile) {
-    performanceState.targetFPS.set(30)
-    tier = Math.max(tier - 2, 0)
-  }
-
-  performanceState.gpuTier.set(tier as PerformanceTier)
 }
 
 export const PerformanceManager = {
