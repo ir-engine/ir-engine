@@ -192,7 +192,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
           <Button className="self-end" onClick={onExportModel}>
-            Save Changes
+            {t('editor:properties.model.saveChanges')}
           </Button>
         </div>
       )}

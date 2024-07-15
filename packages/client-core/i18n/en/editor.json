@@ -473,6 +473,7 @@
       "lbl-htmlContent": "Html Content",
       "lbl-interactionText": "Interaction Text",
       "lbl-interactionType": "Interaction Type",
+      "saveChanges": "Save Changes",
       "transform": {
         "lodLevels": "LOD Levels",
         "lodLevelNumber": "LOD Level {{index}}",
@@ -622,7 +623,8 @@
         "cycle": "Burst Cycle",
         "interval": "Burst Interval",
         "probability": "Burst Probability"
-      }
+      },
+      "addBehavior": "Add Behavior"
     },
     "clouds": {
       "name": "Cloud",
