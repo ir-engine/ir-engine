@@ -135,7 +135,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   const rendererComponent = useComponent(rendererEntity, RendererComponent)
   const renderSettingsComponent = useComponent(renderSettingsEntity, RenderSettingsComponent)
 
-  const directionalLightComponent = useOptionalComponent(entity, DirectionalLightComponent)
+  const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
   const shadowMapResolution = useHookstate(getMutableState(RendererState).shadowMapResolution)
 
   const directionalLight =
@@ -153,7 +153,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
       maxFar: directionalLightComponent.cameraFar.value,
       lightIntensity: directionalLightComponent.intensity.value,
       lightColor: directionalLightComponent.color.value,
-      cascades: renderSettingsComponent?.cascades.value
+      cascades: renderSettingsComponent.cascades.value
     })
     rendererComponent.csm.set(csm)
     return () => {
@@ -192,12 +192,12 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
     rendererComponent.csm,
     shadowMapResolution,
     directionalLight,
-    directionalLightComponent?.shadowBias,
-    directionalLightComponent?.intensity,
-    directionalLightComponent?.color,
-    directionalLightComponent?.castShadow,
-    directionalLightComponent?.shadowRadius,
-    directionalLightComponent?.cameraFar
+    directionalLightComponent.shadowBias,
+    directionalLightComponent.intensity,
+    directionalLightComponent.color,
+    directionalLightComponent.castShadow,
+    directionalLightComponent.shadowRadius,
+    directionalLightComponent.cameraFar
   ])
 
   useEffect(() => {
@@ -262,10 +262,9 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
   //const rendererComponent = useComponent(rendererEntity, RendererComponent)
 
   const renderSettingsComponent = useComponent(renderSettingsEntity, RenderSettingsComponent)
-
   const xrLightProbeEntity = useHookstate(getMutableState(XRLightProbeState).directionalLightEntity)
-
   const activeLightEntity = useHookstate(UUIDComponent.getEntityByUUID(renderSettingsComponent.primaryLight.value))
+  const directionalLight = useOptionalComponent(activeLightEntity.value, DirectionalLightComponent)
 
   //const rendererState = useMutableState(RendererState)
 
@@ -295,7 +294,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
     activeLightEntity.set(UndefinedEntity)
   }, [xrLightProbeEntity.value, renderSettingsComponent.primaryLight])
 
-  if (!renderSettingsComponent.csm.value || !activeLightEntity.value) return null
+  if (!renderSettingsComponent.csm.value || !activeLightEntity.value || !directionalLight) return null
 
   return (
     <EntityCSMReactor

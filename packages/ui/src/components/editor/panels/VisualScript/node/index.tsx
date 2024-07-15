@@ -145,6 +145,10 @@ export const Node: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGene
         'min-w-[120px] cursor-pointer bg-zinc-900 text-sm text-neutral-400',
         selected ? 'border-2 border-gray-600 ' : ''
       )}
+      onContextMenu={(e) => {
+        e.stopPropagation()
+        e.preventDefault()
+      }}
       style={collapsedStyle as any}
     >
       <div

@@ -24,36 +24,34 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
+import Popup from 'reactjs-popup'
+import { PopupProps } from 'reactjs-popup/dist/types'
 import { twMerge } from 'tailwind-merge'
 
-interface TooltipProps {
+export type TooltipProps = {
   title: ReactNode
-  direction?: 'top' | 'bottom' | 'left' | 'right'
   children: React.ReactElement
-  className?: string
-}
+} & PopupProps
 
-const TooltipDirectionClass = {
-  top: 'bottom-5',
-  bottom: 'top-5',
-  left: 'right-5',
-  right: 'left-5'
-}
-
-const Tooltip = ({ title, direction = 'top', children, className }: TooltipProps) => {
+const Tooltip = ({ title, children, className, ...rest }: TooltipProps) => {
   return (
-    <div className="group relative flex items-center justify-center text-center">
-      {children}
+    <Popup
+      trigger={<div style={{ all: 'unset' }}>{children}</div>}
+      on="hover"
+      keepTooltipInside
+      repositionOnResize
+      arrow={false}
+      {...rest}
+    >
       <span
         className={twMerge(
-          'absolute z-10 scale-0 text-wrap rounded bg-gray-800 p-2 text-xs text-white transition-all group-hover:scale-100',
-          TooltipDirectionClass[direction],
+          '-mt-5 text-wrap rounded bg-gray-800 p-1 text-xs text-white shadow-lg transition-all',
           className
         )}
       >
         {title}
       </span>
-    </div>
+    </Popup>
   )
 }
 

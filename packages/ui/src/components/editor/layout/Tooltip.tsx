@@ -24,44 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import Tooltip, { TooltipProps } from '../../../primitives/tailwind/Tooltip'
 
-import { Tooltip, TooltipProps } from '@mui/material'
-import createStyles from '@mui/styles/createStyles'
-import makeStyles from '@mui/styles/makeStyles'
-
-const useStyles = makeStyles<any, any, any>((theme: any) => {
-  return createStyles({
-    tooltip: {
-      background: theme.panel
-    }
-  })
-})
-
-/**
- * @param {Object} props
- * @param {string} props.info additional info added to the tooltip label
- */
-export function InfoTooltip(props: TooltipProps & { info?: string }) {
-  if (!props.title) return <>{props.children}</>
-
-  const title = props.info ? (
+export function InfoTooltip({ title, info, ...props }: TooltipProps & { info?: string }) {
+  const tooltipTitle = info ? (
     <p>
-      {props.title}
-      <hr />
-      {props.info}
+      {title}
+      <hr className="my-0.5" />
+      {info}
     </p>
   ) : (
-    props.title
+    title
   )
 
-  const styles = useStyles({})
-
-  return (
-    <Tooltip {...props} title={title} classes={{ tooltip: styles.tooltip }} arrow disableInteractive>
-      {/* Span is required to trigger events like hover in safari for disabled elements */}
-      <span>{props.children}</span>
-    </Tooltip>
-  )
+  return <Tooltip title={tooltipTitle} {...props} />
 }
-
-export default Tooltip

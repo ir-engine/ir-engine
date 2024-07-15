@@ -79,7 +79,7 @@ export const setupIPs = async () => {
   // Set up our instanceserver according to our current environment
   const announcedIp = config.kubernetes.enabled
     ? instanceServerState.instanceServer.value.status.address
-    : (await getLocalServerIp(instanceServerState.isMediaInstance.value)).ipAddress
+    : await getLocalServerIp()
 
   // @todo put this in hyperflux state
   mediaConfig.mediasoup.webRtcTransport.listenIps = [

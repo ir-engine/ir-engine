@@ -40,7 +40,6 @@ import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/as
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import {
@@ -50,7 +49,6 @@ import {
   HiMagnifyingGlass,
   HiMiniArrowLeft,
   HiMiniArrowPath,
-  HiOutlineCog6Tooth,
   HiOutlineFolder,
   HiOutlinePlusCircle
 } from 'react-icons/hi2'
@@ -58,8 +56,10 @@ import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import { TablePagination } from '../../../../../primitives/tailwind/Table'
 import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import { FileIcon } from '../../Files/icon'
 
 type Category = {
@@ -104,22 +104,12 @@ const generateAssetsBreadcrumb = (categories: Category[], target: string) => {
 const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const { t } = useTranslation()
 
-  const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
     setAnchorEvent(event)
-    setAnchorPosition({
-      top: event.clientY,
-      left: event.clientX
-    })
-  }
-
-  const handleClose = () => {
-    setAnchorEvent(undefined)
-    setAnchorPosition(undefined)
   }
 
   const { onAssetSelectionChanged } = useContext(AssetsPreviewContext)
@@ -154,23 +144,17 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
         })
       }
       onContextMenu={handleContextMenu}
-      className={'mt-[10px] flex cursor-pointer flex-col items-center justify-center align-middle'}
+      className={'flex cursor-pointer flex-col items-center justify-center align-middle'}
     >
       <span className="mb-[5px] h-[70px] w-[70px] text-[70px]">
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
 
-      <Tooltip title={t(name)} direction="bottom">
+      <Tooltip title={name}>
         <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
       </Tooltip>
 
-      <ContextMenu
-        anchorEvent={anchorEvent}
-        panelId={'asset-browser-panel'}
-        anchorPosition={anchorPosition}
-        onClose={handleClose}
-        className="gap-1"
-      >
+      <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)} className="gap-1">
         <div className="w-full rounded-lg bg-theme-surface-main px-4 py-2 text-sm text-white">
           <MetadataTable
             rows={[
@@ -187,7 +171,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
             size="small"
             variant="transparent"
             className="text-s text-left hover:bg-theme-surfaceInput"
-            onClick={() => handleClose()}
+            onClick={() => () => setAnchorEvent(undefined)}
           >
             {t('editor:visualScript.modal.buttons.close')}
           </Button>
@@ -320,10 +304,11 @@ const AssetPanel = () => {
   const searchText = useHookstate('')
   const breadcrumbPath = useHookstate('')
   const originalPath = useMutableState(EditorState).projectName.value
+  const staticResourcesPagination = useHookstate({ totalPages: -1, currentPage: 0 })
 
   const CategoriesList = () => {
     return (
-      <div className="mb-8 h-[100%] w-[200px] overflow-y-auto bg-[#0E0F11] pb-8">
+      <div className="mb-8 h-full w-52 overflow-y-auto bg-[#0E0F11] pb-8">
         {categories.map((category, index) => (
           <AssetCategory
             key={category.name.value}
@@ -391,20 +376,28 @@ const AssetPanel = () => {
           ? {
               $or: tags.flatMap((tag) => [
                 { tags: { $like: `%${tag.toLowerCase()}%` } },
-                { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } }
+                { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } },
+                {
+                  tags: {
+                    $like: `%${tag
+                      .split(' ')
+                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                      .join(' ')}%`
+                  }
+                }
               ])
             }
           : undefined,
         $sort: { mimeType: 1 },
-        $paginate: false
+        $skip: staticResourcesPagination.currentPage.value * 10
       } as StaticResourceQuery
 
       Engine.instance.api
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
-          // cast type due to temporary server-side pagination
-          searchedStaticResources.set(resources as any as StaticResourceType[])
+          searchedStaticResources.set(resources.data)
+          staticResourcesPagination.merge({ totalPages: resources.total / 10 })
         })
         .then(() => {
           loading.set(false)
@@ -420,7 +413,7 @@ const AssetPanel = () => {
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
 
     return () => searchTimeoutCancelRef.current?.()
-  }, [searchText, selectedCategory])
+  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
 
   const ResourceItems = () => {
     if (loading.value) {
@@ -474,28 +467,24 @@ const AssetPanel = () => {
     mapCategories()
   }
 
-  const handleSettings = () => {
-    // TODO: add settings functionality
-  }
-
   return (
     <>
       <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
         <div className="mr-20 flex gap-2">
-          <div id="back" className="pointer-events-auto flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottom" className="left-1">
+          <div className="pointer-events-auto flex items-center">
+            <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
               <Button variant="transparent" startIcon={<HiMiniArrowLeft />} className="p-0" onClick={handleBack} />
             </Tooltip>
           </div>
 
-          <div id="refresh" className="flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.refresh')} direction="bottom">
+          <div className="flex items-center">
+            <Tooltip title={t('editor:layout.filebrowser.refresh')}>
               <Button variant="transparent" startIcon={<HiMiniArrowPath />} className="p-0" onClick={handleRefresh} />
             </Tooltip>
           </div>
 
-          <div id="settings" className="flex items-center">
-            <Tooltip title={t('editor:layout.scene-assets.settings')} direction="bottom">
+          {/* <div className="flex items-center">
+            <Tooltip title={t('editor:layout.scene-assets.settings')}>
               <Button
                 variant="transparent"
                 startIcon={<HiOutlineCog6Tooth />}
@@ -503,7 +492,7 @@ const AssetPanel = () => {
                 onClick={handleSettings}
               />
             </Tooltip>
-          </div>
+          </div> */}
         </div>
 
         <div className="align-center flex h-7 flex-1 justify-center gap-2 pr-2">
@@ -524,7 +513,6 @@ const AssetPanel = () => {
         </div>
 
         <Button
-          id="uploadAssets"
           startIcon={<HiOutlinePlusCircle className="text-lg" />}
           variant="transparent"
           rounded="none"
@@ -544,10 +532,19 @@ const AssetPanel = () => {
           {t('editor:layout.filebrowser.uploadAssets')}
         </Button>
       </div>
-      <div id="asset-browser-panel" className="flex h-full overflow-y-auto">
+      <div id="asset-browser-panel" className="flex h-full">
         <CategoriesList />
-        <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
-          <ResourceItems />
+        <div className="flex h-full w-full flex-col overflow-auto">
+          <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
+            <ResourceItems />
+          </div>
+          <div className="mx-auto mb-10">
+            <TablePagination
+              totalPages={staticResourcesPagination.totalPages.value}
+              currentPage={staticResourcesPagination.currentPage.value}
+              onPageChange={(newPage) => staticResourcesPagination.merge({ currentPage: newPage })}
+            />
+          </div>
         </div>
         {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
       </div>

@@ -1,0 +1,60 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "ground plane",
+      "extensions": {
+        "EE_uuid": "a9bfab51-6ce7-431f-9f95-80f788f38b9f",
+        "EE_visible": true,
+        "EE_ground_plane": {
+          "color": 16777215,
+          "visible": true
+        },
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "plane",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 0.5,
+          "collisionLayer": 4,
+          "collisionMask": 3
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_ground_plane",
+    "EE_rigidbody",
+    "EE_collider",
+    "EE_ecs"
+  ]
+}
