@@ -396,4 +396,30 @@ describe('ClientInputSystem: PRIVATE', () => {
       }
     })
   })
+
+  /**
+  // @todo
+  // reactor
+  describe("inputRaycast", () => {})
+  describe("useNonSpatialInputSources", () => {})
+  describe("useGamepadInputSources", () => {})
+  describe("CanvasInputReactor", () => {})
+  describe("useXRInputSources", () => {})
+
+  // execute
+  describe("assignInputSources", () => {})
+  describe("applyHeuristicProximity", () => {})
+  describe("applyRaycastedInputHeuristics", () => {})
+  describe("applyHeuristicEditor", () => {})
+
+  // execute.(smaller functions)
+  describe("applyHeuristicXRUI", () => {})
+  describe("applyHeuristicPhysicsColliders", () => {
+    it("should not do anything if there is no PhysicsState.physicsWorld", () => {})
+    it("should not do anything if the given `@param raycast` does not hit any entities in the current PhysicsState.physicsWorld", () => {})
+    it("should add the hit.entity and hit.distance to the `@param intersectionData` for every hit of the `@param raycast`", () => {})
+  })
+  describe("applyHeuristicBBoxes", () => {})
+  describe("applyHeuristicMeshes", () => {})
+  */
 })
