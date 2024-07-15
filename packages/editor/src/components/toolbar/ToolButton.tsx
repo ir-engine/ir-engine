@@ -25,17 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { twMerge } from 'tailwind-merge'
 import { InfoTooltip } from '../layout/Tooltip'
-
-import './ToolButton.css'
-
-const iconStyles = {
-  //MUI icon styles
-  width: '100%',
-  height: '100%',
-  fontSize: '14px',
-  alignItems: 'center'
-}
 
 interface ToolButtonProp {
   id: string | number
@@ -56,11 +47,14 @@ interface ToolButtonProp {
  */
 
 export function ToolButton({ id, icon: Icon, onClick, isSelected, tooltip }: ToolButtonProp) {
-  const toolButtonClassNames = ['toolButton', isSelected ? 'selected' : ''].join(' ')
+  const toolButtonClassNames = twMerge(
+    'relative m-0 h-10 min-h-[40px] w-10 min-w-[40px] cursor-pointer border-[none] hover:bg-[#c9c9c9]',
+    isSelected ? 'bg-[#c9c9c9]' : ''
+  )
   return (
     <InfoTooltip title={tooltip!} placement="bottom">
       <button id={id as string} className={toolButtonClassNames} onClick={onClick}>
-        <Icon style={iconStyles} />
+        <Icon classname="w-full h-full text-sm items-center" />
       </button>
     </InfoTooltip>
   )

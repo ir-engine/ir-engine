@@ -22,59 +22,113 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
-import React, { useCallback } from 'react'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import isValidSceneName from '@etherealengine/common/src/utils/validateSceneName'
+import { getComponent } from '@etherealengine/ecs'
+import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
+import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
+import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
+import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { saveSceneGLTF } from '../../functions/sceneFunctions'
+import { EditorState } from '../../services/EditorServices'
 
-import Dialog from './Dialog'
-
-/**
- * SaveSceneDialog used to show dialog when to save scene.
- */
-export function SaveSceneDialog({
-  onConfirm,
-  onCancel
-}: {
-  onConfirm: (val: boolean) => void
-  onCancel: (val?: boolean) => void
-}) {
+export const SaveSceneDialog = () => {
   const { t } = useTranslation()
+  const modalProcessing = useHookstate(false)
 
-  /**
-   * onConfirmCallback callback function is used handle confirm dialog.
-   *
-   * @type {function}
-   */
-  const onConfirmCallback = useCallback(
-    (e) => {
-      e.preventDefault()
-      onConfirm(true)
-    },
-    [onConfirm]
-  )
+  const handleSubmit = async () => {
+    modalProcessing.set(true)
+    const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
+    const sceneModified = EditorState.isModified()
 
-  /**
-   * onCancelCallback callback function used to handle cancel of dialog.
-   *
-   * @type {function}
-   */
-  const onCancelCallback = useCallback(
-    (e) => {
-      e.preventDefault()
-      onCancel()
-    },
-    [onCancel]
-  )
+    if (!projectName) {
+      PopoverState.hidePopupover()
+      return
+    } else if (!sceneName) {
+      PopoverState.hidePopupover()
+      PopoverState.showPopupover(<SaveNewSceneDialog />)
+      return
+    } else if (!sceneModified) {
+      PopoverState.hidePopupover()
+      return
+    }
 
-  //returning view for dialog view.
-  return (
-    <Dialog
-      title={t('editor:dialog.saveScene.title')}
-      onConfirm={onConfirmCallback}
-      onCancel={onCancelCallback}
-      confirmLabel={t('editor:dialog.saveScene.lbl-confirm')}
-    />
-  )
+    const abortController = new AbortController()
+
+    try {
+      await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
+      const sourceID = getComponent(rootEntity, SourceComponent)
+      getMutableState(GLTFModifiedState)[sourceID].set(none)
+
+      PopoverState.hidePopupover()
+    } catch (error) {
+      console.error(error)
+      PopoverState.showPopupover(
+        <ErrorDialog title={t('editor:savingError')} description={error.message || t('editor:savingErrorMsg')} />
+      )
+    }
+    modalProcessing.set(false)
+  }
+
+  return <ConfirmDialog onSubmit={handleSubmit} text={t('editor:dialog.saveScene.info-confirm')} />
 }
 
-export default SaveSceneDialog
+export const SaveNewSceneDialog = () => {
+  const { t } = useTranslation()
+  const inputSceneName = useHookstate('New Scene')
+  const modalProcessing = useHookstate(false)
+  const inputError = useHookstate('')
+
+  const handleSubmit = async () => {
+    if (!isValidSceneName(inputSceneName.value)) {
+      inputError.set(t('editor:errors.invalidSceneName'))
+      return
+    }
+
+    modalProcessing.set(true)
+    const { projectName, sceneName, rootEntity } = getState(EditorState)
+    const sceneModified = EditorState.isModified()
+    const abortController = new AbortController()
+    try {
+      if (sceneName || sceneModified) {
+        if (inputSceneName.value && projectName) {
+          await saveSceneGLTF(null, projectName, inputSceneName.value, abortController.signal)
+
+          const sourceID = getComponent(rootEntity, SourceComponent)
+          getMutableState(GLTFModifiedState)[sourceID].set(none)
+        }
+      }
+      PopoverState.hidePopupover()
+    } catch (error) {
+      PopoverState.hidePopupover()
+      console.error(error)
+      PopoverState.showPopupover(
+        <ErrorDialog title={t('editor:savingError')} description={error?.message || t('editor:savingErrorMsg')} />
+      )
+    }
+    modalProcessing.set(false)
+  }
+
+  return (
+    <Modal
+      title={t('editor:dialog.saveNewScene.title')}
+      onClose={PopoverState.hidePopupover}
+      onSubmit={handleSubmit}
+      className="w-[50vw] max-w-2xl"
+      submitLoading={modalProcessing.value}
+    >
+      <Input
+        value={inputSceneName.value}
+        onChange={(event) => inputSceneName.set(event.target.value)}
+        label={t('editor:dialog.saveNewScene.lbl-name')}
+        description={t('editor:dialog.saveNewScene.info-name')}
+        error={inputError.value}
+      />
+    </Modal>
+  )
+}

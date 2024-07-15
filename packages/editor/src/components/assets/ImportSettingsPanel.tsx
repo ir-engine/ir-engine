@@ -23,30 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
-  TextField,
-  Typography
-} from '@mui/material'
+import { Typography } from '@mui/material'
 import { t } from 'i18next'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
-import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { defineState, NO_PROXY, syncStateWithLocalStorage, useMutableState } from '@etherealengine/hyperflux'
+import { defineState, syncStateWithLocalStorage, useMutableState } from '@etherealengine/hyperflux'
 
-import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
-import { DialogState } from '../dialogs/DialogState'
+import { defaultLODs } from '../../constants/GLTFPresets'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import { List } from '../layout/List'
 
 export const ImportSettingsState = defineState({
   name: 'ImportSettingsState',
@@ -191,114 +179,5 @@ const ImageCompressionBox = () => {
         )}
       </div>
     </>
-  )
-}
-
-export default function ImportSettingsPanel() {
-  const importSettingsState = useMutableState(ImportSettingsState)
-  const compressProperties = useMutableState(ImportSettingsState).imageSettings
-
-  const [defaultImportFolder, setDefaultImportFolder] = useState<string>(importSettingsState.importFolder.value)
-  const [LODImportFolder, setLODImportFolder] = useState<string>(importSettingsState.LODFolder.value)
-  const [LODGenEnabled, setLODGenEnabled] = useState<boolean>(importSettingsState.LODsEnabled.value)
-  const [selectedLODS, setSelectedLods] = useState<LODVariantDescriptor[]>(
-    LODList.slice(0, 3) as LODVariantDescriptor[]
-  )
-  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor | null>(null)
-  const [currentIndex, setCurrentIndex] = useState<number>(0)
-  const [KTXEnabled, setKTXEnabled] = useState<boolean>(importSettingsState.imageCompression.value)
-
-  const presetLabels = ['LOD0', 'LOD1', 'LOD2']
-
-  useEffect(() => {
-    handleLODChange()
-  }, [currentLOD, currentIndex])
-
-  const handleLODChange = () => {
-    if (currentLOD !== null) {
-      const newLODS = [...selectedLODS]
-      newLODS.splice(currentIndex, 1, currentLOD)
-      setSelectedLods(newLODS)
-    }
-  }
-
-  const handleSaveChanges = () => {
-    importSettingsState.importFolder.set(defaultImportFolder)
-    importSettingsState.LODFolder.set(LODImportFolder)
-    importSettingsState.LODsEnabled.set(LODGenEnabled)
-    importSettingsState.imageCompression.set(KTXEnabled)
-    importSettingsState.imageSettings.set(compressProperties.get(NO_PROXY))
-    importSettingsState.selectedLODS.set(selectedLODS)
-    handleCancel()
-  }
-
-  const handleCancel = () => {
-    DialogState.setDialog(null)
-  }
-
-  return (
-    <Menu open maxWidth={'lg'} header={'Import Settings'}>
-      <Box>
-        <Typography>Default Import Folder</Typography>
-        <TextField
-          defaultValue={'/assets/'}
-          onChange={(event) => {
-            setDefaultImportFolder(event.target.value)
-          }}
-        />
-      </Box>
-      <Box>
-        <Typography>glTF / glB</Typography>
-        <FormControlLabel
-          control={<Checkbox checked={LODGenEnabled} onChange={() => setLODGenEnabled(!LODGenEnabled)} />}
-          label={'Generate LODs'}
-        />
-        {LODGenEnabled && (
-          <>
-            <Typography>LODs Folder</Typography>
-            <TextField
-              defaultValue={'LODS/'}
-              onChange={(event) => {
-                setLODImportFolder(event.target.value)
-              }}
-            />
-            <Typography>LODs to Generate</Typography>
-            <List>
-              {selectedLODS.slice(0, 3).map((LOD, idx) => (
-                <FormControl>
-                  <SelectInput
-                    options={LODList.map((sLOD, idx) => ({
-                      label: sLOD.params.dst,
-                      value: idx
-                    }))}
-                    value={LODList.findIndex((sLOD) => sLOD.params.dst === LOD.params.dst)}
-                    onChange={(val) => {
-                      setCurrentLOD(LODList[val])
-                      setCurrentIndex(idx)
-                    }}
-                  />
-                  <FormHelperText>{presetLabels[idx]}</FormHelperText>
-                </FormControl>
-              ))}
-            </List>
-          </>
-        )}
-      </Box>
-      <Box>
-        <Typography>Images</Typography>
-        <Typography>Compression Settings</Typography>
-        <Box>
-          <FormControlLabel
-            control={<Checkbox checked={KTXEnabled} onChange={() => setKTXEnabled(!KTXEnabled)} />}
-            label={'Compress to KTX2'}
-          />
-          {KTXEnabled && <ImageCompressionBox />}
-        </Box>
-      </Box>
-      <Box>
-        <Button onClick={() => handleSaveChanges()}>Save Changes</Button>
-        <Button onClick={() => handleCancel()}>Cancel</Button>
-      </Box>
-    </Menu>
   )
 }
