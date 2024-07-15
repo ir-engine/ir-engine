@@ -22,13 +22,15 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
 import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
 import {
   FileBrowserContentType,
+  StaticResourceType,
+  UserID,
   archiverPath,
   fileBrowserPath,
   fileBrowserUploadPath,
@@ -45,6 +47,8 @@ import {
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
+import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
+import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
@@ -53,8 +57,20 @@ import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/ser
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import {
+  ImmutableArray,
+  NO_PROXY,
+  getMutableState,
+  getState,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
+import {
+  useFind,
+  useMutation,
+  useRealtime,
+  useSearch
+} from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
@@ -74,6 +90,7 @@ import { Popup } from '../../../../tailwind/Popup'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
+import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
 
 type FileBrowserContentPanelProps = {
   projectName?: string
@@ -92,24 +109,71 @@ export type DnDFileType = {
 
 export const FILES_PAGE_LIMIT = 100
 
-export type FileType = {
-  fullName: string
-  isFolder: boolean
-  key: string
-  name: string
-  path: string
-  size: string
-  type: string
-  url: string
+export type FileType = FileDataType
+
+export const createFileDigest = (files: ImmutableArray<FileType>): FileType => {
+  const digest: FileType = {
+    key: '',
+    path: '',
+    name: '',
+    fullName: '',
+    url: '',
+    type: '',
+    isFolder: false
+  }
+  for (const key in digest) {
+    const allValues = new Set(files.map((file) => file[key]))
+    if (allValues.size === 1) {
+      digest[key] = Array.from(allValues).pop()
+    }
+  }
+  return digest
 }
 
-function fileConsistsOfContentType(file: FileDataType, contentType: string): boolean {
-  if (file.isFolder) {
-    return contentType.startsWith('image')
-  } else {
-    const guessedType: string = CommonKnownContentTypes[file.type]
-    return guessedType?.startsWith(contentType)
+export const createStaticResourceDigest = (staticResources: ImmutableArray<StaticResourceType>): StaticResourceType => {
+  const digest: StaticResourceType = {
+    id: '',
+    key: '',
+    mimeType: '',
+    hash: '',
+    type: '',
+    project: '',
+    // dependencies: '',
+    attribution: '',
+    licensing: '',
+    description: '',
+    // stats: '',
+    thumbnailKey: '',
+    thumbnailMode: '',
+    createdAt: '',
+    updatedAt: '',
+
+    url: '',
+    userId: '' as UserID
   }
+  for (const key in digest) {
+    const allValues = new Set(staticResources.map((resource) => resource[key]))
+    if (allValues.size === 1) {
+      digest[key] = Array.from(allValues).pop()
+    }
+  }
+  const allTags: string[] = Array.from(new Set(staticResources.flatMap((resource) => resource.tags))).filter(
+    (tag) => tag != null
+  ) as string[]
+  const commonTags = allTags.filter((tag) => staticResources.every((resource) => resource.tags?.includes(tag)))
+  digest.tags = commonTags
+  return digest
+}
+
+export const filesConsistOfContentType = function (files: ImmutableArray<FileType>, contentType: string): boolean {
+  return files.every((file) => {
+    if (file.isFolder) {
+      return contentType.startsWith('image')
+    } else {
+      const guessedType: string = CommonKnownContentTypes[file.type]
+      return guessedType?.startsWith(contentType)
+    }
+  })
 }
 
 export function isFileDataType(value: any): value is FileDataType {
@@ -129,16 +193,28 @@ function extractDirectoryWithoutOrgName(directory: string, orgName: string) {
 
 /**
  * Gets the project name that may or may not have a single slash it in from a list of valid project names
+ * @todo will be optimized away once orgname is fully supported
  */
-export const useValidProjectForFileBrowser = (projectName: string) => {
+export const useValidProjectForFileBrowser = (path: string) => {
+  const [orgName, projectName] = path.split('/').slice(2, 4)
   const projects = useFind(projectPath, {
     query: {
-      paginate: false,
+      $or: [
+        {
+          name: `${orgName}/${projectName}`
+        },
+        {
+          name: orgName
+        }
+      ],
       action: 'studio',
       allowed: true
     }
   })
-  return projects.data.find((project) => projectName.startsWith(`/projects/${project.name}/`))?.name ?? ''
+  return (
+    projects.data.find((project) => project.name === orgName || project.name === `${orgName}/${projectName}`)?.name ??
+    ''
+  )
 }
 
 function GeneratingThumbnailsProgress() {
@@ -167,6 +243,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
   const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
+
+  const fileProperties = useHookstate<FileType[]>([])
+  const anchorEl = useHookstate<HTMLButtonElement | null>(null)
 
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
 
@@ -202,9 +281,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       isFolder
     }
   })
-  useEffect(() => {
-    FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
-  }, [fileQuery.data])
+
+  useRealtime(staticResourcePath, fileQuery.refetch)
+
+  FileThumbnailJobState.useGenerateThumbnails(fileQuery.data)
 
   const fileService = useMutation(fileBrowserPath)
 
@@ -435,7 +515,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       drop: (dropItem) => dropItemsOnPanel(dropItem as any),
       collect: (monitor) => ({ isFileDropOver: monitor.canDrop() && monitor.isOver() })
     })
-    const selectedFileKeys = useHookstate<string[]>([])
 
     const isListView = filesViewMode.value === 'list'
     const staticResourceData = useFind(staticResourcePath, {
@@ -462,23 +541,24 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const handleFileBrowserItemClick = (e: React.MouseEvent, currentFile: FileDataType) => {
       e.stopPropagation()
       if (e.ctrlKey || e.metaKey) {
-        selectedFileKeys.set((prevSelectedKeys) =>
-          prevSelectedKeys.includes(currentFile.key)
-            ? prevSelectedKeys.filter((selectedKey) => selectedKey !== currentFile.key)
-            : [...prevSelectedKeys, currentFile.key]
+        fileProperties.set((prevFileProperties) =>
+          prevFileProperties.some((file) => file.key === currentFile.key)
+            ? prevFileProperties.filter((file) => file.key !== currentFile.key)
+            : [...prevFileProperties, currentFile]
         )
       } else if (e.shiftKey) {
-        const lastIndex = files.findIndex((file) => file.key === selectedFileKeys.value.at(-1))
+        const lastIndex = files.findIndex((file) => file.key === fileProperties.value.at(-1)?.key)
         const clickedIndex = files.findIndex((file) => file.key === currentFile.key)
-        const newSelectedKeys = files
-          .slice(Math.min(lastIndex, clickedIndex), Math.max(lastIndex, clickedIndex) + 1)
-          .map((file) => file.key)
-        selectedFileKeys.set((prevSelectedKeys) => Array.from(new Set([...prevSelectedKeys, ...newSelectedKeys])))
+        const newSelectedFiles = files.slice(Math.min(lastIndex, clickedIndex), Math.max(lastIndex, clickedIndex) + 1)
+        fileProperties.set((prevFileProperties) => [
+          ...prevFileProperties,
+          ...newSelectedFiles.filter((newFile) => !prevFileProperties.some((file) => newFile.key === file.key))
+        ])
       } else {
-        if (selectedFileKeys.value.includes(currentFile.key)) {
-          selectedFileKeys.set([])
+        if (fileProperties.value.some((file) => file.key === currentFile.key)) {
+          fileProperties.set([])
         } else {
-          selectedFileKeys.set([currentFile.key])
+          fileProperties.set([currentFile])
         }
       }
     }
@@ -493,7 +573,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         )}
         onClick={(event) => {
           event.stopPropagation()
-          selectedFileKeys.set([])
+          fileProperties.set([])
         }}
       >
         <div className={twMerge(!isListView && 'flex flex-wrap')}>
@@ -511,13 +591,42 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   }}
                   currentContent={currentContentRef}
                   handleDropItemsOnPanel={(data, dropOn) =>
-                    dropItemsOnPanel(data, dropOn, selectedFileKeys.value as string[])
+                    dropItemsOnPanel(
+                      data,
+                      dropOn,
+                      fileProperties.value.map((file) => file.key)
+                    )
                   }
+                  openFileProperties={() => {
+                    PopoverState.showPopupover(
+                      <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
+                    )
+                  }}
+                  openImageCompress={() => {
+                    if (filesConsistOfContentType(fileProperties.value, 'image')) {
+                      PopoverState.showPopupover(
+                        <ImageCompressionPanel
+                          selectedFiles={fileProperties.value}
+                          refreshDirectory={refreshDirectory}
+                        />
+                      )
+                    }
+                  }}
+                  openModelCompress={() => {
+                    if (filesConsistOfContentType(fileProperties.value, 'model')) {
+                      PopoverState.showPopupover(
+                        <ModelCompressionPanel
+                          selectedFiles={fileProperties.value}
+                          refreshDirectory={refreshDirectory}
+                        />
+                      )
+                    }
+                  }}
                   isFilesLoading={isLoading}
                   addFolder={createNewFolder}
                   isListView={isListView}
                   staticResourceModifiedDates={staticResourceModifiedDates.value}
-                  isSelected={selectedFileKeys.value.includes(file.key)}
+                  isSelected={fileProperties.value.some(({ key }) => key === file.key)}
                   refreshDirectory={refreshDirectory}
                 />
               ))}

@@ -53,6 +53,8 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
+import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
@@ -95,6 +97,8 @@ export const MediaIconsBox = () => {
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
+
+  const motionCaptureEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.MotionCapture)
 
   useEffect(() => {
     navigator.mediaDevices
@@ -187,15 +191,17 @@ export const MediaIconsBox = () => {
               icon={<Icon type={'FlipCameraAndroid'} />}
             />
           )}
-          <IconButtonWithTooltip
-            id="UserPoseTracking"
-            title={t('user:menu.poseTracking')}
-            className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
-            onClick={() => window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')}
-            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            icon={<Icon type={'Accessibility'} />}
-          />
+          {motionCaptureEnabled && (
+            <IconButtonWithTooltip
+              id="UserPoseTracking"
+              title={t('user:menu.poseTracking')}
+              className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
+              onClick={() => window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              icon={<Icon type={'Accessibility'} />}
+            />
+          )}
         </>
       ) : null}
       {screenshareEnabled && mediaNetworkReady && mediaNetworkState?.ready.value ? (

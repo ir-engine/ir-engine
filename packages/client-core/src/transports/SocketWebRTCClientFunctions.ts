@@ -41,7 +41,6 @@ import { v4 as uuidv4 } from 'uuid'
 
 import config from '@etherealengine/common/src/config'
 import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
-import { PUBLIC_STUN_SERVERS } from '@etherealengine/common/src/constants/STUNServers'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
   ChannelID,
@@ -440,13 +439,10 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork | undefined
   if (!network) return console.warn('Network not found', action.$network)
 
-  const { transportID, direction, sctpParameters, iceParameters, iceCandidates, dtlsParameters } = action
-
   const channelId = getChannelIdFromTransport(network)
+  const { transportID, direction, sctpParameters, iceParameters, iceCandidates, iceServers, dtlsParameters } = action
 
   let transport: MediaSoupTransport
-
-  const iceServers = config.client.nodeEnv === 'production' ? PUBLIC_STUN_SERVERS : []
 
   const transportOptions = {
     id: action.transportID,
@@ -454,7 +450,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
     iceParameters: iceParameters as any,
     iceCandidates: iceCandidates as any,
     dtlsParameters: dtlsParameters as any,
-    iceServers
+    iceServers: iceServers as any
   }
 
   if (direction === 'recv') {

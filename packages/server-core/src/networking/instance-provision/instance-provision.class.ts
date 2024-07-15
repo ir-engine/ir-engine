@@ -96,8 +96,8 @@ export async function getFreeInstanceserver({
     //Clear any instance assignments older than 30 seconds - those assignments have not been
     //used, so they should be cleared and the IS they were attached to can be used for something else.
     logger.info('Local server spinning up new instance')
-    const localIp = await getLocalServerIp(channelId != null)
-    const stringIp = `${localIp.ipAddress}:${localIp.port}`
+    const localIp = await getLocalServerIp()
+    const stringIp = `${localIp}:${channelId ? '3032' : '3031'}`
     return checkForDuplicatedAssignments({
       app,
       headers,
@@ -478,8 +478,9 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
   }
 
   /**
-   * A method which gets and instance of Instanceserver
+   * A method which gets an instance of Instanceserver
    * @param availableLocationInstances for Instanceserver
+   * @param headers
    * @param locationId
    * @param channelId
    * @param roomCode
@@ -531,11 +532,12 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
     const instance = instanceUserSort[0]
     if (!config.kubernetes.enabled) {
       logger.info('Resetting local instance to ' + instance.id)
-      const localIp = await getLocalServerIp(channelId != null)
+      const localIp = await getLocalServerIp()
       return {
         id: instance.id,
         roomCode: instance.roomCode,
-        ...localIp
+        ipAddress: localIp,
+        port: channelId ? '3032' : '3031'
       }
     }
     const isCleanup = await this.isCleanup(instance)
@@ -799,11 +801,12 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         //   const maxInstance = await this.app.service(instancePath).get(maxInstanceId)
         //   if (!config.kubernetes.enabled) {
         //     logger.info('Resetting local instance to ' + maxInstanceId)
-        //     const localIp = await getLocalServerIp(false)
+        //     const localIp = await getLocalServerIp()
         //     return {
         //       id: maxInstanceId,
         //       roomCode: instance.roomCode,
-        //       ...localIp
+        //       ipAddress: localIp,
+        //       port: 3031
         //     }
         //   }
         //   const ipAddressSplit = maxInstance.ipAddress.split(':')

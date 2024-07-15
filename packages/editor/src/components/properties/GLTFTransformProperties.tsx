@@ -86,55 +86,82 @@ function TextParam({
 }
 
 export default function GLTFTransformProperties({
-  transformParms
+  transformParms,
+  itemCount = 1
 }: {
   transformParms: State<ModelTransformParameters>
+  itemCount: number
 }) {
   const { t } = useTranslation()
 
   return (
     transformParms && (
       <>
-        <div className="mb-6 grid grid-cols-4 gap-2 border-b border-theme-primary pb-6">
-          <div className="col-span-1 flex flex-col justify-around gap-y-2">
-            <Text
-              fontSize="xs"
-              fontWeight="medium"
-              className="block px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
-              style={{
-                textWrap: 'nowrap' // tailwind class is not working
-              }}
-            >
-              {t('editor:properties.model.transform.dst')}
-            </Text>
-            <Text
-              fontSize="xs"
-              fontWeight="medium"
-              className="px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
-              style={{
-                textWrap: 'nowrap' // tailwind class is not working
-              }}
-            >
-              {t('editor:properties.model.transform.resourceUri')}
-            </Text>
+        {itemCount === 1 && (
+          <div className="mb-6 grid grid-cols-4 gap-2 border-b border-theme-primary pb-6">
+            <div className="col-span-1 flex flex-col justify-around gap-y-2">
+              <Text
+                fontSize="xs"
+                fontWeight="medium"
+                className="block px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
+                style={{
+                  textWrap: 'nowrap' // tailwind class is not working
+                }}
+              >
+                {t('editor:properties.model.transform.dst')}
+              </Text>
+              <Text
+                fontSize="xs"
+                fontWeight="medium"
+                className="px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
+                style={{
+                  textWrap: 'nowrap' // tailwind class is not working
+                }}
+              >
+                {t('editor:properties.model.transform.resourceUri')}
+              </Text>
+            </div>
+            <div className="col-span-3 flex flex-col justify-around gap-y-2">
+              <Input
+                value={transformParms.dst.value}
+                onChange={(e) => {
+                  transformParms.dst.set(e.target.value)
+                }}
+                className="px-2 py-0.5 text-sm text-[#9CA0AA]"
+              />
+              <Input
+                value={transformParms.resourceUri.value}
+                onChange={(e) => {
+                  transformParms.resourceUri.set(e.target.value)
+                }}
+                className="px-2 py-0.5 text-sm text-[#9CA0AA]"
+              />
+            </div>
           </div>
-          <div className="col-span-3 flex flex-col justify-around gap-y-2">
-            <Input
-              value={transformParms.dst.value}
-              onChange={(e) => {
-                transformParms.dst.set(e.target.value)
-              }}
-              className="px-2 py-0.5 text-sm text-[#9CA0AA]"
-            />
-            <Input
-              value={transformParms.resourceUri.value}
-              onChange={(e) => {
-                transformParms.resourceUri.set(e.target.value)
-              }}
-              className="px-2 py-0.5 text-sm text-[#9CA0AA]"
-            />
+        )}
+        {itemCount > 1 && (
+          <div className="mb-6 grid grid-cols-4 gap-2 border-b border-theme-primary pb-6">
+            <div className="col-span-1 flex flex-col justify-around gap-y-2">
+              <Text
+                fontSize="xs"
+                fontWeight="medium"
+                className="block px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
+                style={{
+                  textWrap: 'nowrap' // tailwind class is not working
+                }}
+              >
+                {t('editor:properties.model.transform.dst')}
+              </Text>
+            </div>
+            <div className="col-span-3 flex flex-col justify-around gap-y-2">
+              <Input
+                value={`${itemCount} Items`}
+                disabled={true}
+                className="px-2 py-0.5 font-['Figtree'] text-sm text-[#9CA0AA]"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <Accordion
           title="Materials"

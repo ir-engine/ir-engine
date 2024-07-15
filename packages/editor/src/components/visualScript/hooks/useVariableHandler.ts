@@ -22,7 +22,6 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { uniqueId } from 'lodash'
 import { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -38,7 +37,7 @@ export const useVariableHandler = ({
 }: Pick<visualScriptFlow, 'variables' | 'setVariables'>) => {
   const createVariable = (): VariableJSON => ({
     id: uuidv4(),
-    name: uniqueId('variable '),
+    name: 'variable ' + Math.random().toString(36).slice(-6),
     valueTypeName: 'string',
     initialValue: ''
   })

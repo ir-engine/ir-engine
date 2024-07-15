@@ -31,6 +31,7 @@ import { Engine, Entity, createEntity, getComponent, removeEntity, setComponent 
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -39,14 +40,14 @@ import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Scene } from 'three'
+import { Quaternion, Scene, Vector3 } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
-import { HeirarchyTreeNodeType } from '../hierarchy/HeirarchyTreeWalker'
+import { HierarchyTreeNodeType } from '../hierarchy/HierarchyTreeWalker'
 
-export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeType }) {
+export default function CreatePrefabPanel({ node }: { node?: HierarchyTreeNodeType }) {
   const entity = node?.entity as Entity
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
@@ -66,6 +67,20 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
       proxifyParentChildRelationships(obj)
       setComponent(prefabEntity, EntityTreeComponent, { parentEntity })
       setComponent(prefabEntity, NameComponent, prefabName.value)
+      const entityTransform = getComponent(entity, TransformComponent)
+      const position = entityTransform.position.clone()
+      const rotation = entityTransform.rotation.clone()
+      const scale = entityTransform.scale.clone()
+      setComponent(prefabEntity, TransformComponent, {
+        position,
+        rotation,
+        scale
+      })
+      setComponent(entity, TransformComponent, {
+        position: new Vector3(0, 0, 0),
+        rotation: new Quaternion().identity(),
+        scale: new Vector3(1, 1, 1)
+      })
       setComponent(entity, EntityTreeComponent, { parentEntity: prefabEntity })
 
       await exportRelativeGLTF(prefabEntity, srcProject, fileName)
@@ -86,7 +101,10 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
       prefabTag.set([])
       removeEntity(prefabEntity)
       const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
-        [{ name: ModelComponent.jsonID, props: { src: fileURL } }],
+        [
+          { name: ModelComponent.jsonID, props: { src: fileURL } },
+          { name: TransformComponent.jsonID, props: { position, rotation, scale } }
+        ],
         parentEntity
       )
       getMutableState(SelectionState).selectedEntities.set([entityUUID])
