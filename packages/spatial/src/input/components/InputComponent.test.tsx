@@ -36,7 +36,7 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { ReactorReconciler, ReactorRoot, getState, startReactor } from '@etherealengine/hyperflux'
+import { ReactorReconciler, ReactorRoot, getMutableState, getState, startReactor } from '@etherealengine/hyperflux'
 
 import {
   Entity,
@@ -54,8 +54,9 @@ import { EngineState } from '../../EngineState'
 import { initializeSpatialEngine } from '../../initializeEngine'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { EntityTreeComponent, isAncestor } from '../../transform/components/EntityTree'
 import { ButtonStateMap, MouseScroll, XRStandardGamepadAxes } from '../state/ButtonState'
+import { InputState } from '../state/InputState'
 import { DefaultButtonAlias, InputComponent, InputExecutionOrder, InputExecutionSystemGroup } from './InputComponent'
 import { InputSinkComponent } from './InputSinkComponent'
 import { InputSourceComponent } from './InputSourceComponent'
@@ -908,7 +909,7 @@ describe('InputComponent', () => {
 
   /** @note This `describe` block is testing a function that creates a matrix of 4*4*3 different branches.
    *  As such, it is programatically creating a total of 48 different unit test cases. */
-  describe.skip('useExecuteWithInput', () => {
+  describe('useExecuteWithInput', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
@@ -922,21 +923,23 @@ describe('InputComponent', () => {
       return destroyEngine()
     })
 
-    // Define the top-level cases. Will run all `cases` for each of them individually
-    // const orders = [ InputExecutionOrder.Before, InputExecutionOrder.With, InputExecutionOrder.After  ] as InputExecutionOrder[]
-    const orders = [InputExecutionOrder.With] as InputExecutionOrder[]
+    // Define the top-level cases. Will run all sub-cases once for each of these conditions
+    const orders = [
+      InputExecutionOrder.Before,
+      InputExecutionOrder.With,
+      InputExecutionOrder.After
+    ] as InputExecutionOrder[]
 
     // Create the test case variations
-    type CaseData = { executeWhenEditing: boolean; isEditing: boolean; isCaptured: boolean; isAncestor: boolean }
-    const args = 4 // Amount of separate arguments/conditions that we are testing
+    type CaseData = { executeWhenEditing: boolean; isEditing: boolean; notAncestor: boolean }
+    const args = 3 // Amount of separate arguments/conditions that we are testing
     // Populate the test cases variations
     const cases = [] as CaseData[]
     for (let id = 0; id < 1 << args; ++id) {
       cases[id] = {
         executeWhenEditing: getBoolAtPositionForIndex(id, 0),
         isEditing: getBoolAtPositionForIndex(id, 1),
-        isCaptured: getBoolAtPositionForIndex(id, 2),
-        isAncestor: getBoolAtPositionForIndex(id, 3)
+        notAncestor: getBoolAtPositionForIndex(id, 2)
       }
     }
 
@@ -959,29 +962,33 @@ describe('InputComponent', () => {
 
       // Run a test for every condition we defined in the test cases matrix
       cases.forEach(function (data: CaseData) {
+        // if (!executeWhenEditing && getState(EngineState).isEditing) return
+        const ConditionOne = !data.executeWhenEditing && data.isEditing
+        // if (!isAncestor(getState(InputState).capturingEntity, entity, true)) return
+        const ConditionAncestor = data.notAncestor
+        const MakeAncestor = !data.notAncestor // Unconfuse the double negative into a readable name for the rest of the test
         // Expected condition for whether we should run the execute or not
         // This mirrors the condition checked internally inside the function that we are testing
-        const ShouldRun = (!data.executeWhenEditing && data.isEditing) || (data.isCaptured && !data.isAncestor)
+        const ShouldRun = !(ConditionOne || ConditionAncestor) // Inverted for readability. Too many double negatives
 
         // Generate the name of the current iteration for the test
         //   These variables will be used to programmatically generate the `it( ... )` statement name for each individual condition
         const run = ShouldRun ? 'run' : 'not run'
         const want = data.executeWhenEditing ? 'want' : 'dont want'
         const editing = data.isEditing ? 'editing' : 'not editing'
-        const captured = data.isCaptured ? 'captured' : 'not captured'
-        const ancestor = data.isAncestor ? 'an ancestor' : 'not an ancestor'
+        const ancestor = data.notAncestor ? 'not an ancestor' : 'an ancestor'
         const orderIs = `order is set to InputExecutionOrder.${OrderName}`
 
-        it(`should ${run} the executeOnInput function when we ${want} to executeWhenEditing, we are ${editing}, the entity is ${captured}, the entity is ${ancestor} of the entityContext and ${orderIs}`, () => {
+        it(`should ${run} the executeOnInput function when (we ${want} to executeWhenEditing and we are ${editing}) or (the entity is ${ancestor} of the entityContext) and ${orderIs}`, () => {
           // Create the function spies
           const executeSpy = sinon.spy()
           const reactorSpy = sinon.spy()
           // Create the Reactor setup
           const Reactor = () => {
             reactorSpy()
-            useEffect(() => {
-              InputComponent.useExecuteWithInput(executeSpy, data.executeWhenEditing, data_order) // omitted defaults: (_, false, With)
-            }, []) // Mount it once, so that only one useExecute is created
+            InputComponent.useExecuteWithInput(executeSpy, data.executeWhenEditing, data_order) // omitted defaults: (_, false, With)
+            // useEffect(() => {
+            // }, []) // Mount it once, so that only one useExecute is created
             return null
           }
           assert.equal(reactorSpy.callCount, 0)
@@ -992,25 +999,24 @@ describe('InputComponent', () => {
           const root = startReactor(() => {
             return React.createElement(EntityContext.Provider, { value: testEntity }, React.createElement(Reactor, {}))
           }) as ReactorRoot
-          assert.equal(reactorSpy.callCount, 2)
+          assert.equal(reactorSpy.callCount, 1)
           assert.ok(!executeSpy.called)
           root.run()
           // Extract the useExecute system out of the global list of SystemDefinitions array
           const list = Array.from(SystemDefinitions.entries())
           const [_, syst] = list[list.length - 1]
+          // Setup the expected state of EngineState.isEditing for this case
+          getMutableState(EngineState).isEditing.set(data.isEditing)
+          // Setup the expected state of isAncestor::InputState.capturingEntity for this case
+          if (MakeAncestor) getMutableState(InputState).capturingEntity.set(testEntity)
+          // Run the execute
           syst.execute()
 
-          // Expected cases
-          // (!executeWhenEditing && getState(EngineState).isEditing) ||
-          // (capturingEntity && !isAncestor(capturingEntity, entity, true))
-          // TODO: setup isEditing
-          // TODO: setup isAncestor
-          // TODO: setup isCaptured
+          // Sanity check the multi-test setup
+          assert.equal(getState(EngineState).isEditing, data.isEditing)
+          assert.equal(ConditionAncestor, !isAncestor(getState(InputState).capturingEntity, testEntity, true))
 
-          console.log('ShouldRun: ', ShouldRun)
-          console.log('executeSpy.callCount : ', executeSpy.callCount)
-          console.log('reactorSpy.callCount : ', reactorSpy.callCount)
-
+          // Check the test
           assert.equal(reactorSpy.callCount, 2)
           assert.equal(executeSpy.called, ShouldRun)
         })
