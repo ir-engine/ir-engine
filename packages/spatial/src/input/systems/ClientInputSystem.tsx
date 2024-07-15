@@ -280,14 +280,13 @@ const execute = () => {
 
 const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
   const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
-  if (inputEntity) {
-    const inputComponent = getComponent(inputEntity, InputComponent)
+  if (!inputEntity) return // @note Clause Guard. The rest of this function was nested inside   if (inputEntity) { ... }
+  const inputComponent = getComponent(inputEntity, InputComponent)
 
-    for (const sinkEntityUUID of inputComponent.inputSinks) {
-      const sinkEntity = sinkEntityUUID === 'Self' ? inputEntity : UUIDComponent.getEntityByUUID(sinkEntityUUID) //TODO why is this not sending input to my sinks
-      const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
-      sinkInputComponent.inputSources.merge(inputSources)
-    }
+  for (const sinkEntityUUID of inputComponent.inputSinks) {
+    const sinkEntity = sinkEntityUUID === 'Self' ? inputEntity : UUIDComponent.getEntityByUUID(sinkEntityUUID) //TODO why is this not sending input to my sinks
+    const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
+    sinkInputComponent.inputSources.merge(inputSources)
   }
 }
 
