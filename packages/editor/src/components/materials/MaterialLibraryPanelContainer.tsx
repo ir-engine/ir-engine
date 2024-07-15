@@ -30,7 +30,7 @@ import { FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { EntityUUID, getComponent, UndefinedEntity, useQuery, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, getComponent, useQuery, UUIDComponent } from '@etherealengine/ecs'
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
@@ -38,7 +38,6 @@ import { getMutableState, getState, useHookstate, useState } from '@etherealengi
 
 import { getMaterialsFromScene } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
@@ -105,7 +104,7 @@ export default function MaterialLibraryPanel() {
             <Button
               onClick={() => {
                 const newMaterial = new MeshBasicMaterial({ name: 'New Material' })
-                createMaterialEntity(newMaterial, UndefinedEntity)
+                //createMaterialEntity(newMaterial, UndefinedEntity)
               }}
             >
               New
