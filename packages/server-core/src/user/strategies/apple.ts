@@ -50,7 +50,7 @@ export class AppleStrategy extends CustomOAuthStrategy {
   async getProfile(data, _params) {
     logger.info('[AppleSSO]: Loger Entering in getProfile')
     console.info('[AppleSSO]: Console Entering in getProfile')
-    return data.jwt.id_token.payload
+    return data as string
   }
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})

@@ -300,7 +300,6 @@ const authentication = {
       secret: process.env.APPLE_CLIENT_SECRET!,
       scope: ['openid', 'email', 'name'],
       response: ['raw', 'jwt'],
-      nonce: true,
       custom_params: {
         response_type: 'code id_token',
         response_mode: 'form_post'
