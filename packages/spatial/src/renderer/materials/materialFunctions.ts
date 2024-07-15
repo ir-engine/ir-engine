@@ -177,31 +177,22 @@ export function PrototypeNotFoundError(message) {
 }
 
 /** Assigns a preexisting material entity to a mesh */
-export const assignMaterial = (entity: Entity, materialEntity: Entity) => {
-  setComponent(entity, MaterialInstanceComponent)
+export const assignMaterial = (user: Entity, materialEntity: Entity, index = 0) => {
   const materialStateComponent = getMutableComponent(materialEntity, MaterialStateComponent)
+  materialStateComponent.instances.set([...materialStateComponent.instances.value, user])
+  if (!user) return
+  setComponent(user, MaterialInstanceComponent)
   const material = materialStateComponent.material.value as Material
-  const materialComponent = getMutableComponent(entity, MaterialInstanceComponent)
-  const uuids = materialComponent.uuid.value
-
+  const materialInstanceComponent = getMutableComponent(user, MaterialInstanceComponent)
   const newUUID = material.uuid as EntityUUID
-  materialComponent.uuid.set([...uuids, newUUID])
-
+  materialInstanceComponent.uuid[index].set(newUUID)
   if (!UUIDComponent.getEntityByUUID(newUUID)) throw new MaterialNotFoundError(`Material ${newUUID} not found`)
-
-  if (material.plugins) {
-    material.customProgramCacheKey = () =>
-      (material.shader ? material.shader.fragmentShader + material.shader.vertexShader : '') +
-      material.plugins!.map((plugin) => plugin?.toString() ?? '').reduce((x, y) => x + y, '')
-  }
-  materialStateComponent.instances.set([...materialStateComponent.instances.value, entity])
 }
 
 /**Sets and replaces a material entity for a material's UUID */
-export const createMaterialEntity = (material: Material, user: Entity): Entity => {
+export const createMaterialEntity = (material: Material): Entity => {
   const materialEntity = createEntity()
   const uuid = material.uuid as EntityUUID
-  if (user) setComponent(user, MaterialInstanceComponent, { uuid: [uuid] })
   const existingMaterial = UUIDComponent.getEntityByUUID(uuid)
   const existingUsers = existingMaterial ? getComponent(existingMaterial, MaterialStateComponent).instances : []
   if (existingMaterial) removeEntity(existingMaterial)
@@ -221,7 +212,7 @@ export const createMaterialEntity = (material: Material, user: Entity): Entity =
         (k) => [k, material[k]]
       )
     ),
-    instances: existingUsers.length ? existingUsers : [user]
+    instances: existingUsers.length ? existingUsers : []
   })
   if (material.userData?.plugins)
     material.userData.plugins.map((plugin) => {
@@ -234,6 +225,11 @@ export const createMaterialEntity = (material: Material, user: Entity): Entity =
     })
   setComponent(materialEntity, NameComponent, material.name)
   return materialEntity
+}
+
+export const createAndAssignMaterial = (user: Entity, material: Material, index = 0) => {
+  const materialEntity = createMaterialEntity(material)
+  assignMaterial(user, materialEntity, index)
 }
 
 export const getPrototypeEntityFromName = (name: string) =>
