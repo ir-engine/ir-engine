@@ -195,8 +195,10 @@
     },
     "publishLocation": {
       "title": "Publish",
-      "lbl": "Publish Location",
-      "info": "Publish location for the selected scene."
+      "create": "Publish Location",
+      "update": "Update Published Location",
+      "unpublish": "Unpublish Location",
+      "locationLinkCopied": "Location link copied"
     }
   },
   "properties": {
@@ -1202,6 +1204,7 @@
       "fileProperties": {
         "header": "Info for {{fileName}}",
         "header-plural": "Info for {{itemCount}} Items",
+        "regenerateThumbnail": "Regenerate Thumbnail",
         "name": "Name",
         "type": "Type",
         "size": "Size",
@@ -1339,7 +1342,7 @@
     "saveNewScene": {
       "title": "Save As",
       "lbl-name": "Scene Name",
-      "info-name": "Name must be between 4 and 64 characters and cannot contain underscores",
+      "info-name": "Name must be between 4 and 64 characters (with only alphabets, numbers, dashes allowed)",
       "lbl-confirm": "Save Scene"
     },
     "support": {

@@ -65,9 +65,6 @@ describe('PerformanceState', () => {
     }
     dpr = globalThis.window.devicePixelRatio
     globalThis.window.devicePixelRatio = 3
-    getMutableState(EngineState).isEditing.set(false)
-    getMutableState(RendererState).automatic.set(true)
-    getMutableState(PerformanceState).enabled.set(true)
   })
 
   after(() => {
@@ -78,6 +75,12 @@ describe('PerformanceState', () => {
   beforeEach(async () => {
     createEngine()
     initializeSpatialEngine()
+    getMutableState(EngineState).isEditing.set(false)
+    getMutableState(RendererState).automatic.set(true)
+    getMutableState(PerformanceState).merge({
+      initialized: true,
+      enabled: true
+    })
   })
 
   afterEach(() => {
@@ -198,12 +201,12 @@ describe('PerformanceState', () => {
     const renderSettings = getState(RenderSettingsState)
     const engineSettings = getState(RendererState)
 
-    const { smaaPreset } = renderSettings
-    const { shadowMapResolution } = engineSettings
-
     const Reactor = PerformanceState.reactor
 
     const { rerender, unmount } = render(<Reactor />)
+
+    const { smaaPreset } = renderSettings
+    const { shadowMapResolution } = engineSettings
 
     act(async () => {
       performanceState.gpuTier.set(updatedTier as any)

@@ -30,7 +30,6 @@ import '@feathersjs/transport-commons'
 import { decode } from 'jsonwebtoken'
 
 import {
-  ChannelID,
   channelPath,
   ChannelType,
   channelUserPath,
@@ -130,22 +129,16 @@ const createNewInstance = async (app: Application, newInstance: InstanceData, he
  * Updates the existing 'instance' table entry
  * @param app
  * @param existingInstance
- * @param channelId
- * @param locationId
  * @param headers
  */
 
 const assignExistingInstance = async ({
   app,
   existingInstance,
-  channelId,
-  headers,
-  locationId
+  headers
 }: {
   app: Application
   existingInstance: InstanceType
-  channelId: ChannelID
-  locationId: LocationID
   headers: object
 }) => {
   const serverState = getState(ServerState)
@@ -153,12 +146,11 @@ const assignExistingInstance = async ({
 
   await serverState.agonesSDK.allocate()
   instanceServerState.instance.set(existingInstance)
+  instanceServerState.isMediaInstance.set(existingInstance.channelId != null)
   await app.service(instancePath).patch(
     existingInstance.id,
     {
       currentUsers: existingInstance.currentUsers + 1,
-      channelId: channelId,
-      locationId: locationId,
       podName: config.kubernetes.enabled ? instanceServerState.instanceServer.value?.objectMeta?.name : 'local',
       assigned: false,
       assignedAt: null!
@@ -172,8 +164,6 @@ const assignExistingInstance = async ({
  * - Should only initialize an instance once per the lifecycle of an instance server
  * @param app
  * @param status
- * @param locationId
- * @param channelId
  * @param headers
  * @param userId
  * @returns
@@ -182,39 +172,29 @@ const assignExistingInstance = async ({
 const initializeInstance = async ({
   app,
   status,
-  locationId,
-  channelId,
   headers,
   userId
 }: {
   app: Application
   status: InstanceserverStatus
-  locationId: LocationID
-  channelId: ChannelID
   headers: object
   userId?: UserID
 }) => {
   logger.info('Initializing new instance')
 
-  const serverState = getState(ServerState)
-  const instanceServerState = getMutableState(InstanceServerState)
-
-  const isMediaInstance = !!channelId
-  instanceServerState.isMediaInstance.set(isMediaInstance)
-
-  const localIp = await getLocalServerIp(isMediaInstance)
+  const instanceServerState = getState(InstanceServerState)
   const selfIpAddress = `${status.address}:${status.portsList[0].port}`
-  const ipAddress = config.kubernetes.enabled ? selfIpAddress : `${localIp.ipAddress}:${localIp.port}`
+  const ipAddress = config.kubernetes.enabled
+    ? selfIpAddress
+    : `${await getLocalServerIp()}:${instanceServerState.port}`
   const existingInstanceQuery = {
     ipAddress: ipAddress,
     ended: false
   } as any
-  if (locationId) existingInstanceQuery.locationId = locationId
-  else if (channelId) existingInstanceQuery.channelId = channelId
 
   /**
-   * The instance record should be created when the instance is provisioned by the API server,
-   * here we check that this is the case, as it may be altered, for example by another service or an admin
+   * The instance record should be created when the instance is provisioned by the API server.
+   * If it's not, then throw an error and don't connect, because something is wrong.
    */
 
   const existingInstanceResult = (await app.service(instancePath).find({
@@ -223,18 +203,10 @@ const initializeInstance = async ({
   })) as Paginated<InstanceType>
   logger.info('existingInstanceResult: %o', existingInstanceResult.data)
 
-  if (existingInstanceResult.total === 0) {
-    const newInstance = {
-      currentUsers: 1,
-      locationId: locationId,
-      channelId: channelId,
-      ipAddress: ipAddress,
-      podName: config.kubernetes.enabled ? instanceServerState.instanceServer.value?.objectMeta?.name : 'local'
-    } as InstanceData
-    await createNewInstance(app, newInstance, headers)
-  } else {
+  if (existingInstanceResult.total > 0) {
     const instance = existingInstanceResult.data[0]
-    if (locationId) {
+    if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return false
+    if (instance.locationId) {
       const existingChannel = (await app.service(channelPath).find({
         query: {
           instanceId: instance.id,
@@ -248,16 +220,15 @@ const initializeInstance = async ({
         })
       }
     }
-    await serverState.agonesSDK.allocate()
-    if (!instanceServerState.instance.value) instanceServerState.instance.set(instance)
-    if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
     await assignExistingInstance({
       app,
       existingInstance: instance,
-      channelId,
-      headers,
-      locationId
+      headers
     })
+    return true
+  } else {
+    logger.error('Missing active instanceserver record for ' + ipAddress)
+    return false
   }
 }
 
@@ -399,26 +370,20 @@ let instanceStarted = false
  * Creates a new 'instance' entry or updates the current one with a connecting user, and handles initializing the instance server
  * @param app
  * @param status
- * @param locationId
- * @param channelId
  * @param sceneId
  * @param headers
  * @param userId
  * @returns
  */
-const createOrUpdateInstance = async ({
+const updateInstance = async ({
   app,
   status,
-  locationId,
-  channelId,
   sceneId,
   headers,
   userId
 }: {
   app: Application
   status: InstanceserverStatus
-  locationId: LocationID
-  channelId: ChannelID
   sceneId?: string
   headers: object
   userId?: UserID
@@ -429,15 +394,14 @@ const createOrUpdateInstance = async ({
   logger.info('Creating new instance server or updating current one.')
   logger.info(`agones state is ${status.state}`)
   logger.info('app instance is %o', instanceServerState.instance)
-  logger.info(`instanceLocationId: ${instanceServerState.instance?.locationId}, locationId: ${locationId}`)
 
   const isReady = status.state === 'Ready'
   const isNeedingNewServer = !config.kubernetes.enabled && !instanceStarted
 
   if (isReady || isNeedingNewServer) {
     instanceStarted = true
-    await initializeInstance({ app, status, locationId, channelId, headers, userId })
-    await loadEngine({ app, sceneId, headers })
+    const initialized = await initializeInstance({ app, status, headers, userId })
+    if (initialized) await loadEngine({ app, sceneId, headers })
   } else {
     try {
       if (!getState(InstanceServerState).ready)
@@ -450,7 +414,7 @@ const createOrUpdateInstance = async ({
           }, 1000)
         })
       const instance = await app.service(instancePath).get(instanceServerState.instance.id, { headers })
-      if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
+      if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return false
 
       logger.info(`Authorized user ${userId} to join server`)
       await serverState.agonesSDK.allocate()
@@ -464,8 +428,10 @@ const createOrUpdateInstance = async ({
         },
         { headers }
       )
+      return true
     } catch (err) {
       logger.info('Could not update instance, likely because it is a local one that does not exist.')
+      return false
     }
   }
 }
@@ -705,22 +671,22 @@ export const onConnection = (app: Application) => async (connection: PrimusConne
   const isResult = await serverState.agonesSDK.getGameServer()
   const status = isResult.status as InstanceserverStatus
 
-  await createOrUpdateInstance({
+  const updated = await updateInstance({
     app,
     status,
-    locationId,
-    channelId,
     sceneId: sceneID,
     headers: connection.headers,
     userId
   })
 
-  if (instanceServerState.instance) {
-    connection.instanceId = instanceServerState.instance.id
-    app.channel(`instanceIds/${instanceServerState.instance.id}`).join(connection)
-  }
+  if (updated) {
+    if (instanceServerState.instance) {
+      connection.instanceId = instanceServerState.instance.id
+      app.channel(`instanceIds/${instanceServerState.instance.id}`).join(connection)
+    }
 
-  await handleUserAttendance(app, userId, connection.headers)
+    await handleUserAttendance(app, userId, connection.headers)
+  }
 }
 
 const onDisconnection = (app: Application) => async (connection: PrimusConnectionType) => {
@@ -812,11 +778,9 @@ export default (app: Application): void => {
       return
     }
 
-    await createOrUpdateInstance({
+    await updateInstance({
       app,
       status,
-      locationId,
-      channelId: null!,
       headers: params.headers,
       sceneId
     })
