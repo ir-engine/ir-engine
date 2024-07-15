@@ -413,7 +413,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         <BooleanInput value={particleSystem.systemParameters.worldSpace} onChange={onSetSystemParm('worldSpace')} />
       </InputGroup>
       <Button className="self-end" onClick={onAddBehavior}>
-        {t('editor:properties.particle-system.world-space')}
+        {t('editor:properties.particle-system.addBehavior')}
       </Button>
       <PaginatedList
         list={particleSystemState.behaviorParameters}
