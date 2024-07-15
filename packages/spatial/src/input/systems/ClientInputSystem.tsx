@@ -730,9 +730,9 @@ function applyRaycastedInputHeuristics(sourceEid: Entity, intersectionData: Set<
     applyHeuristicEditor(intersectionData)
   } else {
     // 1st heuristic is XRUI
-    applyHeuristicXRUI(intersectionData)
+    applyHeuristicXRUI(intersectionData, inputRay)
     // 2nd heuristic is physics colliders
-    applyHeuristicPhysicsColliders(intersectionData)
+    applyHeuristicPhysicsColliders(intersectionData, inputRaycast)
 
     // 3rd heuristic is bboxes
     applyHeuristicBBoxes(intersectionData)
@@ -860,10 +860,10 @@ function applyHeuristicEditor(intersectionData: Set<IntersectionData>) {
   }
 }
 
-function applyHeuristicXRUI(intersectionData: Set<IntersectionData>) {
+function applyHeuristicXRUI(intersectionData: Set<IntersectionData>, ray: Ray) {
   for (const entity of xruiQuery()) {
     const xrui = getComponent(entity, XRUIComponent)
-    const layerHit = xrui.hitTest(inputRay)
+    const layerHit = xrui.hitTest(ray)
     if (
       !layerHit ||
       !layerHit.intersection.object.visible ||
@@ -874,11 +874,11 @@ function applyHeuristicXRUI(intersectionData: Set<IntersectionData>) {
   }
 }
 
-function applyHeuristicPhysicsColliders(intersectionData: Set<IntersectionData>) {
+function applyHeuristicPhysicsColliders(intersectionData: Set<IntersectionData>, raycast: RaycastArgs) {
   const physicsWorld = getState(PhysicsState).physicsWorld
   if (!physicsWorld) return // @note Clause Guard. The rest of this function was nested inside   if (physicsWorld) { ... }
 
-  const hits = Physics.castRay(physicsWorld, inputRaycast)
+  const hits = Physics.castRay(physicsWorld, raycast)
   for (const hit of hits) {
     if (!hit.entity) continue
     intersectionData.add({ entity: hit.entity, distance: hit.distance })
