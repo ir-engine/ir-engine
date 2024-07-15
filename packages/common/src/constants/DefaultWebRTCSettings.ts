@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const FeatureFlags = {
-  Client: {
-    Menu: {
-      Social: 'ir.client.menu.social',
-      Emote: 'ir.client.menu.emote',
-      Avaturn: 'ir.client.menu.avaturn',
-      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
-      NPC: 'ir.client.menu.npc'
-    }
-  }
+export const CREDENTIAL_OFFSET = 60 * 10
+//coturn requires the password be hashed via SHA1, tried SHA256 and it didn't work
+export const HASH_ALGORITHM = 'sha1'
+
+export const defaultWebRTCSettings = {
+  iceServers: [],
+  useCustomICEServers: false,
+  useTimeLimitedCredentials: false,
+  webRTCStaticAuthSecretKey: '',
+  usePrivateInstanceserverIP: false
 }

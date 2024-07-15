@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
+import CreateSceneDialog from '@etherealengine/editor/src/components/dialogs/CreateScenePanelDialog'
 import { deleteScene, onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
@@ -61,7 +62,12 @@ export default function ScenesPanel() {
   const isCreatingScene = useHookstate(false)
   const handleCreateScene = async () => {
     isCreatingScene.set(true)
-    await onNewScene()
+    const newSceneUIAddons = editorState.uiAddons.newScene.value
+    if (Object.keys(newSceneUIAddons).length > 0) {
+      PopoverState.showPopupover(<CreateSceneDialog />)
+    } else {
+      await onNewScene()
+    }
     isCreatingScene.set(false)
   }
 
@@ -133,7 +139,7 @@ export default function ScenesPanel() {
                             variant="outline"
                             size="small"
                             fullWidth
-                            onClick={() =>
+                            onClick={() => {
                               PopoverState.showPopupover(
                                 <RenameSceneModal
                                   sceneName={getSceneName(scene)}
@@ -141,7 +147,8 @@ export default function ScenesPanel() {
                                   scene={scene}
                                 />
                               )
-                            }
+                              isContextMenuOpen.set('')
+                            }}
                           >
                             {t('editor:hierarchy.lbl-rename')}
                           </Button>
@@ -150,12 +157,15 @@ export default function ScenesPanel() {
                             size="small"
                             fullWidth
                             onClick={() => {
-                              PopoverState.showPopupover(
-                                <ConfirmDialog
-                                  text={t('editor:hierarchy.lbl-deleteScene')}
-                                  onSubmit={async () => deleteSelectedScene(scene)}
-                                />
-                              )
+                              {
+                                PopoverState.showPopupover(
+                                  <ConfirmDialog
+                                    text={t('editor:hierarchy.lbl-deleteScene')}
+                                    onSubmit={async () => deleteSelectedScene(scene)}
+                                  />
+                                )
+                                isContextMenuOpen.set('')
+                              }
                             }}
                           >
                             {t('editor:hierarchy.lbl-delete')}
