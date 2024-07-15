@@ -32,7 +32,7 @@ import { RouterState } from '@etherealengine/client-core/src/common/services/Rou
 import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
-import { EditorPage, useStudioEditor } from '@etherealengine/editor/src/pages/Editor2Page'
+import { EditorPage, useStudioEditor } from '@etherealengine/editor/src/pages/EditorPage'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { Route, Routes, useLocation } from 'react-router-dom'
 
