@@ -286,7 +286,7 @@ describe('ClientInputSystem', () => {
 
 describe('ClientInputSystem: PRIVATE', () => {
   describe('preventDefault', () => {
-    it('should call the `preventDefault` function of the given object/event', () => {
+    it('should call the preventDefault function of the given object/event', () => {
       const eventSpy = sinon.spy()
       const Event = { preventDefault: eventSpy }
       assert.ok(!eventSpy.called)
@@ -296,25 +296,51 @@ describe('ClientInputSystem: PRIVATE', () => {
   })
 
   describe('preventDefaultKeyDown', () => {
-    // should do nothing if document.activeElement.tagName is INPUT or TEXTAREA
-    // should call the `preventDefault` function of the event/object when its `code` property is Tab
-    // should call the `preventDefault` function of the event/object when its `code` property is Space
-    // should call the `preventDefault` function of the event/object when its `code` property is Enter
-    // should not call the `preventDefault` function of the event/object when its `code` property is an unexpected value
-
-    it('should call the `preventDefault` function of the given object/event', () => {
+    /**
+    // @todo document.activeElement.tagName is readonly. How do we test this?
+    it("should do nothing if document.activeElement.tagName is INPUT or TEXTAREA", () => {
       const eventSpy = sinon.spy()
       const Event = { preventDefault: eventSpy }
       assert.ok(!eventSpy.called)
+      document.activeElement?.tagName = 'INPUT'
       PRIVATE.preventDefaultKeyDown(Event)
-      assert.ok(eventSpy.called)
+      assert.equal(eventSpy.called, false)
+      document.activeElement?.tagName = 'TEXTAREA'
+      PRIVATE.preventDefaultKeyDown(Event)
+      assert.equal(eventSpy.called, false)
+    })
+    */
+
+    it('should call the preventDefault function of the event/object when its code property is Tab', () => {
+      const eventSpy = sinon.spy()
+      const Event = { preventDefault: eventSpy, code: 'Tab' }
+      assert.ok(!eventSpy.called)
+      PRIVATE.preventDefaultKeyDown(Event)
+      assert.equal(eventSpy.called, true)
     })
 
-    // const preventDefaultKeyDown = (evt) => {
-    //   if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return
-    //   if (evt.code === 'Tab') evt.preventDefault()
-    //   // prevent DOM tab selection and spacebar/enter button toggling (since it interferes with avatar controls)
-    //   if (evt.code === 'Space' || evt.code === 'Enter') evt.preventDefault()
-    // }
+    it('should call the preventDefault function of the event/object when its code property is Space', () => {
+      const eventSpy = sinon.spy()
+      const Event = { preventDefault: eventSpy, code: 'Space' }
+      assert.ok(!eventSpy.called)
+      PRIVATE.preventDefaultKeyDown(Event)
+      assert.equal(eventSpy.called, true)
+    })
+
+    it('should call the preventDefault function of the event/object when its code property is Enter', () => {
+      const eventSpy = sinon.spy()
+      const Event = { preventDefault: eventSpy, code: 'Enter' }
+      assert.ok(!eventSpy.called)
+      PRIVATE.preventDefaultKeyDown(Event)
+      assert.equal(eventSpy.called, true)
+    })
+
+    it('should not call the preventDefault function of the event/object when its code property is an unexpected value', () => {
+      const eventSpy = sinon.spy()
+      const Event = { preventDefault: eventSpy, code: 'UnexpectedValue' }
+      assert.ok(!eventSpy.called)
+      PRIVATE.preventDefaultKeyDown(Event)
+      assert.equal(eventSpy.called, false)
+    })
   })
 })
