@@ -820,28 +820,24 @@ function applyHeuristicProximity(
       intersectionData.add({ entity: inputEntity, distance: distSquared }) //keeping it as distSquared for now to avoid extra square root calls
     }
   }
+
   const closestEntities = Array.from(intersectionData)
-  if (closestEntities.length > 0) {
-    if (closestEntities.length === 1) {
-      sortedIntersections.push({
-        entity: closestEntities[0].entity,
-        distance: Math.sqrt(closestEntities[0].distance)
-      })
-    } else {
-      //sort if more than 1 entry
-      closestEntities.sort((a, b) => {
-        //prioritize anything with an InteractableComponent if otherwise equal
-        const aNum = hasComponent(a.entity, InteractableComponent) ? -1 : 0
-        const bNum = hasComponent(b.entity, InteractableComponent) ? -1 : 0
-        //aNum - bNum : 0 if equal, -1 if a has tag and b doesn't, 1 if a doesnt have tag and b does
-        return Math.sign(a.distance - b.distance) + (aNum - bNum)
-      })
-      sortedIntersections.push({
-        entity: closestEntities[0].entity,
-        distance: Math.sqrt(closestEntities[0].distance)
-      })
-    }
+  if (closestEntities.length === 0) return // @note Clause Guard. The rest of this function was nested inside   if (closestEntities.length > 0) { ... }
+
+  if (closestEntities.length > 1) {
+    //sort if more than 1 entry
+    closestEntities.sort((a, b) => {
+      //prioritize anything with an InteractableComponent if otherwise equal
+      const aNum = hasComponent(a.entity, InteractableComponent) ? -1 : 0
+      const bNum = hasComponent(b.entity, InteractableComponent) ? -1 : 0
+      //aNum - bNum : 0 if equal, -1 if a has tag and b doesn't, 1 if a doesnt have tag and b does
+      return Math.sign(a.distance - b.distance) + (aNum - bNum)
+    })
   }
+  sortedIntersections.push({
+    entity: closestEntities[0].entity,
+    distance: Math.sqrt(closestEntities[0].distance)
+  })
 }
 
 function applyHeuristicEditor(intersectionData: Set<IntersectionData>) {
