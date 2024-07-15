@@ -34,6 +34,7 @@ import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
+import { DefaultButtonAlias } from './InputComponent'
 
 export const InputSourceComponent = defineComponent({
   name: 'InputSourceComponent',
@@ -41,7 +42,7 @@ export const InputSourceComponent = defineComponent({
   onInit: () => {
     return {
       source: {} as XRInputSource,
-      buttons: {} as Readonly<ButtonStateMap>,
+      buttons: {} as Readonly<ButtonStateMap<typeof DefaultButtonAlias>>,
       raycaster: new Raycaster(),
       intersections: [] as Array<{
         entity: Entity
@@ -67,7 +68,7 @@ export const InputSourceComponent = defineComponent({
             hapticActuators: [],
             id: 'emulated-gamepad-' + entity,
             index: 0,
-            mapping: 'standard',
+            mapping: '',
             timestamp: performance.now(),
             vibrationActuator: {} as any
           } as Gamepad),
@@ -116,6 +117,10 @@ export const InputSourceComponent = defineComponent({
 
   getClosestIntersectedEntity(inputSourceEntity: Entity) {
     return getComponent(inputSourceEntity, InputSourceComponent).intersections[0]?.entity
+  },
+
+  getClosestIntersection(inputSourceEntity: Entity) {
+    return getComponent(inputSourceEntity, InputSourceComponent).intersections[0]
   },
 
   entitiesByInputSource: new WeakMap<XRInputSource, Entity>()

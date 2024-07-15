@@ -31,6 +31,7 @@ import { sceneRelativePathIdentifier } from '@etherealengine/common/src/utils/pa
 import { EntityUUID, generateEntityUUID, SerializedComponentType, UUIDComponent } from '@etherealengine/ecs'
 import { TransformComponent } from '@etherealengine/spatial'
 
+import { getCacheRegex } from '@etherealengine/common/src/regex'
 import { EntityJsonType, SceneJsonType } from '../types/SceneTypes'
 
 export const nodeToEntityJson = (node: any): EntityJsonType => {
@@ -81,7 +82,7 @@ export const gltfToSceneJson = (gltf: any): SceneJsonType => {
  * @param mode 'encode' or 'decode'
  */
 export const handleScenePaths = (gltf: GLTF.IGLTF, mode: 'encode' | 'decode') => {
-  const cacheRe = new RegExp(`${config.client.fileServer}\/projects`)
+  const cacheRe = getCacheRegex(config.client.fileServer)
   const symbolRe = /__\$project\$__/
   const frontier = [...(gltf.scenes ?? []), ...(gltf.nodes ?? [])]
   while (frontier.length > 0) {

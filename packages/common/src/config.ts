@@ -23,15 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EMAIL_REGEX } from './regex'
+import type { MediaSettingsType } from './schema.type.module'
+
 /**
  * Config settings (for client and isomorphic engine usage).
  */
 const localBuildOrDev =
   globalThis.process.env.APP_ENV === 'development' || globalThis.process.env.VITE_LOCAL_BUILD === 'true'
-
-// https://fightingforalostcause.net/content/misc/2006/compare-email-regex.php
-const EMAIL_REGEX =
-  /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i
 
 export function validateEmail(email: string): boolean {
   return EMAIL_REGEX.test(email)
@@ -81,6 +80,7 @@ const client = {
     forceClientAggregate: globalThis.process.env.VITE_FORCE_CLIENT_LOG_AGGREGATE,
     disabled: globalThis.process.env.VITE_DISABLE_LOG
   },
+  mediaSettings: null! as MediaSettingsType,
   rootRedirect: globalThis.process.env.VITE_ROOT_REDIRECT,
   tosAddress: globalThis.process.env.VITE_TERMS_OF_SERVICE_ADDRESS,
   readyPlayerMeUrl: globalThis.process.env.VITE_READY_PLAYER_ME_URL,
@@ -88,7 +88,13 @@ const client = {
   avaturnAPI: globalThis.process.env.VITE_AVATURN_API,
   key8thWall: globalThis.process.env.VITE_8TH_WALL!,
   featherStoreKey: globalThis.process.env.VITE_FEATHERS_STORE_KEY,
-  gaMeasurementId: globalThis.process.env.VITE_GA_MEASUREMENT_ID
+  gaMeasurementId: globalThis.process.env.VITE_GA_MEASUREMENT_ID,
+
+  zendesk: {
+    enabled: globalThis.process.env.VITE_ZENDESK_ENABLED,
+    authenticationEnabled: globalThis.process.env.VITE_ZENDESK_AUTHENTICATION_ENABLED,
+    key: globalThis.process.env.VITE_ZENDESK_KEY
+  }
 }
 
 /**

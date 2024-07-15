@@ -33,18 +33,20 @@ import {
   Engine,
   EntityUUID,
   getComponent,
+  getOptionalMutableComponent,
   setComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
 import { defineState, getMutableState, none, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkObjectOwnedTag, WorldNetworkAction } from '@etherealengine/network'
 
+import { EngineState } from '../../EngineState'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
-import { switchCameraMode } from '../functions/switchCameraMode'
+import { FollowCameraComponent } from '../components/FollowCameraComponent'
 
 export const CameraEntityState = defineState({
   name: 'CameraEntityState',
@@ -91,12 +93,23 @@ function CameraReactor() {
     if (!cameraSettings?.cameraNearClip) return
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent) as PerspectiveCamera
     if (camera?.isPerspectiveCamera) {
+      camera.fov = cameraSettings.fov.value
       camera.near = cameraSettings.cameraNearClip.value
       camera.far = cameraSettings.cameraFarClip.value
       camera.updateProjectionMatrix()
     }
-    switchCameraMode(Engine.instance.cameraEntity, cameraSettings.value)
-  }, [cameraSettings.cameraNearClip, cameraSettings.cameraFarClip])
+  }, [cameraSettings.fov, cameraSettings.cameraNearClip, cameraSettings.cameraFarClip])
+
+  // TODO: this is messy and not properly reactive; we need a better way to handle camera settings
+  useEffect(() => {
+    if (!cameraSettings?.fov) return
+    const follow = getOptionalMutableComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+    if (follow) {
+      follow.thirdPersonMinDistance.set(cameraSettings.minCameraDistance.value)
+      follow.thirdPersonMaxDistance.set(cameraSettings.maxCameraDistance.value)
+      follow.distance.set(cameraSettings.startCameraDistance.value)
+    }
+  }, [cameraSettings])
 
   return null
 }
@@ -125,5 +138,8 @@ export const CameraSystem = defineSystem({
   uuid: 'ee.engine.CameraSystem',
   insert: { with: AnimationSystemGroup },
   execute,
-  reactor
+  reactor: () => {
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <CameraReactor />
+  }
 })

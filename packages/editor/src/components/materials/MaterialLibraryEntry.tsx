@@ -31,8 +31,8 @@ import { useDrag } from 'react-dnd'
 import { EntityUUID, getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
+import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { SelectionState } from '../../services/SelectionServices'
 import styles from '../hierarchy/styles.module.scss'
@@ -57,10 +57,8 @@ export type MaterialLibraryEntryProps = {
 
 const nodeDisplayName = (node: MaterialLibraryEntryType) => {
   return (
-    getOptionalComponent(
-      UUIDComponent.getEntityByUUID(node.uuid as EntityUUID),
-      MaterialComponent[MaterialComponents.State]
-    )?.material?.name ?? ''
+    getOptionalComponent(UUIDComponent.getEntityByUUID(node.uuid as EntityUUID), MaterialStateComponent)?.material
+      ?.name ?? ''
   )
 }
 

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -31,6 +31,7 @@ import { RendererState } from '@etherealengine/spatial/src/renderer/RendererStat
 import { MdBorderClear } from 'react-icons/md'
 
 import Button from '../../../../../primitives/tailwind/Button'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import NumericInput from '../../../input/Numeric'
 
 const GridTool = () => {
@@ -42,27 +43,36 @@ const GridTool = () => {
     rendererState.gridVisibility.set(!rendererState.gridVisibility.value)
   }
 
+  useEffect(() => {
+    if (!rendererState.gridVisibility.value) {
+      rendererState.gridVisibility.set(true)
+    }
+  }, [])
+
   return (
     <div className="flex items-center bg-theme-surfaceInput">
-      <Button
-        startIcon={<MdBorderClear />}
-        onClick={onToggleGridVisible}
-        variant={rendererState.gridVisibility.value ? 'outline' : 'transparent'}
-        title={t('editor:toolbar.grid.info-toggleGridVisibility')}
-        className="px-0"
-      />
-      <NumericInput
-        value={rendererState.gridHeight.value}
-        onChange={(value) => rendererState.gridHeight.set(value)}
-        className="h-6 w-16 rounded-sm bg-transparent px-2 py-1"
-        inputClassName="text-[#A3A3A3]"
-        precision={0.01}
-        smallStep={0.5}
-        mediumStep={1}
-        largeStep={5}
-        min={0.0}
-        unit="m"
-      />
+      <Tooltip title={t('editor:toolbar.grid.info-toggleGridVisibility')}>
+        <Button
+          startIcon={<MdBorderClear />}
+          onClick={onToggleGridVisible}
+          variant={rendererState.gridVisibility.value ? 'outline' : 'transparent'}
+          className="px-0"
+        />
+      </Tooltip>
+      <Tooltip title={t('editor:toolbar.grid.info-gridSpacing')}>
+        <NumericInput
+          value={rendererState.gridHeight.value}
+          onChange={(value) => rendererState.gridHeight.set(value)}
+          className="h-6 w-16 rounded-sm bg-transparent px-2 py-1"
+          inputClassName="text-[#A3A3A3]"
+          precision={0.01}
+          smallStep={0.5}
+          mediumStep={1}
+          largeStep={5}
+          min={0.0}
+          unit="m"
+        />
+      </Tooltip>
     </div>
   )
 }

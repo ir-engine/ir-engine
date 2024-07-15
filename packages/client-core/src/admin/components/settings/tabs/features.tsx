@@ -28,15 +28,14 @@ import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-import {
-  FeatureFlag,
-  FeatureFlagSettingType,
-  featureFlagSettingPath
-} from '@etherealengine/common/src/schema.type.module'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
+import { FeatureFlagSettingType, featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { getAllStringValueNodes } from '@etherealengine/common/src/utils/getAllStringValueNodes'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import { useHookstate } from '@hookstate/core'
 
+const defaultTypes = getAllStringValueNodes(FeatureFlags)
 const defaultProps = ['id', 'flagName', 'flagValue', 'createdAt', 'updatedAt']
 
 const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
@@ -46,24 +45,21 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
   const featureFlagSettings = useFind(featureFlagSettingPath)
 
   useEffect(() => {
-    const defaultTypes = [
-      'ir.client.menu.social',
-      'ir.client.menu.emote',
-      'ir.client.menu.avaturn',
-      'ir.client.menu.readyPlayerMe'
-    ]
-
     if (featureFlagSettings.status === 'success') {
       const missingTypes = defaultTypes.filter(
         (type) =>
           !featureFlagSettings.data.find(
-            (flag) => flag.flagName === type && !Object.keys(flag).filter((key) => !defaultProps.includes(key))
+            (flag) =>
+              flag.flagName === type &&
+              !Object.keys(flag)
+                .filter((key) => !defaultProps.includes(key))
+                .some((item) => !item)
           )
       )
 
       const updatedFeatures: FeatureFlagSettingType[] = [
         ...missingTypes.map((type) => ({
-          flagName: type as FeatureFlag,
+          flagName: type,
           flagValue: true,
           id: '',
           createdAt: '',
@@ -85,16 +81,31 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
       open={open}
     >
       <div className="mt-6 grid grid-cols-1 gap-6">
-        {displayedFeatures.value.map((feature) => (
-          <FeatureItem key={feature.id} feature={feature} />
-        ))}
+        {displayedFeatures.value
+          .toSorted()
+          .sort((a, b) => a.flagName.localeCompare(b.flagName))
+          .map((feature) => (
+            <FeatureItem key={feature.flagName} feature={feature} />
+          ))}
       </div>
     </Accordion>
   )
 })
 
 const FeatureItem = ({ feature }: { feature: FeatureFlagSettingType }) => {
+  const featureFlagSettingMutation = useMutation(featureFlagSettingPath)
   const additionalProps = Object.keys(feature).filter((key) => !defaultProps.includes(key))
+
+  const createOrUpdateFeatureFlag = async (feature: FeatureFlagSettingType, enabled: boolean) => {
+    if (feature.id) {
+      await featureFlagSettingMutation.patch(feature.id, { flagValue: enabled })
+    } else {
+      await featureFlagSettingMutation.create({
+        flagName: feature.flagName,
+        flagValue: enabled
+      })
+    }
+  }
 
   return (
     <div key={feature.id} className="flex items-center">
@@ -102,14 +113,15 @@ const FeatureItem = ({ feature }: { feature: FeatureFlagSettingType }) => {
         containerClassName="justify-start"
         label={feature.flagName}
         value={feature.flagValue}
-        disabled
-        onChange={(value) => {}}
+        onChange={(value) => createOrUpdateFeatureFlag(feature, value)}
       />
-      {additionalProps.map((key) => (
-        <div key={key} className="ml-6 text-sm text-gray-500">
-          {key}: {feature[key]}
-        </div>
-      ))}
+      {additionalProps
+        .filter((key) => feature[key])
+        .map((key) => (
+          <div key={key} className="ml-6 text-sm text-gray-500">
+            {key}: {feature[key]}
+          </div>
+        ))}
     </div>
   )
 }

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isArray } from 'lodash'
 import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -57,7 +56,6 @@ import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SourceComponent } from '../components/SourceComponent'
-import { createMaterialInstance } from '../materials/functions/materialSourcingFunctions'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
@@ -345,18 +343,16 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     }
   }
 
-  const material = mesh.material
-  if (!material) return eJson
-
-  const materials = Array.isArray(material) ? material : [material]
-  materials.map((material) => {
-    const path = getOptionalComponent(rootEntity, ModelComponent)?.src ?? ''
-    createMaterialInstance(path, objEntity, material)
-  })
-  mesh.material = isArray(mesh.material) ? materials : materials[0]
-
   if (!hasComponent(objEntity, MeshComponent)) {
     setComponent(objEntity, Object3DComponent, obj)
   }
+
+  const material = mesh.material
+  if (!material) return eJson
+
+  delete mesh.userData['componentJson']
+  delete mesh.userData['gltfExtensions']
+  delete mesh.userData['useVisible']
+
   return eJson
 }

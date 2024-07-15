@@ -58,6 +58,7 @@ export type PluginType = PluginObjectType | typeof Material.prototype.onBeforeCo
 /**@deprecated Use setPlugin instead */
 export function addOBCPlugin(material: Material, plugin: PluginType): void {
   material.onBeforeCompile = plugin as any
+  console.log(material.onBeforeCompile)
   material.needsUpdate = true
 }
 
@@ -136,7 +137,7 @@ const onBeforeCompile = {
       this.plugins.sort(sortPluginsByPriority)
 
       this.customProgramCacheKey = () => {
-        let result = ''
+        let result = this.shader ? this.shader.fragmentShader + this.shader.vertexShader : ''
         for (let i = 0; i < this.plugins!.length; i++) {
           const plugin = this.plugins![i]
           const pluginObj = plugin as PluginObjectType

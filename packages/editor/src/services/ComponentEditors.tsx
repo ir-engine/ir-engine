@@ -45,6 +45,7 @@ import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/compon
 import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
+import { ReflectionProbeComponent } from '@etherealengine/engine/src/scene/components/ReflectionProbeComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
@@ -55,7 +56,6 @@ import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/Sky
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
-import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
@@ -109,6 +109,7 @@ import MountPointNodeEditor from '@etherealengine/ui/src/components/editor/prope
 import ParticleSystemNodeEditor from '@etherealengine/ui/src/components/editor/properties/particle'
 import PortalNodeEditor from '@etherealengine/ui/src/components/editor/properties/portal'
 import PostProcessingSettingsEditor from '@etherealengine/ui/src/components/editor/properties/postProcessing'
+import ReflectionProbeNodeEditor from '@etherealengine/ui/src/components/editor/properties/reflectionProbe'
 import RenderSettingsEditor from '@etherealengine/ui/src/components/editor/properties/render'
 import RigidBodyComponentEditor from '@etherealengine/ui/src/components/editor/properties/rigidBody'
 import ScenePreviewCameraNodeEditor from '@etherealengine/ui/src/components/editor/properties/scene/previewCamera'
@@ -123,7 +124,6 @@ import SplineNodeEditor from '@etherealengine/ui/src/components/editor/propertie
 import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import PlaylistNodeEditor from '@etherealengine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline/track'
-import SystemNodeEditor from '@etherealengine/ui/src/components/editor/properties/system'
 import TextNodeEditor from '@etherealengine/ui/src/components/editor/properties/text'
 import TriggerComponentEditor from '@etherealengine/ui/src/components/editor/properties/trigger'
 import VariantNodeEditor from '@etherealengine/ui/src/components/editor/properties/variant'
@@ -172,7 +172,6 @@ export const ComponentEditorsState = defineState({
       [VolumetricComponent.name]: VolumetricNodeEditor,
       [NewVolumetricComponent.name]: NewVolumetricNodeEditor,
       [PlaylistComponent.name]: PlaylistNodeEditor,
-      [SystemComponent.name]: SystemNodeEditor,
       [EnvmapComponent.name]: EnvMapEditor,
       [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,
       [InstancingComponent.name]: InstancingNodeEditor,
@@ -187,7 +186,8 @@ export const ComponentEditorsState = defineState({
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor,
-      [LookAtComponent.name]: LookAtNodeEditor
+      [LookAtComponent.name]: LookAtNodeEditor,
+      [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor
     } as Record<string, EditorComponentType>
   }
 })

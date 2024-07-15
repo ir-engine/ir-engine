@@ -42,7 +42,9 @@ import {
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
 
+import { startTimer } from '@etherealengine/spatial/src/startTimer'
 import channels from './channels'
+import { InstanceServerState } from './InstanceServerState'
 import { setupSocketFunctions } from './SocketFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver' })
@@ -69,6 +71,8 @@ export const instanceServerPipe = pipe(configureOpenAPI(), configurePrimus(true)
 
 export const start = async (): Promise<Application> => {
   const app = createFeathersKoaApp(ServerMode.Instance, instanceServerPipe)
+  startTimer()
+
   const serverState = getMutableState(ServerState)
 
   const agonesSDK = new AgonesSDK()
@@ -182,6 +186,7 @@ export const start = async (): Promise<Application> => {
   server.on('listening', () =>
     logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
   )
+  getMutableState(InstanceServerState).port.set(port)
   await new Promise((resolve) => {
     const primusWaitInterval = setInterval(() => {
       if (app.primus) {

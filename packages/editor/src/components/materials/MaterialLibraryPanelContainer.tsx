@@ -30,17 +30,14 @@ import { FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { EntityUUID, getComponent, UndefinedEntity, useQuery, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, getComponent, useQuery, UUIDComponent } from '@etherealengine/ecs'
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import {
-  createMaterialEntity,
-  getMaterialsFromSource
-} from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
+import { getMaterialsFromScene } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
@@ -54,13 +51,13 @@ import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibrar
 export default function MaterialLibraryPanel() {
   const srcPath = useState('/mat/material-test')
 
-  const materialQuery = useQuery([MaterialComponent[MaterialComponents.State]])
+  const materialQuery = useQuery([MaterialStateComponent])
   const nodes = useHookstate([] as MaterialLibraryEntryType[])
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
 
   useEffect(() => {
     const materials = selected.value.length
-      ? getMaterialsFromSource(UUIDComponent.getEntityByUUID(selected.value[0]))
+      ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selected.value[0]))
       : materialQuery.map((entity) => getComponent(entity, UUIDComponent))
     const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
       const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
@@ -107,7 +104,7 @@ export default function MaterialLibraryPanel() {
             <Button
               onClick={() => {
                 const newMaterial = new MeshBasicMaterial({ name: 'New Material' })
-                createMaterialEntity(newMaterial, '', UndefinedEntity)
+                //createMaterialEntity(newMaterial, UndefinedEntity)
               }}
             >
               New

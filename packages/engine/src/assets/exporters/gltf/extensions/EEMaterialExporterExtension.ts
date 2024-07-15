@@ -29,12 +29,12 @@ import matches from 'ts-matches'
 import { EntityUUID, getComponent, hasComponent, UUIDComponent } from '@etherealengine/ecs'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
-  MaterialComponent,
-  MaterialComponents,
-  MaterialPlugins
+  MaterialPlugins,
+  MaterialPrototypeComponent,
+  MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
-import { injectMaterialDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
+import { injectMaterialDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -98,17 +98,17 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
         if ((material[k] as CubeTexture).isCubeTexture) return //for skipping environment maps which cause errors
         const texture = material[k] as Texture
         if (texture.source.data && this.matCache.has(texture.source.data)) {
-          argEntry.contents = this.matCache.get(texture)
+          argEntry.contents = this.matCache.get(texture.source.data)
         } else {
           const mapDef = {
-            index: this.writer.processTexture(texture),
-            texCoord: k === 'lightMap' ? 1 : 0
+            index: this.writer.processTexture(texture)
           }
-          this.writer.options.flipY && (texture.repeat.y *= -1)
-          this.writer.applyTextureTransform(mapDef, texture)
+          this.matCache.set(texture.source.data, { ...mapDef })
           argEntry.contents = mapDef
-          this.matCache.set(texture.source.data, mapDef)
         }
+        argEntry.contents.texCoord = texture.channel
+        this.writer.options.flipY && (texture.repeat.y *= -1)
+        this.writer.applyTextureTransform(argEntry.contents, texture)
       }
       result[k] = argEntry
     })
@@ -116,18 +116,19 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.normalTexture
     delete materialDef.emissiveTexture
     delete materialDef.emissiveFactor
-    const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-    const prototype = getComponent(materialComponent.prototypeEntity!, MaterialComponent[MaterialComponents.Prototype])
-    const plugins = Object.keys(MaterialPlugins).map((plugin) => {
-      if (!hasComponent(materialEntity, MaterialPlugins[plugin])) return
-      const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin])
-      const uniforms = {}
-      for (const key in pluginComponent) {
-        console.log(pluginComponent[key])
-        uniforms[key] = pluginComponent[key].value
-      }
-      return { id: plugin, uniforms }
-    })
+    const materialComponent = getComponent(materialEntity, MaterialStateComponent)
+    const prototype = getComponent(materialComponent.prototypeEntity!, MaterialPrototypeComponent)
+    const plugins = Object.keys(MaterialPlugins)
+      .map((plugin) => {
+        if (!hasComponent(materialEntity, MaterialPlugins[plugin])) return
+        const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin])
+        const uniforms = {}
+        for (const key in pluginComponent) {
+          uniforms[key] = pluginComponent[key].value
+        }
+        return { id: plugin, uniforms }
+      })
+      .filter(Boolean)
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
       uuid: getComponent(materialEntity, UUIDComponent),

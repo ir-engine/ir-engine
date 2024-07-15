@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useRef } from 'react'
-import { Mesh, SphereGeometry } from 'three'
+import { BufferAttribute, Mesh, SphereGeometry } from 'three'
 
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import {
@@ -42,7 +42,7 @@ import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/compone
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { MaterialsPanelTab } from '../../Materials'
@@ -52,10 +52,7 @@ export const MaterialPreviewCanvas = () => {
   const renderPanel = useRender3DPanelSystem(panelRef)
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   const panel = document.getElementById(MaterialsPanelTab.id!)
-  const materialComponent = useComponent(
-    UUIDComponent.getEntityByUUID(selectedMaterial.value!),
-    MaterialComponent[MaterialComponents.State]
-  )
+  const materialComponent = useComponent(UUIDComponent.getEntityByUUID(selectedMaterial.value!), MaterialStateComponent)
 
   useEffect(() => {
     if (!selectedMaterial.value) return
@@ -66,7 +63,13 @@ export const MaterialPreviewCanvas = () => {
     setComponent(sceneEntity, VisibleComponent, true)
     const material = getMaterial(getState(MaterialSelectionState).selectedMaterial!)
     if (!material) return
-    addObjectToGroup(sceneEntity, new Mesh(new SphereGeometry(5, 32, 32), material))
+    const sphereMesh = new Mesh(new SphereGeometry(5, 32, 32), material)
+    sphereMesh.geometry.attributes['color'] = new BufferAttribute(
+      new Float32Array(sphereMesh.geometry.attributes.position.count * 3).fill(1),
+      3
+    )
+    sphereMesh.geometry.attributes['uv1'] = sphereMesh.geometry.attributes['uv'].clone()
+    addObjectToGroup(sceneEntity, sphereMesh)
     setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 })
     const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)
     orbitCamera.focusedEntities.set([sceneEntity])

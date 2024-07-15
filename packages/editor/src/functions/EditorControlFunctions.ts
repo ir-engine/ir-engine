@@ -34,7 +34,6 @@ import {
   ComponentJSONIDMap,
   getComponent,
   getOptionalComponent,
-  hasComponent,
   SerializedComponentType,
   updateComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -53,7 +52,6 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
   EntityTreeComponent,
-  filterParentEntities,
   findCommonAncestors,
   iterateEntityNode
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -197,6 +195,7 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         material[k] = v
       }
     })
+    material.needsUpdate = true
   }
 }
 const overwriteLookdevObject = (
@@ -657,61 +656,82 @@ const removeObject = (entities: Entity[]) => {
   const scenes = getSourcesForEntities(entities)
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    const rootEntity = getState(GLTFSourceState)[sceneID]
-    const removedParentNodes = filterParentEntities(rootEntity, entities, undefined, true, false)
-
+    const uuidsToRemove = new Set(entities.map((entity) => getComponent(entity, UUIDComponent)))
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    const gltfData = gltf.data
 
-    for (let i = 0; i < removedParentNodes.length; i++) {
-      const entity = removedParentNodes[i]
-      const entityTreeComponent = getComponent(entity, EntityTreeComponent)
-      if (!entityTreeComponent.parentEntity) continue
-      const uuidsToDelete = iterateEntityNode(
-        entity,
-        (entity) => getComponent(entity, UUIDComponent),
-        (entity) => hasComponent(entity, SourceComponent) && hasComponent(entity, UUIDComponent),
-        false,
-        false
-      )
-      for (const entityUUID of uuidsToDelete) {
-        const oldNodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
-        if (oldNodeIndex < 0) continue
-        // immediately remove the node from the document
-        gltf.data.nodes!.splice(oldNodeIndex, 1)
-        const childRootIndex = gltf.data.scenes![0].nodes.indexOf(oldNodeIndex)
-
-        // remove the node from parent
-        if (childRootIndex > -1) {
-          gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(oldNodeIndex), 1)
-        } else {
-          const currentParentNode = getParentNodeByUUID(gltf.data, entityUUID)!
-          if (currentParentNode) {
-            const currentParentNodeIndex = currentParentNode.children!.indexOf(oldNodeIndex)
-            currentParentNode.children!.splice(currentParentNodeIndex, 1)
-          }
-        }
-
-        // update all node indices in parents
-        for (let i = oldNodeIndex; i < gltf.data.nodes!.length; i++) {
-          const node = gltf.data.nodes![i]
-          const uuid = node.extensions?.[UUIDComponent.jsonID] as EntityUUID
-          const childRootIndex = gltf.data.scenes![0].nodes.indexOf(i + 1)
-          if (childRootIndex > -1) {
-            gltf.data.scenes![0].nodes[childRootIndex]--
-            continue
-          }
-          const parentNode = getParentNodeByUUID(gltf.data, uuid)
-          if (!parentNode) continue
-          const childIndex = parentNode.children!.indexOf(i + 1)
-          if (childIndex > -1) {
-            parentNode.children![childIndex]--
-          }
-        }
-      }
-    }
+    const nodesToRemove = collectNodesToRemove(gltf.data, uuidsToRemove)
+    removeNodes(gltfData, nodesToRemove)
+    compactNodes(gltfData)
 
     dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
+}
+
+const collectNodesToRemove = (gltfData: GLTF.IGLTF, uuidsToRemove: Set<EntityUUID>): Set<number> => {
+  const nodesToRemove = new Set<number>()
+
+  const collectDescendants = (nodeIndex: number) => {
+    nodesToRemove.add(nodeIndex)
+    const node = gltfData.nodes![nodeIndex]
+    node.children?.forEach(collectDescendants)
+  }
+
+  gltfData.nodes!.forEach((node, index) => {
+    const nodeUUID = node.extensions?.[UUIDComponent.jsonID] as EntityUUID
+    if (uuidsToRemove.has(nodeUUID)) {
+      collectDescendants(index)
+    }
+  })
+
+  return nodesToRemove
+}
+
+const removeNodes = (gltfData: GLTF.IGLTF, nodesToRemove: Set<number>) => {
+  for (let i = gltfData.nodes!.length - 1; i >= 0; i--) {
+    if (nodesToRemove.has(i)) {
+      removeNodeReferences(gltfData, i)
+      gltfData.nodes![i] = null as any
+    }
+  }
+}
+
+// removes all references to a specific node from the gltfData
+const removeNodeReferences = (gltfData: GLTF.IGLTF, nodeIndex: number) => {
+  gltfData.nodes!.forEach((node) => {
+    if (node && node.children) {
+      node.children = node.children.filter((childIndex) => childIndex !== nodeIndex)
+    }
+  })
+  gltfData.scenes![0].nodes = gltfData.scenes![0].nodes.filter((index) => index !== nodeIndex)
+}
+
+// remove null nodes from the gltfData and update the indices of the remaining nodes
+const compactNodes = (gltfData: GLTF.IGLTF) => {
+  let offset = 0
+  const oldToNewIndex = new Map<number, number>()
+
+  gltfData.nodes = gltfData.nodes!.filter((node, i) => {
+    if (node === null) {
+      offset++
+      return false
+    }
+    oldToNewIndex.set(i, i - offset)
+    return true
+  })
+
+  // update the node references in gltfData after some nodes have been removed
+  updateNodeReferences(gltfData, oldToNewIndex)
+}
+
+// ensures that all references to node indices (both in parent-child relationships and in the scene's root nodes) are updated to reflect the new, compacted structure of the nodes array
+const updateNodeReferences = (gltfData: GLTF.IGLTF, oldToNewIndex: Map<number, number>) => {
+  gltfData.nodes!.forEach((node) => {
+    if (node.children) {
+      node.children = node.children.map((childIndex) => oldToNewIndex.get(childIndex)!)
+    }
+  })
+  gltfData.scenes![0].nodes = gltfData.scenes![0].nodes.map((index) => oldToNewIndex.get(index)!)
 }
 
 const replaceSelection = (entities: EntityUUID[]) => {

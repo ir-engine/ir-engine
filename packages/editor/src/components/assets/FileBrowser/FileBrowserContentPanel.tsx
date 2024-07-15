@@ -23,6 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import config from '@etherealengine/common/src/config'
+import {
+  FileBrowserContentType,
+  archiverPath,
+  fileBrowserPath,
+  fileBrowserUploadPath,
+  staticResourcePath
+} from '@etherealengine/common/src/schema.type.module'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import {
+  ImageConvertDefaultParms,
+  ImageConvertParms
+} from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
+import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import {
+  filesConsistOfContentType,
+  useValidProjectForFileBrowser
+} from '@etherealengine/ui/src/components/editor/panels/Files/container'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
+import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
@@ -33,40 +64,11 @@ import { Breadcrumbs, Link, Popover, TablePagination } from '@mui/material'
 import React, { useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
-
-import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
-import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
-import config from '@etherealengine/common/src/config'
-import {
-  archiverPath,
-  FileBrowserContentType,
-  fileBrowserPath,
-  fileBrowserUploadPath,
-  staticResourcePath
-} from '@etherealengine/common/src/schema.type.module'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import {
-  ImageConvertDefaultParms,
-  ImageConvertParms
-} from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { useValidProjectForFileBrowser } from '@etherealengine/ui/src/components/editor/panels/Files/container'
-import Button from '@etherealengine/ui/src/primitives/mui/Button'
-import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
-import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
-import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
+import { EditorHelperState, PlacementMode } from '../../../services/EditorHelperState'
+import { ClickPlacementState } from '../../../systems/ClickPlacementSystem'
 import BooleanInput from '../../inputs/BooleanInput'
 import InputGroup from '../../inputs/InputGroup'
 import StringInput from '../../inputs/StringInput'
@@ -74,10 +76,9 @@ import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
 import ImageCompressionPanel from '../ImageCompressionPanel'
 import ImageConvertPanel from '../ImageConvertPanel'
-import ModelCompressionPanel from '../ModelCompressionPanel'
 import styles from '../styles.module.scss'
-import { canDropItemOverFolder, FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
-import { availableTableColumns, FilesViewModeSettings, FilesViewModeState } from './FileBrowserState'
+import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from './FileBrowserGrid'
+import { FilesViewModeSettings, FilesViewModeState, availableTableColumns } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
 import { FilePropertiesPanel } from './FilePropertiesPanel'
 
@@ -97,25 +98,7 @@ type DnDFileType = {
 
 export const FILES_PAGE_LIMIT = 100
 
-export type FileType = {
-  fullName: string
-  isFolder: boolean
-  key: string
-  name: string
-  path: string
-  size: string
-  type: string
-  url: string
-}
-
-const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
-  if (file.isFolder) {
-    return contentType.startsWith('image')
-  } else {
-    const guessedType: string = CommonKnownContentTypes[file.type]
-    return guessedType?.startsWith(contentType)
-  }
-}
+type FileType = FileDataType
 
 export function isFileDataType(value: any): value is FileDataType {
   return value && value.key
@@ -132,7 +115,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const selectedDirectory = useHookstate(originalPath)
   const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
   const nestingDirectory = useHookstate('projects')
-  const fileProperties = useHookstate<FileType | null>(null)
+  const fileProperties = useHookstate<FileType[]>([])
 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
@@ -209,6 +192,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         contentType: params.type,
         size: params.size
       })
+      const editorHelperState = getState(EditorHelperState)
+      if (editorHelperState.placementMode === PlacementMode.CLICK) {
+        getMutableState(ClickPlacementState).selectedAsset.set(params.url)
+      }
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
       changeDirectoryByPath(newPath)
@@ -246,9 +233,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             try {
               const name = processFileName(file.name)
               await uploadToFeathersService(fileBrowserUploadPath, [file], {
-                project: projectName,
-                path: relativePath + name,
-                contentType: file.type
+                args: [
+                  {
+                    project: projectName,
+                    path: relativePath + name,
+                    contentType: file.type
+                  }
+                ]
               }).promise
             } catch (err) {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -318,10 +309,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const showBackButton = selectedDirectory.value !== originalPath
 
   const handleDownloadProject = async () => {
-    const url = selectedDirectory.value
     const data = await Engine.instance.api
       .service(archiverPath)
-      .get(null, { query: { directory: url } })
+      .get(null, { query: { project: projectName } })
       .catch((err: Error) => {
         NotificationService.dispatchNotify(err.message, { variant: 'warning' })
         return null
@@ -545,9 +535,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             <Button
               className={'medium-button button'}
               style={{ width: '100%' }}
-              onClick={() =>
-                FileThumbnailJobState.processAllFiles(selectedDirectory.value, forceRegenerateThumbnails.value)
-              }
+              onClick={() => {
+                //   FileThumbnailJobState.processAllFiles(selectedDirectory.value, forceRegenerateThumbnails.value)
+              }}
             >
               Generate thumbnails
             </Button>
@@ -634,7 +624,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <ToolButton
             tooltip={t('editor:layout.filebrowser.uploadAssets')}
             onClick={async () => {
-              await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+              await inputFileWithAddToScene({ projectName, directoryPath: selectedDirectory.value })
                 .then(refreshDirectory)
                 .catch((err) => {
                   NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -675,29 +665,17 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </DndWrapper>
       </div>
 
-      {openConvert.value && fileProperties.value && (
+      {openConvert.value && fileProperties.value.length > 0 && (
         <ImageConvertPanel
           openConvert={openConvert}
-          fileProperties={fileProperties.value}
+          fileProperties={fileProperties.value?.[0]}
           convertProperties={convertProperties}
           onRefreshDirectory={refreshDirectory}
         />
       )}
 
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model') && (
-        <ModelCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
-          onRefreshDirectory={refreshDirectory}
-        />
-      )}
-
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
-        <ImageCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
-          onRefreshDirectory={refreshDirectory}
-        />
+      {openCompress.value && fileProperties.value && filesConsistOfContentType(fileProperties.value, 'image') && (
+        <ImageCompressionPanel selectedFiles={fileProperties.value} refreshDirectory={refreshDirectory} />
       )}
 
       {openProperties.value && fileProperties.value && (

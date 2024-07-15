@@ -48,6 +48,7 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor
       {...props}
+      name={t('editor:properties.pointLight.name')}
       description={t('editor:properties.pointLight.description')}
       icon={<PointLightNodeEditor.iconComponent />}
     >

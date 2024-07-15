@@ -32,7 +32,9 @@ import sinon from 'sinon'
 import { destroyEngine } from '@etherealengine/ecs'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { createEngine } from '../initializeEngine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '../EngineState'
+import { initializeSpatialEngine } from '../initializeEngine'
 import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
 import { EngineRenderer, RenderSettingsState } from './WebGLRendererSystem'
@@ -72,26 +74,29 @@ describe('PerformanceState', () => {
 
   beforeEach(async () => {
     createEngine()
+    initializeSpatialEngine()
+    getMutableState(EngineState).isEditing.set(false)
+    getMutableState(RendererState).automatic.set(true)
+    getMutableState(PerformanceState).merge({
+      initialized: true,
+      enabled: true
+    })
   })
 
   afterEach(() => {
     return destroyEngine()
   })
 
-  it('Builds Performance State', (done) => {
-    PerformanceManager.buildPerformanceState(
-      mockRenderer,
-      () => {
-        const performanceState = getState(PerformanceState)
-        assert(performanceState.max3DTextureSize === 1000)
-        assert(performanceState.maxBufferSize === 54000000000)
-        assert(performanceState.maxIndices === 8000)
-        assert(performanceState.maxTextureSize === 2000)
-        assert(performanceState.maxVerticies === 10000)
-        done()
-      },
-      { renderer: 'nvidia corporation, nvidia geforce rtx 3070/pcie/sse2, ' }
-    )
+  it('Builds Performance State', async () => {
+    await PerformanceManager.buildPerformanceState(mockRenderer, {
+      renderer: 'nvidia corporation, nvidia geforce rtx 3070/pcie/sse2, '
+    })
+    const performanceState = getState(PerformanceState)
+    assert(performanceState.max3DTextureSize === 1000)
+    assert(performanceState.maxBufferSize === 54000000000)
+    assert(performanceState.maxIndices === 8000)
+    assert(performanceState.maxTextureSize === 2000)
+    assert(performanceState.maxVerticies === 10000)
   })
 
   it('Increments performance offset', (done) => {
@@ -196,12 +201,12 @@ describe('PerformanceState', () => {
     const renderSettings = getState(RenderSettingsState)
     const engineSettings = getState(RendererState)
 
-    const { smaaPreset } = renderSettings
-    const { shadowMapResolution } = engineSettings
-
     const Reactor = PerformanceState.reactor
 
     const { rerender, unmount } = render(<Reactor />)
+
+    const { smaaPreset } = renderSettings
+    const { shadowMapResolution } = engineSettings
 
     act(async () => {
       performanceState.gpuTier.set(updatedTier as any)

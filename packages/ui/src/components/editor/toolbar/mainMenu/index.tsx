@@ -27,7 +27,7 @@ import React from 'react'
 
 import MenuItem from '@mui/material/MenuItem'
 import Button from '../../../../primitives/tailwind/Button'
-import ContextMenu from '../../layout/ContextMenu'
+import { ContextMenu } from '../../../tailwind/ContextMenu'
 
 interface Command {
   name: string
@@ -41,24 +41,13 @@ interface MainMenuProp {
 }
 
 const MainMenu = ({ commands, icon }: MainMenuProp) => {
-  const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
+  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const onOpen = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
 
-    setAnchorEl(event.currentTarget)
-    setAnchorPosition({
-      left: 0,
-      top: event.currentTarget.offsetHeight + 6
-    })
-  }
-
-  const handleClose = () => {
-    setAnchorEl(null)
-    setAnchorPosition({ left: 0, top: 0 })
+    setAnchorEvent(event)
   }
 
   const renderMenu = (command: Command) => {
@@ -67,7 +56,7 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
         key={command.name}
         onClick={() => {
           command.action()
-          handleClose()
+          setAnchorEvent(undefined)
         }}
       >
         {command.name}
@@ -87,8 +76,10 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
           onClick={(event) => onOpen(event as any)}
         />
       </div>
-      <ContextMenu open={open} anchorEl={anchorEl} panelId="menu" anchorPosition={anchorPosition} onClose={handleClose}>
-        {commands.map((command: Command) => renderMenu(command))}
+      <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
+        <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+          {commands.map((command: Command) => renderMenu(command))}
+        </div>
       </ContextMenu>
     </>
   )
