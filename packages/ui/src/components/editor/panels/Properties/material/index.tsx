@@ -34,7 +34,6 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  removeEntity,
   setComponent,
   useComponent,
   useOptionalComponent,
@@ -45,7 +44,7 @@ import { EditorControlFunctions } from '@etherealengine/editor/src/functions/Edi
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, NO_PROXY, none, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, none, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import { getDefaultType } from '@etherealengine/spatial/src/renderer/materials/constants/DefaultArgs'
@@ -303,15 +302,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           </Button>
         </div>
       )}
-      <Button
-        className="w-full text-xs"
-        onClick={() => {
-          getMutableState(MaterialSelectionState).selectedMaterial.set(null)
-          removeEntity(entity)
-        }}
-      >
-        Delete
-      </Button>
     </div>
   )
 }
