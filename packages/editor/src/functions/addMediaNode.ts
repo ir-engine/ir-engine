@@ -29,7 +29,7 @@ import { getContentType } from '@etherealengine/common/src/utils/getContentType'
 import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
@@ -46,8 +46,7 @@ import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterat
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { assignMaterial, createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -93,11 +92,10 @@ export async function addMediaNode(
           (mesh: Mesh) => mesh?.isMesh
         )[0]
         if (!material) return
-        createMaterialEntity(material, UndefinedEntity)
+        const materialEntity = createMaterialEntity(material)
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
-          const materialInstanceComponent = getMutableComponent(mesh.entity, MaterialInstanceComponent)
-          if (materialInstanceComponent.uuid.value) materialInstanceComponent.uuid.set([material.uuid as EntityUUID])
+          assignMaterial(mesh.entity, materialEntity)
         })
       })
     } else if (contentType.startsWith('model/lookdev')) {
