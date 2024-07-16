@@ -69,7 +69,7 @@ export class AppleStrategy extends CustomOAuthStrategy {
 
     return {
       ...baseData,
-      accountIdentifier: `$${profile.email ? profile.email : profile.sub}`,
+      accountIdentifier: `${profile.email ? profile.email : profile.sub}`,
       type: 'apple',
       userId
     }
