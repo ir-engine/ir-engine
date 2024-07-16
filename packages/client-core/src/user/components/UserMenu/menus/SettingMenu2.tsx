@@ -44,10 +44,11 @@ import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
 import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
-import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import { SelectOptionsType } from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import Menu from '../../../../common/components/Menu'
+import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
@@ -77,7 +78,11 @@ export const ShadowMapResolutionOptions: SelectOptionsType[] = [
 
 const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 
-const SettingMenu2 = (): JSX.Element => {
+export type Props = {
+  isPopover?: boolean
+}
+
+const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useMutableState(RendererState)
   const audioState = useMutableState(AudioState)
@@ -183,7 +188,13 @@ const SettingMenu2 = (): JSX.Element => {
   }
 
   return (
-    <Modal title={'Settings'} onClose={() => PopupMenuServices.showPopupMenu()} className="fixed inset-0" hideFooter>
+    <Menu
+      open
+      showBackButton
+      isPopover={isPopover}
+      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
+    >
       <div className="mb-3 flex">
         {settingTabs.map((tab) => (
           <div className={`${tab.value === selectedTab.value ? 'border-b-2 border-[#6B7280]' : ''} p-2`}>
@@ -457,7 +468,7 @@ const SettingMenu2 = (): JSX.Element => {
           )}
         </>
       )}
-    </Modal>
+    </Menu>
   )
 }
 
