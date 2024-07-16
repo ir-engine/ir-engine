@@ -53,7 +53,11 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
       icon={<PointLightNodeEditor.iconComponent />}
     >
       <InputGroup name="Color" label={t('editor:properties.pointLight.lbl-color')}>
-        <ColorInput value={lightComponent.color} onChange={updateProperty(PointLightComponent, 'color')} />
+        <ColorInput
+          value={lightComponent.color}
+          onChange={updateProperty(PointLightComponent, 'color')}
+          onRelease={commitProperty(PointLightComponent, 'color')}
+        />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.pointLight.lbl-intensity')}>
         <NumericInput

@@ -61,6 +61,7 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
           textClassName="text-white"
           value={lightComponent.color.value}
           onChange={updateProperty(AmbientLightComponent, 'color')}
+          onRelease={commitProperty(AmbientLightComponent, 'color')}
         />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.ambientLight.lbl-intensity')}>
