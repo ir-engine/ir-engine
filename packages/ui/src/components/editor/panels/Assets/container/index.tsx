@@ -151,7 +151,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
       </span>
 
       <Tooltip title={name}>
-        <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
+        <span className="line-clamp-1 w-full text-wrap break-all text-sm text-white">{name}</span>
       </Tooltip>
 
       <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)} className="gap-1">
