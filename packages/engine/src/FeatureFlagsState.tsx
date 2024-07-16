@@ -40,7 +40,7 @@ export const FeatureFlagsState = defineState({
     return typeof state === 'boolean' ? state : true
   },
   reactor: () => {
-    const featureFlagQuery = useFind(featureFlagSettingPath)
+    const featureFlagQuery = useFind(featureFlagSettingPath, { query: { paginate: false } })
 
     useEffect(() => {
       const data = featureFlagQuery.data
