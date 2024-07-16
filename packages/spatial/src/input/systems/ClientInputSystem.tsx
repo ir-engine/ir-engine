@@ -716,7 +716,7 @@ type IntersectionData = {
 }
 
 function applyRaycastedInputHeuristics(sourceEid: Entity, intersectionData: Set<IntersectionData>) {
-  const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
+  const sourceRotation = TransformComponent.getWorldRotation(sourceEid, new Quaternion())
   inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
 
   TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
