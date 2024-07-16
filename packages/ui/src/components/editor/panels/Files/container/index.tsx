@@ -567,7 +567,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       <div
         ref={fileDropRef}
         className={twMerge(
-          'h-full px-4 text-gray-400 ',
+          'mb-4 h-auto px-4 text-gray-400 ',
           isListView ? '' : 'flex py-8',
           isFileDropOver ? 'border-2 border-gray-300' : ''
         )}
@@ -817,7 +817,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       </div>
       {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}
       <GeneratingThumbnailsProgress />
-      <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
+      <div id="file-browser-panel" className="h-full overflow-auto">
         <DndWrapper id="file-browser-panel">
           <DropArea />
         </DndWrapper>
