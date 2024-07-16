@@ -198,6 +198,7 @@
       "create": "Publish Location",
       "update": "Update Published Location",
       "unpublish": "Unpublish Location",
+      "saveAndPublish": "Save and Publish",
       "locationLinkCopied": "Location link copied"
     }
   },

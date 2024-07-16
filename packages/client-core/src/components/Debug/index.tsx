@@ -39,7 +39,6 @@ import {
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { isDev } from '@etherealengine/common/src/config'
 import { EntityDebug } from './EntityDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
@@ -183,8 +182,6 @@ export const DebugToggle = () => {
   const isShowing = useHookstate(getMutableState(DebugState).enabled)
 
   useEffect(() => {
-    if (!isDev) return
-
     function downHandler({ keyCode }) {
       if (keyCode === 192) {
         isShowing.set(!isShowing.value)
