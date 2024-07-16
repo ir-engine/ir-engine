@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Spark } from 'primus'
-
 import { ChannelID, InstanceID, LocationID, RoomCode, UserID } from '@etherealengine/common/src/schema.type.module'
 import {
   PeerID,
@@ -48,13 +46,19 @@ export type PeersUpdateType = {
   userIndex: number
 }
 
+export type PeerTransport = {
+  message?: (data: any) => void
+  buffer?: (dataChannelType: DataChannelType, data: any) => void
+  end?: () => void
+}
+
 export interface NetworkPeer {
   userId: UserID
   userIndex: number
-  // The following properties are only present on the server
-  spark?: Spark // todo change this to socket and create a socket transport abstraction
-  peerIndex: number
   peerID: PeerID
+  peerIndex: number
+  transport?: PeerTransport // todo change this to socket and create a socket transport abstraction
+  // The following properties are only present on the server
   lastSeenTs?: any
   /** @deprecated - only used for media recording */
   media?: Record<MediaTagType, PeerMediaType>

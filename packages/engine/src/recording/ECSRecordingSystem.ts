@@ -828,10 +828,7 @@ const execute = () => {
             for (const func of dataChannelFunctions) func(network, dataChannel, peerID, encodedData)
           }
         }
-        network.transport.bufferToAll(dataChannel, peerID, encodedData)
-        // for (const peerID of network.users[userId]) {
-        //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
-        // }
+        network.bufferToAll(dataChannel, peerID, encodedData)
       }
     }
     // }
