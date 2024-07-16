@@ -293,6 +293,52 @@ export function AssetsBreadcrumb({ path }: AssetsBreadcrumbProps) {
   )
 }
 
+const CategoriesList = ({
+  categories,
+  selectedCategory,
+  collapsedCategories,
+  onSelectCategory
+}: {
+  categories: Category[]
+  selectedCategory: Category | null
+  collapsedCategories: State<{ [key: string]: boolean }>
+  onSelectCategory: (category: Category) => void
+}) => {
+  const savedScrollPosition = useRef<number>(0)
+  const listRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = savedScrollPosition.current
+    }
+  }, [categories, selectedCategory])
+
+  const handleScroll = () => {
+    if (listRef.current) {
+      savedScrollPosition.current = listRef.current.scrollTop
+    }
+  }
+
+  return (
+    <div ref={listRef} className="mb-8 h-full w-52 overflow-y-scroll bg-[#0E0F11] pb-8" onScroll={handleScroll}>
+      {categories.map((category, index) => (
+        <AssetCategory
+          key={category.name}
+          data={{
+            categories: categories as Category[],
+            selectedCategory: selectedCategory,
+            onClick: (category: Category) => {
+              onSelectCategory(category)
+            },
+            collapsedCategories
+          }}
+          index={index}
+        />
+      ))}
+    </div>
+  )
+}
+
 const AssetPanel = () => {
   const { t } = useTranslation()
   const searchTimeoutCancelRef = useRef<(() => void) | null>(null)
@@ -305,27 +351,6 @@ const AssetPanel = () => {
   const breadcrumbPath = useHookstate('')
   const originalPath = useMutableState(EditorState).projectName.value
   const staticResourcesPagination = useHookstate({ totalPages: -1, currentPage: 0 })
-
-  const CategoriesList = () => {
-    return (
-      <div className="mb-8 h-full w-52 overflow-y-auto bg-[#0E0F11] pb-8">
-        {categories.map((category, index) => (
-          <AssetCategory
-            key={category.name.value}
-            data={{
-              categories: categories.value as Category[],
-              selectedCategory: selectedCategory.value,
-              onClick: (category: Category) => {
-                selectedCategory.set(clone(category))
-              },
-              collapsedCategories
-            }}
-            index={index}
-          />
-        ))}
-      </div>
-    )
-  }
 
   const mapCategories = () => {
     const result: Category[] = []
@@ -467,6 +492,11 @@ const AssetPanel = () => {
     mapCategories()
   }
 
+  const handleSelectCategory = (category: Category) => {
+    selectedCategory.set(clone(category))
+    !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
+  }
+
   return (
     <>
       <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
@@ -533,7 +563,12 @@ const AssetPanel = () => {
         </Button>
       </div>
       <div id="asset-browser-panel" className="flex h-full">
-        <CategoriesList />
+        <CategoriesList
+          categories={categories.value as Category[]}
+          selectedCategory={selectedCategory.value}
+          collapsedCategories={collapsedCategories}
+          onSelectCategory={handleSelectCategory}
+        />
         <div className="flex h-full w-full flex-col overflow-auto">
           <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
             <ResourceItems />
