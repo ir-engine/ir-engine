@@ -49,7 +49,6 @@ import { DirectionalLightComponent, TransformComponent } from '@etherealengine/s
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -60,7 +59,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
-import { Color, Euler, MathUtils, Matrix4, Quaternion, Scene, Sphere, Vector3 } from 'three'
+import { Color, Euler, MathUtils, Matrix4, Quaternion, Sphere, Vector3 } from 'three'
 
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
@@ -449,11 +448,6 @@ const ThumbnailJobReactor = () => {
 
       viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
       setComponent(cameraEntity, SceneComponent, { children: [modelEntity, lightEntity] })
-
-      const scene = new Scene()
-      scene.children = getComponent(cameraEntity, SceneComponent)
-        .children.map((entity) => getComponent(entity, GroupComponent))
-        .flat()
       const canvas = getComponent(cameraEntity, RendererComponent).canvas
       const maxTryCount = 10
       function doRender(tryCount = 0) {
