@@ -157,7 +157,7 @@ export const FileToAssetType = (fileName: string): AssetType => {
   return AssetExtToAssetType(FileExtToAssetExt(ext))
 }
 
-function isURL(path: string) {
+export function isURL(path: string) {
   if (!path || path === '') return false
   return path.startsWith('http://') || path.startsWith('https://') || path.startsWith('file://')
 }
