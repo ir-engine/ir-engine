@@ -727,7 +727,7 @@ function applyRaycastedInputHeuristics(sourceEid: Entity, intersectionData: Set<
   const isEditing = getState(EngineState).isEditing
   // only heuristic is scene objects when in the editor
   if (isEditing) {
-    applyHeuristicEditor(intersectionData)
+    applyHeuristicEditor(intersectionData, raycaster)
   } else {
     // 1st heuristic is XRUI
     applyHeuristicXRUI(intersectionData, inputRay)
@@ -842,7 +842,7 @@ function applyHeuristicProximity(
   })
 }
 
-function applyHeuristicEditor(intersectionData: Set<IntersectionData>) {
+function applyHeuristicEditor(intersectionData: Set<IntersectionData>, caster: Raycaster) {
   const pickerObj = gizmoPickerObjects() // gizmo heuristic
   const inputObj = inputObjects()
 
@@ -850,9 +850,9 @@ function applyHeuristicEditor(intersectionData: Set<IntersectionData>) {
     .map((eid) => getComponent(eid, GroupComponent))
     .flat()
   pickerObj.length > 0
-    ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
-    : raycaster.layers.disable(ObjectLayers.TransformGizmo)
-  const hits = raycaster.intersectObjects<Object3D>(objects, true)
+    ? caster.layers.enable(ObjectLayers.TransformGizmo)
+    : caster.layers.disable(ObjectLayers.TransformGizmo)
+  const hits = caster.intersectObjects<Object3D>(objects, true)
   for (const hit of hits) {
     const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
     if (!parentObject?.entity) continue // @note Clause Guard. The next line was nested inside   if (parentObject?.entity) { ... }
