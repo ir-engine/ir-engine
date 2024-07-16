@@ -738,7 +738,7 @@ function applyRaycastedInputHeuristics(sourceEid: Entity, intersectionData: Set<
     applyHeuristicBBoxes(intersectionData, inputRay, bboxHitTarget)
   }
   // 4th heuristic is meshes
-  applyHeuristicMeshes(intersectionData, isEditing)
+  applyHeuristicMeshes(intersectionData, isEditing, raycaster)
 }
 
 function assignInputSources(sourceEid: Entity, capturedEntity: Entity) {
@@ -896,14 +896,14 @@ function applyHeuristicBBoxes(intersectionData: Set<IntersectionData>, ray: Ray,
   }
 }
 
-function applyHeuristicMeshes(intersectionData: Set<IntersectionData>, isEditing: boolean) {
+function applyHeuristicMeshes(intersectionData: Set<IntersectionData>, isEditing: boolean, caster: Raycaster) {
   const inputState = getState(InputState)
   const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes)) // gizmo heuristic
     .filter((eid) => hasComponent(eid, GroupComponent))
     .map((eid) => getComponent(eid, GroupComponent))
     .flat()
 
-  const hits = raycaster.intersectObjects<Object3D>(objects, true)
+  const hits = caster.intersectObjects<Object3D>(objects, true)
   for (const hit of hits) {
     const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
     if (!parentObject) continue // @note Clause Guard. The next line was nested inside   if (parentObject) { ... }
