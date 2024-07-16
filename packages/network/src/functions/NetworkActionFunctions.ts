@@ -59,7 +59,7 @@ const sendActionsAsPeer = (network: Network) => {
     actions.push(action)
   }
   // for (const peerID of network.peers) {
-  network.transport.messageToPeer(
+  network.messageToPeer(
     network.hostPeerID,
     /*encode(*/ actions //)
   )
@@ -86,7 +86,7 @@ const sendActionsAsHost = (network: Network) => {
       }
     }
     if (arr.length)
-      network.transport.messageToPeer(
+      network.messageToPeer(
         peerID,
         /*encode(*/ arr //)
       )
