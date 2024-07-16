@@ -42,7 +42,7 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
   const { t } = useTranslation()
   const displayedFeatures = useHookstate<FeatureFlagSettingType[]>([])
 
-  const featureFlagSettings = useFind(featureFlagSettingPath)
+  const featureFlagSettings = useFind(featureFlagSettingPath, { query: { paginate: false } })
 
   useEffect(() => {
     if (featureFlagSettings.status === 'success') {
