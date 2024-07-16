@@ -735,7 +735,7 @@ function applyRaycastedInputHeuristics(sourceEid: Entity, intersectionData: Set<
     applyHeuristicPhysicsColliders(intersectionData, inputRaycast)
 
     // 3rd heuristic is bboxes
-    applyHeuristicBBoxes(intersectionData, bboxHitTarget)
+    applyHeuristicBBoxes(intersectionData, inputRay, bboxHitTarget)
   }
   // 4th heuristic is meshes
   applyHeuristicMeshes(intersectionData, isEditing)
@@ -885,14 +885,16 @@ function applyHeuristicPhysicsColliders(intersectionData: Set<IntersectionData>,
   }
 }
 
-function applyHeuristicBBoxes(intersectionData: Set<IntersectionData>, hitTarget: Vector3) {
+function applyHeuristicBBoxes(intersectionData: Set<IntersectionData>, ray: Ray, hitTarget: Vector3) {
   const inputState = getState(InputState)
+  // run for every entity stored in the InputState.inputBoundingBoxes Set<Entity> ...
   for (const entity of inputState.inputBoundingBoxes) {
     const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
+    // should not run if the entity does not have a BoundingBoxComponent
     if (!boundingBox) continue
-    const hit = inputRay.intersectBox(boundingBox.box, hitTarget)
+    const hit = ray.intersectBox(boundingBox.box, hitTarget)
     if (!hit) continue // @note Clause Guard. The next line was nested inside   if (hit) { ... }
-    intersectionData.add({ entity, distance: inputRay.origin.distanceTo(hitTarget) })
+    intersectionData.add({ entity, distance: ray.origin.distanceTo(hitTarget) })
   }
 }
 
