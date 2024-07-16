@@ -13,12 +13,12 @@
   "scene": 0,
   "nodes": [
     {
-      "name": "Text",
+      "name": "body",
       "extensions": {
-        "EE_uuid": "17e99ab6-300c-4fc5-9df0-5a32a659a461",
+        "EE_uuid": "1e614ec3-201c-4cfd-95da-07b905257315",
         "EE_visible": true,
         "EE_text_spatial": {
-          "text": "type your text here",
+          "text": "Body",
           "textOpacity": 100,
           "textWidth": null,
           "textIndent": 0,

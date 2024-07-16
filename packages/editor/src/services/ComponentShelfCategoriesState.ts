@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { Component } from '@etherealengine/ecs'
-import { VisualScriptComponent } from '@etherealengine/engine'
+import { FeatureFlagsState, VisualScriptComponent } from '@etherealengine/engine'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
@@ -125,7 +126,9 @@ export const ComponentShelfCategoriesState = defineState({
       Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
       Visual: [
         EnvMapBakeComponent,
-        ScenePreviewCameraComponent,
+        ...(FeatureFlagsState.enabled(FeatureFlags.Studio.ComponentShelfCategories.ScenePreviewCameraComponent)
+          ? [ScenePreviewCameraComponent]
+          : []),
         SkyboxComponent,
         SplineTrackComponent,
         SplineComponent,

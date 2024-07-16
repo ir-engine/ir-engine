@@ -72,7 +72,7 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { createAndAssignMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -142,7 +142,7 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
       newBasicMaterial.side = prevMaterial.side
       newBasicMaterial.plugins = undefined
 
-      createMaterialEntity(newBasicMaterial, entity)
+      createAndAssignMaterial(entity, newBasicMaterial)
       setComponent(entity, MaterialInstanceComponent, { uuid: [basicUUID] })
     } else {
       const UUID = child.material.uuid as EntityUUID

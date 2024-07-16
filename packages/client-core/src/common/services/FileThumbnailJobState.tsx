@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   FileBrowserContentType,
-  StaticResourceType,
-  fileBrowserPath,
   fileBrowserUploadPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
@@ -66,8 +64,8 @@ import { Color, Euler, MathUtils, Matrix4, Quaternion, Scene, Sphere, Vector3 } 
 
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { Paginated } from '@feathersjs/feathers'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -103,7 +101,7 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
 const uploadThumbnail = async (src: string, projectName: string, staticResourceId: string, blob: Blob | null) => {
   if (!blob) return
   const thumbnailMode = 'automatic'
-  const thumbnailKey = `${decodeURI(src.replace(/^.*?\/projects\//, ''))
+  const thumbnailKey = `${decodeURI(stripSearchFromURL(src).replace(/^.*?\/projects\//, ''))
     .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '')
     .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
@@ -127,94 +125,44 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
     .patch(staticResourceId, { thumbnailKey: pathname.slice(1), thumbnailMode })
 }
 
-const seenThumbnails = new Set<string>()
+const seenResources = new Set<string>()
 
 export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
   initial: [] as ThumbnailJob[],
   reactor: () => <ThumbnailJobReactor />,
-  processFiles: async (files: FileBrowserContentType[]) => {
-    const resourceQuery = (await Engine.instance.api.service(staticResourcePath).find({
+  useGenerateThumbnails: async (files: readonly FileBrowserContentType[]) => {
+    const resourceQuery = useFind(staticResourcePath, {
       query: {
-        key: { $in: files.map((file) => file.key) },
-        paginate: false,
-        $limit: 10000
-      } as any
-    })) as unknown as StaticResourceType[]
-    const resourceMap: Record<string, StaticResourceType> = {}
-    for (const resource of resourceQuery) {
-      resourceMap[resource.key] = resource
-    }
-    for (const file of files) {
-      if (seenThumbnails.has(file.key) || !extensionCanHaveThumbnail(file.key.split('.').pop() ?? '')) continue
-      const resource = resourceMap[file.key]
-      if (!resource || resource.thumbnailKey != null) continue
-      seenThumbnails.add(file.key)
-      getMutableState(FileThumbnailJobState).merge([
-        {
-          key: file.url,
-          project: resource.project!,
-          id: resource.id
-        }
-      ])
-    }
-  },
-
-  processAllFiles: async (topDirectory: string, forceRegenerate = false) => {
-    let directories = [topDirectory]
-    let needThumbnails: FileBrowserContentType[] = []
-
-    while (directories.length > 0) {
-      const directory = `${directories.pop()}/`
-
-      const files = (await Engine.instance.api.service(fileBrowserPath).find({
-        query: {
-          $skip: 0,
-          $limit: 10000, // TODO: pagination requests
-          directory
-        }
-      })) as Paginated<FileBrowserContentType>
-      directories = files.data
-        .filter((file) => file.type === 'folder')
-        .map((file) => directory + file.url.match(/([^/]+)\/*$/)?.pop())
-        .concat(directories)
-      let theseThumbnails = files.data.filter((file) => extensionCanHaveThumbnail(file.key.split('.').pop() ?? ''))
-      if (!forceRegenerate) {
-        theseThumbnails = theseThumbnails.filter((file) => !seenThumbnails.has(file.key))
+        key: {
+          $in: files.map((file) => file.key).filter((key) => !seenResources.has(key))
+        },
+        thumbnailKey: 'null'
       }
-      needThumbnails = needThumbnails.concat(theseThumbnails)
-    }
+    })
 
-    //needThumbnails = needThumbnails.slice(10, 15) // for testing
+    /**
+     * This useEffect will continuously check for new resources that need thumbnails generated until all resources have thumbnails
+     */
+    useEffect(() => {
+      for (const resource of resourceQuery.data) {
+        if (seenResources.has(resource.key)) continue
+        seenResources.add(resource.key)
 
-    Promise.all(
-      needThumbnails.map(async (file) => {
-        const { key, url } = file
+        if (resource.thumbnailKey != null || !extensionCanHaveThumbnail(resource.key.split('.').pop() ?? '')) continue
 
-        seenThumbnails.add(key)
-
-        const resources = await Engine.instance.api.service(staticResourcePath).find({
-          query: { key }
-        })
-
-        if (resources.data.length === 0) {
-          return
-        }
-        const resource = resources.data[0]
-        if (!forceRegenerate && resource.thumbnailKey != null) {
-          return
-        }
         getMutableState(FileThumbnailJobState).merge([
           {
-            key: url,
+            key: resource.url,
             project: resource.project!,
             id: resource.id
           }
         ])
+      }
 
-        // TODO: cache pending thumbnail promises by static resource key
-      })
-    )
+      // If there are more files left to be processed in the list we have specified, refetch the query
+      if (resourceQuery.total > resourceQuery.data.length) resourceQuery.refetch()
+    }, [resourceQuery.data])
   }
 })
 
@@ -233,13 +181,20 @@ for (const { extensions, thumbnailType } of extensionThumbnailTypes) {
   }
 }
 
+const stripSearchFromURL = (url: string): string => {
+  if (!url.includes('?')) return url
+  const cleanURL = new URL(url)
+  cleanURL.search = ''
+  return cleanURL.href
+}
+
 export const extensionCanHaveThumbnail = (ext: string): boolean => extensionThumbnailTypeMap.has(ext)
 
 const ThumbnailJobReactor = () => {
   const jobState = useHookstate(getMutableState(FileThumbnailJobState))
   const currentJob = useHookstate(null as ThumbnailJob | null)
   const { key: src, project, id } = currentJob.value ?? { key: '', project: '', id: '' }
-  const extension = src.split('.').pop() ?? ''
+  const extension = stripSearchFromURL(src).split('.').pop() ?? ''
   const fileType = extensionThumbnailTypeMap.get(extension)
 
   const state = useHookstate({
@@ -500,30 +455,39 @@ const ThumbnailJobReactor = () => {
         .children.map((entity) => getComponent(entity, GroupComponent))
         .flat()
       const canvas = getComponent(cameraEntity, RendererComponent).canvas
-
-      requestAnimationFrame(() => {
-        const tmpCanvas = document.createElement('canvas')
-        tmpCanvas.width = 256
-        tmpCanvas.height = 256
-        const ctx = tmpCanvas.getContext('2d')!
-        ctx.drawImage(canvas, 0, 0, 256, 256)
-
-        function cleanup() {
-          tmpCanvas.remove()
-          jobState.set(jobState.get(NO_PROXY).slice(1))
-          rendering.set(false)
-        }
-
-        tmpCanvas.toBlob((blob: Blob) => {
-          try {
-            uploadThumbnail(src, project, id, blob).then(cleanup)
-          } catch (e) {
-            console.error('failed to upload model thumbnail for', src)
-            console.error(e)
-            cleanup()
+      const maxTryCount = 10
+      function doRender(tryCount = 0) {
+        requestAnimationFrame(() => {
+          const tmpCanvas = document.createElement('canvas')
+          tmpCanvas.width = 256
+          tmpCanvas.height = 256
+          const ctx = tmpCanvas.getContext('2d')!
+          ctx.drawImage(canvas, 0, 0, 256, 256)
+          //repeat if image is blank
+          if (ctx.getImageData(0, 0, 256, 256).data.every((v) => v === 0)) {
+            if (tryCount < maxTryCount) {
+              doRender(tryCount + 1)
+              return
+            }
           }
+          function cleanup() {
+            tmpCanvas.remove()
+            jobState.set(jobState.get(NO_PROXY).slice(1))
+            rendering.set(false)
+          }
+
+          tmpCanvas.toBlob((blob: Blob) => {
+            try {
+              uploadThumbnail(src, project, id, blob).then(cleanup)
+            } catch (e) {
+              console.error('failed to upload model thumbnail for', src)
+              console.error(e)
+              cleanup()
+            }
+          })
         })
-      })
+      }
+      doRender()
     } catch (e) {
       console.error('failed to generate model thumbnail for', src)
       console.error(e)

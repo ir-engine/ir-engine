@@ -26,10 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { StaticResourceType, UserType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs'
-import { ImmutableArray, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { ImmutableArray, NO_PROXY, State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { HiPencil, HiPlus, HiXMark } from 'react-icons/hi2'
 import { RiSave2Line } from 'react-icons/ri'
@@ -76,6 +77,18 @@ export default function FilePropertiesModal({
         modifiedFields.set([...modifiedFields.value, fieldName])
       }
       state.set(e.target.value)
+    }
+  }
+
+  const handleRegenerateThumbnail = () => {
+    for (const resource of fileStaticResources.value) {
+      getMutableState(FileThumbnailJobState).merge([
+        {
+          key: resource.url,
+          project: resource.project!,
+          id: resource.id
+        }
+      ])
     }
   }
 
@@ -156,6 +169,22 @@ export default function FilePropertiesModal({
       submitButtonText={t('editor:layout.filebrowser.fileProperties.save-changes')}
       closeButtonText={t('editor:layout.filebrowser.fileProperties.discard')}
     >
+      <div className="flex flex-col items-center">
+        {fileStaticResources.length === 1 && (
+          <img
+            src={resources.data[0].thumbnailURL}
+            alt={resources.data[0].key}
+            className="h-24 w-24 rounded-lg object-cover"
+          />
+        )}
+        <Button
+          title={t('editor:layout.filebrowser.fileProperties.regenerateThumbnail')}
+          onClick={handleRegenerateThumbnail}
+          className="mt-2 text-xs"
+        >
+          {t('editor:layout.filebrowser.fileProperties.regenerateThumbnail')}
+        </Button>
+      </div>
       <div className="flex flex-col items-center gap-2">
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.name')}</Text>
