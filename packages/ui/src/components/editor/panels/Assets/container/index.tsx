@@ -40,15 +40,7 @@ import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/as
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import {
-  NO_PROXY,
-  State,
-  getState,
-  hookstate,
-  useHookstate,
-  useMutableState,
-  useState
-} from '@etherealengine/hyperflux'
+import { State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import {
@@ -79,14 +71,6 @@ type Category = {
   depth: number
 }
 
-const AssetsPreviewContext = hookstate({
-  selectAssetURL: '',
-  onAssetSelectionChanged: (props: AssetSelectionChangePropsType) => {
-    AssetsPreviewContext.selectAssetURL.set(props.resourceUrl)
-    if (props.contentType === 'gltf') ClickPlacementState.setSelectedAsset(props.resourceUrl)
-  }
-})
-
 const generateAssetsBreadcrumb = (categories: Category[], target: string) => {
   let path: string[] = []
 
@@ -116,10 +100,14 @@ const generateAssetsBreadcrumb = (categories: Category[], target: string) => {
   return categories.filter(({ name }) => name === target).map(({ name }) => name)
 }
 
-const ResourceFile = (props: { resource: StaticResourceType; selected: boolean }) => {
+const ResourceFile = (props: {
+  resource: StaticResourceType
+  selected: boolean
+  onClick: (props: AssetSelectionChangePropsType) => void
+}) => {
   const { t } = useTranslation()
 
-  const { resource, selected } = props
+  const { resource, selected, onClick } = props
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -150,7 +138,7 @@ const ResourceFile = (props: { resource: StaticResourceType; selected: boolean }
       key={resource.id}
       ref={drag}
       onClick={() =>
-        AssetsPreviewContext.get(NO_PROXY).onAssetSelectionChanged({
+        onClick({
           contentType: assetType,
           name,
           resourceUrl: resource.url,
@@ -321,7 +309,7 @@ const AssetPanel = () => {
   const breadcrumbPath = useHookstate('')
   const originalPath = useMutableState(EditorState).projectName.value
   const staticResourcesPagination = useHookstate({ totalPages: -1, currentPage: 0 })
-  const assetsPreviewContext = useState(AssetsPreviewContext)
+  const assetsPreviewContext = useHookstate({ selectAssetURL: '' })
 
   const CategoriesList = () => {
     return (
@@ -454,6 +442,10 @@ const AssetPanel = () => {
                 key={resource.id}
                 resource={resource as StaticResourceType}
                 selected={resource.url === assetsPreviewContext.selectAssetURL.value}
+                onClick={(props: AssetSelectionChangePropsType) => {
+                  assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
+                  if (props.contentType === 'gltf') ClickPlacementState.setSelectedAsset(props.resourceUrl)
+                }}
               />
             ))}
           </>
