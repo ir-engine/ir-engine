@@ -55,7 +55,6 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { isArray } from 'lodash'
 import { Material, MeshBasicMaterial } from 'three'
 import { SourceComponent } from '../../components/SourceComponent'
 
@@ -85,8 +84,8 @@ const MeshReactor = () => {
   useEffect(() => {
     if (materialComponent) return
     const material = meshComponent.material.value as Material
-    if (!isArray(material)) createAndAssignMaterial(entity, material)
-    else for (const mat of material) createAndAssignMaterial(entity, mat)
+    // if (!isArray(material)) createAndAssignMaterial(entity, material)
+    // else for (const mat of material) createAndAssignMaterial(entity, mat)
   }, [])
   return null
 }

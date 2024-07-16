@@ -55,8 +55,7 @@ import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem, useExecute } from '@etherealengine/ecs/src/SystemFunctions'
-import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { defineState, getMutableState, getState, hookstate, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { Vector3_Back } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import {
   createPriorityQueue,
@@ -87,12 +86,13 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 
+import { TransformSystem } from '@etherealengine/spatial'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { RenderModes } from '@etherealengine/spatial/src/renderer/constants/RenderModes'
+import { createDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DropShadowComponent } from '../components/DropShadowComponent'
-import { useMeshOrModel } from '../components/ModelComponent'
-import { usePrimitiveGeom } from '../components/PrimitiveGeometryComponent'
+import { useHasModelOrIndependentMesh } from '../components/ModelComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SceneObjectSystem } from './SceneObjectSystem'
@@ -306,8 +306,6 @@ const shadowMaterial = new MeshBasicMaterial({
   polygonOffsetUnits: 0.01
 })
 
-const shadowState = hookstate(null as MeshBasicMaterial | null)
-
 const dropShadowComponentQuery = defineQuery([DropShadowComponent])
 
 const minRadius = 0.15
@@ -318,19 +316,11 @@ const vec3 = new Vector3()
 
 const DropShadowReactor = () => {
   const entity = useEntityContext()
-  const shadowMaterial = useHookstate(shadowState)
-  const isMeshOrModel = useMeshOrModel(entity)
-  const isPrimitiveGeom = usePrimitiveGeom(entity)
+  const hasMeshOrModel = useHasModelOrIndependentMesh(entity)
   const shadow = useComponent(entity, ShadowComponent)
+
   useEffect(() => {
-    if (
-      !shadow.cast.value ||
-      !shadowMaterial.value ||
-      !isMeshOrModel ||
-      !isPrimitiveGeom ||
-      hasComponent(entity, DropShadowComponent)
-    )
-      return
+    if (!shadow.cast.value || !hasMeshOrModel || hasComponent(entity, DropShadowComponent)) return
 
     box3.makeEmpty()
 
@@ -353,7 +343,7 @@ const DropShadowReactor = () => {
     const radius = Math.max(sphere.radius * 2, minRadius)
     const center = sphere.center.sub(TransformComponent.getWorldPosition(entity, vec3))
     const shadowEntity = createEntity()
-    const shadowObject = new Mesh(shadowGeometry, shadowMaterial.value.clone())
+    const [shadowObject, unload] = createDisposable(Mesh, shadowEntity, shadowGeometry.clone(), shadowMaterial.clone())
     addObjectToGroup(shadowEntity, shadowObject)
     setComponent(shadowEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(
@@ -368,8 +358,9 @@ const DropShadowReactor = () => {
     return () => {
       removeComponent(entity, DropShadowComponent)
       removeEntity(shadowEntity)
+      unload()
     }
-  }, [shadowMaterial, isMeshOrModel, shadow])
+  }, [hasMeshOrModel, shadow])
 
   return null
 }
@@ -408,7 +399,7 @@ const updateDropShadowTransforms = () => {
     const finalRadius = sizeBias * dropShadow.radius + dropShadow.radius * centerCorrectedDist * 0.5
 
     const shadowMaterial = (getComponent(dropShadow.entity, GroupComponent)[0] as Mesh).material as Material
-    shadowMaterial.opacity = Math.min(1 / (1 + centerCorrectedDist), 1) * 2
+    shadowMaterial.opacity = Math.min(1 / (1 + centerCorrectedDist), 1) * 1.2
     shadowRotation.setFromUnitVectors(intersected.face.normal, Vector3_Back)
     dropShadowTransform.rotation.copy(shadowRotation)
     dropShadowTransform.scale.setScalar(finalRadius * 2)
@@ -461,16 +452,15 @@ const reactor = () => {
     if (!shadowTexture) return
     shadowMaterial.map = shadowTexture
     shadowMaterial.needsUpdate = true
-    shadowState.set(shadowMaterial)
   }, [shadowTexture])
 
   return (
     <>
       {useShadows ? (
         <QueryReactor Components={[RendererComponent]} ChildEntityReactor={_CSMReactor} />
-      ) : (
+      ) : shadowTexture ? (
         <QueryReactor Components={[VisibleComponent, ShadowComponent]} ChildEntityReactor={DropShadowReactor} />
-      )}
+      ) : null}
       <QueryReactor Components={[RendererComponent]} ChildEntityReactor={RendererShadowReactor} />
     </>
   )
@@ -478,7 +468,7 @@ const reactor = () => {
 
 export const ShadowSystem = defineSystem({
   uuid: 'ee.engine.ShadowSystem',
-  insert: { with: AnimationSystemGroup },
+  insert: { after: TransformSystem },
   execute,
   reactor
 })
