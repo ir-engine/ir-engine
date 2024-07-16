@@ -119,11 +119,11 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
     submitLoading.set(true)
 
     if (sceneModified) {
-      const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
-      if (!sceneAssetID || !projectName || !sceneName || !rootEntity)
-        throw new Error('Cannot save scene without scene data')
-      const abortController = new AbortController()
       try {
+        const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
+        if (!sceneAssetID || !projectName || !sceneName || !rootEntity)
+          throw new Error('Cannot save scene without scene data')
+        const abortController = new AbortController()
         await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
       } catch (e) {
         errors.serverError.set(e.message)
