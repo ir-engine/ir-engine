@@ -33,10 +33,10 @@ interface MiddlewareTextareaProps {
 
 const MiddlewareTextarea: React.FC<MiddlewareTextareaProps> = ({ mwLabel, mwDefaultValue, mwOnAction }) => (
   <div className="col-span-2 flex flex-col">
-    <label className="mb-2">{mwLabel}</label>
+    <label className="mb-2 text-sm">{mwLabel}</label>
     <textarea
       className="resize-none overflow-auto rounded-lg border-2 p-2"
-      style={{ height: '8em' }}
+      style={{ height: '24em' }}
       defaultValue={mwDefaultValue || ''}
       onChange={(e) => mwOnAction(e.target.value, mwLabel)}
     />

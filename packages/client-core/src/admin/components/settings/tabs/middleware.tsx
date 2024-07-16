@@ -237,7 +237,8 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
     return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
-  async function updateChat(tenant: string): Promise<Response> {
+  // TODO need to refactor the way we hit update webhooks, there will be multiple
+  async function updateMw(tenant: string): Promise<Response> {
     const apiUrl = `${middlewareUrlBase}/middleware/v1/chat-bot/chat-update`
     console.log('#### #### Middleware update hook:', apiUrl)
     await delay(5000)
@@ -284,7 +285,7 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
     // Hit middleware setting-update webhook
     console.log('#### #### #### middlewareApi ####', middlewareApiUrl, '####', middlewareApi)
     const tenant = 'default' // TODO scope for MT
-    updateChat(tenant).then((response) => {
+    updateMw(tenant).then((response) => {
       console.log('#### Middleware setting update:', response)
     })
   }
