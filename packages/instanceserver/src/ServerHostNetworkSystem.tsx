@@ -38,7 +38,7 @@ export async function checkPeerHeartbeat(network: SocketWebRTCServerNetwork): Pr
   for (const [peerID, client] of Object.entries(network.peers)) {
     if (client.userId === Engine.instance.userID) continue
     if (Date.now() - client.lastSeenTs > 10000) {
-      if (client.spark) client.spark.end()
+      if (client.transport) client.transport!.end!()
       NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
       updatePeers(network)
     }
