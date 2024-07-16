@@ -85,7 +85,7 @@ const DRAGGING_THRESHOLD = 0.001
 const ROTATING_THRESHOLD = 1.5 * (PI / 180)
 
 /** anti-garbage variable!! value not to be used unless you set values just before use*/
-const pointerPositionVector3 = new Vector3()
+const g_pointerPositionVector3 = new Vector3()
 
 function preventDefault(e) {
   e.preventDefault()
@@ -144,9 +144,9 @@ export function updateGamepadInput(eid: Entity) {
       if (buttons[i].downPosition) {
         //if not yet dragging, compare distance to drag threshold and begin if appropriate
         if (!buttons[i].dragging) {
-          if (pointer) pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
+          if (pointer) g_pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
           const squaredDistance = buttons[i].downPosition.squaredDistance(
-            pointer ? pointerPositionVector3 : xrTransform?.position ?? Vector3_Zero
+            pointer ? g_pointerPositionVector3 : xrTransform?.position ?? Vector3_Zero
           )
 
           if (squaredDistance > DRAGGING_THRESHOLD) {
@@ -177,8 +177,8 @@ const inputSourceQuery = defineQuery([InputSourceComponent])
 const nonSpatialInputSourceQuery = defineQuery([InputSourceComponent, Not(TransformComponent)])
 const inputs = defineQuery([InputComponent])
 
-const worldPosInputSourceComponent = new Vector3()
-const worldPosInputComponent = new Vector3()
+const g_worldPosInputSourceComponent = new Vector3()
+const g_worldPosInputComponent = new Vector3()
 
 const xruiQuery = defineQuery([VisibleComponent, XRUIComponent])
 const boundingBoxesQuery = defineQuery([VisibleComponent, BoundingBoxComponent])
@@ -198,9 +198,9 @@ const spatialInputObjects = defineQuery([
 /** @todo abstract into heuristic api */
 const gizmoPickerObjects = defineQuery([InputComponent, GroupComponent, VisibleComponent, TransformGizmoTagComponent])
 
-const rayRotation = new Quaternion()
+const g_rayRotation = new Quaternion()
 
-const inputRaycast = {
+const g_inputRaycast = {
   type: SceneQueryType.Closest,
   origin: new Vector3(),
   direction: new Vector3(),
@@ -209,11 +209,11 @@ const inputRaycast = {
   excludeRigidBody: undefined //
 } as RaycastArgs
 
-const inputRay = new Ray()
-const raycaster = new Raycaster()
-const bboxHitTarget = new Vector3()
+const g_inputRay = new Ray()
+const g_raycaster = new Raycaster()
+const g_bboxHitTarget = new Vector3()
 
-const quat = new Quaternion()
+const g_quat = new Quaternion()
 
 const execute = () => {
   const capturedEntity = getMutableState(InputState).capturingEntity.value
@@ -235,18 +235,18 @@ const execute = () => {
     TransformComponent.position.x[eid] = inputSource.raycaster.ray.origin.x
     TransformComponent.position.y[eid] = inputSource.raycaster.ray.origin.y
     TransformComponent.position.z[eid] = inputSource.raycaster.ray.origin.z
-    rayRotation.setFromUnitVectors(ObjectDirection.Forward, inputSource.raycaster.ray.direction)
-    TransformComponent.rotation.x[eid] = rayRotation.x
-    TransformComponent.rotation.y[eid] = rayRotation.y
-    TransformComponent.rotation.z[eid] = rayRotation.z
-    TransformComponent.rotation.w[eid] = rayRotation.w
+    g_rayRotation.setFromUnitVectors(ObjectDirection.Forward, inputSource.raycaster.ray.direction)
+    TransformComponent.rotation.x[eid] = g_rayRotation.x
+    TransformComponent.rotation.y[eid] = g_rayRotation.y
+    TransformComponent.rotation.z[eid] = g_rayRotation.z
+    TransformComponent.rotation.w[eid] = g_rayRotation.w
     TransformComponent.dirtyTransforms[eid] = true
   }
 
   // update xr input sources
   const xrFrame = getState(XRState).xrFrame
   const physicsState = getState(PhysicsState)
-  inputRaycast.excludeRigidBody = physicsState.cameraAttachedRigidbodyEntity
+  g_inputRaycast.excludeRigidBody = physicsState.cameraAttachedRigidbodyEntity
 
   for (const eid of xrSpaces()) {
     const space = getComponent(eid, XRSpaceComponent)
@@ -271,7 +271,7 @@ const execute = () => {
   for (const sourceEid of inputSourceQuery()) {
     // @note This function was a ~200 sloc block nested inside this `for` block,
     // which also contained two other sub-nested blocks of 100 and 50 sloc each
-    assignInputSources(sourceEid, capturedEntity)
+    assignInputSources(sourceEid, capturedEntity, g_inputRay, g_inputRaycast, g_raycaster, g_bboxHitTarget)
   }
 
   for (const sourceEid of inputSourceQuery()) {
@@ -644,9 +644,9 @@ function updatePointerDragging(pointerEntity: Entity, event: PointerEvent) {
       //if not yet dragging, compare distance to drag threshold and begin if appropriate
       if (!btn.dragging) {
         pointer
-          ? pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
-          : pointerPositionVector3.copy(Vector3_Zero)
-        const squaredDistance = btn.downPosition.distanceToSquared(pointerPositionVector3)
+          ? g_pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
+          : g_pointerPositionVector3.copy(Vector3_Zero)
+        const squaredDistance = btn.downPosition.distanceToSquared(g_pointerPositionVector3)
 
         if (squaredDistance > DRAGGING_THRESHOLD) {
           btn.dragging = true
@@ -715,39 +715,53 @@ type IntersectionData = {
   distance: number
 }
 
-function applyRaycastedInputHeuristics(sourceEid: Entity, intersectionData: Set<IntersectionData>) {
+function applyRaycastedInputHeuristics(
+  sourceEid: Entity,
+  intersectionData: Set<IntersectionData>,
+  ray: Ray,
+  raycast: RaycastArgs,
+  caster: Raycaster,
+  hitTarget: Vector3
+) {
   const sourceRotation = TransformComponent.getWorldRotation(sourceEid, new Quaternion())
-  inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
+  raycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
 
-  TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
-  inputRay.set(inputRaycast.origin, inputRaycast.direction)
-  raycaster.set(inputRaycast.origin, inputRaycast.direction)
-  raycaster.layers.enable(ObjectLayers.Scene)
+  TransformComponent.getWorldPosition(sourceEid, raycast.origin).addScaledVector(raycast.direction, -0.01)
+  ray.set(raycast.origin, raycast.direction)
+  caster.set(raycast.origin, raycast.direction)
+  caster.layers.enable(ObjectLayers.Scene)
 
   const isEditing = getState(EngineState).isEditing
   // only heuristic is scene objects when in the editor
   if (isEditing) {
-    applyHeuristicEditor(intersectionData, raycaster)
+    applyHeuristicEditor(intersectionData, caster)
   } else {
     // 1st heuristic is XRUI
-    applyHeuristicXRUI(intersectionData, inputRay)
+    applyHeuristicXRUI(intersectionData, ray)
     // 2nd heuristic is physics colliders
-    applyHeuristicPhysicsColliders(intersectionData, inputRaycast)
+    applyHeuristicPhysicsColliders(intersectionData, raycast)
 
     // 3rd heuristic is bboxes
-    applyHeuristicBBoxes(intersectionData, inputRay, bboxHitTarget)
+    applyHeuristicBBoxes(intersectionData, ray, hitTarget)
   }
   // 4th heuristic is meshes
-  applyHeuristicMeshes(intersectionData, isEditing, raycaster)
+  applyHeuristicMeshes(intersectionData, isEditing, caster)
 }
 
-function assignInputSources(sourceEid: Entity, capturedEntity: Entity) {
+function assignInputSources(
+  sourceEid: Entity,
+  capturedEntity: Entity,
+  ray: Ray,
+  raycast: RaycastArgs,
+  caster: Raycaster,
+  hitTarget: Vector3
+) {
   const isSpatialInput = hasComponent(sourceEid, TransformComponent)
 
   const intersectionData = new Set([] as IntersectionData[])
 
   // @note This function was a ~100 sloc block nested inside this if block
-  if (isSpatialInput) applyRaycastedInputHeuristics(sourceEid, intersectionData)
+  if (isSpatialInput) applyRaycastedInputHeuristics(sourceEid, intersectionData, ray, raycast, caster, hitTarget)
 
   const sortedIntersections = Array.from(intersectionData).sort((a, b) => {
     // - if a < b
@@ -805,15 +819,15 @@ function applyHeuristicProximity(
   // @note Clause Guard. This entire function was a block nested inside   if (inputSourceEntity !== UndefinedEntity) { ... }
   if (inputSourceEntity === UndefinedEntity) return
 
-  TransformComponent.getWorldPosition(inputSourceEntity, worldPosInputSourceComponent)
+  TransformComponent.getWorldPosition(inputSourceEntity, g_worldPosInputSourceComponent)
 
   //TODO spatialInputObjects or inputObjects?  - inputObjects requires visible and group components
   for (const inputEntity of spatialInputObjects()) {
     if (inputEntity === selfAvatarEntity) continue
     const inputComponent = getComponent(inputEntity, InputComponent)
 
-    TransformComponent.getWorldPosition(inputEntity, worldPosInputComponent)
-    const distSquared = worldPosInputSourceComponent.distanceToSquared(worldPosInputComponent)
+    TransformComponent.getWorldPosition(inputEntity, g_worldPosInputComponent)
+    const distSquared = g_worldPosInputSourceComponent.distanceToSquared(g_worldPosInputComponent)
 
     //closer than our current closest AND within inputSource's activation distance
     if (inputComponent.activationDistance * inputComponent.activationDistance > distSquared) {
@@ -917,7 +931,7 @@ function applyHeuristicMeshes(intersectionData: Set<IntersectionData>, isEditing
 export const PRIVATE = {
   preventDefault,
   preventDefaultKeyDown,
-  inputRaycast,
+  g_inputRaycast,
   setInputSources,
   useNonSpatialInputSources,
   useGamepadInputSources,
