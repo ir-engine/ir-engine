@@ -65,7 +65,12 @@ export const featureFlagSettingQuerySchema = Type.Intersect(
   [
     querySyntax(featureFlagSettingQueryProperties),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        paginate: Type.Optional(Type.Boolean())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )
