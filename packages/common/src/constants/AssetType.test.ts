@@ -55,6 +55,11 @@ describe('AssetType', () => {
     }
 
     for (const ext of exts) {
+      const url = 'https://localhost:3000/test.' + ext.toUpperCase()
+      assert(FileToAssetExt(url) === <AssetExt>ext)
+    }
+
+    for (const ext of exts) {
       const url = 'localhost:3000/test.' + ext
       assert(FileToAssetExt(url) === <AssetExt>ext)
     }
