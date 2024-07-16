@@ -84,7 +84,7 @@ export const FileIcon = ({
         <HiFolder className={`${color}`} />
       ) : thumbnailURL ? (
         <img
-          className={`${isMinified ? 'h-4 w-4' : 'h-full w-full min-w-[90px]'} object-contain`}
+          className={`${isMinified ? 'h-4 w-4' : 'h-full w-full'} object-contain`}
           crossOrigin="anonymous"
           src={thumbnailURL}
           alt=""

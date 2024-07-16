@@ -567,7 +567,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       <div
         ref={fileDropRef}
         className={twMerge(
-          'mb-4 h-auto px-4 text-gray-400 ',
+          'mb-2 h-auto p-6 px-4 text-gray-400 ',
           isListView ? '' : 'flex py-8',
           isFileDropOver ? 'border-2 border-gray-300' : ''
         )}
@@ -576,7 +576,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           fileProperties.set([])
         }}
       >
-        <div className={twMerge(!isListView && 'flex flex-wrap')}>
+        <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
           <FileTableWrapper wrap={isListView}>
             <>
               {unique(files, (file) => file.key).map((file) => (
