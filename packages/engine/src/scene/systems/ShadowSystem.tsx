@@ -40,7 +40,7 @@ import {
 
 import config from '@etherealengine/common/src/config'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Engine, UUIDComponent } from '@etherealengine/ecs'
+import { AnimationSystemGroup, Engine, UUIDComponent } from '@etherealengine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -413,10 +413,7 @@ const execute = () => {
   if (!isClient) return
 
   const useShadows = getShadowsEnabled()
-  if (!useShadows) {
-    updateDropShadowTransforms()
-    return
-  }
+  if (!useShadows) return
 
   for (const entity of rendererQuery()) {
     const { csm, csmHelper } = getComponent(entity, RendererComponent)
@@ -468,7 +465,20 @@ const reactor = () => {
 
 export const ShadowSystem = defineSystem({
   uuid: 'ee.engine.ShadowSystem',
-  insert: { after: TransformSystem },
+  insert: { with: AnimationSystemGroup },
   execute,
   reactor
+})
+
+export const DropShadowSystem = defineSystem({
+  uuid: 'ee.engine.DropShadowSystem',
+  insert: { after: TransformSystem },
+  execute: () => {
+    if (!isClient) return
+
+    const useShadows = getShadowsEnabled()
+    if (!useShadows) {
+      updateDropShadowTransforms()
+    }
+  }
 })
