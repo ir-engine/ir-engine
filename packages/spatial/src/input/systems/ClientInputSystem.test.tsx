@@ -408,18 +408,55 @@ describe('ClientInputSystem: PRIVATE', () => {
 
   // execute
   describe("assignInputSources", () => {})
-  describe("applyHeuristicProximity", () => {})
   describe("applyRaycastedInputHeuristics", () => {})
-  describe("applyHeuristicEditor", () => {})
+  describe("applyHeuristicProximity", () => {})
+
+  describe("applyHeuristicEditor", () => {
+    // Find the list of gizmoPickerObjects.entity for the gizmo heuristic    (Input, Visible, Group, TransformGizmo)
+    // Find the list of inputObjects  (Input, Visible, Group)
+    // if there are gizmoPickerObjects,
+    //   objects will be their GroupComponent arrays combined
+    //   the raycaster will enable ObjectLayers.TransformGizmo
+    // else:
+    //   objects will be the combined GroupComponent arrays of the inputObjects list
+    //   the raycaster will disable ObjectLayers.TransformGizmo
+    // ... for all hits of `@param caster`.intersectObjects( objects, recursive )
+      // find the first ancestor of the object hit that doesn't have a parent
+      // should not do anything if the ancestor object we found does not belong to an entity
+      // should add the parentObject.entity and hit.distance to the `@param intersectionData` for every object hit by the `@param caster`
+  })
 
   // execute.(smaller functions)
-  describe("applyHeuristicXRUI", () => {})
+  describe("applyHeuristicXRUI", () => {
+    // for every entity of xruiQuery ...
+      // get the XRUIComponent of the entity, and do a WebContainer3D.hitTest with the `@param ray`
+      // should not do anything if ...
+      // ... we didn't hit anything
+      // ... we hit something, but its intersection.object is not marked as visible
+      // ... we hit something, but the material.opacity of the its intersection.object is less than 0.01
+      // should add the xruiQuery.entity and layerHit.intersection.distance to the `@param intersectionData`
+      //   for every object hit by the `@param caster`
+  })
   describe("applyHeuristicPhysicsColliders", () => {
     it("should not do anything if there is no PhysicsState.physicsWorld", () => {})
     it("should not do anything if the given `@param raycast` does not hit any entities in the current PhysicsState.physicsWorld", () => {})
     it("should add the hit.entity and hit.distance to the `@param intersectionData` for every hit of the `@param raycast`", () => {})
   })
-  describe("applyHeuristicBBoxes", () => {})
-  describe("applyHeuristicMeshes", () => {})
+  describe("applyHeuristicBBoxes", () => {
+    describe("for every entity stored in the InputState.inputBoundingBoxes Set<Entity> ...", () => {
+      it("... should not run if the entity does not have a BoundingBoxComponent", () => {})
+      it("... should not run if casting the `@param ray` towards `@param hitTarget` would not intersect the boundingBox of the entity", () => {})
+      it("... should add an entry to `@param intersectionData` containing the entity that was hit, and the distance to the hit (found with `ray.origin.distanceTo(hitTarget)`)", () => {})
+    })
+  })
+  describe("applyHeuristicMeshes", () => {
+    // when `@param isEditing` is true ...
+    // ... for the GroupComponents of all entities in the `meshesQuery()` that have a GroupComponent
+    // when `@param isEditing` is false ...
+    // ... for the objects contained in the GroupComponents, of all entities in the Array.from(InputState.inputMeshes) that have a GroupComponent
+    // ... for all hits of `@param caster`.intersectObjects( objects, recursive )
+      // should not do anything if the object hit does not have an entity or an ancestor with an entity
+      // should add the parentObject.entity and hit.distance to the `@param intersectionData` for every object hit by the `@param caster`", () => {})
+  })
   */
 })
