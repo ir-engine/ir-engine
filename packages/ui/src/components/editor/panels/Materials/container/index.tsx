@@ -57,7 +57,7 @@ export default function MaterialLibraryPanel() {
   const nodes = useHookstate([] as MaterialLibraryEntryType[])
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
   const selectedMaterial = useMutableState(MaterialSelectionState).selectedMaterial
-  let hasSelectedMaterial = useState(false)
+  const hasSelectedMaterial = useState(false)
 
   useEffect(() => {
     const materials = selected.value.length
