@@ -46,7 +46,11 @@ import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterat
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { assignMaterial, createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import {
+  assignMaterial,
+  createMaterialEntity,
+  loadMaterialGLTF
+} from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -84,14 +88,7 @@ export async function addMediaNode(
 
       //change states
       const intersected = pointerScreenRaycaster.intersectObjects(sceneObjects)[0]
-      const gltfLoader = getState(AssetLoaderState).gltfLoader
-      gltfLoader.load(url, (gltf) => {
-        const material = iterateObject3D(
-          gltf.scene,
-          (mesh: Mesh) => mesh.material as Material,
-          (mesh: Mesh) => mesh?.isMesh
-        )[0]
-        if (!material) return
+      loadMaterialGLTF(url, (material: Material) => {
         const materialEntity = createMaterialEntity(material)
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
