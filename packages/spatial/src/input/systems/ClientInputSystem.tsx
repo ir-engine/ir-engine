@@ -887,10 +887,8 @@ function applyHeuristicPhysicsColliders(intersectionData: Set<IntersectionData>,
 
 function applyHeuristicBBoxes(intersectionData: Set<IntersectionData>, ray: Ray, hitTarget: Vector3) {
   const inputState = getState(InputState)
-  // run for every entity stored in the InputState.inputBoundingBoxes Set<Entity> ...
   for (const entity of inputState.inputBoundingBoxes) {
     const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
-    // should not run if the entity does not have a BoundingBoxComponent
     if (!boundingBox) continue
     const hit = ray.intersectBox(boundingBox.box, hitTarget)
     if (!hit) continue // @note Clause Guard. The next line was nested inside   if (hit) { ... }
