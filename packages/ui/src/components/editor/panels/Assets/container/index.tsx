@@ -418,7 +418,7 @@ const AssetPanel = () => {
   const ResourceItems = () => {
     if (loading.value) {
       return (
-        <div className="flex items-center justify-center">
+        <div className="col-start-2 flex items-center justify-center">
           <LoadingView className="h-4 w-4" spinnerOnly />
         </div>
       )
@@ -426,7 +426,7 @@ const AssetPanel = () => {
     return (
       <>
         {isEmpty(searchedStaticResources.value) && (
-          <div className="h-full w-full justify-center text-white">
+          <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
             {t('editor:layout.scene-assets.no-search-results')}
           </div>
         )}
