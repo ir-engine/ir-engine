@@ -43,13 +43,10 @@ const logger = multiLogger.child({ component: 'engine:ecs:Apple' })
 
 export class AppleStrategy extends CustomOAuthStrategy {
   constructor(app: Application) {
-    logger.info('[AppleSSO]: Entering in constructor for AppleStrategy')
     super()
     this.app = app
   }
   async getProfile(data, _params) {
-    logger.info('[AppleSSO]: Loger Entering in getProfile')
-    console.info('[AppleSSO]: Console Entering in getProfile')
     return data.jwt.id_token.payload
   }
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
@@ -63,10 +60,6 @@ export class AppleStrategy extends CustomOAuthStrategy {
     const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
 
-    console.log(`[AppleSSO]: user ID is ${userId}`)
-    console.log(`[AppleSSO]: profile is ${JSON.stringify(profile)}`)
-    console.log(`[AppleSSO]: baseData is ${JSON.stringify(baseData)}`)
-
     return {
       ...baseData,
       accountIdentifier: `${profile.email ? profile.email : profile.sub}`,
@@ -76,8 +69,6 @@ export class AppleStrategy extends CustomOAuthStrategy {
   }
 
   async updateEntity(entity: any, profile: any, params: Params): Promise<any> {
-    logger.info('[AppleSSO]: Loger Entering in updateEntity')
-    console.log('[AppleSSO]: Console Entering in updateEntity')
     const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
       { accessToken: params?.authentication?.accessToken },
       {}
@@ -133,9 +124,6 @@ export class AppleStrategy extends CustomOAuthStrategy {
   }
 
   async getRedirect(data: AuthenticationResult | Error, params: CustomOAuthParams): Promise<string> {
-    logger.info('[AppleSSO]: Loger Entering in getRedirect')
-    console.log('[AppleSSO]: Console Entering in getRedirect')
-    console.log('[AppleSSO]: Entering in the get redirection')
     let redirectConfig: RedirectConfig
     try {
       redirectConfig = JSON.parse(params.redirect!)
@@ -144,7 +132,6 @@ export class AppleStrategy extends CustomOAuthStrategy {
     }
     let { domain: redirectDomain, path: redirectPath, instanceId: redirectInstanceId } = redirectConfig
     redirectDomain = redirectDomain ? `${redirectDomain}/auth/oauth/apple` : config.authentication.callback.apple
-    console.log(`[AppleSSO]: Redirection Domain: ${redirectDomain}`)
 
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string
@@ -152,22 +139,17 @@ export class AppleStrategy extends CustomOAuthStrategy {
     }
 
     const loginType = params.query?.userId ? 'connection' : 'login'
-    console.log(`[AppleSSO]: loginType: ${loginType}`)
     let redirectUrl = `${redirectDomain}?token=${data.accessToken}&type=${loginType}`
     if (redirectPath) {
       redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
     }
-    console.log(`[AppleSSO]: Redirect Path: ${redirectPath}`)
     if (redirectInstanceId) {
       redirectUrl = redirectUrl.concat(`&instanceId=${redirectInstanceId}`)
     }
-    console.log(`[AppleSSO]: About to return Redirect URL: ${redirectUrl}`)
     return redirectUrl
   }
 
   async authenticate(authentication: AuthenticationRequest, originalParams: Params) {
-    logger.info('[AppleSSO]: Loger Entering in authenticate')
-    console.log('[AppleSSO]: Console Entering in authenticate')
     if (authentication.error) {
       if (authentication.error === 'user_cancelled_authorize')
         throw new Error('You canceled the Apple OAuth login flow')
@@ -177,7 +159,6 @@ export class AppleStrategy extends CustomOAuthStrategy {
             authentication.error
         )
     }
-    console.log(`[AppleSSO]: Returnng success from Authenticate`)
     return super.authenticate(authentication, originalParams)
   }
 }

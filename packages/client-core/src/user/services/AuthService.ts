@@ -616,8 +616,6 @@ export const AuthService = {
   },
 
   async removeConnection(identityProviderId: number, userId: UserID) {
-    logger.info('[AppleSSO]: Loger Entering in removeConnection')
-    console.log('[AppleSSO]: Console Entering in removeConnection')
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     try {
       await Engine.instance.api.service(identityProviderPath).remove(identityProviderId)
@@ -644,8 +642,6 @@ export const AuthService = {
   },
 
   async updateApiKey() {
-    logger.info('[AppleSSO]: Loger Entering in updateApiKey')
-    console.log('[AppleSSO]: Console Entering in updateApiKey')
     const userApiKey = (await Engine.instance.api.service(userApiKeyPath).find()) as Paginated<UserApiKeyType>
 
     let apiKey: UserApiKeyType | undefined
