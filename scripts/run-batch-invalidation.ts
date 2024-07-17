@@ -59,23 +59,25 @@ const options = cli.parse({
 })
 
 const encodeCloudfrontInvalidation = (uri: string) =>
-  uri
-    .replaceAll('%', '%25')
-    .replaceAll(' ', '%20')
-    .replaceAll('"', '%22')
-    .replaceAll('#', '%23')
-    .replaceAll('<', '%3C')
-    .replaceAll('>', '%3E')
-    .replaceAll('[', '%5B')
-    .replaceAll('\\', '%5C')
-    .replaceAll(']', '%5D')
-    .replaceAll('^', '%5E')
-    .replaceAll('`', `%60`)
-    .replaceAll('{', '%7B')
-    .replaceAll('|', '%7C')
-    .replaceAll('}', '%7D')
-    .replaceAll('~', '%7E')
-    .replaceAll("'", '%27')
+  encodeURI(
+    uri
+      .replaceAll('%', '%25')
+      .replaceAll(' ', '+')
+      .replaceAll('"', '%22')
+      .replaceAll('#', '%23')
+      .replaceAll('<', '%3C')
+      .replaceAll('>', '%3E')
+      .replaceAll('[', '%5B')
+      .replaceAll('\\', '%5C')
+      .replaceAll(']', '%5D')
+      .replaceAll('^', '%5E')
+      .replaceAll('`', `%60`)
+      .replaceAll('{', '%7B')
+      .replaceAll('|', '%7C')
+      .replaceAll('}', '%7D')
+      .replaceAll('~', '%7E')
+      .replaceAll("'", '%27')
+  )
 
 cli.main(async () => {
   try {

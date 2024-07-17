@@ -204,6 +204,9 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           <ColorInput
             value={new Color(effectSettingValue)}
             onChange={(value) =>
+              updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)('#' + value)
+            }
+            onRelease={(value) =>
               commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)('#' + value)
             }
           />
