@@ -30,6 +30,7 @@ import {
   Effect,
   EffectComposer,
   EffectPass,
+  KernelSize,
   OutlineEffect,
   RenderPass,
   SMAAEffect
@@ -135,6 +136,9 @@ const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }
     // //always have the outline effect for the highlight selection
     const outlineEffect = new OutlineEffect(scene as Scene, camera.value as ArrayCamera, getState(HighlightState))
     outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
+    outlineEffect.blur = true
+    outlineEffect.blurPass.kernelSize = KernelSize.MEDIUM
+    outlineEffect.edgeStrength = 5.0
     effectsVal['OutlineEffect'] = outlineEffect
     renderer.effectComposer['OutlineEffect'].set(outlineEffect)
 
