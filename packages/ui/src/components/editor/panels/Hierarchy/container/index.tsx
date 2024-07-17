@@ -113,7 +113,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     e.preventDefault()
     const objs = SelectionState.getSelectedEntities()
     CopyPasteFunctions.copyEntities(objs)
-    console.log('Copied: ', objs)
   })
 
   useHotkeys(`${cmdOrCtrlString}+v`, (e) => {
