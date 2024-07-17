@@ -23,26 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const initialAuthState = {
-  jwt: true,
-  apple: false,
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false,
-  smsMagicLink: false,
-  emailMagicLink: false,
-  didWallet: false
-}
+import React from 'react'
 
-export const initialOAuthConnectedState = {
-  apple: false,
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false
-}
+import { AppleCallback } from '@etherealengine/client-core/src/user/components/Oauth/AppleCallback'
+
+export const AppleHomePage = () => <AppleCallback />
+
+export default AppleHomePage
