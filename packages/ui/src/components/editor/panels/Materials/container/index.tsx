@@ -62,7 +62,9 @@ export default function MaterialLibraryPanel() {
   useEffect(() => {
     const materials = selected.value.length
       ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selected.value[0]))
-      : materialQuery.map((entity) => getComponent(entity, UUIDComponent))
+      : materialQuery
+          .map((entity) => getComponent(entity, UUIDComponent))
+          .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterial)
     const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
       const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
       return [

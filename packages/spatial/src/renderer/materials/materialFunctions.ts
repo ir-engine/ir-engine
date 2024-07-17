@@ -233,7 +233,7 @@ export const createMaterialEntity = (material: Material): Entity => {
         if (v) pluginComponent[k].value = v
       }
     })
-  setComponent(materialEntity, NameComponent, material.name)
+  setComponent(materialEntity, NameComponent, material.name === '' ? material.type : material.name)
   return materialEntity
 }
 
