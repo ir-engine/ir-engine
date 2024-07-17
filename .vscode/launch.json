@@ -110,6 +110,12 @@
             "type": "node-terminal",
         },
         {
+            "command": "cd packages/common && npm run test",
+            "name": "npm run test - common",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
             "command": "npm run dev",
             "name": "npm run dev",
             "request": "launch",

@@ -59,22 +59,25 @@ const options = cli.parse({
 })
 
 const encodeCloudfrontInvalidation = (uri: string) =>
-  uri
-    .replaceAll('%', '%25')
-    .replaceAll(' ', '%20')
-    .replaceAll('"', '%22')
-    .replaceAll('#', '%23')
-    .replaceAll('<', '%3C')
-    .replaceAll('>', '%3E')
-    .replaceAll('[', '%5B')
-    .replaceAll('\\', '%5C')
-    .replaceAll(']', '%5D')
-    .replaceAll('^', '%5E')
-    .replaceAll('`', `%60`)
-    .replaceAll('{', '%7B')
-    .replaceAll('|', '%7C')
-    .replaceAll('}', '%7D')
-    .replaceAll('~', '%7E')
+  encodeURI(
+    uri
+      .replaceAll('%', '%25')
+      .replaceAll(' ', '+')
+      .replaceAll('"', '%22')
+      .replaceAll('#', '%23')
+      .replaceAll('<', '%3C')
+      .replaceAll('>', '%3E')
+      .replaceAll('[', '%5B')
+      .replaceAll('\\', '%5C')
+      .replaceAll(']', '%5D')
+      .replaceAll('^', '%5E')
+      .replaceAll('`', `%60`)
+      .replaceAll('{', '%7B')
+      .replaceAll('|', '%7C')
+      .replaceAll('}', '%7D')
+      .replaceAll('~', '%7E')
+      .replaceAll("'", '%27')
+  )
 
 cli.main(async () => {
   try {
@@ -84,7 +87,7 @@ cli.main(async () => {
       query: {
         $limit: 3000,
         $sort: {
-          createdAt: -1
+          createdAt: 1
         }
       },
       paginate: false
@@ -92,10 +95,16 @@ cli.main(async () => {
     if (invalidations.length > 0) {
       let pathArray: string[] = []
       let idArray: string[] = []
+      let numWildcards = 0
+
       for (let invalidation of invalidations) {
+        const isWildcard = invalidation.path.match(/\*/)
+        if (isWildcard && numWildcards > 5) continue
         pathArray.push(encodeCloudfrontInvalidation(invalidation.path))
         idArray.push(invalidation.id)
+        if (isWildcard) numWildcards++
       }
+
       pathArray = [...new Set(pathArray)]
       const storageProvider = getStorageProvider()
       await storageProvider.createInvalidation(pathArray)

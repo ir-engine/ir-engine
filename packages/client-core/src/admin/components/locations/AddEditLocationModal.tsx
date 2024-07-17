@@ -30,7 +30,9 @@ import {
   LocationType,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { saveSceneGLTF } from '@etherealengine/editor/src/functions/sceneFunctions'
+import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
@@ -62,6 +64,8 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
   const location = locationID.value ? locationQuery.data[0] : undefined
 
   const locationMutation = useMutation(locationPath)
+
+  const sceneModified = EditorState.useIsModified()
 
   const submitLoading = useHookstate(false)
   const isLoading = submitLoading.value || locationQuery.status === 'pending'
@@ -113,6 +117,20 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
     }
 
     submitLoading.set(true)
+
+    if (sceneModified) {
+      try {
+        const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
+        if (!sceneAssetID || !projectName || !sceneName || !rootEntity)
+          throw new Error('Cannot save scene without scene data')
+        const abortController = new AbortController()
+        await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
+      } catch (e) {
+        errors.serverError.set(e.message)
+        submitLoading.set(false)
+        return
+      }
+    }
 
     const locationData: LocationData = {
       name: name.value,
@@ -181,9 +199,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
                   <HiLink
                     className="z-10 h-4 w-4 cursor-pointer"
                     onClick={() => {
-                      navigator.clipboard.writeText(
-                        new URL(window.location.origin + `/location/${location.slugifiedName}`).href
-                      )
+                      navigator.clipboard.writeText(new URL(location.url).href)
                       NotificationService.dispatchNotify(t('editor:toolbar.publishLocation.locationLinkCopied'), {
                         variant: 'success'
                       })
@@ -284,7 +300,11 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               disabled={isLoading}
               onClick={handleSubmit}
             >
-              {location?.id ? t('common:components.update') : t('editor:toolbar.publishLocation.title')}
+              {location?.id
+                ? t('common:components.update')
+                : sceneModified
+                ? t('editor:toolbar.publishLocation.saveAndPublish')
+                : t('editor:toolbar.publishLocation.title')}
             </Button>
           </div>
         </div>

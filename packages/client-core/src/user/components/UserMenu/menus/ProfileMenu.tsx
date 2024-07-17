@@ -33,6 +33,7 @@ import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { AppleIcon } from '@etherealengine/client-core/src/common/components/Icons/AppleIcon'
 import { DiscordIcon } from '@etherealengine/client-core/src/common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '@etherealengine/client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '@etherealengine/client-core/src/common/components/Icons/LinkedInIcon'
@@ -42,6 +43,7 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
+import multiLogger from '@etherealengine/common/src/logger'
 import { authenticationSettingPath, clientSettingPath, UserName } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -60,6 +62,8 @@ import { useUserHasAccessHook } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
+
+const logger = multiLogger.child({ component: 'engine:ecs:ProfileMenu' })
 
 interface Props {
   className?: string
@@ -111,6 +115,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
   let type = ''
   const addMoreSocial =
+    (authState?.value?.apple && !oauthConnectedState.apple.value) ||
     (authState?.value?.discord && !oauthConnectedState.discord.value) ||
     (authState?.value?.facebook && !oauthConnectedState.facebook.value) ||
     (authState?.value?.github && !oauthConnectedState.github.value) ||
@@ -144,6 +149,9 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     if (selfUser.identityProviders.get({ noproxy: true }))
       for (const ip of selfUser.identityProviders.get({ noproxy: true })!) {
         switch (ip.type) {
+          case 'apple':
+            oauthConnectedState.merge({ apple: true })
+            break
           case 'discord':
             oauthConnectedState.merge({ discord: true })
             break
@@ -349,6 +357,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const enableWalletLogin = false // authState?.didWallet
 
   const enableSocial =
+    authState?.value?.apple ||
     authState?.value?.discord ||
     authState?.value?.facebook ||
     authState?.value?.github ||
@@ -592,7 +601,6 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                     {t('user:usermenu.profile.addSocial')}
                   </Text>
                 )}
-
                 <div className={styles.socialContainer}>
                   {authState?.value?.discord && !oauthConnectedState.discord.value && (
                     <IconButton
@@ -607,6 +615,9 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                       icon={<GoogleIcon viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
+                  )}
+                  {authState?.value?.apple && !oauthConnectedState.apple.value && (
+                    <IconButton id="apple" icon={<AppleIcon viewBox="0 0 40 40" />} onClick={handleOAuthServiceClick} />
                   )}
                   {authState?.value?.facebook && !oauthConnectedState.facebook.value && (
                     <IconButton
@@ -639,8 +650,14 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                     <Text align="center" variant="body2" mb={1} mt={2}>
                       {t('user:usermenu.profile.removeSocial')}
                     </Text>
-
                     <div className={styles.socialContainer}>
+                      {authState?.apple.value && oauthConnectedState.apple.value && (
+                        <IconButton
+                          id="apple"
+                          icon={<AppleIcon viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
                       {authState?.discord.value && oauthConnectedState.discord.value && (
                         <IconButton
                           id="discord"
