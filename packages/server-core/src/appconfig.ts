@@ -257,7 +257,7 @@ const authentication = {
   service: identityProviderPath,
   entity: identityProviderPath,
   secret: process.env.AUTH_SECRET!,
-  authStrategies: ['jwt', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
+  authStrategies: ['jwt', 'apple', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
   jwtOptions: {
     expiresIn: '30 days'
   },
@@ -267,6 +267,7 @@ const authentication = {
   whiteList: [
     'auth',
     'oauth/:provider',
+    'oauth/:provider/callback',
     'authentication',
     oembedPath,
     githubRepoAccessWebhookPath,
@@ -277,6 +278,7 @@ const authentication = {
     { path: loginPath, methods: ['get'] }
   ] as (string | WhiteListItem)[],
   callback: {
+    apple: process.env.APPLE_CALLBACK_URL || `${client.url}/auth/oauth/apple`,
     discord: process.env.DISCORD_CALLBACK_URL || `${client.url}/auth/oauth/discord`,
     facebook: process.env.FACEBOOK_CALLBACK_URL || `${client.url}/auth/oauth/facebook`,
     github: process.env.GITHUB_CALLBACK_URL || `${client.url}/auth/oauth/github`,
@@ -292,6 +294,17 @@ const authentication = {
           ? server.hostname
           : server.hostname + ':' + server.port,
       protocol: 'https'
+    },
+    apple: {
+      key: process.env.APPLE_CLIENT_ID!,
+      secret: process.env.APPLE_CLIENT_SECRET!,
+      scope: ['openid', 'email', 'name'],
+      response: ['raw', 'jwt'],
+      nonce: true,
+      custom_params: {
+        response_type: 'code id_token',
+        response_mode: 'form_post'
+      }
     },
     discord: {
       key: process.env.DISCORD_CLIENT_ID!,
