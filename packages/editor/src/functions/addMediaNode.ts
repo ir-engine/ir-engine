@@ -45,7 +45,7 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { ObjectLayerMasks, ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { assignMaterial, createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
@@ -81,6 +81,7 @@ export async function addMediaNode(
       mouse.y = -((mouseEvent.clientY - rect.top) / rect.height) * 2 + 1
       const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
       const raycaster = new Raycaster()
+      raycaster.layers.set(ObjectLayerMasks[ObjectLayers.Scene])
       const intersections = [] as Intersection[]
       getIntersectingNodeOnScreen(raycaster, mouse, intersections)
       // debug code for visualizing ray casts:
