@@ -107,7 +107,7 @@ export default function MaterialLibraryPanel() {
           <MaterialPreviewPanel ref={materialPreviewPanelRef} />
         </div>
         <div className="w-full">
-          <InputGroup name="File Path" label="File Path">
+          <InputGroup name="File Path" label="File Path" className="justify-normal">
             <StringInput value={srcPath.value} onChange={srcPath.set} />
           </InputGroup>
           <div className="flex-between flex h-7 gap-3">

@@ -42,12 +42,14 @@ export default function ParameterInput({
   onChange,
   defaults,
   thumbnails,
+  className,
   ...rest
 }: {
   entity: string
   values: object
   defaults?: object
   thumbnails?: Record<string, string>
+  className?: string
   onChange: (k: string) => (v) => void
   onModify?: () => void
 }) {
@@ -104,7 +106,12 @@ export default function ParameterInput({
       {Object.entries(_defaults).map(([k, parms]: [string, any]) => {
         const compKey = `${entity}-${k}`
         return (
-          <InputGroup key={compKey} name={k} label={camelCaseToSpacedString(capitalizeFirstLetter(k))}>
+          <InputGroup
+            key={compKey}
+            name={k}
+            label={camelCaseToSpacedString(capitalizeFirstLetter(k))}
+            className={className}
+          >
             {(() => {
               switch (parms.type) {
                 case 'boolean':

@@ -207,7 +207,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }, [selectedPlugin, useOptionalComponent(entity, MaterialPlugins[selectedPlugin.value])])
   return (
     <div className="relative flex flex-col gap-2">
-      <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
+      <InputGroup name="Name" label={t('editor:properties.mesh.material.name')} className="justify-normal">
         <StringInput
           value={materialName?.value ?? ''}
           onChange={(name) => {
@@ -216,7 +216,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           }}
         />
       </InputGroup>
-      <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>
+      <InputGroup name="Source" label={t('editor:properties.mesh.material.source')} className="justify-normal">
         <div className="border-grey-500 flex flex-row gap-2 rounded-lg border-2 border-solid bg-theme-surface-main p-1 text-xs text-white">
           <div className="justify-cneter flex items-center align-middle">
             <label>{t('editor:properties.mesh.material.path')}</label>
@@ -225,7 +225,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         </div>
       </InputGroup>
       <br />
-      <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
+      <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')} className="justify-normal">
         <SelectInput
           value={prototypeEntity}
           options={prototypes}
@@ -238,6 +238,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       </InputGroup>
 
       <ParameterInput
+        className="justify-normal"
         entity={props.materialUUID}
         values={materialComponent.parameters.value!}
         onChange={(key) => async (value) => {
@@ -263,7 +264,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       />
 
       <br />
-      <div className="border-grey-500 flex flex-row justify-between rounded-lg border-2 border-solid p-1 align-middle">
+      <div className="border-grey-500 flex flex-row justify-normal rounded-lg border-2 border-solid p-1 align-middle">
         <SelectInput
           value={selectedPlugin.value}
           options={Object.keys(MaterialPlugins).map((key) => ({ label: key, value: key }))}
@@ -282,6 +283,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       {hasComponent(entity, MaterialPlugins[selectedPlugin.value]) && (
         <div className={styles.contentContainer}>
           <ParameterInput
+            className="justify-normal"
             entity={props.materialUUID}
             values={pluginValues.value}
             onChange={(key) => async (value) => {
