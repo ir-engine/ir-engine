@@ -199,9 +199,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
                   <HiLink
                     className="z-10 h-4 w-4 cursor-pointer"
                     onClick={() => {
-                      navigator.clipboard.writeText(
-                        new URL(window.location.origin + `/location/${location.slugifiedName}`).href
-                      )
+                      navigator.clipboard.writeText(new URL(location.url).href)
                       NotificationService.dispatchNotify(t('editor:toolbar.publishLocation.locationLinkCopied'), {
                         variant: 'success'
                       })
