@@ -49,8 +49,9 @@ const execute = () => {
       highlightObjects.push(getComponent(child, MeshComponent))
     })
   }
-  const test = getComponent(Engine.instance.viewerEntity, RendererComponent)
-  test.effectComposer?.OutlineEffect?.selection.set(highlightObjects)
+  const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  // @ts-ignore @todo why does typescript freak out here?
+  rendererComponent.effectComposer?.OutlineEffect?.selection.set(highlightObjects)
 }
 
 export const HighlightSystem = defineSystem({
