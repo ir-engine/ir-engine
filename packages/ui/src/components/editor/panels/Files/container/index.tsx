@@ -653,6 +653,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
     return (
       <Popup
+        contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
         position={'bottom left'}
         trigger={
           <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
