@@ -138,7 +138,7 @@ const EditorContainer = () => {
   const { initialized, isWidgetVisible, openChat } = useZendesk()
   const { t } = useTranslation()
 
-  const visualScriptPanelEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Editor.Panel.VisualScript)
+  const visualScriptPanelEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Studio.Panel.VisualScript)
 
   useEffect(() => {
     const scene = sceneQuery[0]
