@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
+import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/lights/SpotLightComponent'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuCircleDot } from 'react-icons/lu'

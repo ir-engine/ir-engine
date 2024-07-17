@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/PointLightComponent'
+import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/lights/PointLightComponent'
 
 import { useComponent } from '@etherealengine/ecs'
 import {
