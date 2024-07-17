@@ -39,6 +39,7 @@ export const useStudioEditor = () => {
   const engineReady = useHookstate(false)
 
   useEffect(() => {
+    getMutableState(EngineState).isEditor.set(true)
     getMutableState(EngineState).isEditing.set(true)
     loadEngineInjection().then(() => {
       engineReady.set(true)
