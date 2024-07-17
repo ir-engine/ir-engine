@@ -30,11 +30,11 @@ import React from 'react'
 import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 import { defineState, syncStateWithLocalStorage, useMutableState } from '@etherealengine/hyperflux'
 
+import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
+import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
+import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
+import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
 import { defaultLODs } from '../../constants/GLTFPresets'
-import BooleanInput from '../inputs/BooleanInput'
-import CompoundNumericInput from '../inputs/CompoundNumericInput'
-import InputGroup from '../inputs/InputGroup'
-import SelectInput from '../inputs/SelectInput'
 
 export const ImportSettingsState = defineState({
   name: 'ImportSettingsState',
@@ -129,9 +129,10 @@ const ImageCompressionBox = () => {
               label={t('editor:properties.model.transform.quality')}
               info={t('editor:properties.model.transform.qualityTooltip')}
             >
-              <CompoundNumericInput
+              <Slider
                 value={compressProperties.quality.value}
                 onChange={compressProperties.quality.set}
+                onRelease={compressProperties.quality.set}
                 min={1}
                 max={255}
                 step={1}
@@ -142,9 +143,10 @@ const ImageCompressionBox = () => {
               label={t('editor:properties.model.transform.compressionLevel')}
               info={t('editor:properties.model.transform.compressionLevelTooltip')}
             >
-              <CompoundNumericInput
+              <Slider
                 value={compressProperties.compressionLevel.value}
                 onChange={compressProperties.compressionLevel.set}
+                onRelease={compressProperties.compressionLevel.set}
                 min={0}
                 max={6}
                 step={1}
