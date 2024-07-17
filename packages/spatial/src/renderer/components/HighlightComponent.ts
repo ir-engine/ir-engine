@@ -41,16 +41,15 @@ const execute = () => {
   /** @todo support multiple scenes */
   if (!hasComponent(Engine.instance.viewerEntity, RendererComponent)) return
 
-  let highlightObjects: Object3D[] = []
+  let highlightObjects = new Set<Object3D>()
   for (const entity of highlightQuery()) {
     traverseEntityNode(entity, (child, index) => {
       if (!hasComponent(child, MeshComponent)) return
       if (!hasComponent(child, GroupComponent)) return
-      highlightObjects.push(getComponent(child, MeshComponent))
+      highlightObjects.add(getComponent(child, MeshComponent))
     })
   }
   const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
-  // @ts-ignore @todo why does typescript freak out here?
   rendererComponent.effectComposer?.OutlineEffect?.selection.set(highlightObjects)
 }
 
