@@ -44,7 +44,6 @@ export const LINKEDIN_SCOPES = ['profile', 'email']
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
-
   const seedData: AuthenticationSettingDatabaseType[] = await Promise.all(
     [
       {
@@ -55,6 +54,7 @@ export async function seed(knex: Knex): Promise<void> {
           { jwt: true },
           { smsMagicLink: true },
           { emailMagicLink: true },
+          { apple: true },
           { discord: true },
           { facebook: true },
           { github: true },
@@ -70,6 +70,7 @@ export async function seed(knex: Knex): Promise<void> {
           numBytes: 16
         }),
         callback: JSON.stringify({
+          apple: process.env.APPLE_CALLBACK_URL || `${config.client.url}/auth/oauth/apple`,
           discord: process.env.DISCORD_CALLBACK_URL || `${config.client.url}/auth/oauth/discord`,
           facebook: process.env.FACEBOOK_CALLBACK_URL || `${config.client.url}/auth/oauth/facebook`,
           github: process.env.GITHUB_CALLBACK_URL || `${config.client.url}/auth/oauth/github`,
@@ -84,6 +85,16 @@ export async function seed(knex: Knex): Promise<void> {
                 ? config.server.hostname
                 : config.server.hostname + ':' + config.server.port,
             protocol: 'https'
+          },
+          apple: {
+            key: process.env.APPLE_CLIENT_ID,
+            secret: process.env.APPLE_CLIENT_SECRET,
+            scope: ['openid', 'email', 'name'],
+            response: ['raw', 'jwt'],
+            custom_params: {
+              response_type: 'code id_token',
+              response_mode: 'form_post'
+            }
           },
           discord: {
             key: process.env.DISCORD_CLIENT_ID,
