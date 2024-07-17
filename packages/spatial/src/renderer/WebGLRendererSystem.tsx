@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import '../threejsPatches'
 
-import { EffectComposer, NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
+import { NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
 import React, { useEffect } from 'react'
 import {
   ArrayCamera,
@@ -62,6 +62,7 @@ import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRLightProbeState } from '../xr/XRLightProbeSystem'
 import { XRState } from '../xr/XRState'
 import { GroupComponent } from './components/GroupComponent'
+import { EffectComposer } from './components/PostProcessingComponent'
 import {
   BackgroundComponent,
   EnvironmentMapComponent,

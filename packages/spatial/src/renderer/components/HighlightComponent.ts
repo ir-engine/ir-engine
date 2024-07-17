@@ -50,7 +50,7 @@ const execute = () => {
     })
   }
   const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
-  rendererComponent.effectComposer?.OutlineEffect?.selection.set(highlightObjects)
+  rendererComponent.effectComposer.OutlineEffect.selection.set(highlightObjects)
 }
 
 export const HighlightSystem = defineSystem({
