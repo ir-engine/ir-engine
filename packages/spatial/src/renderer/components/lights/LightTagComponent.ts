@@ -23,26 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const initialAuthState = {
-  jwt: true,
-  apple: false,
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false,
-  smsMagicLink: false,
-  emailMagicLink: false,
-  didWallet: false
-}
+import { defineComponent } from '@etherealengine/ecs'
 
-export const initialOAuthConnectedState = {
-  apple: false,
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false
-}
+export const LightTagComponent = defineComponent({ name: 'LightTag' })
