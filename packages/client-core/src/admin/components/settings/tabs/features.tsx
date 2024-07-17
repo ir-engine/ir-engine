@@ -35,17 +35,17 @@ import { useFind, useMutation } from '@etherealengine/spatial/src/common/functio
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import { useHookstate } from '@hookstate/core'
 
-const defaultTypes = getAllStringValueNodes(FeatureFlags)
 const defaultProps = ['id', 'flagName', 'flagValue', 'createdAt', 'updatedAt']
 
 const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
   const displayedFeatures = useHookstate<FeatureFlagSettingType[]>([])
 
-  const featureFlagSettings = useFind(featureFlagSettingPath)
+  const featureFlagSettings = useFind(featureFlagSettingPath, { query: { paginate: false } })
 
   useEffect(() => {
     if (featureFlagSettings.status === 'success') {
+      const defaultTypes = getAllStringValueNodes(FeatureFlags)
       const missingTypes = defaultTypes.filter(
         (type) =>
           !featureFlagSettings.data.find(

@@ -220,19 +220,22 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
           <ColorInput
             disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.primaryColor.value)}
-            onChange={(val) => commitProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
+            onChange={(val) => updateProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
+            onRelease={(val) => commitProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
             className="w-full"
           />
           <ColorInput
             disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.backgroundColor.value)}
-            onChange={(val) => commitProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+            onChange={(val) => updateProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+            onRelease={(val) => commitProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
             className="w-full"
           />
           <ColorInput
             disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.alternativeColor.value)}
-            onChange={(val) => commitProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+            onChange={(val) => updateProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+            onRelease={(val) => commitProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
             className="w-full"
           />
           <Button onClick={generateColors} className="w-full">

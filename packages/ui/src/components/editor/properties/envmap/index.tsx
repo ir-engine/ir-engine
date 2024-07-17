@@ -107,6 +107,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           <ColorInput
             value={envmapComponent.envMapSourceColor.value}
             onChange={commitProperty(EnvmapComponent, 'envMapSourceColor')}
+            onRelease={commitProperty(EnvmapComponent, 'envMapSourceColor')}
           />
         </InputGroup>
       )}

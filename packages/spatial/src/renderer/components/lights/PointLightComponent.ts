@@ -37,11 +37,12 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches, useMutableState } from '@etherealengine/hyperflux'
 
-import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
-import { useDisposable } from '../../resources/resourceHooks'
-import { isMobileXRHeadset } from '../../xr/XRState'
-import { RendererState } from '../RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
+import { useDisposable } from '../../../resources/resourceHooks'
+import { isMobileXRHeadset } from '../../../xr/XRState'
+import { RendererState } from '../../RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
+import { LightTagComponent } from './LightTagComponent'
 
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
@@ -94,6 +95,7 @@ export const PointLightComponent = defineComponent({
     const lightHelper = useOptionalComponent(entity, LightHelperComponent)
 
     useEffect(() => {
+      setComponent(entity, LightTagComponent)
       if (isMobileXRHeadset) return
       addObjectToGroup(entity, light)
       return () => {
