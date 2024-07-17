@@ -41,7 +41,7 @@ import { EntityUUID, useQuery, UUIDComponent } from '@etherealengine/ecs'
 import { ComponentType, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
+import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/lights/DirectionalLightComponent'
 
 import { GLTFNodeState, GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
