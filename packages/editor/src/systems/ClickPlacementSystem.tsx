@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { Ray } from '@dimforge/rapier3d-compat'
+import { AssetExt, FileToAssetExt } from '@etherealengine/common/src/constants/AssetType'
 import {
   Engine,
   Entity,
@@ -89,7 +90,10 @@ export const ClickPlacementState = defineState({
     materialCache: [] as [Mesh, Material][]
   },
   setSelectedAsset: (src: string) => {
-    getMutableState(ClickPlacementState).selectedAsset.set(src)
+    const assetExt = FileToAssetExt(src)
+    if (assetExt && (assetExt === AssetExt.GLTF || assetExt === AssetExt.GLB))
+      getMutableState(ClickPlacementState).selectedAsset.set(src)
+    else ClickPlacementState.resetSelectedAsset()
   },
   resetSelectedAsset: () => {
     getMutableState(ClickPlacementState).selectedAsset.set('')

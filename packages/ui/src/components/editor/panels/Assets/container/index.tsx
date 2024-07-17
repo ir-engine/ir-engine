@@ -469,7 +469,7 @@ const AssetPanel = () => {
                 selected={resource.url === assetsPreviewContext.selectAssetURL.value}
                 onClick={(props: AssetSelectionChangePropsType) => {
                   assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
-                  if (props.contentType === 'gltf') ClickPlacementState.setSelectedAsset(props.resourceUrl)
+                  ClickPlacementState.setSelectedAsset(props.resourceUrl)
                 }}
               />
             ))}
