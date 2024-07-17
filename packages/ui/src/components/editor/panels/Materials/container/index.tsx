@@ -142,7 +142,6 @@ export default function MaterialLibraryPanel() {
                   uploadProjectFiles(projectName, [file], [`projects/${projectName}${importSettings.importFolder}`])
                     .promises
                 )
-                const editorState = getState(EditorState)
                 const adjustedLibraryName = libraryName.length > 0 ? libraryName.substring(1) : ''
                 const key = `projects/${projectName}${importSettings.importFolder}${adjustedLibraryName}`
                 const resources = await Engine.instance.api.service(staticResourcePath).find({
