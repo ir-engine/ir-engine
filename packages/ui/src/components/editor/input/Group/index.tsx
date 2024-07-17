@@ -54,7 +54,7 @@ export const InputGroupContent = ({ extraClassName = '', children }) => (
     className={twMerge(
       'ml-4 flex justify-between',
       '[&>label]:block [&>label]:w-[35%] [&>label]:pb-0.5 [&>label]:pt-1 [&>label]:text-neutral-400',
-      "font-['Figtree'] text-xs font-normal text-neutral-400",
+      'text-xs font-normal text-neutral-400',
       '[&>*:first-child]:max-w-[calc(100%_-_2px)]',
       extraClassName
     )}

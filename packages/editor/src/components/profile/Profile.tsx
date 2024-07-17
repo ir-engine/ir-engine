@@ -38,9 +38,9 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
 import StringInput from '@etherealengine/ui/src/components/editor/input/String'
-import ContextMenu from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
+import { ContextMenu } from '@etherealengine/ui/src/components/tailwind/ContextMenu'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaArrowRightToBracket } from 'react-icons/fa6'
 import { LuSettings } from 'react-icons/lu'
@@ -337,9 +337,15 @@ const ProfileModal = ({ user }) => {
 
 export const Profile = ({ user }) => {
   const { avatar } = user
-  const anchorPosition = useHookstate({ left: 0, top: 0 })
-  const anchorEvent = useHookstate<any>(null)
-  const anchorEl = useHookstate<any>(null)
+  // const anchorPosition = useHookstate({ left: 0, top: 0 })
+  const [anchorEvent, setAnchorEvent] = useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
+  // const anchorEl = useHookstate<any>(null)
+
+  const handleClick = (event) => {
+    // anchorPosition.set({ left: event.clientX, top: event.clientY })
+    setAnchorEvent(event)
+    // anchorEl.set(event.currentTarget)
+  }
 
   return (
     <>
@@ -351,24 +357,19 @@ export const Profile = ({ user }) => {
           endIcon={
             <MdOutlineKeyboardArrowDown
               size="1.5em"
-              className={`-ml-3 text-theme-primary transition-transform ${anchorEvent.value ? 'rotate-180' : ''}`}
+              className={`-ml-3 text-theme-primary transition-transform ${anchorEvent ? 'rotate-180' : ''}`}
             />
           }
           iconContainerClassName="ml-2 mr-1"
           rounded="none"
           className="-mr-1 border-0 bg-transparent p-0"
-          onClick={(event) => {
-            anchorPosition.set({ left: event.clientX, top: event.clientY })
-            anchorEvent.set(event)
-            anchorEl.set(event.currentTarget)
-          }}
+          onClick={handleClick}
         />
       </div>
       <ContextMenu
-        anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
-        anchorEl={anchorEl.value}
-        panelId="profile-menu"
-        onClose={() => anchorEvent.set(null)}
+        anchorEvent={anchorEvent}
+        // anchorEl={anchorEl.value}
+        onClose={() => setAnchorEvent(undefined)}
       >
         <ProfileModal user={user} />
       </ContextMenu>

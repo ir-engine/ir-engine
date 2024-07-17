@@ -23,12 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
-
-const Overlay = ({ pointerEvents, children }) => {
-  const overlayClassName = twMerge('fixed inset-0', `pointer-events-${pointerEvents} ?? 'auto'`)
-  return <div className={overlayClassName}>{children}</div>
+/** Camera Modes. */
+export enum FollowCameraMode {
+  FirstPerson = 'FirstPerson',
+  ShoulderCam = 'ShoulderCam',
+  ThirdPerson = 'ThirdPerson',
+  TopDown = 'TopDown',
+  Strategic = 'Strategic',
+  Dynamic = 'Dynamic'
 }
 
-export default Overlay
+export enum FollowCameraShoulderSide {
+  Left = 'Left',
+  Right = 'Right'
+}

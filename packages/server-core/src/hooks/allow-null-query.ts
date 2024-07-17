@@ -23,13 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Object3D, Ray } from 'three'
+import { HookContext } from '@feathersjs/feathers'
 
-import { defineState } from '@etherealengine/hyperflux'
+import { Application } from '../../declarations'
 
-export const XRUIState = defineState({
-  name: 'XRUIState',
-  initial: () => ({
-    interactionRays: [] as Array<Ray | Object3D>
-  })
-})
+/**
+ * https://feathersjs.com/help/faq#my-queries-with-null-values-aren-t-working
+ */
+export default (...fieldNames: string[]) => {
+  return async (context: HookContext<Application>) => {
+    const query = context?.params?.query
+    if (!query) return context
+
+    for (const field of fieldNames) {
+      if (query[field] === 'null') {
+        query[field] = null
+      }
+    }
+
+    return context
+  }
+}

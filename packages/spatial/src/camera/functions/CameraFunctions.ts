@@ -23,12 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { clamp } from 'lodash'
-
 import { ComponentType, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 
-import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
 export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number, time = 0.3) => {
@@ -48,54 +45,4 @@ export const setTargetCameraRotation = (entity: Entity, phi: number, theta: numb
     cameraRotationTransition.theta = theta
     cameraRotationTransition.time = time
   }
-}
-
-/**
- * Change camera distance.
- * @param cameraEntity Entity holding camera and input component.
- */
-export const handleCameraZoom = (cameraEntity: Entity, scrollDelta: number): void => {
-  if (scrollDelta === 0) {
-    return
-  }
-
-  const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent) as
-    | ComponentType<typeof FollowCameraComponent>
-    | undefined
-
-  if (!followComponent) {
-    return
-  }
-
-  const epsilon = 0.001
-  const nextZoomLevel = clamp(followComponent.zoomLevel + scrollDelta, epsilon, followComponent.maxDistance)
-
-  // Move out of first person mode
-  if (followComponent.zoomLevel <= epsilon && scrollDelta > 0) {
-    followComponent.zoomLevel = followComponent.minDistance
-    return
-  }
-
-  // Move to first person mode
-  if (nextZoomLevel < followComponent.minDistance) {
-    followComponent.zoomLevel = epsilon
-    setTargetCameraRotation(cameraEntity, 0, followComponent.theta)
-    return
-  }
-
-  // Rotate camera to the top but let the player rotate if he/she desires
-  if (Math.abs(followComponent.maxDistance - nextZoomLevel) <= 1.0 && scrollDelta > 0) {
-    setTargetCameraRotation(cameraEntity, 85, followComponent.theta)
-  }
-
-  // Rotate from top
-  if (
-    Math.abs(followComponent.maxDistance - followComponent.zoomLevel) <= 1.0 &&
-    scrollDelta < 0 &&
-    followComponent.phi >= 80
-  ) {
-    setTargetCameraRotation(cameraEntity, 45, followComponent.theta)
-  }
-
-  followComponent.zoomLevel = nextZoomLevel
 }

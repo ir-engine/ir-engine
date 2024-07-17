@@ -30,7 +30,6 @@ import { defineComponent, useComponent } from '@etherealengine/ecs/src/Component
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { Geometry } from '@etherealengine/spatial/src/common/constants/Geometry'
 import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-
 import { GeometryTypeEnum, GeometryTypeToClass } from '../constants/GeometryTypeEnum'
 
 const createGeometry = (geometryType: GeometryTypeEnum, geometryParams: Record<string, any>): Geometry => {

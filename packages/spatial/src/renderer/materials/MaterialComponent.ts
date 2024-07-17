@@ -25,12 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material, Shader, WebGLRenderer } from 'three'
 
-import { Component, UUIDComponent, defineComponent, getComponent, getMutableComponent } from '@etherealengine/ecs'
+import {
+  Component,
+  UUIDComponent,
+  defineComponent,
+  defineQuery,
+  getComponent,
+  getMutableComponent
+} from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
+import { v4 as uuidv4 } from 'uuid'
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
 import { TransparencyDitheringPlugin } from './constants/plugins/TransparencyDitheringComponent'
+import { assignMaterial } from './materialFunctions'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './prototypes/MeshMatcapMaterial.mat'
@@ -40,7 +49,6 @@ import MeshStandardMaterial from './prototypes/MeshStandardMaterial.mat'
 import MeshToonMaterial from './prototypes/MeshToonMaterial.mat'
 import { ShaderMaterial } from './prototypes/ShaderMaterial.mat'
 import { ShadowMaterial } from './prototypes/ShadowMaterial.mat'
-
 export type MaterialWithEntity = Material & { entity: Entity }
 
 export type MaterialPrototypeConstructor = new (...args: any) => any
@@ -92,14 +100,24 @@ export const MaterialStateComponent = defineComponent({
     }
   },
 
-  materialByHash: {} as Record<string, EntityUUID>,
-
   onSet: (entity, component, json) => {
     if (json?.material && component.material.value !== undefined) component.material.set(json.material)
     if (json?.parameters && component.parameters.value !== undefined) component.parameters.set(json.parameters)
     if (json?.instances && component.instances.value !== undefined) component.instances.set(json.instances)
     if (json?.prototypeEntity && component.prototypeEntity.value !== undefined)
       component.prototypeEntity.set(json.prototypeEntity)
+  },
+
+  fallbackMaterial: uuidv4() as EntityUUID,
+
+  onRemove: (entity) => {
+    const materialComponent = getComponent(entity, MaterialStateComponent)
+    for (const entity of materialComponent.instances) {
+      const instanceComponent = getMutableComponent(entity, MaterialInstanceComponent)
+      const index = instanceComponent.uuid.value.indexOf(getComponent(entity, UUIDComponent))
+      if (index != -1)
+        assignMaterial(entity, UUIDComponent.getEntityByUUID(MaterialStateComponent.fallbackMaterial), index)
+    }
   }
 })
 
@@ -139,6 +157,8 @@ export const MaterialPrototypeComponent = defineComponent({
       component.prototypeConstructor.set(json.prototypeConstructor)
   }
 })
+
+export const prototypeQuery = defineQuery([MaterialPrototypeComponent])
 
 declare module 'three/src/materials/Material' {
   export interface Material {

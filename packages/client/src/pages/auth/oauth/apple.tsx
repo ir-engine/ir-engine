@@ -24,44 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import { twMerge } from 'tailwind-merge'
-import ClickAwayListener from './ClickAwayListener'
 
-type ContextMenuProps = {
-  className?: string
-  open: boolean
-  anchorEl: null | HTMLElement
-  panelId: string
-  anchorPosition: any
-  onClose: () => void
-}
+import { AppleCallback } from '@etherealengine/client-core/src/user/components/Oauth/AppleCallback'
 
-export const PopOver = ({
-  children,
-  open,
-  anchorEl,
-  panelId,
-  anchorPosition,
-  className,
-  onClose
-}: React.PropsWithChildren<ContextMenuProps>) => {
-  const panel = document.getElementById(panelId)
-  const positionX = anchorPosition?.left - panel?.getBoundingClientRect().left!
-  const positionY = anchorPosition?.top - panel?.getBoundingClientRect().top!
-  return (
-    <ClickAwayListener onClickAway={() => onClose()}>
-      <div className={`${open ? 'block' : 'hidden'}`}>
-        {open && anchorEl && (
-          <div
-            className={twMerge('absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg', className)}
-            style={{ top: `${positionY}px`, left: `${positionX}px` }}
-          >
-            {children}
-          </div>
-        )}
-      </div>
-    </ClickAwayListener>
-  )
-}
+export const AppleHomePage = () => <AppleCallback />
 
-export default PopOver
+export default AppleHomePage

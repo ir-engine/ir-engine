@@ -38,6 +38,7 @@ import {
 import { decode } from 'msgpackr'
 import os from 'os'
 
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { dispatchAction, getMutableState, getState, Identifiable, none, PeerID, State } from '@etherealengine/hyperflux'
 import {
   DataChannelRegistryState,
@@ -61,6 +62,10 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
+import { CREDENTIAL_OFFSET, HASH_ALGORITHM } from '@etherealengine/common/src/constants/DefaultWebRTCSettings'
+import { PUBLIC_STUN_SERVERS } from '@etherealengine/common/src/constants/STUNServers'
+import { instanceServerSettingPath } from '@etherealengine/common/src/schema.type.module'
+import crypto from 'crypto'
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupInternalWebRTCDataChannelState } from './MediasoupInternalWebRTCDataChannelState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
@@ -131,11 +136,11 @@ export async function startWebRTC() {
  * Creates a new WebRTC transport for the given data channel.
  */
 export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetwork, dataChannel: DataChannelType) => {
-  if (network.transport.outgoingDataProducers[dataChannel]) return
+  if (network.outgoingDataProducers[dataChannel]) return
 
   logger.info('createOutgoingDataProducer %o', dataChannel)
 
-  const transport = network.transport.outgoingDataTransport
+  const transport = network.outgoingDataTransport
 
   const outgoingDataProducer = await transport.produceData({
     label: dataChannel,
@@ -148,10 +153,10 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
     }
   })
 
-  const currentRouter = network.transport.routers[0]
+  const currentRouter = network.routers[0]
 
   await Promise.all(
-    network.transport.routers.map(async (router) => {
+    network.routers.map(async (router) => {
       if (router.id !== currentRouter.id)
         return currentRouter.pipeToRouter({ dataProducerId: outgoingDataProducer.id, router: router })
       else return Promise.resolve()
@@ -161,10 +166,10 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
     SocketWebRTCServerNetwork,
     Identifiable
   >
-  networkState.transport.outgoingDataProducers[dataChannel].set(outgoingDataProducer)
+  networkState.outgoingDataProducers[dataChannel].set(outgoingDataProducer)
 
   outgoingDataProducer.observer.on('close', () => {
-    networkState.transport.outgoingDataProducers[dataChannel].set(none)
+    networkState.outgoingDataProducers[dataChannel].set(none)
   })
 }
 
@@ -196,7 +201,7 @@ export const handleConsumeData = async (action: typeof MediasoupDataConsumerActi
   }
 
   try {
-    const outgoingDataProducer = network.transport.outgoingDataProducers[dataChannel]
+    const outgoingDataProducer = network.outgoingDataProducers[dataChannel]
     const dataConsumer = await newTransport.consumeData({
       dataProducerId: outgoingDataProducer.id,
       appData: { peerID, transportId: newTransport.id }
@@ -260,7 +265,7 @@ export async function createWebRtcTransport(
   { peerID, direction, sctpCapabilities, channelId }: WebRtcTransportParams
 ): Promise<WebRTCTransportExtension> {
   const { initialAvailableOutgoingBitrate } = mediaConfig.mediasoup.webRtcTransport
-  const routerList = network.transport.routers
+  const routerList = network.routers
 
   const dumps = await Promise.all(routerList.map(async (item) => await item.dump()))
   const sortedDumps = dumps.sort((a, b) => a.transportIds.length - b.transportIds.length)
@@ -289,7 +294,7 @@ export async function createInternalDataConsumer(
   peerID: PeerID
 ): Promise<DataConsumer | null> {
   try {
-    const transport = network.transport.outgoingDataTransport
+    const transport = network.outgoingDataTransport
     const dataConsumer = await transport.consumeData({
       dataProducerId: dataProducer.id,
       appData: { peerID, transportId: transport.id },
@@ -301,7 +306,7 @@ export async function createInternalDataConsumer(
       const [fromPeerIndex, data] = decode(message)
       const fromPeerID = network.peerIndexToPeerID[fromPeerIndex]
       if (fromPeerID !== peerID) return
-      network.transport.onBuffer(dataProducer.label as DataChannelType, peerID, data)
+      network.onBuffer(dataProducer.label as DataChannelType, peerID, data)
     })
 
     if (!getState(MediasoupInternalWebRTCDataChannelState)[peerID]) {
@@ -354,7 +359,21 @@ export async function handleWebRtcTransportCreate(
       direction,
       peerID
     ) as WebRTCTransportExtension
-    if (existingTransport) throw new Error('Transport already exists for ' + peerID) //MediasoupTransportState.removeTransport(network.id, existingTransport.id)
+    if (existingTransport) {
+      return dispatchAction(
+        MediasoupTransportActions.requestTransportError({
+          error: 'Transport already exists',
+          direction,
+          $network: network.id,
+          $topic: network.topic,
+          $to: peerID
+        })
+      )
+      /** @todo figure out why we transition to state failed in local dev sometimes */
+      // throw new Error('Transport already exists for ' + peerID)
+      // return console.warn('Transport already exists for ' + peerID)
+      // MediasoupTransportState.removeTransport(network.id, existingTransport.id)
+    }
 
     const newTransport = await createWebRtcTransport(network, {
       peerID: peerID,
@@ -378,7 +397,19 @@ export async function handleWebRtcTransportCreate(
 
     getMutableState(MediasoupTransportObjectsState)[newTransport.id].set(newTransport)
 
-    const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
+    let { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
+
+    const instanceServerSettingsResponse = await Engine.instance.api.service(instanceServerSettingPath).find()
+    const webRTCSettings = instanceServerSettingsResponse.data[0].webRTCSettings
+    const iceServers: {
+      urls: string | string[]
+      username?: string
+      credential?: string
+    }[] = webRTCSettings.useCustomICEServers
+      ? webRTCSettings.iceServers
+      : config.kubernetes.enabled
+      ? PUBLIC_STUN_SERVERS
+      : []
 
     if (config.kubernetes.enabled) {
       const serverState = getState(ServerState)
@@ -398,8 +429,30 @@ export async function handleWebRtcTransportCreate(
         iceCandidates[index].port = thisGs.spec?.ports?.find(
           (portMapping) => portMapping.containerPort === candidate.port
         ).hostPort
+        if (webRTCSettings.usePrivateInstanceserverIP) {
+          const internalIp = thisGs.status.addresses
+            ? thisGs.status.addresses.find((address) => address.type === 'InternalIP').address
+            : thisGs.status.address
+          iceCandidates[index].address = internalIp
+          iceCandidates[index].ip = internalIp
+        }
       }
     }
+
+    if (webRTCSettings.useCustomICEServers && webRTCSettings.useTimeLimitedCredentials) {
+      const timestamp = Math.floor(Date.now() / 1000) + CREDENTIAL_OFFSET
+      const username = [timestamp, peerID.replaceAll('-', '')].join(':')
+      const secret = webRTCSettings.webRTCStaticAuthSecretKey || ''
+
+      const hmac = crypto.createHmac(HASH_ALGORITHM, secret)
+      hmac.setEncoding('base64')
+      hmac.write(username)
+      hmac.end()
+
+      iceServers[0].username = username
+      iceServers[0].credential = hmac.read()
+    }
+
     newTransport.observer.on('dtlsstatechange', (dtlsState) => {
       // if (dtlsState === 'closed') MediasoupTransportState.removeTransport(network.id, newTransport.id)
     })
@@ -416,6 +469,7 @@ export async function handleWebRtcTransportCreate(
         },
         iceParameters,
         iceCandidates,
+        iceServers,
         dtlsParameters,
         $network: network.id,
         $topic: network.topic,
@@ -427,7 +481,7 @@ export async function handleWebRtcTransportCreate(
 
     return dispatchAction(
       MediasoupTransportActions.requestTransportError({
-        error: err,
+        error: err.message,
         direction,
         $network: network.id,
         $topic: network.topic,
@@ -524,10 +578,10 @@ export async function handleProduceData(
       )
     }
 
-    const currentRouter = network.transport.routers.find((router) => router.id === transport.internal.routerId)!
+    const currentRouter = network.routers.find((router) => router.id === transport.internal.routerId)!
 
     await Promise.all(
-      network.transport.routers.map(async (router) => {
+      network.routers.map(async (router) => {
         if (router.id !== transport.internal.routerId)
           return currentRouter.pipeToRouter({
             dataProducerId: dataProducer.id,
@@ -623,7 +677,7 @@ export async function handleWebRtcTransportConnect(
       transportsConnectPending[transportID] ?? transport.connect({ dtlsParameters: dtlsParameters as any })
     pending
       .then(() => {
-        // delete transportsConnectPending[transportID]
+        delete transportsConnectPending[transportID]
         dispatchAction(
           MediasoupTransportActions.transportConnected({
             transportID,
@@ -636,7 +690,7 @@ export async function handleWebRtcTransportConnect(
       })
       .catch((err) => {
         logger.error(err, 'handleWebRtcTransportConnect, data: %o', action)
-        // delete transportsConnectPending[transportID]
+        delete transportsConnectPending[transportID]
         dispatchAction(
           MediasoupTransportActions.requestTransportConnectError({
             requestID,
@@ -700,7 +754,7 @@ export async function handleRequestProducer(
       appData: newProducerAppData
     })) as unknown as ProducerExtension
 
-    const routers = network.transport.routers
+    const routers = network.routers
     const currentRouter = routers.find((router) => router.id === transport?.internal.routerId)!
 
     await Promise.all(
@@ -792,7 +846,7 @@ export const handleRequestConsumer = async (
   const transport = MediasoupTransportState.getTransport(network.id, 'recv', forPeerID) as WebRTCTransportExtension
 
   // @todo: the 'any' cast here is because WebRtcTransport.internal is protected - we should see if this is the proper accessor
-  const router = network.transport.routers.find((router) => router.id === transport?.internal.routerId)
+  const router = network.routers.find((router) => router.id === transport?.internal.routerId)
   if (!producer || !router || !transport || !router.canConsume({ producerId: producer.producerID, rtpCapabilities })) {
     logger.info('%o', { producer, router, transport })
     const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer?.producerID}`

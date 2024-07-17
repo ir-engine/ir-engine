@@ -23,12 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/** Camera Modes. */
-export enum CameraMode {
-  FirstPerson,
-  ShoulderCam,
-  ThirdPerson,
-  TopDown,
-  Strategic,
-  Dynamic
-}
+import { defineComponent } from '@etherealengine/ecs'
+
+export const LightTagComponent = defineComponent({ name: 'LightTag' })

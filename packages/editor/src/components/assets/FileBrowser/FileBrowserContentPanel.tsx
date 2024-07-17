@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
-import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
@@ -36,7 +35,6 @@ import {
   fileBrowserUploadPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
@@ -47,7 +45,10 @@ import {
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { useValidProjectForFileBrowser } from '@etherealengine/ui/src/components/editor/panels/Files/container'
+import {
+  filesConsistOfContentType,
+  useValidProjectForFileBrowser
+} from '@etherealengine/ui/src/components/editor/panels/Files/container'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
@@ -97,25 +98,7 @@ type DnDFileType = {
 
 export const FILES_PAGE_LIMIT = 100
 
-export type FileType = {
-  fullName: string
-  isFolder: boolean
-  key: string
-  name: string
-  path: string
-  size: string
-  type: string
-  url: string
-}
-
-const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
-  if (file.isFolder) {
-    return contentType.startsWith('image')
-  } else {
-    const guessedType: string = CommonKnownContentTypes[file.type]
-    return guessedType?.startsWith(contentType)
-  }
-}
+type FileType = FileDataType
 
 export function isFileDataType(value: any): value is FileDataType {
   return value && value.key
@@ -132,7 +115,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const selectedDirectory = useHookstate(originalPath)
   const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
   const nestingDirectory = useHookstate('projects')
-  const fileProperties = useHookstate<FileType | null>(null)
+  const fileProperties = useHookstate<FileType[]>([])
 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
@@ -552,9 +535,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             <Button
               className={'medium-button button'}
               style={{ width: '100%' }}
-              onClick={() =>
-                FileThumbnailJobState.processAllFiles(selectedDirectory.value, forceRegenerateThumbnails.value)
-              }
+              onClick={() => {
+                //   FileThumbnailJobState.processAllFiles(selectedDirectory.value, forceRegenerateThumbnails.value)
+              }}
             >
               Generate thumbnails
             </Button>
@@ -682,21 +665,17 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </DndWrapper>
       </div>
 
-      {openConvert.value && fileProperties.value && (
+      {openConvert.value && fileProperties.value.length > 0 && (
         <ImageConvertPanel
           openConvert={openConvert}
-          fileProperties={fileProperties.value}
+          fileProperties={fileProperties.value?.[0]}
           convertProperties={convertProperties}
           onRefreshDirectory={refreshDirectory}
         />
       )}
 
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
-        <ImageCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
-          onRefreshDirectory={refreshDirectory}
-        />
+      {openCompress.value && fileProperties.value && filesConsistOfContentType(fileProperties.value, 'image') && (
+        <ImageCompressionPanel selectedFiles={fileProperties.value} refreshDirectory={refreshDirectory} />
       )}
 
       {openProperties.value && fileProperties.value && (

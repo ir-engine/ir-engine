@@ -23,27 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { createPortal } from 'react-dom'
+export const CREDENTIAL_OFFSET = 60 * 10
+//coturn requires the password be hashed via SHA1, tried SHA256 and it didn't work
+export const HASH_ALGORITHM = 'sha1'
 
-export const Portal = (props) => {
-  let el = document.createElement('div')
-
-  useEffect(() => {
-    document.body.appendChild(el)
-
-    return () => {
-      try {
-        if (el) {
-          document.body.removeChild(el)
-        }
-      } catch (err) {
-        console.warn(`Error removing Portal element: ${err}`)
-      }
-    }
-  }, [])
-
-  return createPortal(props.children, el)
+export const defaultWebRTCSettings = {
+  iceServers: [],
+  useCustomICEServers: false,
+  useTimeLimitedCredentials: false,
+  webRTCStaticAuthSecretKey: '',
+  usePrivateInstanceserverIP: false
 }
-
-export default Portal

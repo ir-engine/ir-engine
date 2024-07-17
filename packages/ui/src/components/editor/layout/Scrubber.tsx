@@ -23,13 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Portal from '@etherealengine/editor/src/components/layout/Portal'
 import { getStepSize, toPrecision } from '@etherealengine/editor/src/functions/utils'
 import { useHookstate } from '@etherealengine/hyperflux'
 import React, { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { MathUtils } from 'three'
-import Overlay from './Overlay'
 
 type ScrubberProps = {
   className?: string
@@ -65,12 +63,7 @@ const Scrubber: React.FC<ScrubberProps> = ({
   onRelease,
   ...rest
 }) => {
-  const containerClassName = twMerge(
-    'flex items-center',
-    'cursor-ew-resize p-1',
-    "font-['Figtree'] text-xs font-normal",
-    className
-  )
+  const containerClassName = twMerge('flex items-center', 'cursor-ew-resize p-1', 'text-xs font-normal', className)
 
   const state = useHookstate({
     isDragging: false,
@@ -143,13 +136,6 @@ const Scrubber: React.FC<ScrubberProps> = ({
       {...rest}
     >
       {children}
-      {state.isDragging.value && (
-        <Portal>
-          <Overlay pointerEvents="none">
-            <div className="cursor-ew-resize" />
-          </Overlay>
-        </Portal>
-      )}
     </div>
   )
 }

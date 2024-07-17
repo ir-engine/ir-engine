@@ -32,17 +32,24 @@ import {
   EntityUUID,
   generateEntityUUID,
   getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  removeEntity,
   setComponent,
+  UndefinedEntity,
   UUIDComponent
 } from '@etherealengine/ecs'
 
 import { NameComponent } from '../../common/NameComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import {
+  MaterialInstanceComponent,
+  MaterialPlugins,
   MaterialPrototypeComponent,
   MaterialPrototypeDefinition,
   MaterialPrototypeObjectConstructor,
-  MaterialStateComponent
+  MaterialStateComponent,
+  prototypeQuery
 } from './MaterialComponent'
 
 export const extractDefaults = (defaultArgs) => {
@@ -90,15 +97,13 @@ export const createMaterialPrototype = (prototype: MaterialPrototypeDefinition) 
 }
 
 export const getMaterial = (uuid: EntityUUID) => {
-  return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent).material! as Material
+  return getOptionalComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent)?.material as Material
 }
 
 export const setMeshMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {
   const mesh = getComponent(groupEntity, MeshComponent) as Mesh
-  if (!isArray(mesh.material)) mesh.material = getMaterial(newMaterialUUIDs[0])! ?? mesh.material
-  else
-    for (let i = 0; i < mesh.material.length; i++)
-      mesh.material[i] = getMaterial(newMaterialUUIDs[i])! ?? mesh.material[i]
+  if (!isArray(mesh.material)) mesh.material = getMaterial(newMaterialUUIDs[0])
+  else for (let i = 0; i < mesh.material.length; i++) mesh.material[i] = getMaterial(newMaterialUUIDs[i])
 }
 
 export const setPlugin = (material: Material, callback) => {
@@ -138,10 +143,11 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
   const material = materialComponent.material
   if (!material || material.type === prototypeName) return
   const fullParameters = { ...extractDefaults(prototypeComponent.prototypeArguments) }
-  const newMaterial = new prototypeConstructor(fullParameters)
+  const newMaterial = new prototypeConstructor(fullParameters) as Material
   if (newMaterial.plugins) {
     newMaterial.customProgramCacheKey = () =>
-      newMaterial.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
+      (newMaterial.shader ? newMaterial.shader.fragmentShader + newMaterial.shader.vertexShader : '') +
+      newMaterial.plugins!.map((plugin) => plugin?.toString() ?? '').reduce((x, y) => x + y, '')
   }
   newMaterial.uuid = material.uuid
   if (material.defines?.['USE_COLOR']) {
@@ -158,4 +164,83 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
   })
 
   return newMaterial
+}
+
+export function MaterialNotFoundError(message) {
+  this.name = 'MaterialNotFound'
+  this.message = message
+}
+
+export function PrototypeNotFoundError(message) {
+  this.name = 'PrototypeNotFound'
+  this.message = message
+}
+
+/** Assigns a preexisting material entity to a mesh */
+export const assignMaterial = (user: Entity, materialEntity: Entity, index = 0) => {
+  const materialStateComponent = getMutableComponent(materialEntity, MaterialStateComponent)
+  materialStateComponent.instances.set([...materialStateComponent.instances.value, user])
+  if (!user) return
+  setComponent(user, MaterialInstanceComponent)
+  const material = materialStateComponent.material.value as Material
+  const materialInstanceComponent = getMutableComponent(user, MaterialInstanceComponent)
+  const newUUID = material.uuid as EntityUUID
+  materialInstanceComponent.uuid[index].set(newUUID)
+  if (!UUIDComponent.getEntityByUUID(newUUID)) throw new MaterialNotFoundError(`Material ${newUUID} not found`)
+}
+
+/**Sets and replaces a material entity for a material's UUID */
+export const createMaterialEntity = (material: Material): Entity => {
+  const materialEntity = createEntity()
+  const uuid = material.uuid as EntityUUID
+  const existingMaterial = UUIDComponent.getEntityByUUID(uuid)
+  const existingUsers = existingMaterial ? getComponent(existingMaterial, MaterialStateComponent).instances : []
+  if (existingMaterial) removeEntity(existingMaterial)
+  setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
+  const prototypeEntity = getPrototypeEntityFromName(material.userData.type || material.type)
+  if (!prototypeEntity) {
+    console.warn(
+      `Material ${material.name} has no prototype entity for prototype ${material.userData.type || material.type}`
+    )
+    return UndefinedEntity
+  }
+  setComponent(materialEntity, MaterialStateComponent, {
+    material,
+    prototypeEntity,
+    parameters: Object.fromEntries(
+      Object.keys(extractDefaults(getComponent(prototypeEntity, MaterialPrototypeComponent).prototypeArguments)).map(
+        (k) => [k, material[k]]
+      )
+    ),
+    instances: existingUsers.length ? existingUsers : []
+  })
+  if (material.userData?.plugins)
+    material.userData.plugins.map((plugin) => {
+      if (!plugin) return
+      setComponent(materialEntity, MaterialPlugins[plugin.id])
+      const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin.id])
+      for (const [k, v] of Object.entries(plugin.uniforms)) {
+        if (v) pluginComponent[k].value = v
+      }
+    })
+  setComponent(materialEntity, NameComponent, material.name)
+  return materialEntity
+}
+
+export const createAndAssignMaterial = (user: Entity, material: Material, index = 0) => {
+  const materialEntity = createMaterialEntity(material)
+  assignMaterial(user, materialEntity, index)
+}
+
+export const getPrototypeEntityFromName = (name: string) =>
+  prototypeQuery().find((entity) => getComponent(entity, NameComponent) === name)
+
+export const injectMaterialDefaults = (materialUUID: EntityUUID) => {
+  const material = getOptionalComponent(UUIDComponent.getEntityByUUID(materialUUID), MaterialStateComponent)
+  if (!material?.prototypeEntity) return
+  const prototype = getComponent(material.prototypeEntity, MaterialPrototypeComponent).prototypeArguments
+  if (!prototype) return
+  return Object.fromEntries(
+    Object.entries(prototype).map(([k, v]: [string, any]) => [k, { ...v, default: material.parameters![k] }])
+  )
 }
