@@ -520,7 +520,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           <Button
             size="small"
             variant="transparent"
-            className="w-full text-left text-xs"
+            className="text-left text-xs"
             onClick={() => onDuplicateNode(contextSelectedItem!)}
             endIcon={cmdOrCtrlString + ' + d'}
           >
@@ -529,7 +529,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           <Button
             size="small"
             variant="transparent"
-            className="w-full text-left text-xs"
+            className="text-left text-xs"
             onClick={() => onGroupNodes(contextSelectedItem!)}
             endIcon={cmdOrCtrlString + ' + g'}
           >
@@ -538,7 +538,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           <Button
             size="small"
             variant="transparent"
-            className="w-full text-left text-xs"
+            className="text-left text-xs"
             onClick={() => onCopyNode(contextSelectedItem!)}
             endIcon={cmdOrCtrlString + ' + c'}
           >
@@ -547,7 +547,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           <Button
             size="small"
             variant="transparent"
-            className="w-full text-left text-xs"
+            className="text-left text-xs"
             onClick={() => onPasteNode(contextSelectedItem!)}
             endIcon={cmdOrCtrlString + ' + v'}
           >
