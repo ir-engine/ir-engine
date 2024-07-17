@@ -31,10 +31,14 @@ export const FeatureFlags = {
       Avaturn: 'ir.client.menu.avaturn',
       ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
       CreateAvatar: 'ir.client.menu.createAvatar',
-      MotionCapture: 'ir.client.location.menu.motionCapture'
+      MotionCapture: 'ir.client.location.menu.motionCapture',
+      AR: 'ir.client.menu.ar'
     }
   },
-  Editor: {
+  Studio: {
+    ComponentShelfCategories: {
+      ScenePreviewCameraComponent: 'ir.studio.componentShelfCategories.visual.scenePreviewCameraComponent'
+    },
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript'
     },
@@ -42,11 +46,6 @@ export const FeatureFlags = {
       Hierarchy: {
         ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
       }
-    }
-  },
-  Studio: {
-    ComponentShelfCategories: {
-      ScenePreviewCameraComponent: 'ir.studio.componentShelfCategories.visual.scenePreviewCameraComponent'
     }
   }
 }

@@ -55,7 +55,11 @@ export const SDFEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Color" label="Color">
-        <ColorInput value={sdfComponent.color.value} onChange={commitProperty(SDFComponent, 'color')} />
+        <ColorInput
+          value={sdfComponent.color.value}
+          onChange={commitProperty(SDFComponent, 'color')}
+          onRelease={commitProperty(SDFComponent, 'color')}
+        />
       </InputGroup>
       <InputGroup name="Scale" label="Scale">
         <Vector3Input value={sdfComponent.scale.value} onChange={commitProperty(SDFComponent, 'scale')} />

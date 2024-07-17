@@ -336,7 +336,7 @@ const execute = () => {
         selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
 
       // If not showing model children in hierarchy don't allow those objects to be selected
-      if (!FeatureFlagsState.enabled(FeatureFlags.Editor.UI.Hierarchy.ShowModelChildren)) {
+      if (!FeatureFlagsState.enabled(FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren)) {
         const inAuthoringLayer = GLTFSnapshotState.isInSnapshot(
           getOptionalComponent(selectedParentEntity, SourceComponent),
           selectedEntity

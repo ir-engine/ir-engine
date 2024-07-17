@@ -29,7 +29,7 @@ import { FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { EntityUUID, getComponent, UndefinedEntity, useQuery, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, getComponent, removeEntity, UndefinedEntity, useQuery, UUIDComponent } from '@etherealengine/ecs'
 import { ImportSettingsState } from '@etherealengine/editor/src/components/assets/ImportSettingsPanel'
 import { uploadProjectFiles } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
@@ -38,9 +38,9 @@ import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exp
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getMaterialsFromScene } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate, useMutableState, useState } from '@etherealengine/hyperflux'
 import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { createAndAssignMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTranslation } from 'react-i18next'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
@@ -56,6 +56,8 @@ export default function MaterialLibraryPanel() {
   const materialQuery = useQuery([MaterialStateComponent])
   const nodes = useHookstate([] as MaterialLibraryEntryType[])
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
+  const selectedMaterial = useMutableState(MaterialSelectionState).selectedMaterial
+  let hasSelectedMaterial = useState(false)
 
   useEffect(() => {
     const materials = selected.value.length
@@ -72,6 +74,10 @@ export default function MaterialLibraryPanel() {
     })
     nodes.set(result)
   }, [materialQuery.length, selected])
+
+  useEffect(() => {
+    hasSelectedMaterial.set(selectedMaterial.value !== null)
+  }, [selectedMaterial.value])
 
   const onClick = (e: MouseEvent, node: MaterialLibraryEntryType) => {
     getMutableState(MaterialSelectionState).selectedMaterial.set(node.uuid)
@@ -135,12 +141,28 @@ export default function MaterialLibraryPanel() {
             <Button
               className="w-full text-xs"
               onClick={() => {
-                const newMaterial = new MeshBasicMaterial({ name: 'New Material' })
-                createMaterialEntity(newMaterial, UndefinedEntity)
+                const selectedEntities = getState(SelectionState).selectedEntities
+                createAndAssignMaterial(
+                  UUIDComponent.getEntityByUUID(selectedEntities[selectedEntities.length - 1] ?? UndefinedEntity),
+                  new MeshBasicMaterial({ name: 'New Material' })
+                )
               }}
             >
               New
             </Button>
+
+            {hasSelectedMaterial.value && (
+              <Button
+                className="w-full text-xs"
+                onClick={() => {
+                  const entity = UUIDComponent.getEntityByUUID(selectedMaterial.value as EntityUUID)
+                  selectedMaterial.set(null)
+                  removeEntity(entity)
+                }}
+              >
+                Delete
+              </Button>
+            )}
           </div>
         </div>
       </div>

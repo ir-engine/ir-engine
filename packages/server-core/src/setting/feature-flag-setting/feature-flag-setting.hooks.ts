@@ -32,6 +32,7 @@ import {
   featureFlagSettingQueryValidator
 } from '@etherealengine/common/src/schemas/setting/feature-flag-setting.schema'
 
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
 import {
   featureFlagSettingDataResolver,
@@ -54,7 +55,7 @@ export default {
       () => schemaHooks.validateQuery(featureFlagSettingQueryValidator),
       schemaHooks.resolveQuery(featureFlagSettingQueryResolver)
     ],
-    find: [],
+    find: [iff(isProvider('external'), enableClientPagination())],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('settings', 'write')),
