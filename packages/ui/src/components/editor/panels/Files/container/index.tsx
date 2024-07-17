@@ -557,7 +557,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       <div
         ref={fileDropRef}
         className={twMerge(
-          'h-full px-4 text-gray-400 ',
+          'mb-2 h-auto p-6 px-4 text-gray-400 ',
           isListView ? '' : 'flex py-8',
           isFileDropOver ? 'border-2 border-gray-300' : ''
         )}
@@ -567,7 +567,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           ClickPlacementState.resetSelectedAsset()
         }}
       >
-        <div className={twMerge(!isListView && 'flex flex-wrap')}>
+        <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
           <FileTableWrapper wrap={isListView}>
             <>
               {unique(files, (file) => file.key).map((file) => (
@@ -644,6 +644,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
     return (
       <Popup
+        contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
         position={'bottom left'}
         trigger={
           <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
@@ -808,7 +809,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       </div>
       {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}
       <GeneratingThumbnailsProgress />
-      <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
+      <div id="file-browser-panel" className="h-full overflow-auto">
         <DndWrapper id="file-browser-panel">
           <DropArea />
         </DndWrapper>
