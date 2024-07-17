@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { HemisphereLightComponent } from '@etherealengine/spatial/src/renderer/components/HemisphereLightComponent'
+import { HemisphereLightComponent } from '@etherealengine/spatial/src/renderer/components/lights/HemisphereLightComponent'
 
 import { useComponent } from '@etherealengine/ecs'
 import {
