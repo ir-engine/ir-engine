@@ -50,7 +50,6 @@ const execute = () => {
     })
   }
   const test = getComponent(Engine.instance.viewerEntity, RendererComponent)
-  // @ts-ignore @todo why does typescript freak out here?
   test.effectComposer?.OutlineEffect?.selection.set(highlightObjects)
 }
 
