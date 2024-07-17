@@ -128,7 +128,7 @@ const ProfileModal = ({ user }) => {
 
   return (
     <>
-      <div className="w-80">
+      <div className="w-80 bg-neutral-900">
         <div className="flex gap-2 px-4 py-2">
           <div className="h-16 w-16 gap-2 overflow-hidden rounded-full bg-slate-300">
             <img src={avatar.thumbnailResource.url.value} className="h-full w-full object-contain" />

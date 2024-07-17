@@ -139,7 +139,7 @@ export default function Toolbar() {
 
   return (
     <>
-      <div className="flex items-center justify-between bg-theme-primary px-4">
+      <div className="flex items-center justify-between bg-theme-primary">
         <div className="flex items-center">
           <div className="ml-3 mr-6 cursor-pointer" onClick={onCloseProject}>
             <img src="favicon-32x32.png" alt="iR Engine Logo" className="h-7 w-7 opacity-50" />
@@ -167,23 +167,20 @@ export default function Toolbar() {
 
         <div className="flex items-center gap-4">
           <Profile user={user} />
-          <Button rounded="none" disabled={!hasPublishAccess}>
-            {t('editor:toolbar.lbl-publish')}
-          </Button>
+          {sceneAssetID.value && (
+            <Button
+              rounded="none"
+              disabled={!hasPublishAccess}
+              onClick={() =>
+                PopoverState.showPopupover(
+                  <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
+                )
+              }
+            >
+              {t('editor:toolbar.lbl-publish')}
+            </Button>
+          )}
         </div>
-        {sceneAssetID.value && (
-          <Button
-            rounded="none"
-            disabled={!hasPublishAccess}
-            onClick={() =>
-              PopoverState.showPopupover(
-                <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
-              )
-            }
-          >
-            {t('editor:toolbar.lbl-publish')}
-          </Button>
-        )}
       </div>
 
       <ContextMenu
