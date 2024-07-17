@@ -23,45 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
-import ClickAwayListener from './ClickAwayListener'
+import { HookContext } from '../../declarations'
 
-type ContextMenuProps = {
-  className?: string
-  open: boolean
-  anchorEl: null | HTMLElement
-  panelId: string
-  anchorPosition: any
-  onClose: () => void
+/**
+ * This hook is used to check a value in the context.
+ * If propertyValue is not provided then it will just
+ * check if that property exists.
+ * If searchIn is not provided then it will search for
+ * it in the query.
+ */
+export default (propertyName: string, propertyValue?: any, searchIn?: 'query' | 'params' | 'data') => {
+  return (context: HookContext): boolean => {
+    if (searchIn === 'data') {
+      if (Array.isArray(context.data)) {
+        return context.data.find(
+          (item) => item[propertyName] && (!propertyValue || item[propertyName] === propertyValue)
+        )
+      } else {
+        return context.data[propertyName] && (!propertyValue || context.data[propertyName] === propertyValue)
+      }
+    } else if (searchIn === 'params') {
+      return context.params[propertyName] && (!propertyValue || context.params[propertyName] === propertyValue)
+    } else {
+      return (
+        context.params.query[propertyName] && (!propertyValue || context.params.query[propertyName] === propertyValue)
+      )
+    }
+  }
 }
-
-export const PopOver = ({
-  children,
-  open,
-  anchorEl,
-  panelId,
-  anchorPosition,
-  className,
-  onClose
-}: React.PropsWithChildren<ContextMenuProps>) => {
-  const panel = document.getElementById(panelId)
-  const positionX = anchorPosition?.left - panel?.getBoundingClientRect().left!
-  const positionY = anchorPosition?.top - panel?.getBoundingClientRect().top!
-  return (
-    <ClickAwayListener onClickAway={() => onClose()}>
-      <div className={`${open ? 'block' : 'hidden'}`}>
-        {open && anchorEl && (
-          <div
-            className={twMerge('absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg', className)}
-            style={{ top: `${positionY}px`, left: `${positionX}px` }}
-          >
-            {children}
-          </div>
-        )}
-      </div>
-    </ClickAwayListener>
-  )
-}
-
-export default PopOver

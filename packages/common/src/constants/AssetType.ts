@@ -132,9 +132,18 @@ export const FileExtToAssetExt = (fileExt: string): AssetExt | undefined => {
 }
 
 export const FileToAssetType = (fileName: string): AssetType => {
-  fileName = fileName.toLowerCase()
+  if (!fileName || fileName === '') {
+    return AssetType.Unknown
+  }
+
+  if (isURL(fileName)) {
+    const url = new URL(fileName)
+    fileName = url.pathname.split('/').pop() as string
+  }
+
   const split = fileName.split('.')
-  const ext = split.pop()
+  const ext = split.pop()?.toLowerCase()
+
   if (!ext) return AssetType.Unknown
   if (ext === 'gltf') {
     const prev = split.pop()
@@ -146,4 +155,9 @@ export const FileToAssetType = (fileName: string): AssetType => {
   }
 
   return AssetExtToAssetType(FileExtToAssetExt(ext))
+}
+
+export function isURL(path: string) {
+  if (!path || path === '') return false
+  return path.startsWith('http://') || path.startsWith('https://') || path.startsWith('file://')
 }

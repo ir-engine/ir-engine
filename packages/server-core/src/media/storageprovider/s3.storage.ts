@@ -96,11 +96,12 @@ function handler(event) {
     var recordingsRegex = new RegExp(recordingsRegexRoot)
     var publicRegexRoot = __$publicRegex$__
     var publicRegex = new RegExp(publicRegexRoot)
+    var tempRegex = new RegExp('/temp/')
     
     if (publicRegex.test(request.uri)) {
         request.uri = '/client' + request.uri
-    } else if (projectsRegex.test(request.uri) || recordingsRegex.test(request.uri)) {
-        // Projects and recordings paths should be passed as-is
+    } else if (projectsRegex.test(request.uri) || recordingsRegex.test(request.uri) || tempRegex.test(request.uri)) {
+        // Projects, temp files, and recordings paths should be passed as-is
     } else {
       // Anything that is not a static/public file, or a project or recording file, is assumed to be some sort
       // of engine route and passed to index.html to be handled by the router

@@ -75,7 +75,7 @@ export default {
 
   before: {
     all: [
-      () => schemaHooks.validateQuery(matchTicketAssignmentQueryValidator),
+      schemaHooks.validateQuery(matchTicketAssignmentQueryValidator),
       schemaHooks.resolveQuery(matchTicketAssignmentQueryResolver)
     ],
     find: [],

@@ -56,12 +56,17 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
       icon={<HemisphereLightNodeEditor.iconComponent />}
     >
       <InputGroup name="Sky Color" label={t('editor:properties.hemisphere.lbl-skyColor')}>
-        <ColorInput value={lightComponent.skyColor} onChange={updateProperty(HemisphereLightComponent, 'skyColor')} />
+        <ColorInput
+          value={lightComponent.skyColor}
+          onChange={updateProperty(HemisphereLightComponent, 'skyColor')}
+          onRelease={commitProperty(HemisphereLightComponent, 'skyColor')}
+        />
       </InputGroup>
       <InputGroup name="Ground Color" label={t('editor:properties.hemisphere.lbl-groundColor')}>
         <ColorInput
           value={lightComponent.groundColor}
           onChange={updateProperty(HemisphereLightComponent, 'groundColor')}
+          onRelease={commitProperty(HemisphereLightComponent, 'groundColor')}
         />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.hemisphere.lbl-intensity')}>
