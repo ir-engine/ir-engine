@@ -73,17 +73,15 @@ export async function addMediaNode(
       const sceneObjects = objectLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
       //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
       const mouse = new Vector2()
-      const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-      const pointerScreenRaycaster = new Raycaster()
-
       const mouseEvent = event as MouseEvent // Type assertion
-      mouse.x = (mouseEvent.clientX / window.innerWidth) * 2 - 1
-      mouse.y = -(mouseEvent.clientY / window.innerHeight) * 2 + 1
-
-      pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
-
-      //change states
-      const intersected = pointerScreenRaycaster.intersectObjects(sceneObjects)[0]
+      const element = mouseEvent.target as HTMLElement
+      let rect = element.getBoundingClientRect()
+      mouse.x = ((mouseEvent.clientX - rect.left) / rect.width) * 2 - 1
+      mouse.y = -((mouseEvent.clientY - rect.top) / rect.height) * 2 + 1
+      const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+      const raycaster = new Raycaster()
+      raycaster.setFromCamera(mouse, camera)
+      const intersected = raycaster.intersectObjects(sceneObjects)[0]
       const gltfLoader = getState(AssetLoaderState).gltfLoader
       gltfLoader.load(url, (gltf) => {
         const material = iterateObject3D(
