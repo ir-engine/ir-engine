@@ -34,7 +34,6 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
-import Hotkeys from 'react-hot-keys'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -61,6 +60,7 @@ import { SelectionState } from '@etherealengine/editor/src/services/SelectionSer
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { GLTF } from '@gltf-transform/core'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
@@ -96,6 +96,42 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const rootEntitySource = useComponent(rootEntity, SourceComponent)
   const gltfState = useMutableState(GLTFSnapshotState)
   const gltfSnapshot = gltfState[rootEntitySource.value].snapshots[props.index]
+
+  useHotkeys(`${cmdOrCtrlString}+d`, (e) => {
+    e.preventDefault()
+    const objs = SelectionState.getSelectedEntities()
+    EditorControlFunctions.duplicateObject(objs)
+  })
+
+  useHotkeys(`${cmdOrCtrlString}+g`, (e) => {
+    e.preventDefault()
+    const objs = SelectionState.getSelectedEntities()
+    EditorControlFunctions.groupObjects(objs)
+  })
+
+  useHotkeys(`${cmdOrCtrlString}+c`, (e) => {
+    e.preventDefault()
+    const objs = SelectionState.getSelectedEntities()
+    CopyPasteFunctions.copyEntities(objs)
+    console.log('Copied: ', objs)
+  })
+
+  useHotkeys(`${cmdOrCtrlString}+v`, (e) => {
+    e.preventDefault()
+    const selectedEntities = SelectionState.getSelectedEntities()
+    for (const entity of selectedEntities) {
+      CopyPasteFunctions.getPastedEntities()
+        .then((nodeComponentJSONs) => {
+          nodeComponentJSONs.forEach((componentJSONs) => {
+            EditorControlFunctions.createObjectFromSceneElement(componentJSONs, undefined, entity)
+          })
+        })
+        .catch((e) => {
+          NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes'), { variant: 'error' })
+          console.error(e)
+        })
+    }
+  })
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -482,78 +518,42 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           >
             {t('editor:hierarchy.lbl-rename')}
           </Button>
-          <Hotkeys
-            keyName={cmdOrCtrlString + '+d'}
-            onKeyUp={(_, e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              selectedNode && onDuplicateNode(selectedNode!)
-            }}
+          <Button
+            size="small"
+            variant="transparent"
+            className="w-full text-left text-xs"
+            onClick={() => onDuplicateNode(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + d'}
           >
-            <Button
-              size="small"
-              variant="transparent"
-              className="w-full text-left text-xs"
-              onClick={() => onDuplicateNode(contextSelectedItem!)}
-              endIcon={cmdOrCtrlString + ' + d'}
-            >
-              {t('editor:hierarchy.lbl-duplicate')}
-            </Button>
-          </Hotkeys>
-          <Hotkeys
-            keyName={cmdOrCtrlString + '+g'}
-            onKeyUp={(_, e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              selectedNode && onGroupNodes(selectedNode!)
-            }}
+            {t('editor:hierarchy.lbl-duplicate')}
+          </Button>
+          <Button
+            size="small"
+            variant="transparent"
+            className="w-full text-left text-xs"
+            onClick={() => onGroupNodes(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + g'}
           >
-            <Button
-              size="small"
-              variant="transparent"
-              className="w-full text-left text-xs"
-              onClick={() => onGroupNodes(contextSelectedItem!)}
-              endIcon={cmdOrCtrlString + ' + g'}
-            >
-              {t('editor:hierarchy.lbl-group')}
-            </Button>
-          </Hotkeys>
-          <Hotkeys
-            keyName={cmdOrCtrlString + '+c'}
-            onKeyUp={(_, e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              selectedNode && onCopyNode(selectedNode)
-            }}
+            {t('editor:hierarchy.lbl-group')}
+          </Button>
+          <Button
+            size="small"
+            variant="transparent"
+            className="w-full text-left text-xs"
+            onClick={() => onCopyNode(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + c'}
           >
-            <Button
-              size="small"
-              variant="transparent"
-              className="w-full text-left text-xs"
-              onClick={() => onCopyNode(contextSelectedItem!)}
-              endIcon={cmdOrCtrlString + ' + c'}
-            >
-              {t('editor:hierarchy.lbl-copy')}
-            </Button>
-          </Hotkeys>
-          <Hotkeys
-            keyName={cmdOrCtrlString + '+v'}
-            onKeyUp={(_, e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              selectedNode && onPasteNode(selectedNode)
-            }}
+            {t('editor:hierarchy.lbl-copy')}
+          </Button>
+          <Button
+            size="small"
+            variant="transparent"
+            className="w-full text-left text-xs"
+            onClick={() => onPasteNode(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + v'}
           >
-            <Button
-              size="small"
-              variant="transparent"
-              className="w-full text-left text-xs"
-              onClick={() => onPasteNode(contextSelectedItem!)}
-              endIcon={cmdOrCtrlString + ' + v'}
-            >
-              {t('editor:hierarchy.lbl-paste')}
-            </Button>
-          </Hotkeys>
+            {t('editor:hierarchy.lbl-paste')}
+          </Button>
           <Button
             fullWidth
             size="small"
