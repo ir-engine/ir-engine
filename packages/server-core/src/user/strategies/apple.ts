@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import multiLogger from '@etherealengine/common/src/logger'
 import { avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
@@ -38,8 +37,6 @@ import { RedirectConfig } from '../../types/OauthStrategies'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import makeInitialAdmin from '../../util/make-initial-admin'
 import CustomOAuthStrategy, { CustomOAuthParams } from './custom-oauth'
-
-const logger = multiLogger.child({ component: 'engine:ecs:Apple' })
 
 export class AppleStrategy extends CustomOAuthStrategy {
   constructor(app: Application) {
@@ -62,7 +59,7 @@ export class AppleStrategy extends CustomOAuthStrategy {
 
     return {
       ...baseData,
-      accountIdentifier: `${profile.email ? profile.email : profile.sub}`,
+      accountIdentifier: profile.email ? profile.email : profile.sub,
       type: 'apple',
       userId
     }

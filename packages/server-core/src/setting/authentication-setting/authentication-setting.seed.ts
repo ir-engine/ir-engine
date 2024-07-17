@@ -44,7 +44,6 @@ export const LINKEDIN_SCOPES = ['profile', 'email']
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
-  console.log('Seeding data')
   const seedData: AuthenticationSettingDatabaseType[] = await Promise.all(
     [
       {
