@@ -191,6 +191,7 @@
   },
   "registration": {
     "ph-phoneEmail": "Use phone / email",
+    "apple": "Continue with Apple",
     "facebook": "Continue with Meta",
     "google": "Continue with Google",
     "linkedin": "Continue with Linkedin",
