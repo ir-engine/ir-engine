@@ -34,6 +34,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
@@ -113,7 +114,11 @@ export const createMaterialPrototype = (prototype: MaterialPrototypeDefinition) 
 }
 
 export const getMaterial = (uuid: EntityUUID) => {
-  return getOptionalComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent)?.material as Material
+  return (
+    getOptionalComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent)?.material ??
+    getComponent(UUIDComponent.getEntityByUUID(MaterialStateComponent.fallbackMaterial), MaterialStateComponent)
+      .material
+  )
 }
 
 export const setMeshMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {
@@ -197,12 +202,12 @@ export const assignMaterial = (user: Entity, materialEntity: Entity, index = 0) 
   const materialStateComponent = getMutableComponent(materialEntity, MaterialStateComponent)
   materialStateComponent.instances.set([...materialStateComponent.instances.value, user])
   if (!user) return
-  setComponent(user, MaterialInstanceComponent)
+  if (!hasComponent(user, MaterialInstanceComponent)) setComponent(user, MaterialInstanceComponent)
   const material = materialStateComponent.material.value as Material
   const materialInstanceComponent = getMutableComponent(user, MaterialInstanceComponent)
   const newUUID = material.uuid as EntityUUID
-  materialInstanceComponent.uuid[index].set(newUUID)
   if (!UUIDComponent.getEntityByUUID(newUUID)) throw new MaterialNotFoundError(`Material ${newUUID} not found`)
+  materialInstanceComponent.uuid[index].set(newUUID)
 }
 
 /**Sets and replaces a material entity for a material's UUID */
@@ -211,7 +216,9 @@ export const createMaterialEntity = (material: Material): Entity => {
   const uuid = material.uuid as EntityUUID
   const existingMaterial = UUIDComponent.getEntityByUUID(uuid)
   const existingUsers = existingMaterial ? getComponent(existingMaterial, MaterialStateComponent).instances : []
-  if (existingMaterial) removeEntity(existingMaterial)
+  if (existingMaterial) {
+    removeEntity(existingMaterial)
+  }
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
   const prototypeEntity = getPrototypeEntityFromName(material.userData.type || material.type)
   if (!prototypeEntity) {
@@ -230,6 +237,9 @@ export const createMaterialEntity = (material: Material): Entity => {
     ),
     instances: existingUsers.length ? existingUsers : []
   })
+  if (existingMaterial)
+    for (const instance of existingUsers)
+      setMeshMaterial(instance, getComponent(instance, MaterialInstanceComponent).uuid)
   if (material.userData?.plugins)
     material.userData.plugins.map((plugin) => {
       if (!plugin) return
@@ -239,13 +249,18 @@ export const createMaterialEntity = (material: Material): Entity => {
         if (v) pluginComponent[k].value = v
       }
     })
-  setComponent(materialEntity, NameComponent, material.name)
+  setComponent(materialEntity, NameComponent, material.name === '' ? material.type : material.name)
   return materialEntity
 }
 
 export const createAndAssignMaterial = (user: Entity, material: Material, index = 0) => {
   const materialEntity = createMaterialEntity(material)
   assignMaterial(user, materialEntity, index)
+}
+
+export const getMaterialIndices = (entity: Entity, materialUUID: EntityUUID) => {
+  const uuids = getComponent(entity, MaterialInstanceComponent).uuid
+  return uuids.map((uuid, index) => (uuid === materialUUID ? index : undefined)).filter((x) => x !== undefined)
 }
 
 export const getPrototypeEntityFromName = (name: string) =>

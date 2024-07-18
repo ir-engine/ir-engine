@@ -66,12 +66,14 @@ export default function MaterialLibraryPanel() {
   const nodes = useHookstate([] as MaterialLibraryEntryType[])
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
   const selectedMaterial = useMutableState(MaterialSelectionState).selectedMaterial
-  let hasSelectedMaterial = useState(false)
+  const hasSelectedMaterial = useState(false)
 
   useEffect(() => {
     const materials = selected.value.length
       ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selected.value[0]))
-      : materialQuery.map((entity) => getComponent(entity, UUIDComponent))
+      : materialQuery
+          .map((entity) => getComponent(entity, UUIDComponent))
+          .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterial)
     const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
       const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
       return [
