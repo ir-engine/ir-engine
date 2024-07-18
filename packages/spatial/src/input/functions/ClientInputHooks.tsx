@@ -133,6 +133,68 @@ export const useGamepadInputSources = () => {
   }, [])
 }
 
+export const useXRInputSources = () => {
+  const xrState = useMutableState(XRState)
+
+  useEffect(() => {
+    const session = xrState.session.value
+    if (!session) return
+
+    const addInputSource = (source: XRInputSource) => {
+      const eid = createEntity()
+      setComponent(eid, InputSourceComponent, { source })
+      setComponent(eid, EntityTreeComponent, {
+        parentEntity:
+          source.targetRayMode === 'tracked-pointer' ? Engine.instance.localFloorEntity : Engine.instance.viewerEntity
+      })
+      setComponent(eid, TransformComponent)
+      setComponent(eid, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
+    }
+
+    const removeInputSource = (source: XRInputSource) => {
+      const entity = InputSourceComponent.entitiesByInputSource.get(source)
+      if (entity) removeEntity(entity)
+    }
+
+    if (session.inputSources) {
+      for (const inputSource of session.inputSources) addInputSource(inputSource)
+    }
+
+    const onInputSourcesChanged = (event: XRInputSourceChangeEvent) => {
+      event.added.map(addInputSource)
+      event.removed.map(removeInputSource)
+    }
+
+    const onXRSelectStart = (event: XRInputSourceEvent) => {
+      const eid = InputSourceComponent.entitiesByInputSource.get(event.inputSource)
+      if (!eid) return
+      const inputSourceComponent = getComponent(eid, InputSourceComponent)
+      if (!inputSourceComponent) return
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
+      state.PrimaryClick = createInitialButtonState(eid)
+    }
+    const onXRSelectEnd = (event: XRInputSourceEvent) => {
+      const eid = InputSourceComponent.entitiesByInputSource.get(event.inputSource)
+      if (!eid) return
+      const inputSourceComponent = getComponent(eid, InputSourceComponent)
+      if (!inputSourceComponent) return
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
+      if (!state.PrimaryClick) return
+      state.PrimaryClick.up = true
+    }
+
+    session.addEventListener('inputsourceschange', onInputSourcesChanged)
+    session.addEventListener('selectstart', onXRSelectStart)
+    session.addEventListener('selectend', onXRSelectEnd)
+
+    return () => {
+      session.removeEventListener('inputsourceschange', onInputSourcesChanged)
+      session.removeEventListener('selectstart', onXRSelectStart)
+      session.removeEventListener('selectend', onXRSelectEnd)
+    }
+  }, [xrState.session])
+}
+
 export const CanvasInputReactor = () => {
   const cameraEntity = useEntityContext()
   const xrState = useMutableState(XRState)
@@ -303,74 +365,12 @@ export const BoundingBoxInputReactor = () => {
   return null
 }
 
-export const useXRInputSources = () => {
-  const xrState = useMutableState(XRState)
-
-  useEffect(() => {
-    const session = xrState.session.value
-    if (!session) return
-
-    const addInputSource = (source: XRInputSource) => {
-      const eid = createEntity()
-      setComponent(eid, InputSourceComponent, { source })
-      setComponent(eid, EntityTreeComponent, {
-        parentEntity:
-          source.targetRayMode === 'tracked-pointer' ? Engine.instance.localFloorEntity : Engine.instance.viewerEntity
-      })
-      setComponent(eid, TransformComponent)
-      setComponent(eid, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
-    }
-
-    const removeInputSource = (source: XRInputSource) => {
-      const entity = InputSourceComponent.entitiesByInputSource.get(source)
-      if (entity) removeEntity(entity)
-    }
-
-    if (session.inputSources) {
-      for (const inputSource of session.inputSources) addInputSource(inputSource)
-    }
-
-    const onInputSourcesChanged = (event: XRInputSourceChangeEvent) => {
-      event.added.map(addInputSource)
-      event.removed.map(removeInputSource)
-    }
-
-    const onXRSelectStart = (event: XRInputSourceEvent) => {
-      const eid = InputSourceComponent.entitiesByInputSource.get(event.inputSource)
-      if (!eid) return
-      const inputSourceComponent = getComponent(eid, InputSourceComponent)
-      if (!inputSourceComponent) return
-      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
-      state.PrimaryClick = createInitialButtonState(eid)
-    }
-    const onXRSelectEnd = (event: XRInputSourceEvent) => {
-      const eid = InputSourceComponent.entitiesByInputSource.get(event.inputSource)
-      if (!eid) return
-      const inputSourceComponent = getComponent(eid, InputSourceComponent)
-      if (!inputSourceComponent) return
-      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
-      if (!state.PrimaryClick) return
-      state.PrimaryClick.up = true
-    }
-
-    session.addEventListener('inputsourceschange', onInputSourcesChanged)
-    session.addEventListener('selectstart', onXRSelectStart)
-    session.addEventListener('selectend', onXRSelectEnd)
-
-    return () => {
-      session.removeEventListener('inputsourceschange', onInputSourcesChanged)
-      session.removeEventListener('selectstart', onXRSelectStart)
-      session.removeEventListener('selectend', onXRSelectEnd)
-    }
-  }, [xrState.session])
-}
-
 export const ClientInputHooks = {
   useNonSpatialInputSources,
   useGamepadInputSources,
+  useXRInputSources,
   CanvasInputReactor,
   MeshInputReactor,
-  BoundingBoxInputReactor,
-  useXRInputSources
+  BoundingBoxInputReactor
 }
 export default ClientInputHooks
