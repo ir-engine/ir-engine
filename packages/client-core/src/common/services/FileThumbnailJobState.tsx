@@ -59,11 +59,14 @@ import {
 } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
-import { Color, Euler, MathUtils, Matrix4, Quaternion, Sphere, Vector3 } from 'three'
+import { Color, Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Sphere, SphereGeometry, Vector3 } from 'three'
 
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { loadMaterialGLTF } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
@@ -165,9 +168,10 @@ export const FileThumbnailJobState = defineState({
   }
 })
 
-type ThumbnailFileType = 'image' | 'model' | 'texture' | 'video'
+type ThumbnailFileType = 'image' | 'model' | 'texture' | 'video' | 'material'
 
 const extensionThumbnailTypes: { extensions: string[]; thumbnailType: ThumbnailFileType }[] = [
+  { extensions: ['material.gltf'], thumbnailType: 'material' },
   { extensions: ['gltf', 'glb', 'vrm', 'usdz', 'fbx'], thumbnailType: 'model' },
   { extensions: ['png', 'jpeg', 'jpg'], thumbnailType: 'image' },
   { extensions: ['ktx2'], thumbnailType: 'texture' },
@@ -193,7 +197,8 @@ const ThumbnailJobReactor = () => {
   const jobState = useHookstate(getMutableState(FileThumbnailJobState))
   const currentJob = useHookstate(null as ThumbnailJob | null)
   const { key: src, project, id } = currentJob.value ?? { key: '', project: '', id: '' }
-  const extension = stripSearchFromURL(src).split('.').pop() ?? ''
+  const strippedSrc = stripSearchFromURL(src)
+  const extension = strippedSrc.endsWith('.material.gltf') ? 'material.gltf' : strippedSrc.split('.').pop() ?? ''
   const fileType = extensionThumbnailTypeMap.get(extension)
 
   const state = useHookstate({
@@ -209,6 +214,7 @@ const ThumbnailJobReactor = () => {
   const errorComponent = useOptionalComponent(state.modelEntity.value, ErrorComponent)
 
   const rendering = useHookstate(false)
+  const materialLoaded = useHookstate(false)
 
   const tryCatch = (fn: any) => {
     try {
@@ -315,7 +321,7 @@ const ThumbnailJobReactor = () => {
 
   // Load models
   useEffect(() => {
-    if (src === '' || fileType !== 'model') {
+    if (src === '' || (fileType !== 'model' && fileType !== 'material')) {
       cleanupState()
       return
     }
@@ -324,10 +330,29 @@ const ThumbnailJobReactor = () => {
     setComponent(entity, NameComponent, 'thumbnail job asset ' + src)
     const uuid = MathUtils.generateUUID() as EntityUUID
     setComponent(entity, UUIDComponent, uuid)
-    setComponent(entity, ModelComponent, { src, cameraOcclusion: false })
     setComponent(entity, VisibleComponent)
     setComponent(entity, ShadowComponent, { cast: true, receive: true })
     setComponent(entity, BoundingBoxComponent)
+    if (fileType === 'model') {
+      setComponent(entity, ModelComponent, { src, cameraOcclusion: false })
+    } else {
+      if (materialLoaded.value) {
+        materialLoaded.set(false)
+      }
+      loadMaterialGLTF(src, (material) => {
+        if (!material) {
+          console.error('Failed to load material for thumbnail', src)
+        } else {
+          const sphere = new Mesh(new SphereGeometry(1), material)
+          if (Object.hasOwn(sphere.material, 'flatShading')) {
+            ;(sphere.material as Material & { flatShading: boolean }).flatShading = false
+          }
+          addObjectToGroup(entity, sphere)
+          setComponent(entity, MeshComponent, sphere)
+          materialLoaded.set(true)
+        }
+      })
+    }
 
     const lightEntity = createEntity()
     setComponent(lightEntity, TransformComponent, { rotation: new Quaternion().setFromEuler(new Euler(-4, -0.5, 0)) })
@@ -373,8 +398,15 @@ const ThumbnailJobReactor = () => {
     }
     if (src === '') return
     if (rendering.value) return
-    if (fileType !== 'model' || !state.cameraEntity.value || !state.modelEntity.value || !lightComponent?.light.value)
+    if (
+      (fileType !== 'model' && fileType !== 'material') ||
+      !state.cameraEntity.value ||
+      !state.modelEntity.value ||
+      !lightComponent?.light.value
+    )
       return
+
+    if (fileType === 'material' && !materialLoaded.value) return
 
     const modelEntity = state.modelEntity.value
     const lightEntity = state.lightEntity.value
@@ -468,6 +500,7 @@ const ThumbnailJobReactor = () => {
             tmpCanvas.remove()
             jobState.set(jobState.get(NO_PROXY).slice(1))
             rendering.set(false)
+            materialLoaded.set(false)
           }
 
           tmpCanvas.toBlob((blob: Blob) => {
@@ -488,7 +521,14 @@ const ThumbnailJobReactor = () => {
       jobState.set(jobState.get(NO_PROXY).slice(1))
       rendering.set(false)
     }
-  }, [state.cameraEntity, state.modelEntity, lightComponent?.light, sceneState.keys, errorComponent?.keys])
+  }, [
+    state.cameraEntity,
+    state.modelEntity,
+    lightComponent?.light,
+    sceneState.keys,
+    errorComponent?.keys,
+    materialLoaded
+  ])
 
   return null
 }
