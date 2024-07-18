@@ -427,7 +427,7 @@ const AssetPanel = () => {
         .find({ query })
         .then((resources) => {
           searchedStaticResources.set(resources.data)
-          staticResourcesPagination.merge({ totalPages: resources.total / 10 })
+          staticResourcesPagination.merge({ totalPages: Math.ceil(resources.total / 10) })
         })
         .then(() => {
           loading.set(false)
