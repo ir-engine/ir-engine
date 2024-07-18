@@ -112,7 +112,7 @@ const TransformSnapTool = () => {
       <Tooltip title={t('editor:toolbar.transformSnapTool.info-rotate')}>
         <Select
           key={editorHelperState.rotationSnap.value}
-          inputClassName="py-1 h-6 rounded-sm text-[#A3A3A3] text-xs"
+          inputClassName="py-1 h-6 rounded-sm text-[#A3A3A3] text-xs pe-9"
           className="w-20 p-1"
           onChange={onChangeRotationSnap}
           options={rotationSnapOptions}
