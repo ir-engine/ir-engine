@@ -45,6 +45,7 @@ declare module 'postprocessing' {
     isActive: boolean
   }
 }
+export { Effect, EffectComposer } from 'postprocessing'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
