@@ -359,7 +359,8 @@ export function hashObject(obj) {
  */
 export function useRealtime(
   serviceName: keyof ServiceTypes,
-  refetch: (data: any, eventType: 'created' | 'updated' | 'patched' | 'removed') => void
+  refetch: (data: any, eventType: string) => void,
+  customEvent?: string
 ) {
   useLayoutEffect(() => {
     const service = Engine.instance.api.service(serviceName)
@@ -368,6 +369,15 @@ export function useRealtime(
     const handleUpdated = (data: any) => refetch(data, 'updated')
     const handlePatched = (data: any) => refetch(data, 'patched')
     const handleRemoved = (data: any) => refetch(data, 'removed')
+
+    if (customEvent) {
+      const handleCustom = (data: any) => refetch(data, customEvent)
+
+      service.on(customEvent, handleCustom)
+      return () => {
+        service.off(customEvent, handleCustom)
+      }
+    }
 
     service.on('created', handleCreated)
     service.on('updated', handleUpdated)
