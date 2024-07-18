@@ -164,7 +164,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
 
   return (
     <div
-      className={`flex h-32 w-28 cursor-pointer flex-col items-center text-center ${
+      className={`flex h-auto max-h-32 w-28 cursor-pointer flex-col items-center text-center ${
         props.isSelected ? 'rounded-md bg-blue-700/20' : ''
       }`}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
