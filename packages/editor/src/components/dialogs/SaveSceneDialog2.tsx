@@ -37,7 +37,7 @@ import { useTranslation } from 'react-i18next'
 import { saveSceneGLTF } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
 
-export const SaveSceneDialog = () => {
+export const SaveSceneDialog = (props: { isExiting?: boolean; onConfirm?: () => void; onCancel?: () => void }) => {
   const { t } = useTranslation()
   const modalProcessing = useHookstate(false)
 
@@ -48,13 +48,15 @@ export const SaveSceneDialog = () => {
 
     if (!projectName) {
       PopoverState.hidePopupover()
+      if (props.onCancel) props.onCancel()
       return
     } else if (!sceneName) {
       PopoverState.hidePopupover()
-      PopoverState.showPopupover(<SaveNewSceneDialog />)
+      PopoverState.showPopupover(<SaveNewSceneDialog onConfirm={props.onConfirm} onCancel={props.onCancel} />)
       return
     } else if (!sceneModified) {
       PopoverState.hidePopupover()
+      if (props.onCancel) props.onCancel()
       return
     }
 
@@ -66,19 +68,30 @@ export const SaveSceneDialog = () => {
       getMutableState(GLTFModifiedState)[sourceID].set(none)
 
       PopoverState.hidePopupover()
+      if (props.onConfirm) props.onConfirm()
     } catch (error) {
       console.error(error)
       PopoverState.showPopupover(
         <ErrorDialog title={t('editor:savingError')} description={error.message || t('editor:savingErrorMsg')} />
       )
+      if (props.onCancel) props.onCancel()
     }
     modalProcessing.set(false)
   }
 
-  return <ConfirmDialog onSubmit={handleSubmit} text={t('editor:dialog.saveScene.info-confirm')} />
+  return (
+    <ConfirmDialog
+      onSubmit={handleSubmit}
+      onClose={() => {
+        PopoverState.hidePopupover()
+        if (props.onCancel) props.onCancel()
+      }}
+      text={props.isExiting ? t('editor:dialog.saveScene.info-question') : t('editor:dialog.saveScene.info-confirm')}
+    />
+  )
 }
 
-export const SaveNewSceneDialog = () => {
+export const SaveNewSceneDialog = (props: { onConfirm?: () => void; onCancel?: () => void }) => {
   const { t } = useTranslation()
   const inputSceneName = useHookstate('New Scene')
   const modalProcessing = useHookstate(false)
@@ -104,8 +117,10 @@ export const SaveNewSceneDialog = () => {
         }
       }
       PopoverState.hidePopupover()
+      if (props.onConfirm) props.onConfirm()
     } catch (error) {
       PopoverState.hidePopupover()
+      if (props.onCancel) props.onCancel()
       console.error(error)
       PopoverState.showPopupover(
         <ErrorDialog title={t('editor:savingError')} description={error?.message || t('editor:savingErrorMsg')} />
@@ -117,7 +132,10 @@ export const SaveNewSceneDialog = () => {
   return (
     <Modal
       title={t('editor:dialog.saveNewScene.title')}
-      onClose={PopoverState.hidePopupover}
+      onClose={() => {
+        PopoverState.hidePopupover()
+        if (props.onCancel) props.onCancel()
+      }}
       onSubmit={handleSubmit}
       className="w-[50vw] max-w-2xl"
       submitLoading={modalProcessing.value}
