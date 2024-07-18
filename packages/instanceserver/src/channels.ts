@@ -322,6 +322,8 @@ const handleUserAttendance = async (app: Application, userId: UserID, headers: o
     headers
   })) as Paginated<ChannelType>
 
+  console.log('\n\n\n\n\nhandleUserAttendance', { channel }, '\n\n\n\n')
+
   /** Only a world server gets assigned a channel, since it has chat. A media server uses a channel but does not have one itself */
   if (channel.data.length > 0) {
     const existingChannelUser = (await app.service(channelUserPath).find({
@@ -403,6 +405,7 @@ const updateInstance = async ({
     instanceStarted = true
     const initialized = await initializeInstance({ app, status, headers, userId })
     if (initialized) await loadEngine({ app, sceneId, headers })
+    return true
   } else {
     try {
       if (!getState(InstanceServerState).ready)
