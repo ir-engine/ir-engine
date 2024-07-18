@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { INVALID_FILENAME_REGEX, WINDOWS_RESERVED_NAME_REGEX } from '@etherealengine/common/src/regex'
+import { INVALID_FILENAME_WHITESPACE_REGEX, WINDOWS_RESERVED_NAME_REGEX } from '@etherealengine/common/src/regex'
 
 export function isValidFileName(fileName: string) {
-  return !INVALID_FILENAME_REGEX.test(fileName) && !WINDOWS_RESERVED_NAME_REGEX.test(fileName)
+  return !INVALID_FILENAME_WHITESPACE_REGEX.test(fileName) && !WINDOWS_RESERVED_NAME_REGEX.test(fileName)
 }
