@@ -130,7 +130,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const onNodeKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      e.stopPropagation()
       if (data.onKeyDown) data.onKeyDown(e as any, node)
     },
     [data.onKeyDown, node]
