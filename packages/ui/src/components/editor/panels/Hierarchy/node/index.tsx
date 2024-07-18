@@ -71,8 +71,7 @@ export const getNodeElId = (node: HierarchyTreeNodeType) => {
   return 'hierarchy-node-' + node.entity
 }
 
-export type RenameNodeData = {
-  entity: Entity
+export type RenameNodeData = HierarchyTreeNodeType & {
   name: string
 }
 

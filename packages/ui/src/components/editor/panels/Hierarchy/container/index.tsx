@@ -39,7 +39,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { Engine, EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
+import { Engine, Entity, EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
@@ -74,6 +74,12 @@ const uploadOptions = {
   accepts: AllFileTypes
 }
 
+const toValidHierarchyNodeName = (entity: Entity, name: string): string => {
+  name = name.trim()
+  if (getComponent(entity, NameComponent) === name) return ''
+  return name
+}
+
 /**
  * HierarchyPanel function component provides view for hierarchy tree.
  */
@@ -91,11 +97,18 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const [selectedNode, _setSelectedNode] = useState<HierarchyTreeNodeType | null>(null)
   const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const searchHierarchy = useHookstate('')
+  const selectionState = useMutableState(SelectionState)
 
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const rootEntitySource = useComponent(rootEntity, SourceComponent)
   const gltfState = useMutableState(GLTFSnapshotState)
   const gltfSnapshot = gltfState[rootEntitySource.value].snapshots[props.index]
+
+  useEffect(() => {
+    if (!selectedNode) return
+    const uuid = getComponent(selectedNode.entity, UUIDComponent)
+    if (!selectionState.selectedEntities.value.includes(uuid)) setSelectedNode(null)
+  }, [selectionState.selectedEntities, selectedNode])
 
   useHotkeys(`${cmdOrCtrlString}+d`, (e) => {
     e.preventDefault()
@@ -376,16 +389,18 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const onRenameNode = useCallback((node: HierarchyTreeNodeType) => {
     handleClose()
 
-    if (node.entity) {
+    if (node) {
       const entity = node.entity
-      setRenamingNode({ entity, name: getComponent(entity, NameComponent) })
+      EditorControlFunctions.replaceSelection([getComponent(entity, UUIDComponent)])
+      setSelectedNode(entity)
+      setRenamingNode({ ...node, name: getComponent(entity, NameComponent) })
     } else {
       // todo
     }
   }, [])
 
   const onChangeName = useCallback(
-    (node: HierarchyTreeNodeType, name: string) => setRenamingNode({ entity: node.entity, name }),
+    (node: HierarchyTreeNodeType, name: string) => setRenamingNode({ ...node, name }),
     []
   )
 
@@ -396,6 +411,14 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
     setRenamingNode(null)
   }, [])
+
+  useEffect(() => {
+    if (!renamingNode) return
+
+    if (selectedNode?.entity !== renamingNode.entity) {
+      onRenameSubmit(renamingNode, renamingNode.name)
+    }
+  }, [selectedNode, renamingNode])
   /* Rename functions */
 
   const [, treeContainerDropTarget] = useDrop({
