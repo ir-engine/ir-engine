@@ -138,4 +138,10 @@ describe('ClientInputFunctions', () => {
       }
     })
   })
+
+  describe('updateGamepadInput', () => {})
+  describe('updatePointerDragging', () => {})
+  describe('cleanupButton', () => {})
+  describe('redirectPointerEventsToXRUI', () => {})
+  describe('assignInputSource', () => {})
 })

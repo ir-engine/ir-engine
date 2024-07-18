@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 describe('ClientInputHeuristics', () => {
   /**
   // @todo
-  describe("assignInputSources", () => {})
-  describe("applyRaycastedInputHeuristics", () => {
+  describe("applyRaycastedInput", () => {
     // todo??
     // set the `@param quaternion` to the sourceEid.worldRotation
     // set the raycast direction to ObjectDirection.Forward rotated by sourceEid.worldRotation
@@ -42,9 +41,10 @@ describe('ClientInputHeuristics', () => {
     // should apply the BBoxes heuristic only when EngineState.isEditing is false
     // should always apply the Meshes heuristic
   })
-  describe("applyHeuristicProximity", () => {})
 
-  describe("applyHeuristicEditor", () => {
+  describe("applyProximity", () => {})
+
+  describe("applyEditor", () => {
     // Find the list of gizmoPickerObjects.entity for the gizmo heuristic    (Input, Visible, Group, TransformGizmo)
     // Find the list of inputObjects  (Input, Visible, Group)
     // if there are gizmoPickerObjects,
@@ -60,7 +60,7 @@ describe('ClientInputHeuristics', () => {
   })
 
   // execute.(smaller functions)
-  describe("applyHeuristicXRUI", () => {
+  describe("applyXRUI", () => {
     // for every entity of xruiQuery ...
       // get the XRUIComponent of the entity, and do a WebContainer3D.hitTest with the `@param ray`
       // should not do anything if ...
@@ -70,19 +70,22 @@ describe('ClientInputHeuristics', () => {
       // should add the xruiQuery.entity and layerHit.intersection.distance to the `@param intersectionData`
       //   for every object hit by the `@param caster`
   })
-  describe("applyHeuristicPhysicsColliders", () => {
+
+  describe("applyPhysicsColliders", () => {
     it("should not do anything if there is no PhysicsState.physicsWorld", () => {})
     it("should not do anything if the given `@param raycast` does not hit any entities in the current PhysicsState.physicsWorld", () => {})
     it("should add the hit.entity and hit.distance to the `@param intersectionData` for every hit of the `@param raycast`", () => {})
   })
-  describe("applyHeuristicBBoxes", () => {
+
+  describe("applyBBoxes", () => {
     describe("for every entity stored in the InputState.inputBoundingBoxes Set<Entity> ...", () => {
       it("... should not run if the entity does not have a BoundingBoxComponent", () => {})
       it("... should not run if casting the `@param ray` towards `@param hitTarget` would not intersect the boundingBox of the entity", () => {})
       it("... should add an entry to `@param intersectionData` containing the entity that was hit, and the distance to the hit (found with `ray.origin.distanceTo(hitTarget)`)", () => {})
     })
   })
-  describe("applyHeuristicMeshes", () => {
+
+  describe("applyMeshes", () => {
     // when `@param isEditing` is true ...
     // ... for the GroupComponents of all entities in the `meshesQuery()` that have a GroupComponent
     // when `@param isEditing` is false ...
