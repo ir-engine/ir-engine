@@ -38,6 +38,7 @@ import sinon from 'sinon'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { InputComponent } from '../components/InputComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
+import { ButtonState, ButtonStateMap } from '../state/ButtonState'
 import ClientInputFunctions from './ClientInputFunctions'
 
 describe('ClientInputFunctions', () => {
@@ -139,9 +140,37 @@ describe('ClientInputFunctions', () => {
     })
   })
 
-  describe('updateGamepadInput', () => {})
+  describe('cleanupButton', () => {
+    type ButtonData = ButtonStateMap<Partial<Record<string | number | symbol, ButtonState | undefined>>>
+
+    it("should make the button's .down property false when it is true", () => {
+      const data = { key1: { down: true } as ButtonState } as ButtonData
+      assert.equal(data.key1?.down, true)
+      ClientInputFunctions.cleanupButton('key1', data, true)
+      assert.equal(data.key1?.down, false)
+    })
+
+    it('should remove the button with the given `@param key` from the `@param buttons` list if `@param hasFocus` is false', () => {
+      const data = { key1: { down: true } as ButtonState } as ButtonData
+      assert.notEqual(data.key1, undefined)
+      ClientInputFunctions.cleanupButton('key1', data, false)
+      assert.equal(data.key1, undefined)
+    })
+
+    it('should remove the button with the given `@param key` from the `@param buttons` list if the button is up', () => {
+      const data = { key1: { down: false, up: true } as ButtonState } as ButtonData
+      assert.notEqual(data.key1, undefined)
+      assert.equal(data.key1?.up, true)
+      ClientInputFunctions.cleanupButton('key1', data, true)
+      assert.equal(data.key1, undefined)
+    })
+  })
+
+  // first
+  describe('redirectPointerEventsToXRUI', () => {}) // WebContainer3D.hitTest
+  // intermediate
+  describe('assignInputSources', () => {})
+  // very branchy
   describe('updatePointerDragging', () => {})
-  describe('cleanupButton', () => {})
-  describe('redirectPointerEventsToXRUI', () => {})
-  describe('assignInputSource', () => {})
+  describe('updateGamepadInput', () => {})
 })
