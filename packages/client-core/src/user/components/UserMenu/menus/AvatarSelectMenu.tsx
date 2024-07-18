@@ -48,7 +48,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
+import { useFeatureFlags } from '@etherealengine/engine/src/FeatureFlagsHook'
 import { LoadingCircle } from '../../../../components/LoadingCircle'
 import { UserMenus } from '../../../UserUISystem'
 import { AuthState } from '../../../services/AuthService'
@@ -65,7 +65,7 @@ const AvatarMenu = () => {
   const avatarLoading = useHookstate(false)
   const isUserReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
-  const createAvatarEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.CreateAvatar)
+  const [createAvatarEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.CreateAvatar])
 
   const page = useHookstate(0)
   const selectedAvatarId = useHookstate('' as AvatarID)
