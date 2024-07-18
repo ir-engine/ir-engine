@@ -26,19 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
-import { MeshBasicMaterial } from 'three'
 
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import {
-  Engine,
-  EntityUUID,
-  getComponent,
-  removeEntity,
-  UndefinedEntity,
-  useQuery,
-  UUIDComponent
-} from '@etherealengine/ecs'
+import { Engine, EntityUUID, getComponent, useQuery, UUIDComponent } from '@etherealengine/ecs'
 import { ImportSettingsState } from '@etherealengine/editor/src/components/assets/ImportSettingsPanel'
 import { uploadProjectFiles } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
@@ -49,7 +40,6 @@ import { getMaterialsFromScene } from '@etherealengine/engine/src/scene/material
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, useHookstate, useMutableState, useState } from '@etherealengine/hyperflux'
 import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { createAndAssignMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTranslation } from 'react-i18next'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
@@ -160,6 +150,10 @@ export default function MaterialLibraryPanel() {
             >
               Save
             </Button>
+
+            {/* 
+            // hiding the new and delete buttons for now till the we can do a full rework of materials as assets after phase 1 
+
             <Button
               className="w-full text-xs"
               onClick={() => {
@@ -172,7 +166,7 @@ export default function MaterialLibraryPanel() {
             >
               New
             </Button>
-
+            
             {hasSelectedMaterial.value && (
               <Button
                 className="w-full text-xs"
@@ -184,7 +178,7 @@ export default function MaterialLibraryPanel() {
               >
                 Delete
               </Button>
-            )}
+            )} */}
           </div>
         </div>
       </div>
