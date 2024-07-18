@@ -141,7 +141,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }, [materialComponent, materialComponent.prototypeEntity])
 
   const prototypeName = useHookstate('')
-  //workaround for useComponent NameComponent causing rerenders every frame
 
   prototypeName.set(material.userData.type || material.type)
 
@@ -221,7 +220,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           <div className="justify-cneter flex items-center align-middle">
             <label>{t('editor:properties.mesh.material.path')}</label>
           </div>
-          <div>{getComponent(entity, SourceComponent)}</div>
+          <div>{getOptionalComponent(entity, SourceComponent) ?? 'None'}</div>
         </div>
       </InputGroup>
       <br />

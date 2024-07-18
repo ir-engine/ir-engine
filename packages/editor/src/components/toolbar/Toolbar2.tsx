@@ -60,7 +60,56 @@ const onImportAsset = async () => {
   }
 }
 
-const onCloseProject = () => {
+const onClickNewScene = async () => {
+  const isModified = EditorState.isModified()
+
+  if (isModified) {
+    const confirm = await new Promise((resolve) => {
+      PopoverState.showPopupover(
+        <SaveSceneDialog
+          isExiting
+          onConfirm={() => {
+            resolve(true)
+          }}
+          onCancel={() => {
+            resolve(false)
+          }}
+        />
+      )
+    })
+    if (!confirm) return
+  }
+
+  onNewScene()
+
+  const newSceneUIAddons = getState(EditorState).uiAddons.newScene
+  if (Object.keys(newSceneUIAddons).length > 0) {
+    PopoverState.showPopupover(<CreateSceneDialog />)
+  } else {
+    onNewScene()
+  }
+}
+
+const onCloseProject = async () => {
+  const isModified = EditorState.isModified()
+
+  if (isModified) {
+    const confirm = await new Promise((resolve) => {
+      PopoverState.showPopupover(
+        <SaveSceneDialog
+          isExiting
+          onConfirm={() => {
+            resolve(true)
+          }}
+          onCancel={() => {
+            resolve(false)
+          }}
+        />
+      )
+    })
+    if (!confirm) return
+  }
+
   const editorState = getMutableState(EditorState)
   getMutableState(GLTFModifiedState).set({})
   editorState.projectName.set(null)
@@ -84,14 +133,7 @@ const generateToolbarMenu = () => {
   return [
     {
       name: t('editor:menubar.newScene'),
-      action: () => {
-        const newSceneUIAddons = getState(EditorState).uiAddons.newScene
-        if (Object.keys(newSceneUIAddons).length > 0) {
-          PopoverState.showPopupover(<CreateSceneDialog />)
-        } else {
-          onNewScene()
-        }
-      }
+      action: onClickNewScene
     },
     {
       name: t('editor:menubar.saveScene'),
