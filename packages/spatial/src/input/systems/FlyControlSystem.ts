@@ -83,23 +83,23 @@ const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const execute = () => {
   const inputSourceEntities = inputSourceQuery()
-  const buttons = InputComponent.getMergedButtonsForInputSources(inputSourceEntities)
 
   /** Since we have nothing that specifies whether we should use orbit/fly controls or not, just tie it to the camera orbit component for the studio */
   for (const entity of cameraQuery()) {
-    const inputPointerEntity = InputPointerComponent.getPointersForCamera(entity)[0]
-
-    if (!inputPointerEntity) continue
+    const inputPointerEntities = InputPointerComponent.getPointersForCamera(entity)
+    if (!inputPointerEntities) continue
     if (hasComponent(entity, CameraOrbitComponent)) {
+      const buttons = InputComponent.getMergedButtonsForInputSources(inputPointerEntities)
       if (buttons.SecondaryClick?.down) onSecondaryClick(entity)
       if (buttons.SecondaryClick?.up) onSecondaryReleased(entity)
     }
   }
 
+  const buttons = InputComponent.getMergedButtonsForInputSources(inputSourceEntities)
+
   for (const entity of flyControlQuery()) {
     const flyControlComponent = getComponent(entity, FlyControlComponent)
     const transform = getComponent(entity, TransformComponent)
-    const input = getComponent(entity, InputComponent)
 
     movement.copy(Vector3_Zero)
     for (const inputSourceEntity of inputSourceEntities) {
@@ -110,8 +110,6 @@ const execute = () => {
         movement.y += pointer.movement.y
       }
     }
-
-    const hasMovement = movement.lengthSq() > EPSILON
 
     // rotate about the camera's local x axis
     candidateWorldQuat.multiplyQuaternions(
