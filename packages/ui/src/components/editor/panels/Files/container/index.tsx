@@ -53,19 +53,16 @@ import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { bytesToSize, unique } from '@etherealengine/editor/src/functions/utils'
-import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { ImmutableArray, NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import {
-  ImmutableArray,
-  NO_PROXY,
-  getMutableState,
-  getState,
-  useHookstate,
-  useMutableState
-} from '@etherealengine/hyperflux'
-import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+  useFind,
+  useMutation,
+  useRealtime,
+  useSearch
+} from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
@@ -188,16 +185,28 @@ function extractDirectoryWithoutOrgName(directory: string, orgName: string) {
 
 /**
  * Gets the project name that may or may not have a single slash it in from a list of valid project names
+ * @todo will be optimized away once orgname is fully supported
  */
-export const useValidProjectForFileBrowser = (projectName: string) => {
+export const useValidProjectForFileBrowser = (path: string) => {
+  const [orgName, projectName] = path.split('/').slice(2, 4)
   const projects = useFind(projectPath, {
     query: {
-      paginate: false,
+      $or: [
+        {
+          name: `${orgName}/${projectName}`
+        },
+        {
+          name: orgName
+        }
+      ],
       action: 'studio',
       allowed: true
     }
   })
-  return projects.data.find((project) => projectName.startsWith(`/projects/${project.name}/`))?.name ?? ''
+  return (
+    projects.data.find((project) => project.name === orgName || project.name === `${orgName}/${projectName}`)?.name ??
+    ''
+  )
 }
 
 function GeneratingThumbnailsProgress() {
@@ -264,9 +273,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       isFolder
     }
   })
-  useEffect(() => {
-    FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
-  }, [fileQuery.data])
+
+  useRealtime(staticResourcePath, fileQuery.refetch)
+
+  FileThumbnailJobState.useGenerateThumbnails(fileQuery.data)
 
   const fileService = useMutation(fileBrowserPath)
 
@@ -291,10 +301,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         contentType: params.type,
         size: params.size
       })
-      const editorHelperState = getState(EditorHelperState)
-      if (editorHelperState.placementMode === PlacementMode.CLICK) {
-        getMutableState(ClickPlacementState).selectedAsset.set(params.url)
-      }
+
+      ClickPlacementState.setSelectedAsset(params.url)
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
       changeDirectoryByPath(newPath)
@@ -549,16 +557,17 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       <div
         ref={fileDropRef}
         className={twMerge(
-          'h-full px-4 text-gray-400 ',
+          'mb-2 h-auto p-6 px-4 text-gray-400 ',
           isListView ? '' : 'flex py-8',
           isFileDropOver ? 'border-2 border-gray-300' : ''
         )}
         onClick={(event) => {
           event.stopPropagation()
           fileProperties.set([])
+          ClickPlacementState.resetSelectedAsset()
         }}
       >
-        <div className={twMerge(!isListView && 'flex flex-wrap')}>
+        <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
           <FileTableWrapper wrap={isListView}>
             <>
               {unique(files, (file) => file.key).map((file) => (
@@ -635,6 +644,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
     return (
       <Popup
+        contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
         position={'bottom left'}
         trigger={
           <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
@@ -799,7 +809,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       </div>
       {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}
       <GeneratingThumbnailsProgress />
-      <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
+      <div id="file-browser-panel" className="h-full overflow-auto">
         <DndWrapper id="file-browser-panel">
           <DropArea />
         </DndWrapper>

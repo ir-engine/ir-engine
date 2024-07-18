@@ -111,10 +111,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
   return (
     <div
       ref={dropRef}
-      className={twMerge(
-        'h-full w-full border border-white',
-        isDragging ? 'pointer-events-auto border-4' : 'pointer-events-none border-none'
-      )}
+      className={twMerge('h-full w-full border border-white', isDragging ? 'border-4' : 'border-none')}
     >
       {children}
     </div>
@@ -180,14 +177,16 @@ const ViewPortPanelContainer = () => {
         </div>
         {sceneName.value ? <GizmoTool /> : null}
         {sceneName.value ? (
-          <>{rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}</>
+          <>
+            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
+            <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
+          </>
         ) : (
           <div className="flex h-full w-full flex-col justify-center gap-2">
             <img src={clientSettings?.appTitle} className="block scale-[.8]" />
             <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
           </div>
         )}
-        <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
       </div>
     </ViewportDnD>
   )

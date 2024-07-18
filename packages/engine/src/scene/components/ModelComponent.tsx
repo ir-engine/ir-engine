@@ -247,15 +247,16 @@ function ModelReactor() {
 }
 
 /**
- * Returns true if the entity is a mesh not a part of a model, or a model
+ * Returns true if the entity has a model component or a mesh component that is not a child of model
  * @param entity
- * @returns
+ * @returns {boolean}
  */
-export const useMeshOrModel = (entity: Entity) => {
-  const isModel = !!useOptionalComponent(entity, ModelComponent)
+export const useHasModelOrIndependentMesh = (entity: Entity) => {
+  const hasModel = !!useOptionalComponent(entity, ModelComponent)
   const isChildOfModel = !!useAncestorWithComponent(entity, ModelComponent)
   const hasMesh = !!useOptionalComponent(entity, MeshComponent)
-  return isModel && !isChildOfModel && hasMesh
+
+  return hasModel || (hasMesh && !isChildOfModel)
 }
 
 export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {
