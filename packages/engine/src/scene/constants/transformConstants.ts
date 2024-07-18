@@ -32,6 +32,7 @@ export const TransformPivot = {
   Origin: 'Origin' as const
 }
 export const TransformMode = {
+  pointer: 'pointer' as const,
   translate: 'translate' as const,
   rotate: 'rotate' as const,
   scale: 'scale' as const
