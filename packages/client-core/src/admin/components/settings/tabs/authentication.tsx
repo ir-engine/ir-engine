@@ -262,35 +262,34 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
       <hr className="my-6 border border-theme-primary" />
 
-      {holdAuth?.apple?.value && (
-        <div className="col-span-1">
-          <Text component="h4" fontSize="base" fontWeight="medium" className="my-4 w-full">
-            {t('admin:components.setting.apple')}
-          </Text>
-
-          <PasswordInput
-            label={t('admin:components.setting.key')}
-            value={keySecret?.value?.apple?.key || ''}
-            onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.APPLE)}
-          />
-
-          <PasswordInput
-            containerClassname="mt-2"
-            label={t('admin:components.setting.secret')}
-            value={keySecret?.value?.apple?.secret || ''}
-            onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.APPLE)}
-          />
-
-          <Input
-            containerClassname="mt-2"
-            label={t('admin:components.setting.callback')}
-            value={authSetting?.callback?.apple || ''}
-            disabled
-          />
-        </div>
-      )}
-
       <div className="grid grid-cols-3 gap-4">
+        {holdAuth?.apple?.value && (
+          <div className="col-span-1">
+            <Text component="h4" fontSize="base" fontWeight="medium" className="my-4 w-full">
+              {t('admin:components.setting.apple')}
+            </Text>
+
+            <PasswordInput
+              label={t('admin:components.setting.key')}
+              value={keySecret?.value?.apple?.key || ''}
+              onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.APPLE)}
+            />
+
+            <PasswordInput
+              containerClassname="mt-2"
+              label={t('admin:components.setting.secret')}
+              value={keySecret?.value?.apple?.secret || ''}
+              onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.APPLE)}
+            />
+
+            <Input
+              containerClassname="mt-2"
+              label={t('admin:components.setting.callback')}
+              value={authSetting?.callback?.apple || ''}
+              disabled
+            />
+          </div>
+        )}
         {holdAuth?.discord?.value && (
           <div className="col-span-1">
             <Text component="h4" fontSize="base" fontWeight="medium" className="my-4 w-full">
