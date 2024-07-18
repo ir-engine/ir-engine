@@ -131,14 +131,17 @@ const EditorContainer = () => {
 
   const dockPanelRef = useRef<DockLayout>(null)
 
-  useHotkeys(`${cmdOrCtrlString}+s`, () => PopoverState.showPopupover(<SaveSceneDialog />))
+  useHotkeys(`${cmdOrCtrlString}+s`, (e) => {
+    e.preventDefault()
+    PopoverState.showPopupover(<SaveSceneDialog />)
+  })
 
   const viewerEntity = useMutableState(EngineState).viewerEntity.value
 
   const { initialized, isWidgetVisible, openChat } = useZendesk()
   const { t } = useTranslation()
 
-  const visualScriptPanelEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Editor.Panel.VisualScript)
+  const visualScriptPanelEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Studio.Panel.VisualScript)
 
   useEffect(() => {
     const scene = sceneQuery[0]
