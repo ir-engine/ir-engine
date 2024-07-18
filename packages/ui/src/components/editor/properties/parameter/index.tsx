@@ -106,6 +106,11 @@ export default function ParameterInput({
         return (
           <InputGroup key={compKey} name={k} label={camelCaseToSpacedString(capitalizeFirstLetter(k))}>
             {(() => {
+              if (!(k in values)) {
+                console.warn(`Key "${k}" not found in ParameterInput values object`)
+                return null
+              }
+
               switch (parms.type) {
                 case 'boolean':
                   return <BooleanInput value={values[k]} onChange={setArgsProp(k)} />

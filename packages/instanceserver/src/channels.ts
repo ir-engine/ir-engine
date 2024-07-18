@@ -403,6 +403,7 @@ const updateInstance = async ({
     instanceStarted = true
     const initialized = await initializeInstance({ app, status, headers, userId })
     if (initialized) await loadEngine({ app, sceneId, headers })
+    return true
   } else {
     try {
       if (!getState(InstanceServerState).ready)
