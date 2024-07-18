@@ -41,7 +41,8 @@ import {
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { InputComponent } from '../components/InputComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
-import { ClientInputSystem, PRIVATE } from './ClientInputSystem'
+import ClientInputFunctions from '../functions/ClientInputFunctions'
+import { ClientInputSystem } from './ClientInputSystem'
 
 // describe('addClientInputListeners', () => {
 //   let documentAddEvent
@@ -304,7 +305,7 @@ describe('ClientInputSystem: PRIVATE', () => {
       const eventSpy = sinon.spy()
       const Event = { preventDefault: eventSpy }
       assert.ok(!eventSpy.called)
-      PRIVATE.preventDefault(Event)
+      ClientInputFunctions.preventDefault(Event)
       assert.ok(eventSpy.called)
     })
   })
@@ -329,7 +330,7 @@ describe('ClientInputSystem: PRIVATE', () => {
       const eventSpy = sinon.spy()
       const Event = { preventDefault: eventSpy, code: 'Tab' }
       assert.ok(!eventSpy.called)
-      PRIVATE.preventDefaultKeyDown(Event)
+      ClientInputFunctions.preventDefaultKeyDown(Event)
       assert.equal(eventSpy.called, true)
     })
 
@@ -337,7 +338,7 @@ describe('ClientInputSystem: PRIVATE', () => {
       const eventSpy = sinon.spy()
       const Event = { preventDefault: eventSpy, code: 'Space' }
       assert.ok(!eventSpy.called)
-      PRIVATE.preventDefaultKeyDown(Event)
+      ClientInputFunctions.preventDefaultKeyDown(Event)
       assert.equal(eventSpy.called, true)
     })
 
@@ -345,7 +346,7 @@ describe('ClientInputSystem: PRIVATE', () => {
       const eventSpy = sinon.spy()
       const Event = { preventDefault: eventSpy, code: 'Enter' }
       assert.ok(!eventSpy.called)
-      PRIVATE.preventDefaultKeyDown(Event)
+      ClientInputFunctions.preventDefaultKeyDown(Event)
       assert.equal(eventSpy.called, true)
     })
 
@@ -353,7 +354,7 @@ describe('ClientInputSystem: PRIVATE', () => {
       const eventSpy = sinon.spy()
       const Event = { preventDefault: eventSpy, code: 'UnexpectedValue' }
       assert.ok(!eventSpy.called)
-      PRIVATE.preventDefaultKeyDown(Event)
+      ClientInputFunctions.preventDefaultKeyDown(Event)
       assert.equal(eventSpy.called, false)
     })
   })
@@ -389,7 +390,7 @@ describe('ClientInputSystem: PRIVATE', () => {
       }
 
       // Run the function and chech the result
-      PRIVATE.setInputSources(parentEntity, SourcesList)
+      ClientInputFunctions.setInputSources(parentEntity, SourcesList)
       const result = getComponent(parentEntity, InputComponent).inputSources
       for (const source of SourcesList) {
         assert.equal(result.includes(source), true)
@@ -408,7 +409,21 @@ describe('ClientInputSystem: PRIVATE', () => {
 
   // execute
   describe("assignInputSources", () => {})
-  describe("applyRaycastedInputHeuristics", () => {})
+  describe("applyRaycastedInputHeuristics", () => {
+    // todo??
+    // set the `@param quaternion` to the sourceEid.worldRotation
+    // set the raycast direction to ObjectDirection.Forward rotated by sourceEid.worldRotation
+    // set the `@param raycast`.direction as the origin+(direction scaled by -0.01)
+    // set the ray to go from sourceEid.origin to raycast.direction
+    // set the raycaster to go from sourceEid.origin to raycast.direction
+    // set the scene layer in the raycaster
+    // test cases
+    // should apply the editor heuristic only when EngineState.isEditing is true
+    // should apply the XRUI heuristic only when EngineState.isEditing is false
+    // should apply the PhysicsColliders heuristic only when EngineState.isEditing is false
+    // should apply the BBoxes heuristic only when EngineState.isEditing is false
+    // should always apply the Meshes heuristic
+  })
   describe("applyHeuristicProximity", () => {})
 
   describe("applyHeuristicEditor", () => {
