@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { setTransformMode } from '@etherealengine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@etherealengine/editor/src/services/EditorHelperState'
+import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { useMutableState } from '@etherealengine/hyperflux'
 import React from 'react'
@@ -47,6 +48,7 @@ function Placer() {
 export default function GizmoTool() {
   const editorHelperState = useMutableState(EditorHelperState)
   const transformMode = editorHelperState.transformMode.value
+  const selected = SelectionState.useSelectedEntities()
   const { t } = useTranslation()
 
   return (
@@ -57,7 +59,10 @@ export default function GizmoTool() {
           <Tooltip title={t('editor:toolbar.gizmo.pointer')} position={'right center'}>
             <Button
               variant="transparent"
-              className={twMerge('border-b border-b-theme-primary p-2 text-[#A3A3A3]')}
+              className={twMerge(
+                'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
+                selected.length === 0 && 'bg-theme-highlight text-white'
+              )}
               iconContainerClassName="m-0"
               startIcon={<TbPointer />}
               onClick={() => EditorControlFunctions.replaceSelection([])}
