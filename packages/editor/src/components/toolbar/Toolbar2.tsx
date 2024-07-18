@@ -60,7 +60,56 @@ const onImportAsset = async () => {
   }
 }
 
-const onCloseProject = () => {
+const onClickNewScene = async () => {
+  const isModified = EditorState.isModified()
+
+  if (isModified) {
+    const confirm = await new Promise((resolve) => {
+      PopoverState.showPopupover(
+        <SaveSceneDialog
+          isExiting
+          onConfirm={() => {
+            resolve(true)
+          }}
+          onCancel={() => {
+            resolve(false)
+          }}
+        />
+      )
+    })
+    if (!confirm) return
+  }
+
+  onNewScene()
+
+  const newSceneUIAddons = getState(EditorState).uiAddons.newScene
+  if (Object.keys(newSceneUIAddons).length > 0) {
+    PopoverState.showPopupover(<CreateSceneDialog />)
+  } else {
+    onNewScene()
+  }
+}
+
+const onCloseProject = async () => {
+  const isModified = EditorState.isModified()
+
+  if (isModified) {
+    const confirm = await new Promise((resolve) => {
+      PopoverState.showPopupover(
+        <SaveSceneDialog
+          isExiting
+          onConfirm={() => {
+            resolve(true)
+          }}
+          onCancel={() => {
+            resolve(false)
+          }}
+        />
+      )
+    })
+    if (!confirm) return
+  }
+
   const editorState = getMutableState(EditorState)
   getMutableState(GLTFModifiedState).set({})
   editorState.projectName.set(null)
@@ -84,14 +133,7 @@ const generateToolbarMenu = () => {
   return [
     {
       name: t('editor:menubar.newScene'),
-      action: () => {
-        const newSceneUIAddons = getState(EditorState).uiAddons.newScene
-        if (Object.keys(newSceneUIAddons).length > 0) {
-          PopoverState.showPopupover(<CreateSceneDialog />)
-        } else {
-          onNewScene()
-        }
-      }
+      action: onClickNewScene
     },
     {
       name: t('editor:menubar.saveScene'),
@@ -179,7 +221,7 @@ export default function Toolbar() {
         anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
         onClose={() => anchorEvent.set(null)}
       >
-        <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+        <div className="min-w-44 flex w-fit flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
             <div key={index}>
               <Button

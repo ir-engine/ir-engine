@@ -130,7 +130,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const onNodeKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      e.stopPropagation()
       if (data.onKeyDown) data.onKeyDown(e as any, node)
     },
     [data.onKeyDown, node]
@@ -367,7 +366,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   />
                 </div>
               ) : (
-                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
+                <div className="text-nowrap ml-2 min-w-0 flex-1 rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
                   <span className="text-nowrap text-sm leading-4">{nodeName}</span>
                 </div>
               )}

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Vector2 } from 'three'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import { defineComponent, defineQuery, Entity, getComponent, UndefinedEntity } from '@etherealengine/ecs'
+import { defineComponent, defineQuery, Entity, getComponent, UndefinedEntity, useQuery } from '@etherealengine/ecs'
 import { defineState, getState } from '@etherealengine/hyperflux'
 
 /**
@@ -83,6 +83,11 @@ export const InputPointerComponent = defineComponent({
 
   getPointersForCamera(cameraEntity: Entity) {
     return pointerQuery().filter((entity) => getComponent(entity, InputPointerComponent).cameraEntity === cameraEntity)
+  },
+
+  usePointersForCamera(cameraEntity: Entity) {
+    const pointers = useQuery([InputPointerComponent])
+    return pointers.filter((entity) => getComponent(entity, InputPointerComponent).cameraEntity === cameraEntity)
   },
 
   getPointerByID(cameraEntity: Entity, pointerId: number) {
