@@ -84,8 +84,7 @@ export default function CreatePrefabPanel({ node }: { node?: HierarchyTreeNodeTy
       setComponent(entity, EntityTreeComponent, { parentEntity: prefabEntity })
 
       await exportRelativeGLTF(prefabEntity, srcProject, fileName)
-      //await exportRelativeGLTF(entity, srcProject, fileName)
-      //pass tags to static resource
+
       const resources = await Engine.instance.api.service(staticResourcePath).find({
         query: { key: 'projects/' + srcProject + '/' + fileName }
       })
