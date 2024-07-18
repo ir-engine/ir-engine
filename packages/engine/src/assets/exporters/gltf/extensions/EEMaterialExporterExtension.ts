@@ -137,6 +137,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
       plugins: plugins,
       args: result
     }
+    materialDef.name = getComponent(materialEntity, NameComponent)
     this.writer.extensionsUsed[this.name] = true
   }
 }
