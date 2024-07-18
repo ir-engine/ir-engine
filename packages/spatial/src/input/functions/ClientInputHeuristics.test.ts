@@ -42,7 +42,17 @@ describe('ClientInputHeuristics', () => {
     // should always apply the Meshes heuristic
   })
 
-  describe("applyProximity", () => {})
+  describe("applyProximity", () => {
+    // if XRControlState.isCameraAttachedToAvatar and `@param isSpatialInput`, then inputSourceEntity should be `@param sourceEid` else it should be the avatar of the current User
+    // shouldn't do anything if we didn't find a valid inputSourceEntity
+    // get the position of the inputSourceEntity into the global _worldPosInputSourceComponent vector
+    // for every spatialInputObject
+      // skip the User avatar's entity
+      // get the position of the inputEntity into the global _worldPosInputComponent vector
+      // compute the distance from the inputSourceEntity to the inputEntity
+      // If the distance is within the proximity threshold
+        // should store the inputEntity and the distanceSquared to the inputSourceEntity into the intersectionData
+  })
 
   describe("applyEditor", () => {
     // Find the list of gizmoPickerObjects.entity for the gizmo heuristic    (Input, Visible, Group, TransformGizmo)
