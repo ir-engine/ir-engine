@@ -132,7 +132,6 @@ export default function GizmoTool({
             )}
             iconContainerClassName="m-0"
             startIcon={<TbVector />}
-            title="Translate (key W)"
             onClick={() => setTransformMode(TransformMode.translate)}
           />
         </Tooltip>
@@ -145,7 +144,6 @@ export default function GizmoTool({
             )}
             iconContainerClassName="m-0"
             startIcon={<TbRefresh />}
-            title="Rotate (key E)"
             onClick={() => setTransformMode(TransformMode.rotate)}
           />
         </Tooltip>
@@ -158,7 +156,6 @@ export default function GizmoTool({
             )}
             iconContainerClassName="m-0"
             startIcon={<TbWindowMaximize />}
-            title="Scale (key R)"
             onClick={() => setTransformMode(TransformMode.scale)}
           />
         </Tooltip>
