@@ -261,7 +261,6 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       </div>
 
       <hr className="my-6 border border-theme-primary" />
-
       <div className="grid grid-cols-3 gap-4">
         {holdAuth?.apple?.value && (
           <div className="col-span-1">
