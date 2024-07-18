@@ -319,6 +319,8 @@ export const MediasoupMediaProducerConsumerState = defineState({
     onUpdatePeers: NetworkActions.updatePeers.receive((action) => {
       const state = getState(MediasoupMediaProducerConsumerState)
       const producers = state[action.$network]?.producers
+      const networkState = getState(NetworkState).networks[action.$network]
+      if (!networkState?.ready) return
       if (producers)
         for (const producer of Object.values(producers)) {
           const transport = getState(MediasoupTransportState)[action.$network]?.[producer.transportID]
@@ -478,7 +480,9 @@ export const NetworkMediaConsumer = (props: { networkID: InstanceID; consumerID:
 
   useEffect(() => {
     const consumer = consumerObjectState.value as any
-    if (!consumer || consumer.closed || consumer._closed) return
+    const producerID = consumerState.producerID.value
+    const producer = getState(MediasoupMediaProducersConsumersObjectsState).producers[producerID]
+    if (!consumer || consumer.closed || consumer._closed || !producer || producer?.closed || producer?._closed) return
 
     if (consumerState.paused.value && typeof consumer.pause === 'function') consumer.pause()
     if (!consumerState.paused.value && typeof consumer.resume === 'function') consumer.resume()
