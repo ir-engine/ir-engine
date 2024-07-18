@@ -41,6 +41,9 @@ import {
   UUIDComponent
 } from '@etherealengine/ecs'
 
+import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
+import { getState } from '@etherealengine/hyperflux'
+import iterateObject3D from '../../common/functions/iterateObject3D'
 import { NameComponent } from '../../common/NameComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import {
@@ -52,6 +55,19 @@ import {
   MaterialStateComponent,
   prototypeQuery
 } from './MaterialComponent'
+
+export const loadMaterialGLTF = (url: string, callback: (material: Material | null) => void) => {
+  const gltfLoader = getState(AssetLoaderState).gltfLoader
+  gltfLoader.load(url, (gltf) => {
+    const material = iterateObject3D(
+      gltf.scene,
+      (mesh: Mesh) => mesh.material as Material,
+      (mesh: Mesh) => mesh?.isMesh
+    )[0]
+    if (!material) callback(null)
+    callback(material)
+  })
+}
 
 export const extractDefaults = (defaultArgs) => {
   return formatMaterialArgs(
