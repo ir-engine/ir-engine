@@ -98,7 +98,7 @@ export default function GizmoTool({
   return (
     <div
       ref={gizmoRef}
-      className={`absolute z-10 flex flex-col items-center rounded-lg bg-black p-2`}
+      className={`absolute z-[5] flex flex-col items-center rounded-lg bg-black p-2`}
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`
