@@ -161,7 +161,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     keySecret.set({
       ...JSON.parse(JSON.stringify(keySecret.value)),
       [type]: {
-        ...JSON.parse(JSON.stringify(keySecret[type].value)),
+        ...JSON.parse(JSON.stringify(keySecret[type].value ?? {})),
         key: event.target.value
       }
     })
@@ -171,7 +171,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     keySecret.set({
       ...JSON.parse(JSON.stringify(keySecret.value)),
       [type]: {
-        ...JSON.parse(JSON.stringify(keySecret[type].value)),
+        ...JSON.parse(JSON.stringify(keySecret[type].value ?? {})),
         secret: event.target.value
       }
     })
