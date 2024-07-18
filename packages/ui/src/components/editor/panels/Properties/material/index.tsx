@@ -152,7 +152,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
   useEffect(() => {
     clearThumbs().then(createThumbnails).then(checkThumbs)
-  }, [prototypeName])
+  }, [prototypeName, currentSelectedMaterial])
 
   const prototypeEntity = materialComponent.prototypeEntity.value!
   const prototype = useComponent(prototypeEntity, MaterialPrototypeComponent)
@@ -186,7 +186,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   useEffect(() => {
     pluginValues.set({})
     pluginParameters.set({})
-  }, [selectedPlugin])
+  }, [selectedPlugin, currentSelectedMaterial])
 
   useEffect(() => {
     for (const pluginComponent of Object.values(MaterialPlugins)) {
