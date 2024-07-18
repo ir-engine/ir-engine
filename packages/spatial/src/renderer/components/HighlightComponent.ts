@@ -41,16 +41,17 @@ const execute = () => {
   /** @todo support multiple scenes */
   if (!hasComponent(Engine.instance.viewerEntity, RendererComponent)) return
 
-  let highlightObjects = new Set<Object3D>()
+  const highlightObjects = new Set<Object3D>()
   for (const entity of highlightQuery()) {
     traverseEntityNode(entity, (child, index) => {
       if (!hasComponent(child, MeshComponent)) return
       if (!hasComponent(child, GroupComponent)) return
+      if (!hasComponent(child, VisibleComponent)) return
       highlightObjects.add(getComponent(child, MeshComponent))
     })
   }
   const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
-  rendererComponent.effectComposer.OutlineEffect.selection.set(highlightObjects)
+  rendererComponent.effectComposer?.OutlineEffect?.selection.set(highlightObjects)
 }
 
 export const HighlightSystem = defineSystem({
