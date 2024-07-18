@@ -311,8 +311,14 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     <li
       style={props.style}
       className={twMerge(
-        `bg-${props.index % 2 ? 'theme-surfaceInput' : 'zinc-800'}`,
-        selected ? 'border border-gray-100' : 'border-none'
+        `${
+          props.index % 2
+            ? `${selected ? 'bg-[#1d1f23]' : 'bg-theme-surfaceInput'} hover:bg-[#1d1f23]`
+            : `${selected ? 'bg-zinc-700' : 'bg-zinc-800'} hover:bg-zinc-700`
+        }`,
+        selected ? 'text-white' : 'text-gray-300',
+        'hover:text-white',
+        `${visible ? '' : 'bg-gray-950 text-neutral-800'}`
       )}
     >
       <div
@@ -351,14 +357,14 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             </button>
           )}
 
-          <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
-            {IconComponent && <IconComponent className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />}
+          <div className="flex flex-1 items-center gap-2 bg-inherit py-0.5 pl-0 pr-1 text-inherit ">
+            {IconComponent && <IconComponent className="h-5 w-5 flex-shrink-0 text-inherit" />}
             <div className="flex flex-1 items-center">
               {renaming ? (
-                <div className="relative h-[15px] w-full">
+                <div className="relative h-[15px] w-full bg-inherit px-1 text-inherit">
                   <input
                     type="text"
-                    className="absolute top-[-3px] m-0 w-full rounded-lg px-1 py-0.5"
+                    className="absolute top-[-3px] m-0 w-full rounded-none bg-inherit py-0.5 pl-0.5 text-sm"
                     onChange={onChangeNodeName}
                     onKeyDown={onKeyDownNameInput}
                     value={data.renamingNode.name}
@@ -366,7 +372,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   />
                 </div>
               ) : (
-                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
+                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit ">
                   <span className="text-nowrap text-sm leading-4">{nodeName}</span>
                 </div>
               )}
