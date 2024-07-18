@@ -57,6 +57,7 @@ export default function GizmoTool({
   const [position, setPosition] = useState({ x: 16, y: 56 })
   const [isDragging, setIsDragging] = useState(false)
   const gizmoRef = useRef<HTMLDivElement>(null)
+  const [pointerSelected, setPointerSelected] = useState(false)
 
   const [startingMouseX, setStartingMouseX] = useState(0)
   const [startingMouseY, setStartingMouseY] = useState(0)
@@ -113,12 +114,12 @@ export default function GizmoTool({
             variant="transparent"
             className={twMerge(
               'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
-              transformMode === TransformMode.pointer && 'bg-theme-highlight text-white'
+              pointerSelected && 'bg-theme-highlight text-white'
             )}
             iconContainerClassName="m-0"
             startIcon={<TbPointer />}
             onClick={() => {
-              setTransformMode(TransformMode.pointer)
+              setPointerSelected(true)
               EditorControlFunctions.replaceSelection([])
             }}
           />
@@ -128,11 +129,14 @@ export default function GizmoTool({
             variant="transparent"
             className={twMerge(
               'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
-              transformMode === TransformMode.translate && 'bg-theme-highlight text-white'
+              !pointerSelected && transformMode === TransformMode.translate && 'bg-theme-highlight text-white'
             )}
             iconContainerClassName="m-0"
             startIcon={<TbVector />}
-            onClick={() => setTransformMode(TransformMode.translate)}
+            onClick={() => {
+              setPointerSelected(false)
+              setTransformMode(TransformMode.translate)
+            }}
           />
         </Tooltip>
         <Tooltip title={t('editor:toolbar.gizmo.rotate')} position={'right center'}>
@@ -140,11 +144,14 @@ export default function GizmoTool({
             variant="transparent"
             className={twMerge(
               'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
-              transformMode === TransformMode.rotate && 'bg-theme-highlight text-white'
+              !pointerSelected && transformMode === TransformMode.rotate && 'bg-theme-highlight text-white'
             )}
             iconContainerClassName="m-0"
             startIcon={<TbRefresh />}
-            onClick={() => setTransformMode(TransformMode.rotate)}
+            onClick={() => {
+              setPointerSelected(false)
+              setTransformMode(TransformMode.rotate)
+            }}
           />
         </Tooltip>
         <Tooltip title={t('editor:toolbar.gizmo.scale')} position={'right center'}>
@@ -152,11 +159,14 @@ export default function GizmoTool({
             variant="transparent"
             className={twMerge(
               'p-2 text-[#A3A3A3]',
-              transformMode === TransformMode.scale && 'bg-theme-highlight text-white'
+              !pointerSelected && transformMode === TransformMode.scale && 'bg-theme-highlight text-white'
             )}
             iconContainerClassName="m-0"
             startIcon={<TbWindowMaximize />}
-            onClick={() => setTransformMode(TransformMode.scale)}
+            onClick={() => {
+              setPointerSelected(false)
+              setTransformMode(TransformMode.scale)
+            }}
           />
         </Tooltip>
       </div>
