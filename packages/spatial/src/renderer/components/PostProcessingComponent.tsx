@@ -116,7 +116,11 @@ const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }
     ;(renderer.effectComposer as State<EffectComposer>).EffectPass.set(
       new EffectPass(camera.value as ArrayCamera, ...effectArray)
     )
-    renderer.value.effectComposer.addPass(renderer.value.effectComposer.EffectPass as EffectPass)
+    try {
+      renderer.value.effectComposer.addPass(renderer.value.effectComposer.EffectPass as EffectPass)
+    } catch (e) {
+      console.warn(e)
+    }
   }, [renderer.value.effectComposer, effects, postProcessingComponent.enabled])
 
   // for each effect specified in our postProcessingComponent, we mount a sub-reactor based on the effect registry for that effect ID
