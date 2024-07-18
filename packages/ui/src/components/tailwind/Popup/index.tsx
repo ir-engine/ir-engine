@@ -23,8 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createContext, useContext } from 'react'
+import React from 'react'
+import { Popup as ReactjsPopup } from 'reactjs-popup'
+import { PopupProps } from 'reactjs-popup/dist/types'
 
-export const PopoverContext = createContext({ handlePopoverClose: () => {} })
-
-export const usePopoverContextClose = () => useContext(PopoverContext).handlePopoverClose
+export const Popup = ({
+  trigger,
+  keepInside,
+  ...props
+}: { trigger: React.ReactNode; keepInside?: boolean } & Omit<PopupProps, 'trigger'>) => {
+  return (
+    <ReactjsPopup
+      closeOnDocumentClick
+      closeOnEscape
+      repositionOnResize
+      on={'click'}
+      keepTooltipInside={keepInside}
+      arrow={false}
+      trigger={<div style={{ all: 'unset' }}>{trigger}</div>}
+      {...props}
+    />
+  )
+}

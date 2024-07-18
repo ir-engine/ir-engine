@@ -23,27 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { createPortal } from 'react-dom'
+import { HookContext } from '@feathersjs/feathers'
 
-export const Portal = (props) => {
-  let el = document.createElement('div')
+import { Application } from '../../declarations'
 
-  useEffect(() => {
-    document.body.appendChild(el)
+/**
+ * https://feathersjs.com/help/faq#my-queries-with-null-values-aren-t-working
+ */
+export default (...fieldNames: string[]) => {
+  return async (context: HookContext<Application>) => {
+    const query = context?.params?.query
+    if (!query) return context
 
-    return () => {
-      try {
-        if (el) {
-          document.body.removeChild(el)
-        }
-      } catch (err) {
-        console.warn(`Error removing Portal element: ${err}`)
+    for (const field of fieldNames) {
+      if (query[field] === 'null') {
+        query[field] = null
       }
     }
-  }, [])
 
-  return createPortal(props.children, el)
+    return context
+  }
 }
-
-export default Portal

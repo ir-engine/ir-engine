@@ -23,12 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+import { defineComponent } from '@etherealengine/ecs'
 
-const Overlay = ({ pointerEvents, children }) => {
-  const overlayClassName = twMerge('fixed inset-0', `pointer-events-${pointerEvents} ?? 'auto'`)
-  return <div className={overlayClassName}>{children}</div>
-}
-
-export default Overlay
+export const LightTagComponent = defineComponent({ name: 'LightTag' })

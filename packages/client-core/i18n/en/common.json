@@ -12,7 +12,11 @@
     "close": "Close",
     "submit": "Submit",
     "search": "Search",
-    "copyText": "Copy Text"
+    "copyText": "Copy Text",
+    "edit": "Edit",
+    "save": "Save",
+    "none": "None",
+    "update": "Update"
   },
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"

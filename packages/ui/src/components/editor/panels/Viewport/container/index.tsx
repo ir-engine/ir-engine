@@ -23,8 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useEngineCanvas'
-import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import { clientSettingPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { getComponent, useComponent, useQuery } from '@etherealengine/ecs'
 import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
@@ -56,7 +59,9 @@ import TransformPivotTool from '../tools/TransformPivotTool'
 import TransformSnapTool from '../tools/TransformSnapTool'
 import TransformSpaceTool from '../tools/TransformSpaceTool'
 
-const ViewportDnD = () => {
+const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
+  const projectName = useMutableState(EditorState).projectName
+
   const [{ isDragging }, dropRef] = useDrop({
     accept: [ItemTypes.Component, ...SupportedFileTypes],
     collect: (monitor) => ({
@@ -72,19 +77,44 @@ const ViewportDnD = () => {
         ])
       } else if ('url' in item) {
         addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+      } else if ('files' in item) {
+        const dropDataTransfer: DataTransfer = monitor.getItem()
+
+        Promise.all(
+          Array.from(dropDataTransfer.files).map(async (file) => {
+            try {
+              const name = processFileName(file.name)
+              return uploadToFeathersService(fileBrowserUploadPath, [file], {
+                args: [
+                  {
+                    project: projectName.value,
+                    path: `assets/` + name,
+                    contentType: file.type
+                  }
+                ]
+              }).promise as Promise<string>
+            } catch (err) {
+              NotificationService.dispatchNotify(err.message, { variant: 'error' })
+            }
+          })
+        ).then((urls) => {
+          const vec3 = new Vector3()
+          urls.forEach((url) => {
+            if (!url) return
+            addMediaNode(url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+          })
+        })
       }
     }
   })
 
   return (
     <div
-      id="viewport-panel"
       ref={dropRef}
-      className={twMerge(
-        'h-full w-full border border-white',
-        isDragging ? 'pointer-events-auto border-4' : 'pointer-events-none border-none'
-      )}
-    />
+      className={twMerge('h-full w-full border border-white', isDragging ? 'border-4' : 'border-none')}
+    >
+      {children}
+    </div>
   )
 }
 
@@ -133,31 +163,32 @@ const ViewPortPanelContainer = () => {
   useEngineCanvas(ref)
 
   return (
-    <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
-      <div className="z-10 flex gap-1 bg-theme-primary p-1">
-        <TransformSpaceTool />
-        <TransformPivotTool />
-        <GridTool />
-        <TransformSnapTool />
-        <SceneHelpersTool />
-        <div className="flex-1" />
-        <RenderModeTool />
-        <PlayModeTool />
-      </div>
-      {sceneName.value ? <GizmoTool /> : null}
-      {sceneName.value ? (
-        <>
-          {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
-          <ViewportDnD />
-        </>
-      ) : (
-        <div className="flex h-full w-full flex-col justify-center gap-2">
-          <img src={clientSettings?.appTitle} className="block scale-[.8]" />
-          <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
+    <ViewportDnD>
+      <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
+        <div className="z-10 flex gap-1 bg-theme-primary p-1">
+          <TransformSpaceTool />
+          <TransformPivotTool />
+          <GridTool />
+          <TransformSnapTool />
+          <SceneHelpersTool />
+          <div className="flex-1" />
+          <RenderModeTool />
+          <PlayModeTool />
         </div>
-      )}
-      <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
-    </div>
+        {sceneName.value ? <GizmoTool /> : null}
+        {sceneName.value ? (
+          <>
+            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
+            <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
+          </>
+        ) : (
+          <div className="flex h-full w-full flex-col justify-center gap-2">
+            <img src={clientSettings?.appTitle} className="block scale-[.8]" />
+            <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
+          </div>
+        )}
+      </div>
+    </ViewportDnD>
   )
 }
 

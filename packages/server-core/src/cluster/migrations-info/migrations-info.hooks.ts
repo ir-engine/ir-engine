@@ -45,7 +45,7 @@ export default {
 
   before: {
     all: [
-      () => schemaHooks.validateQuery(migrationsInfoQueryValidator),
+      schemaHooks.validateQuery(migrationsInfoQueryValidator),
       schemaHooks.resolveQuery(migrationsInfoQueryResolver)
     ],
     find: [iff(isProvider('external'), verifyScope('server', 'read'))],

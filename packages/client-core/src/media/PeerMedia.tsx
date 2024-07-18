@@ -162,7 +162,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
 
   useEffect(() => {
-    if (!networkState.ready.value) return
+    if (!networkState.ready?.value) return
 
     const peerID = producerState.peerID.value
     // dont need to request our own consumers
@@ -176,13 +176,13 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
       MediasoupMediaConsumerActions.requestConsumer({
         mediaTag,
         peerID,
-        rtpCapabilities: network.transport.mediasoupDevice.rtpCapabilities,
+        rtpCapabilities: network.mediasoupDevice.rtpCapabilities,
         channelID,
         $topic: network.topic,
         $to: network.hostPeerID
       })
     )
-  }, [networkState.ready.value])
+  }, [networkState.ready?.value])
 
   return null
 }

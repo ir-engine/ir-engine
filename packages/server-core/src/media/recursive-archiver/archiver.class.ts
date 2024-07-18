@@ -27,7 +27,6 @@ import { BadRequest } from '@feathersjs/errors'
 import { NullableId, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import JSZip from 'jszip'
-import fetch from 'node-fetch'
 
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { ArchiverQuery } from '@etherealengine/common/src/schemas/media/archiver.schema'
@@ -70,10 +69,7 @@ const archive = async (app: Application, projectName: string, params?: ArchiverP
 
     if (result[i].type == 'folder') continue
 
-    const blobPromise = await fetch(result[i].url, { method: 'GET' }).then((r) => {
-      if (r.status === 200) return r.arrayBuffer()
-      return Promise.reject(new Error(r.statusText))
-    })
+    const blobPromise = (await storageProvider.getObject(result[i].key)).Body
 
     logger.info(`Added ${result[i].key} to archive`)
 
@@ -130,11 +126,12 @@ export class ArchiverService implements ServiceInterface<string, ArchiverParams>
         returnData: '',
         status: 'pending'
       })
+      const projectJobName = project.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
       const jobBody = await getDirectoryArchiveJobBody(this.app, project, newJob.id)
       await this.app.service(apiJobPath).patch(newJob.id, {
         name: jobBody.metadata!.name
       })
-      const jobLabelSelector = `etherealengine/projectField=${project},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/directoryArchiver=true`
+      const jobLabelSelector = `etherealengine/projectField=${projectJobName},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/directoryArchiver=true`
       const jobFinishedPromise = createExecutorJob(
         this.app,
         jobBody,
