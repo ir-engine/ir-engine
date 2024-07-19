@@ -29,14 +29,15 @@ export const AssetsPanelCategories = defineState({
   name: 'AssetsPanelCategories',
   initial: {
     'Default Prefab': {},
-    Template: {
-      Backdrop: {},
-      Stage: {}
-    },
+
     Model: {
       // NPC: {},
       // Avatar: {},
       // Animal: {},
+      Template: {
+        // Backdrop: {},
+        // Stage: {}
+      },
       Architectural: {
         Floor: {},
         Ceiling: {},
