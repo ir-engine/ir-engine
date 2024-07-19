@@ -202,7 +202,7 @@ export const CanvasInputReactor = () => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
     const rendererComponent = getComponent(cameraEntity, RendererComponent)
-    const canvas = rendererComponent.canvas
+    const canvas = rendererComponent.canvas!
 
     /** Clear mouse events */
     const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick'] as AnyButton[]
