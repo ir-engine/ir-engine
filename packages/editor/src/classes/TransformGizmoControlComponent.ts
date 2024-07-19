@@ -130,7 +130,7 @@ export const TransformGizmoControlComponent = defineComponent({
   reactor: function (props) {
     const gizmoControlEntity = useEntityContext()
     const gizmoControlComponent = useComponent(gizmoControlEntity, TransformGizmoControlComponent)
-    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
+    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
     const editorHelperState = useMutableState(EditorHelperState)
     const inputPointerEntities = InputPointerComponent.usePointersForCamera(Engine.instance.viewerEntity)
 
