@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers'
-import i18n from 'i18next'
 
 import {
   AvatarID,
@@ -44,6 +43,7 @@ import { defineState, dispatchAction, getMutableState, getState } from '@etherea
 
 import { EntityUUID } from '@etherealengine/ecs'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
+import { useTranslation } from 'react-i18next'
 import { NotificationService } from '../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../util/upload'
 import { AuthState } from './AuthService'
@@ -171,10 +171,11 @@ export const AvatarService = {
   },
 
   async updateUsername(userId: UserID, name: UserName) {
+    const { t } = useTranslation()
     const { name: updatedName } = (await Engine.instance.api
       .service(userPath)
       .patch(userId, { name: name })) as UserType
-    NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
+    NotificationService.dispatchNotify(t('user:usermenu.profile.update-msg'), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
     dispatchAction(AvatarNetworkAction.setName({ entityUUID: (userId + '_avatar') as EntityUUID, name: updatedName }))
   }
