@@ -23,25 +23,202 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import assert from 'assert'
+import sinon from 'sinon'
+
+import {
+  createEngine,
+  createEntity,
+  destroyEngine,
+  removeEntity,
+  setComponent,
+  UndefinedEntity
+} from '@etherealengine/ecs'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import { EngineState } from '../../EngineState'
+import { RaycastArgs } from '../../physics/classes/Physics'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { TransformComponent } from '../../SpatialModule'
+import ClientInputHeuristics, { HeuristicData, HeuristicFunctions, IntersectionData } from './ClientInputHeuristics'
+
+function createDefaultRaycastArgs(): RaycastArgs {
+  return {
+    type: SceneQueryType.Closest,
+    origin: new Vector3(),
+    direction: new Vector3(),
+    maxDistance: 1000,
+    groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default),
+    excludeRigidBody: undefined
+  } as RaycastArgs
+}
+
+function createHeuristicDummyData(): HeuristicData {
+  return {
+    quaternion: new Quaternion(),
+    raycast: createDefaultRaycastArgs(),
+    ray: new Ray(),
+    caster: new Raycaster(),
+    hitTarget: new Vector3()
+  } as HeuristicData
+}
+
 describe('ClientInputHeuristics', () => {
-  /**
-  // @todo
-  describe("applyRaycastedInput", () => {
-    // todo??
+  describe('applyRaycastedInput', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, VisibleComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should apply the editor heuristic only when EngineState.isEditing is true', () => {
+      const spy = sinon.spy()
+      const dummySpy = sinon.spy()
+      const intersectionData = {} as Set<IntersectionData>
+      const heuristicData = createHeuristicDummyData()
+      const heuristicFunctions = {
+        editor: spy as typeof ClientInputHeuristics.applyEditor,
+        xrui: dummySpy as typeof ClientInputHeuristics.applyXRUI,
+        physicsColliders: dummySpy as typeof ClientInputHeuristics.applyPhysicsColliders,
+        bboxes: dummySpy as typeof ClientInputHeuristics.applyBBoxes,
+        meshes: dummySpy as typeof ClientInputHeuristics.applyMeshes,
+        proximity: dummySpy as typeof ClientInputHeuristics.applyProximity,
+        raycastedInput: dummySpy as typeof ClientInputHeuristics.applyRaycastedInput
+      } as HeuristicFunctions
+      assert.equal(spy.called, false)
+      assert.equal(getState(EngineState).isEditing, false)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      assert.equal(spy.called, false)
+      getMutableState(EngineState).isEditing.set(true)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      assert.equal(spy.called, true)
+    })
+
+    it('should apply the XRUI heuristic only when EngineState.isEditing is false', () => {
+      const spy = sinon.spy()
+      const dummySpy = sinon.spy()
+      const intersectionData = {} as Set<IntersectionData>
+      const heuristicData = createHeuristicDummyData()
+      const heuristicFunctions = {
+        xrui: spy as typeof ClientInputHeuristics.applyXRUI,
+        editor: dummySpy as typeof ClientInputHeuristics.applyEditor,
+        physicsColliders: dummySpy as typeof ClientInputHeuristics.applyPhysicsColliders,
+        bboxes: dummySpy as typeof ClientInputHeuristics.applyBBoxes,
+        meshes: dummySpy as typeof ClientInputHeuristics.applyMeshes,
+        proximity: dummySpy as typeof ClientInputHeuristics.applyProximity,
+        raycastedInput: dummySpy as typeof ClientInputHeuristics.applyRaycastedInput
+      } as HeuristicFunctions
+      assert.equal(spy.called, false)
+      assert.equal(getState(EngineState).isEditing, false)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      assert.equal(spy.callCount, 1)
+      getMutableState(EngineState).isEditing.set(true)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      getMutableState(EngineState).isEditing.set(false)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      assert.equal(spy.callCount, 2)
+    })
+
+    it('should apply the PhysicsColliders heuristic only when EngineState.isEditing is false', () => {
+      const spy = sinon.spy()
+      const dummySpy = sinon.spy()
+      const intersectionData = {} as Set<IntersectionData>
+      const heuristicData = createHeuristicDummyData()
+      const heuristicFunctions = {
+        physicsColliders: spy as typeof ClientInputHeuristics.applyPhysicsColliders,
+        editor: dummySpy as typeof ClientInputHeuristics.applyEditor,
+        xrui: dummySpy as typeof ClientInputHeuristics.applyXRUI,
+        bboxes: dummySpy as typeof ClientInputHeuristics.applyBBoxes,
+        meshes: dummySpy as typeof ClientInputHeuristics.applyMeshes,
+        proximity: dummySpy as typeof ClientInputHeuristics.applyProximity,
+        raycastedInput: dummySpy as typeof ClientInputHeuristics.applyRaycastedInput
+      } as HeuristicFunctions
+      assert.equal(spy.called, false)
+      assert.equal(getState(EngineState).isEditing, false)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      assert.equal(spy.callCount, 1)
+      getMutableState(EngineState).isEditing.set(true)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      getMutableState(EngineState).isEditing.set(false)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      assert.equal(spy.callCount, 2)
+    })
+
+    it('should apply the BBoxes heuristic only when EngineState.isEditing is false', () => {
+      const spy = sinon.spy()
+      const dummySpy = sinon.spy()
+      const intersectionData = {} as Set<IntersectionData>
+      const heuristicData = createHeuristicDummyData()
+      const heuristicFunctions = {
+        bboxes: spy as typeof ClientInputHeuristics.applyBBoxes,
+        editor: dummySpy as typeof ClientInputHeuristics.applyEditor,
+        xrui: dummySpy as typeof ClientInputHeuristics.applyXRUI,
+        physicsColliders: dummySpy as typeof ClientInputHeuristics.applyPhysicsColliders,
+        meshes: dummySpy as typeof ClientInputHeuristics.applyMeshes,
+        proximity: dummySpy as typeof ClientInputHeuristics.applyProximity,
+        raycastedInput: dummySpy as typeof ClientInputHeuristics.applyRaycastedInput
+      } as HeuristicFunctions
+      assert.equal(spy.called, false)
+      assert.equal(getState(EngineState).isEditing, false)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      assert.equal(spy.callCount, 1)
+      getMutableState(EngineState).isEditing.set(true)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      getMutableState(EngineState).isEditing.set(false)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      assert.equal(spy.callCount, 2)
+    })
+
+    it('should always apply the Meshes heuristic', () => {
+      const spy = sinon.spy()
+      const dummySpy = sinon.spy()
+      const intersectionData = {} as Set<IntersectionData>
+      const heuristicData = createHeuristicDummyData()
+      const heuristicFunctions = {
+        meshes: spy as typeof ClientInputHeuristics.applyMeshes,
+        editor: dummySpy as typeof ClientInputHeuristics.applyEditor,
+        xrui: dummySpy as typeof ClientInputHeuristics.applyXRUI,
+        physicsColliders: dummySpy as typeof ClientInputHeuristics.applyPhysicsColliders,
+        bboxes: dummySpy as typeof ClientInputHeuristics.applyBBoxes,
+        proximity: dummySpy as typeof ClientInputHeuristics.applyProximity,
+        raycastedInput: dummySpy as typeof ClientInputHeuristics.applyRaycastedInput
+      } as HeuristicFunctions
+      assert.equal(spy.called, false)
+      assert.equal(getState(EngineState).isEditing, false)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      assert.equal(spy.callCount, 1)
+      getMutableState(EngineState).isEditing.set(true)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      assert.equal(spy.callCount, 2)
+      getMutableState(EngineState).isEditing.set(false)
+      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      assert.equal(spy.callCount, 3)
+    })
+
+    /**
+    // @todo Do we care about testing these?
     // set the `@param quaternion` to the sourceEid.worldRotation
     // set the raycast direction to ObjectDirection.Forward rotated by sourceEid.worldRotation
     // set the `@param raycast`.direction as the origin+(direction scaled by -0.01)
     // set the ray to go from sourceEid.origin to raycast.direction
     // set the raycaster to go from sourceEid.origin to raycast.direction
     // set the scene layer in the raycaster
-    // test cases
-    // should apply the editor heuristic only when EngineState.isEditing is true
-    // should apply the XRUI heuristic only when EngineState.isEditing is false
-    // should apply the PhysicsColliders heuristic only when EngineState.isEditing is false
-    // should apply the BBoxes heuristic only when EngineState.isEditing is false
-    // should always apply the Meshes heuristic
+    */
   })
 
+  /**
+  // @todo
   describe("applyProximity", () => {
     // if XRControlState.isCameraAttachedToAvatar and `@param isSpatialInput`, then inputSourceEntity should be `@param sourceEid` else it should be the avatar of the current User
     // shouldn't do anything if we didn't find a valid inputSourceEntity
