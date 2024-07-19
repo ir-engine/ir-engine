@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 // eslint-disable-next-line no-control-regex
 export const INVALID_FILENAME_REGEX = /[_<>:"/\\|?*\u0000-\u001F]/g
-export const INVALID_FILENAME_WHITESPACE_REGEX = /[\s_<>:"/\\|?*\u0000-\u001F]/g
+// eslint-disable-next-line no-control-regex
+export const INVALID_FILENAME_WHITESPACE_REGEX = /[\s_<>:"/\\|?*\u0000-\u001F]/
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
 export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-]{1,62}[a-zA-Z0-9_\-]$/
 
