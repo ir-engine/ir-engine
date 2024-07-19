@@ -131,14 +131,24 @@ export const TextNodeEditor: EditorComponentType = (props) => {
 
   // initialize default values
   useEffect(() => {
-    text.lineHeight.set(LineHeightNumericDefault) // 1.2 em
-    text.outlineOpacity.set(100) // 100%
-    text.outlineWidth.set(3) // 3px
-    text.textAlign.set('left')
+    if (text.lineHeight.value === undefined) {
+      text.lineHeight.set(LineHeightNumericDefault) // 1.2 em
+    }
+    if (text.outlineOpacity.value === undefined) {
+      text.outlineOpacity.set(100) // 100%
+    }
+    if (text.outlineWidth.value === undefined) {
+      text.outlineWidth.set(3) // 3px
+    }
+    if (text.textAlign.value === undefined) {
+      text.textAlign.set('left')
+    }
 
-    const defaultFont = SelectOptions.Font.find((option) => option.label === 'Noto Sans')
-    if (defaultFont) {
-      text.font.set(defaultFont.value)
+    if (text.font.value === undefined) {
+      const defaultFont = SelectOptions.Font.find((option) => option.label === 'Noto Sans')
+      if (defaultFont) {
+        text.font.set(defaultFont.value)
+      }
     }
   }, [])
 
@@ -225,8 +235,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               onChange={updateProperty(TextComponent, 'textDepthOffset')}
               onRelease={commitProperty(TextComponent, 'textDepthOffset')}
               unit="px"
-            />
-          </InputGroup> */}
+            /> */}
           <InputGroup name="TextCurveRadius" label={t('editor:properties.text.textCurveRadius')}>
             <NumericInput
               smallStep={1}
