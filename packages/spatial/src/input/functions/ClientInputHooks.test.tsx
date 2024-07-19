@@ -195,7 +195,6 @@ describe('ClientInputHooks', () => {
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
-      const fiber = root.fiber
       root.stop()
       assert.equal(ev.hasEvent(EvName), false)
     })
@@ -215,7 +214,6 @@ describe('ClientInputHooks', () => {
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
-      const fiber = root.fiber
       root.stop()
       assert.equal(ev.hasEvent(EvName), false)
     })
@@ -235,7 +233,6 @@ describe('ClientInputHooks', () => {
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
-      const fiber = root.fiber
       root.stop()
       assert.equal(ev.hasEvent(EvName), false)
     })
@@ -256,7 +253,6 @@ describe('ClientInputHooks', () => {
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
-      const fiber = root.fiber
       root.stop()
       assert.equal(ev.hasEvent(EvName), false)
     })
@@ -276,7 +272,6 @@ describe('ClientInputHooks', () => {
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
-      const fiber = root.fiber
       root.stop()
       assert.equal(ev.hasEvent(EvName), false)
     })
@@ -296,7 +291,6 @@ describe('ClientInputHooks', () => {
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
-      const fiber = root.fiber
       root.stop()
       assert.equal(ev.hasEvent(EvName), false)
     })
@@ -316,7 +310,99 @@ describe('ClientInputHooks', () => {
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
-      const fiber = root.fiber
+      root.stop()
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+  })
+
+  describe('useGamepadInputSources', () => {
+    let testEntity = UndefinedEntity
+    let ev: MockEventListener
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, VisibleComponent)
+
+      ev = new MockEventListener()
+      globalThis.window.addEventListener = ev.addEventListener as any
+      globalThis.window.removeEventListener = ev.removeEventListener as any
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should add a gamepadconnected window.EventListener to the DOM.window when mounted', () => {
+      const EvName = 'gamepadconnected'
+      const reactorSpy = sinon.spy()
+      // Create the Reactor setup
+      const Reactor = () => {
+        reactorSpy()
+        ClientInputHooks.useGamepadInputSources()
+        return null
+      }
+      assert.equal(reactorSpy.callCount, 0)
+      assert.equal(ev.hasEvent(EvName), false)
+      // Create a reactor root to run the hook's reactor.
+      const root = startReactor(Reactor)
+      assert.equal(reactorSpy.callCount, 1)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a gamepaddisconnected EventListener to the DOM.window when mounted', () => {
+      const EvName = 'gamepaddisconnected'
+      const reactorSpy = sinon.spy()
+      // Create the Reactor setup
+      const Reactor = () => {
+        reactorSpy()
+        ClientInputHooks.useGamepadInputSources()
+        return null
+      }
+      assert.equal(reactorSpy.callCount, 0)
+      assert.equal(ev.hasEvent(EvName), false)
+      // Create a reactor root to run the hook's reactor.
+      const root = startReactor(Reactor)
+      assert.equal(reactorSpy.callCount, 1)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should remove the gamepadconnected EventListener from the DOM.window when mounted', () => {
+      const EvName = 'gamepadconnected'
+      const reactorSpy = sinon.spy()
+      // Create the Reactor setup
+      const Reactor = () => {
+        reactorSpy()
+        ClientInputHooks.useGamepadInputSources()
+        return null
+      }
+      assert.equal(reactorSpy.callCount, 0)
+      assert.equal(ev.hasEvent(EvName), false)
+      // Create a reactor root to run the hook's reactor.
+      const root = startReactor(Reactor)
+      assert.equal(reactorSpy.callCount, 1)
+      assert.equal(ev.hasEvent(EvName), true)
+      root.stop()
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the gamepaddisconnected EventListener from the DOM.window when mounted', () => {
+      const EvName = 'gamepaddisconnected'
+      const reactorSpy = sinon.spy()
+      // Create the Reactor setup
+      const Reactor = () => {
+        reactorSpy()
+        ClientInputHooks.useGamepadInputSources()
+        return null
+      }
+      assert.equal(reactorSpy.callCount, 0)
+      assert.equal(ev.hasEvent(EvName), false)
+      // Create a reactor root to run the hook's reactor.
+      const root = startReactor(Reactor)
+      assert.equal(reactorSpy.callCount, 1)
+      assert.equal(ev.hasEvent(EvName), true)
       root.stop()
       assert.equal(ev.hasEvent(EvName), false)
     })
@@ -324,8 +410,8 @@ describe('ClientInputHooks', () => {
 
   /**
   // @todo
-  describe("useGamepadInputSources", () => {})
   describe("useXRInputSources", () => {})
+
   describe("CanvasInputReactor", () => {})
   describe("MeshInputReactor", () => {})
   describe("BoundingBoxInputReactor", () => {})
