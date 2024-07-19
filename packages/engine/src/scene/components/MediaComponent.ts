@@ -251,7 +251,7 @@ export function MediaReactor() {
   useEffect(() => {
     setComponent(entity, BoundingBoxComponent)
     setComponent(entity, InputComponent, { highlight: false, grow: false })
-    const { renderer } = getComponent(Engine.instance.viewerEntity, RendererComponent)
+    const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const handleAutoplay = () => {
