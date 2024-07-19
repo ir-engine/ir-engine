@@ -56,16 +56,23 @@ import {
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
-import { defineState, getMutableState, getState, none, useMutableState } from '@etherealengine/hyperflux'
+import {
+  defineState,
+  getMutableState,
+  getState,
+  NO_PROXY,
+  none,
+  State,
+  useMutableState
+} from '@etherealengine/hyperflux'
 
-import { OutlineEffect } from 'postprocessing'
+import { Effect, EffectComposer, EffectPass, OutlineEffect } from 'postprocessing'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { getNestedChildren } from '../transform/components/EntityTree'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRLightProbeState } from '../xr/XRLightProbeSystem'
 import { XRState } from '../xr/XRState'
 import { GroupComponent } from './components/GroupComponent'
-import { EffectComposer } from './components/PostProcessingComponent'
 import {
   BackgroundComponent,
   EnvironmentMapComponent,
@@ -83,14 +90,24 @@ import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    EffectPass: EffectPass
+    OutlineEffect: OutlineEffect
+  }
+  interface Effect {
+    isActive: boolean
+  }
+}
+
 export const RendererComponent = defineComponent({
   name: 'RendererComponent',
 
   onInit() {
-    const _scene = new Scene()
-    _scene.matrixAutoUpdate = false
-    _scene.matrixWorldAutoUpdate = false
-    _scene.layers.set(ObjectLayers.Scene)
+    const scene = new Scene()
+    scene.matrixAutoUpdate = false
+    scene.matrixWorldAutoUpdate = false
+    scene.layers.set(ObjectLayers.Scene)
 
     return {
       /** Is resize needed? */
@@ -98,15 +115,15 @@ export const RendererComponent = defineComponent({
 
       renderPass: null as null | RenderPass,
       normalPass: null as null | NormalPass,
-      OutlineEffect: null as null | OutlineEffect,
       renderContext: null as WebGLRenderingContext | WebGL2RenderingContext | null,
+      effects: {} as Record<string, Effect>,
 
       supportWebGL2: false,
       canvas: null as null | HTMLCanvasElement,
 
       renderer: null as null | WebGLRenderer,
       effectComposer: null as null | EffectComposer,
-      scene: _scene,
+      scene,
 
       /** @todo deprecate and replace with engine implementation */
       xrManager: null as null | WebXRManager,
@@ -135,22 +152,60 @@ export const RendererComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const rendererComponent = useComponent(entity, RendererComponent)
-    const camera = useComponent(entity, CameraComponent)
-    const scene = rendererComponent.scene.value as Scene
+    const camera = useComponent(entity, CameraComponent).value as ArrayCamera
+    const hightlightState = useMutableState(HighlightState)
+    const renderSettings = useMutableState(RendererState)
+    const effectComposerState = rendererComponent.effectComposer as State<EffectComposer>
 
     useEffect(() => {
-      if (!rendererComponent.renderer.value) return
+      if (!effectComposerState.value) return
 
-      const outlineEffect = new OutlineEffect(scene as Scene, camera.value as ArrayCamera, getState(HighlightState))
+      const scene = rendererComponent.scene.value as Scene
+      const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
       outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
-      rendererComponent.OutlineEffect.set(outlineEffect)
+      effectComposerState.OutlineEffect.set(outlineEffect)
 
       return () => {
         if (!hasComponent(entity, RendererComponent)) return
         outlineEffect.dispose()
-        rendererComponent.OutlineEffect.set(none)
+        effectComposerState.OutlineEffect.set(none)
       }
-    }, [rendererComponent.renderer.value])
+    }, [!!effectComposerState.value, hightlightState])
+
+    useEffect(() => {
+      const effectComposer = effectComposerState.value
+      if (!effectComposer) return
+
+      const effectsVal = rendererComponent.effects.get(NO_PROXY) as Record<string, Effect>
+
+      const enabled = renderSettings.usePostProcessing.value
+
+      const effectArray = enabled ? Object.values(effectsVal) : []
+      if (effectComposer.OutlineEffect) effectArray.unshift(effectComposer.OutlineEffect as OutlineEffect)
+
+      const effectPass = new EffectPass(camera, ...effectArray)
+      effectComposerState.EffectPass.set(effectPass)
+
+      if (enabled) {
+        effectComposerState.merge(effectsVal)
+      }
+
+      effectComposer.addPass(effectPass)
+
+      effectComposer.setRenderer(rendererComponent.renderer.value as WebGLRenderer)
+
+      return () => {
+        if (!hasComponent(entity, RendererComponent)) return
+        if (enabled) {
+          for (const effect in effectsVal) {
+            effectsVal[effect].dispose()
+            effectComposerState[effect].set(none)
+          }
+        }
+        effectComposer.EffectPass.dispose()
+        effectComposer.removePass(effectPass)
+      }
+    }, [rendererComponent.effects, !!effectComposerState?.OutlineEffect?.value, renderSettings.usePostProcessing.value])
 
     return null
   }
