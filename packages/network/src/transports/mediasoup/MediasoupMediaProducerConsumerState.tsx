@@ -43,17 +43,8 @@ import {
   useMutableState
 } from '@etherealengine/hyperflux'
 
-import { PeerMediaChannelState } from '@etherealengine/client-core/src/transports/PeerMediaChannelState'
 import { DataChannelType } from '../../DataChannelRegistry'
-import {
-  MediaStreamAppData,
-  MediaTagType,
-  NetworkActions,
-  NetworkState,
-  screenshareAudioDataChannelType,
-  screenshareVideoDataChannelType,
-  webcamAudioDataChannelType
-} from '../../NetworkState'
+import { MediaStreamAppData, MediaTagType, NetworkActions, NetworkState } from '../../NetworkState'
 import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
@@ -240,22 +231,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
 
     onProducerPaused: MediasoupMediaProducerActions.producerPaused.receive((action) => {
       const state = getMutableState(MediasoupMediaProducerConsumerState)
-      const peerMediaState = getMutableState(PeerMediaChannelState)
       const networkID = action.$network
-      const matchingConsumer = state.value[networkID]
-        ? Object.values(state.value[networkID].consumers).find((consumer) => consumer.producerID === action.producerID)
-        : null
-      if (matchingConsumer) {
-        const type =
-          matchingConsumer.mediaTag === screenshareVideoDataChannelType || screenshareAudioDataChannelType
-            ? 'screen'
-            : 'cam'
-        const isAudio =
-          matchingConsumer.mediaTag === webcamAudioDataChannelType ||
-          matchingConsumer.mediaTag === screenshareAudioDataChannelType
-        if (isAudio) peerMediaState[action.$peer][type].audioProducerPaused.set(action.paused)
-        else peerMediaState[action.$peer][type].videoProducerPaused.set(action.paused)
-      }
       if (!state.value[networkID]?.producers[action.producerID]) return
 
       const producerState = state[networkID].producers[action.producerID]
