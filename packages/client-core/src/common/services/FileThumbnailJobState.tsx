@@ -48,7 +48,7 @@ import { NO_PROXY, defineState, getMutableState, useHookstate } from '@ethereale
 import { DirectionalLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent, initializeEngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -378,8 +378,7 @@ const ThumbnailJobReactor = () => {
       const cameraEntity = createEntity()
       setComponent(cameraEntity, CameraComponent)
       setComponent(cameraEntity, RendererComponent, { canvas: thumbnailCanvas })
-      //setComponent(cameraEntity, RendererComponent)
-      getComponent(cameraEntity, RendererComponent).initialize()
+      initializeEngineRenderer(cameraEntity)
       setComponent(cameraEntity, VisibleComponent, true)
       state.cameraEntity.set(cameraEntity)
     }
@@ -480,7 +479,7 @@ const ThumbnailJobReactor = () => {
 
       viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
       setComponent(cameraEntity, SceneComponent, { children: [modelEntity, lightEntity] })
-      const canvas = getComponent(cameraEntity, RendererComponent).canvas
+      const canvas = getComponent(cameraEntity, RendererComponent).canvas!
       const maxTryCount = 10
       function doRender(tryCount = 0) {
         requestAnimationFrame(() => {
