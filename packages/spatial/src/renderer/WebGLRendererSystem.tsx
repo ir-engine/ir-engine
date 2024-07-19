@@ -190,7 +190,11 @@ export const RendererComponent = defineComponent({
         effectComposerState.merge(effectsVal)
       }
 
-      effectComposer.addPass(effectPass)
+      try {
+        effectComposer.addPass(effectPass)
+      } catch (e) {
+        console.warn(e)
+      }
 
       effectComposer.setRenderer(rendererComponent.renderer.value as WebGLRenderer)
 
