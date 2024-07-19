@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { ErrorBoundary, getState } from '@etherealengine/hyperflux'
+import { ErrorBoundary, getState, useMutableState } from '@etherealengine/hyperflux'
 import { Effect, EffectComposer } from 'postprocessing'
 import React, { Suspense } from 'react'
 import { Scene } from 'three'
@@ -70,7 +70,7 @@ export const PostProcessingComponent = defineComponent({
 const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
   const { entity, rendererEntity } = props
   const postProcessingComponent = useComponent(entity, PostProcessingComponent)
-  const EffectRegistry = getState(PostProcessingEffectState)
+  const EffectRegistry = useMutableState(PostProcessingEffectState).keys
   const renderer = useComponent(rendererEntity, RendererComponent)
   const effects = renderer.effects
   const composer = renderer.effectComposer.value as EffectComposer
@@ -81,8 +81,8 @@ const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }
   // for each effect specified in our postProcessingComponent, we mount a sub-reactor based on the effect registry for that effect ID
   return (
     <>
-      {Object.keys(EffectRegistry).map((key) => {
-        const effect = EffectRegistry[key] // get effect registry entry
+      {EffectRegistry.map((key) => {
+        const effect = getState(PostProcessingEffectState)[key] // get effect registry entry
         if (!effect) return null
         return (
           <Suspense key={key}>

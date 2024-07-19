@@ -26,7 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
 import { Entity, getMutableComponent, setComponent } from '@etherealengine/ecs'
-import { EffectComposer } from 'postprocessing'
+import { EffectComposer, Pass } from 'postprocessing'
+import { WebGLRenderTarget } from 'three'
 import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
 import { MockEventListener } from './MockEventListener'
 
@@ -40,17 +41,35 @@ class MockRenderer {
   dispose = () => {}
 }
 
+class MockEffectComposer extends EffectComposer {
+  constructor(renderer?: MockRenderer) {
+    super(renderer as unknown as WebGLRenderer)
+  }
+  addPass(pass: Pass, index?: number | undefined): void {
+    const passes = this.passes
+    if (index !== undefined) {
+      passes.splice(index, 0, pass)
+    } else {
+      passes.push(pass)
+    }
+  }
+  render = () => {}
+  setSize = () => {}
+  getSize = () => 0
+  setRenderer = () => {}
+  replaceRenderer = () => this.getRenderer()
+  createDepthTexture = () => {}
+  createBuffer = () => new WebGLRenderTarget()
+}
+
 export const mockEngineRenderer = (entity: Entity, canvas: HTMLCanvasElement) => {
   setComponent(entity, RendererComponent, { canvas })
+  const renderer = new MockRenderer() as unknown as WebGLRenderer
+  const effectComposer = new MockEffectComposer()
   getMutableComponent(entity, RendererComponent).merge({
-    renderer: new MockRenderer() as unknown as WebGLRenderer,
-    effectComposer: {
-      setSize: () => {},
-      passes: [{ name: 'RenderPass', overrideMaterial: null }],
-      setMainScene: () => {},
-      setMainCamera: () => {},
-      render: () => {},
-      dispose: () => {}
-    } as unknown as EffectComposer
+    renderer,
+    effectComposer
   })
+  // run reactor
+  setComponent(entity, RendererComponent)
 }
