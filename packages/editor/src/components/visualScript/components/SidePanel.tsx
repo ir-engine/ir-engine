@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { AddOutlined, CancelOutlined } from '@mui/icons-material'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useReactFlow, XYPosition } from 'reactflow'
-import { v4 as uuidv4 } from 'uuid'
+import { useReactFlow } from 'reactflow'
 
 import { UndefinedEntity } from '@etherealengine/ecs'
 import { NodetoEnginetype } from '@etherealengine/engine'
@@ -40,7 +39,6 @@ import SelectInput from '../../inputs/SelectInput'
 import StringInput from '../../inputs/StringInput'
 import CollapsibleBlock from '../../layout/CollapsibleBlock'
 import PaginatedList from '../../layout/PaginatedList'
-import Panel from '../../layout/Panel'
 import NodeEditor from '../../properties/NodeEditor'
 import { useTemplateHandler } from '../hooks/useTemplateHandler'
 import { useVariableHandler } from '../hooks/useVariableHandler'
@@ -98,7 +96,7 @@ export const SidePanel = ({
         paddingBottom: '5px'
       }}
     >
-      <CollapsibleBlock label={t('editor:visualScript.sidePanel.node.name')}>
+      {/*<CollapsibleBlock label={t('editor:visualScript.sidePanel.node.name')}>
         <NodeEditor entity={UndefinedEntity} description={t('editor:visualScript.sidePanel.node.description')}>
           <PaginatedList
             options={{ countPerPage: 10 }}
@@ -135,7 +133,7 @@ export const SidePanel = ({
             }}
           ></PaginatedList>
         </NodeEditor>
-      </CollapsibleBlock>
+      </CollapsibleBlock>*/}
 
       <CollapsibleBlock label={t('editor:visualScript.sidePanel.template.name')}>
         <NodeEditor entity={UndefinedEntity} description={t('editor:visualScript.sidePanel.template.description')}>

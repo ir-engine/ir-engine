@@ -35,8 +35,8 @@ import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { State, dispatchAction } from '@etherealengine/hyperflux'
+import { DirectionalLightComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { SiRender } from 'react-icons/si'
@@ -176,6 +176,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
           name="Cascades"
           label={t('editor:properties.renderSettings.lbl-csm-cascades')}
           info={t('editor:properties.renderSettings.info-csm-cascades')}
+          className="w-auto"
         >
           <Slider
             min={1}
@@ -204,6 +205,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
         name="Tone Mapping Exposure"
         label={t('editor:properties.renderSettings.lbl-toneMappingExposure')}
         info={t('editor:properties.renderSettings.info-toneMappingExposure')}
+        className="w-auto"
       >
         <Slider
           min={0}

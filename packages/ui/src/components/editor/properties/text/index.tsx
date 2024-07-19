@@ -313,8 +313,8 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           <InputGroup name="OutlineColor" label={t('editor:properties.text.outlineColor')}>
             <ColorInput
               value={text.outlineColor.value}
-              onChange={commitProperty(TextComponent, 'outlineColor')}
-              //onRelease={commitProperty(TextComponent, 'outlineColor')}
+              onChange={updateProperty(TextComponent, 'outlineColor')}
+              onRelease={commitProperty(TextComponent, 'outlineColor')}
             />
           </InputGroup>
           <InputGroup name="OutlineOpacity" label={t('editor:properties.text.outlineOpacity')}>
@@ -369,8 +369,8 @@ export const TextNodeEditor: EditorComponentType = (props) => {
           <InputGroup name="StrokeColor" label={t('editor:properties.text.strokeColor')}>
             <ColorInput
               value={text.strokeColor.value}
-              onChange={commitProperty(TextComponent, 'strokeColor')}
-              //onRelease={commitProperty(TextComponent, 'strokeColor')}
+              onChange={updateProperty(TextComponent, 'strokeColor')}
+              onRelease={commitProperty(TextComponent, 'strokeColor')}
             />
           </InputGroup>
           <InputGroup name="StrokeOpacity" label={t('editor:properties.text.strokeOpacity')}>

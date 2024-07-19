@@ -34,7 +34,7 @@ const ClickawayListener = (props: { children: JSX.Element }) => {
   return (
     <div
       className="fixed inset-0 z-40 bg-gray-800 bg-opacity-50"
-      onClick={() => {
+      onMouseDown={() => {
         if (childOver.value) return
         PopoverState.hidePopupover()
       }}
