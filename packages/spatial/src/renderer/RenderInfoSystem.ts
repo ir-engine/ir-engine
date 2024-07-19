@@ -48,12 +48,12 @@ export const RenderInfoState = defineState({
 })
 
 const execute = () => {
-  const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
+  const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)?.renderer
   if (!renderer) return
 
   const state = getState(RenderInfoState)
   if (state.visible) {
-    const info = renderer.renderer.info
+    const info = renderer.info
     const deltaSeconds = getState(ECSState).deltaSeconds
 
     const fps = 1 / deltaSeconds
@@ -73,7 +73,7 @@ const execute = () => {
     info.reset()
   }
 
-  renderer.renderer.info.autoReset = !state.visible
+  renderer.info.autoReset = !state.visible
 }
 
 export const RenderInfoSystem = defineSystem({

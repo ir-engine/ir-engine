@@ -169,16 +169,6 @@ const ResourceFile = (props: {
             ]}
           />
           {/* TODO: add more actions (compressing images/models, editing tags, etc) here as desired  */}
-          <MenuDivider />
-          <Button
-            fullWidth
-            size="small"
-            variant="transparent"
-            className="text-s text-left hover:bg-theme-surfaceInput"
-            onClick={() => () => setAnchorEvent(undefined)}
-          >
-            {t('editor:visualScript.modal.buttons.close')}
-          </Button>
         </div>
       </ContextMenu>
     </div>

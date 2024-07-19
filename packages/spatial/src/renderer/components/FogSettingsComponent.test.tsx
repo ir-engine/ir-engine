@@ -38,9 +38,9 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { Fog, FogExp2, MathUtils, ShaderChunk } from 'three'
+import { mockEngineRenderer } from '../../../tests/util/MockEngineRenderer'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
-import { RendererComponent } from '../WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './FogSettingsComponent'
 import { FogShaders } from './FogShaders'
 import { FogComponent, SceneComponent } from './SceneComponents'
@@ -63,7 +63,7 @@ describe('FogSettingsComponent', () => {
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
     setComponent(rootEntity, SceneComponent)
-    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas() })
+    mockEngineRenderer(rootEntity, mockCanvas())
 
     entity = createEntity()
     setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
