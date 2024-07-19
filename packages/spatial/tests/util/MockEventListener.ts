@@ -28,7 +28,7 @@ export class MockEventListener {
   listeners: Record<string, MockEventListenerFunc[]> = {}
 
   hasEvent = (type: string): boolean => {
-    return !!this.listeners[type]
+    return !!this.listeners[type] && this.listeners[type].length !== 0
   }
 
   addEventListener = (type, listener, options?) => {
