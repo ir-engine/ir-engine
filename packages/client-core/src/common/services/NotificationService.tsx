@@ -60,9 +60,9 @@ export const NotificationActions = {
 }
 
 export const NotificationService = {
-  dispatchNotify(message: string | React.ReactNode, options: NotificationOptions) {
-    if (options?.variant === 'error' && typeof message === 'string') {
-      logger.error(new Error(message))
+  dispatchNotify(message: React.ReactNode, options: NotificationOptions) {
+    if (options?.variant === 'error') {
+      logger.error(new Error(message!.toString()))
     }
 
     const state = getState(NotificationState)
