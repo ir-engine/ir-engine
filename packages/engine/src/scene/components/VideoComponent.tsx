@@ -275,7 +275,7 @@ function VideoReactor() {
     const videoEntity = videoMeshEntity.value
     video.videoMeshEntity.set(videoEntity)
     mesh.name.set(`video-group-${entity}`)
-    mesh.userData['ignoreOnExport'] = true
+    mesh.userData['ignoreOnExport'].set(true)
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
     setComponent(videoEntity, NameComponent, mesh.name.value)
     return () => {

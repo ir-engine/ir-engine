@@ -100,7 +100,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
           step={1}
           value={media.volume.value}
           onChange={updateProperty(MediaComponent, 'volume')}
-          onRelease={() => commitProperty(MediaComponent, 'volume')}
+          onRelease={commitProperty(MediaComponent, 'volume')}
         />
       </InputGroup>
 
@@ -159,7 +159,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         <InputGroup
           name="media-controls"
           label={t('editor:properties.media.lbl-mediaControls')}
-          containerClassName="gap-2"
+          className="flex flex-row gap-2"
         >
           <Button variant="outline" onClick={toggle}>
             {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}

@@ -28,8 +28,13 @@ import { useTranslation } from 'react-i18next'
 import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import {
+  getComponent,
+  hasComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { MediaComponent, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 
@@ -75,9 +80,10 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const video = useComponent(props.entity, VideoComponent)
-
+  const mediaUUID = video.mediaUUID.value
+  const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID)
+  const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
   const mediaEntities = useQuery([MediaComponent])
-
   const mediaOptions = mediaEntities
     .filter((entity) => entity !== props.entity)
     .map((entity) => {
@@ -99,7 +105,11 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.video.description')}
       icon={<VideoNodeEditor.iconComponent />}
     >
-      <ProgressBar value={5} paused={false} totalTime={100} />
+      <ProgressBar
+        value={mediaElement?.value.element.currentTime ?? 0}
+        paused={mediaElement?.value.element.paused ?? false}
+        totalTime={mediaElement?.value.element.duration ?? 0}
+      />
       <InputGroup
         name="Media"
         label={t('editor:properties.video.lbl-media')}
