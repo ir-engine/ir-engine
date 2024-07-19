@@ -137,7 +137,7 @@
       "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
       "toggleSnapMode": "[C] Toggle Grid Snap",
       "info-translate": "Translate objects by a unit of measurement.",
-      "info-rotate": "Rotate objects by a specific degrees."
+      "info-rotate": "Snap rotation angle"
     },
     "placement": {
       "click": "Point & Click Placement",
