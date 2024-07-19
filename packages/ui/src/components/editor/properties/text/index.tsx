@@ -41,6 +41,7 @@ import {
 import {
   FontMaterialKind,
   TextComponent,
+  TroikaTextAlignment,
   TroikaTextLineHeight
 } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { useHookstate } from '@etherealengine/hyperflux'
@@ -132,6 +133,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
     text.lineHeight.set(LineHeightNumericDefault) // 1.2 em
     text.outlineOpacity.set(100) // 100%
     text.outlineWidth.set(3) // 3px
+    text.textAlign.set('left')
 
     const defaultFont = SelectOptions.Font.find((option) => option.label === 'Noto Sans')
     if (defaultFont) {
@@ -192,8 +194,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             <SelectInput
               options={SelectOptions.TextAlignment}
               value={text.textAlign.value}
-              onChange={commitProperty(TextComponent, 'textAlign')}
-              //onRelease={commitProperty(TextComponent, 'textAlign')}
+              onChange={(value) => updateProperty(TextComponent, 'textAlign')(value.toString() as TroikaTextAlignment)}
             />
           </InputGroup>
           <InputGroup name="TextWrap" label={t('editor:properties.text.textWrap')}>

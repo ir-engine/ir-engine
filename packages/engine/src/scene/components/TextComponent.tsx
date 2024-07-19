@@ -182,7 +182,7 @@ export const TextComponent = defineComponent({
       textOpacity: 100, // range[0..100], sent to troika as [0..1] :number
       textWidth: Infinity,
       textIndent: 0,
-      textAlign: 'justify' as TroikaTextAlignment,
+      textAlign: 'left' as TroikaTextAlignment,
       textWrap: true, // Maps to: troika.Text.whiteSpace as TroikaTextWrap
       textWrapKind: 'normal' as TroikaTextWrapKind, // Maps to troika.Text.overflowWrap
       textAnchor: new Vector2(
