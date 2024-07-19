@@ -88,7 +88,7 @@ export const InputComponent = defineComponent({
     return {
       inputSinks: ['Self'] as EntityUUID[],
       activationDistance: 2,
-      highlight: true,
+      highlight: false,
       grow: false,
 
       //internal
@@ -98,6 +98,7 @@ export const InputComponent = defineComponent({
   },
 
   onSet(entity, component, json) {
+    console.trace(entity)
     if (!json) return
     if (Array.isArray(json.inputSinks)) component.inputSinks.set(json.inputSinks)
     if (typeof json.highlight === 'boolean') component.highlight.set(json.highlight)
