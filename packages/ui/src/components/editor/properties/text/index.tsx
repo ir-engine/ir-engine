@@ -205,6 +205,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             <SelectInput
               options={SelectOptions.TextAlignment}
               value={text.textAlign.value}
+              // Troika doesn't update properly with only commitProperty, so we need to update and then commit
               onChange={(value) =>
                 updateAndCommitProperty(TextComponent, 'textAlign')(value.toString() as TroikaTextAlignment)
               }
@@ -286,6 +287,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           options={SelectOptions.Font}
           value={text.font.value || ''}
+          // Troika doesn't update properly with only commitProperty, so we need to update and then commit
           onChange={(value) => updateAndCommitProperty(TextComponent, 'font')(value.toString())}
         />
       </InputGroup>
