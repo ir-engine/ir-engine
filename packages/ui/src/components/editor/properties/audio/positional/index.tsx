@@ -184,6 +184,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         name="Cone Outer Gain"
         label={t('editor:properties.audio.lbl-coreOuterGain')}
         info={t('editor:properties.audio.info-coreOuterGain')}
+        className="w-auto"
       >
         <Slider
           min={0}

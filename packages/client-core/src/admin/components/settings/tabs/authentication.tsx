@@ -161,7 +161,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     keySecret.set({
       ...JSON.parse(JSON.stringify(keySecret.value)),
       [type]: {
-        ...JSON.parse(JSON.stringify(keySecret[type].value)),
+        ...JSON.parse(JSON.stringify(keySecret[type].value ?? {})),
         key: event.target.value
       }
     })
@@ -171,7 +171,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     keySecret.set({
       ...JSON.parse(JSON.stringify(keySecret.value)),
       [type]: {
-        ...JSON.parse(JSON.stringify(keySecret[type].value)),
+        ...JSON.parse(JSON.stringify(keySecret[type].value ?? {})),
         secret: event.target.value
       }
     })
@@ -261,36 +261,34 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       </div>
 
       <hr className="my-6 border border-theme-primary" />
-
-      {holdAuth?.apple?.value && (
-        <div className="col-span-1">
-          <Text component="h4" fontSize="base" fontWeight="medium" className="my-4 w-full">
-            {t('admin:components.setting.apple')}
-          </Text>
-
-          <PasswordInput
-            label={t('admin:components.setting.key')}
-            value={keySecret?.value?.apple?.key || ''}
-            onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.APPLE)}
-          />
-
-          <PasswordInput
-            containerClassname="mt-2"
-            label={t('admin:components.setting.secret')}
-            value={keySecret?.value?.apple?.secret || ''}
-            onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.APPLE)}
-          />
-
-          <Input
-            containerClassname="mt-2"
-            label={t('admin:components.setting.callback')}
-            value={authSetting?.callback?.apple || ''}
-            disabled
-          />
-        </div>
-      )}
-
       <div className="grid grid-cols-3 gap-4">
+        {holdAuth?.apple?.value && (
+          <div className="col-span-1">
+            <Text component="h4" fontSize="base" fontWeight="medium" className="my-4 w-full">
+              {t('admin:components.setting.apple')}
+            </Text>
+
+            <PasswordInput
+              label={t('admin:components.setting.key')}
+              value={keySecret?.value?.apple?.key || ''}
+              onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.APPLE)}
+            />
+
+            <PasswordInput
+              containerClassname="mt-2"
+              label={t('admin:components.setting.secret')}
+              value={keySecret?.value?.apple?.secret || ''}
+              onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.APPLE)}
+            />
+
+            <Input
+              containerClassname="mt-2"
+              label={t('admin:components.setting.callback')}
+              value={authSetting?.callback?.apple || ''}
+              disabled
+            />
+          </div>
+        )}
         {holdAuth?.discord?.value && (
           <div className="col-span-1">
             <Text component="h4" fontSize="base" fontWeight="medium" className="my-4 w-full">
@@ -375,11 +373,6 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
           </div>
         )}
 
-        {(holdAuth?.apple?.value ||
-          holdAuth?.discord?.value ||
-          holdAuth?.linkedin?.value ||
-          holdAuth?.facebook?.value) && <hr className="col-span-full my-6 border border-theme-primary" />}
-
         {holdAuth?.google?.value && (
           <div className="col-span-1">
             <Text component="h4" fontSize="base" fontWeight="medium" className="my-4 w-full">
@@ -403,6 +396,34 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
               containerClassname="mt-2"
               label={t('admin:components.setting.callback')}
               value={authSetting?.callback?.google || ''}
+              disabled
+            />
+          </div>
+        )}
+
+        {holdAuth?.twitter?.value && (
+          <div className="col-span-1">
+            <Text component="h4" fontSize="base" fontWeight="medium" className="my-4 w-full">
+              {t('admin:components.setting.twitter')}
+            </Text>
+
+            <PasswordInput
+              label={t('admin:components.setting.key')}
+              value={keySecret?.value?.twitter?.key || ''}
+              onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.TWITTER)}
+            />
+
+            <PasswordInput
+              containerClassname="mt-2"
+              label={t('admin:components.setting.secret')}
+              value={keySecret?.value?.twitter?.secret || ''}
+              onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.TWITTER)}
+            />
+
+            <Input
+              containerClassname="mt-2"
+              label={t('admin:components.setting.callback')}
+              value={authSetting?.callback?.twitter || ''}
               disabled
             />
           </div>
@@ -437,34 +458,6 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
               containerClassname="mt-2"
               label={t('admin:components.setting.callback')}
               value={authSetting?.callback?.github || ''}
-              disabled
-            />
-          </div>
-        )}
-
-        {holdAuth?.twitter?.value && (
-          <div className="col-span-1">
-            <Text component="h4" fontSize="base" fontWeight="medium" className="my-4 w-full">
-              {t('admin:components.setting.twitter')}
-            </Text>
-
-            <PasswordInput
-              label={t('admin:components.setting.key')}
-              value={keySecret?.value?.twitter?.key || ''}
-              onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.TWITTER)}
-            />
-
-            <PasswordInput
-              containerClassname="mt-2"
-              label={t('admin:components.setting.secret')}
-              value={keySecret?.value?.twitter?.secret || ''}
-              onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.TWITTER)}
-            />
-
-            <Input
-              containerClassname="mt-2"
-              label={t('admin:components.setting.callback')}
-              value={authSetting?.callback?.twitter || ''}
               disabled
             />
           </div>
