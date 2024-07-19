@@ -159,13 +159,14 @@ const ViewPortPanelContainer = () => {
   const clientSettings = clientSettingQuery.data[0]
 
   const ref = React.useRef<HTMLDivElement>(null)
+  const toolbarRef = React.useRef<HTMLDivElement>(null)
 
   useEngineCanvas(ref)
 
   return (
     <ViewportDnD>
       <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
-        <div className="z-10 flex gap-1 bg-theme-primary p-1">
+        <div ref={toolbarRef} className="z-10 flex gap-1 bg-theme-primary p-1">
           <TransformSpaceTool />
           <TransformPivotTool />
           <GridTool />
@@ -175,7 +176,7 @@ const ViewPortPanelContainer = () => {
           <RenderModeTool />
           <PlayModeTool />
         </div>
-        {sceneName.value ? <GizmoTool /> : null}
+        {sceneName.value ? <GizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? (
           <>
             {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
