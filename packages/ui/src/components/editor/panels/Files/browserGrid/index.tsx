@@ -49,7 +49,6 @@ import Button from '../../../../../primitives/tailwind/Button'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import { FileIcon } from '../icon'
-import DeleteFileModal from './DeleteFileModal'
 import ImageConvertModal from './ImageConvertModal'
 import RenameFileModal from './RenameFileModal'
 
@@ -200,6 +199,7 @@ type FileBrowserItemType = {
   openModelCompress: () => void
   openImageCompress: () => void
   openFileProperties: () => void
+  openDeleteFileModal: () => void
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
@@ -230,6 +230,7 @@ export function FileBrowserItem({
   openModelCompress,
   openImageCompress,
   openFileProperties,
+  openDeleteFileModal,
   isFilesLoading,
   addFolder,
   isListView,
@@ -404,7 +405,7 @@ export function FileBrowserItem({
             size="small"
             fullWidth
             onClick={() => {
-              PopoverState.showPopupover(<DeleteFileModal file={item} />)
+              openDeleteFileModal()
               handleClose()
             }}
           >
