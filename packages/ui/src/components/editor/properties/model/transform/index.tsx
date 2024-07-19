@@ -47,8 +47,10 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { NO_PROXY, State, useMutableState } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { IoIosArrowBack, IoIosArrowDown } from 'react-icons/io'
 import Accordion from '../../../../../primitives/tailwind/Accordion'
 import Button from '../../../../../primitives/tailwind/Button'
+import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import StringInput from '../../../input/String'
@@ -208,46 +210,89 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
     <Accordion
       className="space-y-4 p-4"
       title="Model Transform Properties"
-      expandIcon={undefined}
-      shrinkIcon={undefined}
+      expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
+      shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
+      titleClassName="text-gray-300"
+      titleFontSize="base"
     >
-      <div className="TransformContainer">
-        <Accordion className="p-0" title="glTF-Transform" expandIcon={undefined} shrinkIcon={undefined}>
+      <div className="mr-2 flex flex-col gap-2">
+        <Accordion
+          className="p-0"
+          title="glTF-Transform"
+          expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
+          shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
+          titleClassName="text-gray-300"
+          titleFontSize="base"
+        >
           <GLTFTransformProperties transformParms={transformParms} itemCount={1} />
         </Accordion>
-        {!transforming.value && (
-          <>
-            <InputGroup name="Clientside Transform" label="Clientside Transform">
-              <BooleanInput
-                value={isClientside.value}
-                onChange={(val: boolean) => {
-                  isClientside.set(val)
-                }}
-              />
-            </InputGroup>
-            <InputGroup name="Batch Compress" label="Batch Compress">
-              <BooleanInput
-                value={isBatchCompress.value}
-                onChange={(val: boolean) => {
-                  isBatchCompress.set(val)
-                }}
-              />
-            </InputGroup>
-            <button className="OptimizeButton button" onClick={onTransformModel(modelState)}>
-              Optimize
-            </button>
-          </>
-        )}
-        {transforming.value && <p>Transforming...</p>}
-        {transformHistory.length > 0 && <Button onClick={onUndoTransform}>Undo</Button>}
-
-        <Accordion className="p-0" title="Delete Attribute" expandIcon={undefined} shrinkIcon={undefined}>
+        <Accordion
+          className="p-0"
+          title="Transform"
+          expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
+          shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
+          titleClassName="text-gray-300"
+          titleFontSize="base"
+        >
+          {!transforming.value && (
+            <>
+              <InputGroup name="Clientside Transform" label="Clientside Transform">
+                <BooleanInput
+                  value={isClientside.value}
+                  onChange={(val: boolean) => {
+                    isClientside.set(val)
+                  }}
+                />
+              </InputGroup>
+              <InputGroup name="Batch Compress" label="Batch Compress">
+                <BooleanInput
+                  value={isBatchCompress.value}
+                  onChange={(val: boolean) => {
+                    isBatchCompress.set(val)
+                  }}
+                />
+              </InputGroup>
+              <div className="flex flex-col items-end py-1">
+                <Button variant="outline" onClick={onTransformModel(modelState)}>
+                  Optimize
+                </Button>
+              </div>
+            </>
+          )}
+          {transforming.value && (
+            <LoadingView fullSpace className="mb-2 flex h-[10%] w-[10%] justify-center" title=" Transforming..." />
+          )}
+          {transformHistory.length > 0 && (
+            <div className="flex flex-col items-end py-1">
+              <Button onClick={onUndoTransform}>Undo</Button>
+            </div>
+          )}
+        </Accordion>
+        <Accordion
+          className="p-0"
+          title="Delete Attribute"
+          expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
+          shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
+          titleClassName="text-gray-300"
+          titleFontSize="base"
+        >
           <InputGroup name="Attribute" label="Attribute">
             <StringInput value={attribToDelete.value} onChange={attribToDelete.set} />
           </InputGroup>
-          <Button onClick={deleteAttribute(modelState)}>Delete Attribute</Button>
+          <div className="flex flex-col items-end">
+            <Button variant="outline" onClick={deleteAttribute(modelState)}>
+              Delete Attribute
+            </Button>
+          </div>
         </Accordion>
-        <Accordion className="p-0" title="Bake To Vertices" expandIcon={undefined} shrinkIcon={undefined}>
+        <Accordion
+          className="p-0"
+          title="Bake To Vertices"
+          expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
+          shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
+          titleClassName="text-gray-300"
+          titleFontSize="base"
+        >
           <InputGroup name="map" label="map">
             <BooleanInput
               value={vertexBakeOptions.map.value}
@@ -280,8 +325,10 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
               }}
             />
           </InputGroup>
-          <Button onClick={doVertexBake(modelState)}>Bake To Vertices</Button>
-          <Button onClick={onBakeSelected}>Bake And Optimize</Button>
+          <div className="flex flex-col items-end gap-2">
+            <Button onClick={doVertexBake(modelState)}>Bake To Vertices</Button>
+            <Button onClick={onBakeSelected}>Bake And Optimize</Button>
+          </div>
         </Accordion>
       </div>
     </Accordion>
