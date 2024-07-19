@@ -36,7 +36,6 @@ import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   EditorComponentType,
   commitProperty,
-  updateAndCommitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties//Util'
 import {
@@ -205,10 +204,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             <SelectInput
               options={SelectOptions.TextAlignment}
               value={text.textAlign.value}
-              // Troika doesn't update properly with only commitProperty, so we need to update and then commit
-              onChange={(value) =>
-                updateAndCommitProperty(TextComponent, 'textAlign')(value.toString() as TroikaTextAlignment)
-              }
+              onChange={(value) => commitProperty(TextComponent, 'textAlign')(value.toString() as TroikaTextAlignment)}
             />
           </InputGroup>
           <InputGroup name="TextWrap" label={t('editor:properties.text.textWrap')}>
@@ -287,8 +283,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           options={SelectOptions.Font}
           value={text.font.value || ''}
-          // Troika doesn't update properly with only commitProperty, so we need to update and then commit
-          onChange={(value) => updateAndCommitProperty(TextComponent, 'font')(value.toString())}
+          onChange={(value) => commitProperty(TextComponent, 'font')(value.toString())}
         />
       </InputGroup>
       <InputGroup name="FontSize" label={t('editor:properties.text.fontSize')}>
