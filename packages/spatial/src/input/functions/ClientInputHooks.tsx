@@ -91,22 +91,27 @@ export const useNonSpatialInputSources = () => {
     }
     document.addEventListener('touchstickmove', handleTouchDirectionalPad)
 
-    document.addEventListener('touchgamepadbuttondown', (event: CustomEvent) => {
+    const handleTouchGamepadButtonDown = (event: CustomEvent) => {
       const buttonState = inputSourceComponent.buttons
       buttonState[event.detail.button] = createInitialButtonState(eid)
-    })
+    }
+    document.addEventListener('touchgamepadbuttondown', handleTouchGamepadButtonDown)
 
-    document.addEventListener('touchgamepadbuttonup', (event: CustomEvent) => {
+    const handleTouchGamepadButtonUp = (event: CustomEvent) => {
       const buttonState = inputSourceComponent.buttons
       if (buttonState[event.detail.button]) buttonState[event.detail.button].up = true
-    })
+    }
+    document.addEventListener('touchgamepadbuttonup', handleTouchGamepadButtonUp)
 
     return () => {
       document.removeEventListener('DOMMouseScroll', ClientInputFunctions.preventDefault, false)
       document.removeEventListener('gesturestart', ClientInputFunctions.preventDefault)
       document.removeEventListener('keyup', onKeyEvent)
       document.removeEventListener('keydown', onKeyEvent)
+      document.removeEventListener('keydown', ClientInputFunctions.preventDefaultKeyDown, false)
       document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
+      document.removeEventListener('touchgamepadbuttondown', handleTouchGamepadButtonDown)
+      document.removeEventListener('touchgamepadbuttonup', handleTouchGamepadButtonUp)
       removeEntity(eid)
     }
   }, [])
