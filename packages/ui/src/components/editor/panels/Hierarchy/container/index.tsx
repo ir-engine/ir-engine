@@ -145,11 +145,16 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   const searchedNodes: HierarchyTreeNodeType[] = []
   if (searchHierarchy.value.length > 0) {
-    const condition = new RegExp(searchHierarchy.value.toLowerCase())
-    entityHierarchy.value.forEach((node) => {
-      if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
-        searchedNodes.push(node)
-    })
+    try {
+      const adjustedSearchValue = searchHierarchy.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      const condition = new RegExp(adjustedSearchValue, 'i') // 'i' flag for case-insensitive search
+      entityHierarchy.value.forEach((node) => {
+        if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
+          searchedNodes.push(node)
+      })
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   useEffect(() => {
