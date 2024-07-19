@@ -28,7 +28,7 @@ Ethereal Engine. All Rights Reserved.
  * Defines the {@link NodeEditor} UI for managing {@link TextComponent}s in the Studio.
  */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiTextT } from 'react-icons/pi'
 
@@ -52,6 +52,7 @@ import SelectInput from '../../input/Select'
 import { ControlledStringInput } from '../../input/String'
 import Vector2Input from '../../input/Vector2'
 import NodeEditor from '../nodeEditor'
+import { FontOption, fonts } from './fonts'
 
 /**
  * @description SelectInput option groups for the TextNodeEditor UI tsx code.
@@ -72,11 +73,7 @@ const SelectOptions = {
     { label: 'Whitespace', value: 'normal' },
     { label: 'Break Word', value: 'break-word' }
   ],
-  Font: [
-    { label: 'Default', value: 'Default' }
-    // { label: 'Arial', value: 'Arial' },
-    // { label: 'Times New Roman', value: 'Times New Roman' },
-  ],
+  Font: fonts as FontOption[],
   FontMaterial: [{ label: 'Basic', value: FontMaterialKind.Basic }]
 }
 
@@ -135,7 +132,11 @@ export const TextNodeEditor: EditorComponentType = (props) => {
     text.lineHeight.set(LineHeightNumericDefault) // 1.2 em
     text.outlineOpacity.set(100) // 100%
     text.outlineWidth.set(3) // 3px
-    text.font.set(SelectOptions.Font[0].value)
+
+    const defaultFont = SelectOptions.Font.find((option) => option.label === 'Noto Sans')
+    if (defaultFont) {
+      text.font.set(defaultFont.value)
+    }
   }, [])
 
   return (
