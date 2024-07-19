@@ -34,7 +34,6 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -252,7 +251,7 @@ export function MediaReactor() {
   useEffect(() => {
     setComponent(entity, BoundingBoxComponent)
     setComponent(entity, InputComponent, { highlight: false, grow: false })
-    const { renderer } = getComponent(Engine.instance.viewerEntity, RendererComponent)
+    const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const handleAutoplay = () => {
@@ -321,7 +320,6 @@ export function MediaReactor() {
       clearErrors(entity, MediaComponent)
 
       const paths = media.resources.value
-
       for (const path of paths) {
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
         if (path !== '' && assetClass !== 'audio' && assetClass !== 'video') {
@@ -356,22 +354,22 @@ export function MediaReactor() {
 
   useEffect(
     function updateMediaElement() {
-      if (!media.ended.value) {
-        // If current track is not ended, don't change the track
-        return
-      }
+      if (!media.ended.value) return // If current track is not ended, don't change the track
 
       if (!isClient) return
 
+      if (media.resources.value.every((resource) => !resource)) return // if all resources are empty, we dont move to next track
+
       const track = media.track.value
-      const nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
-
+      let nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
       if (nextTrack === -1) return
+      let path = media.resources[nextTrack].value
 
-      const path = media.resources[nextTrack].value
-      if (!path) {
-        if (hasComponent(entity, MediaElementComponent)) removeComponent(entity, MediaElementComponent)
-        return
+      while (!path) {
+        // we already remove the case where we dont have any track
+        // if current path is null, we simply skip over and move to next proper track
+        nextTrack = (nextTrack + 1) % media.resources.length
+        path = media.resources[nextTrack].value
       }
 
       const mediaElement = getOptionalComponent(entity, MediaElementComponent)

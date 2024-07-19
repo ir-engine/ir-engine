@@ -131,7 +131,10 @@ const EditorContainer = () => {
 
   const dockPanelRef = useRef<DockLayout>(null)
 
-  useHotkeys(`${cmdOrCtrlString}+s`, () => PopoverState.showPopupover(<SaveSceneDialog />))
+  useHotkeys(`${cmdOrCtrlString}+s`, (e) => {
+    e.preventDefault()
+    PopoverState.showPopupover(<SaveSceneDialog />)
+  })
 
   const viewerEntity = useMutableState(EngineState).viewerEntity.value
 

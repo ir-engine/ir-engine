@@ -63,7 +63,6 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           options={imageTransparencyOptions}
           value={imageComponent.alphaMode.value}
           onChange={commitProperty(ImageComponent, 'alphaMode')}
-          className="w-1/2"
         />
       </InputGroup>
 
@@ -92,7 +91,6 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           options={imageProjectionOptions}
           value={imageComponent.projection.value}
           onChange={commitProperty(ImageComponent, 'projection')}
-          className="w-1/2"
         />
       </InputGroup>
       <InputGroup name="Side" label={t('editor:properties.image.lbl-side')}>
@@ -101,7 +99,6 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           options={ImageProjectionSideOptions}
           value={imageComponent.side.value}
           onChange={commitProperty(ImageComponent, 'side')}
-          className="w-1/2"
         />
       </InputGroup>
     </>

@@ -169,16 +169,6 @@ const ResourceFile = (props: {
             ]}
           />
           {/* TODO: add more actions (compressing images/models, editing tags, etc) here as desired  */}
-          <MenuDivider />
-          <Button
-            fullWidth
-            size="small"
-            variant="transparent"
-            className="text-s text-left hover:bg-theme-surfaceInput"
-            onClick={() => () => setAnchorEvent(undefined)}
-          >
-            {t('editor:visualScript.modal.buttons.close')}
-          </Button>
         </div>
       </ContextMenu>
     </div>
@@ -427,7 +417,7 @@ const AssetPanel = () => {
         .find({ query })
         .then((resources) => {
           searchedStaticResources.set(resources.data)
-          staticResourcesPagination.merge({ totalPages: resources.total / 10 })
+          staticResourcesPagination.merge({ totalPages: Math.ceil(resources.total / 10) })
         })
         .then(() => {
           loading.set(false)
