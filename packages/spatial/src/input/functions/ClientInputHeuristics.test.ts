@@ -220,7 +220,9 @@ describe('ClientInputHeuristics', () => {
   /**
   // @todo
   describe("applyProximity", () => {
-    // if XRControlState.isCameraAttachedToAvatar and `@param isSpatialInput`, then inputSourceEntity should be `@param sourceEid` else it should be the avatar of the current User
+    // if XRControlState.isCameraAttachedToAvatar and `@param isSpatialInput`,
+    //   then inputSourceEntity should be `@param sourceEid`
+    //   else it should be the avatar of the current User
     // shouldn't do anything if we didn't find a valid inputSourceEntity
     // get the position of the inputSourceEntity into the global _worldPosInputSourceComponent vector
     // for every spatialInputObject
@@ -231,6 +233,7 @@ describe('ClientInputHeuristics', () => {
         // should store the inputEntity and the distanceSquared to the inputSourceEntity into the intersectionData
   })
 
+  // (raycasted)
   describe("applyEditor", () => {
     // Find the list of gizmoPickerObjects.entity for the gizmo heuristic    (Input, Visible, Group, TransformGizmo)
     // Find the list of inputObjects  (Input, Visible, Group)
@@ -246,7 +249,7 @@ describe('ClientInputHeuristics', () => {
       // should add the parentObject.entity and hit.distance to the `@param intersectionData` for every object hit by the `@param caster`
   })
 
-  // execute.(smaller functions)
+  // (raycasted)
   describe("applyXRUI", () => {
     // for every entity of xruiQuery ...
       // get the XRUIComponent of the entity, and do a WebContainer3D.hitTest with the `@param ray`
@@ -258,12 +261,14 @@ describe('ClientInputHeuristics', () => {
       //   for every object hit by the `@param caster`
   })
 
+  // (raycasted)
   describe("applyPhysicsColliders", () => {
     it("should not do anything if there is no PhysicsState.physicsWorld", () => {})
     it("should not do anything if the given `@param raycast` does not hit any entities in the current PhysicsState.physicsWorld", () => {})
     it("should add the hit.entity and hit.distance to the `@param intersectionData` for every hit of the `@param raycast`", () => {})
   })
 
+  // (raycasted)
   describe("applyBBoxes", () => {
     describe("for every entity stored in the InputState.inputBoundingBoxes Set<Entity> ...", () => {
       it("... should not run if the entity does not have a BoundingBoxComponent", () => {})
@@ -272,6 +277,7 @@ describe('ClientInputHeuristics', () => {
     })
   })
 
+  // (raycasted)
   describe("applyMeshes", () => {
     // when `@param isEditing` is true ...
     // ... for the GroupComponents of all entities in the `meshesQuery()` that have a GroupComponent
