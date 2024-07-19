@@ -403,6 +403,7 @@ const updateInstance = async ({
     instanceStarted = true
     const initialized = await initializeInstance({ app, status, headers, userId })
     if (initialized) await loadEngine({ app, sceneId, headers })
+    return true
   } else {
     try {
       if (!getState(InstanceServerState).ready)
@@ -714,7 +715,7 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
   if (identityProvider != null && identityProvider.id != null) {
     const userId = identityProvider.userId
     const user = await app.service(userPath).get(userId, { headers: connection.headers })
-    const instanceId = !config.kubernetes.enabled ? connection.instanceId : instanceServerState.instance?.id
+    const instanceId = instanceServerState.instance?.id
     let instance
     logger.info('On disconnect, instanceId: ' + instanceId)
     logger.info('Disconnecting user ', user.id)

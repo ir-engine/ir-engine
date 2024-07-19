@@ -137,7 +137,7 @@
       "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
       "toggleSnapMode": "[C] Toggle Grid Snap",
       "info-translate": "Translate objects by a unit of measurement.",
-      "info-rotate": "Rotate objects by a specific degrees."
+      "info-rotate": "Snap rotation angle"
     },
     "placement": {
       "click": "Point & Click Placement",
@@ -1338,7 +1338,8 @@
       "title": "Save",
       "lbl-thumbnail": "Generate thumbnail & envmap",
       "lbl-confirm": "Save Scene",
-      "info-confirm": "Are you sure you want to save the scene?"
+      "info-confirm": "Are you sure you want to save the scene?",
+      "info-question": "Do you want to save the current scene?"
     },
     "saveNewScene": {
       "title": "Save As",
