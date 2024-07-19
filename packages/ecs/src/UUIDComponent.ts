@@ -42,6 +42,9 @@ export const UUIDComponent = defineComponent({
 
     if (component.value === uuid) return
 
+    // sanitize uui
+    uuid = uuid.replace(/[^0-9a-zA-Z-]/gi, '') as EntityUUID
+
     // throw error if uuid is already in use
     const currentEntity = UUIDComponent.getEntityByUUID(uuid)
     if (currentEntity !== UndefinedEntity && currentEntity !== entity) {

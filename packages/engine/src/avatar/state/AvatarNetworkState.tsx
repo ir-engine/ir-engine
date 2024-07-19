@@ -91,7 +91,7 @@ export const AvatarState = defineState({
         dispatchAction(
           AvatarNetworkAction.setAvatarID({
             avatarID: avatarId as AvatarID,
-            entityUUID: (Engine.instance.userID + '_avatar') as any as EntityUUID
+            entityUUID: (Engine.instance.userID + '-avatar') as any as EntityUUID
           })
         )
       })

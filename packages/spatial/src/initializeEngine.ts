@@ -53,14 +53,14 @@ import { TransformComponent } from './transform/components/TransformComponent'
 export const initializeSpatialEngine = (canvas?: HTMLCanvasElement) => {
   const originEntity = createEntity()
   setComponent(originEntity, NameComponent, 'origin')
-  setComponent(originEntity, UUIDComponent, 'ee.origin' as EntityUUID)
+  setComponent(originEntity, UUIDComponent, 'ee-origin' as EntityUUID)
   setComponent(originEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(originEntity, TransformComponent)
   setComponent(originEntity, VisibleComponent, true)
 
   const localFloorEntity = createEntity()
   setComponent(localFloorEntity, NameComponent, 'local floor')
-  setComponent(localFloorEntity, UUIDComponent, 'ee.local-floor' as EntityUUID)
+  setComponent(localFloorEntity, UUIDComponent, 'ee-local-floor' as EntityUUID)
   setComponent(localFloorEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(localFloorEntity, TransformComponent)
   setComponent(localFloorEntity, VisibleComponent, true)
@@ -73,7 +73,7 @@ export const initializeSpatialEngine = (canvas?: HTMLCanvasElement) => {
 
   const viewerEntity = createEntity()
   setComponent(viewerEntity, NameComponent, 'viewer')
-  setComponent(viewerEntity, UUIDComponent, 'ee.viewer' as EntityUUID)
+  setComponent(viewerEntity, UUIDComponent, 'ee-viewer' as EntityUUID)
   setComponent(viewerEntity, CameraComponent)
   setComponent(viewerEntity, VisibleComponent, true)
   setComponent(viewerEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
