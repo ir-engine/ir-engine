@@ -184,7 +184,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         <div className="flex flex-col">
           <div className="flex w-auto flex-row gap-1">
             <Button
-              className="h-[30px] w-[100px] bg-neutral-700 text-xs font-normal text-zinc-300"
+              className="h-10 bg-neutral-700 text-xs"
               onClick={() => {
                 updateCubeMapBake()
               }}
@@ -192,10 +192,10 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
               {t('editor:properties.portal.lbl-generateImage')}
             </Button>
             <Button
-              className="h-[30px] w-[74px] bg-blue-800 text-xs font-normal text-neutral-400"
               onClick={() => {
                 uploadEnvmap()
               }}
+              className="h-10 text-xs"
             >
               {t('editor:properties.portal.lbl-saveImage')}
             </Button>
@@ -206,14 +206,14 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         previewOnly={true}
         value={state.previewImageURL.value ?? portalComponent.previewImageURL.value}
       />
-      <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')}>
+      <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')} className="w-auto">
         <Vector3Input
           value={portalComponent.spawnPosition.value}
           onChange={updateProperty(PortalComponent, 'spawnPosition')}
           onRelease={commitProperty(PortalComponent, 'spawnPosition')}
         />
       </InputGroup>
-      <InputGroup name="Spawn Rotation" label={t('editor:properties.portal.lbl-spawnRotation')}>
+      <InputGroup name="Spawn Rotation" label={t('editor:properties.portal.lbl-spawnRotation')} className="w-auto">
         <EulerInput
           quaternion={portalComponent.spawnRotation.value}
           onChange={changeSpawnRotation}

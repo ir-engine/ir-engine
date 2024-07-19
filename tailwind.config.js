@@ -73,7 +73,9 @@ module.exports = {
         }
       },
       colors: {
-        'blue-primary': '#375DAF'
+        'blue-primary': '#375DAF',
+        'pink-primary': '#A24482',
+        'purple-primary': '#8261D2',
       }
     }
   },
