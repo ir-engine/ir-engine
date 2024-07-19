@@ -52,7 +52,7 @@ export function handleAutoplay(
   volumetric: State<ComponentType<typeof VolumetricComponent>>
 ) {
   const attachEventListeners = () => {
-    const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+    const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas!
     const playMedia = () => {
       media.play()
       audioContext.resume()
@@ -60,14 +60,14 @@ export function handleAutoplay(
       window.removeEventListener('pointerdown', playMedia)
       window.removeEventListener('keypress', playMedia)
       window.removeEventListener('touchstart', playMedia)
-      renderer.canvas.removeEventListener('pointerdown', playMedia)
-      renderer.canvas.removeEventListener('touchstart', playMedia)
+      canvas.removeEventListener('pointerdown', playMedia)
+      canvas.removeEventListener('touchstart', playMedia)
     }
     window.addEventListener('pointerdown', playMedia)
     window.addEventListener('keypress', playMedia)
     window.addEventListener('touchstart', playMedia)
-    renderer.canvas.addEventListener('pointerdown', playMedia)
-    renderer.canvas.addEventListener('touchstart', playMedia)
+    canvas.addEventListener('pointerdown', playMedia)
+    canvas.addEventListener('touchstart', playMedia)
   }
 
   // Try to play. If it fails, attach event listeners to play on user interaction
