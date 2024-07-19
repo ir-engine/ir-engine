@@ -36,6 +36,7 @@ import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   EditorComponentType,
   commitProperty,
+  updateAndCommitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties//Util'
 import {
@@ -194,7 +195,9 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             <SelectInput
               options={SelectOptions.TextAlignment}
               value={text.textAlign.value}
-              onChange={(value) => updateProperty(TextComponent, 'textAlign')(value.toString() as TroikaTextAlignment)}
+              onChange={(value) =>
+                updateAndCommitProperty(TextComponent, 'textAlign')(value.toString() as TroikaTextAlignment)
+              }
             />
           </InputGroup>
           <InputGroup name="TextWrap" label={t('editor:properties.text.textWrap')}>
@@ -274,7 +277,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           options={SelectOptions.Font}
           value={text.font.value || ''}
-          onChange={(value) => updateProperty(TextComponent, 'font')(value.toString())}
+          onChange={(value) => updateAndCommitProperty(TextComponent, 'font')(value.toString())}
         />
       </InputGroup>
       <InputGroup name="FontSize" label={t('editor:properties.text.fontSize')}>

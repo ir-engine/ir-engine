@@ -80,6 +80,17 @@ export const commitProperty = <C extends Component, K extends keyof SerializedCo
   }
 }
 
+export const updateAndCommitProperty = <C extends Component, K extends keyof SerializedComponentType<C>>(
+  component: C,
+  propName: K,
+  nodes?: Entity[]
+) => {
+  return (value: SerializedComponentType<C>[K]) => {
+    updateProperties(component, { [propName]: value } as any, nodes)
+    commitProperties(component, { [propName]: value } as any, nodes)
+  }
+}
+
 export const commitProperties = <C extends Component>(
   component: C,
   properties: Partial<SerializedComponentType<C>>,
