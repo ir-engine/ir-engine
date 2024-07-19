@@ -35,7 +35,6 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import GLTFTransformProperties from '@etherealengine/editor/src/components/properties/GLTFTransformProperties'
 import exportGLTF from '@etherealengine/editor/src/functions/exportGLTF'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import {
@@ -55,6 +54,7 @@ import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import StringInput from '../../../input/String'
 import TexturePreviewInput from '../../../input/Texture'
+import GLTFTransformProperties from '../../gltf/transform'
 
 export default function ModelTransformProperties({ entity, onChangeModel }: { entity: Entity; onChangeModel: any }) {
   const modelState = useComponent(entity, ModelComponent)
