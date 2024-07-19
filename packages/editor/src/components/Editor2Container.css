@@ -31,7 +31,7 @@
 }
 
 .dock-tab.dock-tab-active {
-  background: var(--bg-surface-main) !important;
+  background: var(--bg-highlight) !important;
 }
 
 .dock-tab:not(.dock-tab-active):hover {
@@ -61,4 +61,8 @@ input::-webkit-inner-spin-button {
 }
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+.dock-content-animated {
+  transition: none;
 }
