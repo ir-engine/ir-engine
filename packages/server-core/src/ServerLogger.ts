@@ -140,7 +140,7 @@ export const elasticOnlyLogger = pino(
 const defaultStreams = [streamToPretty, streamToElastic, streamToOpenSearch]
 
 // Enable log to local file
-if (process.env.LOG_TO_FILE) {
+if (process.env.LOG_TO_FILE === 'true') {
   defaultStreams.push(streamToFile)
 }
 
