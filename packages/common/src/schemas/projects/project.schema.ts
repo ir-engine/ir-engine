@@ -55,7 +55,7 @@ export const projectSchema = Type.Object(
     hasLocalChanges: Type.Boolean(),
     sourceRepo: Type.Optional(Type.String()),
     sourceBranch: Type.Optional(Type.String()),
-    updateType: StringEnum(projectUpdateTypes),
+    updateType: Type.Optional(StringEnum(projectUpdateTypes)),
     updateSchedule: Type.Optional(Type.String()),
     updateUserId: Type.Optional(Type.String()),
     hasWriteAccess: Type.Optional(Type.Boolean()),
@@ -117,7 +117,6 @@ export const projectQuerySchema = Type.Intersect(
     Type.Object(
       {
         assetsOnly: Type.Optional(Type.Boolean()),
-        paginate: Type.Optional(Type.Boolean()),
         action: Type.Optional(Type.String()),
         sourceURL: Type.Optional(Type.String()),
         destinationURL: Type.Optional(Type.String()),

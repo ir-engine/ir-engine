@@ -57,7 +57,8 @@ const ComponentListItem = ({ item }: { item: Component }) => {
   useMutableState(ComponentEditorsState).keys // ensure reactively updates new components
   const Icon = getState(ComponentEditorsState)[item.name]?.iconComponent ?? GrStatusPlaceholder
 
-  const jsonName = item.jsonID?.slice(3).replace('_', '-') || item.name
+  // remove any prefix from the jsonID
+  const jsonName = item.jsonID?.split('_').slice(1).join('-') || item.name
 
   return (
     <Button

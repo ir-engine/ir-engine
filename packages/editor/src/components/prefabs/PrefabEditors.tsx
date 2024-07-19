@@ -43,6 +43,11 @@ export const PrefabShelfState = defineState({
         category: 'Geo'
       },
       {
+        name: 'Ground Plane',
+        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/ground-plane.prefab.gltf`,
+        category: 'Geo'
+      },
+      {
         name: 'Point Light',
         url: `${config.client.fileServer}/projects/default-project/assets/prefabs/point-light.prefab.gltf`,
         category: 'Lighting'
@@ -95,6 +100,26 @@ export const PrefabShelfState = defineState({
         name: 'Text',
         url: `${config.client.fileServer}/projects/default-project/assets/prefabs/text.prefab.gltf`,
         category: 'Text'
+      },
+      {
+        name: 'Title',
+        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/title.prefab.gltf`,
+        category: 'Text'
+      },
+      {
+        name: 'Body',
+        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/body.prefab.gltf`,
+        category: 'Text'
+      },
+      {
+        name: 'Image',
+        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/image.prefab.gltf`,
+        category: 'Image'
+      },
+      {
+        name: 'Video',
+        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/video.prefab.gltf`,
+        category: 'Video'
       },
       {
         name: 'Skybox',

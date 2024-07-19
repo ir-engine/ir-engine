@@ -60,6 +60,7 @@ export const locationSchema = Type.Object(
     isLobby: Type.Boolean(),
     /** @todo review */
     isFeatured: Type.Boolean(),
+    url: Type.String(),
     sceneAsset: Type.Ref(staticResourceSchema),
     maxUsersPerInstance: Type.Number(),
     locationSetting: Type.Ref(locationSettingSchema),
@@ -74,7 +75,7 @@ export const locationSchema = Type.Object(
 export interface LocationType extends Static<typeof locationSchema> {}
 
 export interface LocationDatabaseType
-  extends Omit<LocationType, 'locationSetting' | 'locationAuthorizedUsers' | 'locationBans'> {}
+  extends Omit<LocationType, 'locationSetting' | 'locationAuthorizedUsers' | 'locationBans' | 'url'> {}
 
 // Schema for creating new entries
 export const locationDataSchema = Type.Pick(

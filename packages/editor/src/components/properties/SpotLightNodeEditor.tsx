@@ -28,7 +28,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
+import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/lights/SpotLightComponent'
 
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'

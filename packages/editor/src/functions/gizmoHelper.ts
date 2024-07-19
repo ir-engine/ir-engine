@@ -899,14 +899,7 @@ function pointerMove(gizmoEntity) {
   }
 }
 
-function pointerUp(gizmoEntity) {
-  // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
-  if (!inputPointerEntity) return
-  const pointer = getComponent(inputPointerEntity, InputPointerComponent)
-
-  if (pointer.movement.length() !== 0) return
-
+export function onGizmoCommit(gizmoEntity) {
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControlComponent.dragging && gizmoControlComponent.axis !== null) {
     //check for snap modes
@@ -918,6 +911,16 @@ function pointerUp(gizmoEntity) {
   }
   gizmoControlComponent.dragging.set(false)
   gizmoControlComponent.axis.set(null)
+}
+
+function pointerUp(gizmoEntity) {
+  // TODO support gizmos in multiple viewports
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
+  if (!inputPointerEntity) return
+  const pointer = getComponent(inputPointerEntity, InputPointerComponent)
+
+  if (pointer.movement.length() !== 0) return
+  onGizmoCommit(gizmoEntity)
 }
 
 export function onPointerHover(gizmoEntity) {
