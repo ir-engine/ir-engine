@@ -41,7 +41,7 @@ import assert from 'assert'
 import { EffectComposer } from 'postprocessing'
 import React from 'react'
 import { Color, Group, MathUtils, Texture } from 'three'
-import { MockEngineRenderer } from '../../tests/util/MockEngineRenderer'
+import { mockEngineRenderer } from '../../tests/util/MockEngineRenderer'
 import { EngineState } from '../EngineState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
@@ -86,8 +86,7 @@ describe('WebGl Renderer System', () => {
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
-    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas() })
-    getMutableComponent(rootEntity, RendererComponent).set(new MockEngineRenderer())
+    mockEngineRenderer(rootEntity, mockCanvas())
     const rendererComp = getMutableComponent(rootEntity, RendererComponent)
     rendererComp.canvas.set(mockCanvas())
     setComponent(rootEntity, BackgroundComponent, new Color(0xffffff))

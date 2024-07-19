@@ -25,8 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
+import { Entity, getMutableComponent, setComponent } from '@etherealengine/ecs'
 import { EffectComposer } from 'postprocessing'
-import { EngineRenderer } from '../../src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
 import { MockEventListener } from './MockEventListener'
 
 class MockRenderer {
@@ -39,13 +40,11 @@ class MockRenderer {
   dispose = () => {}
 }
 
-export class MockEngineRenderer extends EngineRenderer {
-  static instance: EngineRenderer
-
-  constructor() {
-    super()
-    this.renderer = new MockRenderer() as unknown as WebGLRenderer
-    this.effectComposer = {
+export const mockEngineRenderer = (entity: Entity, canvas: HTMLCanvasElement) => {
+  setComponent(entity, RendererComponent, { canvas })
+  getMutableComponent(entity, RendererComponent).merge({
+    renderer: new MockRenderer() as unknown as WebGLRenderer,
+    effectComposer: {
       setSize: () => {},
       passes: [{ name: 'RenderPass', overrideMaterial: null }],
       setMainScene: () => {},
@@ -53,6 +52,5 @@ export class MockEngineRenderer extends EngineRenderer {
       render: () => {},
       dispose: () => {}
     } as unknown as EffectComposer
-    this.needsResize = false
-  }
+  })
 }
