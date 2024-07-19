@@ -37,7 +37,7 @@ import {
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
-import { getState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState } from '@etherealengine/hyperflux'
 import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { PostProcessingEffectState } from '@etherealengine/spatial/src/renderer/effects/EffectRegistry'
 import { GiMagickTrick } from 'react-icons/gi'
@@ -118,7 +118,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
 
   const renderProperty = (effectName: string, property: string, index: number) => {
     const effectSettingState = effects[effectName].schema[property]
-    const effectSettingValue = postprocessing.effects[effectName][property].value
+    const effectSettingValue = postprocessing.effects[effectName][property].get(NO_PROXY)
 
     let renderVal = <></>
 
@@ -178,6 +178,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           <Vector2Input
             value={effectSettingValue}
             onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onRelease={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
           />
         )
         break
@@ -187,6 +188,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           <Vector3Input
             value={effectSettingValue}
             onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onRelease={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
           />
         )
         break
@@ -195,7 +197,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <TexturePreviewInput
             value={effectSettingValue}
-            onRelease={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onRelease={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
           />
         )
         break

@@ -236,7 +236,7 @@ function UVOL1Reactor() {
 
       videoTexture.needsUpdate = true
       const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
-      renderer.renderer.initTexture(videoTexture)
+      renderer.renderer!.initTexture(videoTexture)
 
       if (volumetric.useLoadingEffect.value) {
         mesh.material = UVOLDissolveComponent.createDissolveMaterial(mesh)
@@ -270,7 +270,7 @@ function UVOL1Reactor() {
         mesh.geometry.attributes.position.needsUpdate = true
 
         videoTexture.needsUpdate = true
-        getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.initTexture(videoTexture)
+        getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.initTexture(videoTexture)
       }
       removePlayedBuffer(frameToPlay)
     }
