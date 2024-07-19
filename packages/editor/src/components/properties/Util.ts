@@ -80,6 +80,7 @@ export const commitProperty = <C extends Component, K extends keyof SerializedCo
   }
 }
 
+// Troika doesn't update properly with only commitProperty, so we need to update and then commit
 export const updateAndCommitProperty = <C extends Component, K extends keyof SerializedComponentType<C>>(
   component: C,
   propName: K,
