@@ -193,7 +193,7 @@ export const RendererComponent = defineComponent({
       try {
         effectComposer.addPass(effectPass)
       } catch (e) {
-        console.warn(e)
+        console.warn(e) /** @todo Implement user messaging Ex: (Can not use multiple convolution effects) */
       }
 
       effectComposer.setRenderer(rendererComponent.renderer.value as WebGLRenderer)
