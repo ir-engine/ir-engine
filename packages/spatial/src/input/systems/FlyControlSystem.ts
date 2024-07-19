@@ -95,9 +95,9 @@ const execute = () => {
     }
   }
 
-  const buttons = InputComponent.getMergedButtonsForInputSources(inputSourceEntities)
-
   for (const entity of flyControlQuery()) {
+    const buttons = InputComponent.getMergedButtonsForInputSources(inputSourceEntities)
+
     const flyControlComponent = getComponent(entity, FlyControlComponent)
     const transform = getComponent(entity, TransformComponent)
 
