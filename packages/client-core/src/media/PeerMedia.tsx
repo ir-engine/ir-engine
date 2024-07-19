@@ -93,7 +93,7 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
     if (!peerMediaChannelState) return
     if (isAudio) peerMediaChannelState.audioStreamPaused.set(!!consumerState.paused.value)
     else peerMediaChannelState.videoStreamPaused.set(!!consumerState.paused.value)
-  }, [consumerState.paused?.value])
+  }, [consumerState.paused])
 
   useEffect(() => {
     const globalMute = !!producerState.globalMute?.value
@@ -109,7 +109,7 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
       peerMediaChannelState.videoProducerPaused.set(paused)
       peerMediaChannelState.videoProducerGlobalMute.set(globalMute)
     }
-  }, [producerState.paused?.value])
+  }, [producerState.paused])
 
   return null
 }
