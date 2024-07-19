@@ -70,6 +70,7 @@ export const MediaIconsBox = () => {
   const location = useLocation()
   const hasAudioDevice = useHookstate(false)
   const hasVideoDevice = useHookstate(false)
+  const numVideoDevices = useHookstate(0)
   const { topShelfStyle } = useShelfStyles()
 
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
@@ -108,6 +109,7 @@ export const MediaIconsBox = () => {
       .then((devices) => {
         hasAudioDevice.set(devices.filter((device) => device.kind === 'audioinput').length > 0)
         hasVideoDevice.set(devices.filter((device) => device.kind === 'videoinput').length > 0)
+        numVideoDevices.set(devices.filter((device) => device.kind === 'videoinput').length)
       })
       .catch((err) => logger.error(err, 'Could not get media devices.'))
   }, [])
@@ -182,7 +184,7 @@ export const MediaIconsBox = () => {
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />}
           />
-          {isCamVideoEnabled && hasVideoDevice.value && (
+          {isCamVideoEnabled && numVideoDevices.value > 1 && (
             <IconButtonWithTooltip
               id="FlipVideo"
               title={t('user:menu.cycleCamera')}
