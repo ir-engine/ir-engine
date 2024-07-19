@@ -35,7 +35,7 @@ import { useMutation } from '@etherealengine/spatial/src/common/functions/Feathe
 import Modal from '../../../../../primitives/tailwind/Modal'
 import Text from '../../../../../primitives/tailwind/Text'
 
-export default function DeleteFileModal({ file }: { file: FileDataType }) {
+export default function DeleteFileModal({ files }: { files: FileDataType[] }) {
   const { t } = useTranslation()
   const modalProcessing = useHookstate(false)
   const fileService = useMutation(fileBrowserPath)
@@ -43,7 +43,7 @@ export default function DeleteFileModal({ file }: { file: FileDataType }) {
   const handleSubmit = async () => {
     modalProcessing.set(true)
     try {
-      await fileService.remove(file.key)
+      await Promise.all(files.map((file) => fileService.remove(file.key)))
       modalProcessing.set(false)
       PopoverState.hidePopupover()
     } catch (err) {
@@ -61,7 +61,9 @@ export default function DeleteFileModal({ file }: { file: FileDataType }) {
       submitLoading={modalProcessing.value}
     >
       <Text className="w-full text-center">
-        {t('editor:dialog.delete.confirm-content', { content: file.fullName })}
+        {files.length === 1
+          ? t('editor:dialog.delete.confirm-content', { content: files[0].fullName })
+          : t('editor:dialog.delete.confirm-multiple', { first: files[0].fullName, count: files.length - 1 })}
       </Text>
     </Modal>
   )
