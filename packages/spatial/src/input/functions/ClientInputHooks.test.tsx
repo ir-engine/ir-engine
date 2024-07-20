@@ -31,12 +31,13 @@ import {
   setComponent,
   UndefinedEntity
 } from '@etherealengine/ecs'
-import { startReactor } from '@etherealengine/hyperflux'
+import { getMutableState, startReactor } from '@etherealengine/hyperflux'
 import assert from 'assert'
 import sinon from 'sinon'
 import { MockEventListener } from '../../../tests/util/MockEventListener'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../SpatialModule'
+import { XRState } from '../../xr/XRState'
 import ClientInputHooks from './ClientInputHooks'
 
 describe('ClientInputHooks', () => {
@@ -408,10 +409,142 @@ describe('ClientInputHooks', () => {
     })
   })
 
+  describe.skip('useXRInputSources', () => {
+    let testEntity = UndefinedEntity
+    let ev: MockEventListener
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, VisibleComponent)
+
+      getMutableState(XRState).set(XRState.initial())
+      const session = getMutableState(XRState)
+
+      ev = new MockEventListener()
+      // @ts-ignore
+      session.addEventListener = ev.addEventListener as any
+      // @ts-ignore
+      session.removeEventListener = ev.removeEventListener as any
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should add a inputsourceschange EventListener to the XRState.session when mounted', () => {
+      const EvName = 'inputsourceschange'
+      const reactorSpy = sinon.spy()
+      // Create the Reactor setup
+      const Reactor = () => {
+        reactorSpy()
+        ClientInputHooks.useXRInputSources()
+        return null
+      }
+      assert.equal(reactorSpy.callCount, 0)
+      assert.equal(ev.hasEvent(EvName), false)
+      // Create a reactor root to run the hook's reactor.
+      const root = startReactor(Reactor)
+      assert.equal(reactorSpy.callCount, 1)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a selectstart EventListener to the XRState.session when mounted', () => {
+      const EvName = 'selectstart'
+      const reactorSpy = sinon.spy()
+      // Create the Reactor setup
+      const Reactor = () => {
+        reactorSpy()
+        ClientInputHooks.useXRInputSources()
+        return null
+      }
+      assert.equal(reactorSpy.callCount, 0)
+      assert.equal(ev.hasEvent(EvName), false)
+      // Create a reactor root to run the hook's reactor.
+      const root = startReactor(Reactor)
+      assert.equal(reactorSpy.callCount, 1)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a selectend EventListener to the XRState.session when mounted', () => {
+      const EvName = 'selectend'
+      const reactorSpy = sinon.spy()
+      // Create the Reactor setup
+      const Reactor = () => {
+        reactorSpy()
+        ClientInputHooks.useXRInputSources()
+        return null
+      }
+      assert.equal(reactorSpy.callCount, 0)
+      assert.equal(ev.hasEvent(EvName), false)
+      // Create a reactor root to run the hook's reactor.
+      const root = startReactor(Reactor)
+      assert.equal(reactorSpy.callCount, 1)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should remove the inputsourceschange EventListener from the XRState.session when mounted', () => {
+      const EvName = 'inputsourceschange'
+      const reactorSpy = sinon.spy()
+      // Create the Reactor setup
+      const Reactor = () => {
+        reactorSpy()
+        ClientInputHooks.useXRInputSources()
+        return null
+      }
+      assert.equal(reactorSpy.callCount, 0)
+      assert.equal(ev.hasEvent(EvName), false)
+      // Create a reactor root to run the hook's reactor.
+      const root = startReactor(Reactor)
+      assert.equal(reactorSpy.callCount, 1)
+      assert.equal(ev.hasEvent(EvName), true)
+      root.stop()
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the selectstart EventListener from the XRState.session when mounted', () => {
+      const EvName = 'selectstart'
+      const reactorSpy = sinon.spy()
+      // Create the Reactor setup
+      const Reactor = () => {
+        reactorSpy()
+        ClientInputHooks.useXRInputSources()
+        return null
+      }
+      assert.equal(reactorSpy.callCount, 0)
+      assert.equal(ev.hasEvent(EvName), false)
+      // Create a reactor root to run the hook's reactor.
+      const root = startReactor(Reactor)
+      assert.equal(reactorSpy.callCount, 1)
+      assert.equal(ev.hasEvent(EvName), true)
+      root.stop()
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the selectend EventListener from the XRState.session when mounted', () => {
+      const EvName = 'selectend'
+      const reactorSpy = sinon.spy()
+      // Create the Reactor setup
+      const Reactor = () => {
+        reactorSpy()
+        ClientInputHooks.useXRInputSources()
+        return null
+      }
+      assert.equal(reactorSpy.callCount, 0)
+      assert.equal(ev.hasEvent(EvName), false)
+      // Create a reactor root to run the hook's reactor.
+      const root = startReactor(Reactor)
+      assert.equal(reactorSpy.callCount, 1)
+      assert.equal(ev.hasEvent(EvName), true)
+      root.stop()
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+  })
+
   /**
   // @todo
-  describe("useXRInputSources", () => {})
-
   describe("CanvasInputReactor", () => {})
   describe("MeshInputReactor", () => {})
   describe("BoundingBoxInputReactor", () => {})
