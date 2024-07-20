@@ -27,7 +27,7 @@ import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/Compo
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -36,22 +36,18 @@ import { FixedSizeList } from 'react-window'
 import {
   Engine,
   Entity,
-  EntityUUID,
   UUIDComponent,
   UndefinedEntity,
   defineQuery,
-  entityExists
+  entityExists,
+  useQuery
 } from '@etherealengine/ecs'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 
-import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
 import { HierarchyTreeNodeType } from '@etherealengine/editor/src/components/hierarchy/HierarchyTreeWalker'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
-import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
 import Input from '../../../../../primitives/tailwind/Input'
 import HierarchyTreeNode, { HierarchyTreeNodeProps } from '../../Hierarchy/node'
@@ -79,7 +75,8 @@ function buildHierarchyTree(
   childIndex: number,
   entity: Entity,
   array: ECSNestedHierarchyTreeNode[],
-  lastChild: boolean
+  lastChild: boolean,
+  expandedNodes: Record<Entity, boolean>
 ) {
   const entityTree = getComponent(entity, EntityTreeComponent)
 
@@ -87,7 +84,7 @@ function buildHierarchyTree(
     depth,
     childIndex,
     entity: entity,
-    isCollapsed: false, //todo
+    isCollapsed: !!expandedNodes[entity],
     children: [],
     isLeaf: !(entityTree.children && entityTree.children.length > 0),
     lastChild: lastChild
@@ -97,16 +94,21 @@ function buildHierarchyTree(
   if (entityTree.children && !item.isCollapsed) {
     for (let i = 0; i < entityTree.children.length; i++) {
       const childEntity = entityTree.children[i]
-      buildHierarchyTree(depth + 1, i, childEntity, item.children, i === entityTree.children.length - 1)
+      buildHierarchyTree(depth + 1, i, childEntity, item.children, i === entityTree.children.length - 1, expandedNodes)
     }
   }
 }
 
-function buildHierarchyTreeForNodes(depth: number, rootEntity: Entity, outArray: ECSNestedHierarchyTreeNode[]) {
+function buildHierarchyTreeForNodes(
+  depth: number,
+  rootEntity: Entity,
+  outArray: ECSNestedHierarchyTreeNode[],
+  expandedNodes: Record<Entity, boolean>
+) {
   const entityTree = getComponent(rootEntity, EntityTreeComponent)
   for (let i = 0; i < entityTree.children.length; i++) {
     const entity = entityTree.children[i]
-    buildHierarchyTree(depth, i, entity, outArray, i === entityTree.children.length - 1)
+    buildHierarchyTree(depth, i, entity, outArray, i === entityTree.children.length - 1, expandedNodes)
   }
   if (outArray.length) outArray[outArray.length - 1].lastChild = true
 }
@@ -127,7 +129,7 @@ function flattenTree(array: ECSNestedHierarchyTreeNode[], outArray: HierarchyTre
 
 const entityTreeQuery = defineQuery([EntityTreeComponent])
 
-export function ecsHierarchyTreeWalker(): HierarchyTreeNodeType[] {
+export function ecsHierarchyTreeWalker(expandedNodes: Record<Entity, boolean>): HierarchyTreeNodeType[] {
   const outArray = [] as ECSNestedHierarchyTreeNode[]
 
   const treeRoots = entityTreeQuery().filter(
@@ -146,11 +148,12 @@ export function ecsHierarchyTreeWalker(): HierarchyTreeNodeType[] {
       lastChild: i === treeRoots.length - 1,
       children: [],
       isLeaf: !(entityTree.children && entityTree.children.length > 0),
-      isCollapsed: false
+      isCollapsed: !!expandedNodes[rootEntity]
     }
     outArray.push(item)
-    buildHierarchyTreeForNodes(1, rootEntity, item.children)
+    if (!item.isCollapsed) buildHierarchyTreeForNodes(1, rootEntity, item.children, expandedNodes)
   }
+
   flattenTree(outArray, tree)
 
   return tree
@@ -159,15 +162,12 @@ export function ecsHierarchyTreeWalker(): HierarchyTreeNodeType[] {
 /**
  * HierarchyPanel function component provides view for hierarchy tree.
  */
-function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: EntityUUID; index: number }) {
-  const { sceneURL, index } = props
+function HierarchyPanelContents() {
   const { t } = useTranslation()
 
   const [prevClickedNode, setPrevClickedNode] = useState<Entity | null>(null)
-  const onUpload = useUpload(uploadOptions)
-  const expandedNodes = useHookstate(getMutableState(EditorState).expandedNodes)
+  const expandedNodes = useHookstate<Record<Entity, boolean>>({})
   const entityHierarchy = useHookstate<HierarchyTreeNodeType[]>([])
-  const [selectedNodes, setSelectedNode] = useState<Entity[] | null>(null)
   const searchHierarchy = useHookstate('')
   const selectionState = useMutableState(SelectionState)
 
@@ -177,7 +177,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
       const entity = UUIDComponent.getEntityByUUID(selectedUUID)
       if (entity) entities.push(entity)
     }
-    setSelectedNode(entities)
   }, [selectionState.selectedEntities])
 
   const MemoTreeNode = useCallback(
@@ -199,39 +198,23 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     })
   }
 
+  const treeQuery = useQuery([EntityTreeComponent])
+
   useEffect(() => {
-    entityHierarchy.set(ecsHierarchyTreeWalker())
-  }, [expandedNodes, index, selectionState.selectedEntities])
+    entityHierarchy.set(ecsHierarchyTreeWalker(expandedNodes.value))
+  }, [treeQuery.length, expandedNodes])
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
     (entity: Entity) => {
-      expandedNodes[sceneURL][entity].set(true)
+      expandedNodes[entity].set(true)
     },
     [expandedNodes]
   )
 
   const collapseNode = useCallback(
     (entity: Entity) => {
-      expandedNodes[sceneURL][entity].set(none)
-    },
-    [expandedNodes]
-  )
-
-  const expandChildren = useCallback(
-    (entity: Entity) => {
-      traverseEntityNode(entity, (child) => {
-        expandedNodes[sceneURL][child].set(true)
-      })
-    },
-    [expandedNodes]
-  )
-
-  const collapseChildren = useCallback(
-    (entity: Entity) => {
-      traverseEntityNode(entity, (child) => {
-        expandedNodes[sceneURL][child].set(none)
-      })
+      expandedNodes[entity].set(none)
     },
     [expandedNodes]
   )
@@ -267,8 +250,9 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   const onToggle = useCallback(
     (_, entity: Entity) => {
-      if (expandedNodes.value[sceneURL][entity]) collapseNode(entity)
+      if (expandedNodes.value[entity]) collapseNode(entity)
       else expandNode(entity)
+      console.log('onToggle', entity, expandedNodes.value[entity])
     },
     [expandedNodes, expandNode, collapseNode]
   )
@@ -285,8 +269,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
       itemData={{
         nodes: validNodes,
         onClick,
-        onToggle,
-        onUpload
+        onToggle
       }}
       itemKey={(index) => index}
       innerElementType="ul"
@@ -316,25 +299,5 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 }
 
 export default function HierarchyPanel() {
-  const sceneID = useHookstate(getMutableState(EditorState).scenePath).value
-  const gltfEntity = useMutableState(EditorState).rootEntity.value
-  if (!sceneID || !gltfEntity) return null
-
-  const GLTFHierarchySub = () => {
-    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
-    const sourceID = getComponent(gltfEntity, SourceComponent)
-    const index = GLTFSnapshotState.useSnapshotIndex(sourceID)
-
-    if (index === undefined) return null
-    return (
-      <HierarchyPanelContents
-        key={`${sourceID}-${index.value}`}
-        rootEntityUUID={rootEntityUUID}
-        sceneURL={sourceID}
-        index={index.value}
-      />
-    )
-  }
-
-  return <GLTFHierarchySub />
+  return <HierarchyPanelContents />
 }
