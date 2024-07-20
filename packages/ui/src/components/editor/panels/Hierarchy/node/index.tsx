@@ -32,10 +32,9 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent, isAncestor } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -100,9 +99,9 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const entity = node.entity
   const data = props.data
 
-  const uuid = useComponent(entity, UUIDComponent)
+  const uuid = useOptionalComponent(entity, UUIDComponent)?.value ?? ('' as EntityUUID)
 
-  const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
+  const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid)
 
   const nodeName = useOptionalComponent(entity, NameComponent)?.value
 
