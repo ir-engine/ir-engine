@@ -84,3 +84,5 @@ export class MockXRPose {
   // readonly angularVelocity?: DOMPointReadOnly | undefined;
   // readonly emulatedPosition: boolean;
 }
+
+export class MockXRSession extends EventTarget {}

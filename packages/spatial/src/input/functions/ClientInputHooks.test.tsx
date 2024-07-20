@@ -35,6 +35,7 @@ import { getMutableState, startReactor } from '@etherealengine/hyperflux'
 import assert from 'assert'
 import sinon from 'sinon'
 import { MockEventListener } from '../../../tests/util/MockEventListener'
+import { MockXRSession } from '../../../tests/util/MockXR'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../SpatialModule'
 import { XRState } from '../../xr/XRState'
@@ -72,7 +73,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -89,7 +90,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -106,7 +107,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -123,7 +124,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -141,7 +142,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -158,7 +159,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -175,7 +176,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -192,7 +193,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -211,7 +212,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -230,7 +231,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -250,7 +251,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -269,7 +270,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -288,7 +289,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -307,7 +308,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -347,7 +348,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -364,7 +365,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -381,7 +382,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -400,7 +401,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -409,7 +410,7 @@ describe('ClientInputHooks', () => {
     })
   })
 
-  describe.skip('useXRInputSources', () => {
+  describe('useXRInputSources', () => {
     let testEntity = UndefinedEntity
     let ev: MockEventListener
 
@@ -420,12 +421,13 @@ describe('ClientInputHooks', () => {
       setComponent(testEntity, VisibleComponent)
 
       getMutableState(XRState).set(XRState.initial())
-      const session = getMutableState(XRState)
-
+      // @ts-ignore Coerce the mock type into the XRSession slot
+      getMutableState(XRState).session.set(new MockXRSession())
+      const session = getMutableState(XRState).get({ noproxy: true }).session!
       ev = new MockEventListener()
-      // @ts-ignore
+      // @ts-ignore Coerce the listener function into the readonly property
       session.addEventListener = ev.addEventListener as any
-      // @ts-ignore
+      // @ts-ignore Coerce the listener function into the readonly property
       session.removeEventListener = ev.removeEventListener as any
     })
 
@@ -445,7 +447,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -462,7 +464,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -479,7 +481,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -496,7 +498,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -515,7 +517,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
@@ -534,7 +536,7 @@ describe('ClientInputHooks', () => {
       }
       assert.equal(reactorSpy.callCount, 0)
       assert.equal(ev.hasEvent(EvName), false)
-      // Create a reactor root to run the hook's reactor.
+      // Run the reactor and check the result.
       const root = startReactor(Reactor)
       assert.equal(reactorSpy.callCount, 1)
       assert.equal(ev.hasEvent(EvName), true)
