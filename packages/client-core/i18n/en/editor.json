@@ -1008,11 +1008,10 @@
       "textAlign": "Align",
       "textWrap": "Wrap",
       "textAnchor": "Anchor",
-      "textDepthOffset": "Depth off set",
+      "textDepthOffset": "Depth offset",
       "textCurveRadius": "Curve radius",
       "letterSpacing": "Letter spacing",
-      "lineHeightGroup": "Line height",
-      "lineHeight": "Height",
+      "lineHeight": "Line Height",
       "textDirection": "Direction",
       "fontGroup": "Font",
       "fontFamily": "Family",
@@ -1190,6 +1189,7 @@
       "pasteAsset": "Paste",
       "renameAsset": "Rename",
       "renameFile": "Rename File",
+      "renameFileError": "Not a valid file name",
       "deleteFile": "Delete File",
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
@@ -1359,6 +1359,7 @@
     },
     "delete": {
       "confirm-content": "Do you want to delete {{content}}?",
+      "confirm-multiple": "Do you want to delete {{first}}, and {{count}} others?",
       "not-allowed-local-dev": "To prevent accidental loss of data, projects cannot be deleted from this menu in a local dev environment. Use the file system instead."
     },
     "createScene": {

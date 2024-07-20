@@ -82,6 +82,7 @@ import { Popup } from '../../../../tailwind/Popup'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
+import DeleteFileModal from '../browserGrid/DeleteFileModal'
 import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
 
 type FileBrowserContentPanelProps = {
@@ -592,6 +593,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     PopoverState.showPopupover(
                       <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
                     )
+                  }}
+                  openDeleteFileModal={() => {
+                    PopoverState.showPopupover(<DeleteFileModal files={fileProperties.value as FileDataType[]} />)
                   }}
                   openImageCompress={() => {
                     if (filesConsistOfContentType(fileProperties.value, 'image')) {
