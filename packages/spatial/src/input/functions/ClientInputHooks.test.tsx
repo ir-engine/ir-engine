@@ -547,8 +547,47 @@ describe('ClientInputHooks', () => {
 
   /**
   // @todo
-  describe("CanvasInputReactor", () => {})
-  describe("MeshInputReactor", () => {})
-  describe("BoundingBoxInputReactor", () => {})
+  describe("CanvasInputReactor", () => {
+    // it("should not do anything if there is a valid XRState.session", () => {})
+    // it("should trigger whenever XRState.session changes", () => {})
+    // it("should add a dragstart EventListener whenever XRState.session is a falsy value", () => {})
+    // it("should add a contextmenu EventListener whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointerenter EventListener whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointerover EventListener whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointerout EventListener whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointerleave EventListener whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointermove EventListener whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointerup EventListener whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointerdown EventListener whenever XRState.session is a falsy value", () => {})
+    // it("should add a blur EventListener whenever XRState.session is a falsy value", () => {})
+    // it("should add a visibilitychange EventListener whenever XRState.session is a falsy value", () => {})
+    // it("should add a click EventListener whenever XRState.session is a falsy value", () => {})
+    // it("should add a wheel EventListener whenever XRState.session is a falsy value", () => {})
+
+    // it("should remove the dragstart EventListener whenever XRState.session is a truthy value", () => {})
+    // it("should remove the contextmenu EventListener whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointerenter EventListener whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointerover EventListener whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointerout EventListener whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointerleave EventListener whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointermove EventListener whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointerup EventListener whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointerdown EventListener whenever XRState.session is a truthy value", () => {})
+    // it("should remove the blur EventListener whenever XRState.session is a truthy value", () => {})
+    // it("should remove the visibilitychange EventListener whenever XRState.session is a truthy value", () => {})
+    // it("should remove the click EventListener whenever XRState.session is a truthy value", () => {})
+    // it("should remove the wheel EventListener whenever XRState.session is a truthy value", () => {})
+  })
+
+  describe("MeshInputReactor", () => {
+    // it("should trigger whenever the entityContext.ancestor gets or removes its InputComponent", () => {})
+    // it("should add the entityContext to the InputState.inputMeshes list when the entity.ancestor has an InputComponent", () => {})
+    // it("should remove the entityContext from the InputState.inputMeshes list when the entity.ancestor does not have an InputComponent", () => {})
+  })
+  describe("BoundingBoxInputReactor", () => {
+    // it("should trigger whenever the entityContext.ancestor gets or removes its InputComponent", () => {})
+    // it("should add the entityContext to the InputState.inputBoundingBoxes list when the entity.ancestor has an InputComponent", () => {})
+    // it("should remove the entityContext from the InputState.inputBoundingBoxes list when the entity.ancestor does not have an InputComponent", () => {})
+  })
   */
 })

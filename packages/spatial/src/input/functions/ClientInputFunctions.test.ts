@@ -166,11 +166,14 @@ describe('ClientInputFunctions', () => {
     })
   })
 
-  // first
+  /**
+  // @todo
+  // first (raycast)
   describe('redirectPointerEventsToXRUI', () => {}) // WebContainer3D.hitTest
   // intermediate
   describe('assignInputSources', () => {})
   // very branchy
   describe('updatePointerDragging', () => {})
   describe('updateGamepadInput', () => {})
+  */
 })
