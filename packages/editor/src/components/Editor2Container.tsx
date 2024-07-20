@@ -28,6 +28,7 @@ import { staticResourcePath } from '@etherealengine/common/src/schema.type.modul
 import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
+import { EntityInspectorPanelTab } from '@etherealengine/ui/src/components/editor/panels/EntityInspector'
 import { FilesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Files'
 import { HierarchyPanelTab } from '@etherealengine/ui/src/components/editor/panels/Hierarchy'
 import { MaterialsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Materials'
@@ -115,7 +116,7 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
               tabs: [HierarchyPanelTab, MaterialsPanelTab]
             },
             {
-              tabs: [PropertiesPanelTab]
+              tabs: [PropertiesPanelTab, EntityInspectorPanelTab]
             }
           ]
         }

@@ -40,7 +40,7 @@ interface Props {
 }
 
 const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: Props) => {
-  const [minimized, setMinimized] = useState(true)
+  const [minimized, setMinimized] = useState(false)
 
   return (
     <div className="justify-left flex w-full flex-col items-start rounded border-solid bg-[#212226] px-4 py-1.5">
