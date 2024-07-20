@@ -27,6 +27,7 @@ import {
   createEngine,
   createEntity,
   destroyEngine,
+  getMutableComponent,
   removeEntity,
   setComponent,
   UndefinedEntity
@@ -36,7 +37,9 @@ import assert from 'assert'
 import sinon from 'sinon'
 import { MockEventListener } from '../../../tests/util/MockEventListener'
 import { MockXRSession } from '../../../tests/util/MockXR'
+import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../SpatialModule'
 import { XRState } from '../../xr/XRState'
 import ClientInputHooks from './ClientInputHooks'
@@ -545,40 +548,76 @@ describe('ClientInputHooks', () => {
     })
   })
 
-  /**
-  // @todo
-  describe("CanvasInputReactor", () => {
+  describe.skip('CanvasInputReactor', () => {
+    let testEntity = UndefinedEntity
+    let ev: MockEventListener
+
+    beforeEach(async () => {
+      createEngine()
+      initializeSpatialEngine()
+
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, VisibleComponent)
+      setComponent(testEntity, RendererComponent)
+      ev = new MockEventListener()
+      const rendererComponent = getMutableComponent(testEntity, RendererComponent).get({ noproxy: true })
+
+      // @ts-ignore Coerce the listener function into the readonly property
+      rendererComponent.canvas.addEventListener = ev.addEventListener as any
+      // @ts-ignore Coerce the listener function into the readonly property
+      rendererComponent.canvas.removeEventListener = ev.removeEventListener as any
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      destroySpatialEngine()
+      return destroyEngine()
+    })
+
+    it('should add a dragstart EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value', () => {
+      const EvName = 'dragstart'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the result.
+      const root = startReactor(ClientInputHooks.CanvasInputReactor)
+      assert.equal(ev.hasEvent(EvName), true)
+      // root.stop()
+      // assert.equal(ev.hasEvent(EvName), false)
+    })
+
     // it("should not do anything if there is a valid XRState.session", () => {})
     // it("should trigger whenever XRState.session changes", () => {})
-    // it("should add a dragstart EventListener whenever XRState.session is a falsy value", () => {})
-    // it("should add a contextmenu EventListener whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointerenter EventListener whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointerover EventListener whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointerout EventListener whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointerleave EventListener whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointermove EventListener whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointerup EventListener whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointerdown EventListener whenever XRState.session is a falsy value", () => {})
-    // it("should add a blur EventListener whenever XRState.session is a falsy value", () => {})
-    // it("should add a visibilitychange EventListener whenever XRState.session is a falsy value", () => {})
-    // it("should add a click EventListener whenever XRState.session is a falsy value", () => {})
-    // it("should add a wheel EventListener whenever XRState.session is a falsy value", () => {})
+    // it("should add a contextmenu EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointerenter EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointerover EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointerout EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointerleave EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointermove EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointerup EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
+    // it("should add a pointerdown EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
+    // it("should add a blur EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
+    // it("should add a visibilitychange EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
+    // it("should add a click EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
+    // it("should add a wheel EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
 
-    // it("should remove the dragstart EventListener whenever XRState.session is a truthy value", () => {})
-    // it("should remove the contextmenu EventListener whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointerenter EventListener whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointerover EventListener whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointerout EventListener whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointerleave EventListener whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointermove EventListener whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointerup EventListener whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointerdown EventListener whenever XRState.session is a truthy value", () => {})
-    // it("should remove the blur EventListener whenever XRState.session is a truthy value", () => {})
-    // it("should remove the visibilitychange EventListener whenever XRState.session is a truthy value", () => {})
-    // it("should remove the click EventListener whenever XRState.session is a truthy value", () => {})
-    // it("should remove the wheel EventListener whenever XRState.session is a truthy value", () => {})
+    // it("should remove the dragstart EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
+    // it("should remove the contextmenu EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointerenter EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointerover EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointerout EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointerleave EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointermove EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointerup EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
+    // it("should remove the pointerdown EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
+    // it("should remove the blur EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
+    // it("should remove the visibilitychange EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
+    // it("should remove the click EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
+    // it("should remove the wheel EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
   })
 
+  /**
+  // @todo
   describe("MeshInputReactor", () => {
     // it("should trigger whenever the entityContext.ancestor gets or removes its InputComponent", () => {})
     // it("should add the entityContext to the InputState.inputMeshes list when the entity.ancestor has an InputComponent", () => {})
