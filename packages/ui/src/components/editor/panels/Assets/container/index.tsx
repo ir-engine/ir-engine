@@ -380,6 +380,10 @@ const AssetPanel = () => {
   }, [categories, selectedCategory])
 
   useEffect(() => {
+    staticResourcesPagination.currentPage.set(0)
+  }, [selectedCategory])
+
+  useEffect(() => {
     const staticResourcesFindApi = () => {
       const tags = selectedCategory.value
         ? [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
