@@ -137,7 +137,7 @@
       "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
       "toggleSnapMode": "[C] Toggle Grid Snap",
       "info-translate": "Translate objects by a unit of measurement.",
-      "info-rotate": "Rotate objects by a specific degrees."
+      "info-rotate": "Snap rotation angle"
     },
     "placement": {
       "click": "Point & Click Placement",
@@ -220,10 +220,10 @@
     },
     "envmap": {
       "name": "Environment Map",
-      "description": "environment map properties",
-      "lbl-source": "Envmap Source",
-      "lbl-color": "Envmap Color",
-      "lbl-bake": "Envmap Bake",
+      "description": "Environment Map properties",
+      "lbl-source": "Environment Map Source",
+      "lbl-color": "Environment Map Color",
+      "lbl-bake": "Environment Map Bake",
       "lbl-textureType": "Texture Type",
       "lbl-textureUrl": "Texture URL",
       "lbl-intensity": "Envmap Intensity",
@@ -474,6 +474,7 @@
       "lbl-htmlContent": "Html Content",
       "lbl-interactionText": "Interaction Text",
       "lbl-interactionType": "Interaction Type",
+      "saveChanges": "Save Changes",
       "transform": {
         "lodLevels": "LOD Levels",
         "lodLevelNumber": "LOD Level {{index}}",
@@ -623,7 +624,8 @@
         "cycle": "Burst Cycle",
         "interval": "Burst Interval",
         "probability": "Burst Probability"
-      }
+      },
+      "addBehavior": "Add Behavior"
     },
     "clouds": {
       "name": "Cloud",
@@ -729,7 +731,7 @@
       "description": "Change the camera settings for this scene."
     },
     "postprocessing": {
-      "name": "Post Processing",
+      "name": "Post Processing Effect",
       "enabled": "Enabled",
       "description": "For applying Post Processing effects to you scene."
     },
@@ -863,6 +865,7 @@
     },
     "transform": {
       "title": "Transform",
+      "description": "Change transform of an entity",
       "lbl-position": "Position",
       "lbl-rotation": "Rotation",
       "lbl-scale": "Scale",
@@ -932,6 +935,7 @@
       "lbl-loop": "Loop"
     },
     "systemnode": {
+      "name": "System Node",
       "description": "Attach script.",
       "lbl-filePath": "Url",
       "lbl-insertUUID": "Reference System",
@@ -1004,11 +1008,10 @@
       "textAlign": "Align",
       "textWrap": "Wrap",
       "textAnchor": "Anchor",
-      "textDepthOffset": "Depth off set",
+      "textDepthOffset": "Depth offset",
       "textCurveRadius": "Curve radius",
       "letterSpacing": "Letter spacing",
-      "lineHeightGroup": "Line height",
-      "lineHeight": "Height",
+      "lineHeight": "Line Height",
       "textDirection": "Direction",
       "fontGroup": "Font",
       "fontFamily": "Family",
@@ -1186,6 +1189,7 @@
       "pasteAsset": "Paste",
       "renameAsset": "Rename",
       "renameFile": "Rename File",
+      "renameFileError": "Not a valid file name",
       "deleteFile": "Delete File",
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
@@ -1355,6 +1359,7 @@
     },
     "delete": {
       "confirm-content": "Do you want to delete {{content}}?",
+      "confirm-multiple": "Do you want to delete {{first}}, and {{count}} others?",
       "not-allowed-local-dev": "To prevent accidental loss of data, projects cannot be deleted from this menu in a local dev environment. Use the file system instead."
     },
     "createScene": {
