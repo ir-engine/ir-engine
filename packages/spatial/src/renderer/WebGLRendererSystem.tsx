@@ -253,7 +253,7 @@ export const initializeEngineRenderer = (entity: Entity) => {
 
   const xrManager = createWebXRManager(renderer)
   renderer.xr = xrManager as any
-  rendererComponent.xrManager.set(xrManager)
+  rendererComponent.merge({ xrManager })
   xrManager.cameraAutoUpdate = false
   xrManager.enabled = true
 
