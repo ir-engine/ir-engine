@@ -28,7 +28,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/PointLightComponent'
+import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/lights/PointLightComponent'
 
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'

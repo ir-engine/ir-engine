@@ -29,7 +29,14 @@ import { EntityUUID, getComponent } from '@etherealengine/ecs'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { defineState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import {
+  defineState,
+  getMutableState,
+  getState,
+  syncStateWithLocalStorage,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 
 interface IExpandedNodes {
   [scene: string]: {
@@ -68,6 +75,12 @@ export const EditorState = defineState({
       newScene: {}
     } as StudioUIAddons
   }),
+  useIsModified: () => {
+    const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
+    const modifiedState = useMutableState(GLTFModifiedState)
+    if (!rootEntity) return false
+    return !!modifiedState[getComponent(rootEntity, SourceComponent)].value
+  },
   isModified: () => {
     const rootEntity = getState(EditorState).rootEntity
     if (!rootEntity) return false

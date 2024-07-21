@@ -54,6 +54,7 @@ import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconBut
 
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { SearchParamState } from '../../common/services/RouterService'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
@@ -99,6 +100,7 @@ export const MediaIconsBox = () => {
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
 
   const motionCaptureEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.MotionCapture)
+  const arEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.AR)
 
   useEffect(() => {
     navigator.mediaDevices
@@ -208,7 +210,11 @@ export const MediaIconsBox = () => {
           )}
         </>
       ) : null}
-      {screenshareEnabled && mediaNetworkReady && mediaNetworkState?.ready.value ? (
+      {!isMobile &&
+      !(typeof navigator.mediaDevices.getDisplayMedia === 'undefined') &&
+      screenshareEnabled &&
+      mediaNetworkReady &&
+      mediaNetworkState?.ready.value ? (
         <>
           <IconButtonWithTooltip
             id="UserScreenSharing"
@@ -234,7 +240,7 @@ export const MediaIconsBox = () => {
           icon={<VrIcon />}
         />
       )}
-      {supportsAR && (
+      {supportsAR && arEnabled && (
         <IconButtonWithTooltip
           id="UserAR"
           title={t('user:menu.enterAR')}

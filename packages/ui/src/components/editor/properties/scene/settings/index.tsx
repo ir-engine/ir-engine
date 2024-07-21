@@ -174,15 +174,18 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         name="Thumbnail"
         label={t('editor:properties.sceneSettings.lbl-thumbnail')}
         info={t('editor:properties.sceneSettings.info-thumbnail')}
+        className="w-auto"
       >
         <div>
           <ImagePreviewInput value={state.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
 
-          <Button onClick={createThumbnail}>{t('editor:properties.sceneSettings.generate')}</Button>
+          <Button onClick={createThumbnail} className="mt-2 w-full">
+            {t('editor:properties.sceneSettings.generate')}
+          </Button>
           {state.uploadingThumbnail.value ? (
             <LoadingCircle />
           ) : (
-            <Button onClick={uploadThumbnail} disabled={!state.thumbnail.value}>
+            <Button onClick={uploadThumbnail} disabled={!state.thumbnail.value} className="mt-2 w-full">
               {t('editor:properties.sceneSettings.save')}
             </Button>
           )}
@@ -192,39 +195,55 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         name="Loading Screen"
         label={t('editor:properties.sceneSettings.lbl-loading')}
         info={t('editor:properties.sceneSettings.info-loading')}
+        className="w-auto"
       >
         <div>
           <ImagePreviewInput value={state.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value} />
-          <Button onClick={createLoadingScreen}>{t('editor:properties.sceneSettings.generate')}</Button>
+          <Button onClick={createLoadingScreen} className="mt-2 w-full">
+            {t('editor:properties.sceneSettings.generate')}
+          </Button>
           {state.uploadingLoadingScreen.value ? (
             <LoadingView spinnerOnly />
           ) : (
-            <Button onClick={uploadLoadingScreen} disabled={!state.loadingScreenImageData.value}>
+            <Button
+              onClick={uploadLoadingScreen}
+              disabled={!state.loadingScreenImageData.value}
+              className="mt-2 w-full"
+            >
               {t('editor:properties.sceneSettings.save')}
             </Button>
           )}
         </div>
       </InputGroup>
       <InputGroup name="Primary Color" label={t('editor:properties.sceneSettings.lbl-colors')}>
-        <div>
+        <div className="w-full space-y-2">
           <ColorInput
             disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.primaryColor.value)}
-            onChange={(val) => commitProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
+            onChange={(val) => updateProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
+            onRelease={(val) => commitProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
+            className="w-full"
           />
           <ColorInput
             disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.backgroundColor.value)}
-            onChange={(val) => commitProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+            onChange={(val) => updateProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+            onRelease={(val) => commitProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+            className="w-full"
           />
           <ColorInput
             disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.alternativeColor.value)}
-            onChange={(val) => commitProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+            onChange={(val) => updateProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+            onRelease={(val) => commitProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+            className="w-full"
           />
-          <Button onClick={generateColors}>{t('editor:properties.sceneSettings.generate')}</Button>
+          <Button onClick={generateColors} className="w-full">
+            {t('editor:properties.sceneSettings.generate')}
+          </Button>
         </div>
       </InputGroup>
+
       <InputGroup name="Kill Height" label={t('editor:properties.sceneSettings.lbl-killHeight')}>
         <NumericInput
           value={sceneSettingsComponent.sceneKillHeight.value}

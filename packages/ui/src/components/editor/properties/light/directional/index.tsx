@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
+import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/lights/DirectionalLightComponent'
 
 import { BsLightning } from 'react-icons/bs'
 
@@ -60,6 +60,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
           className="bg-[#1A1A1A]"
           value={lightComponent.color}
           onChange={updateProperty(DirectionalLightComponent, 'color')}
+          onRelease={commitProperty(DirectionalLightComponent, 'color')}
         />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.directionalLight.lbl-intensity')}>

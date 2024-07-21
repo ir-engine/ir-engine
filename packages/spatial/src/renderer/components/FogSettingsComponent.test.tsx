@@ -38,6 +38,7 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { Fog, FogExp2, MathUtils, ShaderChunk } from 'three'
+import { mockEngineRenderer } from '../../../tests/util/MockEngineRenderer'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { RendererComponent } from '../WebGLRendererSystem'
@@ -58,17 +59,19 @@ describe('FogSettingsComponent', () => {
   beforeEach(() => {
     createEngine()
 
-    entity = createEntity()
-    setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-    setComponent(entity, FogSettingsComponent)
-    setComponent(entity, EntityTreeComponent)
-
     rootEntity = createEntity()
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
     setComponent(rootEntity, SceneComponent)
-    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas(), scenes: [entity] })
+    mockEngineRenderer(rootEntity, mockCanvas())
+
+    entity = createEntity()
+    setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(entity, FogSettingsComponent)
+    setComponent(entity, EntityTreeComponent)
+
+    setComponent(rootEntity, RendererComponent, { scenes: [entity] })
   })
 
   afterEach(() => {

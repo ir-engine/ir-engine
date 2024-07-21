@@ -113,10 +113,12 @@ const createNewInstance = async (app: Application, newInstance: InstanceData, he
 
   logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId, headers)
   const instanceResult = await app.service(instancePath).create(newInstance, { headers })
+  logger.info('Created new instance: %o', instanceResult)
   if (!channelId) {
-    await app.service(channelPath).create({
+    const channel = await app.service(channelPath).create({
       instanceId: instanceResult.id
     })
+    logger.info('Created new channel: %o', channel)
   }
   const serverState = getState(ServerState)
   const instanceServerState = getMutableState(InstanceServerState)
@@ -393,13 +395,13 @@ const updateInstance = async ({
   logger.info(`agones state is ${status.state}`)
   logger.info('app instance is %o', instanceServerState.instance)
 
-  const isReady = status.state === 'Ready'
-  const isNeedingNewServer = !config.kubernetes.enabled && !instanceStarted
+  const isNeedingNewServer = !config.kubernetes.enabled || status.state === 'Ready'
 
-  if (isReady || isNeedingNewServer) {
+  if (isNeedingNewServer && !instanceStarted) {
     instanceStarted = true
     const initialized = await initializeInstance({ app, status, headers, userId })
     if (initialized) await loadEngine({ app, sceneId, headers })
+    return true
   } else {
     try {
       if (!getState(InstanceServerState).ready)
@@ -565,7 +567,7 @@ const handleChannelUserRemoved = (app: Application) => async (params) => {
   const network = getServerNetwork(app)
   const matchingPeer = Object.values(network.peers).find((peer) => peer.userId === params.userId)
   if (matchingPeer) {
-    matchingPeer.spark?.end()
+    matchingPeer.transport?.end?.()
     NetworkPeerFunctions.destroyPeer(network, matchingPeer.peerID)
     updatePeers(network)
   }
@@ -711,7 +713,7 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
   if (identityProvider != null && identityProvider.id != null) {
     const userId = identityProvider.userId
     const user = await app.service(userPath).get(userId, { headers: connection.headers })
-    const instanceId = !config.kubernetes.enabled ? connection.instanceId : instanceServerState.instance?.id
+    const instanceId = instanceServerState.instance?.id
     let instance
     logger.info('On disconnect, instanceId: ' + instanceId)
     logger.info('Disconnecting user ', user.id)
@@ -796,9 +798,10 @@ export default (app: Application): void => {
     logger.info('kicking peerId %o', peerId)
 
     const peer = NetworkState.worldNetwork.peers[peerId[0]]
-    if (!peer || !peer.spark) return
+    if (!peer || !peer.transport) return
 
     handleDisconnect(getServerNetwork(app), peer.peerID)
+    peer.transport.end?.()
   }
 
   app.service(userKickPath).on('created', kickCreatedListener)

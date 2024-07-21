@@ -31,7 +31,6 @@ import {
   UndefinedEntity,
   createEntity,
   generateEntityUUID,
-  getComponent,
   hasComponent,
   setComponent
 } from '@etherealengine/ecs'
@@ -41,7 +40,7 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent, initializeEngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import {
   EntityTreeComponent,
@@ -97,7 +96,7 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
       canvas: canvasRef.value as HTMLCanvasElement,
       scenes: [sceneEntity]
     })
-    getComponent(cameraEntity, RendererComponent).initialize()
+    initializeEngineRenderer(cameraEntity)
   }, [canvas.current])
 
   return panelState.value

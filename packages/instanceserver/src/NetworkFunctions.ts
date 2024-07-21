@@ -212,9 +212,27 @@ export const handleConnectingPeer = (
 
   NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex)
 
+  const onMessage = (message: any) => {
+    network.onMessage(peerID, message)
+  }
+
+  spark.on('data', onMessage)
+
+  const message = (data: any) => {
+    spark.write(data)
+  }
+
   const networkState = getMutableState(NetworkState).networks[network.id]
   networkState.peers[peerID].merge({
-    spark,
+    transport: {
+      message,
+      buffer: () => {
+        // Intentional no-op. SocketWebRTCServerFunctions defines an override for network.bufferToPeer and network.bufferToAll
+      },
+      end: () => {
+        spark.end()
+      }
+    },
     media: {},
     lastSeenTs: Date.now()
   })
@@ -233,7 +251,7 @@ export const handleConnectingPeer = (
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
 
   return {
-    routerRtpCapabilities: network.transport.routers[0].rtpCapabilities,
+    routerRtpCapabilities: network.routers[0].rtpCapabilities,
     peerIndex: network.peerIDToPeerIndex[peerID]!,
     cachedActions,
     hostPeerID: network.hostPeerID

@@ -26,27 +26,19 @@
 import assert from 'assert'
 import { MathUtils } from 'three'
 
-import {
-  Entity,
-  EntityUUID,
-  UUIDComponent,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  setComponent
-} from '@etherealengine/ecs'
+import { Entity, EntityUUID, UUIDComponent, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
 import { createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { noiseAddToEffectRegistry } from '@etherealengine/engine/src/postprocessing/NoiseEffect'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
-import { BlendFunction, EffectComposer, NoiseEffect } from 'postprocessing'
-import React, { useEffect } from 'react'
+import React from 'react'
+import { mockEngineRenderer } from '../../../tests/util/MockEngineRenderer'
 import { RendererState } from '../RendererState'
-import { EffectReactorProps, PostProcessingEffectState } from '../effects/EffectRegistry'
 import { PostProcessingComponent } from './PostProcessingComponent'
 
 describe('PostProcessingComponent', () => {
@@ -66,6 +58,7 @@ describe('PostProcessingComponent', () => {
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
+    mockEngineRenderer(rootEntity, mockCanvas())
 
     entity = createEntity()
     setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
@@ -75,13 +68,7 @@ describe('PostProcessingComponent', () => {
     setComponent(entity, EntityTreeComponent)
 
     //set data to test
-    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas(), scenes: [entity] })
-
-    //override addpass to test data without dependency on Browser
-    let addPassCount = 0
-    EffectComposer.prototype.addPass = () => {
-      addPassCount++
-    }
+    setComponent(rootEntity, RendererComponent, { scenes: [entity] })
   })
 
   afterEach(() => {
@@ -98,8 +85,6 @@ describe('PostProcessingComponent', () => {
 
     //force nested reactors to run
     const { rerender, unmount } = render(<></>)
-
-    const postProcessingComponent = getMutableComponent(entity, PostProcessingComponent)
     await act(() => rerender(<></>))
 
     const effectComposer = getComponent(rootEntity, RendererComponent).effectComposer
@@ -107,8 +92,7 @@ describe('PostProcessingComponent', () => {
     assert(effectComposer, 'effect composer is setup')
 
     //test that the effect pass has the the effect set
-    // @ts-ignore
-    const effects = effectComposer.EffectPass.effects
+    const effects = (effectComposer?.EffectPass as any).effects
     assert(effects.find((el) => el.name == effectKey))
 
     unmount()
@@ -116,48 +100,32 @@ describe('PostProcessingComponent', () => {
 
   it('Test Effect Add and Remove', async () => {
     const effectKey = 'NoiseEffect'
-    getMutableState(PostProcessingEffectState).merge({
-      [effectKey]: {
-        reactor: NoiseEffectProcessReactor,
-        defaultValues: {
-          isActive: true,
-          blendFunction: BlendFunction.SCREEN,
-          premultiply: false
-        },
-        schema: {
-          blendFunction: { propertyType: 0, name: 'Blend Function' },
-          premultiply: { propertyType: 2, name: 'Premultiply' }
-        }
-      }
-    })
+    noiseAddToEffectRegistry()
 
     const { rerender, unmount } = render(<></>)
 
-    await act(() => {
-      rerender(<></>)
-    })
-
-    assert(hasComponent(entity, PostProcessingComponent))
+    await act(() => rerender(<></>))
 
     const postProcessingComponent = getMutableComponent(entity, PostProcessingComponent)
-    postProcessingComponent.effects[effectKey]['isActive'].set(true)
+    postProcessingComponent.effects[effectKey].isActive.set(true)
 
-    await act(() => {
-      rerender(<></>)
-    })
+    setComponent(rootEntity, RendererComponent)
+    await act(() => rerender(<></>))
 
     // @ts-ignore
     let effects = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
+    console.log(
+      getComponent(rootEntity, RendererComponent).effects,
+      effects.map((el) => el.name)
+    )
     assert(
       effects.find((el) => el.name == effectKey),
       ' Effect turned on'
     )
 
-    postProcessingComponent.effects[effectKey]['isActive'].set(false)
+    postProcessingComponent.effects[effectKey].isActive.set(false)
 
-    await act(() => {
-      rerender(<></>)
-    })
+    await act(() => rerender(<></>))
 
     // @ts-ignore
     effects = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
@@ -167,33 +135,3 @@ describe('PostProcessingComponent', () => {
     unmount()
   })
 })
-
-const effectKey = 'NoiseEffect'
-export const NoiseEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
-  isActive
-  rendererEntity: Entity
-  effectData
-  effects
-}) => {
-  const { isActive, rendererEntity, effectData, effects } = props
-  const effectState = getState(PostProcessingEffectState)
-
-  useEffect(() => {
-    if (effectData[effectKey].value) return
-    effectData[effectKey].set(effectState[effectKey].defaultValues)
-  }, [])
-
-  useEffect(() => {
-    if (!isActive?.value) {
-      if (effects[effectKey].value) effects[effectKey].set(none)
-      return
-    }
-    const eff = new NoiseEffect(effectData[effectKey].value)
-    effects[effectKey].set(eff)
-    return () => {
-      effects[effectKey].set(none)
-    }
-  }, [isActive])
-
-  return null
-}

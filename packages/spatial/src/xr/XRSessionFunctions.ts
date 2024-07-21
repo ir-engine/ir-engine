@@ -46,7 +46,7 @@ export const onSessionEnd = () => {
   getMutableState(XRState).xrFrame.set(null)
 
   const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
-  renderer.renderer.domElement.style.display = ''
+  renderer.renderer!.domElement.style.display = ''
   renderer.needsResize = true
 
   const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
@@ -73,7 +73,7 @@ export const onSessionEnd = () => {
 
 export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' | 'immersive-vr') => {
   const xrState = getMutableState(XRState)
-  const xrManager = getComponent(Engine.instance.viewerEntity, RendererComponent).xrManager
+  const xrManager = getComponent(Engine.instance.viewerEntity, RendererComponent).xrManager!
 
   // @todo - hack to detect nreal
   const params = new URL(document.location.href).searchParams
@@ -132,7 +132,7 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
   /** Hide the canvas - do not do this for the WebXR emulator */
   /** @todo currently, XRSession.visibilityState is undefined in the webxr emulator - we need a better check*/
   if (typeof xrSession.visibilityState === 'string') {
-    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.style.display = 'none'
+    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.domElement.style.display = 'none'
   }
 
   xrState.session.set(xrSession)

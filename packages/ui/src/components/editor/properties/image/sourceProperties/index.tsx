@@ -30,6 +30,7 @@ import { BackSide, DoubleSide, FrontSide } from 'three'
 import { ImageAlphaMode, ImageProjection } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 
+import { useComponent } from '@etherealengine/ecs'
 import {
   EditorComponentType,
   commitProperty,
@@ -52,7 +53,7 @@ const ImageProjectionSideOptions = [
 export const ImageSourceProperties: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  //const imageComponent = useComponent(props.entity, ImageComponent)
+  const imageComponent = useComponent(props.entity, ImageComponent)
 
   return (
     <>
@@ -60,13 +61,12 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
         <SelectInput
           key={props.entity}
           options={imageTransparencyOptions}
-          value={/*imageComponent.alphaMode.value*/ 'Opaque'}
+          value={imageComponent.alphaMode.value}
           onChange={commitProperty(ImageComponent, 'alphaMode')}
-          className="w-1/2"
         />
       </InputGroup>
-      {
-        /*{imageComponent.alphaMode.value === ImageAlphaMode.Mask && (*/
+
+      {imageComponent.alphaMode.value === ImageAlphaMode.Mask && (
         <InputGroup
           name="Alpha Cutoff"
           label={t('editor:properties.image.lbl-alphaCutoff')}
@@ -78,29 +78,27 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
             smallStep={0.01}
             mediumStep={0.1}
             largeStep={0.25}
-            value={/*imageComponent.alphaCutoff.value*/ 0}
+            value={imageComponent.alphaCutoff.value}
             onChange={updateProperty(ImageComponent, 'alphaCutoff')}
             onRelease={commitProperty(ImageComponent, 'alphaCutoff')}
           />
         </InputGroup>
-        /** )} */
-      }
+      )}
+
       <InputGroup name="Projection" label={t('editor:properties.image.lbl-projection')}>
         <SelectInput
           key={props.entity}
           options={imageProjectionOptions}
-          value={/*imageComponent.projection.value*/ 0}
+          value={imageComponent.projection.value}
           onChange={commitProperty(ImageComponent, 'projection')}
-          className="w-1/2"
         />
       </InputGroup>
       <InputGroup name="Side" label={t('editor:properties.image.lbl-side')}>
         <SelectInput
           key={props.entity}
           options={ImageProjectionSideOptions}
-          value={/*imageComponent.side.value*/ 0}
+          value={imageComponent.side.value}
           onChange={commitProperty(ImageComponent, 'side')}
-          className="w-1/2"
         />
       </InputGroup>
     </>

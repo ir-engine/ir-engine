@@ -53,18 +53,10 @@ import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { bytesToSize, unique } from '@etherealengine/editor/src/functions/utils'
-import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import {
-  ImmutableArray,
-  NO_PROXY,
-  getMutableState,
-  getState,
-  useHookstate,
-  useMutableState
-} from '@etherealengine/hyperflux'
+import { ImmutableArray, NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import {
   useFind,
   useMutation,
@@ -90,6 +82,7 @@ import { Popup } from '../../../../tailwind/Popup'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
+import DeleteFileModal from '../browserGrid/DeleteFileModal'
 import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
 
 type FileBrowserContentPanelProps = {
@@ -309,10 +302,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         contentType: params.type,
         size: params.size
       })
-      const editorHelperState = getState(EditorHelperState)
-      if (editorHelperState.placementMode === PlacementMode.CLICK) {
-        getMutableState(ClickPlacementState).selectedAsset.set(params.url)
-      }
+
+      ClickPlacementState.setSelectedAsset(params.url)
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
       changeDirectoryByPath(newPath)
@@ -567,16 +558,17 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       <div
         ref={fileDropRef}
         className={twMerge(
-          'h-full px-4 text-gray-400 ',
+          'mb-2 h-auto p-6 px-4 text-gray-400 ',
           isListView ? '' : 'flex py-8',
           isFileDropOver ? 'border-2 border-gray-300' : ''
         )}
         onClick={(event) => {
           event.stopPropagation()
           fileProperties.set([])
+          ClickPlacementState.resetSelectedAsset()
         }}
       >
-        <div className={twMerge(!isListView && 'flex flex-wrap')}>
+        <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
           <FileTableWrapper wrap={isListView}>
             <>
               {unique(files, (file) => file.key).map((file) => (
@@ -601,6 +593,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     PopoverState.showPopupover(
                       <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
                     )
+                  }}
+                  openDeleteFileModal={() => {
+                    PopoverState.showPopupover(<DeleteFileModal files={fileProperties.value as FileDataType[]} />)
                   }}
                   openImageCompress={() => {
                     if (filesConsistOfContentType(fileProperties.value, 'image')) {
@@ -653,6 +648,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
     return (
       <Popup
+        contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
         position={'bottom left'}
         trigger={
           <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
@@ -817,7 +813,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       </div>
       {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}
       <GeneratingThumbnailsProgress />
-      <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
+      <div id="file-browser-panel" className="h-full overflow-auto">
         <DndWrapper id="file-browser-panel">
           <DropArea />
         </DndWrapper>
