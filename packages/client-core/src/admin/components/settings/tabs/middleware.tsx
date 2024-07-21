@@ -239,13 +239,14 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
 
   // TODO need to refactor the way we hit update webhooks, there will be multiple
   async function updateMw(tenant: string): Promise<Response> {
-    const apiUrl = `${middlewareUrlBase}/middleware/v1/chat-bot/chat-update`
+    const apiUrl = `${middlewareUrlBase}/middleware/v1/update`
     console.log('#### #### Middleware update hook:', apiUrl)
     await delay(5000)
     const response = await fetch(apiUrl, {
       method: 'GET', // explicitly specify the method
       headers: {
-        tenant: tenant
+        tenant: tenant,
+        project: 'irpro-electronics-store'
       }
     })
     return response
