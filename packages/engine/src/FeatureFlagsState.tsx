@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { isUndefined } from 'lodash'
 import { useEffect } from 'react'
 
 export const FeatureFlagsState = defineState({
@@ -37,17 +38,20 @@ export const FeatureFlagsState = defineState({
   },
   useEnabled(flagName: string) {
     const state = useHookstate(getMutableState(FeatureFlagsState)[flagName]).value
+    if (isUndefined(state)) return false // returns "false" if the get of the FF is in process
     return typeof state === 'boolean' ? state : true
   },
   reactor: () => {
     const featureFlagQuery = useFind(featureFlagSettingPath, { query: { paginate: false } })
 
     useEffect(() => {
-      const data = featureFlagQuery.data
-      getMutableState(FeatureFlagsState).merge(
-        Object.fromEntries(data.map(({ flagName, flagValue }) => [flagName, flagValue]))
-      )
-    }, [featureFlagQuery.data])
+      if (featureFlagQuery.status === 'success') {
+        const data = featureFlagQuery.data
+        getMutableState(FeatureFlagsState).merge(
+          Object.fromEntries(data.map(({ flagName, flagValue }) => [flagName, flagValue]))
+        )
+      }
+    }, [featureFlagQuery.data, featureFlagQuery.status])
 
     return null
   }
