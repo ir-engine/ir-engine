@@ -88,7 +88,7 @@ const PlayModeTool = () => {
   }
 
   return (
-    <div id="preview" className="flex items-center bg-theme-surfaceInput">
+    <div id="preview" className="flex items-center">
       <InfoTooltip
         title={
           isEditing.value ? t('editor:toolbar.command.lbl-playPreview') : t('editor:toolbar.command.lbl-stopPreview')
@@ -99,7 +99,7 @@ const PlayModeTool = () => {
       >
         <Button
           variant="transparent"
-          startIcon={isEditing.value ? <HiOutlinePlay /> : <HiOutlinePause />}
+          startIcon={isEditing.value ? <HiOutlinePlay color="#9CA0AA" /> : <HiOutlinePause color="#9CA0AA" />}
           className="p-0"
           onClick={onTogglePlayMode}
         />

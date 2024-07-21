@@ -43,20 +43,20 @@ import SelectInput from '../../../input/Select'
 const renderModes: { name: RenderModesType; icon: JSX.Element }[] = [
   {
     name: 'Unlit',
-    icon: <TbInnerShadowBottomFilled />
+    icon: <TbInnerShadowBottomFilled color="#9CA0AA" />
   },
   {
     name: 'Lit',
-    icon: <TbInnerShadowBottom />
+    icon: <TbInnerShadowBottom color="#9CA0AA" />
   },
-  { name: 'Normals', icon: <TbBallBowling /> },
+  { name: 'Normals', icon: <TbBallBowling color="#9CA0AA" /> },
   {
     name: 'Wireframe',
-    icon: <GiWireframeGlobe />
+    icon: <GiWireframeGlobe color="#9CA0AA" />
   },
   {
     name: 'Shadows',
-    icon: <TbShadow />
+    icon: <TbShadow color="#9CA0AA" />
   }
 ]
 
@@ -91,7 +91,7 @@ const RenderModeTool = () => {
         </Tooltip>
       ))}
       <Popup trigger={<Button variant="transparent" className="p-2" startIcon={<RiArrowDownSLine />} />}>
-        <div className="w-60 rounded-md bg-theme-primary p-2">
+        <div className="w-60 rounded-md p-2">
           <InputGroup
             name="Use Post Processing"
             label={t('editor:toolbar.render-settings.lbl-usePostProcessing')}
@@ -109,6 +109,8 @@ const RenderModeTool = () => {
             info={t('editor:toolbar.render-settings.info-shadowMapResolution')}
           >
             <SelectInput
+              inputClassName="text-[#D3D5D9]"
+              className="border-[#42454D] text-[#D3D5D9]"
               options={ShadowMapResolutionOptions as { value: string; label: string }[]}
               value={rendererState.shadowMapResolution.value}
               onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
