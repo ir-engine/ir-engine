@@ -60,6 +60,7 @@ module.exports = {
           'surface-main': 'var(--bg-surface-main)',
           'table-secondary': 'var(--bg-table-secondary)',
           'blue-secondary': 'var(--bg-blue-secondary)',
+          'studio-surface': 'var(--bg-studio-surface)',
           bannerInformative: 'var(--bg-banner-informative)',
           tagGreen: 'var(--bg-tag-green)',
           tagLime: 'var(--bg-tag-lime)',

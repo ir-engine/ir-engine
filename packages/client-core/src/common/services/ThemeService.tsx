@@ -35,6 +35,7 @@ export interface CSSClasses {
   'bg-surface-input': string
   'bg-table-secondary': string
   'bg-blue-secondary': string
+  'bg-studio-surface': string
   'bg-banner-informative': string
 
   'bg-tag-green': string
@@ -60,6 +61,7 @@ const lightTheme: CSSClasses = {
   'bg-surface-input': '#FFFFFF',
   'bg-table-secondary': '#F9FAFB',
   'bg-blue-secondary': '#D4DFF7',
+  'bg-studio-surface': '#F5F5F5',
   'bg-banner-informative': '#FFFBEB',
 
   'bg-tag-green': '#10B981',
@@ -85,6 +87,7 @@ const darkTheme: CSSClasses = {
   'bg-surface-input': '#141619',
   'bg-table-secondary': '#212226',
   'bg-blue-secondary': '#2A3753',
+  'bg-studio-surface': '#191B1F',
   'bg-banner-informative': '#D9770633',
 
   'bg-tag-green': '#064E3B',
