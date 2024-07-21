@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+// Add unit tests for new patterns in packages/common/tests/regex.test.ts
+
 // eslint-disable-next-line no-control-regex
 export const INVALID_FILENAME_REGEX = /[_<>:"/\\|?*\u0000-\u001F]/
 // eslint-disable-next-line no-control-regex

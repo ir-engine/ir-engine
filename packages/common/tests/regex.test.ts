@@ -32,6 +32,7 @@ import {
   GITHUB_URL_REGEX,
   INSTALLATION_SIGNED_REGEX,
   INVALID_FILENAME_REGEX,
+  INVALID_FILENAME_WHITESPACE_REGEX,
   INVITE_CODE_REGEX,
   MAIN_CHART_REGEX,
   PHONE_REGEX,
@@ -81,6 +82,43 @@ describe('regex.test', () => {
       ]
       validFilenames.forEach((filename) => {
         assert.ok(!INVALID_FILENAME_REGEX.test(filename), `Expected '${filename}' to be valid`)
+      })
+    })
+  })
+
+  describe('INVALID_FILENAME_WHITESPACE_REGEX', () => {
+    it('should match invalid filenames', () => {
+      const invalidFilenames = [
+        'file name', // (a space and an underscore)
+        '< tag >', // (spaces and less-than < and greater-than > characters)
+        'key : value', // (a space and a colon :)
+        'quote " example', // (a space and a double quote ")
+        'path / to / file', // (spaces and forward slashes /)
+        'C:\\ path \\ to \\ file', // (spaces and backslashes \)
+        'pipe | character', // (a space and a pipe |)
+        'question ? mark', // (a space and a question mark ?)
+        'star * char' // (a space and an asterisk *)
+      ]
+      invalidFilenames.forEach((filename) => {
+        assert.ok(INVALID_FILENAME_WHITESPACE_REGEX.test(filename), `Expected '${filename}' to be invalid`)
+      })
+    })
+
+    it('should not match valid filenames', () => {
+      const validFilenames = [
+        'helloworld',
+        'filename',
+        'emailexample.com',
+        'pathtofile',
+        'backslash',
+        'pipesymbol',
+        'questionmark',
+        'asteriskchar',
+        'controlchar',
+        'anothercontrol'
+      ]
+      validFilenames.forEach((filename) => {
+        assert.ok(!INVALID_FILENAME_WHITESPACE_REGEX.test(filename), `Expected '${filename}' to be valid`)
       })
     })
   })
