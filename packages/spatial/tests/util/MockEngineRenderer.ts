@@ -31,7 +31,20 @@ import { Entity, getMutableComponent, setComponent } from '@etherealengine/ecs'
 import { EffectComposer, Pass } from 'postprocessing'
 import { WebGLRenderTarget } from 'three'
 import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
+import { createWebXRManager } from '../../src/xr/WebXRManager'
 import { MockEventListener } from './MockEventListener'
+
+class MockCanvas extends MockEventListener {
+  #context = {
+    getContextAttributes: () => {
+      return {
+        xrCompatible: true
+      }
+    },
+    viewport: () => {}
+  }
+  getContext = () => this.#context
+}
 
 class MockRenderer {
   cancelAnimationFrame = () => {}
@@ -42,20 +55,11 @@ class MockRenderer {
     setAnimationLoop: () => {},
     setContext: () => {}
   }
-  domElement = new MockEventListener()
+  domElement = new MockCanvas()
   setPixelRatio = () => {}
   getRenderTarget = () => {}
   getSize = () => 0
-  getContext = () => {
-    return {
-      getContextAttributes: () => {
-        return {
-          xrCompatible: true
-        }
-      },
-      viewport: () => {}
-    } as Partial<WebGL2RenderingContext>
-  }
+  getContext = () => this.domElement.getContext()
   getPixelRatio = () => 1
   dispose = () => {}
 }
@@ -81,13 +85,16 @@ class MockEffectComposer extends EffectComposer {
   createBuffer = () => new WebGLRenderTarget()
 }
 
-export const mockEngineRenderer = (entity: Entity, canvas: HTMLCanvasElement) => {
-  setComponent(entity, RendererComponent, { canvas })
+export const mockEngineRenderer = (entity: Entity) => {
   const renderer = new MockRenderer() as unknown as WebGLRenderer
+  setComponent(entity, RendererComponent)
   const effectComposer = new MockEffectComposer()
   getMutableComponent(entity, RendererComponent).merge({
+    supportWebGL2: true,
+    canvas: renderer.domElement,
     renderer,
-    effectComposer
+    effectComposer,
+    xrManager: createWebXRManager(renderer)
   })
   // run reactor
   setComponent(entity, RendererComponent)

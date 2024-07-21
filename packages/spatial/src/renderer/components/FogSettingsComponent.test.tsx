@@ -50,12 +50,6 @@ describe('FogSettingsComponent', () => {
   let rootEntity: Entity
   let entity: Entity
 
-  const mockCanvas = () => {
-    return {
-      getDrawingBufferSize: () => 0
-    } as any as HTMLCanvasElement
-  }
-
   beforeEach(() => {
     createEngine()
 
@@ -64,7 +58,7 @@ describe('FogSettingsComponent', () => {
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
     setComponent(rootEntity, SceneComponent)
-    mockEngineRenderer(rootEntity, mockCanvas())
+    mockEngineRenderer(rootEntity)
 
     entity = createEntity()
     setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)

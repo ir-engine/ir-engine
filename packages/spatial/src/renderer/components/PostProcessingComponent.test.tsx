@@ -45,12 +45,6 @@ describe('PostProcessingComponent', () => {
   let rootEntity: Entity
   let entity: Entity
 
-  const mockCanvas = () => {
-    return {
-      getDrawingBufferSize: () => 0
-    } as any as HTMLCanvasElement
-  }
-
   beforeEach(() => {
     createEngine()
 
@@ -58,7 +52,7 @@ describe('PostProcessingComponent', () => {
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
-    mockEngineRenderer(rootEntity, mockCanvas())
+    mockEngineRenderer(rootEntity)
 
     entity = createEntity()
     setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)

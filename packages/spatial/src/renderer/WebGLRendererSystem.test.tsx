@@ -67,17 +67,6 @@ describe('WebGl Renderer System', () => {
   let nestedVisibleEntity: Entity
   let nestedInvisibleEntity: Entity
 
-  const mockCanvas = () => {
-    return {
-      getDrawingBufferSize: () => 0,
-      getContext: () => {},
-      parentElement: {
-        clientWidth: 100,
-        clientHeight: 100
-      }
-    } as any as HTMLCanvasElement
-  }
-
   beforeEach(() => {
     createEngine()
     const timer = Timer((time, xrFrame) => {})
@@ -88,7 +77,7 @@ describe('WebGl Renderer System', () => {
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
-    mockEngineRenderer(rootEntity, mockCanvas())
+    mockEngineRenderer(rootEntity)
     setComponent(rootEntity, BackgroundComponent, new Color(0xffffff))
 
     setComponent(rootEntity, EnvironmentMapComponent, new Texture())
