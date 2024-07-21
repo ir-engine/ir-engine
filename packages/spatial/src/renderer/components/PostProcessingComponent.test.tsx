@@ -30,14 +30,14 @@ import { Entity, EntityUUID, UUIDComponent, getComponent, getMutableComponent, s
 import { createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { noiseAddToEffectRegistry } from '@etherealengine/engine/src/postprocessing/NoiseEffect'
-import { getMutableState } from '@etherealengine/hyperflux'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
 import React from 'react'
-import { mockEngineRenderer } from '../../../tests/util/MockEngineRenderer'
+import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
+import { EngineState } from '../../EngineState'
 import { RendererState } from '../RendererState'
 import { PostProcessingComponent } from './PostProcessingComponent'
 
@@ -48,11 +48,9 @@ describe('PostProcessingComponent', () => {
   beforeEach(() => {
     createEngine()
 
-    rootEntity = createEntity()
-    setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-    setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, CameraComponent)
-    mockEngineRenderer(rootEntity)
+    mockSpatialEngine()
+
+    rootEntity = getState(EngineState).viewerEntity
 
     entity = createEntity()
     setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
@@ -82,6 +80,8 @@ describe('PostProcessingComponent', () => {
     await act(() => rerender(<></>))
 
     const effectComposer = getComponent(rootEntity, RendererComponent).effectComposer
+    console.log(getComponent(rootEntity, RendererComponent))
+
     //test that the effect composer is setup
     assert(effectComposer, 'effect composer is setup')
 

@@ -28,7 +28,7 @@ import './patchNodeForWebXREmulator'
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
 import { Entity, getMutableComponent, setComponent } from '@etherealengine/ecs'
-import { EffectComposer, Pass } from 'postprocessing'
+import { EffectComposer, Pass, RenderPass } from 'postprocessing'
 import { WebGLRenderTarget } from 'three'
 import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
 import { createWebXRManager } from '../../src/xr/WebXRManager'
@@ -43,6 +43,7 @@ class MockCanvas extends MockEventListener {
     },
     viewport: () => {}
   }
+  parentElement = new MockEventListener()
   getContext = () => this.#context
 }
 
@@ -89,12 +90,19 @@ export const mockEngineRenderer = (entity: Entity) => {
   const renderer = new MockRenderer() as unknown as WebGLRenderer
   setComponent(entity, RendererComponent)
   const effectComposer = new MockEffectComposer()
+  const renderPass = new RenderPass()
+  effectComposer.addPass(renderPass)
+  const xrManager = createWebXRManager(renderer)
+  xrManager.cameraAutoUpdate = false
+  xrManager.enabled = true
   getMutableComponent(entity, RendererComponent).merge({
     supportWebGL2: true,
     canvas: renderer.domElement,
+    renderContext: renderer.getContext(),
     renderer,
     effectComposer,
-    xrManager: createWebXRManager(renderer)
+    renderPass,
+    xrManager
   })
   // run reactor
   setComponent(entity, RendererComponent)
