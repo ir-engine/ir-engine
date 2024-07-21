@@ -103,7 +103,7 @@ export default function GLTFTransformProperties({
               <Text
                 fontSize="xs"
                 fontWeight="medium"
-                className="block px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
+                className="block px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
                 style={{
                   textWrap: 'nowrap' // tailwind class is not working
                 }}
@@ -113,7 +113,7 @@ export default function GLTFTransformProperties({
               <Text
                 fontSize="xs"
                 fontWeight="medium"
-                className="px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
+                className="px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
                 style={{
                   textWrap: 'nowrap' // tailwind class is not working
                 }}
@@ -145,7 +145,7 @@ export default function GLTFTransformProperties({
               <Text
                 fontSize="xs"
                 fontWeight="medium"
-                className="block px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
+                className="block px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
                 style={{
                   textWrap: 'nowrap' // tailwind class is not working
                 }}

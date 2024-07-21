@@ -76,8 +76,8 @@ const TransformSpaceTool = () => {
       >
         <Select
           key={transformSpace.value}
-          inputClassName="py-1 h-6 rounded-sm text-[#D3D5D9] text-xs"
-          className="m-1 w-24 border-[#42454D] text-[#D3D5D9]"
+          inputClassName="py-1 h-6 rounded-sm text-theme-gray3 text-xs"
+          className="m-1 w-24 border-theme-input text-theme-gray3"
           onChange={setTransformSpace}
           options={transformSpaceOptions}
           currentValue={transformSpace.value}

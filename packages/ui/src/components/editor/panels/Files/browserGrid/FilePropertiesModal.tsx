@@ -277,7 +277,7 @@ export default function FilePropertiesModal({
               </span>
             </div>
             <div className="mt-10 flex flex-col gap-2">
-              <Text className="text-[#D3D5D9]" fontSize="sm">
+              <Text className="text-theme-gray3" fontSize="sm">
                 {t('editor:layout.filebrowser.fileProperties.addTag')}
               </Text>
               <div className="flex items-center gap-2">

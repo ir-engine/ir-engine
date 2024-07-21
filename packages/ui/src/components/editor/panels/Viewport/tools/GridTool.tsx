@@ -63,8 +63,8 @@ const GridTool = () => {
         <NumericInput
           value={rendererState.gridHeight.value}
           onChange={(value) => rendererState.gridHeight.set(value)}
-          className="h-6 w-16 rounded-sm border-[#42454D] bg-transparent px-2 py-1"
-          inputClassName="text-[#D3D5D9]"
+          className="h-6 w-16 rounded-sm border-theme-input bg-transparent px-2 py-1"
+          inputClassName="text-theme-gray3"
           precision={0.01}
           smallStep={0.5}
           mediumStep={1}

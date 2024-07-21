@@ -102,8 +102,8 @@ const TransformSnapTool = () => {
       <Tooltip title={t('editor:toolbar.transformSnapTool.info-translate')}>
         <Select
           key={editorHelperState.translationSnap.value}
-          inputClassName="py-1 h-6 rounded-sm text-[#D3D5D9] text-xs"
-          className="w-20 border-[#42454D] p-1 text-[#D3D5D9]"
+          inputClassName="py-1 h-6 rounded-sm text-theme-gray3 text-xs"
+          className="w-20 border-theme-input p-1 text-theme-gray3"
           onChange={onChangeTranslationSnap}
           options={translationSnapOptions}
           currentValue={editorHelperState.translationSnap.value}
@@ -112,8 +112,8 @@ const TransformSnapTool = () => {
       <Tooltip title={t('editor:toolbar.transformSnapTool.info-rotate')}>
         <Select
           key={editorHelperState.rotationSnap.value}
-          inputClassName="py-1 h-6 rounded-sm text-[#D3D5D9] text-xs pe-9"
-          className="w-20 border-[#42454D] p-1 text-[#D3D5D9]"
+          inputClassName="py-1 h-6 rounded-sm text-theme-gray3 text-xs pe-9"
+          className="w-20 border-theme-input p-1 text-theme-gray3"
           onChange={onChangeRotationSnap}
           options={rotationSnapOptions}
           currentValue={editorHelperState.rotationSnap.value}

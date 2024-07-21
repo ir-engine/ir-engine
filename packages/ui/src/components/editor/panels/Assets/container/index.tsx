@@ -275,7 +275,7 @@ type AssetsBreadcrumbProps = {
 }
 export function AssetsBreadcrumb({ path }: AssetsBreadcrumbProps) {
   return (
-    <div className="flex h-[28px] items-center gap-2 rounded-[4px] border border-[#42454D] bg-[#141619] px-2 ">
+    <div className="flex h-[28px] items-center gap-2 rounded-[4px] border border-theme-input bg-[#141619] px-2 ">
       <HiOutlineFolder className="text-xs text-[#A3A3A3]" />
       <span
         className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]"

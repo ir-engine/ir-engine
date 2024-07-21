@@ -109,8 +109,8 @@ const RenderModeTool = () => {
             info={t('editor:toolbar.render-settings.info-shadowMapResolution')}
           >
             <SelectInput
-              inputClassName="text-[#D3D5D9]"
-              className="border-[#42454D] text-[#D3D5D9]"
+              inputClassName="text-theme-gray3"
+              className="border-theme-input text-theme-gray3"
               options={ShadowMapResolutionOptions as { value: string; label: string }[]}
               value={rendererState.shadowMapResolution.value}
               onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}

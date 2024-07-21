@@ -46,10 +46,14 @@ export interface CSSClasses {
   'text-primary': string
   'text-secondary': string
   'text-highlight': string
+  'text-gray3': string
+
   'icon-green': string
   'icon-red': string
 
   'border-primary': string
+  'border-input': string
+
   selection: string
 }
 
@@ -72,10 +76,13 @@ const lightTheme: CSSClasses = {
   'text-primary': '#262626',
   'text-secondary': '#6B7280',
   'text-highlight': '#000000',
+  'text-gray3': '#D3D5D9',
+
   'icon-green': '#0D9488 ',
   'icon-red': '#E11D48',
 
   'border-primary': '#E5E7EB',
+  'border-input': '#42454D',
   selection: '#3166D0'
 }
 
@@ -98,10 +105,13 @@ const darkTheme: CSSClasses = {
   'text-primary': '#F5F5F5',
   'text-secondary': '#D4D4D4',
   'text-highlight': '#FFFFFF',
+  'text-gray3': '#D3D5D9',
+
   'icon-green': '#0D9488 ',
   'icon-red': '#FB7185',
 
   'border-primary': '#2B2C30',
+  'border-input': '#42454D',
   selection: '#1E4273'
 }
 

@@ -47,6 +47,7 @@ module.exports = {
           primary: 'var(--text-primary)',
           secondary: 'var(--text-secondary)',
           highlight: 'var(--text-highlight)',
+          'gray3': 'var(--text-gray3)',
           iconGreen: 'var(--icon-green)',
           iconRed: 'var(--icon-red)'
         }
@@ -70,7 +71,8 @@ module.exports = {
       },
       borderColor: {
         theme: {
-          primary: 'var(--border-primary)'
+          primary: 'var(--border-primary)',
+          input: 'var(--border-input)',
         }
       },
       colors: {
