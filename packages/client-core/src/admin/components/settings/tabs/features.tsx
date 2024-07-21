@@ -41,7 +41,7 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
   const { t } = useTranslation()
   const displayedFeatures = useHookstate<FeatureFlagSettingType[]>([])
 
-  const featureFlagSettings = useFind(featureFlagSettingPath)
+  const featureFlagSettings = useFind(featureFlagSettingPath, { query: { paginate: false } })
 
   useEffect(() => {
     if (featureFlagSettings.status === 'success') {
@@ -83,9 +83,9 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
       <div className="mt-6 grid grid-cols-1 gap-6">
         {displayedFeatures.value
           .toSorted()
-          .sort((x, y) => (x.flagValue === y.flagValue ? 0 : x.flagValue ? -1 : 1)) // show enabled first https://stackoverflow.com/a/17387454/2077741
+          .sort((a, b) => a.flagName.localeCompare(b.flagName))
           .map((feature) => (
-            <FeatureItem key={feature.id} feature={feature} />
+            <FeatureItem key={feature.flagName} feature={feature} />
           ))}
       </div>
     </Accordion>

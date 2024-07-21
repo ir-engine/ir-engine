@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+import { INVALID_FILENAME_WHITESPACE_REGEX, WINDOWS_RESERVED_NAME_REGEX } from '@etherealengine/common/src/regex'
 
-const Overlay = ({ pointerEvents, children }) => {
-  const overlayClassName = twMerge('fixed inset-0', `pointer-events-${pointerEvents} ?? 'auto'`)
-  return <div className={overlayClassName}>{children}</div>
+export function isValidFileName(fileName: string) {
+  return (
+    !INVALID_FILENAME_WHITESPACE_REGEX.test(fileName) &&
+    !WINDOWS_RESERVED_NAME_REGEX.test(fileName) &&
+    fileName.length > 0
+  )
 }
-
-export default Overlay

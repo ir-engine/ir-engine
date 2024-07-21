@@ -23,27 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { createPortal } from 'react-dom'
+import { defineComponent } from '@etherealengine/ecs'
 
-export const Portal = (props) => {
-  let el = document.createElement('div')
-
-  useEffect(() => {
-    document.body.appendChild(el)
-
-    return () => {
-      try {
-        if (el) {
-          document.body.removeChild(el)
-        }
-      } catch (err) {
-        console.warn(`Error removing Portal element: ${err}`)
-      }
-    }
-  }, [])
-
-  return createPortal(props.children, el)
-}
-
-export default Portal
+export const LightTagComponent = defineComponent({ name: 'LightTag' })

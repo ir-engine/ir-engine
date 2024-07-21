@@ -114,16 +114,7 @@ describe('regex.test', () => {
 
   describe('VALID_SCENE_NAME_REGEX', () => {
     it('should match valid scene names', () => {
-      const validSceneNames = [
-        'A123',
-        'file_name',
-        'user-name',
-        '12345',
-        'test file',
-        'my-file_123',
-        'Name123_456-789',
-        'a_b_c_d-e_f_g-h_i_j-k_l_m-n_o-p-q_r-s_t-u_v-w_x-y_z0123456789_-'
-      ]
+      const validSceneNames = ['A123', 'file-name', '12345', 'My-good-file']
       validSceneNames.forEach((filename) => {
         assert.ok(VALID_SCENE_NAME_REGEX.test(filename), `Expected '${filename}' to be valid scene names`)
       })
@@ -132,11 +123,13 @@ describe('regex.test', () => {
     it('should not match invalid scene names', () => {
       const invalidSceneNames = [
         'A1',
-        '_test',
+        '-test',
         'invalid!',
-        'very_long_string_that_is_definitely_not_going_to_match_the_regex_because_it_is_way_too_long_for_the_pattern',
+        'very-long-string-that-is-definitely-not-going-to-match-the-regex-because-it-is-way-too-long-for-the-pattern',
         '--double-hyphen',
-        '...'
+        '...',
+        'underscore_in_between',
+        'my-file_123'
       ]
       invalidSceneNames.forEach((filename) => {
         assert.ok(!VALID_SCENE_NAME_REGEX.test(filename), `Expected '${filename}' to be invalid scene names`)

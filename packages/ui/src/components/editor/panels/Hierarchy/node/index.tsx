@@ -47,7 +47,7 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
-import { HeirarchyTreeNodeType } from '@etherealengine/editor/src/components/hierarchy/HeirarchyTreeWalker'
+import { HierarchyTreeNodeType } from '@etherealengine/editor/src/components/hierarchy/HierarchyTreeWalker'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
@@ -67,7 +67,7 @@ import TransformPropertyGroup from '../../../properties/transform'
  * @param  {object} node
  * @return {string}
  */
-export const getNodeElId = (node: HeirarchyTreeNodeType) => {
+export const getNodeElId = (node: HierarchyTreeNodeType) => {
   return 'hierarchy-node-' + node.entity
 }
 
@@ -77,14 +77,14 @@ export type RenameNodeData = {
 }
 
 export type HierarchyTreeNodeData = {
-  nodes: HeirarchyTreeNodeType[]
+  nodes: HierarchyTreeNodeType[]
   renamingNode: RenameNodeData
-  onToggle: (e: Event, node: HeirarchyTreeNodeType) => void
-  onKeyDown: (e: Event, node: HeirarchyTreeNodeType) => void
-  onMouseDown: (e: MouseEvent, node: HeirarchyTreeNodeType) => void
-  onClick: (e: MouseEvent, node: HeirarchyTreeNodeType) => void
-  onChangeName: (node: HeirarchyTreeNodeType, name: string) => void
-  onRenameSubmit: (node: HeirarchyTreeNodeType, name: string) => void
+  onToggle: (e: Event, node: Entity) => void
+  onKeyDown: (e: Event, node: Entity) => void
+  onMouseDown: (e: MouseEvent, node: Entity) => void
+  onClick: (e: MouseEvent, node: Entity) => void
+  onChangeName: (node: Entity, name: string) => void
+  onRenameSubmit: (node: Entity, name: string) => void
   onUpload: ReturnType<typeof useUpload>
 }
 
@@ -92,62 +92,62 @@ export type HierarchyTreeNodeProps = {
   index: number
   data: HierarchyTreeNodeData
   style: StyleHTMLAttributes<HTMLLIElement>
-  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: HeirarchyTreeNodeType) => void
+  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: Entity) => void
 }
 
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
+  const entity = node.entity
   const data = props.data
 
-  const uuid = useComponent(node.entity, UUIDComponent)
+  const uuid = useComponent(entity, UUIDComponent)
 
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
 
-  const nodeName = useOptionalComponent(node.entity, NameComponent)?.value
+  const nodeName = useOptionalComponent(entity, NameComponent)?.value
 
-  const visible = useOptionalComponent(node.entity, VisibleComponent)
+  const visible = useOptionalComponent(entity, VisibleComponent)
 
-  const errors = useOptionalComponent(node.entity, ErrorComponent)
+  const errors = useOptionalComponent(entity, ErrorComponent)
 
-  const sceneAssetLoading = useOptionalComponent(node.entity, ResourcePendingComponent)
+  const sceneAssetLoading = useOptionalComponent(entity, ResourcePendingComponent)
 
   const toggleVisible = () => {
     if (visible) {
-      EditorControlFunctions.addOrRemoveComponent([node.entity], VisibleComponent, false)
+      EditorControlFunctions.addOrRemoveComponent([entity], VisibleComponent, false)
     } else {
-      EditorControlFunctions.addOrRemoveComponent([node.entity], VisibleComponent, true)
+      EditorControlFunctions.addOrRemoveComponent([entity], VisibleComponent, true)
     }
-    setVisibleComponent(node.entity, !hasComponent(node.entity, VisibleComponent))
+    setVisibleComponent(entity, !hasComponent(entity, VisibleComponent))
   }
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
       e.stopPropagation()
-      if (data.onToggle) data.onToggle(e, node)
+      if (data.onToggle) data.onToggle(e, entity)
     },
     [data.onToggle, node]
   )
 
   const onNodeKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      e.stopPropagation()
-      if (data.onKeyDown) data.onKeyDown(e as any, node)
+      if (data.onKeyDown) data.onKeyDown(e as any, entity)
     },
     [data.onKeyDown, node]
   )
 
   const onKeyDownNameInput = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === 'Escape') data.onRenameSubmit(node, null!)
-      else if (e.key === 'Enter') data.onRenameSubmit(node, (e.target as any).value)
+      if (e.key === 'Escape') data.onRenameSubmit(entity, null!)
+      else if (e.key === 'Enter') data.onRenameSubmit(entity, (e.target as any).value)
     },
     [data.onRenameSubmit, node]
   )
 
-  const onClickNode = useCallback((e) => data.onClick(e, node), [node, data.onClick])
-  const onMouseDownNode = useCallback((e) => data.onMouseDown(e, node), [node, data.onMouseDown])
+  const onClickNode = useCallback((e) => data.onClick(e, entity), [node, data.onClick])
+  const onMouseDownNode = useCallback((e) => data.onMouseDown && data.onMouseDown(e, entity), [node, data.onMouseDown])
 
-  const onChangeNodeName = useCallback((e) => data.onChangeName(node, e.target.value), [node, data.onChangeName])
+  const onChangeNodeName = useCallback((e) => data.onChangeName(entity, e.target.value), [node, data.onChangeName])
 
   const [, drag, preview] = useDrag({
     type: ItemTypes.Node,
@@ -179,7 +179,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     })
   })
 
-  const dropItem = (node: HeirarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
+  const dropItem = (node: HierarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
     let parentNode: Entity | undefined
     let beforeNode: Entity
 
@@ -324,13 +324,17 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         className={`py-.5 ml-3.5 h-7 justify-between bg-inherit pr-2`}
         onMouseDown={onMouseDownNode}
         onClick={onClickNode}
-        onContextMenu={(event) => props.onContextMenu(event, node)}
+        onContextMenu={(event) => props.onContextMenu(event, entity)}
       >
         <div
           className={twMerge(`border-t-[${isOverBefore && canDropBefore ? 2 : 0}px]`, `ml-${marginLeft} bg-inherit`)}
           ref={beforeDropTarget}
         />
-        <div className={twMerge('flex items-center pr-2', `pl-${node.depth * 3} bg-inherit`)} ref={onDropTarget}>
+        <div
+          className={twMerge('flex items-center pr-2', `bg-inherit`)}
+          style={{ paddingLeft: `${node.depth * 1.25}em` }}
+          ref={onDropTarget}
+        >
           {node.isLeaf ? (
             <div className={'w-5 shrink-0'} />
           ) : (

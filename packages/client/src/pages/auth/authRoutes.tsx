@@ -30,6 +30,7 @@ import { Route, Routes } from 'react-router-dom'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
 import $magiclink from './magiclink'
+import $apple from './oauth/apple'
 import $discord from './oauth/discord'
 import $facebook from './oauth/facebook'
 import $github from './oauth/github'
@@ -41,6 +42,7 @@ const AuthRoutes = () => {
   return (
     <Suspense fallback={<LoadingCircle message={t('common:loader.loadingAuth')} />}>
       <Routes>
+        <Route path="oauth/apple" element={<$apple />} />
         <Route path="oauth/discord" element={<$discord />} />
         <Route path="oauth/facebook" element={<$facebook />} />
         <Route path="oauth/github" element={<$github />} />

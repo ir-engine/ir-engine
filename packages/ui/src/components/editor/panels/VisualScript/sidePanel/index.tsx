@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { AddOutlined, CancelOutlined } from '@mui/icons-material'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { XYPosition, useReactFlow } from 'reactflow'
-import { v4 as uuidv4 } from 'uuid'
+import { useReactFlow } from 'reactflow'
 
 import { UndefinedEntity } from '@etherealengine/ecs'
 import {
@@ -43,7 +42,6 @@ import Button from '../../../../../primitives/tailwind/Button'
 import SelectInput from '../../../input/Select'
 import StringInput from '../../../input/String'
 import PaginatedList from '../../../layout/PaginatedList'
-import Panel from '../../../layout/Panel'
 import NodeEditor from '../../../properties/nodeEditor'
 import ParameterInput from '../../../properties/parameter'
 import { Examples } from '../modals/load'
@@ -88,7 +86,7 @@ export const SidePanel = ({
 
   return (
     <NodeEditor entity={UndefinedEntity} name={t('editor:visualScript.sidePanel.title')}>
-      <NodeEditor
+      {/*<NodeEditor
         entity={UndefinedEntity}
         name={t('editor:visualScript.sidePanel.node.name')}
         description={t('editor:visualScript.sidePanel.node.description')}
@@ -126,7 +124,7 @@ export const SidePanel = ({
             )
           }}
         ></PaginatedList>
-      </NodeEditor>
+      </NodeEditor>*/}
       <NodeEditor
         entity={UndefinedEntity}
         name={t('editor:visualScript.sidePanel.template.name')}

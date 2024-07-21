@@ -65,7 +65,6 @@ import { checkScope } from '@etherealengine/spatial/src/common/functions/checkSc
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
-import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import { isSignedByAppJWT } from '../../hooks/is-signed-by-app-jwt'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
@@ -245,7 +244,7 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
       ? data
       : {
           data: data,
-          total: data.length,
+          total: context.result?.['total'] ?? data.length,
           limit: context.params?.query?.$limit || 1000,
           skip: context.params?.query?.$skip || 0
         }
@@ -542,6 +541,7 @@ const updateProjectJob = async (context: HookContext) => {
       returnData: '',
       status: 'pending'
     })
+    const projectJobName = data.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
     const jobBody = await getProjectUpdateJobBody(
       data,
       context.app,
@@ -552,7 +552,7 @@ const updateProjectJob = async (context: HookContext) => {
     await context.app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name
     })
-    const jobLabelSelector = `etherealengine/projectField=${data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
+    const jobLabelSelector = `etherealengine/projectField=${projectJobName},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
     const jobFinishedPromise = createExecutorJob(context.app, jobBody, jobLabelSelector, 1000, newJob.id)
     try {
       await jobFinishedPromise
@@ -586,7 +586,6 @@ export default createSkippableHooks(
     before: {
       all: [schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
       find: [
-        enableClientPagination(),
         iffElse(isAction('admin'), [], filterDisabledProjects),
         discardQuery('action'),
         ensurePushStatus,

@@ -34,12 +34,16 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
   UUIDComponent
 } from '@etherealengine/ecs'
 
+import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
+import { getState } from '@etherealengine/hyperflux'
+import iterateObject3D from '../../common/functions/iterateObject3D'
 import { NameComponent } from '../../common/NameComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import {
@@ -51,6 +55,19 @@ import {
   MaterialStateComponent,
   prototypeQuery
 } from './MaterialComponent'
+
+export const loadMaterialGLTF = (url: string, callback: (material: Material | null) => void) => {
+  const gltfLoader = getState(AssetLoaderState).gltfLoader
+  gltfLoader.load(url, (gltf) => {
+    const material = iterateObject3D(
+      gltf.scene,
+      (mesh: Mesh) => mesh.material as Material,
+      (mesh: Mesh) => mesh?.isMesh
+    )[0]
+    if (!material) callback(null)
+    callback(material)
+  })
+}
 
 export const extractDefaults = (defaultArgs) => {
   return formatMaterialArgs(
@@ -97,7 +114,11 @@ export const createMaterialPrototype = (prototype: MaterialPrototypeDefinition) 
 }
 
 export const getMaterial = (uuid: EntityUUID) => {
-  return getOptionalComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent)?.material as Material
+  return (
+    getOptionalComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent)?.material ??
+    getComponent(UUIDComponent.getEntityByUUID(MaterialStateComponent.fallbackMaterial), MaterialStateComponent)
+      .material
+  )
 }
 
 export const setMeshMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {
@@ -177,34 +198,27 @@ export function PrototypeNotFoundError(message) {
 }
 
 /** Assigns a preexisting material entity to a mesh */
-export const assignMaterial = (entity: Entity, materialEntity: Entity) => {
-  setComponent(entity, MaterialInstanceComponent)
+export const assignMaterial = (user: Entity, materialEntity: Entity, index = 0) => {
   const materialStateComponent = getMutableComponent(materialEntity, MaterialStateComponent)
+  materialStateComponent.instances.set([...materialStateComponent.instances.value, user])
+  if (!user) return
+  if (!hasComponent(user, MaterialInstanceComponent)) setComponent(user, MaterialInstanceComponent)
   const material = materialStateComponent.material.value as Material
-  const materialComponent = getMutableComponent(entity, MaterialInstanceComponent)
-  const uuids = materialComponent.uuid.value
-
+  const materialInstanceComponent = getMutableComponent(user, MaterialInstanceComponent)
   const newUUID = material.uuid as EntityUUID
-  materialComponent.uuid.set([...uuids, newUUID])
-
   if (!UUIDComponent.getEntityByUUID(newUUID)) throw new MaterialNotFoundError(`Material ${newUUID} not found`)
-
-  if (material.plugins) {
-    material.customProgramCacheKey = () =>
-      (material.shader ? material.shader.fragmentShader + material.shader.vertexShader : '') +
-      material.plugins!.map((plugin) => plugin?.toString() ?? '').reduce((x, y) => x + y, '')
-  }
-  materialStateComponent.instances.set([...materialStateComponent.instances.value, entity])
+  materialInstanceComponent.uuid[index].set(newUUID)
 }
 
 /**Sets and replaces a material entity for a material's UUID */
-export const createMaterialEntity = (material: Material, user: Entity): Entity => {
+export const createMaterialEntity = (material: Material): Entity => {
   const materialEntity = createEntity()
   const uuid = material.uuid as EntityUUID
-  if (user) setComponent(user, MaterialInstanceComponent, { uuid: [uuid] })
   const existingMaterial = UUIDComponent.getEntityByUUID(uuid)
   const existingUsers = existingMaterial ? getComponent(existingMaterial, MaterialStateComponent).instances : []
-  if (existingMaterial) removeEntity(existingMaterial)
+  if (existingMaterial) {
+    removeEntity(existingMaterial)
+  }
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
   const prototypeEntity = getPrototypeEntityFromName(material.userData.type || material.type)
   if (!prototypeEntity) {
@@ -221,8 +235,11 @@ export const createMaterialEntity = (material: Material, user: Entity): Entity =
         (k) => [k, material[k]]
       )
     ),
-    instances: existingUsers.length ? existingUsers : [user]
+    instances: existingUsers.length ? existingUsers : []
   })
+  if (existingMaterial)
+    for (const instance of existingUsers)
+      setMeshMaterial(instance, getComponent(instance, MaterialInstanceComponent).uuid)
   if (material.userData?.plugins)
     material.userData.plugins.map((plugin) => {
       if (!plugin) return
@@ -232,8 +249,18 @@ export const createMaterialEntity = (material: Material, user: Entity): Entity =
         if (v) pluginComponent[k].value = v
       }
     })
-  setComponent(materialEntity, NameComponent, material.name)
+  setComponent(materialEntity, NameComponent, material.name === '' ? material.type : material.name)
   return materialEntity
+}
+
+export const createAndAssignMaterial = (user: Entity, material: Material, index = 0) => {
+  const materialEntity = createMaterialEntity(material)
+  assignMaterial(user, materialEntity, index)
+}
+
+export const getMaterialIndices = (entity: Entity, materialUUID: EntityUUID) => {
+  const uuids = getComponent(entity, MaterialInstanceComponent).uuid
+  return uuids.map((uuid, index) => (uuid === materialUUID ? index : undefined)).filter((x) => x !== undefined)
 }
 
 export const getPrototypeEntityFromName = (name: string) =>

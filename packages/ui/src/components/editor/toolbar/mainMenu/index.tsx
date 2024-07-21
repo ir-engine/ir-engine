@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '../../../../primitives/tailwind/Button'
+import { ContextMenu } from '../../../tailwind/ContextMenu'
 
 interface Command {
   name: string
@@ -41,10 +41,6 @@ interface MainMenuProp {
 }
 
 const MainMenu = ({ commands, icon }: MainMenuProp) => {
-  const [anchorPosition, setAnchorPosition] = React.useState<undefined | { left: number; top: number }>({
-    left: 0,
-    top: 0
-  })
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const onOpen = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -52,15 +48,6 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
     event.stopPropagation()
 
     setAnchorEvent(event)
-    setAnchorPosition({
-      left: 0,
-      top: event.currentTarget.offsetHeight + 6
-    })
-  }
-
-  const handleClose = () => {
-    setAnchorEvent(undefined)
-    setAnchorPosition(undefined)
   }
 
   const renderMenu = (command: Command) => {
@@ -69,7 +56,7 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
         key={command.name}
         onClick={() => {
           command.action()
-          handleClose()
+          setAnchorEvent(undefined)
         }}
       >
         {command.name}
@@ -89,8 +76,10 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
           onClick={(event) => onOpen(event as any)}
         />
       </div>
-      <ContextMenu anchorEvent={anchorEvent} panelId="menu" anchorPosition={anchorPosition} onClose={handleClose}>
-        {commands.map((command: Command) => renderMenu(command))}
+      <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
+        <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+          {commands.map((command: Command) => renderMenu(command))}
+        </div>
       </ContextMenu>
     </>
   )

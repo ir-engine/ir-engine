@@ -147,18 +147,20 @@ export class FileBrowserService
       })
     }
 
-    const resourceQuery = await this.app.service(staticResourcePath).find({
+    const resourceQuery = (await this.app.service(staticResourcePath).find({
       query: {
         key: { $in: result.map((file) => file.key) }
-      }
-    })
+      },
+      paginate: false
+    })) as unknown as StaticResourceType[]
     const resourceMap: Record<string, StaticResourceType> = {}
-    for (const resource of resourceQuery.data) {
+    for (const resource of resourceQuery) {
       resourceMap[resource.key] = resource
     }
     for (const file of result) {
       const resource = resourceMap[file.key]
       if (resource) {
+        file.url = resource.url
         file.thumbnailURL = resource.thumbnailURL
       }
     }
@@ -223,10 +225,10 @@ export class FileBrowserService
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
-        key: { $like: `%${path.join(oldDirectory, oldName)}%` }
-      },
-      paginate: false
-    })) as StaticResourceType[]
+        key: { $like: `%${path.join(oldDirectory, oldName)}%` },
+        paginate: false
+      } as any
+    })) as unknown as StaticResourceType[]
 
     if (!staticResources?.length) throw new Error('Static resources not found')
 

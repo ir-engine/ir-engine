@@ -24,44 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import { twMerge } from 'tailwind-merge'
-import ClickAwayListener from './ClickAwayListener'
+import { Popup as ReactjsPopup } from 'reactjs-popup'
+import { PopupProps } from 'reactjs-popup/dist/types'
 
-type ContextMenuProps = {
-  className?: string
-  open: boolean
-  anchorEl: null | HTMLElement
-  panelId: string
-  anchorPosition: any
-  onClose: () => void
-}
-
-export const PopOver = ({
-  children,
-  open,
-  anchorEl,
-  panelId,
-  anchorPosition,
-  className,
-  onClose
-}: React.PropsWithChildren<ContextMenuProps>) => {
-  const panel = document.getElementById(panelId)
-  const positionX = anchorPosition?.left - panel?.getBoundingClientRect().left!
-  const positionY = anchorPosition?.top - panel?.getBoundingClientRect().top!
+export const Popup = ({
+  trigger,
+  keepInside,
+  ...props
+}: { trigger: React.ReactNode; keepInside?: boolean } & Omit<PopupProps, 'trigger'>) => {
   return (
-    <ClickAwayListener onClickAway={() => onClose()}>
-      <div className={`${open ? 'block' : 'hidden'}`}>
-        {open && anchorEl && (
-          <div
-            className={twMerge('absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg', className)}
-            style={{ top: `${positionY}px`, left: `${positionX}px` }}
-          >
-            {children}
-          </div>
-        )}
-      </div>
-    </ClickAwayListener>
+    <ReactjsPopup
+      closeOnDocumentClick
+      closeOnEscape
+      repositionOnResize
+      on={'click'}
+      keepTooltipInside={keepInside}
+      arrow={false}
+      trigger={<div style={{ all: 'unset' }}>{trigger}</div>}
+      contentStyle={{ overflow: 'visible' }}
+      {...props}
+    />
   )
 }
-
-export default PopOver
