@@ -205,7 +205,12 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   }, [modelState.scene, transformParms])
 
   return (
-    <Accordion className="p-0" title="Model Transform Properties" expandIcon={undefined} shrinkIcon={undefined}>
+    <Accordion
+      className="space-y-4 p-4"
+      title="Model Transform Properties"
+      expandIcon={undefined}
+      shrinkIcon={undefined}
+    >
       <div className="TransformContainer">
         <Accordion className="p-0" title="glTF-Transform" expandIcon={undefined} shrinkIcon={undefined}>
           <GLTFTransformProperties transformParms={transformParms} itemCount={1} />

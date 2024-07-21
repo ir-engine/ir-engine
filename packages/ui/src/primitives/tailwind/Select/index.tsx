@@ -129,7 +129,7 @@ const Select = <T extends OptionValueType>({
   }
 
   return (
-    <div className={twMerge('relative', className)} ref={ref}>
+    <div className={twMerge('relative w-full', className)} ref={ref}>
       <Input
         disabled={disabled}
         label={label}
