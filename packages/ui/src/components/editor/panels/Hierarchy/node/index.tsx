@@ -319,7 +319,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         }`,
         selected ? 'text-white' : 'text-gray-300',
         'hover:text-white',
-        `${visible ? '' : 'bg-gray-950 text-neutral-800'}`
+        `${visible ? '' : 'bg-[#191B1F] text-[#6B7280]'}`
       )}
     >
       <div
