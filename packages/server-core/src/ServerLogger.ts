@@ -29,6 +29,7 @@ Ethereal Engine. All Rights Reserved.
  * (which will send all log events to this server-side logger here, via an
  *  API endpoint).
  */
+import appRootPath from 'app-root-path'
 import net from 'net'
 import os from 'os'
 import path from 'path'
@@ -76,7 +77,7 @@ const streamToFile = pino.transport({
   target: 'pino/file',
   options: {
     mkdir: true,
-    destination: path.join(__dirname, 'logs/irengine.log')
+    destination: path.join(appRootPath.path, 'logs/irengine.log')
   }
 })
 
@@ -136,7 +137,14 @@ export const elasticOnlyLogger = pino(
   streamToElastic
 )
 
-const multiStream = pino.multistream([streamToFile, streamToPretty, streamToElastic, streamToOpenSearch])
+const defaultStreams = [streamToPretty, streamToElastic, streamToOpenSearch]
+
+// Enable log to local file
+if (process.env.LOG_TO_FILE === 'true') {
+  defaultStreams.push(streamToFile)
+}
+
+const multiStream = pino.multistream(defaultStreams)
 
 export const logger = pino(
   {
@@ -147,14 +155,28 @@ export const logger = pino(
     },
     hooks: {
       logMethod(inputArgs, method, level) {
-        const { component, userId } = this.bindings()
+        const pushOrUnshift = (key: string, value: string) => {
+          if (inputArgs.length > 0 && typeof inputArgs[0] === 'string') {
+            inputArgs.unshift({ [key]: value })
+          } else if (inputArgs.length > 0 && typeof inputArgs[0] !== 'string') {
+            if (!(inputArgs[0] as any)[key]) {
+              ;(inputArgs[0] as any)[key] = value
+            }
+          }
+        }
 
-        if (!component && !userId) {
-          inputArgs.unshift({ component: 'server-core', userId: '' })
-        } else if (component) {
-          inputArgs.unshift({ userId: '' })
-        } else if (userId) {
-          inputArgs.unshift({ component: 'server-core' })
+        const { component: bindingsComponent, userId: bindingsUserId } = this.bindings()
+
+        const { component: inputArgsComponent, userId: inputArgsUserId } =
+          inputArgs.length > 0 && typeof inputArgs[0] !== 'string' ? inputArgs[0] : { component: '', userId: '' }
+
+        if (!bindingsComponent && !bindingsUserId && !inputArgsComponent && !inputArgsUserId) {
+          pushOrUnshift('component', 'server-core')
+          pushOrUnshift('userId', '')
+        } else if (bindingsComponent || inputArgsComponent) {
+          pushOrUnshift('userId', '')
+        } else if (bindingsUserId || inputArgsUserId) {
+          pushOrUnshift('component', 'server-core')
         }
 
         return method.apply(this, inputArgs)
