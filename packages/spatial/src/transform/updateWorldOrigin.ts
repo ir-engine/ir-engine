@@ -66,6 +66,5 @@ export const updateWorldOrigin = () => {
 
 export const computeAndUpdateWorldOrigin = () => {
   computeTransformMatrix(Engine.instance.localFloorEntity)
-  TransformComponent.dirtyTransforms[Engine.instance.localFloorEntity] = false
   updateWorldOrigin()
 }
