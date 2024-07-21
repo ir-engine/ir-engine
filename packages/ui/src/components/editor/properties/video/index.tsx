@@ -50,7 +50,6 @@ import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWra
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
-import ProgressBar from '../../input/Progress'
 import SelectInput from '../../input/Select'
 import Vector2Input from '../../input/Vector2'
 import NodeEditor from '../nodeEditor'
@@ -105,11 +104,11 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.video.description')}
       icon={<VideoNodeEditor.iconComponent />}
     >
-      <ProgressBar
-        value={mediaElement?.value.element.currentTime ?? 0}
-        paused={mediaElement?.value.element.paused ?? false}
-        totalTime={mediaElement?.value.element.duration ?? 0}
-      />
+      {/*<ProgressBar
+        value={0}
+        paused={false}
+        totalTime={0}
+      />*/}
       <InputGroup
         name="Media"
         label={t('editor:properties.video.lbl-media')}
