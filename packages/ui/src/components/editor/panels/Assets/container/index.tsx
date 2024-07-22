@@ -314,7 +314,11 @@ const CategoriesList = ({
   }
 
   return (
-    <div ref={listRef} className="mb-8 h-full w-52 overflow-y-scroll bg-[#0E0F11] pb-8" onScroll={handleScroll}>
+    <div
+      ref={listRef}
+      className="mb-8 h-full w-full overflow-x-hidden overflow-y-scroll bg-[#0E0F11] pb-8"
+      onScroll={handleScroll}
+    >
       {categories.map((category, index) => (
         <AssetCategory
           key={category.name}
