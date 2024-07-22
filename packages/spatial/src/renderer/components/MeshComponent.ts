@@ -87,11 +87,11 @@ export const MeshComponent = defineComponent({
 
 /**
  *
- * Adds a run time only mesh component to an entity that won't be serialized into the scene
+ * Creates a mesh component that won't be exported
  *
  * @param entity entity to add the mesh component to
- * @param geometry a Geometry instance or function returing a geometry instance to add to the mesh
- * @param material a Material instance or function returing a material instance to add to the mesh
+ * @param geometry a Geometry instance or function returing a Geometry instance to add to the mesh
+ * @param material a Material instance or function returing a Material instance to add to the mesh
  * @returns State<Mesh>
  */
 export function useMeshComponent<TGeometry extends BufferGeometry, TMaterial extends Material>(
