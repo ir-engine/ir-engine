@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import {
   StaticResourceQuery,
   StaticResourceType,
@@ -110,6 +111,7 @@ const ResourceFile = (props: {
 }) => {
   const { t } = useTranslation()
 
+  const userID = useMutableState(AuthState).user.id.value
   const { resource, selected, onClick, onChange } = props
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
@@ -171,37 +173,39 @@ const ResourceFile = (props: {
               { label: t('editor:assetMetadata.tags'), value: `${resource.tags || 'none'}` }
             ]}
           />
-          <Button
-            variant="outline"
-            size="small"
-            fullWidth
-            onClick={() => {
-              PopoverState.showPopupover(
-                <DeleteFileModal
-                  files={[
-                    {
-                      key: resource.key,
-                      path: resource.url,
-                      name: resource.key,
-                      fullName: name,
-                      thumbnailURL: resource.thumbnailURL,
-                      url: resource.url,
-                      type: assetType,
-                      isFolder: false
-                    }
-                  ]}
-                  onComplete={(err?: unknown) => {
-                    if (!err) {
-                      onChange()
-                    }
-                  }}
-                />
-              )
-              setAnchorEvent(undefined)
-            }}
-          >
-            {t('editor:layout.assetGrid.deleteAsset')}
-          </Button>
+          {!!userID && userID === resource.userId && (
+            <Button
+              variant="outline"
+              size="small"
+              fullWidth
+              onClick={() => {
+                PopoverState.showPopupover(
+                  <DeleteFileModal
+                    files={[
+                      {
+                        key: resource.key,
+                        path: resource.url,
+                        name: resource.key,
+                        fullName: name,
+                        thumbnailURL: resource.thumbnailURL,
+                        url: resource.url,
+                        type: assetType,
+                        isFolder: false
+                      }
+                    ]}
+                    onComplete={(err?: unknown) => {
+                      if (!err) {
+                        onChange()
+                      }
+                    }}
+                  />
+                )
+                setAnchorEvent(undefined)
+              }}
+            >
+              {t('editor:layout.assetGrid.deleteAsset')}
+            </Button>
+          )}
           {/* TODO: add more actions (compressing images/models, editing tags, etc) here as desired  */}
         </div>
       </ContextMenu>
