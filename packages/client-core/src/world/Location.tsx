@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
@@ -38,11 +38,15 @@ import './LocationModule'
 
 import { t } from 'i18next'
 
+import multiLogger from '@etherealengine/common/src/logger'
 import { StyledEngineProvider } from '@mui/material/styles'
 import { LoadingCircle } from '../components/LoadingCircle'
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
 import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
+import { clientContextParams } from '../util/contextParams'
+
+const logger = multiLogger.child({ component: 'system:location ', modifier: clientContextParams })
 
 type Props = {
   online?: boolean
@@ -64,6 +68,11 @@ const LocationPage = ({ online }: Props) => {
   LocationService.useLocationBanListeners()
 
   useLoadEngineWithScene()
+
+  useEffect(() => {
+    if (ready.value) logger.info({ event_name: 'enter_location', event_value: '' })
+    return () => logger.info({ event_name: 'exit_location', event_value: '' })
+  }, [ready.value])
 
   return (
     <>

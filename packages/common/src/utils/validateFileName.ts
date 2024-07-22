@@ -23,19 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { INVALID_FILENAME_WHITESPACE_REGEX, WINDOWS_RESERVED_NAME_REGEX } from '@etherealengine/common/src/regex'
 
-export const useClickOutside = (
-  ref: React.RefObject<HTMLElement>,
-  onClickOutsideCallback: (event: MouseEvent) => void
-) => {
-  useEffect(() => {
-    const onClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        onClickOutsideCallback(event)
-      }
-    }
-    document.addEventListener('mousedown', onClickOutside)
-    return () => document.removeEventListener('mousedown', onClickOutside)
-  }, [ref.current])
+export function isValidFileName(fileName: string) {
+  return (
+    !INVALID_FILENAME_WHITESPACE_REGEX.test(fileName) &&
+    !WINDOWS_RESERVED_NAME_REGEX.test(fileName) &&
+    fileName.length > 0
+  )
 }
