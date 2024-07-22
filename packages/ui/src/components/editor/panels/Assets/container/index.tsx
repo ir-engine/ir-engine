@@ -28,6 +28,7 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import {
   StaticResourceQuery,
   StaticResourceType,
@@ -40,7 +41,7 @@ import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/as
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import {
@@ -61,6 +62,7 @@ import { TablePagination } from '../../../../../primitives/tailwind/Table'
 import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
+import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
 import { FileIcon } from '../../Files/icon'
 
 type Category = {
@@ -104,10 +106,11 @@ const ResourceFile = (props: {
   resource: StaticResourceType
   selected: boolean
   onClick: (props: AssetSelectionChangePropsType) => void
+  onChange: () => void
 }) => {
   const { t } = useTranslation()
 
-  const { resource, selected, onClick } = props
+  const { resource, selected, onClick, onChange } = props
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -168,6 +171,37 @@ const ResourceFile = (props: {
               { label: t('editor:assetMetadata.tags'), value: `${resource.tags || 'none'}` }
             ]}
           />
+          <Button
+            variant="outline"
+            size="small"
+            fullWidth
+            onClick={() => {
+              PopoverState.showPopupover(
+                <DeleteFileModal
+                  files={[
+                    {
+                      key: resource.key,
+                      path: resource.url,
+                      name: resource.key,
+                      fullName: name,
+                      thumbnailURL: resource.thumbnailURL,
+                      url: resource.url,
+                      type: assetType,
+                      isFolder: false
+                    }
+                  ]}
+                  onComplete={(err?: unknown) => {
+                    if (!err) {
+                      onChange()
+                    }
+                  }}
+                />
+              )
+              setAnchorEvent(undefined)
+            }}
+          >
+            {t('editor:layout.assetGrid.deleteAsset')}
+          </Button>
           {/* TODO: add more actions (compressing images/models, editing tags, etc) here as desired  */}
         </div>
       </ContextMenu>
@@ -435,6 +469,10 @@ const AssetPanel = () => {
     return () => searchTimeoutCancelRef.current?.()
   }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
 
+  const handleRefreshPage = () => {
+    selectedCategory.set(selectedCategory.get(NO_PROXY))
+  }
+
   const ResourceItems = () => {
     if (loading.value) {
       return (
@@ -460,6 +498,9 @@ const AssetPanel = () => {
                 onClick={(props: AssetSelectionChangePropsType) => {
                   assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
                   ClickPlacementState.setSelectedAsset(props.resourceUrl)
+                }}
+                onChange={() => {
+                  handleRefreshPage()
                 }}
               />
             ))}
