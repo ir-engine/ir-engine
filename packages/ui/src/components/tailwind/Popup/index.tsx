@@ -23,37 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import React from 'react'
+import { Popup as ReactjsPopup } from 'reactjs-popup'
+import { PopupProps } from 'reactjs-popup/dist/types'
 
-import { FollowCameraComponent } from '../components/FollowCameraComponent'
-import { CameraMode } from '../types/CameraMode'
-
-type SwitchCameraModeProps = {
-  cameraMode: CameraMode
-  pointerLock?: boolean
-}
-
-let changeTimeout: any = undefined
-export const switchCameraMode = (
-  cameraEntity: Entity,
-  args: SwitchCameraModeProps = { pointerLock: false, cameraMode: CameraMode.ThirdPerson },
-  force = false
-): void => {
-  if (!force) {
-    if (changeTimeout !== undefined) return
-    changeTimeout = setTimeout(() => {
-      clearTimeout(changeTimeout)
-      changeTimeout = undefined
-    }, 250)
-  }
-
-  const cameraFollow = getOptionalComponent(cameraEntity, FollowCameraComponent)
-  if (!cameraFollow) return
-  cameraFollow.mode = args.cameraMode
-
-  if (cameraFollow.mode === CameraMode.FirstPerson) {
-    cameraFollow.phi = 0
-    cameraFollow.locked = true
-  }
+export const Popup = ({
+  trigger,
+  keepInside,
+  ...props
+}: { trigger: React.ReactNode; keepInside?: boolean } & Omit<PopupProps, 'trigger'>) => {
+  return (
+    <ReactjsPopup
+      closeOnDocumentClick
+      closeOnEscape
+      repositionOnResize
+      on={'click'}
+      keepTooltipInside={keepInside}
+      arrow={false}
+      trigger={<div style={{ all: 'unset' }}>{trigger}</div>}
+      contentStyle={{ overflow: 'visible' }}
+      {...props}
+    />
+  )
 }

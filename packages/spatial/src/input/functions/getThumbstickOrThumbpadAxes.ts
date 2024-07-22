@@ -23,45 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
-import ClickAwayListener from './ClickAwayListener'
-
-type ContextMenuProps = {
-  className?: string
-  open: boolean
-  anchorEl: null | HTMLElement
-  panelId: string
-  anchorPosition: any
-  onClose: () => void
+/**
+ * On 'xr-standard' mapping, get thumbstick input [2,3], fallback to thumbpad input [0,1]
+ * On 'standard' mapping, get thumbstick input [0,1]
+ */
+export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, handedness: XRHandedness, deadZone = 0.05) {
+  const gamepad = inputSource.gamepad
+  const axes = gamepad!.axes
+  const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' || handedness === 'right' ? 2 : 0
+  const xAxis = Math.abs(axes[axesIndex]) > deadZone ? axes[axesIndex] : 0
+  const zAxis = Math.abs(axes[axesIndex + 1]) > deadZone ? axes[axesIndex + 1] : 0
+  return [xAxis, zAxis] as [number, number]
 }
-
-export const PopOver = ({
-  children,
-  open,
-  anchorEl,
-  panelId,
-  anchorPosition,
-  className,
-  onClose
-}: React.PropsWithChildren<ContextMenuProps>) => {
-  const panel = document.getElementById(panelId)
-  const positionX = anchorPosition?.left - panel?.getBoundingClientRect().left!
-  const positionY = anchorPosition?.top - panel?.getBoundingClientRect().top!
-  return (
-    <ClickAwayListener onClickAway={() => onClose()}>
-      <div className={`${open ? 'block' : 'hidden'}`}>
-        {open && anchorEl && (
-          <div
-            className={twMerge('absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg', className)}
-            style={{ top: `${positionY}px`, left: `${positionX}px` }}
-          >
-            {children}
-          </div>
-        )}
-      </div>
-    </ClickAwayListener>
-  )
-}
-
-export default PopOver

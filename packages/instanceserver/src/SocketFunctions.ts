@@ -130,10 +130,6 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
         console.log('got disconnection')
         handleDisconnect(network, peerID)
       })
-
-      spark.on('data', (message) => {
-        network.transport.onMessage(peerID, message)
-      })
     } catch (e) {
       console.error(e)
       authTask.status = 'fail'

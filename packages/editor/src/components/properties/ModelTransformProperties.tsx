@@ -211,10 +211,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
     <CollapsibleBlock label="Model Transform Properties">
       <div className="TransformContainer">
         <CollapsibleBlock label="glTF-Transform">
-          <GLTFTransformProperties
-            transformParms={transformParms}
-            onChange={(transformParms: ModelTransformParameters) => {}}
-          />
+          <GLTFTransformProperties transformParms={transformParms} itemCount={1} />
         </CollapsibleBlock>
         {!transforming.value && (
           <>

@@ -41,15 +41,14 @@ import { v4 as uuidv4 } from 'uuid'
 
 import config from '@etherealengine/common/src/config'
 import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
-import { PUBLIC_STUN_SERVERS } from '@etherealengine/common/src/constants/STUNServers'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
   ChannelID,
   InstanceID,
   InviteCode,
   LocationID,
-  MessageID,
-  RoomCode
+  RoomCode,
+  UserID
 } from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -65,7 +64,6 @@ import {
   removeActionQueue
 } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import {
-  DataChannelRegistryState,
   DataChannelType,
   MediaStreamAppData,
   MediasoupDataProducerActions,
@@ -77,9 +75,9 @@ import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
   MediasoupTransportState,
-  NetworkActionFunctions,
   NetworkActions,
   NetworkConnectionParams,
+  NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
   VideoConstants,
@@ -108,36 +106,7 @@ const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFun
 
 export type WebRTCTransportExtension = Omit<MediaSoupTransport, 'appData'> & { appData: MediaStreamAppData }
 export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
-export type ConsumerExtension = Omit<Consumer, 'appData'> & {
-  appData: MediaStreamAppData
-}
-
-let id = 0
-
-// import { encode, decode } from 'msgpackr'
-
-// Adds support for Promise to Primus client
-// Each 'data' listener function needs to be named something unique in order for removeListener to
-// not remove all 'data' listener functions
-export const promisedRequest = (network: SocketWebRTCClientNetwork, type: any, data = {}) => {
-  return new Promise<any>((resolve) => {
-    const responseFunction = (data) => {
-      if (data.type.toString() === message.type.toString() && message.id === data.id) {
-        resolve(data.data)
-        network.transport.primus.removeListener('data', responseFunction)
-      }
-    }
-    Object.defineProperty(responseFunction, 'name', { value: `responseFunction${id}`, writable: true })
-    const message = {
-      type: type,
-      data: data,
-      id: (id++).toString() as MessageID
-    }
-    network.transport.primus.write(message)
-
-    network.transport.primus.on('data', responseFunction)
-  })
-}
+export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData }
 
 const instanceStillProvisioned = (instanceID: InstanceID, locationID?: LocationID, channelID?: ChannelID) =>
   !!(
@@ -156,9 +125,9 @@ const unprovisionInstance = (topic: Topic, instanceID: InstanceID) => {
 }
 
 export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
-  clearInterval(network.transport.heartbeat)
-  network.transport.primus?.removeAllListeners()
-  network.transport.primus?.end()
+  clearInterval(network.heartbeat)
+  network.primus?.removeAllListeners()
+  network.primus?.end()
   removeNetwork(network)
   /** Dispatch updatePeers locally to ensure event souce states know about this */
   dispatchAction(
@@ -176,54 +145,14 @@ export const initializeNetwork = (id: InstanceID, hostPeerID: PeerID, topic: Top
     navigator.userAgent === BotUserAgent ? { handlerName: 'Chrome74' } : undefined
   )
 
-  const transport = {
-    messageToPeer: (peerId: PeerID, data: any) => {
-      network.transport.primus?.write(data)
-    },
-
-    messageToAll: (data: any) => {
-      network.transport.primus?.write(data)
-    },
-
-    onMessage: (fromPeerID: PeerID, message: any) => {
-      const actions = message as any as Required<Action>[]
-      // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
-      NetworkActionFunctions.receiveIncomingActions(network, fromPeerID, actions)
-    },
-
-    bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerID: PeerID, data: any) => {
-      transport.bufferToAll(dataChannelType, fromPeerID, data)
-    },
-
-    bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
-      const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(network.id, dataChannelType) as
-        | DataProducer
-        | undefined
-      if (!dataProducer) return
-      if (dataProducer.closed || dataProducer.readyState !== 'open') return
-      const fromPeerIndex = network.peerIDToPeerIndex[fromPeerID]
-      if (typeof fromPeerIndex === 'undefined')
-        return console.warn('fromPeerIndex is undefined', fromPeerID, fromPeerIndex)
-      dataProducer.send(encode([fromPeerIndex, data]))
-    },
-
-    onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
-      const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannelType]
-      if (dataChannelFunctions) {
-        for (const func of dataChannelFunctions) func(network, dataChannelType, fromPeerID, data)
-      }
-    },
-
+  const network = createNetwork(id, hostPeerID, topic, {
     mediasoupDevice,
     mediasoupLoaded: false,
     primus,
-
     heartbeat: setInterval(() => {
-      network.transport.messageToPeer(network.hostPeerID, [])
+      network.messageToPeer(network.hostPeerID, [])
     }, 1000)
-  }
-
-  const network = createNetwork(id, hostPeerID, topic, transport)
+  })
 
   return network
 }
@@ -425,10 +354,34 @@ export const connectToNetwork = async (
     Identifiable
   >
 
-  network.transport.primus.on('data', (message) => {
+  network.primus.on('data', (message) => {
     if (!message) return
-    network.transport.onMessage(network.hostPeerID, message)
+    network.onMessage(network.hostPeerID, message)
   })
+
+  const message = (data) => {
+    network.primus.write(data)
+  }
+
+  const buffer = (dataChannelType: DataChannelType, data: any) => {
+    const fromPeerID = Engine.instance.store.peerID
+    const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(network.id, dataChannelType) as
+      | DataProducer
+      | undefined
+    if (!dataProducer) return
+    if (dataProducer.closed || dataProducer.readyState !== 'open') return
+    const fromPeerIndex = network.peerIDToPeerIndex[fromPeerID]
+    if (typeof fromPeerIndex === 'undefined')
+      return console.warn('fromPeerIndex is undefined', fromPeerID, fromPeerIndex)
+    dataProducer.send(encode([fromPeerIndex, data]))
+  }
+
+  // we can assume that the host peer is always first to connect
+  NetworkPeerFunctions.createPeer(network, hostPeerID, 0, instanceID as any as UserID, 0)
+  network.peers[hostPeerID].transport = {
+    message,
+    buffer
+  }
 
   addOutgoingTopicIfNecessary(network.topic)
 
@@ -439,17 +392,17 @@ export const connectToNetwork = async (
     ...Engine.instance.store.actions.outgoing[network.topic].history
   )
 
-  if (!network.transport.mediasoupDevice.loaded) {
-    await network.transport.mediasoupDevice.load({ routerRtpCapabilities })
+  if (!network.mediasoupDevice.loaded) {
+    await network.mediasoupDevice.load({ routerRtpCapabilities })
     logger.info('Successfully loaded routerRtpCapabilities')
-    networkState.transport.mediasoupLoaded.set(true)
+    networkState.mediasoupLoaded.set(true)
   }
 
   dispatchAction(
     MediasoupTransportActions.requestTransport({
       peerID: Engine.instance.store.peerID,
       direction: 'send',
-      sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
+      sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
       $network: network.id,
       $topic: network.topic,
       $to: network.hostPeerID
@@ -460,7 +413,7 @@ export const connectToNetwork = async (
     MediasoupTransportActions.requestTransport({
       peerID: Engine.instance.store.peerID,
       direction: 'recv',
-      sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
+      sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
       $network: network.id,
       $topic: network.topic,
       $to: network.hostPeerID
@@ -486,13 +439,10 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork | undefined
   if (!network) return console.warn('Network not found', action.$network)
 
-  const { transportID, direction, sctpParameters, iceParameters, iceCandidates, dtlsParameters } = action
-
   const channelId = getChannelIdFromTransport(network)
+  const { transportID, direction, sctpParameters, iceParameters, iceCandidates, iceServers, dtlsParameters } = action
 
   let transport: MediaSoupTransport
-
-  const iceServers = config.client.nodeEnv === 'production' ? PUBLIC_STUN_SERVERS : []
 
   const transportOptions = {
     id: action.transportID,
@@ -500,13 +450,13 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
     iceParameters: iceParameters as any,
     iceCandidates: iceCandidates as any,
     dtlsParameters: dtlsParameters as any,
-    iceServers
+    iceServers: iceServers as any
   }
 
   if (direction === 'recv') {
-    transport = await network.transport.mediasoupDevice.createRecvTransport(transportOptions)
+    transport = await network.mediasoupDevice.createRecvTransport(transportOptions)
   } else if (direction === 'send') {
-    transport = await network.transport.mediasoupDevice.createSendTransport(transportOptions)
+    transport = await network.mediasoupDevice.createSendTransport(transportOptions)
   } else throw new Error(`bad transport 'direction': ${direction}`)
 
   // mediasoup-client will emit a connect event when media needs to
@@ -729,23 +679,19 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
   // failed, or disconnected, leave the  and reset
   transport.on('connectionstatechange', async (state: string) => {
     if (state === 'closed' || state === 'failed' || state === 'disconnected') {
-      logger.error('Transport %o transitioned to state ' + state, transport)
+      logger.error(network.topic + 'Transport %o transitioned to state ' + state, transport)
       logger.error(
         'If this occurred unexpectedly shortly after joining a world, check that the instanceserver nodegroup has public IP addresses.'
       )
       logger.info('Waiting 5 seconds to make a new transport')
       setTimeout(() => {
         logger.info('Re-creating transport after unexpected closing/fail/disconnect %o', {
+          topic: network.topic,
           direction,
           channelId
         })
         // ensure the network still exists and we want to re-create the transport
-        if (
-          !getState(NetworkState).networks[network.id] ||
-          !network.transport.primus ||
-          network.transport.primus.disconnect
-        )
-          return
+        if (!getState(NetworkState).networks[network.id] || !network.primus || network.primus.disconnect) return
 
         const transportID = MediasoupTransportState.getTransport(network.id, direction, Engine.instance.store.peerID)
         getMutableState(MediasoupTransportState)[network.id][transportID].set(none)
@@ -754,7 +700,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
           MediasoupTransportActions.requestTransport({
             peerID: Engine.instance.store.peerID,
             direction,
-            sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
+            sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
             $network: network.id,
             $topic: network.topic,
             $to: network.hostPeerID

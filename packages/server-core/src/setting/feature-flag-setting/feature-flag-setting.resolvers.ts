@@ -40,7 +40,9 @@ export const featureFlagSettingResolver = resolve<FeatureFlagSettingType, HookCo
   updatedAt: virtual(async (featureFlagSettings) => fromDateTimeSql(featureFlagSettings.updatedAt))
 })
 
-export const featureFlagSettingExternalResolver = resolve<FeatureFlagSettingType, HookContext>({})
+export const featureFlagSettingExternalResolver = resolve<FeatureFlagSettingType, HookContext>({
+  flagValue: async (_, setting) => !!setting.flagValue
+})
 
 export const featureFlagSettingDataResolver = resolve<FeatureFlagSettingType, HookContext>({
   id: async () => {

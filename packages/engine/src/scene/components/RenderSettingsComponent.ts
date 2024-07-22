@@ -29,8 +29,8 @@ import { LinearToneMapping, PCFSoftShadowMap, ShadowMapType, ToneMapping } from 
 import { EntityUUID } from '@etherealengine/ecs'
 import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 
 export const RenderSettingsComponent = defineComponent({
   name: 'RenderSettingsComponent',
@@ -76,21 +76,21 @@ export const RenderSettingsComponent = defineComponent({
 
     useEffect(() => {
       if (!rendererEntity) return
-      const renderer = getComponent(rendererEntity, RendererComponent)
-      renderer.renderer.toneMapping = component.toneMapping.value
+      const renderer = getComponent(rendererEntity, RendererComponent).renderer!
+      renderer.toneMapping = component.toneMapping.value
     }, [component.toneMapping])
 
     useEffect(() => {
       if (!rendererEntity) return
-      const renderer = getComponent(rendererEntity, RendererComponent)
-      renderer.renderer.toneMappingExposure = component.toneMappingExposure.value
+      const renderer = getComponent(rendererEntity, RendererComponent).renderer!
+      renderer.toneMappingExposure = component.toneMappingExposure.value
     }, [component.toneMappingExposure])
 
     useEffect(() => {
       if (!rendererEntity) return
-      const renderer = getComponent(rendererEntity, RendererComponent)
-      renderer.renderer.shadowMap.type = component.shadowMapType.value
-      renderer.renderer.shadowMap.needsUpdate = true
+      const renderer = getComponent(rendererEntity, RendererComponent).renderer!
+      renderer.shadowMap.type = component.shadowMapType.value
+      renderer.shadowMap.needsUpdate = true
     }, [component.shadowMapType])
 
     return null

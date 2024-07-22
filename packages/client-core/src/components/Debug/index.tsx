@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
@@ -42,15 +42,16 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import { EntityDebug } from './EntityDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
-import styles from './styles.module.scss'
 import { SystemDebug } from './SystemDebug'
+import styles from './styles.module.scss'
 
 export const DebugState = defineState({
   name: 'DebugState',
   initial: {
+    enabled: false,
     activeTab: 'None'
   },
-  extension: syncStateWithLocalStorage(['activeTab'])
+  extension: syncStateWithLocalStorage(['enabled', 'activeTab'])
 })
 
 export const DebugTabs = {
@@ -59,7 +60,7 @@ export const DebugTabs = {
   State: StateDebug
 }
 
-export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefObject<boolean> }) => {
+export const Debug = () => {
   useHookstate(getMutableState(ECSState).frameTime).value
   const rendererState = useMutableState(RendererState)
   const activeTab = useMutableState(DebugState).activeTab
@@ -148,7 +149,7 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
           </div>
         </div>
       </div>
-      <StatsPanel show={showingStateRef.current} />
+      <StatsPanel show />
       <div className={styles.jsonPanel}>
         {['None']
           .concat(Object.keys(DebugTabs))
@@ -178,14 +179,12 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
 }
 
 export const DebugToggle = () => {
-  const [isShowing, setShowing] = useState(false)
-  const showingStateRef = useRef(isShowing)
+  const isShowing = useHookstate(getMutableState(DebugState).enabled)
 
   useEffect(() => {
     function downHandler({ keyCode }) {
       if (keyCode === 192) {
-        showingStateRef.current = !showingStateRef.current
-        setShowing(showingStateRef.current)
+        isShowing.set(!isShowing.value)
       }
     }
     window.addEventListener('keydown', downHandler)
@@ -194,7 +193,7 @@ export const DebugToggle = () => {
     }
   }, [])
 
-  return isShowing ? <Debug showingStateRef={showingStateRef} /> : <></>
+  return isShowing.value ? <Debug /> : <></>
 }
 
 export default DebugToggle

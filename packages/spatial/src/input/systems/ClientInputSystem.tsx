@@ -34,7 +34,6 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -52,6 +51,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { UUIDComponent } from '@etherealengine/ecs'
+import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection, PI, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { NameComponent } from '../../common/NameComponent'
@@ -71,11 +71,11 @@ import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
 import { XRControlsState, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
-import { InputComponent } from '../components/InputComponent'
+import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
-import { ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
+import { AnyButton, ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 
 /** squared distance threshold for dragging state */
@@ -101,7 +101,7 @@ const preventDefaultKeyDown = (evt) => {
 export function updateGamepadInput(eid: Entity) {
   const inputSource = getComponent(eid, InputSourceComponent)
   const gamepad = inputSource.source.gamepad
-  const buttons = inputSource.buttons as ButtonStateMap
+  const buttons = inputSource.buttons
   // const buttonDownPos = inputSource.buttonDownPositions as WeakMap<AnyButton, Vector3>
   // log buttons
   // if (source.gamepad) {
@@ -113,7 +113,7 @@ export function updateGamepadInput(eid: Entity) {
 
   if (!gamepad) return
   const gamepadButtons = gamepad.buttons
-  if (gamepadButtons) {
+  if (gamepadButtons.length) {
     const pointer = getOptionalComponent(eid, InputPointerComponent)
     const xrTransform = getOptionalComponent(eid, TransformComponent)
 
@@ -180,7 +180,7 @@ const inputs = defineQuery([InputComponent])
 const worldPosInputSourceComponent = new Vector3()
 const worldPosInputComponent = new Vector3()
 
-const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
+const xruiQuery = defineQuery([VisibleComponent, XRUIComponent])
 const boundingBoxesQuery = defineQuery([VisibleComponent, BoundingBoxComponent])
 
 const meshesQuery = defineQuery([VisibleComponent, MeshComponent])
@@ -227,8 +227,7 @@ const execute = () => {
   for (const eid of pointers()) {
     const pointer = getComponent(eid, InputPointerComponent)
     const inputSource = getComponent(eid, InputSourceComponent)
-    const viewerEntity = pointer.canvasEntity
-    const camera = getComponent(viewerEntity, CameraComponent)
+    const camera = getComponent(pointer.cameraEntity, CameraComponent)
     pointer.movement.copy(pointer.position).sub(pointer.lastPosition)
     pointer.lastPosition.copy(pointer.position)
     inputSource.raycaster.setFromCamera(pointer.position, camera)
@@ -251,178 +250,27 @@ const execute = () => {
   for (const eid of xrSpaces()) {
     const space = getComponent(eid, XRSpaceComponent)
     const pose = xrFrame?.getPose(space.space, space.baseSpace)
-    if (pose) {
-      TransformComponent.position.x[eid] = pose.transform.position.x
-      TransformComponent.position.y[eid] = pose.transform.position.y
-      TransformComponent.position.z[eid] = pose.transform.position.z
-      TransformComponent.rotation.x[eid] = pose.transform.orientation.x
-      TransformComponent.rotation.y[eid] = pose.transform.orientation.y
-      TransformComponent.rotation.z[eid] = pose.transform.orientation.z
-      TransformComponent.rotation.w[eid] = pose.transform.orientation.w
-      TransformComponent.dirtyTransforms[eid] = true
-    }
+    if (!pose) continue // @note Clause Guard. This was nested as   if (pose) { ... }
+    TransformComponent.position.x[eid] = pose.transform.position.x
+    TransformComponent.position.y[eid] = pose.transform.position.y
+    TransformComponent.position.z[eid] = pose.transform.position.z
+    TransformComponent.rotation.x[eid] = pose.transform.orientation.x
+    TransformComponent.rotation.y[eid] = pose.transform.orientation.y
+    TransformComponent.rotation.z[eid] = pose.transform.orientation.z
+    TransformComponent.rotation.w[eid] = pose.transform.orientation.w
+    TransformComponent.dirtyTransforms[eid] = true
+  }
+
+  const interactionRays = inputSourceQuery().map((eid) => getComponent(eid, InputSourceComponent).raycaster.ray)
+  for (const xrui of xruiQuery()) {
+    getComponent(xrui, XRUIComponent).interactionRays = interactionRays
   }
 
   // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents
   for (const sourceEid of inputSourceQuery()) {
-    const isSpatialInput = hasComponent(sourceEid, TransformComponent)
-
-    const intersectionData = new Set(
-      [] as {
-        entity: Entity
-        distance: number
-      }[]
-    )
-
-    if (isSpatialInput) {
-      const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
-      inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
-
-      TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
-      inputRay.set(inputRaycast.origin, inputRaycast.direction)
-      raycaster.set(inputRaycast.origin, inputRaycast.direction)
-      raycaster.layers.enable(ObjectLayers.Default)
-
-      const inputState = getState(InputState)
-      const isEditing = getState(EngineState).isEditing
-      // only heuristic is scene objects when in the editor
-      if (isEditing) {
-        const pickerObj = gizmoPickerObjects() // gizmo heuristic
-        const inputObj = inputObjects()
-
-        const objects = (pickerObj.length > 0 ? pickerObj : inputObj) // gizmo heuristic
-          .map((eid) => getComponent(eid, GroupComponent))
-          .flat()
-        pickerObj.length > 0
-          ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
-          : raycaster.layers.disable(ObjectLayers.TransformGizmo)
-        const hits = raycaster.intersectObjects<Object3D>(objects, true)
-        for (const hit of hits) {
-          const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
-          if (parentObject?.entity) {
-            intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
-          }
-        }
-      } else {
-        // 1st heuristic is XRUI
-        for (const entity of inputXRUIs()) {
-          const xrui = getComponent(entity, XRUIComponent)
-          const layerHit = xrui.hitTest(inputRay)
-          if (
-            !layerHit ||
-            !layerHit.intersection.object.visible ||
-            (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
-          )
-            continue
-          intersectionData.add({ entity, distance: layerHit.intersection.distance })
-        }
-
-        const physicsWorld = getState(PhysicsState).physicsWorld
-
-        // 2nd heuristic is physics colliders
-        if (physicsWorld) {
-          const hits = Physics.castRay(physicsWorld, inputRaycast)
-          for (const hit of hits) {
-            if (!hit.entity) continue
-            intersectionData.add({ entity: hit.entity, distance: hit.distance })
-          }
-        }
-
-        // 3rd heuristic is bboxes
-        for (const entity of inputState.inputBoundingBoxes) {
-          const boundingBox = getComponent(entity, BoundingBoxComponent)
-          const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
-          if (hit) {
-            intersectionData.add({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
-          }
-        }
-      }
-
-      // 4th heuristic is meshes
-      const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes)) // gizmo heuristic
-        .filter((eid) => hasComponent(eid, GroupComponent))
-        .map((eid) => getComponent(eid, GroupComponent))
-        .flat()
-
-      const hits = raycaster.intersectObjects<Object3D>(objects, true)
-      for (const hit of hits) {
-        const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
-        if (parentObject) {
-          intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
-        }
-      }
-    }
-
-    const sortedIntersections = Array.from(intersectionData).sort((a, b) => {
-      // - if a < b
-      // + if a > b
-      // 0 if equal
-      const aNum = hasComponent(a.entity, TransformGizmoTagComponent) ? -1 : 0
-      const bNum = hasComponent(b.entity, TransformGizmoTagComponent) ? -1 : 0
-      //aNum - bNum : 0 if equal, -1 if a has tag and b doesn't, 1 if a doesnt have tag and b does
-      return Math.sign(a.distance - b.distance) + (aNum - bNum)
-    })
-    const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
-
-    //TODO check all inputSources sorted by distance list of InputComponents from query, probably similar to the spatialInputQuery
-    //Proximity check ONLY if we have no raycast results, as it is always lower priority
-    if (
-      capturedEntity === UndefinedEntity &&
-      sortedIntersections.length === 0 &&
-      !hasComponent(sourceEid, InputPointerComponent)
-    ) {
-      let closestEntity = UndefinedEntity
-      let closestDistanceSquared = Infinity
-
-      //use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
-      const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID) //would prefer a better way to do this
-      const inputSourceEntity =
-        getState(XRControlsState).isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
-
-      if (inputSourceEntity !== UndefinedEntity) {
-        TransformComponent.getWorldPosition(inputSourceEntity, worldPosInputSourceComponent)
-
-        //TODO spatialInputObjects or inputObjects?  - inputObjects requires visible and group components
-        for (const inputEntity of spatialInputObjects()) {
-          if (inputEntity === selfAvatarEntity) continue
-          const inputComponent = getComponent(inputEntity, InputComponent)
-
-          TransformComponent.getWorldPosition(inputEntity, worldPosInputComponent)
-
-          const distSquared = worldPosInputSourceComponent.distanceToSquared(worldPosInputComponent)
-
-          //closer than our current closest AND within inputSource's activation distance
-          if (
-            distSquared < closestDistanceSquared &&
-            inputComponent.activationDistance * inputComponent.activationDistance > distSquared
-          ) {
-            closestDistanceSquared = distSquared
-            closestEntity = inputEntity
-          }
-        }
-        if (closestEntity !== UndefinedEntity) {
-          sortedIntersections.push({ entity: closestEntity, distance: Math.sqrt(closestDistanceSquared) })
-        }
-      }
-    }
-
-    const inputPointerComponent = getOptionalComponent(sourceEid, InputPointerComponent)
-    if (inputPointerComponent) {
-      sortedIntersections.push({ entity: inputPointerComponent.canvasEntity, distance: 0 })
-    }
-
-    sourceState.intersections.set(sortedIntersections)
-
-    const finalInputSources = Array.from(new Set([sourceEid, ...nonSpatialInputSourceQuery()]))
-
-    //if we have a capturedEntity, only run on the capturedEntity, not the sortedIntersections
-    if (capturedEntity !== UndefinedEntity) {
-      setInputSources(capturedEntity, finalInputSources)
-    } else {
-      for (const intersection of sortedIntersections) {
-        setInputSources(intersection.entity, finalInputSources)
-      }
-    }
+    // @note This function was a ~200 sloc block nested inside this `for` block,
+    // which also contained two other sub-nested blocks of 100 and 50 sloc each
+    assignInputSources(sourceEid, capturedEntity)
   }
 
   for (const sourceEid of inputSourceQuery()) {
@@ -463,7 +311,7 @@ const useNonSpatialInputSources = () => {
       const code = event.code
       const down = event.type === 'keydown'
 
-      const buttonState = inputSourceComponent.buttons as ButtonStateMap
+      const buttonState = inputSourceComponent.buttons
       if (down) buttonState[code] = createInitialButtonState(eid)
       else if (buttonState[code]) buttonState[code].up = true
     }
@@ -481,22 +329,14 @@ const useNonSpatialInputSources = () => {
     document.addEventListener('touchstickmove', handleTouchDirectionalPad)
 
     document.addEventListener('touchgamepadbuttondown', (event: CustomEvent) => {
-      const buttonState = inputSourceComponent.buttons as ButtonStateMap
+      const buttonState = inputSourceComponent.buttons
       buttonState[event.detail.button] = createInitialButtonState(eid)
     })
 
     document.addEventListener('touchgamepadbuttonup', (event: CustomEvent) => {
-      const buttonState = inputSourceComponent.buttons as ButtonStateMap
+      const buttonState = inputSourceComponent.buttons
       if (buttonState[event.detail.button]) buttonState[event.detail.button].up = true
     })
-
-    const onWheelEvent = (event: WheelEvent) => {
-      const normalizedValues = normalizeWheel(event)
-      const axes = inputSourceComponent.source.gamepad!.axes as number[]
-      axes[0] = normalizedValues.spinX
-      axes[1] = normalizedValues.spinY
-    }
-    document.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
 
     return () => {
       document.removeEventListener('DOMMouseScroll', preventDefault, false)
@@ -504,7 +344,6 @@ const useNonSpatialInputSources = () => {
       document.removeEventListener('keyup', onKeyEvent)
       document.removeEventListener('keydown', onKeyEvent)
       document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
-      document.removeEventListener('wheel', onWheelEvent)
       removeEntity(eid)
     }
   }, [])
@@ -532,75 +371,67 @@ const useGamepadInputSources = () => {
 }
 
 const CanvasInputReactor = () => {
-  const canvasEntity = useEntityContext()
+  const cameraEntity = useEntityContext()
   const xrState = useMutableState(XRState)
   useEffect(() => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
-    const rendererComponent = getComponent(canvasEntity, RendererComponent)
-    const canvas = rendererComponent.canvas
-
-    canvas.addEventListener('dragstart', preventDefault, false)
-    canvas.addEventListener('contextmenu', preventDefault)
-
-    // TODO: follow this spec more closely https://immersive-web.github.io/webxr/#transient-input
-    // const pointerEntities = new Map<number, Entity>()
-
-    const emulatedInputSourceEntity = createEntity()
-    setComponent(emulatedInputSourceEntity, NameComponent, 'InputSource-emulated-pointer')
-    setComponent(emulatedInputSourceEntity, TransformComponent)
-    setComponent(emulatedInputSourceEntity, InputSourceComponent)
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const rendererComponent = getComponent(cameraEntity, RendererComponent)
+    const canvas = rendererComponent.canvas!
 
     /** Clear mouse events */
-    const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
-    const clearPointerState = () => {
-      const state = inputSourceComponent.buttons as ButtonStateMap
+    const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick'] as AnyButton[]
+    const clearPointerState = (entity: Entity) => {
+      const inputSourceComponent = getComponent(entity, InputSourceComponent)
+      const state = inputSourceComponent.buttons
       for (const button of pointerButtons) {
-        const val = state[button]
-        if (!val?.up && val?.pressed) state[button].up = true
+        const val = state[button] as ButtonState
+        if (!val?.up && val?.pressed) (state[button] as ButtonState).up = true
       }
     }
 
-    const pointerEnter = (event: PointerEvent) => {
-      setComponent(emulatedInputSourceEntity, InputPointerComponent, {
+    const onPointerEnter = (event: PointerEvent) => {
+      const pointerEntity = createEntity()
+      setComponent(pointerEntity, NameComponent, 'InputSource-emulated-pointer')
+      setComponent(pointerEntity, TransformComponent)
+      setComponent(pointerEntity, InputSourceComponent)
+      setComponent(pointerEntity, InputPointerComponent, {
         pointerId: event.pointerId,
-        canvasEntity: canvasEntity
+        cameraEntity
       })
+      redirectPointerEventsToXRUI(cameraEntity, event)
     }
 
-    const pointerLeave = (event: PointerEvent) => {
-      const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
-      if (!pointerComponent || pointerComponent?.pointerId !== event.pointerId) return
-      clearPointerState()
-      removeComponent(emulatedInputSourceEntity, InputPointerComponent)
+    const onPointerOver = (event: PointerEvent) => {
+      redirectPointerEventsToXRUI(cameraEntity, event)
     }
 
-    canvas.addEventListener('pointerenter', pointerEnter)
-    canvas.addEventListener('pointerleave', pointerLeave)
-
-    canvas.addEventListener('blur', clearPointerState)
-    canvas.addEventListener('mouseleave', clearPointerState)
-    const handleVisibilityChange = (event: Event) => {
-      if (document.visibilityState === 'hidden') clearPointerState()
+    const onPointerOut = (event: PointerEvent) => {
+      redirectPointerEventsToXRUI(cameraEntity, event)
     }
-    canvas.addEventListener('visibilitychange', handleVisibilityChange)
 
-    const handleMouseClick = (event: MouseEvent) => {
-      const down = event.type === 'mousedown' || event.type === 'touchstart'
+    const onPointerLeave = (event: PointerEvent) => {
+      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
+      redirectPointerEventsToXRUI(cameraEntity, event)
+      removeEntity(pointerEntity)
+    }
+
+    const onPointerClick = (event: PointerEvent) => {
+      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
+      const inputSourceComponent = getOptionalComponent(pointerEntity, InputSourceComponent)
+      if (!inputSourceComponent) return
+
+      const down = event.type === 'pointerdown'
 
       let button = MouseButton.PrimaryClick
       if (event.button === 1) button = MouseButton.AuxiliaryClick
       else if (event.button === 2) button = MouseButton.SecondaryClick
 
-      const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
-      if (!inputSourceComponent) return
-
-      const state = inputSourceComponent.buttons as ButtonStateMap
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
       if (down) {
-        state[button] = createInitialButtonState(emulatedInputSourceEntity) //down, pressed, touched = true
+        state[button] = createInitialButtonState(pointerEntity) //down, pressed, touched = true
 
-        const pointer = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+        const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
         if (pointer) {
           state[button]!.downPosition = new Vector3(pointer.position.x, pointer.position.y, 0)
           //rotation will never be defined for the mouse or touch
@@ -608,50 +439,78 @@ const CanvasInputReactor = () => {
       } else if (state[button]) {
         state[button]!.up = true
       }
+
+      redirectPointerEventsToXRUI(cameraEntity, event)
     }
 
-    const handleMouseMove = (event: MouseEvent) => {
-      handleMouseOrTouchMovement(event.clientX, event.clientY, event)
-    }
-
-    const handleTouchMove = (event: TouchEvent) => {
-      const touch = event.touches[0]
-      handleMouseOrTouchMovement(touch.clientX, touch.clientY, event)
-    }
-
-    const handleMouseOrTouchMovement = (clientX: number, clientY: number, event: MouseEvent | TouchEvent) => {
-      const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+    const onPointerMove = (event: PointerEvent) => {
+      const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, event.pointerId)
+      const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
       if (!pointerComponent) return
+
       pointerComponent.position.set(
-        ((clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
-        ((clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
+        ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+        ((event.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
       )
 
-      updateMouseOrTouchDragging(emulatedInputSourceEntity, event)
+      updatePointerDragging(pointerEntity, event)
+      redirectPointerEventsToXRUI(cameraEntity, event)
     }
 
-    canvas.addEventListener('touchmove', handleTouchMove, { passive: true, capture: true })
-    canvas.addEventListener('mousemove', handleMouseMove, { passive: true, capture: true })
-    canvas.addEventListener('mouseup', handleMouseClick)
-    canvas.addEventListener('mousedown', handleMouseClick)
-    canvas.addEventListener('touchstart', handleMouseClick)
-    canvas.addEventListener('touchend', handleMouseClick)
+    const onVisibilityChange = (event: Event) => {
+      if (
+        document.visibilityState === 'hidden' ||
+        !canvas.checkVisibility({
+          checkOpacity: true,
+          checkVisibilityCSS: true
+        })
+      ) {
+        InputPointerComponent.getPointersForCamera(cameraEntity).forEach(clearPointerState)
+      }
+    }
+
+    const onClick = (evt: PointerEvent) => {
+      redirectPointerEventsToXRUI(cameraEntity, evt)
+    }
+
+    const onWheelEvent = (event: WheelEvent) => {
+      const pointer = InputPointerComponent.getPointersForCamera(cameraEntity)[0]
+      if (!pointer) return
+      const inputSourceComponent = getComponent(pointer, InputSourceComponent)
+      const normalizedValues = normalizeWheel(event)
+      const axes = inputSourceComponent.source.gamepad!.axes as number[]
+      axes[0] = normalizedValues.spinX
+      axes[1] = normalizedValues.spinY
+    }
+
+    canvas.addEventListener('dragstart', preventDefault, false)
+    canvas.addEventListener('contextmenu', preventDefault)
+    canvas.addEventListener('pointerenter', onPointerEnter)
+    canvas.addEventListener('pointerover', onPointerOver)
+    canvas.addEventListener('pointerout', onPointerOut)
+    canvas.addEventListener('pointerleave', onPointerLeave)
+    canvas.addEventListener('pointermove', onPointerMove, { passive: true, capture: true })
+    canvas.addEventListener('pointerup', onPointerClick)
+    canvas.addEventListener('pointerdown', onPointerClick)
+    canvas.addEventListener('blur', onVisibilityChange)
+    canvas.addEventListener('visibilitychange', onVisibilityChange)
+    canvas.addEventListener('click', onClick)
+    canvas.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
 
     return () => {
       canvas.removeEventListener('dragstart', preventDefault, false)
       canvas.removeEventListener('contextmenu', preventDefault)
-      canvas.removeEventListener('pointerenter', pointerEnter)
-      canvas.removeEventListener('pointerleave', pointerLeave)
-      canvas.removeEventListener('blur', clearPointerState)
-      canvas.removeEventListener('mouseleave', clearPointerState)
-      canvas.removeEventListener('visibilitychange', handleVisibilityChange)
-      canvas.removeEventListener('touchmove', handleTouchMove)
-      canvas.removeEventListener('mousemove', handleMouseMove)
-      canvas.removeEventListener('mouseup', handleMouseClick)
-      canvas.removeEventListener('mousedown', handleMouseClick)
-      canvas.removeEventListener('touchstart', handleMouseClick)
-      canvas.removeEventListener('touchend', handleMouseClick)
-      removeEntity(emulatedInputSourceEntity)
+      canvas.removeEventListener('pointerenter', onPointerEnter)
+      canvas.removeEventListener('pointerover', onPointerOver)
+      canvas.removeEventListener('pointerout', onPointerOut)
+      canvas.removeEventListener('pointerleave', onPointerLeave)
+      canvas.removeEventListener('pointermove', onPointerMove)
+      canvas.removeEventListener('pointerup', onPointerClick)
+      canvas.removeEventListener('pointerdown', onPointerClick)
+      canvas.removeEventListener('blur', onVisibilityChange)
+      canvas.removeEventListener('visibilitychange', onVisibilityChange)
+      canvas.removeEventListener('click', onClick)
+      canvas.removeEventListener('wheel', onWheelEvent)
     }
   }, [xrState.session])
 
@@ -695,7 +554,7 @@ const useXRInputSources = () => {
       if (!eid) return
       const inputSourceComponent = getComponent(eid, InputSourceComponent)
       if (!inputSourceComponent) return
-      const state = inputSourceComponent.buttons as ButtonStateMap
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
       state.PrimaryClick = createInitialButtonState(eid)
     }
     const onXRSelectEnd = (event: XRInputSourceEvent) => {
@@ -703,7 +562,7 @@ const useXRInputSources = () => {
       if (!eid) return
       const inputSourceComponent = getComponent(eid, InputSourceComponent)
       if (!inputSourceComponent) return
-      const state = inputSourceComponent.buttons as ButtonStateMap
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
       if (!state.PrimaryClick) return
       state.PrimaryClick.up = true
     }
@@ -766,20 +625,20 @@ export const ClientInputSystem = defineSystem({
   reactor
 })
 
-function updateMouseOrTouchDragging(emulatedInputSourceEntity: Entity, event: MouseEvent | TouchEvent) {
-  const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+function updatePointerDragging(pointerEntity: Entity, event: PointerEvent) {
+  const inputSourceComponent = getOptionalComponent(pointerEntity, InputSourceComponent)
   if (!inputSourceComponent) return
 
-  const state = inputSourceComponent.buttons as ButtonStateMap
+  const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
 
   let button = MouseButton.PrimaryClick
-  if (event.type === 'mousemove') {
+  if (event.type === 'pointermove') {
     if ((event as MouseEvent).button === 1) button = MouseButton.AuxiliaryClick
     else if ((event as MouseEvent).button === 2) button = MouseButton.SecondaryClick
   }
   const btn = state[button]
   if (btn && !btn.dragging) {
-    const pointer = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+    const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
 
     if (btn.pressed && btn.downPosition) {
       //if not yet dragging, compare distance to drag threshold and begin if appropriate
@@ -797,7 +656,11 @@ function updateMouseOrTouchDragging(emulatedInputSourceEntity: Entity, event: Mo
   }
 }
 
-function cleanupButton(key: string, buttons: ButtonStateMap, hasFocus: boolean) {
+function cleanupButton(
+  key: string,
+  buttons: ButtonStateMap<Partial<Record<string | number | symbol, ButtonState | undefined>>>,
+  hasFocus: boolean
+) {
   const button = buttons[key]
   if (button?.down) button.down = false
   if (button?.up || !hasFocus) delete buttons[key]
@@ -813,8 +676,10 @@ const cleanupInputs = () => {
     for (const key in source.buttons) {
       cleanupButton(key, source.buttons, hasFocus)
     }
+
     // clear non-spatial emulated axes data end of each frame
-    if (!hasComponent(eid, XRSpaceComponent)) {
+    // this is used to clear wheel speed each frame
+    if (!hasComponent(eid, XRSpaceComponent) && hasComponent(eid, InputPointerComponent)) {
       ;(source.source.gamepad!.axes as number[]).fill(0)
     }
   }
@@ -825,3 +690,245 @@ export const ClientInputCleanupSystem = defineSystem({
   insert: { after: PresentationSystemGroup },
   execute: cleanupInputs
 })
+
+const redirectPointerEventsToXRUI = (cameraEntity: Entity, evt: PointerEvent) => {
+  const pointerEntity = InputPointerComponent.getPointerByID(cameraEntity, evt.pointerId)
+  const inputSource = getOptionalComponent(pointerEntity, InputSourceComponent)
+  if (!inputSource) return
+  for (const i of inputSource.intersections) {
+    const entity = i.entity
+    const xrui = getOptionalComponent(entity, XRUIComponent)
+    if (!xrui) continue
+    xrui.updateWorldMatrix(true, true)
+    const raycaster = inputSource.raycaster
+    const hit = xrui.hitTest(raycaster.ray)
+    if (hit && hit.intersection.object.visible) {
+      hit.target.dispatchEvent(new (evt.constructor as any)(evt.type, evt))
+      hit.target.focus()
+      return
+    }
+  }
+}
+
+type IntersectionData = {
+  entity: Entity
+  distance: number
+}
+
+function applyRaycastedInputHeuristics(sourceEid: Entity, intersectionData: Set<IntersectionData>) {
+  const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
+  inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
+
+  TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
+  inputRay.set(inputRaycast.origin, inputRaycast.direction)
+  raycaster.set(inputRaycast.origin, inputRaycast.direction)
+  raycaster.layers.enable(ObjectLayers.Scene)
+
+  const isEditing = getState(EngineState).isEditing
+  // only heuristic is scene objects when in the editor
+  if (isEditing) {
+    applyHeuristicEditor(intersectionData)
+  } else {
+    // 1st heuristic is XRUI
+    applyHeuristicXRUI(intersectionData)
+    // 2nd heuristic is physics colliders
+    applyHeuristicPhysicsColliders(intersectionData)
+
+    // 3rd heuristic is bboxes
+    applyHeuristicBBoxes(intersectionData)
+  }
+  // 4th heuristic is meshes
+  applyHeuristicMeshes(intersectionData, isEditing)
+}
+
+function assignInputSources(sourceEid: Entity, capturedEntity: Entity) {
+  const isSpatialInput = hasComponent(sourceEid, TransformComponent)
+
+  const intersectionData = new Set([] as IntersectionData[])
+
+  // @note This function was a ~100 sloc block nested inside this if block
+  if (isSpatialInput) applyRaycastedInputHeuristics(sourceEid, intersectionData)
+
+  const sortedIntersections = Array.from(intersectionData).sort((a, b) => {
+    // - if a < b
+    // + if a > b
+    // 0 if equal
+    const aNum = hasComponent(a.entity, TransformGizmoTagComponent) ? -1 : 0
+    const bNum = hasComponent(b.entity, TransformGizmoTagComponent) ? -1 : 0
+    //aNum - bNum : 0 if equal, -1 if a has tag and b doesn't, 1 if a doesnt have tag and b does
+    return Math.sign(a.distance - b.distance) + (aNum - bNum)
+  })
+  const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
+
+  //TODO check all inputSources sorted by distance list of InputComponents from query, probably similar to the spatialInputQuery
+  //Proximity check ONLY if we have no raycast results, as it is always lower priority
+  if (
+    capturedEntity === UndefinedEntity &&
+    sortedIntersections.length === 0 &&
+    !hasComponent(sourceEid, InputPointerComponent)
+  ) {
+    // @note This function was a ~50sloc block nested inside this if block
+    applyHeuristicProximity(isSpatialInput, sourceEid, sortedIntersections, intersectionData)
+  }
+
+  const inputPointerComponent = getOptionalComponent(sourceEid, InputPointerComponent)
+  if (inputPointerComponent) {
+    sortedIntersections.push({ entity: inputPointerComponent.cameraEntity, distance: 0 })
+  }
+
+  sourceState.intersections.set(sortedIntersections)
+
+  const finalInputSources = Array.from(new Set([sourceEid, ...nonSpatialInputSourceQuery()]))
+
+  //if we have a capturedEntity, only run on the capturedEntity, not the sortedIntersections
+  if (capturedEntity !== UndefinedEntity) {
+    setInputSources(capturedEntity, finalInputSources)
+  } else {
+    for (const intersection of sortedIntersections) {
+      setInputSources(intersection.entity, finalInputSources)
+    }
+  }
+}
+
+function applyHeuristicProximity(
+  isSpatialInput: boolean,
+  sourceEid: Entity,
+  sortedIntersections: IntersectionData[],
+  intersectionData: Set<IntersectionData>
+) {
+  //use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
+  const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID) //would prefer a better way to do this
+  const inputSourceEntity =
+    getState(XRControlsState).isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
+
+  // Skip Proximity Heuristic when the entity is undefined
+  // @note Clause Guard. This entire function was a block nested inside   if (inputSourceEntity !== UndefinedEntity) { ... }
+  if (inputSourceEntity === UndefinedEntity) return
+
+  TransformComponent.getWorldPosition(inputSourceEntity, worldPosInputSourceComponent)
+
+  //TODO spatialInputObjects or inputObjects?  - inputObjects requires visible and group components
+  for (const inputEntity of spatialInputObjects()) {
+    if (inputEntity === selfAvatarEntity) continue
+    const inputComponent = getComponent(inputEntity, InputComponent)
+
+    TransformComponent.getWorldPosition(inputEntity, worldPosInputComponent)
+    const distSquared = worldPosInputSourceComponent.distanceToSquared(worldPosInputComponent)
+
+    //closer than our current closest AND within inputSource's activation distance
+    if (inputComponent.activationDistance * inputComponent.activationDistance > distSquared) {
+      //using this object type out of convenience (intersectionsData is also guaranteed empty in this flow)
+      intersectionData.add({ entity: inputEntity, distance: distSquared }) //keeping it as distSquared for now to avoid extra square root calls
+    }
+  }
+  const closestEntities = Array.from(intersectionData)
+  if (closestEntities.length > 0) {
+    if (closestEntities.length === 1) {
+      sortedIntersections.push({
+        entity: closestEntities[0].entity,
+        distance: Math.sqrt(closestEntities[0].distance)
+      })
+    } else {
+      //sort if more than 1 entry
+      closestEntities.sort((a, b) => {
+        //prioritize anything with an InteractableComponent if otherwise equal
+        const aNum = hasComponent(a.entity, InteractableComponent) ? -1 : 0
+        const bNum = hasComponent(b.entity, InteractableComponent) ? -1 : 0
+        //aNum - bNum : 0 if equal, -1 if a has tag and b doesn't, 1 if a doesnt have tag and b does
+        return Math.sign(a.distance - b.distance) + (aNum - bNum)
+      })
+      sortedIntersections.push({
+        entity: closestEntities[0].entity,
+        distance: Math.sqrt(closestEntities[0].distance)
+      })
+    }
+  }
+}
+
+function applyHeuristicEditor(intersectionData: Set<IntersectionData>) {
+  const pickerObj = gizmoPickerObjects() // gizmo heuristic
+  const inputObj = inputObjects()
+
+  const objects = (pickerObj.length > 0 ? pickerObj : inputObj) // gizmo heuristic
+    .map((eid) => getComponent(eid, GroupComponent))
+    .flat()
+  pickerObj.length > 0
+    ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
+    : raycaster.layers.disable(ObjectLayers.TransformGizmo)
+  const hits = raycaster.intersectObjects<Object3D>(objects, true)
+  for (const hit of hits) {
+    const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
+    if (parentObject?.entity) {
+      intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
+    }
+  }
+}
+
+function applyHeuristicXRUI(intersectionData: Set<IntersectionData>) {
+  for (const entity of xruiQuery()) {
+    const xrui = getComponent(entity, XRUIComponent)
+    const layerHit = xrui.hitTest(inputRay)
+    if (
+      !layerHit ||
+      !layerHit.intersection.object.visible ||
+      (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
+    )
+      continue
+    intersectionData.add({ entity, distance: layerHit.intersection.distance })
+  }
+}
+
+function applyHeuristicPhysicsColliders(intersectionData: Set<IntersectionData>) {
+  const physicsWorld = getState(PhysicsState).physicsWorld
+  if (!physicsWorld) return // @note Clause Guard. The rest of this function was nested inside   if (physicsWorld) { ... }
+
+  const hits = Physics.castRay(physicsWorld, inputRaycast)
+  for (const hit of hits) {
+    if (!hit.entity) continue
+    intersectionData.add({ entity: hit.entity, distance: hit.distance })
+  }
+}
+
+function applyHeuristicBBoxes(intersectionData: Set<IntersectionData>) {
+  const inputState = getState(InputState)
+  for (const entity of inputState.inputBoundingBoxes) {
+    const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
+    if (!boundingBox) continue
+    const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
+    if (hit) {
+      intersectionData.add({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
+    }
+  }
+}
+
+function applyHeuristicMeshes(intersectionData: Set<IntersectionData>, isEditing: boolean) {
+  const inputState = getState(InputState)
+  const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes)) // gizmo heuristic
+    .filter((eid) => hasComponent(eid, GroupComponent))
+    .map((eid) => getComponent(eid, GroupComponent))
+    .flat()
+
+  const hits = raycaster.intersectObjects<Object3D>(objects, true)
+  for (const hit of hits) {
+    const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
+    if (parentObject) {
+      intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
+    }
+  }
+}
+
+/**
+ * @private
+ * @description Private Access Only. Exports for use within unit tests. */
+export const PRIVATE = {
+  assignInputSources,
+
+  applyHeuristicProximity,
+
+  applyRaycastedInputHeuristics,
+  applyHeuristicEditor,
+  applyHeuristicXRUI,
+  applyHeuristicPhysicsColliders,
+  applyHeuristicBBoxes,
+  applyHeuristicMeshes
+}

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
-import { PresentationSystemGroup, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
+import { Entity, PresentationSystemGroup, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -51,12 +51,8 @@ import { InputComponent } from '@etherealengine/spatial/src/input/components/Inp
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { InfiniteGridComponent } from '@etherealengine/spatial/src/renderer/components/InfiniteGridHelper'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import {
-  EntityTreeComponent,
-  getAncestorWithComponent
-} from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
@@ -74,6 +70,8 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
+import { FeatureFlagsState } from '@etherealengine/engine'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
@@ -249,6 +247,35 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
   }
 }
 
+const findTopLevelParent = (entity: Entity) => {
+  while (
+    getOptionalComponent(
+      getOptionalComponent(entity, EntityTreeComponent)?.parentEntity || UndefinedEntity,
+      EntityTreeComponent
+    )?.parentEntity
+  ) {
+    entity = getComponent(entity, EntityTreeComponent).parentEntity!
+  }
+  return entity
+}
+
+const findNextSelectionEntity = (topLevelParent: Entity, child: Entity): Entity => {
+  // Check for adjacent child
+  const childTree = getComponent(child, EntityTreeComponent)
+  const parentTree = getComponent(childTree.parentEntity, EntityTreeComponent)
+  if (topLevelParent !== child) {
+    const children = parentTree.children
+    const currentChildIndex = children.findIndex((entity) => child === entity)
+    if (children.length > currentChildIndex + 1) return children[currentChildIndex + 1]
+  }
+
+  // Otherwise if child has children traverse down
+  if (childTree.children.length) return childTree.children[0]
+
+  if (childTree.parentEntity === topLevelParent || parentTree.parentEntity === topLevelParent) return topLevelParent
+  return findNextSelectionEntity(topLevelParent, parentTree.parentEntity)
+}
+
 const inputQuery = defineQuery([InputSourceComponent])
 let clickStartEntity = UndefinedEntity
 
@@ -290,14 +317,43 @@ const execute = () => {
   }
 
   if (buttons.PrimaryClick?.pressed) {
+    let closestIntersection = {
+      entity: UndefinedEntity,
+      distance: Infinity
+    }
     if (buttons.PrimaryClick?.down) {
-      clickStartEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
-      while (
-        !hasComponent(clickStartEntity, SourceComponent) &&
-        getOptionalComponent(clickStartEntity, EntityTreeComponent)?.parentEntity
-      ) {
-        clickStartEntity = getComponent(clickStartEntity, EntityTreeComponent).parentEntity!
+      for (const inputSourceEntity of inputSources) {
+        const intersection = InputSourceComponent.getClosestIntersection(inputSourceEntity)
+        if (intersection && intersection.distance < closestIntersection.distance) {
+          closestIntersection = intersection
+        }
       }
+
+      // Get top most parent entity that isn't the scene entity
+      const selectedParentEntity = findTopLevelParent(closestIntersection.entity)
+      // If entity is already selected set closest intersection, otherwise set top parent
+      const selectedEntity =
+        selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
+
+      // If not showing model children in hierarchy don't allow those objects to be selected
+      if (!FeatureFlagsState.enabled(FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren)) {
+        const inAuthoringLayer = GLTFSnapshotState.isInSnapshot(
+          getOptionalComponent(selectedParentEntity, SourceComponent),
+          selectedEntity
+        )
+        clickStartEntity = inAuthoringLayer ? selectedEntity : clickStartEntity
+      } else {
+        clickStartEntity = selectedEntity
+      }
+
+      /** @todo decide how we want selection to work with heirarchies */
+      // Walks object heirarchy everytime a selected object is clicked again
+      // const prevParentEntity = findTopLevelParent(clickStartEntity)
+      // if (selectedParentEntity === prevParentEntity) {
+      //   clickStartEntity = findNextSelectionEntity(prevParentEntity, clickStartEntity)
+      // } else {
+      //   clickStartEntity = selectedParentEntity
+      // }
     }
     const capturingEntity = getState(InputState).capturingEntity
     if (capturingEntity !== UndefinedEntity && capturingEntity !== clickStartEntity) {
@@ -307,13 +363,13 @@ const execute = () => {
   if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
     if (hasComponent(clickStartEntity, SourceComponent) && !getState(ClickPlacementState).placementEntity) {
       const selectedEntities = SelectionState.getSelectedEntities()
-      const modelComponent = getAncestorWithComponent(clickStartEntity, ModelComponent)
-      const ancestorModelEntity = modelComponent || clickStartEntity
-      const targetSelection = selectedEntities[0] === ancestorModelEntity ? clickStartEntity : ancestorModelEntity
 
       //only update selection if the selection actually changed (prevents unnecessarily creating new transform gizmos in edit mode)
-      if (selectedEntities.length !== 1 || (selectedEntities.length === 1 && selectedEntities[0] !== targetSelection)) {
-        SelectionState.updateSelection([getComponent(targetSelection, UUIDComponent)])
+      if (
+        selectedEntities.length !== 1 ||
+        (selectedEntities.length === 1 && selectedEntities[0] !== clickStartEntity)
+      ) {
+        SelectionState.updateSelection([getComponent(clickStartEntity, UUIDComponent)])
       }
     }
   }

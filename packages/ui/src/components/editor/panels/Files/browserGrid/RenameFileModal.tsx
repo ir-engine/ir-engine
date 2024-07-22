@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
+import { isValidFileName } from '@etherealengine/common/src/utils/validateFileName'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -38,17 +39,21 @@ export default function RenameFileModal({ projectName, file }: { projectName: st
   const { t } = useTranslation()
   const newFileName = useHookstate(file.name)
   const fileService = useMutation(fileBrowserPath)
+  const isValid = isValidFileName(newFileName.value)
 
   const handleSubmit = async () => {
-    fileService.update(null, {
-      oldProject: projectName,
-      newProject: projectName,
-      oldName: file.fullName,
-      newName: file.isFolder ? newFileName.value : `${newFileName.value}.${file.type}`,
-      oldPath: file.path,
-      newPath: file.path,
-      isCopy: false
-    })
+    const name = newFileName.value
+    if (isValidFileName(name)) {
+      fileService.update(null, {
+        oldProject: projectName,
+        newProject: projectName,
+        oldName: file.fullName,
+        newName: file.isFolder ? name : `${name}.${file.type}`,
+        oldPath: file.path,
+        newPath: file.path,
+        isCopy: false
+      })
+    }
     PopoverState.hidePopupover()
   }
 
@@ -58,8 +63,14 @@ export default function RenameFileModal({ projectName, file }: { projectName: st
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
+      submitButtonDisabled={!isValid}
     >
-      <Input value={newFileName.value} onChange={(event) => newFileName.set(event.target.value)} />
+      <Input
+        value={newFileName.value}
+        onChange={(event) => newFileName.set(event.target.value)}
+        errorBorder={!isValid}
+        error={!isValid ? t('editor:layout.filebrowser.renameFileError') : undefined}
+      />
     </Modal>
   )
 }

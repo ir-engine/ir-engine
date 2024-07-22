@@ -146,6 +146,10 @@ export interface EmailRegistrationForm {
   password: string
 }
 
+export interface AppleLoginForm {
+  email: string
+}
+
 export interface GithubLoginForm {
   email: string
 }
@@ -605,7 +609,7 @@ export const AuthService = {
   },
 
   async addConnectionByOauth(
-    oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
+    oauth: 'apple' | 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
     userId: UserID
   ) {
     window.open(`https://${config.client.serverHost}/auth/oauth/${oauth}?userId=${userId}`, '_blank')

@@ -36,10 +36,11 @@ import {
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches, useMutableState } from '@etherealengine/hyperflux'
 
-import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
-import { useDisposable } from '../../resources/resourceHooks'
-import { RendererState } from '../RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
+import { useDisposable } from '../../../resources/resourceHooks'
+import { RendererState } from '../../RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
+import { LightTagComponent } from './LightTagComponent'
 
 export const HemisphereLightComponent = defineComponent({
   name: 'HemisphereLightComponent',
@@ -81,6 +82,7 @@ export const HemisphereLightComponent = defineComponent({
     const lightHelper = useOptionalComponent(entity, LightHelperComponent)
 
     useEffect(() => {
+      setComponent(entity, LightTagComponent)
       addObjectToGroup(entity, light)
       return () => {
         removeObjectFromGroup(entity, light)

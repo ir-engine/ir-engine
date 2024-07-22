@@ -483,7 +483,7 @@ export function controlUpdate(gizmoEntity: Entity) {
 
 function pointerHover(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
@@ -509,7 +509,7 @@ function pointerHover(gizmoEntity) {
 
 function pointerDown(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointer = getComponent(inputPointerEntity, InputPointerComponent)
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
@@ -768,7 +768,7 @@ function applyPivotRotation(entity, pivotToOriginMatrix, originToPivotMatrix, ro
 
 function pointerMove(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointer = getComponent(inputPointerEntity, InputPointerComponent)
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
@@ -899,14 +899,7 @@ function pointerMove(gizmoEntity) {
   }
 }
 
-function pointerUp(gizmoEntity) {
-  // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
-  if (!inputPointerEntity) return
-  const pointer = getComponent(inputPointerEntity, InputPointerComponent)
-
-  if (pointer.movement.length() !== 0) return
-
+export function onGizmoCommit(gizmoEntity) {
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControlComponent.dragging && gizmoControlComponent.axis !== null) {
     //check for snap modes
@@ -918,6 +911,16 @@ function pointerUp(gizmoEntity) {
   }
   gizmoControlComponent.dragging.set(false)
   gizmoControlComponent.axis.set(null)
+}
+
+function pointerUp(gizmoEntity) {
+  // TODO support gizmos in multiple viewports
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
+  if (!inputPointerEntity) return
+  const pointer = getComponent(inputPointerEntity, InputPointerComponent)
+
+  if (pointer.movement.length() !== 0) return
+  onGizmoCommit(gizmoEntity)
 }
 
 export function onPointerHover(gizmoEntity) {

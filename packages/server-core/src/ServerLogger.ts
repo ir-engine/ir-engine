@@ -29,7 +29,10 @@ Ethereal Engine. All Rights Reserved.
  * (which will send all log events to this server-side logger here, via an
  *  API endpoint).
  */
+import appRootPath from 'app-root-path'
+import net from 'net'
 import os from 'os'
+import path from 'path'
 import pino from 'pino'
 import pinoElastic from 'pino-elasticsearch'
 import pinoOpensearch from 'pino-opensearch'
@@ -39,8 +42,56 @@ const node = process.env.ELASTIC_HOST || 'http://localhost:9200'
 const nodeOpensearch = process.env.OPENSEARCH_HOST || 'http://localhost:9200'
 const useLogger = !process.env.DISABLE_SERVER_LOG
 
+const logStashAddress = process.env.LOGSTASH_ADDRESS || 'logstash-service'
+const logStashPort = process.env.LOGSTASH_PORT || 5044
+
+const isLogStashRunning = () => {
+  return new Promise((resolve, reject) => {
+    const socket = new net.Socket()
+
+    const timer = setTimeout(() => {
+      reject(new Error(`Timeout trying to connect to logstash ${logStashAddress}:${logStashPort}`))
+      socket.destroy()
+    }, 3000)
+
+    // Connect to the port
+    socket.connect(parseInt(logStashPort.toString()), logStashAddress, () => {
+      clearTimeout(timer)
+      socket.end()
+      resolve(true)
+    })
+
+    // Handle connection errors
+    socket.on('error', (err: any) => {
+      clearTimeout(timer)
+      reject(err)
+    })
+  })
+}
+
 const streamToPretty = pretty({
   colorize: true
+})
+
+const streamToFile = pino.transport({
+  target: 'pino/file',
+  options: {
+    mkdir: true,
+    destination: path.join(appRootPath.path, 'logs/irengine.log')
+  }
+})
+
+/**
+ * https://getpino.io/#/docs/transports?id=logstash
+ * https://www.npmjs.com/package/pino-socket
+ */
+const streamToLogstash = pino.transport({
+  target: 'pino-socket',
+  options: {
+    address: logStashAddress,
+    port: logStashPort,
+    mode: 'tcp'
+  }
 })
 
 const streamToOpenSearch = pinoOpensearch({
@@ -62,8 +113,6 @@ const streamToElastic = pinoElastic({
   flushBytes: 1000
 })
 
-const streams = [streamToPretty, streamToElastic, streamToOpenSearch]
-
 export const opensearchOnlyLogger = pino(
   {
     level: 'debug',
@@ -74,18 +123,6 @@ export const opensearchOnlyLogger = pino(
     }
   },
   streamToOpenSearch
-)
-
-export const logger = pino(
-  {
-    level: 'debug',
-    enabled: useLogger,
-    base: {
-      hostname: os.hostname,
-      component: 'server-core'
-    }
-  },
-  pino.multistream(streams)
 )
 
 export const elasticOnlyLogger = pino(
@@ -99,6 +136,65 @@ export const elasticOnlyLogger = pino(
   },
   streamToElastic
 )
+
+const defaultStreams = [streamToPretty, streamToElastic, streamToOpenSearch]
+
+// Enable log to local file
+if (process.env.LOG_TO_FILE === 'true') {
+  defaultStreams.push(streamToFile)
+}
+
+const multiStream = pino.multistream(defaultStreams)
+
+export const logger = pino(
+  {
+    level: 'debug',
+    enabled: useLogger,
+    base: {
+      hostname: os.hostname
+    },
+    hooks: {
+      logMethod(inputArgs, method, level) {
+        const pushOrUnshift = (key: string, value: string) => {
+          if (inputArgs.length > 0 && typeof inputArgs[0] === 'string') {
+            inputArgs.unshift({ [key]: value })
+          } else if (inputArgs.length > 0 && typeof inputArgs[0] !== 'string') {
+            if (!(inputArgs[0] as any)[key]) {
+              ;(inputArgs[0] as any)[key] = value
+            }
+          }
+        }
+
+        const { component: bindingsComponent, userId: bindingsUserId } = this.bindings()
+
+        const { component: inputArgsComponent, userId: inputArgsUserId } =
+          inputArgs.length > 0 && typeof inputArgs[0] !== 'string' ? inputArgs[0] : { component: '', userId: '' }
+
+        if (!bindingsComponent && !bindingsUserId && !inputArgsComponent && !inputArgsUserId) {
+          pushOrUnshift('component', 'server-core')
+          pushOrUnshift('userId', '')
+        } else if (bindingsComponent || inputArgsComponent) {
+          pushOrUnshift('userId', '')
+        } else if (bindingsUserId || inputArgsUserId) {
+          pushOrUnshift('component', 'server-core')
+        }
+
+        return method.apply(this, inputArgs)
+      }
+    }
+  },
+  multiStream
+)
+
+isLogStashRunning()
+  .then(() => {
+    console.info(`Logstash is running on ${logStashAddress}:${logStashPort}`)
+    multiStream.add(streamToLogstash)
+  })
+  .catch(() => {
+    console.error(`Logstash is not running on ${logStashAddress}:${logStashPort}`)
+  })
+
 logger.debug('Debug message for testing')
 
 export default logger

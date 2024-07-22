@@ -93,11 +93,7 @@ export const ModalFooter = ({
   return (
     <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
       {showCloseButton && (
-        <Button
-          className="bg-[#162546] font-['Figtree']"
-          disabled={closeButtonDisabled}
-          onClick={() => onCancel && onCancel(false)}
-        >
+        <Button className="bg-[#162546]" disabled={closeButtonDisabled} onClick={() => onCancel && onCancel(false)}>
           {closeButtonText || t('common:components.cancel')}
         </Button>
       )}
@@ -106,7 +102,7 @@ export const ModalFooter = ({
           endIcon={submitLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
           disabled={submitButtonDisabled || submitLoading}
           onClick={onSubmit}
-          className="place-self-end font-['Figtree']"
+          className="place-self-end"
         >
           {submitButtonText || t('common:components.confirm')}
         </Button>
@@ -130,10 +126,10 @@ const Modal = ({
   submitButtonDisabled,
   showCloseButton = true
 }: ModalProps) => {
-  const twClassName = twMerge('relative z-50 max-h-[80vh] w-full', className)
+  const twClassName = twMerge('relative z-50 max-h-[80vh] w-full bg-theme-surface-main', className)
   return (
     <div className={twClassName}>
-      <div className="relative rounded-lg bg-theme-surface-main shadow">
+      <div className="relative rounded-lg shadow">
         {onClose && <ModalHeader title={title} onClose={onClose} />}
         {rawChildren && rawChildren}
         {children && <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>}

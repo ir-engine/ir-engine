@@ -26,9 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { OAuthStrategy } from '@feathersjs/authentication-oauth'
 import { Params } from '@feathersjs/feathers'
 
+import multiLogger from '@etherealengine/common/src/logger'
 import { Application } from '../../../declarations'
 
 // import { OAuthProfile } from '@feathersjs/authentication-oauth/src/strategy'
+const logger = multiLogger.child({ component: 'engine:ecs:CustomOAuthParams' })
 
 export interface CustomOAuthParams extends Params {
   redirect?: string

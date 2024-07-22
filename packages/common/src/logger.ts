@@ -164,15 +164,15 @@ const multiLogger = {
         }
       }
 
-      return config.client.logs.disabled
-        ? nullLogger
-        : {
+      return config.client.logs.disabled === 'false'
+        ? {
             debug: send('debug'),
             info: send('info'),
             warn: send('warn'),
             error: send('error'),
             fatal: send('fatal')
           }
+        : nullLogger
     }
   }
 }

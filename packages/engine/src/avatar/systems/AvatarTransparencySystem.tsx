@@ -28,18 +28,21 @@ import {
   Entity,
   PresentationSystemGroup,
   UUIDComponent,
+  defineQuery,
   defineSystem,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   setComponent,
-  useOptionalComponent
+  useOptionalComponent,
+  useQuery
 } from '@etherealengine/ecs'
 import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import {
   TransparencyDitheringPlugin,
@@ -50,42 +53,45 @@ import React, { useEffect } from 'react'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 
 const headDithering = 0
 const cameraDithering = 1
-
+const avatarQuery = defineQuery([AvatarComponent])
 const execute = () => {
   const selfEntity = AvatarComponent.getSelfAvatarEntity()
   if (!selfEntity) return
-  const materials = getComponent(selfEntity, TransparencyDitheringRoot)?.materials
-  if (!materials) setComponent(selfEntity, TransparencyDitheringRoot, { materials: [] })
+  for (const entity of avatarQuery()) {
+    const materials = getComponent(entity, TransparencyDitheringRoot)?.materials
+    if (!materials) setComponent(entity, TransparencyDitheringRoot, { materials: [] })
 
-  const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
-  const avatarComponent = getComponent(selfEntity, AvatarComponent)
-  const cameraComponent = getOptionalComponent(Engine.instance.viewerEntity, FollowCameraComponent)
+    const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
+    const avatarComponent = getComponent(entity, AvatarComponent)
+    const cameraComponent = getOptionalComponent(getState(EngineState).viewerEntity, FollowCameraComponent)
 
-  if (!materials?.length) return
-  for (const materialUUID of materials) {
-    const pluginComponent = getOptionalComponent(
-      UUIDComponent.getEntityByUUID(materialUUID),
-      TransparencyDitheringPlugin
-    )
-    if (!pluginComponent) continue
-    pluginComponent.centers.value[headDithering].setY(avatarComponent.eyeHeight)
-    pluginComponent.distances.value[headDithering] =
-      cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 2.5), 3) : 3.25
-    pluginComponent.exponents.value[headDithering] = cameraAttached ? 12 : 8
-    pluginComponent.useWorldCalculation.value[headDithering] = ditherCalculationType.localPosition
-    const viewerPosition = getComponent(Engine.instance.viewerEntity, TransformComponent).position
-    pluginComponent.centers.value[cameraDithering].set(viewerPosition.x, viewerPosition.y, viewerPosition.z)
-    pluginComponent.distances.value[cameraDithering] = cameraAttached ? 8 : 3
-    pluginComponent.exponents.value[cameraDithering] = cameraAttached ? 10 : 2
-    pluginComponent.useWorldCalculation.value[cameraDithering] = ditherCalculationType.worldTransformed
+    if (!materials?.length) return
+    for (const materialUUID of materials) {
+      const pluginComponent = getOptionalComponent(
+        UUIDComponent.getEntityByUUID(materialUUID),
+        TransparencyDitheringPlugin
+      )
+      if (!pluginComponent) continue
+      const viewerPosition = getComponent(Engine.instance.viewerEntity, TransformComponent).position
+      pluginComponent.centers.value[cameraDithering].set(viewerPosition.x, viewerPosition.y, viewerPosition.z)
+      pluginComponent.distances.value[cameraDithering] = cameraAttached ? 8 : 3
+      pluginComponent.exponents.value[cameraDithering] = cameraAttached ? 10 : 6
+      pluginComponent.useWorldCalculation.value[cameraDithering] = ditherCalculationType.worldTransformed
+      if (entity !== selfEntity) {
+        pluginComponent.distances.value[headDithering] = 10
+        continue
+      }
+      pluginComponent.centers.value[headDithering].setY(avatarComponent.eyeHeight)
+      pluginComponent.distances.value[headDithering] =
+        cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 2.5), 3) : 3.5
+      pluginComponent.exponents.value[headDithering] = cameraAttached ? 12 : 8
+      pluginComponent.useWorldCalculation.value[headDithering] = ditherCalculationType.localPosition
+    }
   }
 }
-
-export const eyeOffset = 0.25
 
 export const AvatarTransparencySystem = defineSystem({
   uuid: 'AvatarTransparencySystem',
@@ -93,29 +99,31 @@ export const AvatarTransparencySystem = defineSystem({
   insert: { with: PresentationSystemGroup },
   reactor: () => {
     const selfEid = AvatarComponent.useSelfAvatarEntity()
-    const hasDecapComponent = !!useOptionalComponent(selfEid, AvatarHeadDecapComponent)
-    const hasFollowCamera = !!useOptionalComponent(Engine.instance.viewerEntity, FollowCameraComponent)
-    useEffect(() => {
-      const followCamera = getOptionalComponent(Engine.instance.viewerEntity, FollowCameraComponent)
-      if (!followCamera) return
-      const prevOffsetZ = followCamera.offset.z
-      followCamera.offset.setZ(eyeOffset)
-      return () => {
-        followCamera.offset.setZ(prevOffsetZ)
-      }
-    }, [hasFollowCamera, hasDecapComponent, selfEid])
 
-    const sceneInstanceID = useModelSceneID(selfEid)
-    const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
+    const avatarQuery = useQuery([AvatarComponent])
+
     return (
       <>
-        {childEntities.value?.map((childEntity) => (
-          <DitherChildReactor key={childEntity} entity={childEntity} rootEntity={selfEid} />
+        {avatarQuery.map((childEntity) => (
+          <AvatarReactor key={childEntity} entity={childEntity} />
         ))}
       </>
     )
   }
 })
+
+const AvatarReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
+  const sceneInstanceID = useModelSceneID(entity)
+  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
+  return (
+    <>
+      {childEntities.value?.map((childEntity) => (
+        <DitherChildReactor key={childEntity} entity={childEntity} rootEntity={entity} />
+      ))}
+    </>
+  )
+}
 
 const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const entity = props.entity

@@ -28,7 +28,7 @@ import React from 'react'
 
 import { getOptionalComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
-import { CameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
+import { FollowCameraMode } from '@etherealengine/spatial/src/camera/types/FollowCameraMode'
 
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import {
@@ -52,27 +52,27 @@ import PropertyGroup from '../group'
 const cameraModeSelect = [
   {
     label: 'First Person',
-    value: CameraMode.FirstPerson
+    value: FollowCameraMode.FirstPerson
   },
   {
     label: 'Shoulder Cam',
-    value: CameraMode.ShoulderCam
+    value: FollowCameraMode.ShoulderCam
   },
   {
     label: 'Third Person',
-    value: CameraMode.ThirdPerson
+    value: FollowCameraMode.ThirdPerson
   },
   {
     label: 'Top Down',
-    value: CameraMode.TopDown
+    value: FollowCameraMode.TopDown
   },
   {
     label: 'Strategic',
-    value: CameraMode.Strategic
+    value: FollowCameraMode.Strategic
   },
   {
     label: 'Dynamic',
-    value: CameraMode.Dynamic
+    value: FollowCameraMode.Dynamic
   }
 ]
 
@@ -155,8 +155,8 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <Button onClick={calculateClippingPlanes}>Calculate Clipping Planes</Button>
-      <InputGroup name="cameraNearClip" label={'Projection distance'} className="gap-2">
-        <div className="flex w-1/2 gap-2">
+      <InputGroup name="cameraNearClip" label={'Projection distance'} containerClassName="gap-2">
+        <div className="flex gap-2">
           <NumericInput
             onChange={updateProperty(CameraSettingsComponent, 'cameraNearClip')}
             onRelease={commitProperty(CameraSettingsComponent, 'cameraNearClip')}
@@ -165,6 +165,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
             mediumStep={0.01}
             largeStep={0.1}
             value={cameraSettings.cameraNearClip.value}
+            className="w-1/2"
           />
           <NumericInput
             onChange={updateProperty(CameraSettingsComponent, 'cameraFarClip')}
@@ -174,11 +175,12 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
             mediumStep={0.01}
             largeStep={0.1}
             value={cameraSettings.cameraFarClip.value}
+            className="w-1/2"
           />
         </div>
       </InputGroup>
-      <InputGroup name="minCameraDistance" label={'Camera distance'} className="gap-2">
-        <div className="flex w-1/2 gap-2">
+      <InputGroup name="minCameraDistance" label={'Camera distance'} containerClassName="gap-2">
+        <div className="flex gap-2">
           <NumericInput
             onChange={updateProperty(CameraSettingsComponent, 'minCameraDistance')}
             onRelease={commitProperty(CameraSettingsComponent, 'minCameraDistance')}
@@ -187,6 +189,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
             mediumStep={0.01}
             largeStep={0.1}
             value={cameraSettings.minCameraDistance.value}
+            className="w-1/2"
           />
           <NumericInput
             onChange={updateProperty(CameraSettingsComponent, 'maxCameraDistance')}
@@ -196,6 +199,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
             mediumStep={0.01}
             largeStep={0.1}
             value={cameraSettings.maxCameraDistance.value}
+            className="w-1/2"
           />
         </div>
       </InputGroup>
@@ -210,8 +214,8 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           value={cameraSettings.startCameraDistance.value}
         />
       </InputGroup>
-      <InputGroup name="minPhi" label={'Phi'} className="gap-2">
-        <div className="flex w-1/2 gap-2">
+      <InputGroup name="minPhi" label={'Phi'} containerClassName="gap-2">
+        <div className="flex gap-2">
           <NumericInput
             onChange={updateProperty(CameraSettingsComponent, 'minPhi')}
             onRelease={commitProperty(CameraSettingsComponent, 'minPhi')}
@@ -220,6 +224,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
             mediumStep={0.01}
             largeStep={0.1}
             value={cameraSettings.minPhi.value}
+            className="w-1/2"
           />
           <NumericInput
             onChange={updateProperty(CameraSettingsComponent, 'maxPhi')}
@@ -229,6 +234,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
             mediumStep={0.01}
             largeStep={0.1}
             value={cameraSettings.maxPhi.value}
+            className="w-1/2"
           />
         </div>
       </InputGroup>

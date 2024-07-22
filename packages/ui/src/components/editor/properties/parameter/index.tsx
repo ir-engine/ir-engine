@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { Fragment } from 'react'
+import React from 'react'
 
+import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelCaseToSpacedString'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import { generateDefaults } from '@etherealengine/spatial/src/renderer/materials/constants/DefaultArgs'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import BooleanInput from '../../input/Boolean'
@@ -39,14 +41,17 @@ export default function ParameterInput({
   values,
   onChange,
   defaults,
-  thumbnails
+  thumbnails,
+  ...rest
 }: {
   entity: string
   values: object
   defaults?: object
   thumbnails?: Record<string, string>
   onChange: (k: string) => (v) => void
+  onModify?: () => void
 }) {
+  const { onModify } = rest
   function setArgsProp(k) {
     const thisOnChange = onChange(k)
     return (value) => {
@@ -95,12 +100,17 @@ export default function ParameterInput({
 13: "list"
 14: "entity"*/
   return (
-    <Fragment>
+    <>
       {Object.entries(_defaults).map(([k, parms]: [string, any]) => {
         const compKey = `${entity}-${k}`
         return (
-          <InputGroup key={compKey} name={k} label={k}>
+          <InputGroup key={compKey} name={k} label={camelCaseToSpacedString(capitalizeFirstLetter(k))}>
             {(() => {
+              if (!(k in values)) {
+                console.warn(`Key "${k}" not found in ParameterInput values object`)
+                return null
+              }
+
               switch (parms.type) {
                 case 'boolean':
                   return <BooleanInput value={values[k]} onChange={setArgsProp(k)} />
@@ -113,25 +123,22 @@ export default function ParameterInput({
                 case 'color':
                   return <ColorInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'texture':
-                  if (thumbnails?.[k])
-                    return <TexturePreviewInput preview={thumbnails[k]} value={values[k]} onRelease={setArgsProp(k)} />
-                  else return <TexturePreviewInput value={values[k]} onRelease={setArgsProp(k)} />
+                  return (
+                    <TexturePreviewInput
+                      preview={thumbnails?.[k]}
+                      value={values[k]}
+                      onRelease={setArgsProp(k)}
+                      onModify={onModify}
+                    />
+                  )
                 case 'vec2':
                 case 'vec3':
                 case 'vec4':
                   return (
-                    <Fragment>
-                      {typeof values[k]?.map === 'function' &&
-                        (values[k] as number[]).map((arrayVal, idx) => {
-                          return (
-                            <NumericInput
-                              key={`${compKey}-${idx}`}
-                              value={arrayVal}
-                              onChange={setArgsArrayProp(k, idx)}
-                            />
-                          )
-                        })}
-                    </Fragment>
+                    typeof values[k]?.map === 'function' &&
+                    (values[k] as number[]).map((arrayVal, idx) => (
+                      <NumericInput key={`${compKey}-${idx}`} value={arrayVal} onChange={setArgsArrayProp(k, idx)} />
+                    ))
                   )
                 case 'select':
                   return (
@@ -157,6 +164,6 @@ export default function ParameterInput({
           </InputGroup>
         )
       })}
-    </Fragment>
+    </>
   )
 }

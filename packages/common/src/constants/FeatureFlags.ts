@@ -23,12 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
-
-const Overlay = ({ pointerEvents, children }) => {
-  const overlayClassName = twMerge('fixed inset-0', `pointer-events-${pointerEvents} ?? 'auto'`)
-  return <div className={overlayClassName}>{children}</div>
+export const FeatureFlags = {
+  Client: {
+    Menu: {
+      Social: 'ir.client.menu.social',
+      Emote: 'ir.client.menu.emote',
+      Avaturn: 'ir.client.menu.avaturn',
+      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
+      CreateAvatar: 'ir.client.menu.createAvatar',
+      MotionCapture: 'ir.client.location.menu.motionCapture',
+      AR: 'ir.client.menu.ar'
+    }
+  },
+  Studio: {
+    ComponentShelfCategories: {
+      ScenePreviewCameraComponent: 'ir.studio.componentShelfCategories.visual.scenePreviewCameraComponent'
+    },
+    Panel: {
+      VisualScript: 'ir.editor.panel.visualScript'
+    },
+    UI: {
+      Hierarchy: {
+        ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
+      }
+    }
+  }
 }
-
-export default Overlay

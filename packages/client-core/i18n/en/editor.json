@@ -27,8 +27,10 @@
   "lbl-return": "Return",
   "loadingScenes": "Loading Scenes",
   "loadingScenesWithProgress": "Scene Loading... {{progress}}% ({{assetsLeft}} assets left)",
+  "help": "Help",
   "menubar": {
     "newScene": "New Scene",
+    "newEmptyScene": "New Empty Scene",
     "saveScene": "Save Scene",
     "saveAs": "Save As",
     "importAsset": "Import Asset",
@@ -105,6 +107,7 @@
     "lbl-simple": "Simple",
     "lbl-advanced": "Advanced",
     "gizmo": {
+      "pointer": "Pointer",
       "description": "Transform Gizmo",
       "translate": "[T] Translate",
       "rotate": "[R] Rotate",
@@ -134,7 +137,7 @@
       "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
       "toggleSnapMode": "[C] Toggle Grid Snap",
       "info-translate": "Translate objects by a unit of measurement.",
-      "info-rotate": "Rotate objects by a specific degrees."
+      "info-rotate": "Snap rotation angle"
     },
     "placement": {
       "click": "Point & Click Placement",
@@ -192,8 +195,11 @@
     },
     "publishLocation": {
       "title": "Publish",
-      "lbl": "Publish Location",
-      "info": "Publish location for the selected scene."
+      "create": "Publish Location",
+      "update": "Update Published Location",
+      "unpublish": "Unpublish Location",
+      "saveAndPublish": "Save and Publish",
+      "locationLinkCopied": "Location link copied"
     }
   },
   "properties": {
@@ -214,10 +220,10 @@
     },
     "envmap": {
       "name": "Environment Map",
-      "description": "environment map properties",
-      "lbl-source": "Envmap Source",
-      "lbl-color": "Envmap Color",
-      "lbl-bake": "Envmap Bake",
+      "description": "Environment Map properties",
+      "lbl-source": "Environment Map Source",
+      "lbl-color": "Environment Map Color",
+      "lbl-bake": "Environment Map Bake",
       "lbl-textureType": "Texture Type",
       "lbl-textureUrl": "Texture URL",
       "lbl-intensity": "Envmap Intensity",
@@ -468,15 +474,21 @@
       "lbl-htmlContent": "Html Content",
       "lbl-interactionText": "Interaction Text",
       "lbl-interactionType": "Interaction Type",
+      "saveChanges": "Save Changes",
       "transform": {
+        "lodLevels": "LOD Levels",
+        "lodLevelNumber": "LOD Level {{index}}",
         "compress": "Compress",
+        "compressImage": "Compress Image",
+        "applyPresetConfirmation": "Would you like to apply this preset?",
+        "savePreset": "Save Preset",
         "useDraco": "Use DRACO Mesh Compression",
         "useMeshopt": "Use Meshoptimizer",
         "useQuantization": "Use Mesh Quantization",
         "textureFormat": "Image Format",
         "modelFormat": "Model Format",
-        "resourceUri": "Resource URI",
-        "dst": "File Name",
+        "resourceUri": "Resource URL",
+        "dst": "File name",
         "resampleAnimations": "Resample Animations",
         "maxTextureSize": "Max Texture Size",
         "simplifyRatio": "Simplify Ratio",
@@ -612,7 +624,8 @@
         "cycle": "Burst Cycle",
         "interval": "Burst Interval",
         "probability": "Burst Probability"
-      }
+      },
+      "addBehavior": "Add Behavior"
     },
     "clouds": {
       "name": "Cloud",
@@ -666,6 +679,7 @@
       "error-url": "Error Loading From URL"
     },
     "pointLight": {
+      "name": "Point Light",
       "description": "A light which emits in all directions from a single point.",
       "lbl-color": "Color",
       "lbl-intensity": "Intensity",
@@ -717,7 +731,7 @@
       "description": "Change the camera settings for this scene."
     },
     "postprocessing": {
-      "name": "Post Processing",
+      "name": "Post Processing Effect",
       "enabled": "Enabled",
       "description": "For applying Post Processing effects to you scene."
     },
@@ -851,6 +865,7 @@
     },
     "transform": {
       "title": "Transform",
+      "description": "Change transform of an entity",
       "lbl-position": "Position",
       "lbl-rotation": "Rotation",
       "lbl-scale": "Scale",
@@ -866,7 +881,8 @@
       "lbl-onexit": "On Exit",
       "lbl-showHelper": "Show Helper Mesh",
       "ph-errorNode": "Error missing node.",
-      "ph-selectNode": "Select node..."
+      "ph-selectNode": "Select node...",
+      "lbl-addRigidBody": "Add RigidBody..."
     },
     "video": {
       "name": "Video",
@@ -919,6 +935,7 @@
       "lbl-loop": "Loop"
     },
     "systemnode": {
+      "name": "System Node",
       "description": "Attach script.",
       "lbl-filePath": "Url",
       "lbl-insertUUID": "Reference System",
@@ -985,33 +1002,32 @@
     },
     "text": {
       "textGroup": "Text",
-      "textOpacity": "opacity",
-      "textWidth": "width",
-      "textIndent": "indent",
-      "textAlign": "align",
-      "textWrap": "wrap",
-      "textAnchor": "anchor",
-      "textDepthOffset": "depthOffset",
-      "textCurveRadius": "curveRadius",
-      "letterSpacing": "letterSpacing",
-      "lineHeightGroup": "lineHeight",
-      "lineHeight": "height",
-      "textDirection": "direction",
+      "textOpacity": "Opacity",
+      "textWidth": "Width",
+      "textIndent": "Indent",
+      "textAlign": "Align",
+      "textWrap": "Wrap",
+      "textAnchor": "Anchor",
+      "textDepthOffset": "Depth offset",
+      "textCurveRadius": "Curve radius",
+      "letterSpacing": "Letter spacing",
+      "lineHeight": "Line Height",
+      "textDirection": "Direction",
       "fontGroup": "Font",
-      "fontFamily": "family",
-      "fontSize": "size",
-      "fontColor": "color",
-      "fontMaterial": "material",
+      "fontFamily": "Family",
+      "fontSize": "Size",
+      "fontColor": "Color",
+      "fontMaterial": "Material",
       "outlineGroup": "Outline",
-      "outlineColor": "color",
-      "outlineOpacity": "opacity",
-      "outlineWidth": "width",
-      "outlineBlur": "blur",
-      "outlineOffset": "offset",
+      "outlineColor": "Color",
+      "outlineOpacity": "Opacity",
+      "outlineWidth": "Width",
+      "outlineBlur": "Blur",
+      "outlineOffset": "Offset",
       "strokeGroup": "Stroke",
-      "strokeColor": "color",
-      "strokeOpacity": "opacity",
-      "strokeWidth": "width",
+      "strokeColor": "Color",
+      "strokeOpacity": "Opacity",
+      "strokeWidth": "Width",
       "advancedActive": "Show Advanced",
       "advancedGroup": "Advanced",
       "clippingActive": "clip.active",
@@ -1173,6 +1189,7 @@
       "pasteAsset": "Paste",
       "renameAsset": "Rename",
       "renameFile": "Rename File",
+      "renameFileError": "Not a valid file name",
       "deleteFile": "Delete File",
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
@@ -1183,20 +1200,29 @@
       "convert": "Convert",
       "downloadProject": "Download Project",
       "uploadAssets": "Upload Assets",
+      "uploadFiles": "Upload Files",
+      "uploadFolder": "Upload Folder",
       "search-placeholder": "Search folders",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
       "directory": "Directory",
       "fileProperties": {
-        "name": "Name:",
-        "type": "Type:",
-        "size": "Size:",
-        "url": "URL:",
-        "attribution": "Attribution:",
-        "licensing": "Licensing:",
-        "tag": "Tag:",
-        "addTag": "Add Tag",
-        "save-changes": "Save Changes"
+        "header": "Info for {{fileName}}",
+        "header-plural": "Info for {{itemCount}} Items",
+        "regenerateThumbnail": "Regenerate Thumbnail",
+        "name": "Name",
+        "type": "Type",
+        "size": "Size",
+        "url": "URL",
+        "author": "Author",
+        "attribution": "Attribution",
+        "licensing": "Licensing",
+        "tag": "Tag",
+        "addTag": "Add New Tag",
+        "add": "Add",
+        "save-changes": "Save Changes",
+        "discard": "Discard",
+        "mixedValues": "Mixed"
       },
       "view-mode": {
         "icons": "View: Icons",
@@ -1316,12 +1342,13 @@
       "title": "Save",
       "lbl-thumbnail": "Generate thumbnail & envmap",
       "lbl-confirm": "Save Scene",
-      "info-confirm": "Are you sure you want to save the scene?"
+      "info-confirm": "Are you sure you want to save the scene?",
+      "info-question": "Do you want to save the current scene?"
     },
     "saveNewScene": {
       "title": "Save As",
       "lbl-name": "Scene Name",
-      "info-name": "Name must be between 4 and 64 characters and cannot contain underscores",
+      "info-name": "Name must be between 4 and 64 characters (with only alphabets, numbers, dashes allowed)",
       "lbl-confirm": "Save Scene"
     },
     "support": {
@@ -1332,7 +1359,12 @@
     },
     "delete": {
       "confirm-content": "Do you want to delete {{content}}?",
+      "confirm-multiple": "Do you want to delete {{first}}, and {{count}} others?",
       "not-allowed-local-dev": "To prevent accidental loss of data, projects cannot be deleted from this menu in a local dev environment. Use the file system instead."
+    },
+    "createScene": {
+      "title": "New Scene",
+      "create": "New Empty Scene"
     },
     "file": "file",
     "folder": "folder"
