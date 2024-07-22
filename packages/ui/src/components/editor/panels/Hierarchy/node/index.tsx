@@ -79,12 +79,12 @@ export type RenameNodeData = {
 export type HierarchyTreeNodeData = {
   nodes: HierarchyTreeNodeType[]
   renamingNode: RenameNodeData
-  onToggle: (e: Event, node: HierarchyTreeNodeType) => void
-  onKeyDown: (e: Event, node: HierarchyTreeNodeType) => void
-  onMouseDown: (e: MouseEvent, node: HierarchyTreeNodeType) => void
-  onClick: (e: MouseEvent, node: HierarchyTreeNodeType) => void
-  onChangeName: (node: HierarchyTreeNodeType, name: string) => void
-  onRenameSubmit: (node: HierarchyTreeNodeType, name: string) => void
+  onToggle: (e: Event, node: Entity) => void
+  onKeyDown: (e: Event, node: Entity) => void
+  onMouseDown: (e: MouseEvent, node: Entity) => void
+  onClick: (e: MouseEvent, node: Entity) => void
+  onChangeName: (node: Entity, name: string) => void
+  onRenameSubmit: (node: Entity, name: string) => void
   onUpload: ReturnType<typeof useUpload>
 }
 
@@ -92,62 +92,62 @@ export type HierarchyTreeNodeProps = {
   index: number
   data: HierarchyTreeNodeData
   style: StyleHTMLAttributes<HTMLLIElement>
-  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: HierarchyTreeNodeType) => void
+  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: Entity) => void
 }
 
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
+  const entity = node.entity
   const data = props.data
 
-  const uuid = useComponent(node.entity, UUIDComponent)
+  const uuid = useComponent(entity, UUIDComponent)
 
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
 
-  const nodeName = useOptionalComponent(node.entity, NameComponent)?.value
+  const nodeName = useOptionalComponent(entity, NameComponent)?.value
 
-  const visible = useOptionalComponent(node.entity, VisibleComponent)
+  const visible = useOptionalComponent(entity, VisibleComponent)
 
-  const errors = useOptionalComponent(node.entity, ErrorComponent)
+  const errors = useOptionalComponent(entity, ErrorComponent)
 
-  const sceneAssetLoading = useOptionalComponent(node.entity, ResourcePendingComponent)
+  const sceneAssetLoading = useOptionalComponent(entity, ResourcePendingComponent)
 
   const toggleVisible = () => {
     if (visible) {
-      EditorControlFunctions.addOrRemoveComponent([node.entity], VisibleComponent, false)
+      EditorControlFunctions.addOrRemoveComponent([entity], VisibleComponent, false)
     } else {
-      EditorControlFunctions.addOrRemoveComponent([node.entity], VisibleComponent, true)
+      EditorControlFunctions.addOrRemoveComponent([entity], VisibleComponent, true)
     }
-    setVisibleComponent(node.entity, !hasComponent(node.entity, VisibleComponent))
+    setVisibleComponent(entity, !hasComponent(entity, VisibleComponent))
   }
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
       e.stopPropagation()
-      if (data.onToggle) data.onToggle(e, node)
+      if (data.onToggle) data.onToggle(e, entity)
     },
     [data.onToggle, node]
   )
 
   const onNodeKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      e.stopPropagation()
-      if (data.onKeyDown) data.onKeyDown(e as any, node)
+      if (data.onKeyDown) data.onKeyDown(e as any, entity)
     },
     [data.onKeyDown, node]
   )
 
   const onKeyDownNameInput = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === 'Escape') data.onRenameSubmit(node, null!)
-      else if (e.key === 'Enter') data.onRenameSubmit(node, (e.target as any).value)
+      if (e.key === 'Escape') data.onRenameSubmit(entity, null!)
+      else if (e.key === 'Enter') data.onRenameSubmit(entity, (e.target as any).value)
     },
     [data.onRenameSubmit, node]
   )
 
-  const onClickNode = useCallback((e) => data.onClick(e, node), [node, data.onClick])
-  const onMouseDownNode = useCallback((e) => data.onMouseDown && data.onMouseDown(e, node), [node, data.onMouseDown])
+  const onClickNode = useCallback((e) => data.onClick(e, entity), [node, data.onClick])
+  const onMouseDownNode = useCallback((e) => data.onMouseDown && data.onMouseDown(e, entity), [node, data.onMouseDown])
 
-  const onChangeNodeName = useCallback((e) => data.onChangeName(node, e.target.value), [node, data.onChangeName])
+  const onChangeNodeName = useCallback((e) => data.onChangeName(entity, e.target.value), [node, data.onChangeName])
 
   const [, drag, preview] = useDrag({
     type: ItemTypes.Node,
@@ -324,7 +324,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         className={`py-.5 ml-3.5 h-7 justify-between bg-inherit pr-2`}
         onMouseDown={onMouseDownNode}
         onClick={onClickNode}
-        onContextMenu={(event) => props.onContextMenu(event, node)}
+        onContextMenu={(event) => props.onContextMenu(event, entity)}
       >
         <div
           className={twMerge(`border-t-[${isOverBefore && canDropBefore ? 2 : 0}px]`, `ml-${marginLeft} bg-inherit`)}

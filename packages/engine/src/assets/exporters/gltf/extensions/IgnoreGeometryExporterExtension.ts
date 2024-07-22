@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Mesh, Object3D } from 'three'
 
-import { Entity, hasComponent, removeComponent } from '@etherealengine/ecs'
+import { Entity, getComponent, hasComponent, removeComponent } from '@etherealengine/ecs'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
@@ -47,11 +47,13 @@ export default class IgnoreGeometryExporterExtension extends ExporterExtension i
   beforeParse(input: Object3D | Object3D[]) {
     const root = (Array.isArray(input) ? input[0] : input) as Object3D
     iterateEntityNode(root.entity, (entity) => {
+      if (!hasComponent(entity, MeshComponent)) return
+      const mesh = getComponent(entity, MeshComponent)
       const removeMesh =
         hasComponent(entity, PrimitiveGeometryComponent) ||
         hasComponent(entity, GroundPlaneComponent) ||
         hasComponent(entity, ImageComponent) ||
-        hasComponent(entity, MeshComponent)
+        !!mesh.userData['ignoreOnExport']
       if (!removeMesh) return
       removeComponent(entity, MeshComponent)
     })

@@ -34,13 +34,12 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
-import Hotkeys from 'react-hot-keys'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { Engine, EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
+import { Engine, Entity, EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
@@ -61,6 +60,7 @@ import { SelectionState } from '@etherealengine/editor/src/services/SelectionSer
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { GLTF } from '@gltf-transform/core'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
@@ -74,28 +74,81 @@ const uploadOptions = {
   accepts: AllFileTypes
 }
 
+const toValidHierarchyNodeName = (entity: Entity, name: string): string => {
+  name = name.trim()
+  if (getComponent(entity, NameComponent) === name) return ''
+  return name
+}
+
 /**
  * HierarchyPanel function component provides view for hierarchy tree.
  */
 function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: EntityUUID; index: number }) {
   const { sceneURL, rootEntityUUID, index } = props
   const { t } = useTranslation()
-  const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HierarchyTreeNodeType>(undefined)
+  const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | Entity>(undefined)
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
-  const [prevClickedNode, setPrevClickedNode] = useState<HierarchyTreeNodeType | null>(null)
+  const [prevClickedNode, setPrevClickedNode] = useState<Entity | null>(null)
   const onUpload = useUpload(uploadOptions)
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const expandedNodes = useHookstate(getMutableState(EditorState).expandedNodes)
   const entityHierarchy = useHookstate<HierarchyTreeNodeType[]>([])
-  const [selectedNode, _setSelectedNode] = useState<HierarchyTreeNodeType | null>(null)
+  const [selectedNodes, _setSelectedNodes] = useState<Entity[] | null>(null)
   const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const searchHierarchy = useHookstate('')
+  const selectionState = useMutableState(SelectionState)
 
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const rootEntitySource = useComponent(rootEntity, SourceComponent)
   const gltfState = useMutableState(GLTFSnapshotState)
   const gltfSnapshot = gltfState[rootEntitySource.value].snapshots[props.index]
+
+  const setSelectedNode = (selection: Entity[]) => !lockPropertiesPanel.value && _setSelectedNodes(selection)
+
+  useEffect(() => {
+    const entities: Entity[] = []
+    for (const selectedUUID of selectionState.selectedEntities.value) {
+      const entity = UUIDComponent.getEntityByUUID(selectedUUID)
+      if (entity) entities.push(entity)
+    }
+    setSelectedNode(entities)
+  }, [selectionState.selectedEntities])
+
+  useHotkeys(`${cmdOrCtrlString}+d`, (e) => {
+    e.preventDefault()
+    const objs = SelectionState.getSelectedEntities()
+    EditorControlFunctions.duplicateObject(objs)
+  })
+
+  useHotkeys(`${cmdOrCtrlString}+g`, (e) => {
+    e.preventDefault()
+    const objs = SelectionState.getSelectedEntities()
+    EditorControlFunctions.groupObjects(objs)
+  })
+
+  useHotkeys(`${cmdOrCtrlString}+c`, (e) => {
+    e.preventDefault()
+    const objs = SelectionState.getSelectedEntities()
+    CopyPasteFunctions.copyEntities(objs)
+  })
+
+  useHotkeys(`${cmdOrCtrlString}+v`, (e) => {
+    e.preventDefault()
+    const selectedEntities = SelectionState.getSelectedEntities()
+    for (const entity of selectedEntities) {
+      CopyPasteFunctions.getPastedEntities()
+        .then((nodeComponentJSONs) => {
+          nodeComponentJSONs.forEach((componentJSONs) => {
+            EditorControlFunctions.createObjectFromSceneElement(componentJSONs, undefined, entity)
+          })
+        })
+        .catch((e) => {
+          NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes'), { variant: 'error' })
+          console.error(e)
+        })
+    }
+  })
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -125,29 +178,27 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   useEffect(() => {
     entityHierarchy.set(gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[]))
-  }, [expandedNodes, index, gltfSnapshot, gltfState])
-
-  const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
+  }, [expandedNodes, index, gltfSnapshot, gltfState, selectionState.selectedEntities])
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
-    (node: HierarchyTreeNodeType) => {
-      expandedNodes[sceneURL][node.entity].set(true)
+    (entity: Entity) => {
+      expandedNodes[sceneURL][entity].set(true)
     },
     [expandedNodes]
   )
 
   const collapseNode = useCallback(
-    (node: HierarchyTreeNodeType) => {
-      expandedNodes[sceneURL][node.entity].set(none)
+    (entity: Entity) => {
+      expandedNodes[sceneURL][entity].set(none)
     },
     [expandedNodes]
   )
 
   const expandChildren = useCallback(
-    (node: HierarchyTreeNodeType) => {
+    (entity: Entity) => {
       handleClose()
-      traverseEntityNode(node.entity, (child) => {
+      traverseEntityNode(entity, (child) => {
         expandedNodes[sceneURL][child].set(true)
       })
     },
@@ -155,16 +206,16 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   )
 
   const collapseChildren = useCallback(
-    (node: HierarchyTreeNodeType) => {
+    (entity: Entity) => {
       handleClose()
-      traverseEntityNode(node.entity, (child) => {
+      traverseEntityNode(entity, (child) => {
         expandedNodes[sceneURL][child].set(none)
       })
     },
     [expandedNodes]
   )
 
-  const onContextMenu = (event: React.MouseEvent<HTMLDivElement>, item: HierarchyTreeNodeType) => {
+  const onContextMenu = (event: React.MouseEvent<HTMLDivElement>, item: Entity) => {
     event.preventDefault()
     event.stopPropagation()
 
@@ -178,31 +229,28 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   }
 
   const onClick = useCallback(
-    (e: MouseEvent, node: HierarchyTreeNodeType) => {
+    (e: MouseEvent, entity: Entity) => {
       if (e.detail === 1) {
         // Exit click placement mode when anything in the hierarchy is selected
         getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
         if (e.ctrlKey) {
-          EditorControlFunctions.toggleSelection([getComponent(node.entity, UUIDComponent)])
-          setSelectedNode(null)
+          EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
         } else if (e.shiftKey && prevClickedNode) {
-          const startIndex = entityHierarchy.value.findIndex((n) => n.entity === prevClickedNode.entity)
-          const endIndex = entityHierarchy.value.findIndex((n) => n.entity === node.entity)
+          const startIndex = entityHierarchy.value.findIndex((n) => n.entity === prevClickedNode)
+          const endIndex = entityHierarchy.value.findIndex((n) => n.entity === entity)
           const range = entityHierarchy.value.slice(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex) + 1)
           const entityUuids = range.filter((n) => n.entity).map((n) => getComponent(n.entity!, UUIDComponent))
           EditorControlFunctions.replaceSelection(entityUuids)
-          setSelectedNode(node)
         } else {
-          const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
+          const selected = getState(SelectionState).selectedEntities.includes(getComponent(entity, UUIDComponent))
           if (!selected) {
-            EditorControlFunctions.replaceSelection([getComponent(node.entity, UUIDComponent)])
-            setSelectedNode(node)
+            EditorControlFunctions.replaceSelection([getComponent(entity, UUIDComponent)])
           }
         }
-        setPrevClickedNode(node)
+        setPrevClickedNode(entity)
       } else if (e.detail === 2) {
         const editorCameraState = getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
-        editorCameraState.focusedEntities.set([node.entity])
+        editorCameraState.focusedEntities.set([entity])
         editorCameraState.refocus.set(true)
       }
     },
@@ -210,17 +258,17 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   )
 
   const onToggle = useCallback(
-    (_, node: HierarchyTreeNodeType) => {
-      if (expandedNodes.value[sceneURL][node.entity]) collapseNode(node)
-      else expandNode(node)
+    (_, entity: Entity) => {
+      if (expandedNodes.value[sceneURL][entity]) collapseNode(entity)
+      else expandNode(entity)
     },
     [expandedNodes, expandNode, collapseNode]
   )
 
   const onKeyDown = useCallback(
-    (e: KeyboardEvent, node: HierarchyTreeNodeType) => {
-      const nodeIndex = entityHierarchy.value.indexOf(node)
-      const entityTree = getComponent(node.entity, EntityTreeComponent)
+    (e: KeyboardEvent, entity: Entity) => {
+      const nodeIndex = entityHierarchy.value.findIndex((node) => node.entity === entity)
+      const entityTree = getComponent(entity, EntityTreeComponent)
       switch (e.key) {
         case 'ArrowDown': {
           e.preventDefault()
@@ -259,76 +307,74 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         case 'ArrowLeft':
           if (entityTree && (!entityTree.children || entityTree.children.length === 0)) return
 
-          if (e.shiftKey) collapseChildren(node)
-          else collapseNode(node)
+          if (e.shiftKey) collapseChildren(entity)
+          else collapseNode(entity)
           break
 
         case 'ArrowRight':
           if (entityTree && (!entityTree.children || entityTree.children.length === 0)) return
 
-          if (e.shiftKey) expandChildren(node)
-          else expandNode(node)
+          if (e.shiftKey) expandChildren(entity)
+          else expandNode(entity)
           break
 
         case 'Enter':
           if (e.shiftKey) {
-            EditorControlFunctions.toggleSelection([getComponent(node.entity, UUIDComponent)])
-            setSelectedNode(null)
+            EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
           } else {
-            EditorControlFunctions.replaceSelection([getComponent(node.entity, UUIDComponent)])
-            setSelectedNode(node)
+            EditorControlFunctions.replaceSelection([getComponent(entity, UUIDComponent)])
           }
           break
 
         case 'Delete':
         case 'Backspace':
-          if (selectedNode && !renamingNode) onDeleteNode(selectedNode!)
+          if (selectedNodes && !renamingNode) onDeleteNode(entity)
           break
       }
     },
-    [entityHierarchy, expandNode, collapseNode, expandChildren, collapseChildren, renamingNode, selectedNode]
+    [entityHierarchy, expandNode, collapseNode, expandChildren, collapseChildren, renamingNode, selectedNodes]
   )
 
-  const onDeleteNode = useCallback((node: HierarchyTreeNodeType) => {
+  const onDeleteNode = useCallback((entity: Entity) => {
     handleClose()
 
-    const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
-    const objs = selected ? SelectionState.getSelectedEntities() : [node.entity]
+    const selected = getState(SelectionState).selectedEntities.includes(getComponent(entity, UUIDComponent))
+    const objs = selected ? SelectionState.getSelectedEntities() : [entity]
     EditorControlFunctions.removeObject(objs)
   }, [])
 
-  const onDuplicateNode = useCallback((node: HierarchyTreeNodeType) => {
+  const onDuplicateNode = useCallback((entity: Entity) => {
     handleClose()
 
-    const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
-    const objs = selected ? SelectionState.getSelectedEntities() : [node.entity]
+    const selected = getState(SelectionState).selectedEntities.includes(getComponent(entity, UUIDComponent))
+    const objs = selected ? SelectionState.getSelectedEntities() : [entity]
     EditorControlFunctions.duplicateObject(objs)
   }, [])
 
-  const onGroupNodes = useCallback((node: HierarchyTreeNodeType) => {
+  const onGroupNodes = useCallback((entity: Entity) => {
     handleClose()
 
-    const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
-    const objs = selected ? SelectionState.getSelectedEntities() : [node.entity]
+    const selected = getState(SelectionState).selectedEntities.includes(getComponent(entity, UUIDComponent))
+    const objs = selected ? SelectionState.getSelectedEntities() : [entity]
 
     EditorControlFunctions.groupObjects(objs)
   }, [])
 
-  const onCopyNode = useCallback((node: HierarchyTreeNodeType) => {
+  const onCopyNode = useCallback((entity: Entity) => {
     handleClose()
 
-    const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
-    const nodes = selected ? SelectionState.getSelectedEntities() : [node.entity]
+    const selected = getState(SelectionState).selectedEntities.includes(getComponent(entity, UUIDComponent))
+    const nodes = selected ? SelectionState.getSelectedEntities() : [entity]
     CopyPasteFunctions.copyEntities(nodes)
   }, [])
 
-  const onPasteNode = useCallback(async (node: HierarchyTreeNodeType) => {
+  const onPasteNode = useCallback(async (entity: Entity) => {
     handleClose()
 
     CopyPasteFunctions.getPastedEntities()
       .then((nodeComponentJSONs) => {
         nodeComponentJSONs.forEach((componentJSONs) => {
-          EditorControlFunctions.createObjectFromSceneElement(componentJSONs, undefined, node.entity)
+          EditorControlFunctions.createObjectFromSceneElement(componentJSONs, undefined, entity)
         })
       })
       .catch(() => {
@@ -338,29 +384,35 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   /* Event handlers */
 
   /* Rename functions */
-  const onRenameNode = useCallback((node: HierarchyTreeNodeType) => {
+  const onRenameNode = useCallback((entity: Entity) => {
     handleClose()
 
-    if (node.entity) {
-      const entity = node.entity
+    if (entity) {
+      EditorControlFunctions.replaceSelection([getComponent(entity, UUIDComponent)])
       setRenamingNode({ entity, name: getComponent(entity, NameComponent) })
     } else {
       // todo
     }
   }, [])
 
-  const onChangeName = useCallback(
-    (node: HierarchyTreeNodeType, name: string) => setRenamingNode({ entity: node.entity, name }),
-    []
-  )
+  const onChangeName = useCallback((entity: Entity, name: string) => setRenamingNode({ entity, name }), [])
 
-  const onRenameSubmit = useCallback((node: HierarchyTreeNodeType, name: string) => {
+  const onRenameSubmit = useCallback((entity: Entity, name: string) => {
+    name = toValidHierarchyNodeName(entity, name)
     if (name) {
-      EditorControlFunctions.modifyName([node.entity], name)
+      EditorControlFunctions.modifyName([entity], name)
     }
 
     setRenamingNode(null)
   }, [])
+
+  useEffect(() => {
+    if (!renamingNode) return
+
+    if (!selectionState.selectedEntities.value.includes(getComponent(renamingNode.entity, UUIDComponent))) {
+      onRenameSubmit(renamingNode.entity, renamingNode.name)
+    }
+  }, [selectionState.selectedEntities, renamingNode])
   /* Rename functions */
 
   const [, treeContainerDropTarget] = useDrop({
@@ -482,78 +534,42 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           >
             {t('editor:hierarchy.lbl-rename')}
           </Button>
-          <Hotkeys
-            keyName={cmdOrCtrlString + '+d'}
-            onKeyUp={(_, e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              selectedNode && onDuplicateNode(selectedNode!)
-            }}
+          <Button
+            size="small"
+            variant="transparent"
+            className="text-left text-xs"
+            onClick={() => onDuplicateNode(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + d'}
           >
-            <Button
-              size="small"
-              variant="transparent"
-              className="w-full text-left text-xs"
-              onClick={() => onDuplicateNode(contextSelectedItem!)}
-              endIcon={cmdOrCtrlString + ' + d'}
-            >
-              {t('editor:hierarchy.lbl-duplicate')}
-            </Button>
-          </Hotkeys>
-          <Hotkeys
-            keyName={cmdOrCtrlString + '+g'}
-            onKeyUp={(_, e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              selectedNode && onGroupNodes(selectedNode!)
-            }}
+            {t('editor:hierarchy.lbl-duplicate')}
+          </Button>
+          <Button
+            size="small"
+            variant="transparent"
+            className="text-left text-xs"
+            onClick={() => onGroupNodes(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + g'}
           >
-            <Button
-              size="small"
-              variant="transparent"
-              className="w-full text-left text-xs"
-              onClick={() => onGroupNodes(contextSelectedItem!)}
-              endIcon={cmdOrCtrlString + ' + g'}
-            >
-              {t('editor:hierarchy.lbl-group')}
-            </Button>
-          </Hotkeys>
-          <Hotkeys
-            keyName={cmdOrCtrlString + '+c'}
-            onKeyUp={(_, e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              selectedNode && onCopyNode(selectedNode)
-            }}
+            {t('editor:hierarchy.lbl-group')}
+          </Button>
+          <Button
+            size="small"
+            variant="transparent"
+            className="text-left text-xs"
+            onClick={() => onCopyNode(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + c'}
           >
-            <Button
-              size="small"
-              variant="transparent"
-              className="w-full text-left text-xs"
-              onClick={() => onCopyNode(contextSelectedItem!)}
-              endIcon={cmdOrCtrlString + ' + c'}
-            >
-              {t('editor:hierarchy.lbl-copy')}
-            </Button>
-          </Hotkeys>
-          <Hotkeys
-            keyName={cmdOrCtrlString + '+v'}
-            onKeyUp={(_, e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              selectedNode && onPasteNode(selectedNode)
-            }}
+            {t('editor:hierarchy.lbl-copy')}
+          </Button>
+          <Button
+            size="small"
+            variant="transparent"
+            className="text-left text-xs"
+            onClick={() => onPasteNode(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + v'}
           >
-            <Button
-              size="small"
-              variant="transparent"
-              className="w-full text-left text-xs"
-              onClick={() => onPasteNode(contextSelectedItem!)}
-              endIcon={cmdOrCtrlString + ' + v'}
-            >
-              {t('editor:hierarchy.lbl-paste')}
-            </Button>
-          </Hotkeys>
+            {t('editor:hierarchy.lbl-paste')}
+          </Button>
           <Button
             fullWidth
             size="small"
@@ -587,7 +603,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             size="small"
             variant="transparent"
             className="text-left text-xs"
-            onClick={() => PopoverState.showPopupover(<CreatePrefabPanel node={contextSelectedItem!} />)}
+            onClick={() => PopoverState.showPopupover(<CreatePrefabPanel entity={contextSelectedItem!} />)}
           >
             {t('editor:hierarchy.lbl-createPrefab')}
           </Button>

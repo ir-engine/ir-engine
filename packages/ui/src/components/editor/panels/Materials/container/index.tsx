@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
-import { MeshBasicMaterial } from 'three'
 
+import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { EntityUUID, getComponent, removeEntity, UndefinedEntity, useQuery, UUIDComponent } from '@etherealengine/ecs'
+import { Engine, EntityUUID, getComponent, useQuery, UUIDComponent } from '@etherealengine/ecs'
 import { ImportSettingsState } from '@etherealengine/editor/src/components/assets/ImportSettingsPanel'
 import { uploadProjectFiles } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
@@ -40,7 +40,6 @@ import { getMaterialsFromScene } from '@etherealengine/engine/src/scene/material
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, useHookstate, useMutableState, useState } from '@etherealengine/hyperflux'
 import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { createAndAssignMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTranslation } from 'react-i18next'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
@@ -57,12 +56,14 @@ export default function MaterialLibraryPanel() {
   const nodes = useHookstate([] as MaterialLibraryEntryType[])
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
   const selectedMaterial = useMutableState(MaterialSelectionState).selectedMaterial
-  let hasSelectedMaterial = useState(false)
+  const hasSelectedMaterial = useState(false)
 
   useEffect(() => {
     const materials = selected.value.length
       ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selected.value[0]))
-      : materialQuery.map((entity) => getComponent(entity, UUIDComponent))
+      : materialQuery
+          .map((entity) => getComponent(entity, UUIDComponent))
+          .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterial)
     const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
       const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
       return [
@@ -133,11 +134,26 @@ export default function MaterialLibraryPanel() {
                   uploadProjectFiles(projectName, [file], [`projects/${projectName}${importSettings.importFolder}`])
                     .promises
                 )
+                const adjustedLibraryName = libraryName.length > 0 ? libraryName.substring(1) : ''
+                const key = `projects/${projectName}${importSettings.importFolder}${adjustedLibraryName}`
+                const resources = await Engine.instance.api.service(staticResourcePath).find({
+                  query: { key: key }
+                })
+                if (resources.data.length === 0) {
+                  throw new Error('User not found')
+                }
+                const resource = resources.data[0]
+                const tags = ['Material']
+                await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags })
                 console.log('exported material data to ', ...urls)
               }}
             >
               Save
             </Button>
+
+            {/* 
+            // hiding the new and delete buttons for now till the we can do a full rework of materials as assets after phase 1 
+
             <Button
               className="w-full text-xs"
               onClick={() => {
@@ -150,7 +166,7 @@ export default function MaterialLibraryPanel() {
             >
               New
             </Button>
-
+            
             {hasSelectedMaterial.value && (
               <Button
                 className="w-full text-xs"
@@ -162,7 +178,7 @@ export default function MaterialLibraryPanel() {
               >
                 Delete
               </Button>
-            )}
+            )} */}
           </div>
         </div>
       </div>

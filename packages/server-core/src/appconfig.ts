@@ -39,6 +39,7 @@ import { loginPath } from '@etherealengine/common/src/schemas/user/login.schema'
 
 import multiLogger from './ServerLogger'
 import {
+  APPLE_SCOPES,
   DISCORD_SCOPES,
   GITHUB_SCOPES,
   GOOGLE_SCOPES,
@@ -298,7 +299,7 @@ const authentication = {
     apple: {
       key: process.env.APPLE_CLIENT_ID!,
       secret: process.env.APPLE_CLIENT_SECRET!,
-      scope: ['openid', 'email', 'name'],
+      scope: APPLE_SCOPES,
       response: ['raw', 'jwt'],
       nonce: true,
       custom_params: {

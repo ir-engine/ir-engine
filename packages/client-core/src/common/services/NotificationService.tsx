@@ -43,6 +43,7 @@ export const NotificationState = defineState({
 export type NotificationOptions = {
   variant: VariantType // 'default' | 'error' | 'success' | 'warning' | 'info'
   actionType?: keyof typeof NotificationActions
+  persist?: boolean
 }
 
 export const defaultAction = (key: SnackbarKey, content?: React.ReactNode) => {
@@ -59,16 +60,21 @@ export const NotificationActions = {
 }
 
 export const NotificationService = {
-  dispatchNotify(message: string, options: NotificationOptions) {
+  dispatchNotify(message: React.ReactNode, options: NotificationOptions) {
     if (options?.variant === 'error') {
-      logger.error(new Error(message))
+      logger.error(new Error(message!.toString()))
     }
 
     const state = getState(NotificationState)
-    state.snackbar?.enqueueSnackbar(message, {
+    return state.snackbar?.enqueueSnackbar(message, {
       variant: options.variant,
-      action: NotificationActions[options.actionType ?? 'default']
+      action: NotificationActions[options.actionType ?? 'default'],
+      persist: options.persist
     })
+  },
+  closeNotification(key: SnackbarKey) {
+    const state = getState(NotificationState)
+    state.snackbar?.closeSnackbar(key)
   }
 }
 

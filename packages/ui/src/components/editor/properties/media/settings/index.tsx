@@ -80,6 +80,7 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
           name="Media Rolloff Factor"
           label={t('editor:properties.mediaSettings.lbl-mediaRolloffFactor')}
           info={t('editor:properties.mediaSettings.info-mediaRolloffFactor')}
+          className="w-auto"
         >
           <Slider
             min={0}
@@ -177,6 +178,7 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
         name="Media Cone Outer Gain"
         label={t('editor:properties.mediaSettings.lbl-mediaConeOuterGain')}
         info={t('editor:properties.mediaSettings.info-mediaConeOuterGain')}
+        className="w-auto"
       >
         <Slider
           min={0}

@@ -53,18 +53,10 @@ import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { bytesToSize, unique } from '@etherealengine/editor/src/functions/utils'
-import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import {
-  ImmutableArray,
-  NO_PROXY,
-  getMutableState,
-  getState,
-  useHookstate,
-  useMutableState
-} from '@etherealengine/hyperflux'
+import { ImmutableArray, NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import {
   useFind,
   useMutation,
@@ -90,6 +82,7 @@ import { Popup } from '../../../../tailwind/Popup'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
+import DeleteFileModal from '../browserGrid/DeleteFileModal'
 import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
 
 type FileBrowserContentPanelProps = {
@@ -309,10 +302,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         contentType: params.type,
         size: params.size
       })
-      const editorHelperState = getState(EditorHelperState)
-      if (editorHelperState.placementMode === PlacementMode.CLICK) {
-        getMutableState(ClickPlacementState).selectedAsset.set(params.url)
-      }
+
+      ClickPlacementState.setSelectedAsset(params.url)
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
       changeDirectoryByPath(newPath)
@@ -574,6 +565,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         onClick={(event) => {
           event.stopPropagation()
           fileProperties.set([])
+          ClickPlacementState.resetSelectedAsset()
         }}
       >
         <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
@@ -601,6 +593,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     PopoverState.showPopupover(
                       <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
                     )
+                  }}
+                  openDeleteFileModal={() => {
+                    PopoverState.showPopupover(<DeleteFileModal files={fileProperties.value as FileDataType[]} />)
                   }}
                   openImageCompress={() => {
                     if (filesConsistOfContentType(fileProperties.value, 'image')) {

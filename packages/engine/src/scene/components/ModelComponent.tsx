@@ -199,7 +199,7 @@ function ModelReactor() {
     const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
 
     if (renderer)
-      renderer.renderer.compileAsync(scene, getComponent(Engine.instance.viewerEntity, CameraComponent)).catch(() => {
+      renderer.renderer!.compileAsync(scene, getComponent(Engine.instance.viewerEntity, CameraComponent)).catch(() => {
         addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
       })
 

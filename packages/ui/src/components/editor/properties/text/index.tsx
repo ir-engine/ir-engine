@@ -28,7 +28,7 @@ Ethereal Engine. All Rights Reserved.
  * Defines the {@link NodeEditor} UI for managing {@link TextComponent}s in the Studio.
  */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiTextT } from 'react-icons/pi'
 
@@ -41,6 +41,7 @@ import {
 import {
   FontMaterialKind,
   TextComponent,
+  TroikaTextAlignment,
   TroikaTextLineHeight
 } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { useHookstate } from '@etherealengine/hyperflux'
@@ -52,6 +53,7 @@ import SelectInput from '../../input/Select'
 import { ControlledStringInput } from '../../input/String'
 import Vector2Input from '../../input/Vector2'
 import NodeEditor from '../nodeEditor'
+import { FontOption, fonts } from './fonts'
 
 /**
  * @description SelectInput option groups for the TextNodeEditor UI tsx code.
@@ -64,19 +66,16 @@ const SelectOptions = {
     { label: 'Right to Left', value: 'rtl' }
   ],
   TextAlignment: [
-    { label: 'Justify', value: 'justify' },
-    { label: 'Center', value: 'center' },
     { label: 'Left', value: 'left' },
+    { label: 'Center', value: 'center' },
     { label: 'Right', value: 'right' }
   ],
   TextWrapping: [
     { label: 'Whitespace', value: 'normal' },
     { label: 'Break Word', value: 'break-word' }
   ],
-  FontMaterial: [
-    { label: 'Basic', value: FontMaterialKind.Basic },
-    { label: 'Standard', value: FontMaterialKind.Standard }
-  ]
+  Font: fonts as FontOption[],
+  FontMaterial: [{ label: 'Basic', value: FontMaterialKind.Basic }]
 }
 
 /**
@@ -129,15 +128,28 @@ export const TextNodeEditor: EditorComponentType = (props) => {
   const text = useComponent(props.entity, TextComponent)
   const advancedActive = useHookstate(false) // State tracking whether the Advanced Options Section is active or not
 
-  // LineHeight state management
-  const lineHeightIsNormal = useHookstate(true) // true when `text.lineHeight` is set to its union 'normal'
-  const lineHeight_setNormal = (checkboxValue: boolean) => {
-    // Used as a BooleanInput callback for setting the value of lineheight.
-    // Sets the value to either its 'normal' type-union option, or to a default lineHeight value when the checkbox is off.
-    lineHeightIsNormal.set(checkboxValue)
-    if (checkboxValue) text.lineHeight.set('normal' as TroikaTextLineHeight)
-    else text.lineHeight.set(LineHeightNumericDefault)
-  }
+  // initialize default values
+  useEffect(() => {
+    if (text.lineHeight.value === undefined) {
+      text.lineHeight.set(LineHeightNumericDefault) // 1.2 em
+    }
+    if (text.outlineOpacity.value === undefined) {
+      text.outlineOpacity.set(100) // 100%
+    }
+    if (text.outlineWidth.value === undefined) {
+      text.outlineWidth.set(3) // 3px
+    }
+    if (text.textAlign.value === undefined) {
+      text.textAlign.set('left')
+    }
+
+    if (text.font.value === undefined) {
+      const defaultFont = SelectOptions.Font.find((option) => option.label === 'Noto Sans')
+      if (defaultFont) {
+        text.font.set(defaultFont.value)
+      }
+    }
+  }, [])
 
   return (
     <NodeEditor {...props} name="Text Component" description="A Text component" icon={<TextNodeEditor.iconComponent />}>
@@ -192,8 +204,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             <SelectInput
               options={SelectOptions.TextAlignment}
               value={text.textAlign.value}
-              onChange={commitProperty(TextComponent, 'textAlign')}
-              //onRelease={commitProperty(TextComponent, 'textAlign')}
+              onChange={(value) => commitProperty(TextComponent, 'textAlign')(value.toString() as TroikaTextAlignment)}
             />
           </InputGroup>
           <InputGroup name="TextWrap" label={t('editor:properties.text.textWrap')}>
@@ -202,22 +213,17 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               onChange={text.textWrap.set}
               onRelease={commitProperty(TextComponent, 'textWrap')}
             />
-            <SelectInput
-              disabled={!text.textWrap.value} // Enabled when text.textWrap is true
-              options={SelectOptions.TextWrapping}
-              value={text.textWrapKind.value}
-              onChange={updateProperty(TextComponent, 'textWrapKind')}
-              //onRelease={commitProperty(TextComponent, 'textWrapKind')}
-            />
           </InputGroup>
           <InputGroup name="TextAnchor" label={t('editor:properties.text.textAnchor')}>
             <Vector2Input
+              min={0}
+              max={100}
               value={text.textAnchor.value}
               onChange={updateProperty(TextComponent, 'textAnchor')}
               onRelease={commitProperty(TextComponent, 'textAnchor')}
             />
           </InputGroup>
-          <InputGroup name="TextDepthOffset" label={t('editor:properties.text.textDepthOffset')}>
+          {/* <InputGroup name="TextDepthOffset" label={t('editor:properties.text.textDepthOffset')}>
             <NumericInput
               smallStep={0.01}
               mediumStep={0.1}
@@ -226,8 +232,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               onChange={updateProperty(TextComponent, 'textDepthOffset')}
               onRelease={commitProperty(TextComponent, 'textDepthOffset')}
               unit="px"
-            />
-          </InputGroup>
+            /> */}
           <InputGroup name="TextCurveRadius" label={t('editor:properties.text.textCurveRadius')}>
             <NumericInput
               smallStep={1}
@@ -251,70 +256,62 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               unit="px"
             />
           </InputGroup>
-          <InputGroup name="LineHeightGroup" label={t('editor:properties.text.textWrap')}>
-            <BooleanInput value={lineHeightIsNormal.value} onChange={lineHeight_setNormal} />
-            <InputGroup name="LineHeight" label={t('editor:properties.text.lineHeight')}>
-              <NumericInput
-                //disabled={lineHeightIsNormal.value} // Disable numeric input when lineHeight is set to 'normal'
-                min={0}
-                smallStep={0.01}
-                mediumStep={0.1}
-                largeStep={0.2}
-                value={text.lineHeight.value as number}
-                onChange={updateProperty(TextComponent, 'lineHeight')}
-                onRelease={commitProperty(TextComponent, 'lineHeight')}
-                unit="em"
-              />
-            </InputGroup>
+          <InputGroup name="LineHeight" label={t('editor:properties.text.lineHeight')}>
+            <NumericInput
+              min={0}
+              smallStep={0.01}
+              mediumStep={0.1}
+              largeStep={0.2}
+              value={text.lineHeight.value as number}
+              onChange={updateProperty(TextComponent, 'lineHeight')}
+              onRelease={commitProperty(TextComponent, 'lineHeight')}
+              unit="em"
+            />
           </InputGroup>
-          <InputGroup name="TextDirection" label={t('editor:properties.text.textDirection')}>
+          {/* <InputGroup name="TextDirection" label={t('editor:properties.text.textDirection')}>
             <SelectInput
               options={SelectOptions.TextDirection}
               value={text.textDirection.value}
               onChange={commitProperty(TextComponent, 'textDirection')}
               //onRelease={commitProperty(TextComponent, 'textDirection')}
             />
-          </InputGroup>
+          </InputGroup> */}
         </div>
       </InputGroup>
       <br></br>
-      <InputGroup name="FontGroup" label={t('editor:properties.text.fontGroup')}>
-        <div>
-          <InputGroup name="FontFamily" label={t('editor:properties.text.fontFamily')} info={HoverInfo.FontFamily}>
-            <ControlledStringInput
-              value={text.font.value!}
-              onChange={updateProperty(TextComponent, 'font')}
-              onRelease={commitProperty(TextComponent, 'font')}
-            />
-          </InputGroup>
-          <InputGroup name="FontSize" label={t('editor:properties.text.fontSize')}>
-            <NumericInput
-              min={0}
-              smallStep={0.01}
-              mediumStep={0.1}
-              largeStep={0.5}
-              value={text.fontSize.value}
-              onChange={updateProperty(TextComponent, 'fontSize')}
-              onRelease={commitProperty(TextComponent, 'fontSize')}
-              unit="em"
-            />
-          </InputGroup>
-          <InputGroup name="FontColor" label={t('editor:properties.text.fontColor')}>
-            <ColorInput
-              value={text.fontColor.value}
-              onChange={updateProperty(TextComponent, 'fontColor')}
-              onRelease={commitProperty(TextComponent, 'fontColor')}
-            />
-          </InputGroup>
-          <InputGroup name="FontMaterial" label={t('editor:properties.text.fontMaterial')}>
-            <SelectInput
-              options={SelectOptions.FontMaterial}
-              value={text.fontMaterial.value}
-              onChange={commitProperty(TextComponent, 'fontMaterial')}
-              //onRelease={commitProperty(TextComponent, 'fontMaterial')}
-            />
-          </InputGroup>
-        </div>
+      <InputGroup name="Font" label={t('editor:properties.text.fontGroup')}>
+        <SelectInput
+          options={SelectOptions.Font}
+          value={text.font.value || ''}
+          onChange={(value) => commitProperty(TextComponent, 'font')(value.toString())}
+        />
+      </InputGroup>
+      <InputGroup name="FontSize" label={t('editor:properties.text.fontSize')}>
+        <NumericInput
+          min={0}
+          smallStep={0.01}
+          mediumStep={0.1}
+          largeStep={0.5}
+          value={text.fontSize.value}
+          onChange={updateProperty(TextComponent, 'fontSize')}
+          onRelease={commitProperty(TextComponent, 'fontSize')}
+          unit="em"
+        />
+      </InputGroup>
+      <InputGroup name="FontColor" label={t('editor:properties.text.fontColor')}>
+        <ColorInput
+          value={text.fontColor.value}
+          onChange={commitProperty(TextComponent, 'fontColor')}
+          //onRelease={commitProperty(TextComponent, 'fontColor')}
+        />
+      </InputGroup>
+      <InputGroup name="FontMaterial" label={t('editor:properties.text.fontMaterial')}>
+        <SelectInput
+          options={SelectOptions.FontMaterial}
+          value={text.fontMaterial.value}
+          onChange={commitProperty(TextComponent, 'fontMaterial')}
+          //onRelease={commitProperty(TextComponent, 'fontMaterial')}
+        />
       </InputGroup>
       <br></br>
       <InputGroup name="OutlineGroup" label={t('editor:properties.text.outlineGroup')}>
@@ -348,7 +345,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               value={text.outlineWidth.value}
               onChange={updateProperty(TextComponent, 'outlineWidth')}
               onRelease={commitProperty(TextComponent, 'outlineWidth')}
-              unit="%"
+              unit="px"
             />
           </InputGroup>
           <InputGroup name="OutlineBlur" label={t('editor:properties.text.outlineBlur')}>
@@ -360,7 +357,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               value={text.outlineBlur.value}
               onChange={updateProperty(TextComponent, 'outlineBlur')}
               onRelease={commitProperty(TextComponent, 'outlineBlur')}
-              unit="%"
+              unit="px"
             />
           </InputGroup>
           <InputGroup name="OutlineOffset" label={t('editor:properties.text.outlineOffset')}>

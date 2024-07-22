@@ -31,17 +31,15 @@ import {
   createEntity,
   destroyEngine,
   getComponent,
-  getMutableComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import { EffectComposer } from 'postprocessing'
 import React from 'react'
 import { Color, Group, MathUtils, Texture } from 'three'
-import { MockEngineRenderer } from '../../tests/util/MockEngineRenderer'
+import { mockEngineRenderer } from '../../tests/util/MockEngineRenderer'
 import { EngineState } from '../EngineState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
@@ -86,10 +84,7 @@ describe('WebGl Renderer System', () => {
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
-    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas() })
-    getMutableComponent(rootEntity, RendererComponent).set(new MockEngineRenderer())
-    const rendererComp = getMutableComponent(rootEntity, RendererComponent)
-    rendererComp.canvas.set(mockCanvas())
+    mockEngineRenderer(rootEntity, mockCanvas())
     setComponent(rootEntity, BackgroundComponent, new Color(0xffffff))
 
     setComponent(rootEntity, EnvironmentMapComponent, new Texture())
@@ -128,12 +123,6 @@ describe('WebGl Renderer System', () => {
     setComponent(nestedVisibleEntity, GroupComponent)
     setComponent(nestedVisibleEntity, EntityTreeComponent)
     setComponent(invisibleEntity, SceneComponent, { children: [nestedVisibleEntity] })
-
-    //override addpass to test data without dependency on Browser
-    let addPassCount = 0
-    EffectComposer.prototype.addPass = () => {
-      addPassCount++
-    }
   })
 
   afterEach(() => {

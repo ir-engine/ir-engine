@@ -23,34 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Component,
-  ComponentErrorsType,
-  defineComponent,
-  getOptionalMutableComponent,
-  useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { INVALID_FILENAME_WHITESPACE_REGEX, WINDOWS_RESERVED_NAME_REGEX } from '@etherealengine/common/src/regex'
 
-export type ErrorComponentType = {
-  [componentName: string]: {
-    [errorKey: string]: string
-  }
-}
-
-export const ErrorComponent = defineComponent<ErrorComponentType>({
-  name: 'ErrorComponent',
-  onInit: () => ({}) as ErrorComponentType
-})
-
-export const getEntityErrors = <C extends Component>(entity: Entity, component: C) => {
-  return getOptionalMutableComponent(entity, ErrorComponent)?.[component.name].value as Record<
-    ComponentErrorsType<C>,
-    string
-  >
-}
-
-export const useEntityErrors = <C extends Component>(entity: Entity, component: C) => {
-  const errors = useOptionalComponent(entity, ErrorComponent)?.[component.name]
-  return errors
+export function isValidFileName(fileName: string) {
+  return (
+    !INVALID_FILENAME_WHITESPACE_REGEX.test(fileName) &&
+    !WINDOWS_RESERVED_NAME_REGEX.test(fileName) &&
+    fileName.length > 0
+  )
 }
