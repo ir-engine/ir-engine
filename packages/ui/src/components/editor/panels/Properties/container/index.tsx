@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UUIDComponent } from '@etherealengine/ecs'
@@ -55,6 +55,29 @@ const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
   return <Editor key={`${entity}-${Editor.name}`} multiEdit={multiEdit} entity={entity} component={component} />
 }
 
+const calculateAndApplyOffset = (popupRef: React.RefObject<HTMLDivElement>) => {
+  if (popupRef.current) {
+    const popupBounds = getBounds(popupRef.current)
+    const viewportBounds = getViewportBounds(new Bounds())
+
+    const overflowTop = viewportBounds.top - (popupBounds?.top ?? 0)
+    const overflowBottom =
+      (popupBounds?.top ?? 0) + (popupBounds?.height ?? 0) - (viewportBounds.top + viewportBounds.height)
+
+    let offsetY = 0
+
+    if (overflowTop > 0) {
+      // popup is overflowing at the top, move it down
+      offsetY = overflowTop
+    } else if (overflowBottom > 0) {
+      // popup is overflowing at the bottom, move it up
+      offsetY = -overflowBottom
+    }
+
+    popupRef.current.style.transform = `translateY(${offsetY}px)`
+  }
+}
+
 const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => {
   const { t } = useTranslation()
   const { entityUUID, multiEdit } = props
@@ -71,31 +94,17 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
 
   const popupRef = useRef<HTMLDivElement>(null)
 
-  const calculateOffset = () => {
-    if (popupRef.current) {
-      const popupBounds = getBounds(popupRef.current)
-      const viewportBounds = getViewportBounds(new Bounds())
-
-      const overflowTop = viewportBounds.top - (popupBounds?.top ?? 0)
-      const overflowBottom =
-        (popupBounds?.top ?? 0) + (popupBounds?.height ?? 0) - (viewportBounds.top + viewportBounds.height)
-
-      let offsetY = 0
-
-      if (overflowTop > 0) {
-        console.log(`popup overflowing at the top by ${overflowTop}px`)
-        // popup is overflowing at the top, move it down
-        offsetY = overflowTop
-      } else if (overflowBottom > 0) {
-        console.log(`popup overflowing at the bottom by ${overflowBottom}px`)
-        // popup is overflowing at the bottom, move it up
-        offsetY = -overflowBottom
-      }
-
-      // update the popup's position to avoid overflowing the viewport
-      popupRef.current.style.transform = `translateY(${offsetY}px)`
+  useEffect(() => {
+    const handleResize = () => {
+      calculateAndApplyOffset(popupRef)
     }
-  }
+
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [popupRef])
 
   return (
     <>
@@ -114,7 +123,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
               {t('editor:properties.lbl-addComponent')}
             </Button>
           }
-          onOpen={calculateOffset}
+          onOpen={() => calculateAndApplyOffset(popupRef)}
         >
           <div ref={popupRef} className="h-[600px] w-72 overflow-y-auto">
             <ElementList type="components" />
