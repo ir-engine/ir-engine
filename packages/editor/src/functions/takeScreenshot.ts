@@ -193,7 +193,7 @@ export async function takeScreenshot(
   }
 
   const prevAspect = scenePreviewCamera.aspect
-
+  const prevLayersMask = scenePreviewCamera.layers.mask
   // Setting up scene preview camera
   scenePreviewCamera.aspect = width / height
   scenePreviewCamera.updateProjectionMatrix()
@@ -248,7 +248,9 @@ export async function takeScreenshot(
   )
 
   // restore
-  effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  camera.layers.mask = prevLayersMask
+  effectComposer.setMainCamera(camera)
   renderer.setPixelRatio(pixelRatio)
   effectComposer.setSize(originalSize.width, originalSize.height, false)
 
