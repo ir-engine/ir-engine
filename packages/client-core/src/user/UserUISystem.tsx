@@ -40,6 +40,7 @@ import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
 import EmoteMenu from './components/UserMenu/menus/EmoteMenu'
 import ProfileMenu from './components/UserMenu/menus/ProfileMenu'
 import SettingMenu from './components/UserMenu/menus/SettingMenu'
+import SettingMenu2 from './components/UserMenu/menus/SettingMenu2'
 import ShareMenu from './components/UserMenu/menus/ShareMenu'
 
 export const EmoteIcon = () => (
@@ -58,6 +59,7 @@ export const EmoteIcon = () => (
 export const UserMenus = {
   Profile: 'user.Profile',
   Settings: 'user.Settings',
+  Settings2: 'user.Settings2',
   ReadyPlayer: 'user.ReadyPlayer',
   Avaturn: 'user.Avaturn',
   AvatarSelect: 'user.AvatarSelect',
@@ -82,6 +84,7 @@ const reactor = () => {
     popupMenuState.menus.merge({
       [UserMenus.Profile]: ProfileMenu,
       [UserMenus.Settings]: SettingMenu,
+      [UserMenus.Settings2]: SettingMenu2,
       [UserMenus.AvatarSelect]: AvatarSelectMenu,
       [UserMenus.AvatarModify]: AvatarModifyMenu,
       [UserMenus.Share]: ShareMenu
@@ -96,6 +99,7 @@ const reactor = () => {
       popupMenuState.menus.merge({
         [UserMenus.Profile]: none,
         [UserMenus.Settings]: none,
+        [UserMenus.Settings2]: none,
         [UserMenus.AvatarSelect]: none,
         [UserMenus.AvatarModify]: none,
         [UserMenus.Share]: none

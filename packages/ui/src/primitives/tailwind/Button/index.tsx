@@ -64,43 +64,48 @@ const variants = {
   sidebar: 'bg-[#141619]'
 }
 
-const Button = ({
-  startIcon: StartIcon,
-  children,
-  endIcon: EndIcon,
-  size = 'medium',
-  fullWidth,
-  rounded = 'partial',
-  variant = 'primary',
-  disabled = false,
-  className,
-  iconContainerClassName,
-  textContainerClassName,
-  ...props
-}: ButtonProps): JSX.Element => {
-  const twClassName = twMerge(
-    'flex items-center',
-    'font-medium text-white',
-    'transition ease-in-out',
-    'disabled:cursor-not-allowed',
-    (StartIcon || EndIcon) && 'justify-center',
-    sizes[size],
-    fullWidth ? 'w-full' : 'w-fit',
-    roundedTypes[rounded],
-    variants[variant],
-    disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#2B2C30] dark:text-[#D1D5DB]' : '',
-    className
-  )
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      startIcon: StartIcon,
+      children,
+      endIcon: EndIcon,
+      size = 'medium',
+      fullWidth,
+      rounded = 'partial',
+      variant = 'primary',
+      disabled = false,
+      className,
+      iconContainerClassName,
+      textContainerClassName,
+      ...props
+    },
+    ref
+  ) => {
+    const twClassName = twMerge(
+      'flex items-center',
+      'font-medium text-white',
+      'transition ease-in-out',
+      'disabled:cursor-not-allowed',
+      (StartIcon || EndIcon) && 'justify-center',
+      sizes[size],
+      fullWidth ? 'w-full' : 'w-fit',
+      roundedTypes[rounded],
+      variants[variant],
+      disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#2B2C30] dark:text-[#D1D5DB]' : '',
+      className
+    )
 
-  return (
-    <button role="button" disabled={disabled} className={twClassName} {...props}>
-      {StartIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{StartIcon}</span>}
-      {children && (
-        <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '', textContainerClassName)}>{children}</span>
-      )}
-      {EndIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{EndIcon}</span>}
-    </button>
-  )
-}
+    return (
+      <button ref={ref} role="button" disabled={disabled} className={twClassName} {...props}>
+        {StartIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{StartIcon}</span>}
+        {children && (
+          <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '', textContainerClassName)}>{children}</span>
+        )}
+        {EndIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{EndIcon}</span>}
+      </button>
+    )
+  }
+)
 
 export default Button
