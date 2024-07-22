@@ -216,12 +216,12 @@ export default function ProjectTable(props: { search: string }) {
               {row.name}
             </a>
             {!!row.needsRebuild && (
-              <Tooltip title={t('admin:components.project.outdatedBuild')} position="right center">
+              <Tooltip content={t('admin:components.project.outdatedBuild')} position="right center">
                 <HiOutlineExclamationCircle className="text-orange-400" size={22} />
               </Tooltip>
             )}
             {!!row.hasLocalChanges && (
-              <Tooltip title={t('admin:components.project.hasLocalChanges')} position="right center">
+              <Tooltip content={t('admin:components.project.hasLocalChanges')} position="right center">
                 <HiOutlineExclamationCircle className="text-yellow-400" size={22} />
               </Tooltip>
             )}
@@ -237,7 +237,7 @@ export default function ProjectTable(props: { search: string }) {
         ),
         commitSHA: (
           <span className="flex items-center justify-between">
-            <Tooltip title={row.commitSHA || ''}>
+            <Tooltip content={row.commitSHA || ''}>
               <>{row.commitSHA?.slice(0, 8)}</>
             </Tooltip>{' '}
             <CopyText text={row.commitSHA || ''} className="ml-1" />
