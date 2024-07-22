@@ -27,13 +27,14 @@ import {
   createEngine,
   createEntity,
   destroyEngine,
-  getMutableComponent,
+  EntityContext,
   removeEntity,
   setComponent,
   UndefinedEntity
 } from '@etherealengine/ecs'
-import { getMutableState, startReactor } from '@etherealengine/hyperflux'
+import { getMutableState, getState, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 import assert from 'assert'
+import React from 'react'
 import sinon from 'sinon'
 import { MockEventListener } from '../../../tests/util/MockEventListener'
 import { MockXRSession } from '../../../tests/util/MockXR'
@@ -43,6 +44,19 @@ import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../SpatialModule'
 import { XRState } from '../../xr/XRState'
 import ClientInputHooks from './ClientInputHooks'
+
+const createMockHTMLCanvasElement = (ev: MockEventListener) => {
+  return {
+    addEventListener: ev.addEventListener,
+    removeEventListener: ev.removeEventListener,
+    getDrawingBufferSize: () => 0,
+    getContext: () => {},
+    parentElement: {
+      clientWidth: 100,
+      clientHeight: 100
+    }
+  } as any as HTMLCanvasElement
+}
 
 describe('ClientInputHooks', () => {
   describe('useNonSpatialInputSources', () => {
@@ -548,7 +562,7 @@ describe('ClientInputHooks', () => {
     })
   })
 
-  describe.skip('CanvasInputReactor', () => {
+  describe('CanvasInputReactor', () => {
     let testEntity = UndefinedEntity
     let ev: MockEventListener
 
@@ -559,14 +573,9 @@ describe('ClientInputHooks', () => {
       testEntity = createEntity()
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, VisibleComponent)
-      setComponent(testEntity, RendererComponent)
-      ev = new MockEventListener()
-      const rendererComponent = getMutableComponent(testEntity, RendererComponent).get({ noproxy: true })
 
-      // @ts-ignore Coerce the listener function into the readonly property
-      rendererComponent.canvas.addEventListener = ev.addEventListener as any
-      // @ts-ignore Coerce the listener function into the readonly property
-      rendererComponent.canvas.removeEventListener = ev.removeEventListener as any
+      ev = new MockEventListener()
+      setComponent(testEntity, RendererComponent, { canvas: createMockHTMLCanvasElement(ev) })
     })
 
     afterEach(() => {
@@ -580,40 +589,516 @@ describe('ClientInputHooks', () => {
       assert.equal(ev.hasEvent(EvName), false)
 
       // Run the reactor and check the result.
-      const root = startReactor(ClientInputHooks.CanvasInputReactor)
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
       assert.equal(ev.hasEvent(EvName), true)
-      // root.stop()
-      // assert.equal(ev.hasEvent(EvName), false)
     })
 
-    // it("should not do anything if there is a valid XRState.session", () => {})
-    // it("should trigger whenever XRState.session changes", () => {})
-    // it("should add a contextmenu EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointerenter EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointerover EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointerout EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointerleave EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointermove EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointerup EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
-    // it("should add a pointerdown EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
-    // it("should add a blur EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
-    // it("should add a visibilitychange EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
-    // it("should add a click EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
-    // it("should add a wheel EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value", () => {})
+    it('should add a contextmenu EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value', () => {
+      const EvName = 'contextmenu'
+      assert.equal(ev.hasEvent(EvName), false)
 
-    // it("should remove the dragstart EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
-    // it("should remove the contextmenu EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointerenter EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointerover EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointerout EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointerleave EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointermove EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointerup EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
-    // it("should remove the pointerdown EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
-    // it("should remove the blur EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
-    // it("should remove the visibilitychange EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
-    // it("should remove the click EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
-    // it("should remove the wheel EventListener from the RendererComponent.canvas whenever XRState.session is a truthy value", () => {})
+      // Run the reactor and check the result.
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a pointerenter EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value', () => {
+      const EvName = 'pointerenter'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the result.
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a pointerover EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value', () => {
+      const EvName = 'pointerover'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the result.
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a pointerout EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value', () => {
+      const EvName = 'pointerout'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the result.
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a pointerleave EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value', () => {
+      const EvName = 'pointerleave'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the result.
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a pointermove EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value', () => {
+      const EvName = 'pointermove'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the result.
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a pointerup EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value', () => {
+      const EvName = 'pointerup'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the result.
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a pointerdown EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value', () => {
+      const EvName = 'pointerdown'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the result.
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a blur EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value', () => {
+      const EvName = 'blur'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the result.
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a visibilitychange EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value', () => {
+      const EvName = 'visibilitychange'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the result.
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a click EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value', () => {
+      const EvName = 'click'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the result.
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should add a wheel EventListener to the RendererComponent.canvas whenever XRState.session is a falsy value', () => {
+      const EvName = 'wheel'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the result.
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+    })
+
+    it('should remove the dragstart EventListener from the RendererComponent.canvas whenever XRState.session changes to a truthy value', () => {
+      const EvName = 'dragstart'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the mount case for sanity check
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+
+      // Change XRState.session and check that it removes the event as a sideffect
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the contextmenu EventListener from the RendererComponent.canvas whenever XRState.session changes to a truthy value', () => {
+      const EvName = 'contextmenu'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the mount case for sanity check
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+
+      // Change XRState.session and check that it removes the event as a sideffect
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the pointerenter EventListener from the RendererComponent.canvas whenever XRState.session changes to a truthy value', () => {
+      const EvName = 'pointerenter'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the mount case for sanity check
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+
+      // Change XRState.session and check that it removes the event as a sideffect
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the pointerover EventListener from the RendererComponent.canvas whenever XRState.session changes to a truthy value', () => {
+      const EvName = 'pointerover'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the mount case for sanity check
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+
+      // Change XRState.session and check that it removes the event as a sideffect
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the pointerout EventListener from the RendererComponent.canvas whenever XRState.session changes to a truthy value', () => {
+      const EvName = 'pointerout'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the mount case for sanity check
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+
+      // Change XRState.session and check that it removes the event as a sideffect
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the pointerleave EventListener from the RendererComponent.canvas whenever XRState.session changes to a truthy value', () => {
+      const EvName = 'pointerleave'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the mount case for sanity check
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+
+      // Change XRState.session and check that it removes the event as a sideffect
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the pointermove EventListener from the RendererComponent.canvas whenever XRState.session changes to a truthy value', () => {
+      const EvName = 'pointermove'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the mount case for sanity check
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+
+      // Change XRState.session and check that it removes the event as a sideffect
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the pointerup EventListener from the RendererComponent.canvas whenever XRState.session changes to a truthy value', () => {
+      const EvName = 'pointerup'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the mount case for sanity check
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+
+      // Change XRState.session and check that it removes the event as a sideffect
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the pointerdown EventListener from the RendererComponent.canvas whenever XRState.session changes to a truthy value', () => {
+      const EvName = 'pointerdown'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the mount case for sanity check
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+
+      // Change XRState.session and check that it removes the event as a sideffect
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the blur EventListener from the RendererComponent.canvas whenever XRState.session changes to a truthy value', () => {
+      const EvName = 'blur'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the mount case for sanity check
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+
+      // Change XRState.session and check that it removes the event as a sideffect
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the visibilitychange EventListener from the RendererComponent.canvas whenever XRState.session changes to a truthy value', () => {
+      const EvName = 'visibilitychange'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the mount case for sanity check
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+
+      // Change XRState.session and check that it removes the event as a sideffect
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the click EventListener from the RendererComponent.canvas whenever XRState.session changes to a truthy value', () => {
+      const EvName = 'click'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the mount case for sanity check
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+
+      // Change XRState.session and check that it removes the event as a sideffect
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should remove the wheel EventListener from the RendererComponent.canvas whenever XRState.session changes to a truthy value', () => {
+      const EvName = 'wheel'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      // Run the reactor and check the mount case for sanity check
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), true)
+
+      // Change XRState.session and check that it removes the event as a sideffect
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
+
+    it('should not do anything if there is a valid XRState.session', () => {
+      const EvName = 'click'
+      assert.equal(ev.hasEvent(EvName), false)
+
+      getMutableState(XRState).session.set(new MockXRSession() as XRSession)
+      assert.notEqual(getState(XRState).session, null)
+
+      // Run the reactor and check the result
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.CanvasInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(ev.hasEvent(EvName), false)
+      // Rerun and check that nothing changed
+      root.run()
+      assert.notEqual(getState(XRState).session, null)
+      assert.equal(ev.hasEvent(EvName), false)
+    })
   })
 
   /**
