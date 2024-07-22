@@ -230,7 +230,7 @@ const SceneSettingsChildReactor = (props: { entity: Entity }) => {
     mesh.material.needsUpdate = true
     mesh.material.map.needsUpdate = true
     getComponent(Engine.instance.viewerEntity, RendererComponent)
-      .renderer.compileAsync(mesh, getComponent(Engine.instance.viewerEntity, CameraComponent))
+      .renderer!.compileAsync(mesh, getComponent(Engine.instance.viewerEntity, CameraComponent))
       .then(() => {
         state.ready.set(true)
       })
@@ -295,7 +295,9 @@ const execute = () => {
           const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
           if (!uiContainer) return
           const uiSize = uiContainer.domSize
-          const screenSize = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.getSize(SCREEN_SIZE)
+          const screenSize = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.getSize(
+            SCREEN_SIZE
+          )
           const aspectRatio = screenSize.x / screenSize.y
           const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
           const scale =

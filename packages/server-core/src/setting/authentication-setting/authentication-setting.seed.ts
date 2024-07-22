@@ -40,6 +40,7 @@ export const DISCORD_SCOPES = ['email', 'identify']
 export const GITHUB_SCOPES = ['repo', 'user', 'workflow']
 export const GOOGLE_SCOPES = ['profile', 'email']
 export const LINKEDIN_SCOPES = ['profile', 'email']
+export const APPLE_SCOPES = ['openid', 'email', 'name']
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
@@ -89,7 +90,7 @@ export async function seed(knex: Knex): Promise<void> {
           apple: {
             key: process.env.APPLE_CLIENT_ID,
             secret: process.env.APPLE_CLIENT_SECRET,
-            scope: ['openid', 'email', 'name'],
+            scope: APPLE_SCOPES,
             response: ['raw', 'jwt'],
             nonce: true,
             custom_params: {
