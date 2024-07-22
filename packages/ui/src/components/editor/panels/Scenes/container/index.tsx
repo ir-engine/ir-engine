@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { timeAgo } from '@etherealengine/common/src/utils/datetime-sql'
 import CreateSceneDialog from '@etherealengine/editor/src/components/dialogs/CreateScenePanelDialog'
 import { deleteScene, onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
@@ -32,7 +33,7 @@ import { getMutableState, useHookstate, useMutableState } from '@etherealengine/
 import { useFind, useRealtime } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiDotsHorizontal } from 'react-icons/hi'
+import { BsThreeDotsVertical } from 'react-icons/bs'
 import { HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
@@ -108,7 +109,7 @@ export default function ScenesPanel() {
               {scenes.map((scene) => (
                 <div
                   key={scene.id}
-                  className="my-2 flex h-[240px] w-[250px] flex-col justify-end rounded-lg bg-theme-surface-main"
+                  className="col-span-2 inline-flex h-[250px] w-[257px] cursor-pointer flex-col items-start justify-start gap-2 rounded-lg bg-[#191B1F] p-3 lg:col-span-1"
                 >
                   <img
                     src={scene.thumbnailURL}
@@ -117,19 +118,31 @@ export default function ScenesPanel() {
                       e.currentTarget.src = 'static/ir.svg'
                     }}
                     crossOrigin="anonymous"
-                    className="block h-full grow cursor-pointer self-center rounded-t-lg object-cover"
+                    className="block h-[170px] w-full grow cursor-pointer self-center rounded-lg object-cover"
                     onClick={() => onClickScene(scene)}
                   />
-                  <div className="flex items-center justify-between px-4 py-1">
-                    <Text className="truncate text-sm leading-5 dark:text-[#A3A3A3]">{getSceneName(scene)}</Text>
+                  <div className="inline-flex items-start justify-between self-stretch px-1">
+                    <div className="inline-flex w-full flex-col items-start justify-start">
+                      <Text className="truncate text-sm leading-5 dark:text-[#A3A3A3]">{getSceneName(scene)}</Text>
+                      <Text
+                        component="h3"
+                        fontSize="xs"
+                        fontWeight="light"
+                        className="h-3.5 w-40 font-['Figtree'] leading-5 text-neutral-100"
+                      >
+                        {t('multitenancy:scene.edited')}{' '}
+                        {t('common:timeAgo', { time: timeAgo(new Date(scene.updatedAt)) })}
+                      </Text>
+                    </div>
                     <div className="relative">
                       <Popup
                         keepInside
                         trigger={
                           <Button
                             variant="transparent"
-                            startIcon={<HiDotsHorizontal />}
+                            startIcon={<BsThreeDotsVertical />}
                             iconContainerClassName="mx-0"
+                            className="px-0"
                           />
                         }
                       >
