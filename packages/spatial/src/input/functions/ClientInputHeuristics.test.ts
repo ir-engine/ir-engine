@@ -30,19 +30,24 @@ import {
   createEngine,
   createEntity,
   destroyEngine,
+  Entity,
+  getMutableComponent,
   removeEntity,
   setComponent,
   UndefinedEntity
 } from '@etherealengine/ecs'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import { Box3, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 import { EngineState } from '../../EngineState'
 import { RaycastArgs } from '../../physics/classes/Physics'
+import { assertFloatApproxNotEq, assertVecApproxEq } from '../../physics/classes/Physics.test'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../SpatialModule'
+import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
+import { InputState } from '../state/InputState'
 import ClientInputHeuristics, { HeuristicData, HeuristicFunctions, IntersectionData } from './ClientInputHeuristics'
 
 function createDefaultRaycastArgs(): RaycastArgs {
@@ -217,6 +222,122 @@ describe('ClientInputHeuristics', () => {
     */
   })
 
+  describe('applyBBoxes', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, VisibleComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    describe('for every entity stored in the InputState.inputBoundingBoxes Set<Entity> ...', () => {
+      it('... should not run if casting the `@param ray` towards `@param hitTarget` would not intersect the boundingBox of the entity', () => {
+        setComponent(testEntity, BoundingBoxComponent)
+        const inputState = getMutableState(InputState)
+        inputState.inputBoundingBoxes.set(new Set([testEntity]))
+
+        const rayOrigin = new Vector3()
+        const rayDirection = new Vector3()
+        const ray = new Ray(rayOrigin, rayDirection)
+        const hitTarget = new Vector3()
+
+        const data = new Set<IntersectionData>()
+
+        ClientInputHeuristics.applyBBoxes(data, ray, hitTarget)
+        assert.equal(data.size, 0)
+      })
+
+      it('... should not run if the entity does not have a BoundingBoxComponent', () => {
+        // setComponent(testEntity, BoundingBoxComponent)  // Dont add the component this time
+        const inputState = getMutableState(InputState)
+        inputState.inputBoundingBoxes.set(new Set([testEntity]))
+
+        const rayOrigin = new Vector3()
+        const rayDirection = new Vector3(2, 2, 2)
+        const ray = new Ray(rayOrigin, rayDirection)
+        const hitTarget = new Vector3()
+        const data = new Set<IntersectionData>()
+        assert.equal(data.size, 0)
+
+        ClientInputHeuristics.applyBBoxes(data, ray, hitTarget)
+        assert.equal(data.size, 0)
+      })
+
+      it('... should add an entry to `@param intersectionData` containing the entity that was hit, and the distance to the hit (found with `ray.origin.distanceTo(hitTarget)`)', () => {
+        const boxMin = new Vector3(1, 1, 1)
+        const boxMax = new Vector3(3, 3, 3)
+        const box = new Box3(boxMin, boxMax)
+
+        setComponent(testEntity, BoundingBoxComponent)
+        getMutableComponent(testEntity, BoundingBoxComponent).box.set(box)
+
+        const inputState = getMutableState(InputState)
+        inputState.inputBoundingBoxes.set(new Set([testEntity]))
+
+        const rayOrigin = new Vector3()
+        const rayDirection = new Vector3(2, 2, 2)
+        const ray = new Ray(rayOrigin, rayDirection)
+        const hitTarget = new Vector3()
+        const data = new Set<IntersectionData>()
+        assert.equal(data.size, 0)
+
+        ClientInputHeuristics.applyBBoxes(data, ray, hitTarget)
+        assertVecApproxEq(boxMin, hitTarget, 3)
+        assert.equal(data.size, 1)
+        const result = [...data]
+        assert.equal(result[0].entity, testEntity)
+        assertFloatApproxNotEq(result[0].distance, 0)
+      })
+
+      it('... should run as expected for all bounding boxes', () => {
+        const otherEntity = createEntity()
+        setComponent(otherEntity, TransformComponent)
+        setComponent(otherEntity, VisibleComponent)
+        type OwnedBox = { entity: Entity; box: Box3 }
+        const box1Min = new Vector3(1.1, 1.1, 1.1)
+        const box1Max = new Vector3(3.1, 3.1, 3.1)
+        const box2Min = new Vector3(1.2, 1.2, 1.2)
+        const box2Max = new Vector3(3.2, 3.2, 3.2)
+        const box1 = new Box3(box1Min, box1Max)
+        const box2 = new Box3(box2Min, box2Max)
+        const boxes = [
+          { entity: testEntity, box: box1 } as OwnedBox,
+          { entity: otherEntity, box: box2 } as OwnedBox
+        ] as OwnedBox[]
+
+        for (const box of boxes) {
+          setComponent(box.entity, BoundingBoxComponent)
+          getMutableComponent(box.entity, BoundingBoxComponent).box.set(box.box)
+        }
+
+        const inputState = getMutableState(InputState)
+        inputState.inputBoundingBoxes.set(new Set([testEntity, otherEntity]))
+
+        const rayOrigin = new Vector3()
+        const rayDirection = new Vector3(2, 2, 2)
+        const ray = new Ray(rayOrigin, rayDirection)
+        const hitTarget = new Vector3()
+        const data = new Set<IntersectionData>()
+        assert.equal(data.size, 0)
+
+        ClientInputHeuristics.applyBBoxes(data, ray, hitTarget)
+        assert.equal(data.size, boxes.length)
+        const result = [...data]
+        for (let id = 0; id < boxes.length; ++id) {
+          assert.equal(result[id].entity, boxes[id].entity)
+          assertFloatApproxNotEq(result[id].distance, 0)
+        }
+      })
+    })
+  })
+
   /**
   // @todo
   describe("applyProximity", () => {
@@ -267,16 +388,6 @@ describe('ClientInputHeuristics', () => {
     it("should not do anything if the given `@param raycast` does not hit any entities in the current PhysicsState.physicsWorld", () => {})
     it("should add the hit.entity and hit.distance to the `@param intersectionData` for every hit of the `@param raycast`", () => {})
   })
-
-  // (raycasted)
-  describe("applyBBoxes", () => {
-    describe("for every entity stored in the InputState.inputBoundingBoxes Set<Entity> ...", () => {
-      it("... should not run if the entity does not have a BoundingBoxComponent", () => {})
-      it("... should not run if casting the `@param ray` towards `@param hitTarget` would not intersect the boundingBox of the entity", () => {})
-      it("... should add an entry to `@param intersectionData` containing the entity that was hit, and the distance to the hit (found with `ray.origin.distanceTo(hitTarget)`)", () => {})
-    })
-  })
-
   // (raycasted)
   describe("applyMeshes", () => {
     // when `@param isEditing` is true ...
