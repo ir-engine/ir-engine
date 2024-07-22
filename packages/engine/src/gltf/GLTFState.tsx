@@ -116,7 +116,7 @@ export const GLTFSourceState = defineState({
     setComponent(entity, VisibleComponent, true)
     setComponent(entity, TransformComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity })
-    const sourceID = `${getComponent(entity, UUIDComponent)}-${source}`
+    const sourceID = `${getComponent(entity, UUIDComponent)}?${source}`
     setComponent(entity, SourceComponent, sourceID)
     setComponent(entity, GLTFComponent, { src: source })
     const obj3d = new Group()
@@ -128,7 +128,7 @@ export const GLTFSourceState = defineState({
   },
 
   unload: (entity: Entity) => {
-    const sourceID = `${getComponent(entity, UUIDComponent)}-${getComponent(entity, GLTFComponent).src}`
+    const sourceID = `${getComponent(entity, UUIDComponent)}?${getComponent(entity, GLTFComponent).src}`
     getMutableState(GLTFSourceState)[sourceID].set(none)
     removeEntity(entity)
   }
