@@ -81,7 +81,7 @@ export const ShadowMapResolutionOptions: InputMenuItem[] = [
 
 const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 
-type Props = {
+export type Props = {
   isPopover?: boolean
 }
 

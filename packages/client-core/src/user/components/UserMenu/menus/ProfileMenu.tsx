@@ -428,7 +428,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                   }}
                 />
               }
-              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Settings)}
+              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Settings2)}
             />
           )}
           {!isGuest && initialized && (
