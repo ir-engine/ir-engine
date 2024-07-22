@@ -29,11 +29,13 @@ import { PopupProps } from 'reactjs-popup/dist/types'
 import { twMerge } from 'tailwind-merge'
 
 export type TooltipProps = {
-  title: ReactNode
+  title?: ReactNode
+  titleClassName?: string
+  content: ReactNode
   children: React.ReactElement
 } & PopupProps
 
-const Tooltip = ({ title, children, className, ...rest }: TooltipProps) => {
+const Tooltip = ({ title, titleClassName, content, children, className, ...rest }: TooltipProps) => {
   return (
     <Popup
       trigger={<div style={{ all: 'unset' }}>{children}</div>}
@@ -45,11 +47,17 @@ const Tooltip = ({ title, children, className, ...rest }: TooltipProps) => {
     >
       <span
         className={twMerge(
-          '-mt-5 text-wrap rounded bg-gray-800 p-1 text-xs text-white shadow-lg transition-all',
+          '-mt-5 text-wrap rounded shadow-lg transition-all',
+          'bg-[#191B1F] px-3 py-2 text-sm text-[#F5F5F5]',
           className
         )}
       >
-        {title}
+        {title && (
+          <span className={twMerge('block border-b border-b-[#212226] bg-[#141619] py-1.5', titleClassName)}>
+            {title}
+          </span>
+        )}
+        {content}
       </span>
     </Popup>
   )

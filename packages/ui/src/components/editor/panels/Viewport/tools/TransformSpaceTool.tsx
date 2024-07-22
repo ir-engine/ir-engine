@@ -36,7 +36,6 @@ import { PiGlobeSimple } from 'react-icons/pi'
 import Button from '../../../../../primitives/tailwind/Button'
 import Select from '../../../../../primitives/tailwind/Select'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
-import { InfoTooltip } from '../../../layout/Tooltip'
 
 const transformSpaceOptions = [
   {
@@ -58,16 +57,16 @@ const TransformSpaceTool = () => {
 
   return (
     <div id="transform-space" className="flex items-center bg-theme-surfaceInput">
-      <Tooltip title={t('editor:toolbar.transformSpace.lbl-toggleTransformSpace')}>
+      <Tooltip content={t('editor:toolbar.transformSpace.lbl-toggleTransformSpace')}>
         <Button startIcon={<PiGlobeSimple />} onClick={toggleTransformSpace} variant="transparent" className="px-0" />
       </Tooltip>
-      <InfoTooltip
+      <Tooltip
         title={
           transformSpace.value === TransformSpace.local
             ? t('editor:toolbar.transformSpace.info-selection')
             : t('editor:toolbar.transformSpace.info-world')
         }
-        info={t('editor:toolbar.transformSpace.description')}
+        content={t('editor:toolbar.transformSpace.description')}
       >
         <Select
           key={transformSpace.value}
@@ -77,7 +76,7 @@ const TransformSpaceTool = () => {
           options={transformSpaceOptions}
           currentValue={transformSpace.value}
         />
-      </InfoTooltip>
+      </Tooltip>
     </div>
   )
 }
