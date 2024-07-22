@@ -387,7 +387,7 @@ const AssetPanel = () => {
   useEffect(() => {
     const staticResourcesFindApi = () => {
       const tags = selectedCategory.value
-        ? [selectedCategory.value.name, ...iterativelyListTags(clone(selectedCategory.value.object))]
+        ? [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
         : []
 
       const query = {
