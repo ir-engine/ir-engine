@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UUIDComponent } from '@etherealengine/ecs'
@@ -36,6 +36,7 @@ import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
+import { Bounds, getBounds, getViewportBounds } from '@etherealengine/xrui/core/dom-utils'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
 import Button from '../../../../../primitives/tailwind/Button'
 import { Popup } from '../../../../tailwind/Popup'
@@ -68,6 +69,34 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
     components.push(component)
   }
 
+  const popupRef = useRef<HTMLDivElement>(null)
+
+  const calculateOffset = () => {
+    if (popupRef.current) {
+      const popupBounds = getBounds(popupRef.current)
+      const viewportBounds = getViewportBounds(new Bounds())
+
+      const overflowTop = viewportBounds.top - (popupBounds?.top ?? 0)
+      const overflowBottom =
+        (popupBounds?.top ?? 0) + (popupBounds?.height ?? 0) - (viewportBounds.top + viewportBounds.height)
+
+      let offsetY = 0
+
+      if (overflowTop > 0) {
+        console.log(`popup overflowing at the top by ${overflowTop}px`)
+        // popup is overflowing at the top, move it down
+        offsetY = overflowTop
+      } else if (overflowBottom > 0) {
+        console.log(`popup overflowing at the bottom by ${overflowBottom}px`)
+        // popup is overflowing at the bottom, move it up
+        offsetY = -overflowBottom
+      }
+
+      // update the popup's position to avoid overflowing the viewport
+      popupRef.current.style.transform = `translateY(${offsetY}px)`
+    }
+  }
+
   return (
     <>
       <div className="ml-auto mt-4 flex h-8 bg-zinc-900" id="add-component-popover">
@@ -85,8 +114,9 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
               {t('editor:properties.lbl-addComponent')}
             </Button>
           }
+          onOpen={calculateOffset}
         >
-          <div className="h-[600px] w-72 overflow-y-auto">
+          <div ref={popupRef} className="h-[600px] w-72 overflow-y-auto">
             <ElementList type="components" />
           </div>
         </Popup>
