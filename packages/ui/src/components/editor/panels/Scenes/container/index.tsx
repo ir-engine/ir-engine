@@ -112,13 +112,13 @@ export default function ScenesPanel() {
                   className="col-span-2 inline-flex h-[250px] w-[257px] cursor-pointer flex-col items-start justify-start gap-2 rounded-lg bg-[#191B1F] p-3 lg:col-span-1"
                 >
                   <img
-                    src={scene.thumbnailURL}
+                    src={scene.thumbnailURL ?? 'static/ir.svg'}
                     alt={scene.key}
                     onError={(e) => {
                       e.currentTarget.src = 'static/ir.svg'
                     }}
                     crossOrigin="anonymous"
-                    className="block h-[170px] w-full grow cursor-pointer self-center rounded-lg object-cover"
+                    className="object-fit block h-[170px] w-full grow cursor-pointer self-center rounded-lg"
                     onClick={() => onClickScene(scene)}
                   />
                   <div className="inline-flex items-start justify-between self-stretch px-1">
