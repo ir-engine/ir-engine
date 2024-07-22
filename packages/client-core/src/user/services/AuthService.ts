@@ -65,8 +65,6 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@etherealengine/hyperflux'
-
-import { useTranslation } from 'react-i18next'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -236,8 +234,6 @@ export const AuthService = {
   },
 
   async loadUserData(userId: UserID) {
-    const { t } = useTranslation()
-
     try {
       const client = API.instance.client
       const user = await client.service(userPath).get(userId)
@@ -254,17 +250,19 @@ export const AuthService = {
       }
       getMutableState(AuthState).merge({ isLoggedIn: true, user })
     } catch (err) {
-      NotificationService.dispatchNotify(t('common:error.loading-error'), { variant: 'error' })
+      NotificationService.dispatchNotify(i18n.t('common:error.loading-error').toString(), { variant: 'error' })
     }
   },
 
   async loginUserByPassword(form: EmailLoginForm) {
-    const { t } = useTranslation()
     // check email validation.
     if (!validateEmail(form.email)) {
-      NotificationService.dispatchNotify(t('common:error.validation-error', { type: 'email address' }), {
-        variant: 'error'
-      })
+      NotificationService.dispatchNotify(
+        i18n.t('common:error.validation-error', { type: 'email address' }).toString(),
+        {
+          variant: 'error'
+        }
+      )
 
       return
     }
@@ -485,7 +483,6 @@ export const AuthService = {
   async createMagicLink(emailPhone: string, authData: AuthStrategiesType, linkType?: 'email' | 'sms') {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
-    const { t } = useTranslation()
 
     let type = 'email'
     let paramName = 'email'
@@ -504,9 +501,12 @@ export const AuthService = {
       const stripped = emailPhone.replace(/-/g, '')
       if (validatePhoneNumber(stripped)) {
         if (!enableSmsMagicLink) {
-          NotificationService.dispatchNotify(t('common:error.validation-error', { type: 'email address' }), {
-            variant: 'error'
-          })
+          NotificationService.dispatchNotify(
+            i18n.t('common:error.validation-error', { type: 'email address' }).toString(),
+            {
+              variant: 'error'
+            }
+          )
           return
         }
         type = 'sms'
@@ -514,16 +514,22 @@ export const AuthService = {
         emailPhone = '+1' + stripped
       } else if (validateEmail(emailPhone)) {
         if (!enableEmailMagicLink) {
-          NotificationService.dispatchNotify(t('common:error.validation-error', { type: 'phone number' }), {
-            variant: 'error'
-          })
+          NotificationService.dispatchNotify(
+            i18n.t('common:error.validation-error', { type: 'phone number' }).toString(),
+            {
+              variant: 'error'
+            }
+          )
           return
         }
         type = 'email'
       } else {
-        NotificationService.dispatchNotify(t('common:error.validation-error', { type: 'email or phone number' }), {
-          variant: 'error'
-        })
+        NotificationService.dispatchNotify(
+          i18n.t('common:error.validation-error', { type: 'email or phone number' }).toString(),
+          {
+            variant: 'error'
+          }
+        )
         return
       }
     }
@@ -537,7 +543,7 @@ export const AuthService = {
         sms: 'sms-sent-msg',
         default: 'success-msg'
       }
-      NotificationService.dispatchNotify(t(`user:auth.magiklink.${message[type ?? 'default']}`), {
+      NotificationService.dispatchNotify(i18n.t(`user:auth.magiklink.${message[type ?? 'default']}`).toString(), {
         variant: 'success'
       })
     } catch (err) {
@@ -568,7 +574,6 @@ export const AuthService = {
   },
 
   async addConnectionByEmail(email: string, userId: UserID) {
-    const { t } = useTranslation()
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
@@ -578,7 +583,9 @@ export const AuthService = {
         userId
       })) as IdentityProviderType
       if (identityProvider.userId) {
-        NotificationService.dispatchNotify(t('user:auth.magiklink.email-sent-msg'), { variant: 'success' })
+        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.email-sent-msg').toString(), {
+          variant: 'success'
+        })
         return AuthService.loadUserData(identityProvider.userId)
       }
     } catch (err) {
@@ -589,7 +596,6 @@ export const AuthService = {
   },
 
   async addConnectionBySms(phone: string, userId: UserID) {
-    const { t } = useTranslation()
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -605,7 +611,7 @@ export const AuthService = {
         userId
       })) as IdentityProviderType
       if (identityProvider.userId) {
-        NotificationService.dispatchNotify(t('user:auth.magiklink.sms-sent-msg'), { variant: 'error' })
+        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.sms-sent-msg').toString(), { variant: 'error' })
         return AuthService.loadUserData(identityProvider.userId)
       }
     } catch (err) {
