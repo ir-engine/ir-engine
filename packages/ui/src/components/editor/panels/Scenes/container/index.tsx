@@ -109,7 +109,7 @@ export default function ScenesPanel() {
               {scenes.map((scene) => (
                 <div
                   key={scene.id}
-                  className="col-span-2 inline-flex h-[250px] w-[257px] cursor-pointer flex-col items-start justify-start gap-2 rounded-lg bg-[#191B1F] p-3 lg:col-span-1"
+                  className="col-span-2 inline-flex h-64 w-64 cursor-pointer flex-col items-start justify-start gap-2 rounded-lg bg-[#191B1F] p-3 lg:col-span-1"
                 >
                   <img
                     src={scene.thumbnailURL ?? 'static/ir.svg'}
@@ -118,7 +118,7 @@ export default function ScenesPanel() {
                       e.currentTarget.src = 'static/ir.svg'
                     }}
                     crossOrigin="anonymous"
-                    className="object-fit block h-[170px] w-full grow cursor-pointer self-center rounded-lg"
+                    className="object-fit block h-44 w-full grow cursor-pointer self-center rounded-lg"
                     onClick={() => onClickScene(scene)}
                   />
                   <div className="inline-flex items-start justify-between self-stretch px-1">
