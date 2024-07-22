@@ -62,6 +62,7 @@ export default function RenameSceneModal({ sceneName, refetch, scene }: Props) {
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
+      submitButtonDisabled={newSceneName.value === sceneName}
     >
       <Input
         value={newSceneName.value}

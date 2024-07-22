@@ -31,7 +31,7 @@ import {
 
 export default function isValidSceneName(sceneName: string) {
   return (
-    sceneName.length >= 3 &&
+    sceneName.length >= 4 &&
     sceneName.length <= 64 &&
     !INVALID_FILENAME_REGEX.test(sceneName) &&
     !WINDOWS_RESERVED_NAME_REGEX.test(sceneName) &&
