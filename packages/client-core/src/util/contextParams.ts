@@ -23,34 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Component,
-  ComponentErrorsType,
-  defineComponent,
-  getOptionalMutableComponent,
-  useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { LogParamsObject } from '@etherealengine/common/src/logger'
+import { getState } from '@etherealengine/hyperflux'
+import { LocationState } from '../social/services/LocationService'
 
-export type ErrorComponentType = {
-  [componentName: string]: {
-    [errorKey: string]: string
+/**
+ * @function clientContextParams
+ * @description This function will collect contextual parameters
+ * from url's query params
+ */
+export function clientContextParams(params: LogParamsObject) {
+  const locationState = getState(LocationState)
+  /*
+  console.log('IR> location state', locationState.currentLocation.location)
+
+  console.log('IR> location_id', locationState.currentLocation.location.id)
+
+  console.log('IR> project_id', locationState.currentLocation.location.projectId)
+*/
+  return {
+    ...params,
+    location_id: locationState.currentLocation.location.id,
+    project_id: locationState.currentLocation.location.projectId
   }
-}
-
-export const ErrorComponent = defineComponent<ErrorComponentType>({
-  name: 'ErrorComponent',
-  onInit: () => ({}) as ErrorComponentType
-})
-
-export const getEntityErrors = <C extends Component>(entity: Entity, component: C) => {
-  return getOptionalMutableComponent(entity, ErrorComponent)?.[component.name].value as Record<
-    ComponentErrorsType<C>,
-    string
-  >
-}
-
-export const useEntityErrors = <C extends Component>(entity: Entity, component: C) => {
-  const errors = useOptionalComponent(entity, ErrorComponent)?.[component.name]
-  return errors
 }

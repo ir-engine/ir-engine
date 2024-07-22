@@ -39,7 +39,7 @@ import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBefor
 import { v4 as uuidv4 } from 'uuid'
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
 import { TransparencyDitheringPlugin } from './constants/plugins/TransparencyDitheringComponent'
-import { assignMaterial } from './materialFunctions'
+import { setMeshMaterial } from './materialFunctions'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './prototypes/MeshMatcapMaterial.mat'
@@ -112,11 +112,8 @@ export const MaterialStateComponent = defineComponent({
 
   onRemove: (entity) => {
     const materialComponent = getComponent(entity, MaterialStateComponent)
-    for (const entity of materialComponent.instances) {
-      const instanceComponent = getMutableComponent(entity, MaterialInstanceComponent)
-      const index = instanceComponent.uuid.value.indexOf(getComponent(entity, UUIDComponent))
-      if (index != -1)
-        assignMaterial(entity, UUIDComponent.getEntityByUUID(MaterialStateComponent.fallbackMaterial), index)
+    for (const instanceEntity of materialComponent.instances) {
+      setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
     }
   }
 })

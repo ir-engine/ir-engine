@@ -576,7 +576,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           className={classNames({
             [styles['video-wrapper']]: !isScreen,
             [styles['screen-video-wrapper']]: isScreen,
-            [styles['border-lit']]: soundIndicatorOn && !audioStreamPaused
+            [styles['border-lit']]: soundIndicatorOn && (isSelf ? !audioProducerPaused : !audioStreamPaused)
           })}
         >
           {(videoStream == null ||

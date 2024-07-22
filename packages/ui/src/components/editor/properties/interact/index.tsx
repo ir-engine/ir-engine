@@ -157,14 +157,17 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
           onChange={commitProperty(InteractableComponent, 'clickInteract')}
         />
       </InputGroup>
-      <Button onClick={addCallback}>{t('editor:properties.interactable.lbl-addcallback')}</Button>
+
+      <Button className="self-end" onClick={addCallback}>
+        {t('editor:properties.interactable.lbl-addcallback')}
+      </Button>
 
       <div id={`callback-list`}>
         {interactableComponent.callbacks.map((callback, index) => {
           const targetOption = targets.value.find((o) => o.value === callback.target.value)
           const target = targetOption ? targetOption.value : 'Self'
           return (
-            <div key={'callback' + index}>
+            <div key={'callback' + index} className="space-y-2">
               <InputGroup name="Target" label={t('editor:properties.interactable.callbacks.lbl-target')}>
                 <SelectInput
                   key={props.entity}
@@ -201,9 +204,11 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
                 )}
               </InputGroup>
 
-              <Button onClick={() => removeCallback(index)}>
-                {t('editor:properties.interactable.lbl-removecallback')}
-              </Button>
+              <div className="flex justify-end">
+                <Button onClick={() => removeCallback(index)}>
+                  {t('editor:properties.interactable.lbl-removecallback')}
+                </Button>
+              </div>
             </div>
           )
         })}

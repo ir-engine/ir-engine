@@ -136,7 +136,11 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         {errors?.LOADING_ERROR ||
           (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
-      <Button onClick={() => modelComponent.dereference.set(true)} disabled={!modelComponent.src.value}>
+      <Button
+        className="self-end"
+        onClick={() => modelComponent.dereference.set(true)}
+        disabled={!modelComponent.src.value}
+      >
         Dereference
       </Button>
       <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>
@@ -187,7 +191,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
               onChange={(val) => exportType.set(val as string)}
             />
           </InputGroup>
-          <Button onClick={onExportModel}>Save Changes</Button>
+          <Button className="self-end" onClick={onExportModel}>
+            {t('editor:properties.model.saveChanges')}
+          </Button>
         </div>
       )}
       {exporting.value && <p>Exporting...</p>}
