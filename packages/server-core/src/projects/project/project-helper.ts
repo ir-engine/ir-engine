@@ -342,7 +342,7 @@ export const getProjectManifest = (projectName: string): ManifestJson => {
       thumbnail: packageJson.etherealEngine?.thumbnail
     }
   }
-  throw new Error('No manifest.json or package.json found in project')
+  throw new Error(`No manifest.json or package.json found in project '${projectName}'`)
 }
 
 export const engineVersion = (
