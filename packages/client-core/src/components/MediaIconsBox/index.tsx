@@ -34,7 +34,6 @@ import {
   toggleScreenshare,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import logger from '@etherealengine/common/src/logger'
 import { Engine, defineQuery, getOptionalComponent } from '@etherealengine/ecs'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import {
@@ -53,6 +52,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
+import multiLogger from '@etherealengine/common/src/logger'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
@@ -60,10 +60,14 @@ import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { SearchParamState } from '../../common/services/RouterService'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
+import { clientContextParams } from '../../util/contextParams'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 const sceneSettings = defineQuery([SceneSettingsComponent])
+const logger = multiLogger.child({ component: 'client-core:MediaIconsBox' })
+const clogger = multiLogger.child({ component: 'client-core:MediaIconsBox', modifier: clientContextParams })
+
 export const MediaIconsBox = () => {
   const { t } = useTranslation()
   const playbackState = useMutableState(PlaybackState)
@@ -210,7 +214,10 @@ export const MediaIconsBox = () => {
               id="UserPoseTracking"
               title={t('user:menu.poseTracking')}
               className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
-              onClick={() => window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')}
+              onClick={() => {
+                window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')
+                clogger.info({ event_name: 'motion_capture', event_value: isMotionCaptureEnabled })
+              }}
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               icon={<Icon type={'Accessibility'} />}
