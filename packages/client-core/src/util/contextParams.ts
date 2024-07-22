@@ -23,28 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { LogParamsObject } from '@etherealengine/common/src/logger'
+import { getState } from '@etherealengine/hyperflux'
+import { LocationState } from '../social/services/LocationService'
 
-import multiLogger from '@etherealengine/common/src/logger'
-import { createErrorBoundary } from '@etherealengine/common/src/utils/createErrorBoundary'
-import { clientContextParams } from '../../util/contextParams'
+/**
+ * @function clientContextParams
+ * @description This function will collect contextual parameters
+ * from url's query params
+ */
+export function clientContextParams(params: LogParamsObject) {
+  const locationState = getState(LocationState)
+  /*
+  console.log('IR> location state', locationState.currentLocation.location)
 
-const logger = multiLogger.child({ component: 'client-core:system-crash', modifier: clientContextParams })
+  console.log('IR> location_id', locationState.currentLocation.location.id)
 
-const ErrorBoundary = createErrorBoundary(
-  function error(props, error?: Error) {
-    if (error) {
-      return (
-        <div className="error-screen">
-          <h2 style={{ fontSize: '100%', fontWeight: 'normal' }}>An error has occured</h2>
-          <h4 style={{ fontSize: '100%', fontWeight: 'normal' }}>{error.message}</h4>
-        </div>
-      )
-    } else {
-      return <React.Fragment>{props.children}</React.Fragment>
-    }
-  },
-  (error) => logger.error(error)
-)
-
-export default ErrorBoundary
+  console.log('IR> project_id', locationState.currentLocation.location.projectId)
+*/
+  return {
+    ...params,
+    location_id: locationState.currentLocation.location.id,
+    project_id: locationState.currentLocation.location.projectId
+  }
+}

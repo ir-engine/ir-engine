@@ -64,6 +64,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useZendesk } from '../../../../hooks/useZendesk'
+import { clientContextParams } from '../../../../util/contextParams'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthService, AuthState } from '../../../services/AuthService'
 import { AvatarService } from '../../../services/AvatarService'
@@ -182,6 +183,10 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   }, [selfUser.name.value])
 
   useEffect(() => {
+    if (!loading.value) logger.info({ event_name: 'view_profile', event_value: '' })
+  }, [loading.value])
+
+  useEffect(() => {
     oauthConnectedState.set(Object.assign({}, initialOAuthConnectedState))
     if (selfUser.identityProviders.get({ noproxy: true }))
       for (const ip of selfUser.identityProviders.get({ noproxy: true })!) {
@@ -227,7 +232,12 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
       // @ts-ignore
-      AvatarService.updateUsername(userId, name)
+      AvatarService.updateUsername(userId, name).then(() =>
+        logger.info({
+          event_name: 'rename_user',
+          event_value: ''
+        })
+      )
     }
   }
   const handleInputChange = (e) => emailPhone.set(e.target.value)
@@ -254,11 +264,21 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   }
 
   const handleOAuthServiceClick = (e) => {
-    AuthService.loginUserByOAuth(e.currentTarget.id, location)
+    AuthService.loginUserByOAuth(e.currentTarget.id, location).then(() =>
+      logger.info({
+        event_name: 'connect_social_login',
+        event_value: e.currentTarget.id
+      })
+    )
   }
 
   const handleRemoveOAuthServiceClick = (e) => {
-    AuthService.removeUserOAuth(e.currentTarget.id)
+    AuthService.removeUserOAuth(e.currentTarget.id).then(() =>
+      logger.info({
+        event_name: 'disconnect_social_login',
+        event_value: e.currentTarget.id
+      })
+    )
   }
 
   const handleLogout = async () => {
