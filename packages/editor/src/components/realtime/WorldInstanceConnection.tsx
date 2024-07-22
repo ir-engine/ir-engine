@@ -38,8 +38,9 @@ import { useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 
 import { EditorState } from '../../services/EditorServices'
-import SelectInput from '../inputs/SelectInput'
 import { InfoTooltip } from '../layout/Tooltip'
+
+import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
 import * as styles from '../toolbar/styles.module.scss'
 import { EditorActiveInstanceState } from './EditorActiveInstanceService'
 
@@ -97,8 +98,6 @@ export const WorldInstanceConnection = () => {
         onChange={onSelectInstance}
         options={activeInstances}
         value={'None'}
-        creatable={false}
-        isSearchable={false}
       />
       {/* <button onClick={decrementPage} className={styles.toolButton} >Previous Page</button>
       <button onClick={incrementPage} className={styles.toolButton} >Next Page</button> */}

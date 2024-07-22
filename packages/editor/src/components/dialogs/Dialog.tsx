@@ -23,59 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import React, { useCallback } from 'react'
-
-import { Button, SecondaryButton } from '../inputs/Button'
-
-const dialogContainerStyles = {
-  display: 'flex',
-  flexDirection: 'column',
-  borderRadius: '4px',
-  backgroundColor: 'var(--dockBackground)',
-  maxWidth: '800px',
-  minWidth: '250px',
-  minHeight: '150px',
-  maxHeight: '80vh'
-}
-
-const dialogHeaderStyles = {
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  padding: '0 8px',
-  fontSize: '12px',
-  overflow: 'hidden',
-  height: '32px',
-  background: 'black',
-  borderTopLeftRadius: 'inherit',
-  borderTopRightRadius: 'inherit',
-  color: 'white'
-}
-
-const dialogContentStyles = {
-  color: 'var(--textColor)',
-  display: 'flex',
-  flex: 1,
-  flexDirection: 'row',
-  overflow: 'hidden',
-  padding: '8px',
-  minHeight: '100px',
-  fontFamily: 'var(--lato)',
-  fontSize: '12px',
-  backgroundColor: 'var(--background)'
-}
-
-const dialogBottomNavStyles = {
-  display: 'flex',
-
-  padding: '8px',
-  marginBottom: '10px'
-}
-
-const buttonStyles = {
-  minWidth: '75px',
-  margin: '10px'
-}
 
 const DialogForm = ({ tag, onSubmit, children }) => {
   return tag ? React.createElement(tag, { onSubmit }, children) : <form onSubmit={onSubmit}>{children}</form>
@@ -112,18 +61,20 @@ const Dialog = (props: Props) => {
   // returning view for Dialog component
   return (
     <DialogForm tag={props.tag} onSubmit={onSubmitForm}>
-      <div style={dialogContainerStyles as React.CSSProperties}>
-        <div style={dialogContentStyles as React.CSSProperties}>{props.children}</div>
+      <div className="flex max-h-[80vh] min-h-[150px] min-w-[250px] max-w-3xl flex-col rounded-lg">
+        <div className="flex min-h-[100px] flex-1 flex-row overflow-hidden p-2 font-['Figtree'] text-xs">
+          {props.children}
+        </div>
         {(props.onConfirm || props.onCancel || props.bottomNav) && (
-          <div style={dialogBottomNavStyles}>
+          <div className="mb-2.5 flex p-2">
             {props.bottomNav}
             {props.onCancel && (
-              <SecondaryButton onClick={props.onCancel} style={buttonStyles}>
+              <Button variant="outline" onClick={props.onCancel} className="m-[10px] min-w-[75px]">
                 {props.cancelLabel || 'Cancel'}
-              </SecondaryButton>
+              </Button>
             )}
             {props.onConfirm && (
-              <Button type="submit" onClick={props.tag === 'form' ? null : props.onConfirm} style={buttonStyles}>
+              <Button onClick={props.tag === 'form' ? null : props.onConfirm} className="m-2.5 min-w-[75px]">
                 {props.confirmLabel}
               </Button>
             )}

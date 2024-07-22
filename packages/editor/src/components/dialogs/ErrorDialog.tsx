@@ -24,40 +24,24 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-
-const dialogContainerStyles = {
-  display: 'flex',
-  flexDirection: 'column',
-  borderRadius: '4px',
-  backgroundColor: '#282c31',
-  maxWidth: '600px'
-}
-
-const dialogContentStyles = {
-  padding: '0'
-}
-
-const errorMessageStyles = {
-  whiteSpace: 'pre-wrap',
-  overflowWrap: 'break-word',
-  overflowX: 'hidden',
-  overflowY: 'auto',
-  padding: '16px',
-  color: 'var(--red)'
-}
+import { twMerge } from 'tailwind-merge'
 
 const ErrorDialogContainer = (props) => (
-  <div style={{ ...dialogContainerStyles, ...props.style }}>
-    <div style={dialogContentStyles}>{props.children}</div>
+  <div className={twMerge('flex max-w-[600px] flex-col rounded bg-[#282c31]', props.containerClassName)}>
+    <div className="p-0">{props.children}</div>
   </div>
 )
 
-const ErrorMessage = (props) => <code style={errorMessageStyles as React.CSSProperties}>{props.children}</code>
+const ErrorMessage = (props) => (
+  <code className="overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words p-4 text-red-700">
+    {props.children}
+  </code>
+)
 
 const ErrorDialog = (props) => {
   if (!props) return null
   return (
-    <ErrorDialogContainer style={props.style}>
+    <ErrorDialogContainer style={props.containerClassName}>
       <ErrorMessage>{props?.message}</ErrorMessage>
     </ErrorDialogContainer>
   )

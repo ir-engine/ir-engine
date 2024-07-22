@@ -24,30 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
-
-/**
- * BlockFormField used to provide styles for block FormField div.
- */
-const blockFormFieldStyle = {
-  marginBottom: '16px'
-}
-
-/**
- * InlineFormField used to provide styles for inline FormField div.
- */
-const inlineFormFieldStyle = {
-  display: 'flex',
-  justifyContent: 'space-between'
-}
-
-const inlineFormFieldChildStyle = {
-  marginLeft: '30px',
-  alignSelf: 'center'
-}
-
-const firstChildStyle = {
-  marginLeft: '0'
-}
+import { twMerge } from 'tailwind-merge'
 
 interface FormFieldProp {
   inline?: any
@@ -59,25 +36,20 @@ interface FormFieldProp {
  *
  * @param       {boolean} inline
  * @param       {string} children
- * @param       {any} rest
  * @constructor
  */
-export function FormField({ inline, children, ...rest }: FormFieldProp) {
+export function FormField({ inline, children }: FormFieldProp) {
   if (inline) {
     return (
-      <div style={{ ...inlineFormFieldStyle, ...rest }}>
+      <div className="flex justify-between">
         {React.Children.map(children, (child, index) => {
-          return (
-            <div style={index === 0 ? { ...inlineFormFieldChildStyle, ...firstChildStyle } : inlineFormFieldChildStyle}>
-              {child}
-            </div>
-          )
+          return <div className={twMerge('self-center', index === 0 ? 'ml-0' : 'ml-7')}>{child}</div>
         })}
       </div>
     )
   }
 
-  return <div style={{ ...blockFormFieldStyle, ...rest }}>{children}</div>
+  return <div className="mb-4">{children}</div>
 }
 
 export default FormField

@@ -26,22 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import CircularProgress from '@mui/material/CircularProgress'
 import i18n from 'i18next'
 import React from 'react'
-
 import Dialog from './Dialog'
-
-const progressContainerStyles = {
-  color: 'var(--textColor)',
-  display: 'flex',
-  flex: '1',
-  flexDirection: 'column',
-  overflow: 'hidden',
-  padding: '8px'
-}
-
-const progressMessageStyles = {
-  margin: 'auto',
-  whiteSpace: 'pre'
-}
 
 interface Props {
   cancelable?: boolean
@@ -60,8 +45,8 @@ export function ProgressDialog(props: Props) {
   if (!props) return null
   return (
     <Dialog onCancel={props.cancelable ? props.onCancel : null} {...props}>
-      <div style={progressContainerStyles as React.CSSProperties}>
-        <div style={progressMessageStyles as React.CSSProperties}>{props.message}</div>
+      <div className="flex flex-1 flex-col overflow-hidden p-2">
+        <div className="m-auto whitespace-pre">{props.message}</div>
         <CircularProgress style={{ margin: 'auto' }} />
         {/* <ProgressBar /> */}
       </div>
