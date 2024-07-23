@@ -57,7 +57,6 @@ const nodeDisplayName = (uuid: EntityUUID) => {
 export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
   const data = props.data
   const node = data.nodes[props.index]
-  console.log(node)
 
   const selectionState = useMutableState(SelectionState)
 
