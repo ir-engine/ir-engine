@@ -35,6 +35,7 @@ import {
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 import { LuUsers2 } from 'react-icons/lu'
 import { Vector3 } from 'three'
 import InputGroup from '../../input/Group'
@@ -85,7 +86,7 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Dismount Offset" label={t('editor:properties.mountPoint.lbl-dismount')}>
         <Vector3Input
-          value={mountComponent.dismountOffset.value}
+          value={mountComponent.dismountOffset.get(NO_PROXY)}
           onChange={updateProperty(MountPointComponent, 'dismountOffset')}
           onRelease={commitProperty(MountPointComponent, 'dismountOffset')}
         />

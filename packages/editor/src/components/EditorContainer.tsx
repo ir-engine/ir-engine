@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
 import { FilesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Files'
@@ -42,26 +42,26 @@ import { t } from 'i18next'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
+import Toolbar from '../components/toolbar/Toolbar'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import { SaveSceneDialog } from './dialogs/SaveSceneDialog'
+import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
-import Toolbar from './toolbar/Toolbar'
 
 import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { EntityUUID } from '@etherealengine/ecs'
-import { FeatureFlagsState } from '@etherealengine/engine'
+import { useFeatureFlags } from '@etherealengine/engine/src/FeatureFlagsHook'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
 import { setCurrentEditorScene } from '../functions/sceneFunctions'
-import './EditorContainer.css'
+import './Editor2Container.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
@@ -131,14 +131,17 @@ const EditorContainer = () => {
 
   const dockPanelRef = useRef<DockLayout>(null)
 
-  useHotkeys(`${cmdOrCtrlString}+s`, () => PopoverState.showPopupover(<SaveSceneDialog />))
+  useHotkeys(`${cmdOrCtrlString}+s`, (e) => {
+    e.preventDefault()
+    PopoverState.showPopupover(<SaveSceneDialog />)
+  })
 
   const viewerEntity = useMutableState(EngineState).viewerEntity.value
 
   const { initialized, isWidgetVisible, openChat } = useZendesk()
   const { t } = useTranslation()
 
-  const visualScriptPanelEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Studio.Panel.VisualScript)
+  const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
 
   useEffect(() => {
     const scene = sceneQuery[0]
