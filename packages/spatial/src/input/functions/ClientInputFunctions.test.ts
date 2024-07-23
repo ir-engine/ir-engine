@@ -53,25 +53,44 @@ describe('ClientInputFunctions', () => {
   })
 
   describe('preventDefaultKeyDown', () => {
-    /**
-    // @todo document.activeElement.tagName is readonly. How do we test this?
-    it("should do nothing if document.activeElement.tagName is INPUT or TEXTAREA", () => {
+    const mockDocumentPrev = { ...globalThis.document } as Document
+
+    const mockInput = {
+      ...globalThis.document,
+      activeElement: {
+        ...globalThis.document.activeElement,
+        tagName: 'INPUT'
+      } as Element
+    } as Document
+
+    const mockTextArea = {
+      ...globalThis.document,
+      activeElement: {
+        ...globalThis.document.activeElement,
+        tagName: 'TEXTAREA'
+      } as Element
+    } as Document
+
+    afterEach(() => {
+      globalThis.document = mockDocumentPrev
+    })
+
+    it('should do nothing if document.activeElement.tagName is INPUT or TEXTAREA', () => {
       const eventSpy = sinon.spy()
       const Event = { preventDefault: eventSpy }
-      assert.ok(!eventSpy.called)
-      document.activeElement?.tagName = 'INPUT'
+      assert.equal(eventSpy.called, false)
+      globalThis.document = mockInput
       ClientInputFunctions.preventDefaultKeyDown(Event)
       assert.equal(eventSpy.called, false)
-      document.activeElement?.tagName = 'TEXTAREA'
+      globalThis.document = mockTextArea
       ClientInputFunctions.preventDefaultKeyDown(Event)
       assert.equal(eventSpy.called, false)
     })
-    */
 
     it('should call the preventDefault function of the event/object when its code property is Tab', () => {
       const eventSpy = sinon.spy()
       const Event = { preventDefault: eventSpy, code: 'Tab' }
-      assert.ok(!eventSpy.called)
+      assert.equal(eventSpy.called, false)
       ClientInputFunctions.preventDefaultKeyDown(Event)
       assert.equal(eventSpy.called, true)
     })
@@ -79,7 +98,7 @@ describe('ClientInputFunctions', () => {
     it('should call the preventDefault function of the event/object when its code property is Space', () => {
       const eventSpy = sinon.spy()
       const Event = { preventDefault: eventSpy, code: 'Space' }
-      assert.ok(!eventSpy.called)
+      assert.equal(eventSpy.called, false)
       ClientInputFunctions.preventDefaultKeyDown(Event)
       assert.equal(eventSpy.called, true)
     })
@@ -87,7 +106,7 @@ describe('ClientInputFunctions', () => {
     it('should call the preventDefault function of the event/object when its code property is Enter', () => {
       const eventSpy = sinon.spy()
       const Event = { preventDefault: eventSpy, code: 'Enter' }
-      assert.ok(!eventSpy.called)
+      assert.equal(eventSpy.called, false)
       ClientInputFunctions.preventDefaultKeyDown(Event)
       assert.equal(eventSpy.called, true)
     })
@@ -95,7 +114,7 @@ describe('ClientInputFunctions', () => {
     it('should not call the preventDefault function of the event/object when its code property is an unexpected value', () => {
       const eventSpy = sinon.spy()
       const Event = { preventDefault: eventSpy, code: 'UnexpectedValue' }
-      assert.ok(!eventSpy.called)
+      assert.equal(eventSpy.called, false)
       ClientInputFunctions.preventDefaultKeyDown(Event)
       assert.equal(eventSpy.called, false)
     })
