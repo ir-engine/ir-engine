@@ -89,17 +89,22 @@ export default function ArrayInputGroup({
             onClick={() => handleChange('', 0, 'add')}
           />
         </div>
-        <div className="flex flex-col space-y-1 bg-[#1A1A1A] py-1.5">
+        <div className="flex flex-col space-y-1 rounded-md bg-[#1A1A1A] py-1.5">
           {values.map((value, idx) => (
-            <div key={value + idx} className="mr-5 flex items-center justify-end gap-x-2.5">
-              {inputLabel && <Label className="text-[#A0A1A2]">{inputLabel + ' ' + (idx + 1)}</Label>}
-              <Input
-                containerClassname="w-32"
-                className="border-none bg-[#242424] text-[#8B8B8D]"
-                value={value}
-                onChange={(event) => handleChange(event.target.value, idx)}
-              />
-              <PiTrashSimple className="cursor-pointer text-[#444]" onClick={() => handleChange('', idx, 'remove')} />
+            <div key={value + idx} className="flex flex-col px-3">
+              {inputLabel && <Label className="mb-1 text-[#A0A1A2]">{inputLabel + ' ' + (idx + 1)}</Label>}
+              <div className="mb-2 flex items-center">
+                <Input
+                  containerClassname="flex-grow"
+                  className="border-none bg-[#242424] text-[#8B8B8D]"
+                  value={value}
+                  onChange={(event) => handleChange(event.target.value, idx)}
+                />
+                <PiTrashSimple
+                  className="ml-2.5 cursor-pointer text-[#444]"
+                  onClick={() => handleChange('', idx, 'remove')}
+                />
+              </div>
             </div>
           ))}
         </div>
