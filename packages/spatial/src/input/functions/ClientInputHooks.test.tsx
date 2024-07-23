@@ -27,7 +27,9 @@ import {
   createEngine,
   createEntity,
   destroyEngine,
+  Entity,
   EntityContext,
+  removeComponent,
   removeEntity,
   setComponent,
   UndefinedEntity
@@ -42,7 +44,10 @@ import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeE
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../SpatialModule'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { XRState } from '../../xr/XRState'
+import { InputComponent } from '../components/InputComponent'
+import { InputState } from '../state/InputState'
 import ClientInputHooks from './ClientInputHooks'
 
 const createMockHTMLCanvasElement = (ev: MockEventListener) => {
@@ -1101,17 +1106,101 @@ describe('ClientInputHooks', () => {
     })
   })
 
+  describe('MeshInputReactor', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, VisibleComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should add the entityContext to the InputState.inputMeshes list when the entity.ancestor has an InputComponent', () => {
+      setComponent(testEntity, InputComponent)
+      const before = getState(InputState).inputMeshes
+      assert.equal(before.has(testEntity), false)
+
+      // Run the reactor and check the result
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.MeshInputReactor, {})
+        )
+      }) as ReactorRoot
+      const result = getState(InputState).inputMeshes
+      assert.equal(result.has(testEntity), true)
+    })
+
+    it('should remove the entityContext from the InputState.inputMeshes list when the entity.ancestor does not have an InputComponent', () => {
+      // setComponent(testEntity, InputComponent)  // Do not set the InputComponent on the entity
+      getMutableState(InputState).inputMeshes.set(new Set([testEntity] as Entity[])) // Force-add the entity manually, to check this code path in isolation
+      const before = getState(InputState).inputMeshes
+      assert.equal(before.has(testEntity), true)
+
+      // Run the reactor and check the result
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.MeshInputReactor, {})
+        )
+      }) as ReactorRoot
+      const result = getState(InputState).inputMeshes
+      assert.equal(result.has(testEntity), false)
+    })
+
+    // @todo Seems like useAncestorWithComponent is not working as expected?
+    it.skip('should trigger whenever the entityContext.ancestor gets or removes its InputComponent', () => {
+      const before = getState(InputState).inputMeshes
+      assert.equal(before.has(testEntity), false)
+
+      // Setup the reactor
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.MeshInputReactor, {})
+        )
+      }) as ReactorRoot
+      assert.equal(before.has(testEntity), false)
+
+      // Create the ancestor entity that contains the InputComponent
+      const parentEntity = createEntity()
+      setComponent(parentEntity, InputComponent)
+      setComponent(parentEntity, EntityTreeComponent)
+
+      // setComponent(testEntity, InputComponent)
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+
+      // @bug Triggers the reactor, but it doesn't enter the useImmediateEffect
+      //  because neither entityContext or the component have changed
+      //  useAncestorWithComponent always returns the same value as it did the first time it was run
+      root.run()
+
+      // Check the result
+      const one = getState(InputState).inputMeshes
+      assert.equal(one.has(parentEntity), true)
+
+      removeComponent(parentEntity, InputComponent)
+      root.run()
+      const two = getState(InputState).inputMeshes
+      assert.equal(two.has(parentEntity), false)
+    })
+  })
+
   /**
   // @todo
-  describe("MeshInputReactor", () => {
-    // it("should trigger whenever the entityContext.ancestor gets or removes its InputComponent", () => {})
-    // it("should add the entityContext to the InputState.inputMeshes list when the entity.ancestor has an InputComponent", () => {})
-    // it("should remove the entityContext from the InputState.inputMeshes list when the entity.ancestor does not have an InputComponent", () => {})
-  })
   describe("BoundingBoxInputReactor", () => {
-    // it("should trigger whenever the entityContext.ancestor gets or removes its InputComponent", () => {})
     // it("should add the entityContext to the InputState.inputBoundingBoxes list when the entity.ancestor has an InputComponent", () => {})
     // it("should remove the entityContext from the InputState.inputBoundingBoxes list when the entity.ancestor does not have an InputComponent", () => {})
+    // it("should trigger whenever the entityContext.ancestor gets or removes its InputComponent", () => {})
   })
   */
 })
