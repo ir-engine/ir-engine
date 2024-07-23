@@ -41,6 +41,7 @@ import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materia
 import { getMutableState, getState, useHookstate, useMutableState, useState } from '@etherealengine/hyperflux'
 import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { useTranslation } from 'react-i18next'
+import { HiFilter, HiGlobeAlt } from 'react-icons/hi'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
 import StringInput from '../../../input/String'
@@ -57,13 +58,15 @@ export default function MaterialLibraryPanel() {
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
   const selectedMaterial = useMutableState(MaterialSelectionState).selectedMaterial
   const hasSelectedMaterial = useState(false)
+  const useSelected = useState(false)
 
   useEffect(() => {
-    const materials = selected.value.length
-      ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selected.value[0]))
-      : materialQuery
-          .map((entity) => getComponent(entity, UUIDComponent))
-          .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterial)
+    const materials =
+      selected.value.length && useSelected.value
+        ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selected.value[0]))
+        : materialQuery
+            .map((entity) => getComponent(entity, UUIDComponent))
+            .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterial)
 
     const materialsBySource = {} as Record<string, EntityUUID[]>
     for (const uuid of materials) {
@@ -76,7 +79,7 @@ export default function MaterialLibraryPanel() {
       []
     )
     nodes.set(flattenedMaterials)
-  }, [materialQuery.length, selected])
+  }, [materialQuery.length, selected, useSelected])
 
   useEffect(() => {
     hasSelectedMaterial.set(selectedMaterial.value !== null)
@@ -110,12 +113,12 @@ export default function MaterialLibraryPanel() {
           <MaterialPreviewPanel ref={materialPreviewPanelRef} />
         </div>
         <div className="w-full">
-          <InputGroup name="File Path" label="File Path">
-            <StringInput value={srcPath.value} onChange={srcPath.set} />
-          </InputGroup>
-          <div className="flex-between flex h-7 gap-3">
+          <div className="mt-4 flex h-5 items-center gap-2">
+            <InputGroup name="File Path" label="Save to">
+              <StringInput value={srcPath.value} onChange={srcPath.set} />
+            </InputGroup>
             <Button
-              className="w-full text-xs"
+              className="flex w-10 items-center justify-center text-xs"
               variant="outline"
               onClick={async () => {
                 const projectName = getState(EditorState).projectName!
@@ -152,7 +155,16 @@ export default function MaterialLibraryPanel() {
             >
               Save
             </Button>
-
+            <div className="mx-2 h-full border-l border-gray-500"></div>
+            <Button
+              className="flex w-10 items-center justify-center text-xs"
+              variant="outline"
+              onClick={() => {
+                useSelected.set(!useSelected.value)
+              }}
+            >
+              {useSelected.value ? <HiFilter /> : <HiGlobeAlt />}
+            </Button>
             {/* 
             // hiding the new and delete buttons for now till the we can do a full rework of materials as assets after phase 1 
 
