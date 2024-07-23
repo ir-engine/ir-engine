@@ -171,7 +171,12 @@ describe('ClientInputFunctions', () => {
   // first (raycast)
   describe('redirectPointerEventsToXRUI', () => {}) // WebContainer3D.hitTest
   // intermediate
-  describe('assignInputSources', () => {})
+  describe('assignInputSources', () => {
+    // should call the heuristic.raycastedInput function when the `@param sourceEid` has a TransformComponent
+    // todo: create a sorted array from the intersection data
+    // should call the heuristic.proximity function when the `@param capturedEntity` is a valid entity, intersectionData.length is not 0 and `@param sourceEid` has a TransformComponent
+    // todo: should add
+  })
   // very branchy
   describe('updatePointerDragging', () => {})
   describe('updateGamepadInput', () => {})

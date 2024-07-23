@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
+import React from 'react'
 import sinon from 'sinon'
 
 import {
@@ -37,16 +38,21 @@ import {
   UndefinedEntity
 } from '@etherealengine/ecs'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { act, render } from '@testing-library/react'
 import { Box3, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 import { EngineState } from '../../EngineState'
-import { RaycastArgs } from '../../physics/classes/Physics'
+import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { assertFloatApproxNotEq, assertVecApproxEq } from '../../physics/classes/Physics.test'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { PhysicsState } from '../../physics/state/PhysicsState'
+import { BodyTypes, SceneQueryType, Shapes } from '../../physics/types/PhysicsTypes'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../SpatialModule'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { InputState } from '../state/InputState'
 import ClientInputHeuristics, { HeuristicData, HeuristicFunctions, IntersectionData } from './ClientInputHeuristics'
 
@@ -338,6 +344,120 @@ describe('ClientInputHeuristics', () => {
     })
   })
 
+  describe('applyPhysicsColliders', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      await Physics.load()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should add the hit.entity and hit.distance to the `@param intersectionData` for the first entity hit by the `@param raycast`', async () => {
+      const physicsWorld = Physics.createWorld()
+      physicsWorld!.timestep = 1 / 60
+      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+
+      const data = new Set<IntersectionData>()
+      const raycast = createDefaultRaycastArgs()
+      raycast.origin.set(0, 0, 0)
+      raycast.direction.set(2, 2, 2).normalize()
+
+      const one = createEntity()
+      setComponent(one, VisibleComponent)
+      setComponent(one, EntityTreeComponent, { parentEntity: UndefinedEntity })
+      setComponent(one, TransformComponent, { position: new Vector3(2.1, 2.1, 2.1) })
+      setComponent(one, RigidBodyComponent, { type: BodyTypes.Fixed })
+      setComponent(one, ColliderComponent, { shape: Shapes.Box })
+      const two = createEntity() // Should not be hit by the raycast
+      setComponent(two, VisibleComponent)
+      setComponent(two, EntityTreeComponent, { parentEntity: UndefinedEntity })
+      setComponent(two, TransformComponent, { position: new Vector3(2.2, 2.2, 2.2) })
+      setComponent(two, RigidBodyComponent, { type: BodyTypes.Fixed })
+      setComponent(two, ColliderComponent, { shape: Shapes.Box })
+
+      const { rerender, unmount } = render(<></>)
+      await act(() => rerender(<></>))
+      getState(PhysicsState).physicsWorld.step()
+
+      ClientInputHeuristics.applyPhysicsColliders(data, raycast)
+
+      assert.notEqual(data.size, 0)
+      assert.equal(data.size, 1)
+      assert.equal([...data][0].entity, one)
+
+      unmount()
+    })
+
+    it('should not do anything if there is no PhysicsState.physicsWorld', async () => {
+      // Do not set PhysicsState.physicsWorld for this test
+      // const physicsWorld = Physics.createWorld()
+      // physicsWorld!.timestep = 1 / 60
+      // getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+
+      const data = new Set<IntersectionData>()
+      const raycast = createDefaultRaycastArgs()
+      raycast.origin.set(0, 0, 0)
+      raycast.direction.set(2, 2, 2).normalize()
+
+      const one = createEntity()
+      setComponent(one, VisibleComponent)
+      setComponent(one, EntityTreeComponent, { parentEntity: UndefinedEntity })
+      setComponent(one, TransformComponent, { position: new Vector3(2.1, 2.1, 2.1) })
+      setComponent(one, RigidBodyComponent, { type: BodyTypes.Fixed })
+      setComponent(one, ColliderComponent, { shape: Shapes.Box })
+
+      const { rerender, unmount } = render(<></>)
+      await act(() => rerender(<></>))
+      // getState(PhysicsState).physicsWorld.step() // Cannot step the physics if there is no physicsWorld
+
+      ClientInputHeuristics.applyPhysicsColliders(data, raycast)
+
+      assert.equal(data.size, 0)
+
+      unmount()
+    })
+
+    it('should not do anything if the given `@param raycast` does not hit any entities in the current PhysicsState.physicsWorld', async () => {
+      const physicsWorld = Physics.createWorld()
+      physicsWorld!.timestep = 1 / 60
+      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+
+      const data = new Set<IntersectionData>()
+      const raycast = createDefaultRaycastArgs()
+      raycast.origin.set(0, 0, 0)
+      raycast.direction.set(-2, -2, -2).normalize() // Opposite direction of the entities location
+
+      const one = createEntity()
+      setComponent(one, VisibleComponent)
+      setComponent(one, EntityTreeComponent, { parentEntity: UndefinedEntity })
+      setComponent(one, TransformComponent, { position: new Vector3(42.1, 42.1, 42.1) })
+      setComponent(one, RigidBodyComponent, { type: BodyTypes.Fixed })
+      setComponent(one, ColliderComponent, { shape: Shapes.Box })
+      const two = createEntity() // Should not be hit by the raycast
+      setComponent(two, VisibleComponent)
+      setComponent(two, EntityTreeComponent, { parentEntity: UndefinedEntity })
+      setComponent(two, TransformComponent, { position: new Vector3(42.2, 42.2, 42.2) })
+      setComponent(two, RigidBodyComponent, { type: BodyTypes.Fixed })
+      setComponent(two, ColliderComponent, { shape: Shapes.Box })
+
+      const { rerender, unmount } = render(<></>)
+      await act(() => rerender(<></>))
+      getState(PhysicsState).physicsWorld.step()
+
+      ClientInputHeuristics.applyPhysicsColliders(data, raycast)
+
+      assert.equal(data.size, 0)
+
+      unmount()
+    })
+  })
+
   /**
   // @todo
   describe("applyProximity", () => {
@@ -382,12 +502,6 @@ describe('ClientInputHeuristics', () => {
       //   for every object hit by the `@param caster`
   })
 
-  // (raycasted)
-  describe("applyPhysicsColliders", () => {
-    it("should not do anything if there is no PhysicsState.physicsWorld", () => {})
-    it("should not do anything if the given `@param raycast` does not hit any entities in the current PhysicsState.physicsWorld", () => {})
-    it("should add the hit.entity and hit.distance to the `@param intersectionData` for every hit of the `@param raycast`", () => {})
-  })
   // (raycasted)
   describe("applyMeshes", () => {
     // when `@param isEditing` is true ...
