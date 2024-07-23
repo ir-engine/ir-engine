@@ -317,7 +317,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             : (selected ? 'bg-zinc-700' : 'bg-zinc-800'} hover:bg-zinc-700'),
         selected ? 'text-white' : 'text-gray-300',
         'hover:text-white',
-        `${visible ? '' : 'bg-[#191B1F] text-[#6B7280]'}`
+        visible && 'bg-[#191B1F] text-[#6B7280]'
       )}
     >
       <div
