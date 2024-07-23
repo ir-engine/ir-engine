@@ -25,31 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { TbScreenShare } from 'react-icons/tb'
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
-import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
-import { useHookstate } from '@etherealengine/hyperflux'
-import BooleanInput from '../../input/Boolean'
-import InputGroup from '../../input/Group'
 import NodeEditor from '../nodeEditor'
 
 export const ScreenshareTargetNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.entity
-  const enabled = useHookstate(false)
-
-  useEffect(() => {
-    enabled.set(hasComponent(entity, ScreenshareTargetComponent))
-  }, [])
-
-  const onChange = (enable) => {
-    enabled.set(enable)
-    EditorControlFunctions.addOrRemoveComponent([entity], ScreenshareTargetComponent, enable)
-  }
 
   return (
     <NodeEditor
@@ -58,11 +42,7 @@ export const ScreenshareTargetNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.screenshare.name')}
       description={t('editor:properties.screenshare.description')}
       icon={<ScreenshareTargetNodeEditor.iconComponent />}
-    >
-      <InputGroup name="enableScreenShareTarget" label={'enable screen share target'}>
-        <BooleanInput value={enabled.value} onChange={onChange} />
-      </InputGroup>
-    </NodeEditor>
+    ></NodeEditor>
   )
 }
 
