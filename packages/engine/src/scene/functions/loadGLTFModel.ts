@@ -44,7 +44,7 @@ import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/M
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
@@ -186,7 +186,7 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     },
     parent: {
       get() {
-        if (EngineRenderer.activeRender) return null // hack to check if renderer is rendering
+        if (RendererComponent.activeRender) return null // hack to check if renderer is rendering
         if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
           const result = getOptionalComponent(
             getComponent(objEntity, EntityTreeComponent).parentEntity!,
@@ -203,7 +203,7 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     },
     children: {
       get() {
-        if (EngineRenderer.activeRender) return [] // hack to check if renderer is rendering
+        if (RendererComponent.activeRender) return [] // hack to check if renderer is rendering
         if (hasComponent(objEntity, EntityTreeComponent)) {
           const childEntities = getComponent(objEntity, EntityTreeComponent).children
           const result: Object3D[] = []

@@ -94,7 +94,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
       description={t('editor:properties.envmap.description')}
       icon={<EnvMapEditor.iconComponent />}
     >
-      <InputGroup name="Envmap Source" label={t('editor:properties.envmap.lbl-source')}>
+      <InputGroup name="Envmap Source" label={t('editor:properties.envmap.lbl-source')} className="w-auto">
         <SelectInput
           key={props.entity}
           options={EnvMapSourceOptions}
@@ -159,7 +159,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
         </Button>
       )}
       {envmapComponent.type.value !== EnvMapSourceType.None && (
-        <InputGroup name="EnvMap Intensity" label={t('editor:properties.envmap.lbl-intensity')}>
+        <InputGroup name="EnvMap Intensity" label={t('editor:properties.envmap.lbl-intensity')} className="w-auto">
           <Slider
             min={0}
             max={20}

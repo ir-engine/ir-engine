@@ -53,7 +53,7 @@ const PaddingNumericInput = ({
   return (
     <div className="flex h-8 items-center justify-between rounded bg-[#1A1A1A] p-2">
       <div
-        className="relative mr-2 min-h-3.5 min-w-3.5"
+        className="min-h-3.5 min-w-3.5 relative mr-2"
         style={{
           borderTop: '1px dotted #8B8B8D',
           borderLeft: '1px dotted #8B8B8D',
@@ -63,7 +63,7 @@ const PaddingNumericInput = ({
         }}
       />
       <input
-        className="mr-1 max-w-7 bg-inherit text-xs text-[#8B8B8D] focus:outline-none"
+        className="max-w-7 mr-1 bg-inherit text-xs text-[#8B8B8D] focus:outline-none"
         value={value.toFixed(2)}
         onChange={(event) => onChange(parseFloat(event.target.value))}
       />
@@ -99,13 +99,17 @@ export const TextBoxEditor: EditorComponentType = (props) => {
       <InputGroup name="Size" label={t('editor:properties.textBox.lbl-size')}>
         <NumericInput value={0.2} displayPrecision={2} onChange={() => {}} unit="em" />
       </InputGroup>
-      <InputGroup className="mt-5" name="Font Stroke" label={t('editor:properties.textBox.lbl-fontStroke')}>
+      <InputGroup containerClassName="mt-5" name="Font Stroke" label={t('editor:properties.textBox.lbl-fontStroke')}>
         <NumericInput value={5.2} displayPrecision={2} onChange={() => {}} unit="px" />
       </InputGroup>
       <InputGroup name="Font Color" label={t('editor:properties.textBox.lbl-fontColor')}>
         <ColorInput />
       </InputGroup>
-      <InputGroup className="mt-5" name="Corner Radius" label={t('editor:properties.textBox.lbl-cornerRadius')}>
+      <InputGroup
+        containerClassName="mt-5"
+        name="Corner Radius"
+        label={t('editor:properties.textBox.lbl-cornerRadius')}
+      >
         <NumericInput value={5.2} displayPrecision={2} onChange={() => {}} unit="rem" />
       </InputGroup>
       <InputGroup name="Background Color" label={t('editor:properties.textBox.lbl-backgroundColor')}>
