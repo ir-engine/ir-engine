@@ -34,7 +34,7 @@ export function useFeatureFlags(flagNames: string[]): boolean[] {
     }
   })
 
-  if (!response.data) {
+  if (!response.data || response.status !== 'success') {
     return []
   }
 
