@@ -35,6 +35,7 @@ import {
   UndefinedEntity
 } from '@etherealengine/ecs'
 import { getMutableState, getState, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
@@ -1157,7 +1158,7 @@ describe('ClientInputHooks', () => {
     })
 
     // @todo Seems like useAncestorWithComponent is not working as expected?
-    it.skip('should trigger whenever the entityContext.ancestor gets or removes its InputComponent', () => {
+    it.skip('should trigger whenever the entityContext.ancestor gets or removes its InputComponent', async () => {
       const before = getState(InputState).inputMeshes
       assert.equal(before.has(testEntity), false)
 
@@ -1182,25 +1183,77 @@ describe('ClientInputHooks', () => {
       // @bug Triggers the reactor, but it doesn't enter the useImmediateEffect
       //  because neither entityContext or the component have changed
       //  useAncestorWithComponent always returns the same value as it did the first time it was run
-      root.run()
+      // root.run()
+      const { rerender, unmount } = render(<></>)
+      await act(() => rerender(<></>))
 
       // Check the result
       const one = getState(InputState).inputMeshes
       assert.equal(one.has(parentEntity), true)
 
       removeComponent(parentEntity, InputComponent)
-      root.run()
+      await act(() => rerender(<></>))
+      // root.run()
       const two = getState(InputState).inputMeshes
       assert.equal(two.has(parentEntity), false)
+
+      unmount()
     })
   })
 
-  /**
-  // @todo
-  describe("BoundingBoxInputReactor", () => {
-    // it("should add the entityContext to the InputState.inputBoundingBoxes list when the entity.ancestor has an InputComponent", () => {})
-    // it("should remove the entityContext from the InputState.inputBoundingBoxes list when the entity.ancestor does not have an InputComponent", () => {})
-    // it("should trigger whenever the entityContext.ancestor gets or removes its InputComponent", () => {})
+  describe('BoundingBoxInputReactor', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, VisibleComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should add the entityContext to the InputState.inputBoundingBoxes list when the entity.ancestor has an InputComponent', () => {
+      setComponent(testEntity, InputComponent)
+      const before = getState(InputState).inputBoundingBoxes
+      assert.equal(before.has(testEntity), false)
+
+      // Run the reactor and check the result
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.BoundingBoxInputReactor, {})
+        )
+      }) as ReactorRoot
+      const result = getState(InputState).inputBoundingBoxes
+      assert.equal(result.has(testEntity), true)
+    })
+
+    it('should remove the entityContext from the InputState.inputBoundingBoxes list when the entity.ancestor does not have an InputComponent', () => {
+      // setComponent(testEntity, InputComponent)  // Do not set the InputComponent on the entity
+      getMutableState(InputState).inputBoundingBoxes.set(new Set([testEntity] as Entity[])) // Force-add the entity manually, to check this code path in isolation
+      const before = getState(InputState).inputBoundingBoxes
+      assert.equal(before.has(testEntity), true)
+
+      // Run the reactor and check the result
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.BoundingBoxInputReactor, {})
+        )
+      }) as ReactorRoot
+      const result = getState(InputState).inputBoundingBoxes
+      assert.equal(result.has(testEntity), false)
+    })
+
+    /**
+    // @todo After ClientInputHooks.MeshInputReactor bug/setup has been fixed
+    it("should trigger whenever the entityContext.ancestor gets or removes its InputComponent", () => {})
+    */
   })
-  */
 })
