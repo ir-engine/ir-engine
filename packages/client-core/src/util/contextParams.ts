@@ -23,26 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const FeatureFlags = {
-  Client: {
-    Menu: {
-      Social: 'ir.client.menu.social',
-      Emote: 'ir.client.menu.emote',
-      Avaturn: 'ir.client.menu.avaturn',
-      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
-      CreateAvatar: 'ir.client.menu.createAvatar',
-      MotionCapture: 'ir.client.location.menu.motionCapture',
-      XR: 'ir.client.menu.xr'
-    }
-  },
-  Studio: {
-    Panel: {
-      VisualScript: 'ir.editor.panel.visualScript'
-    },
-    UI: {
-      Hierarchy: {
-        ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
-      }
-    }
+import { LogParamsObject } from '@etherealengine/common/src/logger'
+import { getState } from '@etherealengine/hyperflux'
+import { LocationState } from '../social/services/LocationService'
+
+/**
+ * @function clientContextParams
+ * @description This function will collect contextual parameters
+ * from url's query params
+ */
+export function clientContextParams(params: LogParamsObject) {
+  const locationState = getState(LocationState)
+  /*
+  console.log('IR> location state', locationState.currentLocation.location)
+
+  console.log('IR> location_id', locationState.currentLocation.location.id)
+
+  console.log('IR> project_id', locationState.currentLocation.location.projectId)
+*/
+  return {
+    ...params,
+    location_id: locationState.currentLocation.location.id,
+    project_id: locationState.currentLocation.location.projectId
   }
 }

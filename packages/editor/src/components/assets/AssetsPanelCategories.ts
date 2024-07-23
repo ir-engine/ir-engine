@@ -124,7 +124,7 @@ export const AssetsPanelCategories = defineState({
       // Portal: {},
       // Sparkle: {}
     },
-    Skyboxes: {
+    Skybox: {
       // 'Time of Day': {
       //   Morning: {},
       //   Noon: {},

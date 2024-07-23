@@ -23,26 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const FeatureFlags = {
-  Client: {
-    Menu: {
-      Social: 'ir.client.menu.social',
-      Emote: 'ir.client.menu.emote',
-      Avaturn: 'ir.client.menu.avaturn',
-      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
-      CreateAvatar: 'ir.client.menu.createAvatar',
-      MotionCapture: 'ir.client.location.menu.motionCapture',
-      XR: 'ir.client.menu.xr'
-    }
-  },
-  Studio: {
-    Panel: {
-      VisualScript: 'ir.editor.panel.visualScript'
-    },
-    UI: {
-      Hierarchy: {
-        ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
-      }
-    }
-  }
+import { INVALID_FILENAME_WHITESPACE_REGEX, WINDOWS_RESERVED_NAME_REGEX } from '@etherealengine/common/src/regex'
+
+export function isValidFileName(fileName: string) {
+  return (
+    !INVALID_FILENAME_WHITESPACE_REGEX.test(fileName) &&
+    !WINDOWS_RESERVED_NAME_REGEX.test(fileName) &&
+    fileName.length > 0
+  )
 }

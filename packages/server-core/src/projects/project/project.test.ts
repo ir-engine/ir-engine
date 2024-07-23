@@ -63,12 +63,10 @@ describe('project.test', () => {
     }
   })
 
-  before(async () => {
+  beforeEach(async () => {
     app = createFeathersKoaApp()
     await app.setup()
-  })
 
-  before(async () => {
     const name = ('test-project-user-name-' + uuidv4()) as UserName
     const avatarName = 'test-project-avatar-name-' + uuidv4()
 
@@ -95,14 +93,17 @@ describe('project.test', () => {
     )
   })
 
-  after(async () => {
-    await cleanup(app, testProject.name)
+  afterEach(async () => {
     await destroyEngine()
   })
 
   describe('create', () => {
+    afterEach(async () => {
+      await cleanup(app, testProject.name)
+    })
+
     it('should add new project', async () => {
-      const projectName = `test-project-${uuidv4()}`
+      const projectName = `test-project-${uuidv4().slice(0, 8)}`
 
       testProject = await app.service(projectPath).create(
         {
@@ -131,7 +132,7 @@ describe('project.test', () => {
     let sourceDirectory: string
     let testUpdateProjectName: string
 
-    before(() => {
+    beforeEach(async () => {
       sourceDirectory = path.resolve(appRootPath.path, `packages/projects/projects/test-cloning-directory`)
       copyFolderRecursiveSync(
         path.resolve(appRootPath.path, `packages/projects/template-project`),
@@ -140,17 +141,26 @@ describe('project.test', () => {
       fs.renameSync(path.resolve(appRootPath.path, `packages/projects/projects/template-project`), sourceDirectory)
 
       const git = useGit(sourceDirectory)
-      git.init()
-      git.add('.')
-      git.commit('initial commit')
+      await git.init()
+      await git.add('.')
+      await git.commit('initial commit')
 
-      testUpdateProjectName = `test-update-project-name-${uuidv4()}`
+      testUpdateProjectName = `test-update-project-name-${uuidv4().slice(0, 8)}`
+
+      const projectName = `test-project-${uuidv4().slice(0, 8)}`
+      testProject = await app.service(projectPath).create(
+        {
+          name: projectName
+        },
+        getParams()
+      )
     })
 
-    after(async () => {
+    afterEach(async () => {
       await cleanup(app, testUpdateProjectName)
       await cleanup(app, 'template-project')
       fs.rmSync(sourceDirectory, { force: true, recursive: true })
+      await cleanup(app, testProject.name)
     })
 
     it('should create and add the project details if it does not exist', async () => {
@@ -195,6 +205,21 @@ describe('project.test', () => {
   })
 
   describe('patch', () => {
+    beforeEach(async () => {
+      const projectName = `test-project-${uuidv4().slice(0, 8)}`
+      testProject = await app.service(projectPath).create(
+        {
+          name: projectName
+        },
+        getParams()
+      )
+    })
+
+    afterEach(async () => {
+      await cleanup(app, 'template-project')
+      await cleanup(app, testProject.name)
+    })
+
     it('should change the project data', async () => {
       const patchedProject = await app.service(projectPath).patch(testProject.id, { updateType: 'tag' })
 
@@ -204,6 +229,21 @@ describe('project.test', () => {
   })
 
   describe('remove', () => {
+    beforeEach(async () => {
+      const projectName = `test-project-${uuidv4().slice(0, 8)}`
+      testProject = await app.service(projectPath).create(
+        {
+          name: projectName
+        },
+        getParams()
+      )
+    })
+
+    afterEach(async () => {
+      await cleanup(app, 'template-project')
+      await cleanup(app, testProject.name)
+    })
+
     it('should remove project', async function () {
       await app.service(projectPath).remove(testProject.id, getParams())
 
