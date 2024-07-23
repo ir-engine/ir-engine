@@ -458,6 +458,39 @@ describe('ClientInputHeuristics', () => {
     })
   })
 
+  describe('applyMeshes', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, VisibleComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    describe('when `@param isEditing` is true ...', () => {
+      // when `@param isEditing` is true ...
+      // ... for the GroupComponents of all entities in the `meshesQuery()` that have a GroupComponent
+    })
+
+    describe('when `@param isEditing` is false ...', () => {
+      // when `@param isEditing` is false ...
+      // ... for the objects contained in the GroupComponents, of all entities in the Array.from(InputState.inputMeshes) that have a GroupComponent
+      // ... for all hits of `@param caster`.intersectObjects( objects, recursive )
+    })
+
+    /**
+    // @todo ?? For both of the above describe(...) ??
+    // it("should not do anything if the object hit does not have an entity or an ancestor with an entity", () => {})
+    // it("should add the parentObject.entity and hit.distance to the `@param intersectionData` for every object hit by the `@param caster`", () => {})
+    */
+  })
+
   /**
   // @todo
   describe("applyProximity", () => {
@@ -502,15 +535,5 @@ describe('ClientInputHeuristics', () => {
       //   for every object hit by the `@param caster`
   })
 
-  // (raycasted)
-  describe("applyMeshes", () => {
-    // when `@param isEditing` is true ...
-    // ... for the GroupComponents of all entities in the `meshesQuery()` that have a GroupComponent
-    // when `@param isEditing` is false ...
-    // ... for the objects contained in the GroupComponents, of all entities in the Array.from(InputState.inputMeshes) that have a GroupComponent
-    // ... for all hits of `@param caster`.intersectObjects( objects, recursive )
-      // should not do anything if the object hit does not have an entity or an ancestor with an entity
-      // should add the parentObject.entity and hit.distance to the `@param intersectionData` for every object hit by the `@param caster`", () => {})
-  })
   */
 })
