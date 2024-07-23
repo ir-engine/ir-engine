@@ -336,12 +336,14 @@ const CategoriesList = ({
   categories,
   selectedCategory,
   collapsedCategories,
-  onSelectCategory
+  onSelectCategory,
+  style
 }: {
   categories: Category[]
   selectedCategory: Category | null
   collapsedCategories: State<{ [key: string]: boolean }>
   onSelectCategory: (category: Category) => void
+  style: any
 }) => {
   const savedScrollPosition = useRef<number>(0)
   const listRef = useRef<HTMLDivElement>(null)
@@ -361,7 +363,8 @@ const CategoriesList = ({
   return (
     <div
       ref={listRef}
-      className="mb-8 h-full w-full overflow-x-hidden overflow-y-scroll bg-[#0E0F11] pb-8"
+      className="mb-8 h-full overflow-x-hidden overflow-y-scroll bg-[#0E0F11] pb-8"
+      style={style}
       onScroll={handleScroll}
     >
       {categories.map((category, index) => (
@@ -545,6 +548,24 @@ const AssetPanel = () => {
     !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }
 
+  const width = useHookstate(300)
+  const mouseDown = useHookstate(false)
+
+  const handleMouseDown = (event) => {
+    mouseDown.set(true)
+    event.preventDefault()
+  }
+
+  const handleMouseUp = (_event) => {
+    mouseDown.set(false)
+  }
+
+  const handleMouseMove = (event) => {
+    if (mouseDown) {
+      width.set(event.pageX)
+    }
+  }
+
   return (
     <>
       <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
@@ -614,13 +635,19 @@ const AssetPanel = () => {
           {t('editor:layout.filebrowser.uploadAssets')}
         </Button>
       </div>
-      <div id="asset-browser-panel" className="flex h-full">
+      <div className="flex h-full w-full" onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}>
         <CategoriesList
           categories={categories.value as Category[]}
           selectedCategory={selectedCategory.value}
           collapsedCategories={collapsedCategories}
           onSelectCategory={handleSelectCategory}
+          style={{ width: width }}
         />
+        <div className="flex w-[20px] resize ">
+          <svg onMouseDown={handleMouseDown} className="icon" viewBox="0 0 16 16" fill="#FFFFFF">
+            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"></path>
+          </svg>
+        </div>
         <div className="flex h-full w-full flex-col overflow-auto">
           <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
             <ResourceItems />
