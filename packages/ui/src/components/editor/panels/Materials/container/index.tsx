@@ -76,7 +76,6 @@ export default function MaterialLibraryPanel() {
       []
     )
     nodes.set(flattenedMaterials)
-    console.log('flattened materials', flattenedMaterials)
   }, [materialQuery.length, selected])
 
   useEffect(() => {

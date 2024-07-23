@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 
-import { EntityUUID, getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, getOptionalComponent, useOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
@@ -61,12 +61,11 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
 
   const selectionState = useMutableState(SelectionState)
 
-  const source = node.split('?')[1]
-  const name =
-    source?.split('/')?.pop() ?? getOptionalComponent(UUIDComponent.getEntityByUUID(node as EntityUUID), NameComponent)
+  const source = node.split('?')[1]?.split('/')?.pop()
+  const name = useOptionalComponent(UUIDComponent.getEntityByUUID(node as EntityUUID), NameComponent)
 
   const onClickNode = (e) => {
-    //data.onClick(e, node)
+    if (!source) data.onClick(e, node as EntityUUID)
   }
 
   const onCollapseNode = useCallback(
@@ -101,52 +100,29 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
       id={node[0]}
       className={twMerge(
         `bg-${props.index % 2 ? 'theme-surfaceInput' : 'zinc-800'}`,
-        materialSelection.value === node[0] ? 'border border-gray-100' : 'border-none'
+        materialSelection.value === node ? 'border border-gray-100' : 'border-none'
       )}
       onClick={onClickNode}
     >
       <div ref={drag} id={node[0]} tabIndex={0} className={``} onClick={onClickNode}>
         {source !== undefined ? (
-          <div className={'flex items-center pl-2 pr-2'}>
-            {/* <button
-          type="button"
-          className={'m-0 h-5 w-5 border-[none] bg-inherit p-0 hover:opacity-80'}
-          onMouseDown={(e) => e.stopPropagation()}
-        >
-          {node.isCollapsed ? (
-              <MdKeyboardArrowRight className="font-small text-white" />
-            ) : (
-              <MdKeyboardArrowDown className="font-small text-white" />
-            )}
-        </button> */}
-
+          <div className={'flex items-center pl-3.5 pr-2'}>
             <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
               <HiOutlineArchiveBox className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
               <div className="flex flex-1 items-center">
                 <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
-                  <span className="text-nowrap text-sm leading-4">{name || ''}</span>
+                  <span className="text-nowrap text-sm leading-4">{source}</span>
                 </div>
               </div>
-              {/*<button
-            type="button"
-            className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
-            onClick={toggleVisible}
-          >
-            {visible ? (
-              <PiEyeBold className="font-small text-[#6B7280]" />
-            ) : (
-              <PiEyeClosedBold className="font-small text-[#6B7280]" />
-            )}
-          </button>*/}
             </div>
           </div>
         ) : (
-          <div className={'flex items-center pl-4 pr-6'}>
+          <div className={'flex items-center pl-9 pr-6'}>
             <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
               <SiRoundcube className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
               <div className="flex flex-1 items-center">
                 <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
-                  <span className="text-nowrap text-sm leading-4">{name || ''}</span>
+                  <span className="text-nowrap text-sm leading-4">{name?.value || ''}</span>
                 </div>
               </div>
             </div>
