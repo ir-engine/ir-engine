@@ -23,19 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { LogParamsObject } from '@etherealengine/common/src/logger'
+import { getState } from '@etherealengine/hyperflux'
+import { LocationState } from '../social/services/LocationService'
 
-export const useClickOutside = (
-  ref: React.RefObject<HTMLElement>,
-  onClickOutsideCallback: (event: MouseEvent) => void
-) => {
-  useEffect(() => {
-    const onClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        onClickOutsideCallback(event)
-      }
-    }
-    document.addEventListener('mousedown', onClickOutside)
-    return () => document.removeEventListener('mousedown', onClickOutside)
-  }, [ref.current])
+/**
+ * @function clientContextParams
+ * @description This function will collect contextual parameters
+ * from url's query params
+ */
+export function clientContextParams(params: LogParamsObject) {
+  const locationState = getState(LocationState)
+  /*
+  console.log('IR> location state', locationState.currentLocation.location)
+
+  console.log('IR> location_id', locationState.currentLocation.location.id)
+
+  console.log('IR> project_id', locationState.currentLocation.location.projectId)
+*/
+  return {
+    ...params,
+    location_id: locationState.currentLocation.location.id,
+    project_id: locationState.currentLocation.location.projectId
+  }
 }
