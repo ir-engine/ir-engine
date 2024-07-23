@@ -100,7 +100,7 @@ export const MediaIconsBox = () => {
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
 
   const motionCaptureEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.MotionCapture)
-  const arEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.AR)
+  const xrEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.XR)
 
   useEffect(() => {
     navigator.mediaDevices
@@ -223,7 +223,7 @@ export const MediaIconsBox = () => {
           />
         </>
       ) : null}
-      {supportsVR && (
+      {supportsVR && xrEnabled && (
         <IconButtonWithTooltip
           id="UserVR"
           title={t('user:menu.enterVR')}
@@ -236,7 +236,7 @@ export const MediaIconsBox = () => {
           icon={<VrIcon />}
         />
       )}
-      {supportsAR && arEnabled && (
+      {supportsAR && xrEnabled && (
         <IconButtonWithTooltip
           id="UserAR"
           title={t('user:menu.enterAR')}
