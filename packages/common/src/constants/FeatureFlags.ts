@@ -36,9 +36,6 @@ export const FeatureFlags = {
     }
   },
   Studio: {
-    ComponentShelfCategories: {
-      ScenePreviewCameraComponent: 'ir.studio.componentShelfCategories.visual.scenePreviewCameraComponent'
-    },
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript'
     },
