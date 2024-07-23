@@ -148,15 +148,7 @@ export const saveSceneGLTF = async (
     key: assetURL,
     project: projectName,
     type: 'scene',
-    thumbnailKey: currentScene.thumbnailKey,
-    thumbnailMode: currentScene.thumbnailMode,
-    mimeType: currentScene.mimeType,
-    dependencies: currentScene.dependencies,
-    stats: currentScene.stats,
-    tags: currentScene.tags,
-    attribution: currentScene.attribution,
-    licensing: currentScene.licensing,
-    description: currentScene.description
+    thumbnailKey: currentScene.thumbnailKey
   }
 
   const result = await Engine.instance.api.service(staticResourcePath).create(newSceneData)
