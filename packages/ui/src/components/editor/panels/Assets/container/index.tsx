@@ -45,6 +45,7 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { NO_PROXY, State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
+import { HiDotsVertical } from 'react-icons/hi'
 import {
   HiChevronDown,
   HiChevronRight,
@@ -552,16 +553,16 @@ const AssetPanel = () => {
   const mouseDown = useHookstate(false)
 
   const handleMouseDown = (event) => {
-    mouseDown.set(true)
     event.preventDefault()
+    mouseDown.set(true)
   }
 
-  const handleMouseUp = (_event) => {
+  const handleMouseUp = () => {
     mouseDown.set(false)
   }
 
   const handleMouseMove = (event) => {
-    if (mouseDown) {
+    if (mouseDown.value) {
       width.set(event.pageX)
     }
   }
@@ -641,12 +642,10 @@ const AssetPanel = () => {
           selectedCategory={selectedCategory.value}
           collapsedCategories={collapsedCategories}
           onSelectCategory={handleSelectCategory}
-          style={{ width: width }}
+          style={{ width: width.value }}
         />
-        <div className="flex w-[20px] resize ">
-          <svg onMouseDown={handleMouseDown} className="icon" viewBox="0 0 16 16" fill="#FFFFFF">
-            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"></path>
-          </svg>
+        <div className="flex w-[20px] cursor-pointer resize items-center">
+          <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
         </div>
         <div className="flex h-full w-full flex-col overflow-auto">
           <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
