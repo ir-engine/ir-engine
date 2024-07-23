@@ -125,7 +125,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
           }
           onOpen={() => calculateAndApplyOffset(popupRef)}
         >
-          <div ref={popupRef} className="h-[600px] w-72 overflow-y-auto">
+          <div ref={popupRef} className="h-[600px] w-96 overflow-y-auto">
             <ElementList type="components" />
           </div>
         </Popup>
