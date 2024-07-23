@@ -62,11 +62,14 @@ export default function RenameSceneModal({ sceneName, refetch, scene }: Props) {
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
-      submitButtonDisabled={newSceneName.value === sceneName}
+      submitButtonDisabled={newSceneName.value === sceneName || inputError.value.length > 0}
     >
       <Input
         value={newSceneName.value}
-        onChange={(event) => newSceneName.set(event.target.value)}
+        onChange={(event) => {
+          inputError.set('')
+          newSceneName.set(event.target.value)
+        }}
         description={t('editor:dialog.saveNewScene.info-name')}
         error={inputError.value}
       />
