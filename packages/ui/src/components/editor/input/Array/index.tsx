@@ -22,8 +22,10 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import React from 'react'
-import { HiPlus } from 'react-icons/hi2'
+import { useDrop } from 'react-dnd'
+import { HiPlus } from 'react-icons/hi'
 import { PiTrashSimple } from 'react-icons/pi'
 import Input from '../../../../primitives/tailwind/Input'
 import Label from '../../../../primitives/tailwind/Label'
@@ -36,9 +38,8 @@ export interface ArrayInputProps {
   values: string[]
   onChange: (values: string[]) => void
   inputLabel?: string
+  dropTypes?: string[]
 }
-
-// TODO: file and drag and drop functionality
 
 export default function ArrayInputGroup({
   name,
@@ -46,7 +47,8 @@ export default function ArrayInputGroup({
   containerClassName,
   values,
   onChange,
-  inputLabel
+  inputLabel,
+  dropTypes
 }: ArrayInputProps) {
   const handleChange = (value: string, index: number, addRemove?: 'add' | 'remove') => {
     if (addRemove === 'add') {
@@ -58,29 +60,49 @@ export default function ArrayInputGroup({
     }
   }
 
+  const [{ isDroppable }, dropRef] = useDrop(
+    () => ({
+      accept: dropTypes ?? [...SupportedFileTypes],
+      drop: (item: { url: string }) => {
+        const newResources = [...values, item.url]
+        onChange(newResources)
+      },
+      collect: (monitor) => ({
+        isDroppable: monitor.canDrop() && monitor.isOver()
+      })
+    }),
+    [values, onChange]
+  )
+
   return (
-    <div aria-label={name} className={containerClassName}>
-      <div className="mb-3 flex items-center justify-between">
-        <Text className="ml-5">{label}</Text>
-        <HiPlus
-          className="mr-5 cursor-pointer rounded-md bg-[#1A1A1A] text-white"
-          size="20px"
-          onClick={() => handleChange('', 0, 'add')}
-        />
-      </div>
-      <div className="flex flex-col space-y-1 bg-[#1A1A1A] py-1.5">
-        {values.map((value, idx) => (
-          <div key={value + idx} className="mr-5 flex items-center justify-end gap-x-2.5">
-            {inputLabel && <Label className="text-[#A0A1A2]">{inputLabel + ' ' + (idx + 1)}</Label>}
-            <Input
-              containerClassname="w-32"
-              className="border-none bg-[#242424] text-[#8B8B8D]"
-              value={value}
-              onChange={(event) => handleChange(event.target.value, idx)}
-            />
-            <PiTrashSimple className="cursor-pointer text-[#444]" onClick={() => handleChange('', idx, 'remove')} />
-          </div>
-        ))}
+    <div ref={dropRef} aria-label={name} className={containerClassName}>
+      <div
+        className={`outline outline-2 transition-colors duration-200 ${
+          isDroppable ? 'outline-white' : 'outline-transparent'
+        }`}
+      >
+        <div className="mb-3 flex items-center justify-between">
+          <Text className="ml-5">{label}</Text>
+          <HiPlus
+            className="mr-5 cursor-pointer rounded-md bg-[#1A1A1A] text-white"
+            size="20px"
+            onClick={() => handleChange('', 0, 'add')}
+          />
+        </div>
+        <div className="flex flex-col space-y-1 bg-[#1A1A1A] py-1.5">
+          {values.map((value, idx) => (
+            <div key={value + idx} className="mr-5 flex items-center justify-end gap-x-2.5">
+              {inputLabel && <Label className="text-[#A0A1A2]">{inputLabel + ' ' + (idx + 1)}</Label>}
+              <Input
+                containerClassname="w-32"
+                className="border-none bg-[#242424] text-[#8B8B8D]"
+                value={value}
+                onChange={(event) => handleChange(event.target.value, idx)}
+              />
+              <PiTrashSimple className="cursor-pointer text-[#444]" onClick={() => handleChange('', idx, 'remove')} />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

@@ -40,7 +40,6 @@ import {
   setTime
 } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
-import { useDrop } from 'react-dnd'
 import Button from '../../../../primitives/tailwind/Button'
 import Slider from '../../../../primitives/tailwind/Slider'
 import ArrayInputGroup from '../../input/Array'
@@ -87,17 +86,6 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       setTime(element.element, media.seekTime.value)
     }
   }
-
-  const [{ isDroppable }, dropRef] = useDrop(() => ({
-    accept: [...ItemTypes.Audios, ...ItemTypes.Videos],
-    drop: (item: { url: string }) => {
-      const newResources = [...media.resources.value, item.url]
-      commitProperty(MediaComponent, 'resources')(newResources)
-    },
-    collect: (monitor) => ({
-      isDroppable: monitor.canDrop() && monitor.isOver()
-    })
-  }))
 
   return (
     <NodeEditor
@@ -153,19 +141,13 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         <BooleanInput value={media.synchronize.value} onChange={commitProperty(MediaComponent, 'synchronize')} />
       </InputGroup>
 
-      <div
-        ref={dropRef}
-        className={`outline outline-2 transition-colors duration-200 ${
-          isDroppable ? 'outline-white' : 'outline-transparent'
-        }`}
-      >
-        <ArrayInputGroup
-          label={t('editor:properties.media.paths')}
-          inputLabel={t('editor:properties.media.path')}
-          values={media.resources.value as string[]}
-          onChange={commitProperty(MediaComponent, 'resources')}
-        />
-      </div>
+      <ArrayInputGroup
+        label={t('editor:properties.media.paths')}
+        inputLabel={t('editor:properties.media.path')}
+        values={media.resources.value as string[]}
+        dropTypes={[...ItemTypes.Audios, ...ItemTypes.Videos]}
+        onChange={commitProperty(MediaComponent, 'resources')}
+      />
 
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
         <SelectInput
