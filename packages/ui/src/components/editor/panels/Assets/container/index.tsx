@@ -24,7 +24,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { clone, debounce, isEmpty, last } from 'lodash'
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
@@ -42,7 +42,7 @@ import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/as
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { NO_PROXY, State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import {
@@ -417,8 +417,11 @@ const AssetPanel = () => {
     breadcrumbPath.set(assetsBreadcrumb)
   }, [categories, selectedCategory])
 
-  useEffect(() => {
-    const staticResourcesFindApi = () => {
+  const staticResourcesFindApi = useCallback(() => {
+    loading.set(true)
+    searchTimeoutCancelRef.current?.()
+
+    const debouncedSearchQuery = debounce(() => {
       const tags = selectedCategory.value
         ? [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
         : []
@@ -460,21 +463,18 @@ const AssetPanel = () => {
         .then(() => {
           loading.set(false)
         })
-    }
+    }, 500)
 
-    loading.set(true)
-
-    searchTimeoutCancelRef.current?.()
-    const debouncedSearchQuery = debounce(staticResourcesFindApi, 500)
     debouncedSearchQuery()
-
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
+  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
 
-    return () => searchTimeoutCancelRef.current?.()
+  useEffect(() => {
+    staticResourcesFindApi()
   }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
 
   const handleRefreshPage = () => {
-    selectedCategory.set(selectedCategory.get(NO_PROXY))
+    staticResourcesFindApi()
   }
 
   const ResourceItems = () => {
@@ -537,6 +537,7 @@ const AssetPanel = () => {
     categories.set([])
     selectedCategory.set(null)
     collapsedCategories.set({})
+    staticResourcesFindApi()
     mapCategories()
   }
 
