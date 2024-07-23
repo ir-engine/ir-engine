@@ -29,7 +29,7 @@ import { FixedSizeList } from 'react-window'
 
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { Engine, EntityUUID, getComponent, useQuery, UUIDComponent } from '@etherealengine/ecs'
+import { Engine, EntityUUID, getComponent, getOptionalComponent, useQuery, UUIDComponent } from '@etherealengine/ecs'
 import { ImportSettingsState } from '@etherealengine/editor/src/components/assets/ImportSettingsPanel'
 import { uploadProjectFiles } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
@@ -45,7 +45,7 @@ import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
 import StringInput from '../../../input/String'
 import { MaterialPreviewPanel } from '../../preview/material'
-import MaterialLibraryEntry, { MaterialLibraryEntryType } from '../node'
+import MaterialLibraryEntry from '../node'
 
 export default function MaterialLibraryPanel() {
   const { t } = useTranslation()
@@ -53,7 +53,7 @@ export default function MaterialLibraryPanel() {
   const materialPreviewPanelRef = React.useRef()
 
   const materialQuery = useQuery([MaterialStateComponent])
-  const nodes = useHookstate([] as MaterialLibraryEntryType[])
+  const nodes = useHookstate([] as string[])
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
   const selectedMaterial = useMutableState(MaterialSelectionState).selectedMaterial
   const hasSelectedMaterial = useState(false)
@@ -64,24 +64,27 @@ export default function MaterialLibraryPanel() {
       : materialQuery
           .map((entity) => getComponent(entity, UUIDComponent))
           .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterial)
-    const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
-      const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
-      return [
-        {
-          uuid: uuid,
-          path: source
-        }
-      ]
-    })
-    nodes.set(result)
+
+    const materialsBySource = {} as Record<string, EntityUUID[]>
+    for (const uuid of materials) {
+      const source = getOptionalComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent) ?? ''
+      materialsBySource[source] = materialsBySource[source] ? [...materialsBySource[source], uuid] : [uuid]
+    }
+    const materialsBySourceArray = Object.entries(materialsBySource)
+    const flattenedMaterials = materialsBySourceArray.reduce(
+      (acc: (EntityUUID | string)[], [source, uuids]) => acc.concat([source], uuids),
+      []
+    )
+    nodes.set(flattenedMaterials)
+    console.log('flattened materials', flattenedMaterials)
   }, [materialQuery.length, selected])
 
   useEffect(() => {
     hasSelectedMaterial.set(selectedMaterial.value !== null)
   }, [selectedMaterial.value])
 
-  const onClick = (e: MouseEvent, node: MaterialLibraryEntryType) => {
-    getMutableState(MaterialSelectionState).selectedMaterial.set(node.uuid)
+  const onClick = (e: MouseEvent, node) => {
+    getMutableState(MaterialSelectionState).selectedMaterial.set(node)
   }
 
   const MaterialList = ({ height, width }) => (
