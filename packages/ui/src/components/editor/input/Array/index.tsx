@@ -41,7 +41,19 @@ export interface ArrayInputProps {
   dropTypes?: string[]
 }
 
-const DiscardableInput = ({ value, index, inputLabel, onChange, onRemove, dropTypes }) => {
+const DiscardableInput = ({
+  value,
+  index,
+  inputLabel,
+  onChange,
+  onRemove,
+  dropTypes
+}: {
+  value: string
+  index: number
+  onChange: (val: string, idx: number) => void
+  onRemove: (idx: number) => void
+} & Pick<ArrayInputProps, 'inputLabel' | 'dropTypes'>) => {
   const [{ isDroppable }, dropRef] = useDrop(() => ({
     accept: dropTypes ?? [...SupportedFileTypes],
     drop: (item: { url: string }) => {
