@@ -54,7 +54,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
+import { useFeatureFlags } from '@etherealengine/engine/src/FeatureFlagsHook'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
@@ -99,8 +99,10 @@ export const MediaIconsBox = () => {
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
 
-  const motionCaptureEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.MotionCapture)
-  const arEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.AR)
+  const [motionCaptureEnabled, xrEnabled] = useFeatureFlags([
+    FeatureFlags.Client.Menu.MotionCapture,
+    FeatureFlags.Client.Menu.XR
+  ])
 
   useEffect(() => {
     navigator.mediaDevices
@@ -223,7 +225,7 @@ export const MediaIconsBox = () => {
           />
         </>
       ) : null}
-      {supportsVR && (
+      {supportsVR && xrEnabled && (
         <IconButtonWithTooltip
           id="UserVR"
           title={t('user:menu.enterVR')}
@@ -236,7 +238,7 @@ export const MediaIconsBox = () => {
           icon={<VrIcon />}
         />
       )}
-      {supportsAR && arEnabled && (
+      {supportsAR && xrEnabled && (
         <IconButtonWithTooltip
           id="UserAR"
           title={t('user:menu.enterAR')}

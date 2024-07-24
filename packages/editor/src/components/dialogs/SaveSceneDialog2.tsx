@@ -63,7 +63,7 @@ export const SaveSceneDialog = (props: { isExiting?: boolean; onConfirm?: () => 
     const abortController = new AbortController()
 
     try {
-      await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
+      await saveSceneGLTF(sceneAssetID!, projectName, sceneName, abortController.signal)
       const sourceID = getComponent(rootEntity, SourceComponent)
       getMutableState(GLTFModifiedState)[sourceID].set(none)
 
@@ -104,13 +104,13 @@ export const SaveNewSceneDialog = (props: { onConfirm?: () => void; onCancel?: (
     }
 
     modalProcessing.set(true)
-    const { projectName, sceneName, rootEntity } = getState(EditorState)
+    const { projectName, sceneName, rootEntity, sceneAssetID } = getState(EditorState)
     const sceneModified = EditorState.isModified()
     const abortController = new AbortController()
     try {
       if (sceneName || sceneModified) {
         if (inputSceneName.value && projectName) {
-          await saveSceneGLTF(null, projectName, inputSceneName.value, abortController.signal)
+          await saveSceneGLTF(sceneAssetID!, projectName, inputSceneName.value, abortController.signal, true)
 
           const sourceID = getComponent(rootEntity, SourceComponent)
           getMutableState(GLTFModifiedState)[sourceID].set(none)

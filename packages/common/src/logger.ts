@@ -132,7 +132,7 @@ const multiLogger = {
    * @param opts {object}
    * @param opts.component {string}
    */
-  child: (opts: { component: string }) => {
+  child: (opts: { component: string; modifier?: (params: LogParamsObject) => LogParamsObject }) => {
     if (!config.client.serverHost || (config.client.localBuildOrDev && !config.client.logs.forceClientAggregate)) {
       // Locally, this will provide correct file & line numbers in browser console
       return {
@@ -156,7 +156,10 @@ const multiLogger = {
         return async (...args) => {
           try {
             // @ts-ignore
-            const logParams = encodeLogParams(...args)
+            let logParams = encodeLogParams(...args)
+
+            if (typeof opts.modifier === 'function') logParams = opts.modifier(logParams)
+            if (logParams.location_id) console.log('IR> ', logParams)
 
             // In addition to sending to logging endpoint,  output to console
             consoleMethods[level](...args)
@@ -266,6 +269,10 @@ function stringifyError(error, errorContextMessage?) {
   }
 
   return JSON.stringify({ error: error.name, message, stack, cause })
+}
+
+export type LogParamsObject = {
+  [key: string]: any
 }
 
 export default multiLogger
