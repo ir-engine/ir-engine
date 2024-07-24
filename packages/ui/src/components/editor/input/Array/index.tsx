@@ -67,7 +67,7 @@ const DiscardableInput = ({
   return (
     <div className="flex flex-col px-3">
       {inputLabel && <Label className="mb-1 text-[#A0A1A2]">{inputLabel + ' ' + (index + 1)}</Label>}
-      <div ref={dropRef} className={`mb-2 flex items-center ${isDroppable ? 'outline outline-2 outline-white' : ''}`}>
+      <div ref={dropRef} className={twMerge('mb-2 flex items-center', isDroppable && 'outline outline-2 outline-white')}>
         <Input
           containerClassname="flex-grow"
           className="border-none bg-[#242424] text-[#8B8B8D]"
