@@ -32,21 +32,15 @@ import { Entity, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import {
-  PeerID,
-  applyIncomingActions,
-  clearOutgoingActions,
-  dispatchAction,
-  getMutableState
-} from '@etherealengine/hyperflux'
+import { PeerID, applyIncomingActions, clearOutgoingActions, dispatchAction } from '@etherealengine/hyperflux'
 import { NetworkObjectComponent, NetworkPeerFunctions, NetworkState } from '@etherealengine/network'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
@@ -59,12 +53,15 @@ import { dropEntity, grabEntity } from '../functions/grabbableFunctions'
 describe.skip('EquippableSystem Integration Tests', () => {
   let equippableSystem
   let sceneEntity: Entity
+
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.store.defaultDispatchDelay = () => 0
-    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
+
     sceneEntity = loadEmptyScene()
+    setComponent(sceneEntity, SceneComponent)
+    const physicsWorld = Physics.createWorld(getComponent(sceneEntity, UUIDComponent))
+    physicsWorld.timestep = 1 / 60
   })
 
   afterEach(() => {
