@@ -30,7 +30,11 @@ import { useTranslation } from 'react-i18next'
 import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
-import { PrefabShelfItem, PrefabShelfState } from '@etherealengine/editor/src/components/prefabs/PrefabEditors'
+import {
+  PrefabIcons,
+  PrefabShelfItem,
+  PrefabShelfState
+} from '@etherealengine/editor/src/components/prefabs/PrefabEditors'
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
@@ -38,7 +42,8 @@ import { ComponentEditorsState } from '@etherealengine/editor/src/services/Compo
 import { ComponentShelfCategoriesState } from '@etherealengine/editor/src/services/ComponentShelfCategoriesState'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GrStatusPlaceholder } from 'react-icons/gr'
-import { IoIosArrowDown, IoIosArrowUp, IoMdAddCircle } from 'react-icons/io'
+import { IoMdAddCircle } from 'react-icons/io'
+import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Text from '../../../../../primitives/tailwind/Text'
 import StringInput from '../../../input/String'
@@ -64,18 +69,18 @@ const ComponentListItem = ({ item }: { item: Component }) => {
     <Button
       variant="transparent"
       fullWidth
-      className="w-full bg-theme-primary p-4 text-white"
+      className="w-full bg-theme-primary p-2 text-[#B2B5BD]"
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
       }}
-      startIcon={<Icon className="h-6 w-6 text-white" />}
+      startIcon={<Icon className="h-4 w-4 text-[#B2B5BD]" />}
     >
       <div className="ml-4 w-full">
-        <Text className="text-subtitle1 block text-center text-theme-primary">
+        <Text className="mb-1 block text-center text-sm text-[#B2B5BD]">
           {startCase(jsonName.replace('-', ' ').toLowerCase())}
         </Text>
-        <Text component="p" className="text-caption block text-center text-theme-secondary">
+        <Text component="p" className="block text-center text-xs text-theme-secondary">
           {t(`editor:layout.assetGrid.component-detail.${jsonName}`, '')}
         </Text>
       </div>
@@ -88,7 +93,7 @@ const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
     <Button
       variant="transparent"
       fullWidth
-      className="w-full bg-theme-primary p-4 text-white"
+      className="w-full bg-theme-primary p-2 text-[#B2B5BD]"
       onClick={() => {
         const url = item.url
         if (!url.length) {
@@ -97,11 +102,11 @@ const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
           addMediaNode(url)
         }
       }}
-      startIcon={<IoMdAddCircle className="h-6 w-6 text-white" />}
+      startIcon={<IoMdAddCircle className="h-4 w-4 text-[#B2B5BD]" />}
     >
       <div className="ml-4 w-full">
-        <Text className="text-subtitle1 block text-center text-theme-primary">{item.name}</Text>
-        <Text component="p" className="text-caption block text-center text-theme-secondary">
+        <Text className="mb-1 block text-center text-sm text-[#B2B5BD]">{item.name}</Text>
+        <Text component="p" className="block text-center text-xs text-theme-secondary">
           {item.detail}
         </Text>
       </div>
@@ -111,40 +116,26 @@ const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
 
 const SceneElementListItem = ({
   categoryTitle,
-  categoryItems,
-  isCollapsed,
-  type
+  selected,
+  onClick
 }: {
+  onClick: () => void
   categoryTitle: string
-  categoryItems: Component[] | PrefabShelfItem[]
-  isCollapsed: boolean
-  type: ElementsType
+  selected?: boolean
 }) => {
-  const open = useHookstate(false)
+  const icon = PrefabIcons[categoryTitle] || PrefabIcons.default
+
   return (
-    <>
-      <Button
-        variant="transparent"
-        fullWidth
-        className="w-full bg-theme-primary px-4 py-2 text-white"
-        textContainerClassName="text-start"
-        onClick={() => open.set((prev) => !prev)}
-        endIcon={isCollapsed || open.value ? <IoIosArrowUp /> : <IoIosArrowDown />}
-      >
-        {categoryTitle}
-      </Button>
-      <div className={isCollapsed || open.value ? '' : 'hidden'}>
-        <ul className="w-full bg-theme-primary">
-          {categoryItems.map((item: Component | PrefabShelfItem) =>
-            type === 'components' ? (
-              <ComponentListItem key={(item as Component).jsonID || item.name} item={item as Component} />
-            ) : (
-              <PrefabListItem key={(item as PrefabShelfItem).url} item={item as PrefabShelfItem} />
-            )
-          )}
-        </ul>
-      </div>
-    </>
+    <button
+      className={twMerge(
+        'col-span-1 grid place-items-center gap-1 text-ellipsis rounded-xl border-[#42454D] bg-[#191B1F] px-3 py-2.5 text-sm font-medium',
+        selected ? 'text-primary' : 'text-[#B2B5BD]'
+      )}
+      onClick={onClick}
+    >
+      {icon}
+      {categoryTitle}
+    </button>
   )
 }
 
@@ -213,9 +204,11 @@ export function ElementList({ type }: { type: ElementsType }) {
     }, 50)
   }
 
+  const clickedPrefab = useHookstate(null as number | null)
+
   return (
-    <>
-      <div className="h-auto w-full overflow-x-hidden overflow-y-scroll bg-theme-primary p-2">
+    <div className="rounded-xl bg-theme-primary p-4 font-['Figtree']">
+      <div className="h-auto w-full overflow-x-hidden overflow-y-scroll  p-2">
         <Text className="mb-1.5 w-full text-center uppercase text-white">{t(`editor:layout.assetGrid.${type}`)}</Text>
         <StringInput
           placeholder={t(`editor:layout.assetGrid.${type}-search`)}
@@ -224,19 +217,37 @@ export function ElementList({ type }: { type: ElementsType }) {
           inputRef={inputReference}
         />
       </div>
-      {type === 'prefabs' && (
-        <PrefabListItem item={{ name: 'Empty', url: '', category: '', detail: 'Basic scene entity' }} />
-      )}
-      {shelves.map(([category, items]) => (
+
+      <div className="grid grid-cols-4 gap-1">
+        {shelves.map(([category, items], index) => (
+          <SceneElementListItem
+            key={category}
+            categoryTitle={category}
+            onClick={() => clickedPrefab.set(index)}
+            selected={clickedPrefab.value === index}
+          />
+        ))}
+
         <SceneElementListItem
-          key={category}
-          categoryTitle={category}
-          categoryItems={items}
-          isCollapsed={!!search.query.value}
-          type={type}
+          categoryTitle="Empty"
+          onClick={() => {
+            EditorControlFunctions.createObjectFromSceneElement()
+          }}
         />
-      ))}
-    </>
+      </div>
+
+      {clickedPrefab.value !== null && (
+        <ul className="w-full">
+          {shelves[clickedPrefab.value]?.[1].map((item: Component | PrefabShelfItem) =>
+            type === 'components' ? (
+              <ComponentListItem key={(item as Component).jsonID || item.name} item={item as Component} />
+            ) : (
+              <PrefabListItem key={(item as PrefabShelfItem).url} item={item as PrefabShelfItem} />
+            )
+          )}
+        </ul>
+      )}
+    </div>
   )
 }
 

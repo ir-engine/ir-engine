@@ -24,10 +24,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { clone, debounce, isEmpty } from 'lodash'
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import {
   StaticResourceQuery,
   StaticResourceType,
@@ -61,6 +63,7 @@ import { TablePagination } from '../../../../../primitives/tailwind/Table'
 import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
+import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
 import { FileIcon } from '../../Files/icon'
 
 type Category = {
@@ -100,10 +103,12 @@ const ResourceFile = (props: {
   resource: StaticResourceType
   selected: boolean
   onClick: (props: AssetSelectionChangePropsType) => void
+  onChange: () => void
 }) => {
   const { t } = useTranslation()
 
-  const { resource, selected, onClick } = props
+  const userID = useMutableState(AuthState).user.id.value
+  const { resource, selected, onClick, onChange } = props
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -164,6 +169,39 @@ const ResourceFile = (props: {
               { label: t('editor:assetMetadata.tags'), value: `${resource.tags || 'none'}` }
             ]}
           />
+          {!!userID && userID === resource.userId && (
+            <Button
+              variant="outline"
+              size="small"
+              fullWidth
+              onClick={() => {
+                PopoverState.showPopupover(
+                  <DeleteFileModal
+                    files={[
+                      {
+                        key: resource.key,
+                        path: resource.url,
+                        name: resource.key,
+                        fullName: name,
+                        thumbnailURL: resource.thumbnailURL,
+                        url: resource.url,
+                        type: assetType,
+                        isFolder: false
+                      }
+                    ]}
+                    onComplete={(err?: unknown) => {
+                      if (!err) {
+                        onChange()
+                      }
+                    }}
+                  />
+                )
+                setAnchorEvent(undefined)
+              }}
+            >
+              {t('editor:layout.assetGrid.deleteAsset')}
+            </Button>
+          )}
           {/* TODO: add more actions (compressing images/models, editing tags, etc) here as desired  */}
         </div>
       </ContextMenu>
@@ -384,8 +422,11 @@ const AssetPanel = () => {
     parentCategories.set(parentCategoryBreadcrumbs)
   }, [categories, selectedCategory])
 
-  useEffect(() => {
-    const staticResourcesFindApi = () => {
+  const staticResourcesFindApi = useCallback(() => {
+    loading.set(true)
+    searchTimeoutCancelRef.current?.()
+
+    const debouncedSearchQuery = debounce(() => {
       const tags = selectedCategory.value
         ? [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
         : []
@@ -427,18 +468,19 @@ const AssetPanel = () => {
         .then(() => {
           loading.set(false)
         })
-    }
+    }, 500)
 
-    loading.set(true)
-
-    searchTimeoutCancelRef.current?.()
-    const debouncedSearchQuery = debounce(staticResourcesFindApi, 500)
     debouncedSearchQuery()
-
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
-
-    return () => searchTimeoutCancelRef.current?.()
   }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
+
+  useEffect(() => {
+    staticResourcesFindApi()
+  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
+
+  const handleRefreshPage = () => {
+    staticResourcesFindApi()
+  }
 
   const ResourceItems = () => {
     if (loading.value) {
@@ -466,6 +508,9 @@ const AssetPanel = () => {
                   assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
                   ClickPlacementState.setSelectedAsset(props.resourceUrl)
                 }}
+                onChange={() => {
+                  handleRefreshPage()
+                }}
               />
             ))}
           </>
@@ -487,6 +532,7 @@ const AssetPanel = () => {
     categories.set([])
     selectedCategory.set(null)
     collapsedCategories.set({})
+    staticResourcesFindApi()
     mapCategories()
   }
 
