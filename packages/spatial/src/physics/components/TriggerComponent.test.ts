@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { World } from '@dimforge/rapier3d-compat'
 import {
   EntityUUID,
+  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -36,13 +36,13 @@ import {
   serializeComponent,
   setComponent
 } from '@etherealengine/ecs'
-import { getMutableState } from '@etherealengine/hyperflux'
 import assert from 'assert'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
-import { Physics } from '../classes/Physics'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { Physics, PhysicsWorld } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { PhysicsState } from '../state/PhysicsState'
 import { Shapes } from '../types/PhysicsTypes'
 import { ColliderComponent } from './ColliderComponent'
 import { ColliderComponentDefaults, assertColliderComponentEquals } from './ColliderComponent.test'
@@ -175,16 +175,22 @@ describe('TriggerComponent', () => {
 
   describe('reactor', () => {
     let testEntity = UndefinedEntity
-    let physicsWorld: World | undefined = undefined
+    let physicsWorld: PhysicsWorld
+    let physicsWorldEntity = UndefinedEntity
 
     beforeEach(async () => {
       createEngine()
       await Physics.load()
-      physicsWorld = Physics.createWorld()
+      physicsWorldEntity = createEntity()
+      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(physicsWorldEntity, SceneComponent)
+      setComponent(physicsWorldEntity, TransformComponent)
+      setComponent(physicsWorldEntity, EntityTreeComponent)
+      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
       physicsWorld!.timestep = 1 / 60
-      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
 
       testEntity = createEntity()
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, RigidBodyComponent)
       setComponent(testEntity, ColliderComponent)
@@ -193,7 +199,6 @@ describe('TriggerComponent', () => {
 
     afterEach(() => {
       removeEntity(testEntity)
-      physicsWorld = undefined
       return destroyEngine()
     })
 
@@ -213,7 +218,7 @@ describe('TriggerComponent', () => {
       assertColliderComponentEquals(getComponent(testEntity, ColliderComponent), ColliderComponentData)
       const reactor = ColliderComponent.reactorMap.get(testEntity)!
       assert.ok(reactor.isRunning)
-      const collider = Physics._Colliders.get(testEntity)!
+      const collider = physicsWorld.Colliders.get(testEntity)!
       assert.ok(collider)
       assert.ok(collider.isSensor())
     })

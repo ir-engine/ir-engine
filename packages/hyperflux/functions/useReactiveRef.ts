@@ -23,9 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export * from './functions/ActionFunctions'
-export * from './functions/ReactorFunctions'
-export * from './functions/StateFunctions'
-export * from './functions/StoreFunctions'
-export * from './functions/useImmediateEffect'
-export * from './functions/useReactiveRef'
+//https://stackoverflow.com/a/60476525
+
+import { useCallback } from 'react'
+import { useHookstate } from './StateFunctions'
+
+export const useReactiveRef = <T extends HTMLElement>() => {
+  const ref = useHookstate({ current: null })
+  const handleRef = useCallback((node) => {
+    ref.current.set(node)
+  }, [])
+  return [ref.value as { current: T | null }, handleRef] as const
+}

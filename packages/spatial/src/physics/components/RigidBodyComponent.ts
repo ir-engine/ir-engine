@@ -33,11 +33,9 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 
-import { World } from '@dimforge/rapier3d-compat'
-import { useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
-import { PhysicsState } from '../state/PhysicsState'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
 const { f64 } = Types
@@ -115,44 +113,43 @@ export const RigidBodyComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, RigidBodyComponent)
-    const physicsWorld = useMutableState(PhysicsState).physicsWorld
+    const physicsWorld = Physics.useWorld(entity)!
 
-    useImmediateEffect(() => {
-      const world = physicsWorld.value as World
-      if (!world) return
-      Physics.createRigidBody(entity, world)
+    useEffect(() => {
+      if (!physicsWorld) return
+      Physics.createRigidBody(physicsWorld, entity)
       return () => {
-        Physics.removeRigidbody(entity, world)
+        Physics.removeRigidbody(physicsWorld, entity)
       }
     }, [physicsWorld])
 
-    useImmediateEffect(() => {
+    useEffect(() => {
+      if (!physicsWorld) return
       const type = component.type.value
       setComponent(entity, getTagComponentForRigidBody(type))
-      Physics.setRigidBodyType(entity, type)
+      Physics.setRigidBodyType(physicsWorld, entity, type)
       return () => {
         removeComponent(entity, getTagComponentForRigidBody(type))
       }
-    }, [component.type])
+    }, [physicsWorld, component.type])
 
-    useImmediateEffect(() => {
-      Physics.enabledCcd(entity, component.ccd.value)
-    }, [component.ccd])
+    useEffect(() => {
+      if (!physicsWorld) return
+      Physics.enabledCcd(physicsWorld, entity, component.ccd.value)
+    }, [physicsWorld, component.ccd])
 
-    useImmediateEffect(() => {
+    useEffect(() => {
+      if (!physicsWorld) return
       const value = component.allowRolling.value
       /**
        * @todo Change this back to `Physics.lockRotations( entity, !value )` when we update to Rapier >= 0.12.0
        * https://github.com/dimforge/rapier.js/issues/282  */
-      Physics.setEnabledRotations(entity, [value, value, value])
+      Physics.setEnabledRotations(physicsWorld, entity, [value, value, value])
     }, [component.allowRolling.value])
 
-    /**
-     * @todo Should these be three useffects instead?
-     *       It wasn't triggering with just one, because the array reference never changed
-     */
-    useImmediateEffect(() => {
-      Physics.setEnabledRotations(entity, component.enabledRotations.value as [boolean, boolean, boolean])
+    useEffect(() => {
+      if (!physicsWorld) return
+      Physics.setEnabledRotations(physicsWorld, entity, component.enabledRotations.value as [boolean, boolean, boolean])
     }, [component.enabledRotations[0].value, component.enabledRotations[1].value, component.enabledRotations[2].value])
 
     return null
