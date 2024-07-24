@@ -117,7 +117,10 @@ export const FileTableListBody = ({
 
   const tableColumns = {
     name: (
-      <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]" style={{ fontSize: `${fontSize}px` }}>
+      <span
+        className="flex max-h-7 flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]"
+        style={{ fontSize: `${fontSize}px` }}
+      >
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
         <FileIcon isMinified={true} thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
         {file.fullName}
@@ -130,7 +133,7 @@ export const FileTableListBody = ({
   return (
     <tr
       key={file.key}
-      className={`text-[#a3a3a3] hover:bg-theme-surfaceInput`}
+      className={`text-[#a3a3a3] hover:bg-[#191B1F]`}
       style={{ height: `${fontSize * 3}px` }}
       onContextMenu={onContextMenu}
       onClick={onClick}
@@ -164,13 +167,13 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   return (
     <div
       className={`flex h-auto max-h-32 w-28 cursor-pointer flex-col items-center text-center ${
-        props.isSelected ? 'rounded-md bg-blue-700/20' : ''
+        props.isSelected ? 'rounded bg-[#191B1F]' : ''
       }`}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
       onClick={props.onClick}
     >
       <div
-        className="mx-4 mt-2"
+        className="mx-4 mt-2 font-['Figtree']"
         style={{
           height: iconSize,
           width: iconSize,

@@ -38,24 +38,23 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
+import { FilesViewModeSettings } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { NO_PROXY, State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { HiDotsVertical } from 'react-icons/hi'
 import {
-  HiChevronDown,
-  HiChevronRight,
-  HiEye,
   HiMagnifyingGlass,
   HiMiniArrowLeft,
   HiMiniArrowPath,
   HiOutlineFolder,
   HiOutlinePlusCircle
 } from 'react-icons/hi2'
+import { IoIosArrowDown, IoIosArrowForward } from 'react-icons/io'
 import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
@@ -279,12 +278,14 @@ const AssetCategory = (props: {
   const handlePreview = () => {
     // TODO: add preview functionality
   }
+  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
 
   return (
     <div
       className={twMerge(
-        'flex cursor-pointer items-center gap-2',
-        category.depth === 0 && !category.collapsed && 'mt-0'
+        'flex h-9 cursor-pointer items-center gap-2',
+        category.depth === 0 && !category.collapsed && 'mt-0',
+        selectedCategory?.name === category.name && 'm-1 rounded bg-[#191B1F] text-[#F5F5F5]'
       )}
       style={{ marginLeft: category.depth * 16 }}
       onClick={handleSelectCategory}
@@ -293,13 +294,16 @@ const AssetCategory = (props: {
         variant="transparent"
         className={twMerge('m-0 p-0', category.isLeaf && 'invisible cursor-auto')}
         title={category.collapsed ? 'expand' : 'collapse'}
-        startIcon={category.collapsed ? <HiChevronRight /> : <HiChevronDown />}
+        startIcon={category.collapsed ? <IoIosArrowForward /> : <IoIosArrowDown />}
       />
       <div className="flex w-full items-center gap-1 pr-2">
-        <Text className={twMerge('text-[#B2B5BD]', selectedCategory?.name === category.name && 'font-bold')}>
+        <Text
+          className={twMerge("flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]")}
+          style={{ fontSize: `${fontSize}px` }}
+        >
           {category.name}
         </Text>
-        <HiEye className="ml-auto text-[#B2B5BD]" onClick={handlePreview} />
+        {/* <HiEye className="flex flex-row items-center gap-2 ml-auto text-[#e7e7e7] text-sm" onClick={handlePreview} /> */}
       </div>
     </div>
   )
