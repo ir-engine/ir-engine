@@ -35,7 +35,6 @@ import {
   getComponent,
   getOptionalComponent,
   removeComponent,
-  removeEntity,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -52,6 +51,7 @@ import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/load
 import { toEntityJson } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import {
   NO_PROXY,
+  applyIncomingActions,
   defineState,
   dispatchAction,
   getMutableState,
@@ -143,9 +143,9 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
         (uuid) => uuid !== getComponent(clickState.placementEntity.value, UUIDComponent)
       )
       EditorControlFunctions.removeObject([clickState.placementEntity.value])
-      removeEntity(clickState.placementEntity.value)
       clickState.placementEntity.set(UndefinedEntity)
       SelectionState.updateSelection(selectedEntities)
+      applyIncomingActions()
     }
   }, [editorState.placementMode, gltfComponent.progress])
 
