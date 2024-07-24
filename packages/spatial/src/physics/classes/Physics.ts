@@ -549,8 +549,8 @@ function attachCollider(
 function setColliderPose(world: PhysicsWorld, entity: Entity, position: Vector3, rotation: Quaternion) {
   const collider = world.Colliders.get(entity)
   if (!collider) return
-  collider.setTranslation(position)
-  collider.setRotation(rotation)
+  collider.setTranslationWrtParent(position)
+  collider.setRotationWrtParent(rotation)
 }
 
 function removeCollider(world: PhysicsWorld, entity: Entity) {
