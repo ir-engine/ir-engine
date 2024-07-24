@@ -39,7 +39,7 @@ import {
 } from '@etherealengine/ecs'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
-import { Box3, Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import { Box3, BoxGeometry, Mesh, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 import { EngineState } from '../../EngineState'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { assertFloatApproxNotEq, assertVecApproxEq } from '../../physics/classes/Physics.test'
@@ -49,6 +49,8 @@ import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { BodyTypes, SceneQueryType, Shapes } from '../../physics/types/PhysicsTypes'
+import { addObjectToGroup, GroupComponent } from '../../renderer/components/GroupComponent'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../SpatialModule'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
@@ -459,36 +461,148 @@ describe('ClientInputHeuristics', () => {
   })
 
   describe('applyMeshes', () => {
-    let testEntity = UndefinedEntity
-
     beforeEach(async () => {
       createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, TransformComponent)
-      setComponent(testEntity, VisibleComponent)
     })
 
     afterEach(() => {
-      removeEntity(testEntity)
       return destroyEngine()
     })
 
     describe('when `@param isEditing` is true ...', () => {
-      // when `@param isEditing` is true ...
-      // ... for the GroupComponents of all entities in the `meshesQuery()` that have a GroupComponent
+      const Editing = true
+      it('should add the parentObject.entity and hit.distance to the `@param intersectionData` for every object that has a MeshComponent and a VisibleComponent and is hit by the `@param caster`', () => {
+        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
+        const one = createEntity()
+        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
+        setComponent(one, VisibleComponent)
+        setComponent(one, MeshComponent, box1)
+        setComponent(one, GroupComponent)
+        addObjectToGroup(one, box1)
+        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
+        const two = createEntity()
+        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
+        setComponent(two, VisibleComponent)
+        setComponent(two, MeshComponent, box2)
+        setComponent(two, GroupComponent)
+        addObjectToGroup(two, box2)
+        const KnownEntities = [one, two]
+
+        const data = new Set<IntersectionData>()
+        assert.equal(data.size, 0)
+
+        const rayOrigin = new Vector3(0, 0, 0)
+        const rayDirection = new Vector3(3, 3, 3).normalize()
+        const raycaster = new Raycaster(rayOrigin, rayDirection)
+
+        ClientInputHeuristics.applyMeshes(data, Editing, raycaster)
+        assert.notEqual(data.size, 0)
+        for (const hit of [...data]) {
+          assert.equal(KnownEntities.includes(hit.entity), true)
+          assertFloatApproxNotEq(hit.distance, 0)
+        }
+      })
+
+      it('should not do anything if the object hit does not have an entity or an ancestor with an entity', () => {
+        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
+        const one = createEntity()
+        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
+        setComponent(one, VisibleComponent)
+        setComponent(one, MeshComponent, box1)
+        setComponent(one, GroupComponent)
+        addObjectToGroup(one, box1)
+        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
+        const two = createEntity()
+        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
+        setComponent(two, VisibleComponent)
+        setComponent(two, MeshComponent, box2)
+        setComponent(two, GroupComponent)
+        addObjectToGroup(two, box2)
+
+        const data = new Set<IntersectionData>()
+        assert.equal(data.size, 0)
+
+        const rayOrigin = new Vector3(0, 0, 0)
+        const rayDirection = new Vector3(3.5, 3.5, 3.5).normalize()
+        const raycaster = new Raycaster(rayOrigin, rayDirection)
+
+        // Remove the ancestor so that the `if (!parentObject) continue` code branch is hit
+        box1.entity = undefined! as Entity
+        box2.entity = undefined! as Entity
+        // Run and check the result
+        ClientInputHeuristics.applyMeshes(data, Editing, raycaster)
+        assert.equal(data.size, 0)
+      })
     })
 
     describe('when `@param isEditing` is false ...', () => {
-      // when `@param isEditing` is false ...
-      // ... for the objects contained in the GroupComponents, of all entities in the Array.from(InputState.inputMeshes) that have a GroupComponent
-      // ... for all hits of `@param caster`.intersectObjects( objects, recursive )
-    })
+      const Editing = false
+      it('should add the parentObject.entity and hit.distance to the `@param intersectionData` for every object in the InputState.inputMeshes.GroupComponent and is hit by the `@param caster`', () => {
+        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
+        const one = createEntity()
+        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
+        // setComponent(one, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
+        setComponent(one, MeshComponent, box1)
+        setComponent(one, GroupComponent)
+        addObjectToGroup(one, box1)
+        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
+        const two = createEntity()
+        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
+        // setComponent(two, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
+        setComponent(two, MeshComponent, box2)
+        setComponent(two, GroupComponent)
+        addObjectToGroup(two, box2)
+        const KnownEntities = [one, two]
+        getMutableState(InputState).inputMeshes.set(new Set(KnownEntities))
 
-    /**
-    // @todo ?? For both of the above describe(...) ??
-    // it("should not do anything if the object hit does not have an entity or an ancestor with an entity", () => {})
-    // it("should add the parentObject.entity and hit.distance to the `@param intersectionData` for every object hit by the `@param caster`", () => {})
-    */
+        const data = new Set<IntersectionData>()
+        assert.equal(data.size, 0)
+
+        const rayOrigin = new Vector3(0, 0, 0)
+        const rayDirection = new Vector3(3, 3, 3).normalize()
+        const raycaster = new Raycaster(rayOrigin, rayDirection)
+
+        ClientInputHeuristics.applyMeshes(data, Editing, raycaster)
+        assert.notEqual(data.size, 0)
+        for (const hit of [...data]) {
+          assert.equal(KnownEntities.includes(hit.entity), true)
+          assertFloatApproxNotEq(hit.distance, 0)
+        }
+      })
+
+      it('should not do anything if the object hit does not have an entity or an ancestor with an entity', () => {
+        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
+        const one = createEntity()
+        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
+        // setComponent(one, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
+        setComponent(one, MeshComponent, box1)
+        setComponent(one, GroupComponent)
+        addObjectToGroup(one, box1)
+        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
+        const two = createEntity()
+        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
+        // setComponent(two, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
+        setComponent(two, MeshComponent, box2)
+        setComponent(two, GroupComponent)
+        addObjectToGroup(two, box2)
+        const KnownEntities = [one, two]
+        getMutableState(InputState).inputMeshes.set(new Set(KnownEntities))
+
+        const data = new Set<IntersectionData>()
+        assert.equal(data.size, 0)
+
+        const rayOrigin = new Vector3(0, 0, 0)
+        const rayDirection = new Vector3(3, 3, 3).normalize()
+        const raycaster = new Raycaster(rayOrigin, rayDirection)
+
+        // Remove the ancestor so that the `if (!parentObject) continue` code branch is hit
+        box1.entity = undefined! as Entity
+        box2.entity = undefined! as Entity
+        // Run and check the result
+        ClientInputHeuristics.applyMeshes(data, Editing, raycaster)
+        assert.equal(data.size, 0)
+      })
+    })
   })
 
   /**
@@ -524,6 +638,7 @@ describe('ClientInputHeuristics', () => {
   })
 
   // (raycasted)
+  // @todo how to setup objects so that they can be hit by WebContainer3D.hitTest?
   describe("applyXRUI", () => {
     // for every entity of xruiQuery ...
       // get the XRUIComponent of the entity, and do a WebContainer3D.hitTest with the `@param ray`
