@@ -252,6 +252,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         // Exit click placement mode when anything in the hierarchy is selected
         getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
         if (e.ctrlKey) {
+          if (entity === rootEntity) return
           EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
         } else if (e.shiftKey && prevClickedNode) {
           const startIndex = entityHierarchy.value.findIndex((n) => n.entity === prevClickedNode)
@@ -290,6 +291,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
       switch (e.key) {
         case 'ArrowDown': {
           e.preventDefault()
+          if (entity === rootEntity) return
 
           const nextNode = nodeIndex !== -1 && entityHierarchy.value[nodeIndex + 1]
           if (!nextNode) return
@@ -307,6 +309,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
         case 'ArrowUp': {
           e.preventDefault()
+          if (entity === rootEntity) return
 
           const prevNode = nodeIndex !== -1 && entityHierarchy.value[nodeIndex - 1]
           if (!prevNode) return
@@ -337,6 +340,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           break
 
         case 'Enter':
+          if (entity === rootEntity) return
           if (e.shiftKey) {
             EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
           } else {
@@ -346,6 +350,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
         case 'Delete':
         case 'Backspace':
+          if (entity === rootEntity) return
           if (selectedNodes && !renamingNode) onDeleteNode(entity)
           break
       }
@@ -506,6 +511,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     </FixedSizeList>
   )
 
+  const [isAddEntityMenuOpen, setIsAddEntityMenuOpen] = useState(false)
+
   return (
     <>
       <div className="flex items-center gap-2 bg-theme-surface-main">
@@ -520,6 +527,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         />
         <Popup
           keepInside
+          open={isAddEntityMenuOpen}
+          onClose={() => setIsAddEntityMenuOpen(false)}
           trigger={
             <Button
               startIcon={<HiOutlinePlusCircle />}
@@ -528,13 +537,14 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
               className="ml-auto w-32 text-nowrap bg-theme-highlight px-2 py-3 text-white"
               size="small"
               textContainerClassName="mx-0"
+              onClick={() => setIsAddEntityMenuOpen(true)}
             >
               {t('editor:hierarchy.lbl-addEntity')}
             </Button>
           }
         >
           <div className="h-[600px] w-96 overflow-y-auto">
-            <ElementList type="prefabs" />
+            <ElementList type="prefabs" onSelect={() => setIsAddEntityMenuOpen(false)} />
           </div>
         </Popup>
       </div>

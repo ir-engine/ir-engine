@@ -30,6 +30,7 @@ import { useTranslation } from 'react-i18next'
 
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import { NotificationSnackbar } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { useSearchParamState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { useThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
@@ -51,6 +52,8 @@ const AppPage = (props: { children: React.ReactNode }) => {
   }, [])
 
   useThemeProvider()
+
+  useSearchParamState()
 
   if (!isLoggedIn) {
     return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingApp')} />

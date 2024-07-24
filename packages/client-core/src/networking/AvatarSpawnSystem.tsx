@@ -41,31 +41,48 @@ import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState, WorldNetworkAction } from '@etherealengine/network'
-import { SpectateActions, SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
+import { SpectateActions } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
 
+import { SearchParamState } from '../common/services/RouterService'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   const { sceneEntity } = props
   const gltfLoaded = useComponent(sceneEntity, GLTFComponent).progress.value === 100
-  const isSpectating = !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value
+  const searchParams = useMutableState(SearchParamState)
+
+  const spawnAvatar = useHookstate(false)
+  const spectateEntity = useHookstate(false)
 
   useEffect(() => {
-    if (!gltfLoaded) return
+    spectateEntity.set(searchParams.spectate.value !== undefined)
+  }, [searchParams])
+
+  useEffect(() => {
+    if (!spectateEntity.value) return
 
     const spectate = getSearchParamFromURL('spectate')
-    if (typeof spectate === 'string') {
-      dispatchAction(
-        SpectateActions.spectateEntity({
-          spectatorUserID: Engine.instance.userID,
-          spectatingUserID: spectate as UserID
-        })
-      )
-      return
+    dispatchAction(
+      SpectateActions.spectateEntity({
+        spectatorUserID: Engine.instance.userID,
+        spectatingUserID: spectate as UserID
+      })
+    )
+
+    return () => {
+      dispatchAction(SpectateActions.exitSpectate({ spectatorUserID: Engine.instance.userID }))
     }
+  }, [spectateEntity.value])
+
+  useEffect(() => {
+    spawnAvatar.set(gltfLoaded && !spectateEntity.value)
+  }, [gltfLoaded, spectateEntity.value])
+
+  useEffect(() => {
+    if (!spawnAvatar.value) return
 
     const rootUUID = getComponent(sceneEntity, UUIDComponent)
     const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
@@ -90,7 +107,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
         dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(selfAvatarEntity, UUIDComponent) }))
       }
     }
-  }, [gltfLoaded, isSpectating])
+  }, [spawnAvatar.value])
 
   return null
 }

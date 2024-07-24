@@ -30,7 +30,7 @@ import { EntityUUID } from '@etherealengine/ecs'
 import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { useRendererEntity } from '@etherealengine/spatial/src/renderer/functions/useRendererEntity'
 
 export const RenderSettingsComponent = defineComponent({
   name: 'RenderSettingsComponent',
@@ -71,7 +71,7 @@ export const RenderSettingsComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const rendererEntity = useScene(entity)
+    const rendererEntity = useRendererEntity(entity)
     const component = useComponent(entity, RenderSettingsComponent)
 
     useEffect(() => {
