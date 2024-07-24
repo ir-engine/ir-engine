@@ -54,7 +54,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
+import { useFeatureFlags } from '@etherealengine/engine/src/FeatureFlagsHook'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
@@ -70,7 +70,6 @@ export const MediaIconsBox = () => {
   const location = useLocation()
   const hasAudioDevice = useHookstate(false)
   const hasVideoDevice = useHookstate(false)
-  const numVideoDevices = useHookstate(0)
   const { topShelfStyle } = useShelfStyles()
 
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
@@ -100,8 +99,10 @@ export const MediaIconsBox = () => {
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
 
-  const motionCaptureEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.MotionCapture)
-  const arEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.AR)
+  const [motionCaptureEnabled, xrEnabled] = useFeatureFlags([
+    FeatureFlags.Client.Menu.MotionCapture,
+    FeatureFlags.Client.Menu.XR
+  ])
 
   useEffect(() => {
     navigator.mediaDevices
@@ -109,7 +110,6 @@ export const MediaIconsBox = () => {
       .then((devices) => {
         hasAudioDevice.set(devices.filter((device) => device.kind === 'audioinput').length > 0)
         hasVideoDevice.set(devices.filter((device) => device.kind === 'videoinput').length > 0)
-        numVideoDevices.set(devices.filter((device) => device.kind === 'videoinput').length)
       })
       .catch((err) => logger.error(err, 'Could not get media devices.'))
   }, [])
@@ -184,7 +184,7 @@ export const MediaIconsBox = () => {
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />}
           />
-          {isCamVideoEnabled && numVideoDevices.value > 1 && (
+          {isCamVideoEnabled && hasVideoDevice.value && (
             <IconButtonWithTooltip
               id="FlipVideo"
               title={t('user:menu.cycleCamera')}
@@ -225,7 +225,7 @@ export const MediaIconsBox = () => {
           />
         </>
       ) : null}
-      {supportsVR && (
+      {supportsVR && xrEnabled && (
         <IconButtonWithTooltip
           id="UserVR"
           title={t('user:menu.enterVR')}
@@ -238,7 +238,7 @@ export const MediaIconsBox = () => {
           icon={<VrIcon />}
         />
       )}
-      {supportsAR && arEnabled && (
+      {supportsAR && xrEnabled && (
         <IconButtonWithTooltip
           id="UserAR"
           title={t('user:menu.enterAR')}

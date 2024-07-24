@@ -23,26 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const FeatureFlags = {
-  Client: {
-    Menu: {
-      Social: 'ir.client.menu.social',
-      Emote: 'ir.client.menu.emote',
-      Avaturn: 'ir.client.menu.avaturn',
-      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
-      CreateAvatar: 'ir.client.menu.createAvatar',
-      MotionCapture: 'ir.client.location.menu.motionCapture',
-      XR: 'ir.client.menu.xr'
+import { featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+
+export function useFeatureFlags(flagNames: string[]): boolean[] {
+  const response = useFind(featureFlagSettingPath, {
+    query: {
+      $or: flagNames.map((flagName) => ({ flagName })),
+      paginate: false
     }
-  },
-  Studio: {
-    Panel: {
-      VisualScript: 'ir.editor.panel.visualScript'
-    },
-    UI: {
-      Hierarchy: {
-        ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
-      }
-    }
+  })
+
+  if (!response.data) {
+    return []
   }
+
+  return flagNames.map((flagName) => {
+    const flag = response.data.find(({ flagName: name }) => name === flagName)
+    return flag ? flag.flagValue : true
+  })
 }

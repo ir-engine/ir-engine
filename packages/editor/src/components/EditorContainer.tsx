@@ -188,7 +188,7 @@ const onCloseProject = () => {
 }
 
 const onSaveAs = async () => {
-  const { projectName, sceneName, rootEntity } = getState(EditorState)
+  const { projectName, sceneName, rootEntity, sceneAssetID } = getState(EditorState)
   const sceneModified = EditorState.isModified()
   const abortController = new AbortController()
   try {
@@ -198,7 +198,7 @@ const onSaveAs = async () => {
       })
       DialogState.setDialog(null)
       if (result?.name && projectName) {
-        await saveSceneGLTF(null, projectName, result.name, abortController.signal)
+        await saveSceneGLTF(sceneAssetID!, projectName, result.name, abortController.signal, true)
 
         const sourceID = getComponent(rootEntity, SourceComponent)
         getMutableState(GLTFModifiedState)[sourceID].set(none)
@@ -267,7 +267,7 @@ const onSaveScene = async () => {
   await new Promise((resolve) => setTimeout(resolve, 5))
 
   try {
-    await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
+    await saveSceneGLTF(sceneAssetID!, projectName, sceneName, abortController.signal)
 
     const sourceID = getComponent(rootEntity, SourceComponent)
     getMutableState(GLTFModifiedState)[sourceID].set(none)
