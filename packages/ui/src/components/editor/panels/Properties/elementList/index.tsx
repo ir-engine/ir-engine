@@ -57,7 +57,7 @@ export type SceneElementType = {
   type: typeof ItemTypes.Component
 }
 
-const ComponentListItem = ({ item }: { item: Component }) => {
+const ComponentListItem = ({ item, onSelect }: { item: Component; onSelect: () => void }) => {
   const { t } = useTranslation()
   useMutableState(ComponentEditorsState).keys // ensure reactively updates new components
   const Icon = getState(ComponentEditorsState)[item.name]?.iconComponent ?? GrStatusPlaceholder
@@ -73,6 +73,7 @@ const ComponentListItem = ({ item }: { item: Component }) => {
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
+        onSelect()
       }}
       startIcon={<Icon className="h-4 w-4 text-[#B2B5BD]" />}
     >
@@ -88,7 +89,7 @@ const ComponentListItem = ({ item }: { item: Component }) => {
   )
 }
 
-const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
+const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: () => void }) => {
   return (
     <Button
       variant="transparent"
@@ -101,6 +102,7 @@ const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
         } else {
           addMediaNode(url)
         }
+        onSelect()
       }}
       startIcon={<IoMdAddCircle className="h-4 w-4 text-[#B2B5BD]" />}
     >
@@ -181,7 +183,7 @@ const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][]
     .filter(([_, items]) => !!items.length)
 }
 
-export function ElementList({ type }: { type: ElementsType }) {
+export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: () => void }) {
   const { t } = useTranslation()
   const search = useHookstate({ local: '', query: '' })
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -232,6 +234,7 @@ export function ElementList({ type }: { type: ElementsType }) {
           categoryTitle="Empty"
           onClick={() => {
             EditorControlFunctions.createObjectFromSceneElement()
+            onSelect()
           }}
         />
       </div>
@@ -240,9 +243,13 @@ export function ElementList({ type }: { type: ElementsType }) {
         <ul className="w-full">
           {shelves[clickedPrefab.value]?.[1].map((item: Component | PrefabShelfItem) =>
             type === 'components' ? (
-              <ComponentListItem key={(item as Component).jsonID || item.name} item={item as Component} />
+              <ComponentListItem
+                key={(item as Component).jsonID || item.name}
+                item={item as Component}
+                onSelect={onSelect}
+              />
             ) : (
-              <PrefabListItem key={(item as PrefabShelfItem).url} item={item as PrefabShelfItem} />
+              <PrefabListItem key={(item as PrefabShelfItem).url} item={item as PrefabShelfItem} onSelect={onSelect} />
             )
           )}
         </ul>

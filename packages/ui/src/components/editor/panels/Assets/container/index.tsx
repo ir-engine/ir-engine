@@ -538,6 +538,7 @@ const AssetPanel = () => {
 
   const handleSelectCategory = (category: Category) => {
     selectedCategory.set(clone(category))
+    staticResourcesPagination.currentPage.set(0)
     !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }
 

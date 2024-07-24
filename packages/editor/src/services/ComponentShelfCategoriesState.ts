@@ -46,7 +46,6 @@ import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/com
 import { ReflectionProbeComponent } from '@etherealengine/engine/src/scene/components/ReflectionProbeComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
-import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
@@ -88,13 +87,7 @@ export const ComponentShelfCategoriesState = defineState({
         VideoComponent,
         ImageComponent
       ],
-      'Scene Composition': [
-        PrimitiveGeometryComponent,
-        GroundPlaneComponent,
-        GroupComponent,
-        VariantComponent,
-        SceneDynamicLoadTagComponent
-      ],
+      'Scene Composition': [PrimitiveGeometryComponent, GroundPlaneComponent, GroupComponent, VariantComponent],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
       Interaction: [
         SpawnPointComponent,
