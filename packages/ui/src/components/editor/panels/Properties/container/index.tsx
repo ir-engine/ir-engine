@@ -106,7 +106,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
     }
   }, [popupRef])
 
-  const [isOpen, setIsOpen] = useState(false)
+  const [isAddComponentMenuOpen, setIsAddComponentMenuOpen] = useState(false)
 
   return (
     <>
@@ -114,8 +114,8 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
         <Popup
           keepInside
           position={'left center'}
-          open={isOpen}
-          onClose={() => setIsOpen(false)}
+          open={isAddComponentMenuOpen}
+          onClose={() => setIsAddComponentMenuOpen(false)}
           trigger={
             <Button
               startIcon={<HiOutlinePlusCircle />}
@@ -123,7 +123,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
               rounded="none"
               className="ml-auto w-40 bg-theme-highlight px-2"
               size="small"
-              onClick={() => setIsOpen(true)}
+              onClick={() => setIsAddComponentMenuOpen(true)}
             >
               {t('editor:properties.lbl-addComponent')}
             </Button>
@@ -131,7 +131,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
           onOpen={() => calculateAndApplyOffset(popupRef)}
         >
           <div ref={popupRef} className="h-[600px] w-96 overflow-y-auto">
-            <ElementList type="components" onSelect={() => setIsOpen(false)} />
+            <ElementList type="components" onSelect={() => setIsAddComponentMenuOpen(false)} />
           </div>
         </Popup>
       </div>
