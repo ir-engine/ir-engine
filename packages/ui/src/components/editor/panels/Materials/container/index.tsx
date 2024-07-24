@@ -112,60 +112,58 @@ export default function MaterialLibraryPanel() {
         <div className="rounded-lg bg-zinc-800 p-2">
           <MaterialPreviewPanel ref={materialPreviewPanelRef} />
         </div>
-        <div className="w-full">
-          <div className="mt-4 flex h-5 items-center gap-2">
-            <InputGroup name="File Path" label="Save to" className="flex-grow">
-              <StringInput value={srcPath.value} onChange={srcPath.set} />
-            </InputGroup>
-            <Button
-              className="flex w-5 flex-grow items-center justify-center text-xs"
-              variant="outline"
-              onClick={async () => {
-                const projectName = getState(EditorState).projectName!
-                const materialUUID = getState(MaterialSelectionState).selectedMaterial ?? ('' as EntityUUID)
-                let libraryName = srcPath.value
-                if (!libraryName.endsWith('.material.gltf')) {
-                  libraryName += '.material.gltf'
-                }
-                const relativePath = pathJoin('assets', libraryName)
-                const gltf = (await exportMaterialsGLTF([UUIDComponent.getEntityByUUID(materialUUID)], {
-                  binary: false,
-                  relativePath
-                })!) as { [key: string]: any }
-                const blob = [JSON.stringify(gltf)]
-                const file = new File(blob, libraryName)
-                const importSettings = getState(ImportSettingsState)
-                const urls = await Promise.all(
-                  uploadProjectFiles(projectName, [file], [`projects/${projectName}${importSettings.importFolder}`])
-                    .promises
-                )
-                const adjustedLibraryName = libraryName.length > 0 ? libraryName.substring(1) : ''
-                const key = `projects/${projectName}${importSettings.importFolder}${adjustedLibraryName}`
-                const resources = await Engine.instance.api.service(staticResourcePath).find({
-                  query: { key: key }
-                })
-                if (resources.data.length === 0) {
-                  throw new Error('User not found')
-                }
-                const resource = resources.data[0]
-                const tags = ['Material']
-                await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags })
-                console.log('exported material data to ', ...urls)
-              }}
-            >
-              Save
-            </Button>
-            <div className="mx-2 h-full border-l border-gray-500"></div>
-            <Button
-              className="flex w-10 flex-grow items-center justify-center text-xs"
-              variant="outline"
-              onClick={() => {
-                useSelected.set(!useSelected.value)
-              }}
-            >
-              {useSelected.value ? <HiFilter /> : <HiGlobeAlt />}
-            </Button>
-          </div>
+        <div className="mt-4 flex h-5 items-center gap-2">
+          <InputGroup name="File Path" label="Save to" className="flex-grow">
+            <StringInput value={srcPath.value} onChange={srcPath.set} />
+          </InputGroup>
+          <Button
+            className="flex w-5 flex-grow items-center justify-center text-xs"
+            variant="outline"
+            onClick={async () => {
+              const projectName = getState(EditorState).projectName!
+              const materialUUID = getState(MaterialSelectionState).selectedMaterial ?? ('' as EntityUUID)
+              let libraryName = srcPath.value
+              if (!libraryName.endsWith('.material.gltf')) {
+                libraryName += '.material.gltf'
+              }
+              const relativePath = pathJoin('assets', libraryName)
+              const gltf = (await exportMaterialsGLTF([UUIDComponent.getEntityByUUID(materialUUID)], {
+                binary: false,
+                relativePath
+              })!) as { [key: string]: any }
+              const blob = [JSON.stringify(gltf)]
+              const file = new File(blob, libraryName)
+              const importSettings = getState(ImportSettingsState)
+              const urls = await Promise.all(
+                uploadProjectFiles(projectName, [file], [`projects/${projectName}${importSettings.importFolder}`])
+                  .promises
+              )
+              const adjustedLibraryName = libraryName.length > 0 ? libraryName.substring(1) : ''
+              const key = `projects/${projectName}${importSettings.importFolder}${adjustedLibraryName}`
+              const resources = await Engine.instance.api.service(staticResourcePath).find({
+                query: { key: key }
+              })
+              if (resources.data.length === 0) {
+                throw new Error('User not found')
+              }
+              const resource = resources.data[0]
+              const tags = ['Material']
+              await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags })
+              console.log('exported material data to ', ...urls)
+            }}
+          >
+            Save
+          </Button>
+          <div className="mx-2 h-full border-l"></div>
+          <Button
+            className="flex w-10 flex-grow items-center justify-center text-xs"
+            variant="outline"
+            onClick={() => {
+              useSelected.set(!useSelected.value)
+            }}
+          >
+            {useSelected.value ? <HiFilter /> : <HiGlobeAlt />}
+          </Button>
         </div>
       </div>
       <div id="material-panel" className="h-full overflow-hidden">
