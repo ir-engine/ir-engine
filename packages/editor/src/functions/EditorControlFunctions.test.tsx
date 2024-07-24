@@ -28,9 +28,9 @@ import assert from 'assert'
 import { Cache, Color, MathUtils } from 'three'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { getComponent, UUIDComponent } from '@etherealengine/ecs'
+import { createEntity, getComponent, setComponent, UUIDComponent } from '@etherealengine/ecs'
 import { createEngine, destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
-import { EntityUUID } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
@@ -39,15 +39,29 @@ import { HemisphereLightComponent, TransformComponent } from '@etherealengine/sp
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 describe('EditorControlFunctions', () => {
-  beforeEach(() => {
+  let physicsWorldEntity: Entity
+
+  beforeEach(async () => {
     createEngine()
     getMutableState(EngineState).isEditing.set(true)
     getMutableState(EngineState).isEditor.set(true)
     Engine.instance.userID = 'user' as UserID
+
+    await Physics.load()
+    physicsWorldEntity = createEntity()
+    setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+    setComponent(physicsWorldEntity, SceneComponent)
+    setComponent(physicsWorldEntity, TransformComponent)
+    setComponent(physicsWorldEntity, EntityTreeComponent)
+    const physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+    physicsWorld.timestep = 1 / 60
   })
 
   afterEach(() => {
@@ -75,7 +89,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -125,7 +139,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -169,7 +183,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -211,7 +225,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -268,7 +282,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -314,7 +328,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -367,7 +381,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -421,7 +435,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -485,7 +499,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -549,7 +563,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -602,7 +616,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -647,7 +661,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -693,7 +707,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -746,7 +760,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -803,7 +817,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -870,7 +884,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -940,7 +954,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
