@@ -30,6 +30,7 @@ import { Cache, Color, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'th
 import {
   createEntity,
   defineComponent,
+  Entity,
   EntityUUID,
   getComponent,
   setComponent,
@@ -60,11 +61,13 @@ const toSignificantFigures = (array: number[], figures: number) => {
 const timeout = globalThis.setTimeout
 
 describe('GLTFState', () => {
+  let physicsWorldEntity: Entity
+
   beforeEach(async () => {
     createEngine()
 
     await Physics.load()
-    const physicsWorldEntity = createEntity()
+    physicsWorldEntity = createEntity()
     setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
     setComponent(physicsWorldEntity, SceneComponent)
     setComponent(physicsWorldEntity, TransformComponent)
@@ -104,7 +107,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -158,7 +161,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -225,7 +228,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -302,7 +305,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    GLTFSourceState.load('/test.gltf')
+    GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -362,7 +365,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -415,7 +418,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -460,7 +463,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -506,7 +509,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -555,7 +558,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -609,7 +612,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -703,7 +706,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
