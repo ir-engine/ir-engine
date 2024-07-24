@@ -125,6 +125,7 @@ export const updateInteractableUI = (entity: Entity) => {
 
     const center = boundingBox.box.getCenter(_center)
     const size = boundingBox.box.getSize(_size)
+    if (!size.y) size.y = 1
     const alpha = smootheLerpAlpha(0.01, getState(ECSState).deltaSeconds)
     xruiTransform.position.x = center.x
     xruiTransform.position.z = center.z
