@@ -139,10 +139,14 @@ export const SaveNewSceneDialog = (props: { onConfirm?: () => void; onCancel?: (
       onSubmit={handleSubmit}
       className="w-[50vw] max-w-2xl"
       submitLoading={modalProcessing.value}
+      submitButtonDisabled={inputError.value.length > 0}
     >
       <Input
         value={inputSceneName.value}
-        onChange={(event) => inputSceneName.set(event.target.value)}
+        onChange={(event) => {
+          inputError.set('')
+          inputSceneName.set(event.target.value)
+        }}
         label={t('editor:dialog.saveNewScene.lbl-name')}
         description={t('editor:dialog.saveNewScene.info-name')}
         error={inputError.value}
