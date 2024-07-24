@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactNode, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiArrowSmallDown, HiArrowSmallUp } from 'react-icons/hi2'
+import { HiArrowSmallDown, HiArrowSmallUp, HiArrowsUpDown } from 'react-icons/hi2'
 
 import { ImmutableObject, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { FeathersOrder, useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -55,10 +55,14 @@ interface TableHeadProps {
 
 const TableHead = ({ order, onRequestSort, columns }: TableHeadProps) => {
   const SortArrow = ({ columnId }: { columnId: string | number }) => {
+    const currentOrder: FeathersOrder = columnId in order && order[columnId] === 1 ? 1 : -1
+    const newOrder: FeathersOrder = currentOrder === 1 ? -1 : 1
+    const Icon = currentOrder === 1 ? HiArrowSmallDown : HiArrowSmallUp
+
     if (columnId in order && order[columnId] === 1) {
-      return <HiArrowSmallUp onClick={() => onRequestSort(columnId, -1)} />
+      return <Icon onClick={() => onRequestSort(columnId, newOrder)} />
     }
-    return <HiArrowSmallDown onClick={() => onRequestSort(columnId, 1)} />
+    return <HiArrowsUpDown onClick={() => onRequestSort(columnId, newOrder)} />
   }
 
   return (
