@@ -67,9 +67,9 @@ describe('EntityNetworkState', () => {
   describe('spawnObject', () => {
     it('should spawn object owned by host', async () => {
       const hostUserId = 'world' as UserID
-      const userId = 'user id' as UserID
+      const userId = 'user-id' as UserID
       const peerID = Engine.instance.store.peerID
-      const peerID2 = 'peer id 2' as PeerID
+      const peerID2 = 'peer-id-2' as PeerID
 
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
@@ -89,7 +89,7 @@ describe('EntityNetworkState', () => {
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID,
-          entityUUID: (Engine.instance.userID + '_entity') as any as EntityUUID
+          entityUUID: (Engine.instance.userID + '-entity') as any as EntityUUID
         })
       )
 
@@ -112,9 +112,9 @@ describe('EntityNetworkState', () => {
     })
 
     it('should spawn object owned by user', async () => {
-      const userId = 'user id' as UserID
+      const userId = 'user-id' as UserID
       const hostId = 'host' as UserID
-      const peerID = 'peer id' as PeerID
+      const peerID = 'peer-id' as PeerID
       const peerID2 = Engine.instance.store.peerID
 
       Engine.instance.userID = userId
@@ -159,11 +159,11 @@ describe('EntityNetworkState', () => {
 
     it('should spawn avatar owned by other', async () => {
       const hostUserId = 'world' as UserID
-      const userId = 'user id' as UserID
-      const userId2 = 'second user id' as UserID
+      const userId = 'user-id' as UserID
+      const userId2 = 'second-user-id' as UserID
       const peerID = Engine.instance.store.peerID
-      const peerID2 = 'peer id 2' as PeerID
-      const peerID3 = 'peer id 3' as PeerID
+      const peerID2 = 'peer-id-2' as PeerID
+      const peerID3 = 'peer-id-3' as PeerID
 
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
@@ -207,7 +207,7 @@ describe('EntityNetworkState', () => {
     })
 
     it('should spawn avatar owned by user', async () => {
-      const userId = 'user id' as UserID
+      const userId = 'user-id' as UserID
       const peerID = Engine.instance.store.peerID
 
       Engine.instance.userID = userId
@@ -243,7 +243,7 @@ describe('EntityNetworkState', () => {
     it('should transfer authority of object (and not ownership)', async () => {
       const hostUserId = 'world' as UserID
       const hostPeerId = 'host peer id' as PeerID
-      const userId = 'user id' as UserID
+      const userId = 'user-id' as UserID
       const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
 
@@ -313,7 +313,7 @@ describe('EntityNetworkState', () => {
   it('should not transfer authority if it is not the owner', async () => {
     const hostUserId = 'world' as UserID
     const hostPeerId = 'host peer id' as PeerID
-    const userId = 'user id' as UserID
+    const userId = 'user-id' as UserID
     const peerID = Engine.instance.store.peerID
     const peerID2 = 'peer id 2' as PeerID
 
@@ -381,7 +381,7 @@ describe('EntityNetworkState', () => {
   it.skip('benchmark 10000 entities spawn', async () => {
     const hostUserId = 'world' as UserID
     const hostPeerId = 'host peer id' as PeerID
-    const userId = 'user id' as UserID
+    const userId = 'user-id' as UserID
     const peerID = Engine.instance.store.peerID
     const peerID2 = 'peer id 2' as PeerID
 
