@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { HiPlus } from 'react-icons/hi'
 import { PiTrashSimple } from 'react-icons/pi'
@@ -72,20 +72,32 @@ export default function ArrayInputGroup({
   name,
   label,
   containerClassName,
-  values,
+  values: initialValues,
   onChange,
   inputLabel,
   dropTypes
 }: ArrayInputProps) {
-  const handleChange = (value: string, index: number, addRemove?: 'add' | 'remove') => {
-    if (addRemove === 'add') {
-      onChange([...values, value])
-    } else if (addRemove === 'remove') {
-      onChange(values.filter((_, idx) => idx !== index))
-    } else {
-      onChange(values.map((v, idx) => (idx === index ? value : v)))
-    }
-  }
+  const [values, setValues] = useState(initialValues)
+
+  const handleChange = useCallback(
+    (value: string, index: number, addRemove?: 'add' | 'remove') => {
+      setValues((prevValues) => {
+        let newValues
+
+        if (addRemove === 'add') {
+          newValues = [...prevValues, value]
+        } else if (addRemove === 'remove') {
+          newValues = prevValues.filter((_, idx) => idx !== index)
+        } else {
+          newValues = prevValues.map((v, idx) => (idx === index ? value : v))
+        }
+
+        onChange(newValues)
+        return newValues
+      })
+    },
+    [onChange]
+  )
 
   const [{ isGroupDroppable }, groupDropRef] = useDrop(
     () => ({
@@ -94,14 +106,13 @@ export default function ArrayInputGroup({
         if (monitor.didDrop()) {
           return // don't handle the drop if a child component already did
         }
-        const newResources = [...values, item.url]
-        onChange(newResources)
+        handleChange(item.url, 0, 'add')
       },
       collect: (monitor) => ({
         isGroupDroppable: monitor.canDrop() && monitor.isOver({ shallow: true })
       })
     }),
-    [values, onChange]
+    [handleChange]
   )
 
   return (
