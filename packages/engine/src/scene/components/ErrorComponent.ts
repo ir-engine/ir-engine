@@ -27,7 +27,8 @@ import {
   Component,
   ComponentErrorsType,
   defineComponent,
-  getOptionalMutableComponent
+  getOptionalMutableComponent,
+  useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 
@@ -47,4 +48,9 @@ export const getEntityErrors = <C extends Component>(entity: Entity, component: 
     ComponentErrorsType<C>,
     string
   >
+}
+
+export const useEntityErrors = <C extends Component>(entity: Entity, component: C) => {
+  const errors = useOptionalComponent(entity, ErrorComponent)?.[component.name]
+  return errors
 }

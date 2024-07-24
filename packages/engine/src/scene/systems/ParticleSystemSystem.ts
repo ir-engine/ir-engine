@@ -31,9 +31,12 @@ import { ParticleState } from '../components/ParticleSystemComponent'
 import { SceneObjectSystem } from './SceneObjectSystem'
 
 const execute = () => {
-  const batchRenderer = getState(ParticleState).batchRenderer
-  const deltaSeconds = getState(ECSState).deltaSeconds
-  batchRenderer.update(deltaSeconds)
+  const renderers = getState(ParticleState).renderers
+  for (const rendererInstance of Object.values(renderers)) {
+    const batchRenderer = rendererInstance.renderer
+    const deltaSeconds = getState(ECSState).deltaSeconds
+    batchRenderer.update(deltaSeconds)
+  }
 }
 
 export const ParticleSystem = defineSystem({

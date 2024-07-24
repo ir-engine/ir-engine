@@ -68,7 +68,7 @@ import { PortalSystem } from './systems/PortalSystem'
 import { SceneKillHeightSystem } from './systems/SceneKillHeightSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
-import { ShadowSystem } from './systems/ShadowSystem'
+import { DropShadowSystem, ShadowSystem } from './systems/ShadowSystem'
 import { VariantSystem } from './systems/VariantSystem'
 
 /** This const MUST be kept here, to ensure all components definitions are loaded by the time the scene loading occurs */
@@ -113,6 +113,7 @@ export const SceneComponents = [
 
 export {
   CSMSystem,
+  DropShadowSystem,
   EnvironmentSystem,
   FogSystem,
   MaterialLibrarySystem,

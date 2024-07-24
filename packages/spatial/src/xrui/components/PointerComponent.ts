@@ -48,11 +48,14 @@ import { createEntity, entityExists, removeEntity, useEntityContext } from '@eth
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { WebContainer3D } from '@etherealengine/xrui'
 
-import { useAnimationTransition } from '../../common/functions/createTransitionState'
+import { getState } from '@etherealengine/hyperflux'
+import { EngineState } from '../../EngineState'
 import { NameComponent } from '../../common/NameComponent'
+import { useAnimationTransition } from '../../common/functions/createTransitionState'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export const PointerComponent = defineComponent({
@@ -83,11 +86,16 @@ export const PointerComponent = defineComponent({
     const pointerComponentState = useComponent(entity, PointerComponent)
 
     const transition = useAnimationTransition(0.5, 'OUT', (alpha) => {
-      const cursor = pointerComponentState.cursor.value
-      const pointer = pointerComponentState.pointer.value
-      const material = cursor ? (cursor.material as MeshBasicMaterial) : (pointer.material as LineBasicMaterial)
-      material.opacity = alpha
-      material.visible = alpha > 0
+      const cursorMaterial = pointerComponentState.cursor.value?.material as MeshBasicMaterial
+      const pointerMaterial = pointerComponentState.pointer.value?.material as MeshBasicMaterial
+      if (cursorMaterial) {
+        cursorMaterial.opacity = alpha
+        cursorMaterial.visible = alpha > 0
+      }
+      if (pointerMaterial) {
+        pointerMaterial.opacity = alpha
+        pointerMaterial.visible = alpha > 0
+      }
     })
 
     useEffect(() => {
@@ -118,7 +126,17 @@ export const PointerComponent = defineComponent({
     const entity = createEntity()
     setComponent(entity, PointerComponent, { inputSource })
     setComponent(entity, NameComponent, 'Pointer' + inputSource.handedness)
-    setComponent(entity, EntityTreeComponent, { parentEntity: inputSourceEntity })
+    setComponent(entity, EntityTreeComponent, { parentEntity: getState(EngineState).localFloorEntity })
+    setComponent(entity, ComputedTransformComponent, {
+      referenceEntities: [inputSourceEntity],
+      computeFunction: () => {
+        const inputTransform = getComponent(inputSourceEntity, TransformComponent)
+        const pointerTransform = getComponent(entity, TransformComponent)
+        pointerTransform.position.copy(inputTransform.position)
+        pointerTransform.rotation.copy(inputTransform.rotation)
+      }
+    })
+
     setComponent(entity, TransformComponent)
     setComponent(entity, VisibleComponent)
     PointerComponent.pointers.set(inputSource, entity)

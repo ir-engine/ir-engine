@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { Component } from '@etherealengine/ecs'
-import { FeatureFlagsState, VisualScriptComponent } from '@etherealengine/engine'
+import { VisualScriptComponent } from '@etherealengine/engine'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
@@ -47,7 +46,6 @@ import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/com
 import { ReflectionProbeComponent } from '@etherealengine/engine/src/scene/components/ReflectionProbeComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
-import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
@@ -90,13 +88,7 @@ export const ComponentShelfCategoriesState = defineState({
         VideoComponent,
         ImageComponent
       ],
-      'Scene Composition': [
-        PrimitiveGeometryComponent,
-        GroundPlaneComponent,
-        GroupComponent,
-        VariantComponent,
-        SceneDynamicLoadTagComponent
-      ],
+      'Scene Composition': [PrimitiveGeometryComponent, GroundPlaneComponent, GroupComponent, VariantComponent],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
       Interaction: [
         SpawnPointComponent,
@@ -128,9 +120,7 @@ export const ComponentShelfCategoriesState = defineState({
       Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
       Visual: [
         EnvMapBakeComponent,
-        ...(FeatureFlagsState.enabled(FeatureFlags.Studio.ComponentShelfCategories.ScenePreviewCameraComponent)
-          ? [ScenePreviewCameraComponent]
-          : []),
+        ScenePreviewCameraComponent,
         SkyboxComponent,
         SplineTrackComponent,
         SplineComponent,

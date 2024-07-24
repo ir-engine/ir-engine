@@ -163,7 +163,7 @@ export default function ImageCompressionPanel({
 
       <div className="mx-auto grid w-1/2 gap-y-2">
         <InputGroup
-          className="w-full justify-start"
+          containerClassName="w-full justify-start"
           labelClassName="w-24 text-[#D3D5D9]"
           name="mode"
           label={t('editor:properties.model.transform.dst')}
@@ -172,7 +172,7 @@ export default function ImageCompressionPanel({
         </InputGroup>
         <div className="w-full border border-[#2B2C30]" />
         <InputGroup
-          className="w-full justify-start"
+          containerClassName="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="mode"
@@ -191,7 +191,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
+          containerClassName="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="flipY"
@@ -205,7 +205,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
+          containerClassName="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="linear"
@@ -219,7 +219,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
+          containerClassName="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="mipmaps"
@@ -233,7 +233,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
+          containerClassName="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="normalMap"
@@ -249,7 +249,7 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'ETC1S' && (
           <>
             <InputGroup
-              className="w-full justify-start"
+              containerClassName="w-full justify-start"
               labelClassName="w-20 text-[#D3D5D9]"
               infoClassName="text-[#D3D5D9]"
               name="quality"
@@ -268,7 +268,7 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
-              className="w-full justify-start"
+              containerClassName="w-full justify-start"
               labelClassName="w-20 text-[#D3D5D9]"
               infoClassName="text-[#D3D5D9]"
               name="compressionLevel"
@@ -291,7 +291,7 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'UASTC' && (
           <>
             <InputGroup
-              className="w-full justify-start"
+              containerClassName="w-full justify-start"
               labelClassName="w-20 text-[#D3D5D9]"
               infoClassName="text-[#D3D5D9]"
               name="uastcFlags"
@@ -306,7 +306,7 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
-              className="w-full justify-start"
+              containerClassName="w-full justify-start"
               labelClassName="w-20 text-[#D3D5D9]"
               infoClassName="text-[#D3D5D9]"
               name="uastcZstandard"

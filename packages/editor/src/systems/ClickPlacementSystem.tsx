@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { Ray } from '@dimforge/rapier3d-compat'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { AssetExt, FileToAssetExt } from '@etherealengine/common/src/constants/AssetType'
 import {
   Engine,
   Entity,
@@ -32,6 +34,7 @@ import {
   defineSystem,
   getComponent,
   getOptionalComponent,
+  removeComponent,
   removeEntity,
   setComponent,
   useComponent,
@@ -40,6 +43,7 @@ import {
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState, GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { useEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { entityJSONToGLTFNode } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
@@ -60,7 +64,7 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { MouseScroll } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -80,12 +84,30 @@ export const ClickPlacementState = defineState({
   name: 'ClickPlacementState',
   initial: {
     placementEntity: UndefinedEntity as Entity,
-    selectedAsset: undefined as undefined | string,
+    selectedAsset: '',
     yawOffset: 0,
     pitchOffset: 0,
     rollOffset: 0,
     maxDistance: 25,
     materialCache: [] as [Mesh, Material][]
+  },
+  setSelectedAsset: (src: string) => {
+    const assetExt = FileToAssetExt(src)
+    if (assetExt && (assetExt === AssetExt.GLTF || assetExt === AssetExt.GLB))
+      getMutableState(ClickPlacementState).selectedAsset.set(src)
+    else {
+      // If in click placement mode and non-placeable asset was selected, show warning
+      if (getState(EditorHelperState).placementMode === PlacementMode.CLICK) {
+        ClickPlacementState.assetError()
+      } else ClickPlacementState.resetSelectedAsset()
+    }
+  },
+  resetSelectedAsset: () => {
+    getMutableState(ClickPlacementState).selectedAsset.set('')
+  },
+  assetError: () => {
+    NotificationService.dispatchNotify('Selected asset is not valid for click placement', { variant: 'warning' })
+    ClickPlacementState.resetSelectedAsset()
   }
 })
 
@@ -94,6 +116,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
   const clickState = useState(getMutableState(ClickPlacementState))
   const editorState = useState(getMutableState(EditorHelperState))
   const gltfComponent = useComponent(parentEntity, GLTFComponent)
+  const errors = useEntityErrors(clickState.placementEntity.value, ModelComponent)
 
   // const renderers = defineQuery([RendererComponent])
 
@@ -127,12 +150,17 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
   }, [editorState.placementMode, gltfComponent.progress])
 
   useEffect(() => {
-    if (!clickState.selectedAsset.value || !clickState.placementEntity.value) return
-    const assetURL = clickState.selectedAsset.get(NO_PROXY)!
+    if (!clickState.placementEntity.value) return
+    const assetURL = clickState.selectedAsset.get(NO_PROXY)
     const placementEntity = clickState.placementEntity.value
     if (getComponent(placementEntity, ModelComponent)?.src === assetURL) return
     updatePlacementEntitySnapshot(placementEntity)
   }, [clickState.selectedAsset, clickState.placementEntity])
+
+  useEffect(() => {
+    if (!errors || !errors.value) return
+    ClickPlacementState.assetError()
+  }, [errors])
 
   return (
     <PlacementModelReactor key={clickState.placementEntity.value} placementEntity={clickState.placementEntity.value} />
@@ -167,7 +195,10 @@ const getParentEntity = () => {
 }
 
 const updatePlacementEntitySnapshot = (placementEntity: Entity) => {
-  setComponent(placementEntity, ModelComponent, { src: getState(ClickPlacementState).selectedAsset })
+  const selectedAsset = getState(ClickPlacementState).selectedAsset
+  if (selectedAsset) setComponent(placementEntity, ModelComponent, { src: getState(ClickPlacementState).selectedAsset })
+  else removeComponent(placementEntity, ModelComponent)
+
   const sceneID = getComponent(placementEntity, SourceComponent)
   const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
   const uuid = getComponent(placementEntity, UUIDComponent)
@@ -245,6 +276,10 @@ export const ClickPlacementSystem = defineSystem({
     const placementEntity = clickState.placementEntity
     if (!placementEntity) return
 
+    const editorEntity = getState(EditorState).rootEntity
+    const physicsWorld = Physics.getWorld(editorEntity)
+    if (!physicsWorld) return
+
     //@todo: fix type of `typeof GroupComponent`
     const sceneObjects: any[] = []
     const candidates = objectLayerQuery()
@@ -255,8 +290,6 @@ export const ClickPlacementSystem = defineSystem({
     //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const pointerScreenRaycaster = new Raycaster()
-
-    const physicsWorld = getState(PhysicsState).physicsWorld
 
     let intersectEntity: Entity = UndefinedEntity
     let targetIntersection: { point: Vector3; normal: Vector3 } | null = null

@@ -33,6 +33,7 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRAnchorComponent } from '../xr/XRComponents'
 import { DebugRendererSystem } from './DebugRendererSystem'
 import { RenderInfoSystem } from './RenderInfoSystem'
+import { ViewportLightingSystem } from './ViewportLightingSystem'
 import { WebGLRendererSystem } from './WebGLRendererSystem'
 
 /** Components */
@@ -47,6 +48,7 @@ export {
   RenderInfoSystem,
   SpotLightComponent,
   TransformComponent,
+  ViewportLightingSystem,
   WebGLRendererSystem,
   XRAnchorComponent
 }

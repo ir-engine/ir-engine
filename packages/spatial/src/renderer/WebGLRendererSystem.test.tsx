@@ -24,24 +24,24 @@
 // */
 
 import {
+  ECSState,
   Entity,
   EntityUUID,
   SystemDefinitions,
+  Timer,
   UUIDComponent,
   createEntity,
   destroyEngine,
   getComponent,
-  getMutableComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import { EffectComposer } from 'postprocessing'
 import React from 'react'
 import { Color, Group, MathUtils, Texture } from 'three'
-import { MockEngineRenderer } from '../../tests/util/MockEngineRenderer'
+import { mockEngineRenderer } from '../../tests/util/MockEngineRenderer'
 import { EngineState } from '../EngineState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
@@ -67,29 +67,17 @@ describe('WebGl Renderer System', () => {
   let nestedVisibleEntity: Entity
   let nestedInvisibleEntity: Entity
 
-  const mockCanvas = () => {
-    return {
-      getDrawingBufferSize: () => 0,
-      getContext: () => {},
-      parentElement: {
-        clientWidth: 100,
-        clientHeight: 100
-      }
-    } as any as HTMLCanvasElement
-  }
-
   beforeEach(() => {
     createEngine()
+    const timer = Timer((time, xrFrame) => {})
+    getMutableState(ECSState).timer.set(timer)
 
     rootEntity = createEntity()
     getMutableState(EngineState).viewerEntity.set(rootEntity)
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
-    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas() })
-    getMutableComponent(rootEntity, RendererComponent).set(new MockEngineRenderer())
-    const rendererComp = getMutableComponent(rootEntity, RendererComponent)
-    rendererComp.canvas.set(mockCanvas())
+    mockEngineRenderer(rootEntity)
     setComponent(rootEntity, BackgroundComponent, new Color(0xffffff))
 
     setComponent(rootEntity, EnvironmentMapComponent, new Texture())
@@ -109,8 +97,7 @@ describe('WebGl Renderer System', () => {
     addObjectToGroup(visibleEntity, visibleObject3d)
     setComponent(visibleEntity, GroupComponent)
     setComponent(visibleEntity, EntityTreeComponent)
-
-    setComponent(rootEntity, SceneComponent, { children: [invisibleEntity, visibleEntity] })
+    setComponent(rootEntity, SceneComponent)
 
     nestedInvisibleEntity = createEntity()
     setComponent(nestedInvisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
@@ -118,7 +105,7 @@ describe('WebGl Renderer System', () => {
     const nestedInvisibleObject3d = setComponent(nestedInvisibleEntity, Object3DComponent, new Group())
     addObjectToGroup(nestedInvisibleEntity, nestedInvisibleObject3d)
     setComponent(nestedInvisibleEntity, EntityTreeComponent)
-    setComponent(visibleEntity, SceneComponent, { children: [nestedInvisibleEntity] })
+    setComponent(visibleEntity, SceneComponent)
 
     nestedVisibleEntity = createEntity()
     setComponent(nestedVisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
@@ -127,13 +114,9 @@ describe('WebGl Renderer System', () => {
     addObjectToGroup(nestedVisibleEntity, nestedVisibleObject3d)
     setComponent(nestedVisibleEntity, GroupComponent)
     setComponent(nestedVisibleEntity, EntityTreeComponent)
-    setComponent(invisibleEntity, SceneComponent, { children: [nestedVisibleEntity] })
+    setComponent(invisibleEntity, SceneComponent)
 
-    //override addpass to test data without dependency on Browser
-    let addPassCount = 0
-    EffectComposer.prototype.addPass = () => {
-      addPassCount++
-    }
+    setComponent(rootEntity, RendererComponent, { scenes: [visibleEntity, invisibleEntity] })
   })
 
   afterEach(() => {
@@ -191,8 +174,8 @@ describe('WebGl Renderer System', () => {
     webGLRendererSystem?.execute()
 
     assert(!rendererComp.needsResize, 'resize updated')
-    const scene = getComponent(rootEntity, SceneComponent)
-    const entitiesToRender = scene.children.map(getNestedVisibleChildren).flat()
+    const scenes = getComponent(rootEntity, RendererComponent).scenes
+    const entitiesToRender = scenes.map(getNestedVisibleChildren).flat()
     assert(entitiesToRender.length == 1 && entitiesToRender[0] == visibleEntity, 'visible children')
   })
 })

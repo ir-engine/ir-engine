@@ -158,7 +158,7 @@ export default function ScenesPanel() {
                               {
                                 PopoverState.showPopupover(
                                   <ConfirmDialog
-                                    text={t('editor:hierarchy.lbl-deleteScene')}
+                                    text={t('editor:hierarchy.lbl-deleteScene', { sceneName: getSceneName(scene) })}
                                     onSubmit={async () => deleteSelectedScene(scene)}
                                   />
                                 )
