@@ -45,20 +45,27 @@ const Tooltip = ({ title, titleClassName, content, children, className, ...rest 
       arrow={false}
       {...rest}
     >
-      <span
-        className={twMerge(
-          '-mt-5 text-wrap rounded shadow-lg transition-all',
-          'bg-[#191B1F] px-3 py-2 text-sm text-[#F5F5F5]',
-          className
-        )}
-      >
+      <div className="-mt-1 grid text-wrap shadow-lg transition-all">
         {title && (
-          <span className={twMerge('block border-b border-b-[#212226] bg-[#141619] py-1.5', titleClassName)}>
+          <span
+            className={twMerge(
+              'block rounded-t border-b border-b-[#212226] bg-[#141619] px-3 py-1.5 text-sm text-[#F5F5F5]',
+              titleClassName
+            )}
+          >
             {title}
           </span>
         )}
-        {content}
-      </span>
+        <span
+          className={twMerge(
+            'bg-[#191B1F] px-3 py-2 text-sm text-[#F5F5F5]',
+            title ? 'rounded-b' : 'rounded',
+            className
+          )}
+        >
+          {content}
+        </span>
+      </div>
     </Popup>
   )
 }

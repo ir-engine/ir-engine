@@ -79,7 +79,6 @@ export default function SceneHelpersTool() {
           startIcon={<ColliderAtomsSvg />}
           onClick={() => rendererState.nodeHelperVisibility.set(!rendererState.nodeHelperVisibility.value)}
           variant={rendererState.nodeHelperVisibility.value ? 'outline' : 'transparent'}
-          title={t('editor:toolbar.helpersToggle.lbl-nodeHelpers')}
           className={twMerge(
             'px-0',
             rendererState.nodeHelperVisibility.value && 'border border-solid border-transparent'
