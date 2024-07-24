@@ -42,7 +42,7 @@ export const ScreenshareTargetNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.screenshare.name')}
       description={t('editor:properties.screenshare.description')}
       icon={<ScreenshareTargetNodeEditor.iconComponent />}
-    ></NodeEditor>
+    />
   )
 }
 
