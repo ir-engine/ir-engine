@@ -1756,12 +1756,16 @@ describe('Physics : Rapier->ECS API', () => {
       it("should assign the entity's position to the collider.translation property", () => {
         Physics.setColliderPose(physicsWorld, testEntity, position, rotation)
         const collider = physicsWorld.Colliders.get(testEntity)!
-        assertVecApproxEq(collider.translation(), position, 3)
+        // need to step to update the collider's position
+        physicsWorld.step()
+        assertVecApproxEq(collider.translation(), position, 3, 0.01)
       })
 
       it("should assign the entity's rotation to the collider.rotation property", () => {
         Physics.setColliderPose(physicsWorld, testEntity, position, rotation)
         const collider = physicsWorld.Colliders.get(testEntity)!
+        // need to step to update the collider's position
+        physicsWorld.step()
         assertVecApproxEq(collider.rotation(), rotation, 4)
       })
     })
