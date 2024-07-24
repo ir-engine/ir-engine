@@ -114,11 +114,11 @@ export default function MaterialLibraryPanel() {
         </div>
         <div className="w-full">
           <div className="mt-4 flex h-5 items-center gap-2">
-            <InputGroup name="File Path" label="Save to">
+            <InputGroup name="File Path" label="Save to" className="flex-grow">
               <StringInput value={srcPath.value} onChange={srcPath.set} />
             </InputGroup>
             <Button
-              className="flex w-10 items-center justify-center text-xs"
+              className="flex w-5 flex-grow items-center justify-center text-xs"
               variant="outline"
               onClick={async () => {
                 const projectName = getState(EditorState).projectName!
@@ -157,7 +157,7 @@ export default function MaterialLibraryPanel() {
             </Button>
             <div className="mx-2 h-full border-l border-gray-500"></div>
             <Button
-              className="flex w-10 items-center justify-center text-xs"
+              className="flex w-10 flex-grow items-center justify-center text-xs"
               variant="outline"
               onClick={() => {
                 useSelected.set(!useSelected.value)
@@ -165,34 +165,6 @@ export default function MaterialLibraryPanel() {
             >
               {useSelected.value ? <HiFilter /> : <HiGlobeAlt />}
             </Button>
-            {/* 
-            // hiding the new and delete buttons for now till the we can do a full rework of materials as assets after phase 1 
-
-            <Button
-              className="w-full text-xs"
-              onClick={() => {
-                const selectedEntities = getState(SelectionState).selectedEntities
-                createAndAssignMaterial(
-                  UUIDComponent.getEntityByUUID(selectedEntities[selectedEntities.length - 1] ?? UndefinedEntity),
-                  new MeshBasicMaterial({ name: 'New Material' })
-                )
-              }}
-            >
-              New
-            </Button>
-            
-            {hasSelectedMaterial.value && (
-              <Button
-                className="w-full text-xs"
-                onClick={() => {
-                  const entity = UUIDComponent.getEntityByUUID(selectedMaterial.value as EntityUUID)
-                  selectedMaterial.set(null)
-                  removeEntity(entity)
-                }}
-              >
-                Delete
-              </Button>
-            )} */}
           </div>
         </div>
       </div>
