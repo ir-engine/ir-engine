@@ -24,47 +24,40 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 
-declare global {
-  interface Window {
-    dataLayer: IArguments[]
-    gtag: (...args: any[]) => void
-  }
-}
-
 const useGoogleAnalytics = () => {
-  const userSetting = useHookstate(getMutableState(AuthState).user.userSetting)
-  const gaMeasurementId = userSetting.value.gaMeasurementId
+  const user = useMutableState(AuthState).user
+  const isGuest = user.isGuest.value
+  const gaMeasurementId = user.userSetting.gaMeasurementId.value
+
+  const initializeGoogleAnalytics = () => {
+    const script = document.createElement('script')
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`
+    script.async = true
+    document.head.appendChild(script)
+
+    script.onload = () => {
+      window.dataLayer = window.dataLayer || []
+      window.gtag = function () {
+        window.dataLayer.push(arguments)
+        console.log(window.dataLayer)
+      }
+      window.gtag('js', new Date())
+      window.gtag('config', gaMeasurementId)
+    }
+  }
 
   useEffect(() => {
-    // Only run if the user has a GA measurement ID and the gtag function is not already defined
-    if (gaMeasurementId && !window.gtag) {
-      const script = document.createElement('script')
-      script.src = `https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`
-      script.async = true
-      document.head.appendChild(script)
-
-      script.onload = () => {
-        window.dataLayer = window.dataLayer || []
-        window.gtag = function () {
-          window.dataLayer.push(arguments)
-        }
-        window.gtag('js', new Date())
-        window.gtag('config', gaMeasurementId)
+    // If user is not a guest, initialize Google Analytics
+    if (!isGuest) {
+      // If the user has a GA measurement ID
+      if (gaMeasurementId) {
+        initializeGoogleAnalytics()
       }
     }
-    // Cleanup function to remove the script if the component unmounts or GA ID changes
-    return () => {
-      const script = document.querySelector(
-        `script[src="https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}"]`
-      )
-      if (script) {
-        document.head.removeChild(script)
-      }
-    }
-  })
+  }, [user])
 }
 
 export default useGoogleAnalytics

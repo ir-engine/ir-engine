@@ -43,12 +43,6 @@ import { ServiceTypes } from '../declarations'
 import config from './config'
 import { logsApiPath } from './schema.type.module'
 
-declare global {
-  interface Window {
-    gtag: (...args: any[]) => void
-  }
-}
-
 // Initialize the cache
 const engineCache = new NodeCache()
 
@@ -75,15 +69,38 @@ function pushToEngine(): void {
       try {
         LogConfig.api.service(logsApiPath).create(cachedData)
 
-        // Log to Google Analytics if gtag is available
-        if (window.gtag) {
-          window.gtag('event', 'log_data')
-        }
+        sendToGoogleAnalytics(cachedData)
       } catch (err) {
         console.log(err)
       }
 
       engineCache.flushAll()
+    }
+  }
+}
+
+// Function to send cached data to Google Analytics
+function sendToGoogleAnalytics(data: any): void {
+  // Log to Google Analytics if gtag is available
+  if (window.gtag) {
+    if (Array.isArray(data)) {
+      data.forEach((item) => {
+        if (item) {
+          const { msg, level, component } = item
+          window.gtag('event', 'log_data', {
+            event_category: `logs_${level}`,
+            event_label: component,
+            value: msg
+          })
+        }
+      })
+    } else {
+      const { msg, level, component } = data
+      window.gtag('event', 'log_data', {
+        event_category: `logs_${level}`,
+        event_label: component,
+        value: msg
+      })
     }
   }
 }
