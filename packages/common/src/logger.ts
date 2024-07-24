@@ -43,6 +43,12 @@ import { ServiceTypes } from '../declarations'
 import config from './config'
 import { logsApiPath } from './schema.type.module'
 
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void
+  }
+}
+
 // Initialize the cache
 const engineCache = new NodeCache()
 
@@ -68,6 +74,11 @@ function pushToEngine(): void {
     if (cachedData.length > 0) {
       try {
         LogConfig.api.service(logsApiPath).create(cachedData)
+
+        // Log to Google Analytics if gtag is available
+        if (window.gtag) {
+          window.gtag('event', 'log_data')
+        }
       } catch (err) {
         console.log(err)
       }
