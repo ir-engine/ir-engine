@@ -212,10 +212,8 @@ const scale = new Vector3()
 const mat4 = new Matrix4()
 
 function createRigidBody(world: PhysicsWorld, entity: Entity) {
-  const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
-
   computeTransformMatrix(entity)
-  TransformComponent.getMatrixRelativeToEntity(entity, sceneEntity, mat4)
+  TransformComponent.getMatrixRelativeToScene(entity, mat4)
   mat4.decompose(position, rotation, scale)
 
   TransformComponent.dirtyTransforms[entity] = false

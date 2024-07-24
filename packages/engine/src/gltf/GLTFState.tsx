@@ -66,6 +66,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
@@ -370,7 +371,8 @@ const ParentNodeReactor = (props: {
   documentID: string
 }) => {
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
-  if (!parentEntity) return null
+  const physicsWorld = Physics.useWorld(parentEntity)
+  if (!parentEntity || !physicsWorld) return null
 
   return <NodeReactor {...props} />
 }
