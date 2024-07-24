@@ -91,6 +91,11 @@ export default function ProjectTable(props: { search: string }) {
     projectQuery.refetch()
   }
 
+  const handleVisibilityChange = async (project: ProjectType) => {
+    await ProjectService.setVisibility(project.id, project.visibility === 'private' ? 'public' : 'private')
+    projectQuery.refetch()
+  }
+
   const RowActions = ({ project }: { project: ProjectType }) => {
     const handleProjectUpdate = async () => {
       const projectUpdateStatus = getMutableState(ProjectUpdateState)[project.name].value
@@ -235,6 +240,7 @@ export default function ProjectTable(props: { search: string }) {
             onChange={() => handleEnabledChange(row)}
           />
         ),
+        visibility: <Toggle value={row.visibility === 'public'} onChange={() => handleVisibilityChange(row)} />,
         commitSHA: (
           <span className="flex items-center justify-between">
             <Tooltip title={row.commitSHA || ''}>

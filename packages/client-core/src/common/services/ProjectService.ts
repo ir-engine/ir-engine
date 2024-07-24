@@ -157,6 +157,17 @@ export const ProjectService = {
     }
   },
 
+  setVisibility: async (id: string, visibility: string) => {
+    try {
+      await Engine.instance.api.service(projectPath).patch(id, {
+        visibility
+      })
+    } catch (err) {
+      logger.error(err, 'Error setting project visibility')
+      throw err
+    }
+  },
+
   setRepositoryPath: async (id: string, url: string) => {
     try {
       await Engine.instance.api.service(projectPath).patch(id, {

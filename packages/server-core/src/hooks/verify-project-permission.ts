@@ -56,6 +56,10 @@ export default (types: string[]) => {
 
     const project = await context.app.service(projectPath).get(projectId)
 
+    if (project.visibility === 'public') {
+      return context
+    }
+
     if (!project) throw new NotFound('Project not found')
 
     const { data } = (await context.app.service(projectPermissionPath).find({

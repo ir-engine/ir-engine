@@ -38,6 +38,8 @@ export const projectMethods = ['get', 'find', 'create', 'patch', 'remove', 'upda
 
 export const projectUpdateTypes = ['none', 'commit', 'tag']
 
+export const visibilityTypes = ['private', 'public']
+
 // Main data model schema
 export const projectSchema = Type.Object(
   {
@@ -63,6 +65,7 @@ export const projectSchema = Type.Object(
     commitSHA: Type.Optional(Type.String()),
     commitDate: Type.Optional(Type.String({ format: 'date-time' })),
     assetsOnly: Type.Boolean(),
+    visibility: StringEnum(visibilityTypes),
     settings: Type.Optional(Type.Array(Type.Ref(projectSettingSchema))),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -103,6 +106,7 @@ export const projectQueryProperties = Type.Pick(projectSchema, [
   'updateSchedule',
   'updateUserId',
   'hasWriteAccess',
+  'visibility',
   'commitSHA',
   'commitDate'
 ])
