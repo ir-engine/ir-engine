@@ -37,10 +37,10 @@ interface IUserColumn extends ITableHeadCell {
 
 export const userColumns: IUserColumn[] = [
   { id: 'id', label: t('admin:components.user.columns.id') },
-  { id: 'name', label: t('admin:components.user.columns.name') },
+  { id: 'name', sortable: true, label: t('admin:components.user.columns.name') },
   { id: 'avatar', label: t('admin:components.user.columns.avatar') },
   { id: 'accountIdentifier', label: t('admin:components.user.columns.accountIdentifier') },
-  { id: 'lastLogin', label: t('admin:components.user.columns.lastLogin') },
-  { id: 'isGuest', label: t('admin:components.user.columns.isGuest') },
+  { id: 'lastLogin', sortable: true, label: t('admin:components.user.columns.lastLogin') },
+  { id: 'isGuest', sortable: true, label: t('admin:components.user.columns.isGuest') },
   { id: 'action', label: t('admin:components.user.columns.action') }
 ]
