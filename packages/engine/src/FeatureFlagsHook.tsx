@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { isEmpty } from 'lodash'
 
 export function useFeatureFlags(flagNames: string[]): boolean[] {
   const response = useFind(featureFlagSettingPath, {
@@ -34,7 +35,7 @@ export function useFeatureFlags(flagNames: string[]): boolean[] {
     }
   })
 
-  if (!response.data || response.status !== 'success') {
+  if (isEmpty(response.data)) {
     return []
   }
 
