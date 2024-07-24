@@ -41,6 +41,33 @@ export interface ArrayInputProps {
   dropTypes?: string[]
 }
 
+const DiscardableInput = ({ value, index, inputLabel, onChange, onRemove, dropTypes }) => {
+  const [{ isDroppable }, dropRef] = useDrop(() => ({
+    accept: dropTypes ?? [...SupportedFileTypes],
+    drop: (item: { url: string }) => {
+      onChange(item.url, index)
+    },
+    collect: (monitor) => ({
+      isDroppable: monitor.canDrop() && monitor.isOver()
+    })
+  }))
+
+  return (
+    <div className="flex flex-col px-3">
+      {inputLabel && <Label className="mb-1 text-[#A0A1A2]">{inputLabel + ' ' + (index + 1)}</Label>}
+      <div ref={dropRef} className={`mb-2 flex items-center ${isDroppable ? 'outline outline-2 outline-white' : ''}`}>
+        <Input
+          containerClassname="flex-grow"
+          className="border-none bg-[#242424] text-[#8B8B8D]"
+          value={value}
+          onChange={(event) => onChange(event.target.value, index)}
+        />
+        <PiTrashSimple className="ml-2.5 cursor-pointer text-[#444]" onClick={() => onRemove(index)} />
+      </div>
+    </div>
+  )
+}
+
 export default function ArrayInputGroup({
   name,
   label,
@@ -60,25 +87,28 @@ export default function ArrayInputGroup({
     }
   }
 
-  const [{ isDroppable }, dropRef] = useDrop(
+  const [{ isGroupDroppable }, groupDropRef] = useDrop(
     () => ({
       accept: dropTypes ?? [...SupportedFileTypes],
-      drop: (item: { url: string }) => {
+      drop: (item: { url: string }, monitor) => {
+        if (monitor.didDrop()) {
+          return // don't handle the drop if a child component already did
+        }
         const newResources = [...values, item.url]
         onChange(newResources)
       },
       collect: (monitor) => ({
-        isDroppable: monitor.canDrop() && monitor.isOver()
+        isGroupDroppable: monitor.canDrop() && monitor.isOver({ shallow: true })
       })
     }),
     [values, onChange]
   )
 
   return (
-    <div ref={dropRef} aria-label={name} className={containerClassName}>
+    <div ref={groupDropRef} aria-label={name} className={containerClassName}>
       <div
         className={`outline outline-2 transition-colors duration-200 ${
-          isDroppable ? 'outline-white' : 'outline-transparent'
+          isGroupDroppable ? 'outline-white' : 'outline-transparent'
         }`}
       >
         <div className="mb-3 flex items-center justify-between">
@@ -91,21 +121,15 @@ export default function ArrayInputGroup({
         </div>
         <div className="flex flex-col space-y-1 rounded-md bg-[#1A1A1A] py-1.5">
           {values.map((value, idx) => (
-            <div key={value + idx} className="flex flex-col px-3">
-              {inputLabel && <Label className="mb-1 text-[#A0A1A2]">{inputLabel + ' ' + (idx + 1)}</Label>}
-              <div className="mb-2 flex items-center">
-                <Input
-                  containerClassname="flex-grow"
-                  className="border-none bg-[#242424] text-[#8B8B8D]"
-                  value={value}
-                  onChange={(event) => handleChange(event.target.value, idx)}
-                />
-                <PiTrashSimple
-                  className="ml-2.5 cursor-pointer text-[#444]"
-                  onClick={() => handleChange('', idx, 'remove')}
-                />
-              </div>
-            </div>
+            <DiscardableInput
+              key={value + idx}
+              value={value}
+              index={idx}
+              inputLabel={inputLabel}
+              onChange={handleChange}
+              onRemove={(index) => handleChange('', index, 'remove')}
+              dropTypes={dropTypes}
+            />
           ))}
         </div>
       </div>
