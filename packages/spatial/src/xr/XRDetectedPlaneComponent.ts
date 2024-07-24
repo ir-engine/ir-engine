@@ -30,6 +30,8 @@ import matches from 'ts-matches'
 import {
   defineComponent,
   getMutableComponent,
+  hasComponent,
+  removeComponent,
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -41,6 +43,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 
 import { NameComponent } from '../common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
+import { MeshComponent } from '../renderer/components/MeshComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { ReferenceSpace, XRState } from './XRState'
@@ -89,7 +92,11 @@ export const XRDetectedPlaneComponent = defineComponent({
     const scenePlacementMode = useHookstate(getMutableState(XRState).scenePlacementMode)
 
     useEffect(() => {
+      if (!component.plane.value) return
+
       const geometry = XRDetectedPlaneComponent.createGeometryFromPolygon(component.plane.value as XRPlane)
+
+      XRDetectedPlaneComponent.updatePlanePose(entity, component.plane.value as XRPlane)
       component.geometry.set(geometry)
 
       const shadowMesh = new Mesh(geometry, shadowMaterial)
@@ -97,6 +104,8 @@ export const XRDetectedPlaneComponent = defineComponent({
       const occlusionMesh = new Mesh(geometry, occlusionMat)
 
       const placementHelper = new Mesh(geometry, placementHelperMaterial)
+
+      setComponent(entity, MeshComponent, shadowMesh)
 
       addObjectToGroup(entity, shadowMesh)
       addObjectToGroup(entity, occlusionMesh)
@@ -108,9 +117,13 @@ export const XRDetectedPlaneComponent = defineComponent({
       component.placementHelper.set(placementHelper)
 
       return () => {
+        removeComponent(entity, MeshComponent)
+
         removeObjectFromGroup(entity, shadowMesh)
         removeObjectFromGroup(entity, occlusionMesh)
         removeObjectFromGroup(entity, placementHelper)
+
+        if (!hasComponent(entity, XRDetectedPlaneComponent)) return
 
         component.shadowMesh.set(none)
         component.occlusionMesh.set(none)
@@ -187,14 +200,10 @@ export const XRDetectedPlaneComponent = defineComponent({
     setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
     setComponent(entity, TransformComponent)
     setVisibleComponent(entity, true)
-    setComponent(entity, XRDetectedPlaneComponent)
+    setComponent(entity, XRDetectedPlaneComponent, { plane })
     setComponent(entity, NameComponent, 'plane-' + planeId++)
 
     XRDetectedPlaneComponent.planesLastChangedTimes.set(plane, plane.lastChangedTime)
-    XRDetectedPlaneComponent.updatePlanePose(entity, plane)
-
-    setComponent(entity, XRDetectedPlaneComponent, { plane })
-
     XRDetectedPlaneComponent.detectedPlanesMap.set(plane, entity)
   },
   detectedPlanesMap: new Map<XRPlane, Entity>(),

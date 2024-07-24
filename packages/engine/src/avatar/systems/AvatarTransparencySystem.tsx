@@ -40,7 +40,7 @@ import {
 import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
-import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
@@ -60,11 +60,12 @@ const avatarQuery = defineQuery([AvatarComponent])
 const execute = () => {
   const selfEntity = AvatarComponent.getSelfAvatarEntity()
   if (!selfEntity) return
+  const cameraAttached = XRState.isCameraAttachedToAvatar
+
   for (const entity of avatarQuery()) {
     const materials = getComponent(entity, TransparencyDitheringRoot)?.materials
     if (!materials) setComponent(entity, TransparencyDitheringRoot, { materials: [] })
 
-    const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
     const avatarComponent = getComponent(entity, AvatarComponent)
     const cameraComponent = getOptionalComponent(getState(EngineState).viewerEntity, FollowCameraComponent)
 

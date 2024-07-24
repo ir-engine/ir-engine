@@ -25,14 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { BoxGeometry, Group, Mesh, MeshNormalMaterial } from 'three'
 
-import {
-  createEntity,
-  getComponent,
-  getMutableComponent,
-  removeEntity,
-  setComponent,
-  UUIDComponent
-} from '@etherealengine/ecs'
+import { createEntity, getComponent, removeEntity, setComponent, UUIDComponent } from '@etherealengine/ecs'
 import { EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -64,12 +57,13 @@ export const initializeSpatialEngine = (canvas?: HTMLCanvasElement) => {
   setComponent(localFloorEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(localFloorEntity, TransformComponent)
   setComponent(localFloorEntity, VisibleComponent, true)
+  setComponent(localFloorEntity, SceneComponent)
   const origin = new Group()
   addObjectToGroup(localFloorEntity, origin)
-  const originHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
-  setObjectLayers(originHelperMesh, ObjectLayers.Gizmos)
-  originHelperMesh.frustumCulled = false
-  origin.add(originHelperMesh)
+  const floorHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
+  setObjectLayers(floorHelperMesh, ObjectLayers.Gizmos)
+  floorHelperMesh.frustumCulled = false
+  origin.add(floorHelperMesh)
 
   const viewerEntity = createEntity()
   setComponent(viewerEntity, NameComponent, 'viewer')
@@ -88,11 +82,8 @@ export const initializeSpatialEngine = (canvas?: HTMLCanvasElement) => {
   camera.layers.enable(ObjectLayers.TransformGizmo)
   camera.layers.enable(ObjectLayers.UVOL)
 
-  setComponent(viewerEntity, SceneComponent)
-  getMutableComponent(viewerEntity, SceneComponent).children.merge([originEntity, viewerEntity, localFloorEntity])
-
   if (canvas) {
-    setComponent(viewerEntity, RendererComponent, { canvas })
+    setComponent(viewerEntity, RendererComponent, { canvas, scenes: [originEntity, localFloorEntity, viewerEntity] })
     initializeEngineRenderer(viewerEntity)
     PerformanceManager.buildPerformanceState(getComponent(viewerEntity, RendererComponent))
   }

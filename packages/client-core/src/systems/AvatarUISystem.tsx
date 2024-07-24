@@ -55,7 +55,6 @@ import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -132,14 +131,15 @@ const raycastComponentData = {
 } as RaycastArgs
 
 const onSecondaryClick = () => {
-  const { physicsWorld } = getState(PhysicsState)
+  const physicsWorld = Physics.getWorld(AvatarComponent.getSelfAvatarEntity())
+  if (!physicsWorld) return
   const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const hits = Physics.castRayFromCamera(
+    physicsWorld,
     getComponent(Engine.instance.cameraEntity, CameraComponent),
     pointerPosition,
-    physicsWorld,
     raycastComponentData
   )
   const state = getMutableState(AvatarUIContextMenuState)
