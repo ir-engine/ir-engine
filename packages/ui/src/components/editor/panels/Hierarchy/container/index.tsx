@@ -80,6 +80,23 @@ const toValidHierarchyNodeName = (entity: Entity, name: string): string => {
   return name
 }
 
+const didHierarchyChange = (prev: HierarchyTreeNodeType[], curr: HierarchyTreeNodeType[]) => {
+  if (prev.length !== curr.length) return true
+
+  for (let i = 0; i < prev.length; i++) {
+    const prevNode = prev[i]
+    const currNode = curr[i]
+    if (
+      prevNode.childIndex !== currNode.childIndex ||
+      prevNode.depth !== currNode.depth ||
+      prevNode.entity !== currNode.entity
+    )
+      return true
+  }
+
+  return false
+}
+
 /**
  * HierarchyPanel function component provides view for hierarchy tree.
  */
@@ -177,7 +194,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   }, [])
 
   useEffect(() => {
-    entityHierarchy.set(gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[]))
+    const hierarchy = gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[])
+    if (didHierarchyChange(entityHierarchy.value as HierarchyTreeNodeType[], hierarchy)) entityHierarchy.set(hierarchy)
   }, [expandedNodes, index, gltfSnapshot, gltfState, selectionState.selectedEntities])
 
   /* Expand & Collapse Functions */
@@ -515,7 +533,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             </Button>
           }
         >
-          <div className="h-[600px] w-72 overflow-y-auto">
+          <div className="h-[600px] w-96 overflow-y-auto">
             <ElementList type="prefabs" />
           </div>
         </Popup>
@@ -625,12 +643,7 @@ export default function HierarchyPanel() {
 
     if (index === undefined) return null
     return (
-      <HierarchyPanelContents
-        key={`${sourceID}-${index.value}`}
-        rootEntityUUID={rootEntityUUID}
-        sceneURL={sourceID}
-        index={index.value}
-      />
+      <HierarchyPanelContents key={sourceID} rootEntityUUID={rootEntityUUID} sceneURL={sourceID} index={index.value} />
     )
   }
 
