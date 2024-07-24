@@ -35,7 +35,6 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import logger from '@etherealengine/common/src/logger'
-import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
 import { Engine } from '@etherealengine/ecs'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import {
@@ -43,9 +42,9 @@ import {
   PlaybackState,
   RecordingState
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { dispatchAction, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
-import { SpectateActions, SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
+import { SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
 import { endXRSession, requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
@@ -57,6 +56,7 @@ import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { useFeatureFlags } from '@etherealengine/engine/src/FeatureFlagsHook'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
+import { SearchParamState } from '../../common/services/RouterService'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -139,9 +139,13 @@ export const MediaIconsBox = () => {
   }
 
   const xrSessionActive = xrState.sessionActive.value
+
   const handleExitSpectatorClick = () => {
-    deleteSearchParams('spectate')
-    dispatchAction(SpectateActions.exitSpectate({ spectatorUserID: Engine.instance.userID }))
+    if (spectating) {
+      SearchParamState.set('spectate', none)
+    } else {
+      SearchParamState.set('spectate', '')
+    }
   }
 
   return (
@@ -261,7 +265,8 @@ export const MediaIconsBox = () => {
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
-          Exit Spectate
+          {/* todo - better UX for entering spectate mode */}
+          {spectating ? 'Exit Spectate' : 'Enter Spectate'}
         </button>
       )}
       {/* {recordScopes && (
