@@ -157,7 +157,7 @@ const EditorContainer = () => {
     if (!sceneAssetID.value || !scene || !viewerEntity) return
 
     return setCurrentEditorScene(sceneQuery[0].url, sceneAssetID.value as EntityUUID)
-  }, [viewerEntity, sceneAssetID.value])
+  }, [viewerEntity, sceneAssetID, sceneQuery[0]?.url])
 
   useEffect(() => {
     return () => {
