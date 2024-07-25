@@ -23,22 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Quaternion, Vector3 } from 'three'
-
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { Vector3_Zero } from '../common/constants/MathConstants'
+import { Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
 import { isSafari } from '../common/functions/isMobile'
-import { PhysicsState } from '../physics/state/PhysicsState'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin } from '../transform/updateWorldOrigin'
 import { RendererComponent } from './../renderer/WebGLRendererSystem'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
-
-const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
 export const onSessionEnd = () => {
   const xrState = getMutableState(XRState)
@@ -50,11 +45,22 @@ export const onSessionEnd = () => {
 
   getMutableState(XRState).xrFrame.set(null)
 
-  getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.domElement.style.display = ''
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  renderer.renderer!.domElement.style.display = ''
+  renderer.needsResize = true
 
-  const worldOriginTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
-  worldOriginTransform.position.copy(Vector3_Zero)
-  worldOriginTransform.rotation.identity()
+  const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+  originTransform.position.copy(Vector3_Zero)
+  originTransform.rotation.identity()
+  originTransform.scale.copy(Vector3_One)
+
+  const localFloorTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
+  localFloorTransform.position.copy(Vector3_Zero)
+  localFloorTransform.rotation.identity()
+  localFloorTransform.scale.copy(Vector3_One)
+
+  const viewerTransform = getComponent(Engine.instance.viewerEntity, TransformComponent)
+  viewerTransform.scale.copy(Vector3_One)
 
   ReferenceSpace.origin = null
   ReferenceSpace.localFloor = null
@@ -67,7 +73,7 @@ export const onSessionEnd = () => {
 
 export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' | 'immersive-vr') => {
   const xrState = getMutableState(XRState)
-  const xrManager = getComponent(Engine.instance.viewerEntity, RendererComponent).xrManager!
+  const xrManager = getComponent(Engine.instance.viewerEntity, RendererComponent).xrManager
 
   // @todo - hack to detect nreal
   const params = new URL(document.location.href).searchParams
@@ -121,7 +127,7 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
 
   xrState.sessionMode.set(mode)
 
-  await xrManager.setSession(xrSession, framebufferScaleFactor)
+  await xrManager!.setSession(xrSession, framebufferScaleFactor)
 
   /** Hide the canvas - do not do this for the WebXR emulator */
   /** @todo currently, XRSession.visibilityState is undefined in the webxr emulator - we need a better check*/
@@ -137,14 +143,6 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
 }
 
 export const getReferenceSpaces = (xrSession: XRSession) => {
-  const worldOriginTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
-  const cameraAttachedEntity = getState(PhysicsState).cameraAttachedRigidbodyEntity || Engine.instance.cameraEntity
-  const transform = getComponent(cameraAttachedEntity, TransformComponent)
-
-  /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */
-  worldOriginTransform.position.copy(transform.position)
-  worldOriginTransform.rotation.copy(transform.rotation).multiply(quat180y)
-
   const onLocalFloorReset = (ev: XRReferenceSpaceEvent) => {
     /** @todo ev.transform is not yet implemented on the Quest browser */
     // if (ev.transform) {

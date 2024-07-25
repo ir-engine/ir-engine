@@ -23,26 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const FeatureFlags = {
-  Client: {
-    Menu: {
-      Social: 'ir.client.menu.social',
-      Emote: 'ir.client.menu.emote',
-      Avaturn: 'ir.client.menu.avaturn',
-      ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
-      CreateAvatar: 'ir.client.menu.createAvatar',
-      MotionCapture: 'ir.client.location.menu.motionCapture',
-      XR: 'ir.client.menu.xr'
-    }
-  },
-  Studio: {
-    Panel: {
-      VisualScript: 'ir.editor.panel.visualScript'
-    },
-    UI: {
-      Hierarchy: {
-        ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
-      }
-    }
-  }
+//https://stackoverflow.com/a/60476525
+
+import { useCallback } from 'react'
+import { useHookstate } from './StateFunctions'
+
+export const useReactiveRef = <T extends HTMLElement>() => {
+  const ref = useHookstate({ current: null })
+  const handleRef = useCallback((node) => {
+    ref.current.set(node)
+  }, [])
+  return [ref.value as { current: T | null }, handleRef] as const
 }

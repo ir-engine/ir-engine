@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+// Add unit tests for new patterns in packages/common/tests/regex.test.ts
+
 // eslint-disable-next-line no-control-regex
-export const INVALID_FILENAME_REGEX = /[_<>:"/\\|?*\u0000-\u001F]/g
+export const INVALID_FILENAME_REGEX = /[_<>:"/\\|?*\u0000-\u001F]/
 // eslint-disable-next-line no-control-regex
 export const INVALID_FILENAME_WHITESPACE_REGEX = /[\s_<>:"/\\|?*\u0000-\u001F]/
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
-export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-]{1,62}[a-zA-Z0-9_\-]$/
+export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-]{2,62}[a-zA-Z0-9_\-]$/
 
 /**
  * Matches CSS imports & URLS.
@@ -127,6 +129,13 @@ export const PROJECT_PUBLIC_REGEX = /projects\/[a-zA-Z0-9-_\/]+\/public\//
 export const PROJECT_THUMBNAIL_REGEX = /projects\/[a-zA-Z0-9-_\/]+\/thumbnails\//
 
 export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
+
+// =======================================================================
+// ========================= Helm Regex Patterns =========================
+// =======================================================================
+
+export const MAIN_CHART_REGEX = /etherealengine-([0-9]+\.[0-9]+\.[0-9]+)/g
+export const BUILDER_CHART_REGEX = /etherealengine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
 
 // ==========================================================================
 // ========================= Dynamic Regex Patterns =========================

@@ -19,12 +19,19 @@ Ethereal Engine. All Rights Reserved.
 */
 import config from '@etherealengine/common/src/config'
 import { defineState } from '@etherealengine/hyperflux'
+import React, { ReactNode } from 'react'
+import { FiHexagon } from 'react-icons/fi'
 
 export type PrefabShelfItem = {
   name: string
   url: string
   category: string
   detail?: string
+}
+
+export const PrefabIcons: Record<string, ReactNode> = {
+  Geo: <FiHexagon size="1.25rem" />,
+  default: <FiHexagon size="1.25rem" />
 }
 
 export const PrefabShelfState = defineState({
