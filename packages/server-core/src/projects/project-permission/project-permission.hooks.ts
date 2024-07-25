@@ -201,7 +201,7 @@ const makeRandomProjectOwner = async (context: HookContext<ProjectPermissionServ
 }
 
 /**
- * Gets project id from permission
+ * Gets project id from permission and sets it in query
  * @param context
  * @returns
  */
