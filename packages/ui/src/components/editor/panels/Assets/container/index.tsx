@@ -60,11 +60,11 @@ import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import { TablePagination } from '../../../../../primitives/tailwind/Table'
-import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
 import { FileIcon } from '../../Files/icon'
+import { AssetIconMap } from '../icons'
 
 type Category = {
   name: string
@@ -263,6 +263,7 @@ const AssetCategory = (props: {
     onClick: (category: Category) => void
     selectedCategory: Category | null
     collapsedCategories: State<{ [key: string]: boolean }>
+    category: Category
   }
   index: number
 }) => {
@@ -283,11 +284,11 @@ const AssetCategory = (props: {
   return (
     <div
       className={twMerge(
-        'flex h-9 cursor-pointer items-center gap-2',
+        'flex cursor-pointer items-center gap-2 text-[#B2B5BD]',
         category.depth === 0 && !category.collapsed && 'mt-0',
-        selectedCategory?.name === category.name && 'm-1 rounded bg-[#191B1F] text-[#F5F5F5]'
+        selectedCategory?.name === category.name && 'rounded bg-[#191B1F]'
       )}
-      style={{ marginLeft: category.depth * 16 }}
+      style={{ marginLeft: category.depth * 16, height: `${fontSize * 3}px` }}
       onClick={handleSelectCategory}
     >
       <Button
@@ -296,13 +297,17 @@ const AssetCategory = (props: {
         title={category.collapsed ? 'expand' : 'collapse'}
         startIcon={category.collapsed ? <IoIosArrowForward /> : <IoIosArrowDown />}
       />
+      <AssetIconMap name={category.name} />
       <div className="flex w-full items-center gap-1 pr-2">
-        <Text
-          className={twMerge("flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]")}
+        <span
+          className={twMerge(
+            "flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]",
+            selectedCategory?.name === category.name && 'text-[#F5F5F5]'
+          )}
           style={{ fontSize: `${fontSize}px` }}
         >
           {category.name}
-        </Text>
+        </span>
         {/* <HiEye className="flex flex-row items-center gap-2 ml-auto text-[#e7e7e7] text-sm" onClick={handlePreview} /> */}
       </div>
     </div>
@@ -368,20 +373,21 @@ const CategoriesList = ({
   return (
     <div
       ref={listRef}
-      className="mb-8 h-full overflow-x-hidden overflow-y-scroll bg-[#0E0F11] pb-8"
+      className="mb-8 h-full overflow-x-hidden overflow-y-scroll bg-[#0E0F11] px-2 pb-8"
       style={style}
       onScroll={handleScroll}
     >
       {categories.map((category, index) => (
         <AssetCategory
-          key={category.name}
+          key={category.name + index}
           data={{
             categories: categories as Category[],
             selectedCategory: selectedCategory,
             onClick: (category: Category) => {
               onSelectCategory(category)
             },
-            collapsedCategories
+            collapsedCategories,
+            category
           }}
           index={index}
         />

@@ -118,7 +118,7 @@ export const FileTableListBody = ({
   const tableColumns = {
     name: (
       <span
-        className="flex max-h-7 flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]"
+        className="flex h-7 max-h-7 flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]"
         style={{ fontSize: `${fontSize}px` }}
       >
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
@@ -143,7 +143,7 @@ export const FileTableListBody = ({
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
         .map((header, idx) => (
-          <td key={idx} className="text-base" style={{ fontSize: `${fontSize}px` }}>
+          <td key={idx} style={{ fontSize: `${fontSize}px` }}>
             {tableColumns[header]}
           </td>
         ))}
