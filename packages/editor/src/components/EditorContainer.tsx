@@ -61,6 +61,7 @@ import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
 import { setCurrentEditorScene } from '../functions/sceneFunctions'
+import './Editor2Container.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
@@ -156,7 +157,7 @@ const EditorContainer = () => {
     if (!sceneAssetID.value || !scene || !viewerEntity) return
 
     return setCurrentEditorScene(sceneQuery[0].url, sceneAssetID.value as EntityUUID)
-  }, [viewerEntity, sceneAssetID.value])
+  }, [viewerEntity, sceneAssetID, sceneQuery[0]?.url])
 
   useEffect(() => {
     return () => {
