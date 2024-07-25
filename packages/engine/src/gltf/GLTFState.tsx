@@ -27,16 +27,13 @@ import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
-import config from '@etherealengine/common/src/config'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
   createEntity,
-  Engine,
   Entity,
   EntityUUID,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -65,10 +62,12 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
@@ -86,9 +85,9 @@ export const GLTFAssetState = defineState({
   },
 
   loadScene: (sceneURL: string, uuid: string) => {
-    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID)
-    getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, getState(EngineState).originEntity)
     getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
+    setComponent(gltfEntity, SceneComponent)
 
     return () => {
       GLTFSourceState.unload(gltfEntity)
@@ -96,8 +95,6 @@ export const GLTFAssetState = defineState({
     }
   }
 })
-
-const fileServer = config.client.fileServer
 
 export const GLTFSourceState = defineState({
   name: 'ee.engine.gltf.GLTFSourceState',
@@ -374,7 +371,8 @@ const ParentNodeReactor = (props: {
   documentID: string
 }) => {
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
-  if (!parentEntity) return null
+  const physicsWorld = Physics.useWorld(parentEntity)
+  if (!parentEntity || !physicsWorld) return null
 
   return <NodeReactor {...props} />
 }

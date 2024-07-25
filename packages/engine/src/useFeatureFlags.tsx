@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
-export function useFeatureFlags(flagNames: string[]): boolean[] {
+const useFeatureFlags = (flagNames: string[]): boolean[] => {
   const response = useFind(featureFlagSettingPath, {
     query: {
       $or: flagNames.map((flagName) => ({ flagName })),
@@ -34,7 +34,7 @@ export function useFeatureFlags(flagNames: string[]): boolean[] {
     }
   })
 
-  if (!response.data) {
+  if (response.status !== 'success') {
     return []
   }
 
@@ -43,3 +43,5 @@ export function useFeatureFlags(flagNames: string[]): boolean[] {
     return flag ? flag.flagValue : true
   })
 }
+
+export default useFeatureFlags

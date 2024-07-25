@@ -29,8 +29,14 @@ import logger from '@etherealengine/common/src/logger'
 import { getMutableState, getState, HyperFlux } from '@etherealengine/hyperflux'
 
 import { ECSState } from './ECSState'
-import { executeSystem, SystemUUID } from './SystemFunctions'
-import { AnimationSystemGroup, InputSystemGroup, PresentationSystemGroup, SimulationSystemGroup } from './SystemGroups'
+import { executeSystem, SystemDefinitions, SystemUUID } from './SystemFunctions'
+import {
+  AnimationSystemGroup,
+  DefaultSystemPipeline,
+  InputSystemGroup,
+  PresentationSystemGroup,
+  SimulationSystemGroup
+} from './SystemGroups'
 import { nowMilliseconds } from './Timer'
 
 const TimerConfig = {
@@ -109,6 +115,24 @@ export const executeFixedSystem = (systemUUID: SystemUUID) => {
       // fast-forward if the simulation is too far behind
       ecsState.simulationTime.set((t) => Math.floor(frameTime / simulationTimestep) * simulationTimestep)
       break
+    }
+  }
+}
+
+export const getDAG = (systemUUIDs = DefaultSystemPipeline, depth = 0) => {
+  for (const systemUUID of systemUUIDs) {
+    const system = SystemDefinitions.get(systemUUID)
+    if (!system) return
+
+    for (const preSystem of system.preSystems) {
+      getDAG([preSystem], depth + 1)
+    }
+    console.log('-'.repeat(depth), system.uuid.split('.').pop())
+    for (const subSystem of system.subSystems) {
+      getDAG([subSystem], depth + 1)
+    }
+    for (const postSystem of system.postSystems) {
+      getDAG([postSystem], depth + 1)
     }
   }
 }

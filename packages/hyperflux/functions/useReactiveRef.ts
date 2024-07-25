@@ -23,8 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VALID_SCENE_NAME_REGEX, WINDOWS_RESERVED_NAME_REGEX } from '@etherealengine/common/src/regex'
+//https://stackoverflow.com/a/60476525
 
-export default function isValidSceneName(sceneName: string) {
-  return !WINDOWS_RESERVED_NAME_REGEX.test(sceneName) && VALID_SCENE_NAME_REGEX.test(sceneName)
+import { useCallback } from 'react'
+import { useHookstate } from './StateFunctions'
+
+export const useReactiveRef = <T extends HTMLElement>() => {
+  const ref = useHookstate({ current: null })
+  const handleRef = useCallback((node) => {
+    ref.current.set(node)
+  }, [])
+  return [ref.value as { current: T | null }, handleRef] as const
 }
