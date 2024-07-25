@@ -52,9 +52,12 @@ import { BodyTypes, SceneQueryType, Shapes } from '../../physics/types/PhysicsTy
 import { addObjectToGroup, GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { TransformComponent } from '../../SpatialModule'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
+import { InputComponent } from '../components/InputComponent'
 import { InputState } from '../state/InputState'
 import ClientInputHeuristics, { HeuristicData, HeuristicFunctions, IntersectionData } from './ClientInputHeuristics'
 
@@ -258,6 +261,7 @@ describe('ClientInputHeuristics', () => {
 
         const data = new Set<IntersectionData>()
 
+        // Run and check that nothing was added
         ClientInputHeuristics.applyBBoxes(data, ray, hitTarget)
         assert.equal(data.size, 0)
       })
@@ -274,6 +278,7 @@ describe('ClientInputHeuristics', () => {
         const data = new Set<IntersectionData>()
         assert.equal(data.size, 0)
 
+        // Run and check that nothing was added
         ClientInputHeuristics.applyBBoxes(data, ray, hitTarget)
         assert.equal(data.size, 0)
       })
@@ -418,8 +423,8 @@ describe('ClientInputHeuristics', () => {
       await act(() => rerender(<></>))
       // getState(PhysicsState).physicsWorld.step() // Cannot step the physics if there is no physicsWorld
 
+      // Run and check that nothing was added
       ClientInputHeuristics.applyPhysicsColliders(data, raycast)
-
       assert.equal(data.size, 0)
 
       unmount()
@@ -452,8 +457,8 @@ describe('ClientInputHeuristics', () => {
       await act(() => rerender(<></>))
       getState(PhysicsState).physicsWorld.step()
 
+      // Run and check that nothing was added
       ClientInputHeuristics.applyPhysicsColliders(data, raycast)
-
       assert.equal(data.size, 0)
 
       unmount()
@@ -529,7 +534,7 @@ describe('ClientInputHeuristics', () => {
         // Remove the ancestor so that the `if (!parentObject) continue` code branch is hit
         box1.entity = undefined! as Entity
         box2.entity = undefined! as Entity
-        // Run and check the result
+        // Run and check that nothing was added
         ClientInputHeuristics.applyMeshes(data, Editing, raycaster)
         assert.equal(data.size, 0)
       })
@@ -598,8 +603,244 @@ describe('ClientInputHeuristics', () => {
         // Remove the ancestor so that the `if (!parentObject) continue` code branch is hit
         box1.entity = undefined! as Entity
         box2.entity = undefined! as Entity
-        // Run and check the result
+        // Run and check that nothing was added
         ClientInputHeuristics.applyMeshes(data, Editing, raycaster)
+        assert.equal(data.size, 0)
+      })
+    })
+  })
+
+  describe('applyEditor', () => {
+    beforeEach(async () => {
+      createEngine()
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    describe('if there are gizmoPickerObjects ...', () => {
+      // objects will be the combined GroupComponent arrays of all gizmoPickerObjectsQuery entities
+
+      it('... should enable the ObjectLayers.TransformGizmo layer in raycaster.layers', () => {
+        const testEntity = createEntity()
+        setComponent(testEntity, InputComponent)
+        setComponent(testEntity, GroupComponent)
+        setComponent(testEntity, VisibleComponent)
+        setComponent(testEntity, TransformGizmoTagComponent)
+
+        const data = new Set<IntersectionData>()
+        assert.equal(data.size, 0)
+
+        const rayOrigin = new Vector3(0, 0, 0)
+        const rayDirection = new Vector3(3, 3, 3).normalize()
+        const raycaster = new Raycaster(rayOrigin, rayDirection)
+
+        assert.equal(raycaster.layers.isEnabled(ObjectLayers.TransformGizmo), false)
+        ClientInputHeuristics.applyEditor(data, raycaster)
+        assert.equal(raycaster.layers.isEnabled(ObjectLayers.TransformGizmo), true)
+      })
+
+      it('... should add the parentObject.entity and hit.distance to the `@param intersectionData` for every gizmoPickerObject hit by the `@param caster`', () => {
+        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
+        const one = createEntity()
+        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
+        setComponent(one, VisibleComponent)
+        setComponent(one, MeshComponent, box1)
+        setComponent(one, GroupComponent)
+        addObjectToGroup(one, box1)
+        setComponent(one, InputComponent)
+        setComponent(one, TransformGizmoTagComponent)
+
+        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
+        const two = createEntity()
+        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
+        setComponent(two, VisibleComponent)
+        setComponent(two, MeshComponent, box2)
+        setComponent(two, GroupComponent)
+        addObjectToGroup(two, box2)
+        setComponent(two, InputComponent)
+        setComponent(two, TransformGizmoTagComponent)
+
+        const box3 = new Mesh(new BoxGeometry(2, 2, 2))
+        const three = createEntity()
+        setComponent(three, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
+        setComponent(three, VisibleComponent)
+        setComponent(three, MeshComponent, box3)
+        setComponent(three, GroupComponent)
+        addObjectToGroup(three, box3)
+        setComponent(three, InputComponent)
+        // setComponent(three, TransformGizmoTagComponent)  // Do not add three to the gizmoPickerObject query
+
+        const KnownEntities = [one, two]
+
+        const rayOrigin = new Vector3(0, 0, 0)
+        const rayDirection = new Vector3(3, 3, 3).normalize()
+        const raycaster = new Raycaster(rayOrigin, rayDirection)
+
+        const data = new Set<IntersectionData>()
+        assert.equal(data.size, 0)
+
+        ClientInputHeuristics.applyEditor(data, raycaster)
+        assert.notEqual(data.size, 0)
+        const result = [...data]
+        for (const hit of result) {
+          assert.equal(KnownEntities.includes(hit.entity), true)
+          assertFloatApproxNotEq(hit.distance, 0)
+          assert.notEqual(hit.entity, three)
+        }
+      })
+
+      it('... should not do anything if the ancestor object we found does not belong to an entity', () => {
+        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
+        const one = createEntity()
+        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
+        setComponent(one, VisibleComponent)
+        setComponent(one, MeshComponent, box1)
+        setComponent(one, GroupComponent)
+        addObjectToGroup(one, box1)
+        setComponent(one, InputComponent)
+        setComponent(one, TransformGizmoTagComponent)
+
+        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
+        const two = createEntity()
+        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
+        setComponent(two, VisibleComponent)
+        setComponent(two, MeshComponent, box2)
+        setComponent(two, GroupComponent)
+        addObjectToGroup(two, box2)
+        setComponent(two, InputComponent)
+        setComponent(two, TransformGizmoTagComponent)
+
+        const rayOrigin = new Vector3(0, 0, 0)
+        const rayDirection = new Vector3(3, 3, 3).normalize()
+        const raycaster = new Raycaster(rayOrigin, rayDirection)
+
+        const data = new Set<IntersectionData>()
+        assert.equal(data.size, 0)
+
+        // Remove the ancestor so that the `if (!parentObject) continue` code branch is hit
+        box1.entity = undefined! as Entity
+        box2.entity = undefined! as Entity
+        // Run and check that nothing was added
+        ClientInputHeuristics.applyEditor(data, raycaster)
+        assert.equal(data.size, 0)
+      })
+    })
+
+    describe('if there are no gizmoPickerObjects ...', () => {
+      // objects will be the combined GroupComponent arrays of the inputObjectsQuery entities
+
+      it('... should disable the ObjectLayers.TransformGizmo layer in raycaster.layers', () => {
+        const testEntity = createEntity()
+        setComponent(testEntity, InputComponent)
+        setComponent(testEntity, GroupComponent)
+        setComponent(testEntity, VisibleComponent)
+        // setComponent(testEntity, TransformGizmoTagComponent)  // Do not enable, so that the gizmoPicker.length branch of the code is hit
+
+        const data = new Set<IntersectionData>()
+        assert.equal(data.size, 0)
+
+        const rayOrigin = new Vector3(0, 0, 0)
+        const rayDirection = new Vector3(3, 3, 3).normalize()
+        const raycaster = new Raycaster(rayOrigin, rayDirection)
+        raycaster.layers.enable(ObjectLayers.TransformGizmo)
+
+        assert.equal(raycaster.layers.isEnabled(ObjectLayers.TransformGizmo), true)
+        ClientInputHeuristics.applyEditor(data, raycaster)
+        assert.equal(raycaster.layers.isEnabled(ObjectLayers.TransformGizmo), false)
+      })
+
+      it('... should add the parentObject.entity and hit.distance to the `@param intersectionData` for every inputrObject hit by the `@param caster`', () => {
+        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
+        const one = createEntity()
+        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
+        setComponent(one, VisibleComponent)
+        setComponent(one, MeshComponent, box1)
+        setComponent(one, GroupComponent)
+        addObjectToGroup(one, box1)
+        setComponent(one, InputComponent)
+        // setComponent(one, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
+
+        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
+        const two = createEntity()
+        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
+        setComponent(two, VisibleComponent)
+        setComponent(two, MeshComponent, box2)
+        setComponent(two, GroupComponent)
+        addObjectToGroup(two, box2)
+        setComponent(two, InputComponent)
+        // setComponent(two, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
+
+        const box3 = new Mesh(new BoxGeometry(2, 2, 2))
+        const three = createEntity()
+        setComponent(three, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
+        setComponent(three, VisibleComponent)
+        setComponent(three, MeshComponent, box3)
+        setComponent(three, GroupComponent)
+        addObjectToGroup(three, box3)
+        // setComponent(three, InputComponent)  // Do not add the InputComponent, so that it is not part of inputObjectsQuery
+
+        const KnownEntities = [one, two]
+
+        const rayOrigin = new Vector3(0, 0, 0)
+        const rayDirection = new Vector3(3, 3, 3).normalize()
+        const raycaster = new Raycaster(rayOrigin, rayDirection)
+
+        const data = new Set<IntersectionData>()
+        assert.equal(data.size, 0)
+
+        ClientInputHeuristics.applyEditor(data, raycaster)
+        assert.notEqual(data.size, 0)
+        const result = [...data]
+        for (const hit of result) {
+          assert.equal(KnownEntities.includes(hit.entity), true)
+          assertFloatApproxNotEq(hit.distance, 0)
+          assert.notEqual(hit.entity, three)
+        }
+      })
+
+      it('... should not do anything if the ancestor object we found does not belong to an entity', () => {
+        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
+        const one = createEntity()
+        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
+        setComponent(one, VisibleComponent)
+        setComponent(one, MeshComponent, box1)
+        setComponent(one, GroupComponent)
+        addObjectToGroup(one, box1)
+        setComponent(one, InputComponent)
+        // setComponent(one, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
+
+        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
+        const two = createEntity()
+        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
+        setComponent(two, VisibleComponent)
+        setComponent(two, MeshComponent, box2)
+        setComponent(two, GroupComponent)
+        addObjectToGroup(two, box2)
+        setComponent(two, InputComponent)
+        // setComponent(two, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
+
+        const box3 = new Mesh(new BoxGeometry(2, 2, 2))
+        const three = createEntity()
+        setComponent(three, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
+        setComponent(three, VisibleComponent)
+        setComponent(three, MeshComponent, box3)
+        setComponent(three, GroupComponent)
+        addObjectToGroup(three, box3)
+        // setComponent(three, InputComponent)  // Do not add the InputComponent, so that it is not part of inputObjectsQuery
+
+        const KnownEntities = [one, two]
+
+        const rayOrigin = new Vector3(0, 0, 0)
+        const rayDirection = new Vector3(3, 3, 3).normalize()
+        const raycaster = new Raycaster(rayOrigin, rayDirection)
+
+        const data = new Set<IntersectionData>()
+        assert.equal(data.size, 0)
+
+        // Run and check that nothing was added
+        ClientInputHeuristics.applyEditor(data, raycaster)
         assert.equal(data.size, 0)
       })
     })
@@ -619,22 +860,6 @@ describe('ClientInputHeuristics', () => {
       // compute the distance from the inputSourceEntity to the inputEntity
       // If the distance is within the proximity threshold
         // should store the inputEntity and the distanceSquared to the inputSourceEntity into the intersectionData
-  })
-
-  // (raycasted)
-  describe("applyEditor", () => {
-    // Find the list of gizmoPickerObjects.entity for the gizmo heuristic    (Input, Visible, Group, TransformGizmo)
-    // Find the list of inputObjects  (Input, Visible, Group)
-    // if there are gizmoPickerObjects,
-    //   objects will be their GroupComponent arrays combined
-    //   the raycaster will enable ObjectLayers.TransformGizmo
-    // else:
-    //   objects will be the combined GroupComponent arrays of the inputObjects list
-    //   the raycaster will disable ObjectLayers.TransformGizmo
-    // ... for all hits of `@param caster`.intersectObjects( objects, recursive )
-      // find the first ancestor of the object hit that doesn't have a parent
-      // should not do anything if the ancestor object we found does not belong to an entity
-      // should add the parentObject.entity and hit.distance to the `@param intersectionData` for every object hit by the `@param caster`
   })
 
   // (raycasted)
