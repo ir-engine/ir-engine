@@ -133,8 +133,7 @@ export const FileTableListBody = ({
   return (
     <tr
       key={file.key}
-      className={`text-[#a3a3a3] hover:bg-[#191B1F]`}
-      style={{ height: `${fontSize * 3}px` }}
+      className={`h-9 text-[#a3a3a3] hover:bg-[#191B1F]`}
       onContextMenu={onContextMenu}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
