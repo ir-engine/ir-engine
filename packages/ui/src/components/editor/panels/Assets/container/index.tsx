@@ -290,7 +290,7 @@ const AssetCategory = (props: {
         category.depth === 0 && !category.collapsed && 'mt-0',
         selectedCategory?.name === category.name && 'rounded bg-[#191B1F]'
       )}
-      style={{ marginLeft: category.depth * 16 }}
+      style={{ marginLeft: category.depth > 1 ? category.depth * 16 : 0 }}
       onClick={handleSelectCategory}
     >
       <Button
