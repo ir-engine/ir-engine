@@ -82,25 +82,15 @@ function pushToEngine(): void {
 // Function to send cached data to Google Analytics
 function sendToGoogleAnalytics(data: any): void {
   // Log to Google Analytics if gtag is available
-  if (window.gtag) {
+  if (typeof window !== 'undefined' && window.gtag) {
     if (Array.isArray(data)) {
       data.forEach((item) => {
-        if (item) {
-          const { msg, level, component } = item
-          window.gtag('event', 'log_data', {
-            event_category: `logs_${level}`,
-            event_label: component,
-            value: msg
-          })
+        if (item && window.gtag) {
+          window.gtag('event', 'irengine_logs', item)
         }
       })
     } else {
-      const { msg, level, component } = data
-      window.gtag('event', 'log_data', {
-        event_category: `logs_${level}`,
-        event_label: component,
-        value: msg
-      })
+      window.gtag('event', 'irengine_logs', data)
     }
   }
 }

@@ -32,32 +32,37 @@ const useGoogleAnalytics = () => {
   const isGuest = user.isGuest.value
   const gaMeasurementId = user.userSetting.gaMeasurementId.value
 
-  const initializeGoogleAnalytics = () => {
-    const script = document.createElement('script')
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`
-    script.async = true
-    document.head.appendChild(script)
-
-    script.onload = () => {
-      window.dataLayer = window.dataLayer || []
-      window.gtag = function () {
-        window.dataLayer.push(arguments)
-        console.log(window.dataLayer)
-      }
-      window.gtag('js', new Date())
-      window.gtag('config', gaMeasurementId)
-    }
-  }
-
   useEffect(() => {
-    // If user is not a guest, initialize Google Analytics
-    if (!isGuest) {
-      // If the user has a GA measurement ID
-      if (gaMeasurementId) {
-        initializeGoogleAnalytics()
+    // If user is not a guest and has a GA measurementId , initialize Google Analytics
+    if (!isGuest && gaMeasurementId) {
+      const script = document.createElement('script')
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`
+      script.async = true
+      document.head.appendChild(script)
+
+      script.onload = () => {
+        window.dataLayer = window.dataLayer || []
+        window.gtag = function () {
+          window.dataLayer!.push(arguments)
+        }
+        window.gtag('js', new Date())
+        window.gtag('config', gaMeasurementId)
+      }
+
+      // Clean up the script tag
+      return () => {
+        document.head.removeChild(script)
+
+        // Cleanup window.gtag and dataLayer to remove previous configurations
+        if (window.dataLayer) {
+          delete window.dataLayer
+        }
+        if (window.gtag) {
+          delete window.gtag
+        }
       }
     }
-  }, [user])
+  }, [isGuest, gaMeasurementId])
 }
 
 export default useGoogleAnalytics
