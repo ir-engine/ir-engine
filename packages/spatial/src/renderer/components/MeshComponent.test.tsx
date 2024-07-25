@@ -37,6 +37,7 @@ import { State, getState } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { Geometry } from '../../common/constants/Geometry'
 import { ResourceState } from '../../resources/ResourceState'
+import { GroupComponent } from './GroupComponent'
 import { MeshComponent, useMeshComponent } from './MeshComponent'
 
 describe('MeshComponent', () => {
@@ -63,6 +64,27 @@ describe('MeshComponent', () => {
     removeComponent(entity, MeshComponent)
 
     assert(!hasComponent(entity, MeshComponent))
+  })
+
+  it('useMeshComponent creates mesh correctly', () => {
+    const entity = createEntity()
+    const geometry = new BoxGeometry(1, 1, 1)
+    const material = new MeshBasicMaterial({ color: 0xffff00 })
+
+    assert.doesNotThrow(() => {
+      const Reactor = () => {
+        const mesh = useMeshComponent(entity, geometry, material)
+        return <></>
+      }
+
+      const { rerender, unmount } = render(<Reactor />)
+
+      assert(hasComponent(entity, MeshComponent))
+      const mesh = getComponent(entity, MeshComponent)
+      assert(hasComponent(entity, GroupComponent) && getComponent(entity, GroupComponent).includes(mesh))
+      assert(mesh.userData['ignoreOnExport'])
+      unmount()
+    })
   })
 
   it('useMeshComponent disposes resources correctly', (done) => {

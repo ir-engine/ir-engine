@@ -79,16 +79,15 @@ const removeShaderFromObject = (obj: Mesh<any, Material & ScenePlacementMaterial
 
 function XRScenePlacementReactor({ obj }) {
   const xrState = getMutableState(XRState)
-  const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
-  const sessionActive = useHookstate(xrState.sessionActive)
+  const scenePlacementMode = useHookstate(xrState.scenePlacementMode).value
+  const sessionActive = useHookstate(xrState.sessionActive).value
 
   useEffect(() => {
-    const useShader = xrState.scenePlacementMode.value === 'placing'
-    if (useShader) {
-      addShaderToObject(obj)
-      return () => {
-        removeShaderFromObject(obj)
-      }
+    if (scenePlacementMode !== 'placing' || !sessionActive) return
+
+    addShaderToObject(obj)
+    return () => {
+      removeShaderFromObject(obj)
     }
   }, [scenePlacementMode, sessionActive])
 

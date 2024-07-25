@@ -43,11 +43,11 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { SDFShader } from '@etherealengine/spatial/src/renderer/effects/sdf/SDFShader'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { useRendererEntity } from '@etherealengine/spatial/src/renderer/functions/useRendererEntity'
 import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 
 export enum SDFMode {
@@ -96,7 +96,7 @@ export const SDFComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const sdfComponent = useComponent(entity, SDFComponent)
-    const rendererEntity = useScene(entity)
+    const rendererEntity = useRendererEntity(entity)
 
     useEffect(() => {
       const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)

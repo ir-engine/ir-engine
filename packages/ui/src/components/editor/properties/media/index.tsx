@@ -33,6 +33,7 @@ import {
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
+import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import {
   MediaComponent,
   MediaElementComponent,
@@ -144,6 +145,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.paths')}
         inputLabel={t('editor:properties.media.path')}
         values={media.resources.value as string[]}
+        dropTypes={[...ItemTypes.Audios, ...ItemTypes.Videos]}
         onChange={commitProperty(MediaComponent, 'resources')}
       />
 
