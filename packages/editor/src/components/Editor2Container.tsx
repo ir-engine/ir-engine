@@ -124,10 +124,9 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
   }
 }
 
-const EditorSceneContainer = (props: { scenePath: string }) => {
-  const { scenePath } = props
-  const { sceneAssetID, sceneName, projectName, uiEnabled, uiAddons } = useMutableState(EditorState)
-  const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath, type: 'scene' } }).data
+const EditorContainer = () => {
+  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, uiAddons } = useMutableState(EditorState)
+  const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '', type: 'scene' } }).data
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
   const dockPanelRef = useRef<DockLayout>(null)
@@ -174,7 +173,11 @@ const EditorSceneContainer = (props: { scenePath: string }) => {
 
   return (
     <main className="pointer-events-auto">
-      <div id="editor-container" className="flex flex-col bg-black">
+      <div
+        id="editor-container"
+        className="flex flex-col bg-black"
+        style={scenePath.value ? { background: 'transparent' } : {}}
+      >
         {uiEnabled.value && (
           <DndWrapper id="editor-container">
             <DragLayer />
@@ -208,11 +211,6 @@ const EditorSceneContainer = (props: { scenePath: string }) => {
       )}
     </main>
   )
-}
-
-const EditorContainer = () => {
-  const scenePath = useMutableState(EditorState).scenePath.value
-  return scenePath ? <EditorSceneContainer key={scenePath} scenePath={scenePath} /> : null
 }
 
 export default EditorContainer
