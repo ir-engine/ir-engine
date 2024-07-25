@@ -63,7 +63,7 @@ export const SaveSceneDialog = (props: { isExiting?: boolean; onConfirm?: () => 
     const abortController = new AbortController()
 
     try {
-      await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
+      await saveSceneGLTF(sceneAssetID!, projectName, sceneName, abortController.signal)
       const sourceID = getComponent(rootEntity, SourceComponent)
       getMutableState(GLTFModifiedState)[sourceID].set(none)
 
@@ -104,13 +104,13 @@ export const SaveNewSceneDialog = (props: { onConfirm?: () => void; onCancel?: (
     }
 
     modalProcessing.set(true)
-    const { projectName, sceneName, rootEntity } = getState(EditorState)
+    const { projectName, sceneName, rootEntity, sceneAssetID } = getState(EditorState)
     const sceneModified = EditorState.isModified()
     const abortController = new AbortController()
     try {
       if (sceneName || sceneModified) {
         if (inputSceneName.value && projectName) {
-          await saveSceneGLTF(null, projectName, inputSceneName.value, abortController.signal)
+          await saveSceneGLTF(sceneAssetID!, projectName, inputSceneName.value, abortController.signal, true)
 
           const sourceID = getComponent(rootEntity, SourceComponent)
           getMutableState(GLTFModifiedState)[sourceID].set(none)
@@ -139,10 +139,14 @@ export const SaveNewSceneDialog = (props: { onConfirm?: () => void; onCancel?: (
       onSubmit={handleSubmit}
       className="w-[50vw] max-w-2xl"
       submitLoading={modalProcessing.value}
+      submitButtonDisabled={inputError.value.length > 0}
     >
       <Input
         value={inputSceneName.value}
-        onChange={(event) => inputSceneName.set(event.target.value)}
+        onChange={(event) => {
+          inputError.set('')
+          inputSceneName.set(event.target.value)
+        }}
         label={t('editor:dialog.saveNewScene.lbl-name')}
         description={t('editor:dialog.saveNewScene.info-name')}
         error={inputError.value}

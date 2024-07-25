@@ -30,9 +30,9 @@ import { Quaternion, Vector3 } from 'three'
 
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { ReactorReconciler, applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { ReactorReconciler, applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux'
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@etherealengine/network'
 import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
@@ -42,9 +42,9 @@ import {
   RigidBodyComponent,
   RigidBodyKinematicTagComponent
 } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -57,11 +57,15 @@ describe('spawnAvatarReceptor', () => {
   beforeEach(async () => {
     createEngine()
     initializeSpatialEngine()
-    await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0
-    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
+    await Physics.load()
     Engine.instance.userID = 'user' as UserID
     sceneEntity = loadEmptyScene()
+
+    setComponent(sceneEntity, SceneComponent)
+    const physicsWorld = Physics.createWorld(getComponent(sceneEntity, UUIDComponent))
+    physicsWorld.timestep = 1 / 60
+
     createMockNetwork()
 
     const eventDispatcher = new EventDispatcher()
