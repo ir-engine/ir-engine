@@ -27,20 +27,19 @@ import { Intersection, Material, Mesh, Raycaster, Vector2 } from 'three'
 
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
 import { UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { addAuthoringHook } from '@etherealengine/engine/src/gltf/AuthoringHookState'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
-import { getState } from '@etherealengine/hyperflux'
+import { getState, startReactor, useImmediateEffect } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -126,14 +125,17 @@ export async function addMediaNode(
         parent!,
         before
       )
-      addAuthoringHook({
-        entityUUID,
-        sceneID,
-        callback: (entityUUID) => {
-          const entity = UUIDComponent.getEntityByUUID(entityUUID)
-          const modelComponent = getMutableComponent(entity, ModelComponent)
+      const reactor = startReactor(() => {
+        const entity = UUIDComponent.useEntityByUUID(entityUUID)
+        const modelComponent = useOptionalComponent(entity, ModelComponent)
+
+        useImmediateEffect(() => {
+          if (!modelComponent) return
           modelComponent.dereference.set(true)
-        }
+          reactor.stop()
+        }, [modelComponent])
+
+        return null
       })
     } else {
       EditorControlFunctions.createObjectFromSceneElement(
