@@ -109,7 +109,7 @@ export default function ScenesPanel() {
               {scenes.map((scene) => (
                 <div
                   key={scene.id}
-                  className="col-span-2 inline-flex h-64 w-64 cursor-pointer flex-col items-start justify-start gap-2 rounded-lg bg-[#191B1F] p-3 lg:col-span-1"
+                  className="col-span-2 inline-flex h-64 w-64 cursor-pointer flex-col gap-2 rounded-lg bg-[#191B1F] p-3 lg:col-span-1"
                 >
                   <img
                     src={scene.thumbnailURL ?? 'static/ir.svg'}
@@ -121,15 +121,10 @@ export default function ScenesPanel() {
                     className="object-fit block h-44 w-full grow cursor-pointer self-center rounded-lg"
                     onClick={() => onClickScene(scene)}
                   />
-                  <div className="inline-flex items-start justify-between self-stretch px-1">
+                  <div className="inline-flex justify-between self-stretch px-1">
                     <div className="inline-flex w-full flex-col items-start justify-start">
-                      <Text className="truncate text-sm leading-5 dark:text-[#A3A3A3]">{getSceneName(scene)}</Text>
-                      <Text
-                        component="h3"
-                        fontSize="xs"
-                        fontWeight="light"
-                        className="h-3.5 w-40 font-['Figtree'] leading-5 text-neutral-100"
-                      >
+                      <Text className="truncate text-sm text-[#A3A3A3]">{getSceneName(scene)}</Text>
+                      <Text fontSize="xs" fontWeight="light" className="h-3.5 w-40 leading-5 text-neutral-100">
                         {t('multitenancy:scene.edited')}{' '}
                         {t('common:timeAgo', { time: timeAgo(new Date(scene.updatedAt)) })}
                       </Text>
