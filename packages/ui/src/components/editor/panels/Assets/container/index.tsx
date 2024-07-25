@@ -286,11 +286,11 @@ const AssetCategory = (props: {
   return (
     <div
       className={twMerge(
-        'flex cursor-pointer items-center gap-2 text-[#B2B5BD]',
+        'flex h-9 cursor-pointer items-center gap-2 text-[#B2B5BD]',
         category.depth === 0 && !category.collapsed && 'mt-0',
         selectedCategory?.name === category.name && 'rounded bg-[#191B1F]'
       )}
-      style={{ marginLeft: category.depth * 16, height: `${fontSize * 3}px` }}
+      style={{ marginLeft: category.depth * 16 }}
       onClick={handleSelectCategory}
     >
       <Button
