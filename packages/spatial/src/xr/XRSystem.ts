@@ -30,7 +30,7 @@ import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { xrSessionChanged } from './XRSessionFunctions'
-import { useXRMovement, XRAction, XRState } from './XRState'
+import { XRAction, XRState } from './XRState'
 
 /**
  * System for XR session and input handling
@@ -63,9 +63,6 @@ const reactor = () => {
       navigator.xr?.removeEventListener('devicechange', updateSessionSupport)
     }
   }, [])
-
-  useXRMovement()
-
   return null
 }
 

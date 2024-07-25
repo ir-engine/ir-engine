@@ -41,15 +41,18 @@ import {
   RigidBodyComponent,
   RigidBodyFixedTagComponent
 } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
-import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { getAncestorWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { updateReferenceSpaceFromAvatarMovement } from '../../avatar/functions/moveAvatar'
-import { DefaultKillHeight, SceneSettingsComponent } from '../components/SceneSettingsComponent'
+import { SceneSettingsComponent } from '../components/SceneSettingsComponent'
 
 const heightKillApplicableQuery = defineQuery([
   RigidBodyComponent,
   NetworkObjectAuthorityTag,
+  Not(AvatarComponent),
   Not(RigidBodyFixedTagComponent)
 ])
 
@@ -58,14 +61,22 @@ const tempVector = new Vector3()
 
 const execute = () => {
   const settingsEntities = settingsQuery()
-  const sceneKillHeight = settingsEntities.reduce((min, entity) => {
-    return Math.min(min, getComponent(entity, SceneSettingsComponent).sceneKillHeight)
-  }, DefaultKillHeight)
+  const sceneKillHeights = settingsEntities.map((entity) => {
+    return [
+      getAncestorWithComponent(entity, SceneComponent),
+      getComponent(entity, SceneSettingsComponent).sceneKillHeight
+    ]
+  })
   const killableEntities = heightKillApplicableQuery()
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
 
   for (const entity of killableEntities) {
+    const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+    const sceneHeight = sceneKillHeights.find(([scene]) => scene === sceneEntity)?.[1]
+    if (typeof sceneHeight !== 'number') continue
+
     const rigidBodyPosition = getComponent(entity, RigidBodyComponent).position
-    if (rigidBodyPosition.y < sceneKillHeight) {
+    if (rigidBodyPosition.y < sceneHeight) {
       const uuid = getComponent(entity, UUIDComponent)
       const spawnState = getState(SpawnPoseState)[uuid]
 
@@ -76,10 +87,6 @@ const execute = () => {
       })
       TransformComponent.dirtyTransforms[entity] = true
 
-      const { cameraAttachedRigidbodyEntity } = getState(PhysicsState)
-      if (entity !== cameraAttachedRigidbodyEntity) continue
-
-      const { isCameraAttachedToAvatar } = getState(XRControlsState)
       if (!isCameraAttachedToAvatar) continue
 
       //@TODO see if we can implicitly update the reference space when the avatar teleports

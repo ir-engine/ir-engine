@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UUIDComponent } from '@etherealengine/ecs'
@@ -106,12 +106,16 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
     }
   }, [popupRef])
 
+  const [isAddComponentMenuOpen, setIsAddComponentMenuOpen] = useState(false)
+
   return (
     <>
       <div className="ml-auto mt-4 flex h-8 bg-zinc-900" id="add-component-popover">
         <Popup
           keepInside
           position={'left center'}
+          open={isAddComponentMenuOpen}
+          onClose={() => setIsAddComponentMenuOpen(false)}
           trigger={
             <Button
               startIcon={<HiOutlinePlusCircle />}
@@ -119,6 +123,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
               rounded="none"
               className="ml-auto w-40 bg-theme-highlight px-2"
               size="small"
+              onClick={() => setIsAddComponentMenuOpen(true)}
             >
               {t('editor:properties.lbl-addComponent')}
             </Button>
@@ -126,7 +131,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
           onOpen={() => calculateAndApplyOffset(popupRef)}
         >
           <div ref={popupRef} className="h-[600px] w-96 overflow-y-auto">
-            <ElementList type="components" />
+            <ElementList type="components" onSelect={() => setIsAddComponentMenuOpen(false)} />
           </div>
         </Popup>
       </div>
