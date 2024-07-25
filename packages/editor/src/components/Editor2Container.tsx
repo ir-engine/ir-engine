@@ -54,7 +54,7 @@ import DragLayer from './dnd/DragLayer'
 import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { EntityUUID } from '@etherealengine/ecs'
-import { useFeatureFlags } from '@etherealengine/engine/src/FeatureFlagsHook'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import 'rc-dock/dist/rc-dock.css'
@@ -157,7 +157,7 @@ const EditorContainer = () => {
     if (!sceneAssetID.value || !scene || !viewerEntity) return
 
     return setCurrentEditorScene(sceneQuery[0].url, sceneAssetID.value as EntityUUID)
-  }, [viewerEntity, sceneAssetID.value])
+  }, [viewerEntity, sceneAssetID, sceneQuery[0]?.url])
 
   useEffect(() => {
     return () => {

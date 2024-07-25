@@ -125,7 +125,9 @@ const ResourceFile = (props: {
   const [_, drag, preview] = useDrag(() => ({
     type: assetType,
     item: {
-      url: resource.url
+      url: resource.url,
+      type: assetType,
+      multiple: false
     },
     multiple: false
   }))
@@ -538,6 +540,7 @@ const AssetPanel = () => {
 
   const handleSelectCategory = (category: Category) => {
     selectedCategory.set(clone(category))
+    staticResourcesPagination.currentPage.set(0)
     !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }
 

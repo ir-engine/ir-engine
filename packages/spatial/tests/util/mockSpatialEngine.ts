@@ -23,23 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EventQueue, World as PhysicsWorld } from '@dimforge/rapier3d-compat'
+import { ECSState, Timer, setComponent } from '@etherealengine/ecs'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { EngineState } from '../../src/EngineState'
+import { initializeSpatialEngine } from '../../src/initializeEngine'
+import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
+import { XRState } from '../../src/xr/XRState'
+import { mockEngineRenderer } from './MockEngineRenderer'
 
-import { UndefinedEntity } from '@etherealengine/ecs'
-import { defineState } from '@etherealengine/hyperflux'
-import { Physics } from '../classes/Physics'
+export const mockSpatialEngine = () => {
+  initializeSpatialEngine()
 
-export const PhysicsState = defineState({
-  name: 'ee.engine.PhysicsState',
-  initial: () => {
-    return {
-      physicsSubsteps: 1,
-      physicsWorld: null! as PhysicsWorld,
-      physicsCollisionEventQueue: null! as EventQueue,
-      // used to ignore raycast hits for an entity the camera is attached to
-      cameraAttachedRigidbodyEntity: UndefinedEntity,
-      drainCollisions: null! as ReturnType<typeof Physics.drainCollisionEventQueue>,
-      drainContacts: null! as ReturnType<typeof Physics.drainContactEventQueue>
-    }
-  }
-})
+  const timer = Timer((time, xrFrame) => {
+    getMutableState(XRState).xrFrame.set(xrFrame)
+    // executeSystems(time)
+    getMutableState(XRState).xrFrame.set(null)
+  })
+  getMutableState(ECSState).timer.set(timer)
+
+  const { originEntity, localFloorEntity, viewerEntity } = getState(EngineState)
+  mockEngineRenderer(viewerEntity)
+  setComponent(viewerEntity, RendererComponent, { scenes: [originEntity, localFloorEntity, viewerEntity] })
+}
