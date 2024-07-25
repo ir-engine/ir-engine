@@ -53,7 +53,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { useFeatureFlags } from '@etherealengine/engine/src/FeatureFlagsHook'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { UserMenus } from '../../../UserUISystem'
 import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'

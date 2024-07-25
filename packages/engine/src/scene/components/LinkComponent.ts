@@ -37,7 +37,8 @@ import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
-const linkLogic = (linkComponent, xrState) => {
+const linkLogic = (linkEntity: Entity, xrState) => {
+  const linkComponent = getComponent(linkEntity, LinkComponent)
   if (!linkComponent.sceneNav) {
     xrState && xrState.session?.end()
     typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
@@ -46,13 +47,12 @@ const linkLogic = (linkComponent, xrState) => {
   }
 }
 const linkCallback = (linkEntity: Entity) => {
-  const linkComponent = getComponent(linkEntity, LinkComponent)
   const buttons = InputComponent.getMergedButtons(linkEntity)
   if (buttons.XRStandardGamepadTrigger?.down) {
     const xrState = getState(XRState)
-    linkLogic(linkComponent, xrState)
+    linkLogic(linkEntity, xrState)
   } else {
-    linkLogic(linkComponent, undefined)
+    linkLogic(linkEntity, undefined)
   }
 }
 
@@ -63,7 +63,7 @@ const linkCallbackName = 'linkCallback'
 export const LinkState = defineState({
   name: 'LinkState',
   initial: {
-    location: undefined
+    location: undefined as undefined | string
   }
 })
 
