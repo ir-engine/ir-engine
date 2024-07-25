@@ -53,7 +53,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { useFeatureFlags } from '@etherealengine/engine/src/FeatureFlagsHook'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { SearchParamState } from '../../common/services/RouterService'
