@@ -23,7 +23,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { clone, debounce, isEmpty } from 'lodash'
+import { clone, debounce } from 'lodash'
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -59,12 +59,14 @@ import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
-import { TablePagination } from '../../../../../primitives/tailwind/Table'
 import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
+import InfiniteScroll from '../../../../tailwind/InfiniteScroll'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
 import { FileIcon } from '../../Files/icon'
+
+const ASSETS_PAGE_LIMIT = 10
 
 type Category = {
   name: string
@@ -388,7 +390,7 @@ const AssetPanel = () => {
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
   const searchText = useHookstate('')
   const originalPath = useMutableState(EditorState).projectName.value
-  const staticResourcesPagination = useHookstate({ totalPages: -1, currentPage: 0 })
+  const staticResourcesPagination = useHookstate({ total: 0, skip: 0 })
   const assetsPreviewContext = useHookstate({ selectAssetURL: '' })
   const parentCategories = useHookstate<Category[]>([])
 
@@ -455,15 +457,20 @@ const AssetPanel = () => {
             }
           : undefined,
         $sort: { mimeType: 1 },
-        $skip: staticResourcesPagination.currentPage.value * 10
+        $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
       } as StaticResourceQuery
 
       Engine.instance.api
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
-          searchedStaticResources.set(resources.data)
-          staticResourcesPagination.merge({ totalPages: Math.ceil(resources.total / 10) })
+          if (staticResourcesPagination.skip.value > 0) {
+            searchedStaticResources.merge(resources.data)
+          } else {
+            searchedStaticResources.set(resources.data)
+          }
+          console.log('debug1 total', resources.total)
+          staticResourcesPagination.merge({ total: resources.total })
         })
         .then(() => {
           loading.set(false)
@@ -472,15 +479,9 @@ const AssetPanel = () => {
 
     debouncedSearchQuery()
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
-  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
+  }, [searchText, selectedCategory, staticResourcesPagination.skip])
 
-  useEffect(() => {
-    staticResourcesFindApi()
-  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
-
-  const handleRefreshPage = () => {
-    staticResourcesFindApi()
-  }
+  useEffect(staticResourcesFindApi, [searchText, selectedCategory, staticResourcesPagination.skip])
 
   const ResourceItems = () => {
     if (loading.value) {
@@ -492,12 +493,12 @@ const AssetPanel = () => {
     }
     return (
       <>
-        {isEmpty(searchedStaticResources.value) && (
+        {searchedStaticResources.length === 0 && (
           <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
             {t('editor:layout.scene-assets.no-search-results')}
           </div>
         )}
-        {!isEmpty(searchedStaticResources.value) && (
+        {searchedStaticResources.length > 0 && (
           <>
             {searchedStaticResources.value.map((resource) => (
               <ResourceFile
@@ -509,7 +510,7 @@ const AssetPanel = () => {
                   ClickPlacementState.setSelectedAsset(props.resourceUrl)
                 }}
                 onChange={() => {
-                  handleRefreshPage()
+                  staticResourcesFindApi()
                 }}
               />
             ))}
@@ -538,7 +539,7 @@ const AssetPanel = () => {
 
   const handleSelectCategory = (category: Category) => {
     selectedCategory.set(clone(category))
-    staticResourcesPagination.currentPage.set(0)
+    staticResourcesPagination.skip.set(0)
     !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }
 
@@ -611,25 +612,25 @@ const AssetPanel = () => {
           {t('editor:layout.filebrowser.uploadAssets')}
         </Button>
       </div>
-      <div id="asset-browser-panel" className="flex h-full">
+      <div id="asset-browser-panel" className="flex h-5/6">
         <CategoriesList
           categories={categories.value as Category[]}
           selectedCategory={selectedCategory.value}
           collapsedCategories={collapsedCategories}
           onSelectCategory={handleSelectCategory}
         />
-        <div className="flex h-full w-full flex-col overflow-auto">
+        <InfiniteScroll
+          // disableEvent={loading.value}
+          onScrollBottom={() => {
+            staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)
+          }}
+          className="flex h-full w-full flex-col overflow-auto"
+        >
           <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
             <ResourceItems />
           </div>
-          <div className="mx-auto mb-10">
-            <TablePagination
-              totalPages={staticResourcesPagination.totalPages.value}
-              currentPage={staticResourcesPagination.currentPage.value}
-              onPageChange={(newPage) => staticResourcesPagination.merge({ currentPage: newPage })}
-            />
-          </div>
-        </div>
+          {staticResourcesPagination.skip.value > 0 && loading.value && <span>loading...</span>}
+        </InfiniteScroll>
         {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
       </div>
     </>
