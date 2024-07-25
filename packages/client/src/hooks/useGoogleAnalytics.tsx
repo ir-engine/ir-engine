@@ -42,8 +42,8 @@ const useGoogleAnalytics = () => {
 
       script.onload = () => {
         window.dataLayer = window.dataLayer || []
-        window.gtag = function () {
-          window.dataLayer!.push(arguments)
+        window.gtag = function (...args) {
+          window.dataLayer!.push(...args)
         }
         window.gtag('js', new Date())
         window.gtag('config', gaMeasurementId)
