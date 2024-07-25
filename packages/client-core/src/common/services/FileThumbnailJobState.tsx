@@ -50,7 +50,6 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RendererComponent, initializeEngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import {
@@ -64,7 +63,7 @@ import { Color, Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Sphere, S
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { loadMaterialGLTF } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -478,8 +477,12 @@ const ThumbnailJobReactor = () => {
       viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
 
       viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
-      setComponent(cameraEntity, SceneComponent, { children: [modelEntity, lightEntity] })
-      const canvas = getComponent(cameraEntity, RendererComponent).canvas!
+      setComponent(cameraEntity, RendererComponent, { scenes: [modelEntity, lightEntity] })
+
+      const { scene, canvas } = getComponent(cameraEntity, RendererComponent)
+      scene.children = getComponent(cameraEntity, RendererComponent)
+        .scenes.map((entity) => getComponent(entity, GroupComponent))
+        .flat()
       const maxTryCount = 10
       function doRender(tryCount = 0) {
         requestAnimationFrame(() => {
@@ -487,7 +490,7 @@ const ThumbnailJobReactor = () => {
           tmpCanvas.width = 256
           tmpCanvas.height = 256
           const ctx = tmpCanvas.getContext('2d')!
-          ctx.drawImage(canvas, 0, 0, 256, 256)
+          ctx.drawImage(canvas!, 0, 0, 256, 256)
           //repeat if image is blank
           if (ctx.getImageData(0, 0, 256, 256).data.every((v) => v === 0)) {
             if (tryCount < maxTryCount) {

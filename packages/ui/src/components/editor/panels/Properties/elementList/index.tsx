@@ -57,7 +57,7 @@ export type SceneElementType = {
   type: typeof ItemTypes.Component
 }
 
-const ComponentListItem = ({ item }: { item: Component }) => {
+const ComponentListItem = ({ item, onSelect }: { item: Component; onSelect: () => void }) => {
   const { t } = useTranslation()
   useMutableState(ComponentEditorsState).keys // ensure reactively updates new components
   const Icon = getState(ComponentEditorsState)[item.name]?.iconComponent ?? GrStatusPlaceholder
@@ -73,6 +73,7 @@ const ComponentListItem = ({ item }: { item: Component }) => {
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
+        onSelect()
       }}
       startIcon={<Icon className="h-4 w-4 text-[#B2B5BD]" />}
     >
@@ -88,7 +89,7 @@ const ComponentListItem = ({ item }: { item: Component }) => {
   )
 }
 
-const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
+const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: () => void }) => {
   return (
     <Button
       variant="transparent"
@@ -101,6 +102,7 @@ const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
         } else {
           addMediaNode(url)
         }
+        onSelect()
       }}
       startIcon={<IoMdAddCircle className="h-4 w-4 text-[#B2B5BD]" />}
     >
@@ -181,10 +183,24 @@ const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][]
     .filter(([_, items]) => !!items.length)
 }
 
-export function ElementList({ type }: { type: ElementsType }) {
+export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: () => void }) {
   const { t } = useTranslation()
   const search = useHookstate({ local: '', query: '' })
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const selectedCategories = useHookstate([] as number[])
+  const isInSearchMode = useHookstate(false)
+  const prevSearchQuery = useRef('')
+
+  const onClickCategory = (index: number) => {
+    const currentIndex = selectedCategories.value.indexOf(index)
+    if (currentIndex === -1) {
+      selectedCategories.set([...selectedCategories.value, index])
+    } else {
+      const newSelectedCategories = [...selectedCategories.value]
+      newSelectedCategories.splice(currentIndex, 1)
+      selectedCategories.set(newSelectedCategories)
+    }
+  }
 
   const shelves =
     type === 'components'
@@ -192,9 +208,26 @@ export function ElementList({ type }: { type: ElementsType }) {
       : usePrefabShelfCategories(search.query.value)
   const inputReference = useRef<HTMLInputElement>(null)
 
+  const allCategories: number[] = useMemo(() => {
+    return Array.from({ length: shelves.length }, (_, index) => index)
+  }, [shelves])
+
   useEffect(() => {
     inputReference.current?.focus()
   }, [])
+
+  useEffect(() => {
+    if (!search.query.value) {
+      isInSearchMode.set(false)
+      if (prevSearchQuery.current) {
+        selectedCategories.set([])
+      }
+    } else {
+      isInSearchMode.set(true)
+      selectedCategories.set(allCategories)
+    }
+    prevSearchQuery.current = search.query.value
+  }, [search.query, allCategories])
 
   const onSearch = (text: string) => {
     search.local.set(text)
@@ -203,8 +236,6 @@ export function ElementList({ type }: { type: ElementsType }) {
       search.query.set(text)
     }, 50)
   }
-
-  const clickedPrefab = useHookstate(null as number | null)
 
   return (
     <div className="rounded-xl bg-theme-primary p-4 font-['Figtree']">
@@ -218,32 +249,47 @@ export function ElementList({ type }: { type: ElementsType }) {
         />
       </div>
 
-      <div className="grid grid-cols-4 gap-1">
-        {shelves.map(([category, items], index) => (
+      {!isInSearchMode.value && (
+        <div className="grid grid-cols-4 gap-1">
+          {shelves.map(([category, _items], index) => (
+            <SceneElementListItem
+              key={category}
+              categoryTitle={category}
+              onClick={() => onClickCategory(index)}
+              selected={selectedCategories.value.includes(index)}
+            />
+          ))}
+
           <SceneElementListItem
-            key={category}
-            categoryTitle={category}
-            onClick={() => clickedPrefab.set(index)}
-            selected={clickedPrefab.value === index}
+            categoryTitle="Empty"
+            onClick={() => {
+              EditorControlFunctions.createObjectFromSceneElement()
+              onSelect()
+            }}
           />
-        ))}
+        </div>
+      )}
 
-        <SceneElementListItem
-          categoryTitle="Empty"
-          onClick={() => {
-            EditorControlFunctions.createObjectFromSceneElement()
-          }}
-        />
-      </div>
-
-      {clickedPrefab.value !== null && (
+      {(isInSearchMode.value || selectedCategories.value.length > 0) && (
         <ul className="w-full">
-          {shelves[clickedPrefab.value]?.[1].map((item: Component | PrefabShelfItem) =>
-            type === 'components' ? (
-              <ComponentListItem key={(item as Component).jsonID || item.name} item={item as Component} />
-            ) : (
-              <PrefabListItem key={(item as PrefabShelfItem).url} item={item as PrefabShelfItem} />
-            )
+          {shelves.flatMap(([_, items], index) =>
+            selectedCategories.value.includes(index)
+              ? items.map((item: Component | PrefabShelfItem) =>
+                  type === 'components' ? (
+                    <ComponentListItem
+                      key={(item as Component).jsonID || item.name}
+                      item={item as Component}
+                      onSelect={onSelect}
+                    />
+                  ) : (
+                    <PrefabListItem
+                      key={(item as PrefabShelfItem).url}
+                      item={item as PrefabShelfItem}
+                      onSelect={onSelect}
+                    />
+                  )
+                )
+              : []
           )}
         </ul>
       )}
