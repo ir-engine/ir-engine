@@ -41,8 +41,13 @@ import {
   useEntityContext,
   UUIDComponent
 } from '@etherealengine/ecs'
-import { defineComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getState, NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
+import {
+  defineComponent,
+  getOptionalComponent,
+  hasComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { getState, NO_PROXY, useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
@@ -120,6 +125,7 @@ export const updateInteractableUI = (entity: Entity) => {
 
     const center = boundingBox.box.getCenter(_center)
     const size = boundingBox.box.getSize(_size)
+    if (!size.y) size.y = 1
     const alpha = smootheLerpAlpha(0.01, getState(ECSState).deltaSeconds)
     xruiTransform.position.x = center.x
     xruiTransform.position.z = center.z
@@ -190,13 +196,13 @@ export const updateInteractableUI = (entity: Entity) => {
  * @param entity
  */
 const addInteractableUI = (entity: Entity) => {
-  const interactable = getMutableComponent(entity, InteractableComponent)
-  if (!interactable.label.value || interactable.label.value === '' || interactable.uiEntity.value != UndefinedEntity)
-    return //null or empty label = no ui
+  const interactable = getComponent(entity, InteractableComponent)
+  if (!interactable.label || interactable.label === '' || interactable.uiEntity != UndefinedEntity) return //null or empty label = no ui
 
-  interactable.uiEntity.set(createUI(entity, interactable.label.value, interactable.uiInteractable.value).entity)
-  setComponent(interactable.uiEntity.value, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-  setComponent(interactable.uiEntity.value, ComputedTransformComponent, {
+  const uiEntity = createUI(entity, interactable.label, interactable.uiInteractable).entity
+  getMutableComponent(entity, InteractableComponent).uiEntity.set(uiEntity)
+  setComponent(uiEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+  setComponent(uiEntity, ComputedTransformComponent, {
     referenceEntities: [entity, Engine.instance.viewerEntity],
     computeFunction: () => updateInteractableUI(entity)
   })
@@ -207,11 +213,11 @@ const addInteractableUI = (entity: Entity) => {
 }
 
 const removeInteractableUI = (entity: Entity) => {
-  const interactable = getMutableComponent(entity, InteractableComponent)
-  if (!interactable.label || interactable.label.value === '' || interactable.uiEntity.value == UndefinedEntity) return //null or empty label = no ui
+  const interactable = getComponent(entity, InteractableComponent)
+  if (!interactable.label || interactable.label === '' || interactable.uiEntity == UndefinedEntity) return //null or empty label = no ui
 
-  removeEntity(interactable.uiEntity.value)
-  interactable.uiEntity.set(UndefinedEntity)
+  removeEntity(interactable.uiEntity)
+  getMutableComponent(entity, InteractableComponent).uiEntity.set(UndefinedEntity)
 }
 
 export const InteractableComponent = defineComponent({
@@ -270,10 +276,6 @@ export const InteractableComponent = defineComponent({
     ) {
       component.callbacks.set(json.callbacks)
     }
-
-    if (component.uiActivationType.value === XRUIActivationType.hover || component.clickInteract.value) {
-      setComponent(entity, BoundingBoxComponent)
-    }
   },
 
   toJSON: (entity, component) => {
@@ -290,7 +292,30 @@ export const InteractableComponent = defineComponent({
   reactor: () => {
     if (!isClient) return null
     const entity = useEntityContext()
+    const interactableComponent = useComponent(entity, InteractableComponent)
     const isEditing = useMutableState(EngineState).isEditing
+
+    useImmediateEffect(() => {
+      setComponent(entity, DistanceFromCameraComponent)
+      setComponent(entity, DistanceFromLocalClientComponent)
+
+      return () => {
+        removeComponent(entity, DistanceFromCameraComponent)
+        removeComponent(entity, DistanceFromLocalClientComponent)
+      }
+    }, [])
+
+    useImmediateEffect(() => {
+      if (
+        interactableComponent.uiActivationType.value === XRUIActivationType.hover ||
+        interactableComponent.clickInteract.value
+      ) {
+        setComponent(entity, BoundingBoxComponent)
+        return () => {
+          removeComponent(entity, BoundingBoxComponent)
+        }
+      }
+    }, [interactableComponent.uiActivationType, interactableComponent.clickInteract])
 
     InputComponent.useExecuteWithInput(
       () => {
@@ -313,17 +338,12 @@ export const InteractableComponent = defineComponent({
     )
 
     useEffect(() => {
-      setComponent(entity, DistanceFromCameraComponent)
-      setComponent(entity, DistanceFromLocalClientComponent)
-      setComponent(entity, BoundingBoxComponent)
-
       if (!isEditing.value) {
         addInteractableUI(entity)
-      } else {
-        removeInteractableUI(entity)
+        return () => {
+          removeInteractableUI(entity)
+        }
       }
-
-      return () => {}
     }, [isEditing.value])
     return null
   }
