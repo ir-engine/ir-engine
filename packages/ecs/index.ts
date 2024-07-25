@@ -45,7 +45,7 @@ import {
   useComponent,
   useOptionalComponent
 } from './src/ComponentFunctions'
-import { executeFixedSystem, executeSystems } from './src/EngineFunctions'
+import { executeFixedSystem, executeSystems, getDAG } from './src/EngineFunctions'
 import { UndefinedEntity } from './src/Entity'
 import { createEntity, entityExists, removeEntity, useEntityContext } from './src/EntityFunctions'
 import { defineQuery, QueryReactor, removeQuery, useQuery } from './src/QueryFunctions'
@@ -89,6 +89,7 @@ const ECS = {
   /** Pipeline Functions */
   executeSystems,
   executeFixedSystem,
+  getDAG,
   /** bitECS Functions */
   Not,
   Types,
