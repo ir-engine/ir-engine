@@ -37,7 +37,6 @@ import { InputPointerComponent } from '@etherealengine/spatial/src/input/compone
 import { Physics, PhysicsWorld, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -63,16 +62,17 @@ export const autopilotSetPosition = (entity: Entity) => {
   const markerState = getMutableState(AutopilotMarker)
   if (avatarControllerComponent.gamepadLocalInput.lengthSq() > 0) return
 
-  const { physicsWorld } = getState(PhysicsState)
+  const physicsWorld = Physics.getWorld(entity)
+  if (!physicsWorld) return
 
   const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
 
   const castedRay = Physics.castRayFromCamera(
+    physicsWorld,
     getComponent(Engine.instance.cameraEntity, CameraComponent),
     pointerPosition,
-    physicsWorld,
     autopilotRaycastArgs
   )
 

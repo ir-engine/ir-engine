@@ -72,6 +72,8 @@ export const XRDetectedMeshComponent = defineComponent({
     const scenePlacementMode = useHookstate(getMutableState(XRState).scenePlacementMode)
 
     useEffect(() => {
+      if (!component.mesh.value) return
+
       const geometry = XRDetectedMeshComponent.createGeometryFromMesh(component.mesh.value)
       component.geometry.set(geometry)
 

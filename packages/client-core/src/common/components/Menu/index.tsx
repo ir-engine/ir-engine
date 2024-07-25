@@ -83,7 +83,7 @@ const Menu = ({
   const dialogContent = (
     <>
       {(showBackButton || title || header || showCloseButton) && (
-        <DialogTitle className={styles.dialogTitle}>
+        <DialogTitle className="flex items-center px-3 py-4">
           <span>
             {showBackButton && <IconButton icon={<Icon type="ArrowBack" />} sx={{ mr: 1 }} onClick={onBack} />}
 

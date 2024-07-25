@@ -23,23 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EventQueue, World as PhysicsWorld } from '@dimforge/rapier3d-compat'
+import { featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
-import { UndefinedEntity } from '@etherealengine/ecs'
-import { defineState } from '@etherealengine/hyperflux'
-import { Physics } from '../classes/Physics'
-
-export const PhysicsState = defineState({
-  name: 'ee.engine.PhysicsState',
-  initial: () => {
-    return {
-      physicsSubsteps: 1,
-      physicsWorld: null! as PhysicsWorld,
-      physicsCollisionEventQueue: null! as EventQueue,
-      // used to ignore raycast hits for an entity the camera is attached to
-      cameraAttachedRigidbodyEntity: UndefinedEntity,
-      drainCollisions: null! as ReturnType<typeof Physics.drainCollisionEventQueue>,
-      drainContacts: null! as ReturnType<typeof Physics.drainContactEventQueue>
+const useFeatureFlags = (flagNames: string[]): boolean[] => {
+  const response = useFind(featureFlagSettingPath, {
+    query: {
+      $or: flagNames.map((flagName) => ({ flagName })),
+      paginate: false
     }
+  })
+
+  if (response.status !== 'success') {
+    return []
   }
-})
+
+  return flagNames.map((flagName) => {
+    const flag = response.data.find(({ flagName: name }) => name === flagName)
+    return flag ? flag.flagValue : true
+  })
+}
+
+export default useFeatureFlags

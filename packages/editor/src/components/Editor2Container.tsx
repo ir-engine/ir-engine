@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
 import { FilesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Files'
@@ -54,7 +54,7 @@ import DragLayer from './dnd/DragLayer'
 import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { EntityUUID } from '@etherealengine/ecs'
-import { FeatureFlagsState } from '@etherealengine/engine'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import 'rc-dock/dist/rc-dock.css'
@@ -141,7 +141,7 @@ const EditorContainer = () => {
   const { initialized, isWidgetVisible, openChat } = useZendesk()
   const { t } = useTranslation()
 
-  const visualScriptPanelEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Studio.Panel.VisualScript)
+  const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
 
   useEffect(() => {
     const scene = sceneQuery[0]
@@ -157,7 +157,7 @@ const EditorContainer = () => {
     if (!sceneAssetID.value || !scene || !viewerEntity) return
 
     return setCurrentEditorScene(sceneQuery[0].url, sceneAssetID.value as EntityUUID)
-  }, [viewerEntity, sceneAssetID.value])
+  }, [viewerEntity, sceneAssetID, sceneQuery[0]?.url])
 
   useEffect(() => {
     return () => {

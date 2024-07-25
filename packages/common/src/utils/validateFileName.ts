@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Types } from 'bitecs'
+import { INVALID_FILENAME_WHITESPACE_REGEX, WINDOWS_RESERVED_NAME_REGEX } from '@etherealengine/common/src/regex'
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-
-export const RenderOrderComponent = defineComponent({
-  name: 'RenderOrderComponent',
-  schema: { renderOrder: Types.i32 }
-})
+export function isValidFileName(fileName: string) {
+  return (
+    !INVALID_FILENAME_WHITESPACE_REGEX.test(fileName) &&
+    !WINDOWS_RESERVED_NAME_REGEX.test(fileName) &&
+    fileName.length > 0
+  )
+}

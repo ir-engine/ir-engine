@@ -188,12 +188,14 @@ export const EntityDebug = () => {
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entities')}</h1>
         <input
+          style={{ color: 'black', backgroundColor: 'white' }}
           type="text"
           placeholder="Search..."
           value={entitySearch.value}
           onChange={(e) => entitySearch.set(e.target.value)}
         />
         <input
+          style={{ color: 'black', backgroundColor: 'white' }}
           type="text"
           placeholder="Query..."
           value={entityQuery.value}
