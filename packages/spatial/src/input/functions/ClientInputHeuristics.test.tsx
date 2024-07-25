@@ -830,8 +830,6 @@ describe('ClientInputHeuristics', () => {
         addObjectToGroup(three, box3)
         // setComponent(three, InputComponent)  // Do not add the InputComponent, so that it is not part of inputObjectsQuery
 
-        const KnownEntities = [one, two]
-
         const rayOrigin = new Vector3(0, 0, 0)
         const rayDirection = new Vector3(3, 3, 3).normalize()
         const raycaster = new Raycaster(rayOrigin, rayDirection)
@@ -839,12 +837,55 @@ describe('ClientInputHeuristics', () => {
         const data = new Set<IntersectionData>()
         assert.equal(data.size, 0)
 
+        // Remove the ancestor so that the `if (!parentObject) continue` code branch is hit
+        box1.entity = undefined! as Entity
+        box2.entity = undefined! as Entity
         // Run and check that nothing was added
         ClientInputHeuristics.applyEditor(data, raycaster)
         assert.equal(data.size, 0)
       })
     })
   })
+
+  /**
+  describe("applyXRUI", () => {
+    beforeEach(async () => {
+      createEngine()
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    // @todo how to setup objects so that they can be hit by WebContainer3D.hitTest?
+    it("should add the xruiQuery.entity and intersection.distance to the `@param intersectionData`", () => {
+      const testEntity = createEntity()
+      const xrui = getMutableComponent(testEntity, XRUIComponent)
+      const rootLayer = new WebLayer3D({} as Element, new WebContainer3D({} as Element))
+      xrui.rootLayer.set(rootLayer)
+
+      const data = new Set<IntersectionData>()
+      assert.equal(data.size, 0)
+
+      const rayOrigin = new Vector3(0, 0, 0)
+      const rayDirection = new Vector3(3, 3, 3).normalize()
+      const ray = new Ray(rayOrigin, rayDirection)
+
+      ClientInputHeuristics.applyXRUI(data, ray)
+      assert.notEqual(data.size, 0)
+    })
+    // WebContainer3D.rootLayer
+
+    // for every entity of xruiQuery ...
+      // get the XRUIComponent of the entity, and do a WebContainer3D.hitTest with the `@param ray`
+      // should add the xruiQuery.entity and layerHit.intersection.distance to the `@param intersectionData`
+      //   for every object hit by the `@param caster`
+      // should not do anything if ...
+      // ... we didn't hit anything
+      // ... we hit something, but its intersection.object is not marked as visible
+      // ... we hit something, but the material.opacity of the its intersection.object is less than 0.01
+  })
+  */
 
   /**
   // @todo
@@ -860,20 +901,10 @@ describe('ClientInputHeuristics', () => {
       // compute the distance from the inputSourceEntity to the inputEntity
       // If the distance is within the proximity threshold
         // should store the inputEntity and the distanceSquared to the inputSourceEntity into the intersectionData
+    // create an array of all entities from intersectionData (aka closestEntities)
+    // don't do anything else if the closestEntities array has no entities
+    // sort the array of entities by distance if there is more than 1, prioritizing entities with an InteractableComponent
+    // should add the closest (entity,distance) from the list (aka closetsEntities[0]) to the `@param sortedIntersections` array
   })
-
-  // (raycasted)
-  // @todo how to setup objects so that they can be hit by WebContainer3D.hitTest?
-  describe("applyXRUI", () => {
-    // for every entity of xruiQuery ...
-      // get the XRUIComponent of the entity, and do a WebContainer3D.hitTest with the `@param ray`
-      // should not do anything if ...
-      // ... we didn't hit anything
-      // ... we hit something, but its intersection.object is not marked as visible
-      // ... we hit something, but the material.opacity of the its intersection.object is less than 0.01
-      // should add the xruiQuery.entity and layerHit.intersection.distance to the `@param intersectionData`
-      //   for every object hit by the `@param caster`
-  })
-
   */
 })
