@@ -87,12 +87,9 @@ const didHierarchyChange = (prev: HierarchyTreeNodeType[], curr: HierarchyTreeNo
   for (let i = 0; i < prev.length; i++) {
     const prevNode = prev[i]
     const currNode = curr[i]
-    if (
-      prevNode.childIndex !== currNode.childIndex ||
-      prevNode.depth !== currNode.depth ||
-      prevNode.entity !== currNode.entity
-    )
-      return true
+    for (const key in prevNode) {
+      if (prevNode[key] !== currNode[key]) return true
+    }
   }
 
   return false
