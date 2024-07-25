@@ -107,7 +107,7 @@ export default function ScenesPanel() {
           <div className="relative h-full flex-1 overflow-y-auto px-4 py-3 pb-8">
             <div className="flex flex-wrap gap-4 pb-8">
               {scenes.map((scene) => (
-                <SceneItem
+                <SceneContainer
                   scene={scene}
                   handleOpenScene={() => onClickScene(scene)}
                   refetchProjectsData={scenesQuery.refetch}
@@ -123,7 +123,7 @@ export default function ScenesPanel() {
   )
 }
 
-export function SceneItem({ scene, handleOpenScene, refetchProjectsData, getSceneName, deleteSelectedScene }) {
+export function SceneContainer({ scene, handleOpenScene, refetchProjectsData, getSceneName, deleteSelectedScene }) {
   const { t } = useTranslation()
 
   return (
