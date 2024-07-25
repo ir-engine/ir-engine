@@ -61,7 +61,7 @@ import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
 import { setCurrentEditorScene } from '../functions/sceneFunctions'
-import './Editor2Container.css'
+import './EditorContainer.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
