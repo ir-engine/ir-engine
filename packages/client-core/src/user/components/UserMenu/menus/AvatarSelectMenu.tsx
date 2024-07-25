@@ -48,7 +48,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { useFeatureFlags } from '@etherealengine/engine/src/FeatureFlagsHook'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { LoadingCircle } from '../../../../components/LoadingCircle'
 import { UserMenus } from '../../../UserUISystem'
 import { AuthState } from '../../../services/AuthService'

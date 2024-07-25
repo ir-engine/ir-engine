@@ -24,22 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getComponent } from '@etherealengine/ecs'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { destroySpatialEngine, initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { useEffect } from 'react'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
-  const lastRef = useHookstate(ref.current)
+  const lastRef = useHookstate(() => ref.current)
 
-  useEffect(() => {
+  useImmediateEffect(() => {
     if (ref.current !== lastRef.value) {
       lastRef.set(ref.current)
     }
   }, [ref.current])
 
-  useEffect(() => {
+  useImmediateEffect(() => {
     if (!lastRef.value) return
 
     const parent = lastRef.value as HTMLElement

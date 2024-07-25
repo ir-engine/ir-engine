@@ -30,7 +30,7 @@ import React, { Suspense } from 'react'
 import { Scene } from 'three'
 import { RendererComponent } from '../WebGLRendererSystem'
 import { PostProcessingEffectState } from '../effects/EffectRegistry'
-import { useScene } from './SceneComponents'
+import { useRendererEntity } from '../functions/useRendererEntity'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
@@ -59,7 +59,7 @@ export const PostProcessingComponent = defineComponent({
   /** @todo this will be replaced with spatial queries or distance checks */
   reactor: () => {
     const entity = useEntityContext()
-    const rendererEntity = useScene(entity)
+    const rendererEntity = useRendererEntity(entity)
 
     if (!rendererEntity) return null
 
