@@ -31,13 +31,13 @@ export const TargetCameraRotationComponent = defineComponent({
 
   onInit(entity) {
     return {
-      /** Rotation around Z axis */
+      /** Rotation around Z axis in degrees */
       phi: 0,
       phiVelocity: { value: 0 },
-      /** Rotation around Y axis */
+      /** Rotation around Y axis in degrees */
       theta: 0,
       thetaVelocity: { value: 0 },
-      /** Time to reach the target */
+      /** Time to reach the target in seconds */
       time: 0
     }
   },

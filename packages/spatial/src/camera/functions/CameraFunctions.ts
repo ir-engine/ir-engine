@@ -28,6 +28,12 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
+/**
+ * @param entity Follow camera entity
+ * @param phi Pitch in degrees
+ * @param theta Yaw in degrees
+ * @param time Time to reach the target in seconds
+ */
 export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number, time = 0.3) => {
   const cameraRotationTransition = getOptionalComponent(entity, TargetCameraRotationComponent) as
     | ComponentType<typeof TargetCameraRotationComponent>
