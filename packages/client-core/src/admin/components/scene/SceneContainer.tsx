@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { timeAgo } from '@etherealengine/common/src/utils/datetime-sql'
+import RenameSceneModal from '@etherealengine/ui/src/components/editor/panels/Scenes/modals/RenameScene'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
+import { Popup } from '@etherealengine/ui/src/components/tailwind/Popup'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsThreeDotsVertical } from 'react-icons/bs'
-// import RenameSceneModal from '@etherealengine/ui/src/components/modals/RenameScene'
-import { Popup } from '@etherealengine/ui/src/components/tailwind/Popup'
 
 export default function SceneContainer({
   scene,
@@ -82,11 +82,11 @@ export default function SceneContainer({
                 variant="outline"
                 size="small"
                 fullWidth
-                // onClick={() => {
-                //   PopoverState.showPopupover(
-                //     <RenameSceneModal sceneName={getSceneName(scene)} refetch={refetchProjectsData} scene={scene} />
-                //   )
-                // }}
+                onClick={() => {
+                  PopoverState.showPopupover(
+                    <RenameSceneModal sceneName={getSceneName(scene)} refetch={refetchProjectsData} scene={scene} />
+                  )
+                }}
               >
                 {t('editor:hierarchy.lbl-rename')}
               </Button>
