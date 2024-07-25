@@ -34,7 +34,7 @@ export interface ProgressBarProps extends ProgressProps {
 }
 
 export default function ProgressBar({ value, paused, totalTime, ...rest }: ProgressBarProps) {
-  console.log('DEBUG value', value)
+  
   return (
     <div className="ml-auto mr-6 flex h-10 w-[314px] flex-row place-items-center gap-2 rounded bg-zinc-900 px-2">
       {paused ? <HiPlay className="text-white" /> : <HiPause className="text-white" />}
