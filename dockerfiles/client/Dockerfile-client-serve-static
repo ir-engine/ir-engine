@@ -22,6 +22,8 @@ RUN npm install --loglevel notice --legacy-peer-deps --production
 # copy then compile the code
 COPY . .
 
+RUN npm install vite@5.1.7
+
 ARG KUBERNETES
 ARG STAGE
 ARG STORAGE_PROVIDER
