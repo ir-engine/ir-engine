@@ -122,18 +122,15 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     e.stopPropagation()
     if (data.onToggle) data.onToggle(e, entity)
   }
-
   const onNodeKeyDown = (e: KeyboardEvent) => {
     if (data.onKeyDown) data.onKeyDown(e as any, entity)
   }
-
   const onKeyDownNameInput = (e: KeyboardEvent) => {
     if (e.key === 'Escape') data.onRenameSubmit(entity, null!)
     else if (e.key === 'Enter') data.onRenameSubmit(entity, (e.target as any).value)
   }
-
   const onClickNode = (e: React.MouseEvent) => data.onClick(e, entity)
-  const onMouseDownNode = (e: React.MouseEvent) => data.onMouseDown && data.onMouseDown(e, entity)
+  const onMouseDownNode = (e: React.MouseEvent) => data.onMouseDown(e, entity)
   const onChangeNodeName = (e: React.ChangeEvent<HTMLInputElement>) => data.onChangeName(entity, e.target.value)
 
   const [, drag, preview] = useDrag({
@@ -194,6 +191,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       }
 
     return (item: FileDataType | DnDFileType | DragItemType, monitor: DropTargetMonitor): void => {
+      console.log('debug1 item', item, 'and place', place, 'beforenode', beforeNode, 'parentnode', parentNode)
       if (parentNode) {
         if ('files' in item) {
           const dndItem: any = monitor.getItem()
@@ -236,15 +234,34 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const canDropItem = (entityNode: Entity, dropOn?: boolean) => {
     return (item: DragItemType, monitor: DropTargetMonitor): boolean => {
+      console.log('debug1 check can drop the item', item, 'and dropon', dropOn)
+
       //check if monitor is over or object is not parent element
-      if (!monitor.isOver()) return false
+      if (!monitor.isOver()) {
+        console.log('debug1 check1')
+        return false
+      }
 
       if (!dropOn) {
         const entityTreeComponent = getComponent(entityNode, EntityTreeComponent)
-        if (!entityTreeComponent) return false
+        if (!entityTreeComponent) {
+          console.log('debug1 check2')
+          return false
+        }
       }
       if (item.type === ItemTypes.Node) {
         const entityTreeComponent = getComponent(entityNode, EntityTreeComponent)
+        console.log(
+          'debug1 check3',
+          dropOn || !!entityTreeComponent.parentEntity,
+          item.multiple,
+          isAncestor(item.value as Entity, entityNode),
+
+          !(item.multiple
+            ? (item.value as Entity[]).some((otherObject) => isAncestor(otherObject, entityNode))
+            : isAncestor(item.value as Entity, entityNode))
+        )
+
         return (
           (dropOn || !!entityTreeComponent.parentEntity) &&
           !(item.multiple
@@ -252,6 +269,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             : isAncestor(item.value as Entity, entityNode))
         )
       }
+      console.log('debug1 check4')
       return true
     }
   }
@@ -297,13 +315,11 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     : []
   const IconComponent = icons.length ? icons[icons.length - 1] : TransformPropertyGroup.iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entity
-  const marginLeft = node.depth > 0 ? node.depth * 2 + 2 : 0
 
   return (
     <li
-      style={props.style}
       className={twMerge(
-        `bg-${props.index % 2 ? 'theme-surfaceInput' : 'zinc-800'}`,
+        props.index % 2 ? 'bg-[#0E0F11]' : 'bg-[#080808]',
         selected ? 'border border-gray-100' : 'border-none'
       )}
     >
@@ -312,28 +328,28 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         id={getNodeElId(node)}
         tabIndex={0}
         onKeyDown={onNodeKeyDown}
-        className={`py-.5 ml-3.5 h-7 justify-between bg-inherit pr-2`}
         onMouseDown={onMouseDownNode}
         onClick={onClickNode}
         onContextMenu={(event) => props.onContextMenu(event, entity)}
+        className="py-.5 ml-3.5 h-9 justify-between bg-inherit pr-2"
       >
         <div
-          className={twMerge(isOverBefore && canDropBefore && 'border-t-2')}
-          style={{ marginLeft: marginLeft + 'px' }}
+          className={twMerge('h-1', isOverBefore && canDropBefore && 'bg-blue-500')}
+          style={{ marginLeft: `${node.depth * 1.25}em` }}
           ref={beforeDropTarget}
         />
 
         <div
-          className={twMerge('flex items-center pr-2', `bg-inherit`)}
+          className="flex items-center bg-inherit pr-2"
           style={{ paddingLeft: `${node.depth * 1.25}em` }}
           ref={onDropTarget}
         >
           {node.isLeaf ? (
-            <div className={'w-5 shrink-0'} />
+            <div className="w-5 shrink-0" />
           ) : (
             <button
               type="button"
-              className={'m-0 h-5 w-5 border-[none] bg-inherit p-0 hover:opacity-80'}
+              className="m-0 h-5 w-5 border-[none] bg-inherit p-0 hover:opacity-80"
               onClick={onClickToggle}
               onMouseDown={(e) => e.stopPropagation()}
             >
@@ -380,8 +396,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         </div>
 
         <div
-          className={twMerge(isOverAfter && canDropAfter && 'border-b-2')}
-          style={{ marginLeft: marginLeft + 'px' }}
+          className={twMerge('h-1', isOverAfter && canDropAfter && 'bg-red-500')}
+          style={{ marginLeft: `${node.depth * 1.25}em` }}
           ref={afterDropTarget}
         />
       </div>

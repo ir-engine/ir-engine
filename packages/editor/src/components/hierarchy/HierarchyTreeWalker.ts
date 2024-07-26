@@ -108,7 +108,12 @@ function buildHierarchyTree(
   }
 }
 
-function buildHierarchyTreeForNodes(depth: number, nodes: GLTF.INode[], outArray: NestedHierarchyTreeNode[], sceneID) {
+function buildHierarchyTreeForNodes(
+  depth: number,
+  nodes: GLTF.INode[],
+  outArray: NestedHierarchyTreeNode[],
+  sceneID: string
+) {
   for (let i = 0; i < nodes.length; i++) {
     if (isChild(i, nodes)) continue
     buildHierarchyTree(depth, i, nodes[i], nodes, outArray, false, sceneID)
