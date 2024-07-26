@@ -274,7 +274,7 @@ export class FileBrowserService
     return results
   }
 
-  async moveFolderRecursively(storageProvider: any, oldPath: string, newPath: string) {
+  private async moveFolderRecursively(storageProvider: any, oldPath: string, newPath: string) {
     const items = await storageProvider.listFolderContent(oldPath)
 
     for (const item of items) {
