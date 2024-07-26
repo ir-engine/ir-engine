@@ -229,10 +229,11 @@ const execute = () => {
   for (const eid of pointers()) {
     const pointer = getComponent(eid, InputPointerComponent)
     const inputSource = getComponent(eid, InputSourceComponent)
-    const camera = getComponent(pointer.cameraEntity, CameraComponent)
+    const camera = getOptionalComponent(pointer.cameraEntity, CameraComponent)
+    if (!camera) return
     pointer.movement.copy(pointer.position).sub(pointer.lastPosition)
     pointer.lastPosition.copy(pointer.position)
-    inputSource.raycaster.setFromCamera(pointer.position, camera)
+    inputSource.raycaster.setFromCamera(pointer.position, camera!)
     TransformComponent.position.x[eid] = inputSource.raycaster.ray.origin.x
     TransformComponent.position.y[eid] = inputSource.raycaster.ray.origin.y
     TransformComponent.position.z[eid] = inputSource.raycaster.ray.origin.z
