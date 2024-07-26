@@ -28,6 +28,7 @@ import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
+import { projectPath } from '@etherealengine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import allowNullQuery from '../../hooks/allow-null-query'
 import checkScope from '../../hooks/check-scope'
@@ -39,6 +40,7 @@ import resolveProjectsByPermission from '../../hooks/resolve-projects-by-permiss
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
 import verifyScope from '../../hooks/verify-scope'
+import { ActionTypes, projectHistoryPath } from '../../projects/project-history/project-history.schema'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
 import { patchSingleProjectResourcesJson, removeProjectResourcesJson } from './static-resource-helper'
@@ -172,6 +174,35 @@ const isKeyPublic = (context: HookContext<StaticResourceService>) => {
   return context
 }
 
+const updateProjectHistory = async (context: HookContext<StaticResourceService>) => {
+  const data = context.result
+  const dataArr = data ? (Array.isArray(data) ? data : 'data' in data ? data.data : [data]) : []
+
+  for (const item of dataArr) {
+    if (item.project) {
+      const projectResult = await context.app.service(projectPath).find({
+        query: {
+          name: item.project
+        }
+      })
+
+      if (projectResult.total !== 1) {
+        throw new BadRequest('Project not found')
+      }
+
+      const project = projectResult.data[0]
+
+      const actionType = item.type === 'scene' ? ActionTypes.CREATE_SCENE : ActionTypes.CREATE_ASSET
+
+      await context.app.service(projectHistoryPath).create({
+        projectId: project.id,
+        userId: item.userId,
+        action: actionType
+      })
+    }
+  }
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveResult(staticResourceResolver)]
@@ -278,10 +309,10 @@ export default {
         )
       )
     ],
-    create: [updateResourcesJson],
-    update: [updateResourcesJson],
-    patch: [updateResourcesJson],
-    remove: [removeResourcesJson]
+    create: [updateProjectHistory, updateResourcesJson],
+    update: [updateProjectHistory, updateResourcesJson],
+    patch: [updateProjectHistory, updateResourcesJson],
+    remove: [updateProjectHistory, removeResourcesJson]
   },
 
   error: {
