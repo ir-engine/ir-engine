@@ -44,7 +44,6 @@ import { getCoilSetting } from './scripts/getCoilSettings'
 const { isArray, mergeWith } = lodash
 
 const parseModuleName = (moduleName: string) => {
-  if (moduleName.includes('@etherealengine')) console.log(moduleName)
   // // chunk medisoup-client
   if (moduleName.includes('medisoup')) {
     return `vendor_medisoup-client_${moduleName.toString().split('client/lib/')[1].split('/')[0].toString()}`
