@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } from 'react'
-import { useDrag, useDrop } from 'react-dnd'
+import React, { KeyboardEvent, StyleHTMLAttributes, useEffect } from 'react'
+import { DropTargetMonitor, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 
 import {
@@ -46,6 +46,7 @@ import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { UUIDComponent } from '@etherealengine/ecs'
+import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
 import { HierarchyTreeNodeType } from '@etherealengine/editor/src/components/hierarchy/HierarchyTreeWalker'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
@@ -53,19 +54,13 @@ import { EditorControlFunctions } from '@etherealengine/editor/src/functions/Edi
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { ComponentEditorsState } from '@etherealengine/editor/src/services/ComponentEditors'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
-import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
-import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { twMerge } from 'tailwind-merge'
 import TransformPropertyGroup from '../../../properties/transform'
-
-//import styles from './styles.module.scss'
+import { DnDFileType } from '../../Files/container'
 
 /**
  * getNodeElId function provides id for node.
- *
- * @param  {object} node
- * @return {string}
  */
 export const getNodeElId = (node: HierarchyTreeNodeType) => {
   return 'hierarchy-node-' + node.entity
@@ -76,13 +71,19 @@ export type RenameNodeData = {
   name: string
 }
 
+type DragItemType = {
+  type: (typeof ItemTypes)[keyof typeof ItemTypes]
+  value: Entity | Entity[]
+  multiple: boolean
+}
+
 export type HierarchyTreeNodeData = {
   nodes: HierarchyTreeNodeType[]
   renamingNode: RenameNodeData
-  onToggle: (e: Event, node: Entity) => void
+  onToggle: (e: React.MouseEvent, node: Entity) => void
   onKeyDown: (e: Event, node: Entity) => void
-  onMouseDown: (e: MouseEvent, node: Entity) => void
-  onClick: (e: MouseEvent, node: Entity) => void
+  onMouseDown: (e: React.MouseEvent, node: Entity) => void
+  onClick: (e: React.MouseEvent, node: Entity) => void
   onChangeName: (node: Entity, name: string) => void
   onRenameSubmit: (node: Entity, name: string) => void
   onUpload: ReturnType<typeof useUpload>
@@ -108,10 +109,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const visible = useOptionalComponent(entity, VisibleComponent)
 
-  const errors = useOptionalComponent(entity, ErrorComponent)
-
-  const sceneAssetLoading = useOptionalComponent(entity, ResourcePendingComponent)
-
   const toggleVisible = () => {
     if (visible) {
       EditorControlFunctions.addOrRemoveComponent([entity], VisibleComponent, false)
@@ -121,37 +118,27 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     setVisibleComponent(entity, !hasComponent(entity, VisibleComponent))
   }
 
-  const onClickToggle = useCallback(
-    (e: MouseEvent) => {
-      e.stopPropagation()
-      if (data.onToggle) data.onToggle(e, entity)
-    },
-    [data.onToggle, node]
-  )
+  const onClickToggle = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (data.onToggle) data.onToggle(e, entity)
+  }
 
-  const onNodeKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (data.onKeyDown) data.onKeyDown(e as any, entity)
-    },
-    [data.onKeyDown, node]
-  )
+  const onNodeKeyDown = (e: KeyboardEvent) => {
+    if (data.onKeyDown) data.onKeyDown(e as any, entity)
+  }
 
-  const onKeyDownNameInput = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape') data.onRenameSubmit(entity, null!)
-      else if (e.key === 'Enter') data.onRenameSubmit(entity, (e.target as any).value)
-    },
-    [data.onRenameSubmit, node]
-  )
+  const onKeyDownNameInput = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') data.onRenameSubmit(entity, null!)
+    else if (e.key === 'Enter') data.onRenameSubmit(entity, (e.target as any).value)
+  }
 
-  const onClickNode = useCallback((e) => data.onClick(e, entity), [node, data.onClick])
-  const onMouseDownNode = useCallback((e) => data.onMouseDown && data.onMouseDown(e, entity), [node, data.onMouseDown])
-
-  const onChangeNodeName = useCallback((e) => data.onChangeName(entity, e.target.value), [node, data.onChangeName])
+  const onClickNode = (e: React.MouseEvent) => data.onClick(e, entity)
+  const onMouseDownNode = (e: React.MouseEvent) => data.onMouseDown && data.onMouseDown(e, entity)
+  const onChangeNodeName = (e: React.ChangeEvent<HTMLInputElement>) => data.onChangeName(entity, e.target.value)
 
   const [, drag, preview] = useDrag({
     type: ItemTypes.Node,
-    item() {
+    item: (): DragItemType => {
       const selectedEntities = SelectionState.getSelectedEntities()
 
       if (selectedEntities.includes(node.entity)) {
@@ -161,19 +148,17 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           multiple,
           value: multiple ? selectedEntities : selectedEntities[0]
         }
-      } else {
-        return {
-          type: ItemTypes.Node,
-          multiple: false,
-          value: node.entity
-        }
+      }
+      return {
+        type: ItemTypes.Node,
+        multiple: false,
+        value: node.entity
       }
     },
-    canDrag() {
-      return !SelectionState.getSelectedEntities().some(
+    canDrag: () =>
+      !SelectionState.getSelectedEntities().some(
         (entity) => !getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
-      )
-    },
+      ),
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
     })
@@ -208,9 +193,9 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         console.warn('parent is not defined')
       }
 
-    return (item: any, monitor): void => {
+    return (item: FileDataType | DnDFileType | DragItemType, monitor: DropTargetMonitor): void => {
       if (parentNode) {
-        if (item.files) {
+        if ('files' in item) {
           const dndItem: any = monitor.getItem()
           const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
 
@@ -224,19 +209,25 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           return
         }
 
-        if (item.url) {
+        if ('url' in item) {
           addMediaNode(item.url, parentNode, beforeNode)
           return
         }
 
-        if (item.type === ItemTypes.Component) {
-          EditorControlFunctions.createObjectFromSceneElement([{ name: item!.componentJsonID }], parentNode, beforeNode)
+        if ('type' in item && item.type === ItemTypes.Component) {
+          EditorControlFunctions.createObjectFromSceneElement(
+            [{ name: (item as any).componentJsonID }],
+            parentNode,
+            beforeNode
+          )
           return
         }
       }
 
       EditorControlFunctions.reparentObject(
-        Array.isArray(item.value) ? item.value : [item.value],
+        Array.isArray((item as DragItemType).value)
+          ? ((item as DragItemType).value as Entity[])
+          : [(item as DragItemType).value as Entity],
         beforeNode,
         parentNode === null ? undefined : parentNode
       )
@@ -244,7 +235,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   }
 
   const canDropItem = (entityNode: Entity, dropOn?: boolean) => {
-    return (item, monitor): boolean => {
+    return (item: DragItemType, monitor: DropTargetMonitor): boolean => {
       //check if monitor is over or object is not parent element
       if (!monitor.isOver()) return false
 
@@ -257,8 +248,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         return (
           (dropOn || !!entityTreeComponent.parentEntity) &&
           !(item.multiple
-            ? item.value.some((otherObject) => isAncestor(otherObject, entityNode))
-            : isAncestor(item.value, entityNode))
+            ? (item.value as Entity[]).some((otherObject) => isAncestor(otherObject, entityNode))
+            : isAncestor(item.value as Entity, entityNode))
         )
       }
       return true
@@ -327,9 +318,11 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         onContextMenu={(event) => props.onContextMenu(event, entity)}
       >
         <div
-          className={twMerge(`border-t-[${isOverBefore && canDropBefore ? 2 : 0}px]`, `ml-${marginLeft} bg-inherit`)}
+          className={twMerge(isOverBefore && canDropBefore && 'border-t-2')}
+          style={{ marginLeft: marginLeft + 'px' }}
           ref={beforeDropTarget}
         />
+
         <div
           className={twMerge('flex items-center pr-2', `bg-inherit`)}
           style={{ paddingLeft: `${node.depth * 1.25}em` }}
@@ -341,7 +334,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             <button
               type="button"
               className={'m-0 h-5 w-5 border-[none] bg-inherit p-0 hover:opacity-80'}
-              onClick={onClickToggle as any}
+              onClick={onClickToggle}
               onMouseDown={(e) => e.stopPropagation()}
             >
               {node.isCollapsed ? (
@@ -387,8 +380,9 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         </div>
 
         <div
-          className={twMerge(`border-b-[${isOverBefore && canDropBefore ? 2 : 0}px]`, `ml-[${marginLeft}px]`)}
-          ref={beforeDropTarget}
+          className={twMerge(isOverAfter && canDropAfter && 'border-b-2')}
+          style={{ marginLeft: marginLeft + 'px' }}
+          ref={afterDropTarget}
         />
       </div>
     </li>
