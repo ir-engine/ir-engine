@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as fs from 'fs'
-import { isEqual } from 'lodash'
+import { isEqual } from 'lodash-es'
 import mime from 'mime-types'
 import path from 'path'
 

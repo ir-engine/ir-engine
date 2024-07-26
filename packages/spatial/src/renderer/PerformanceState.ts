@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { GetGPUTier, getGPUTier } from 'detect-gpu'
-import { debounce } from 'lodash'
+import { debounce } from 'lodash-es'
 import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
 import { Camera, MathUtils, Scene } from 'three'

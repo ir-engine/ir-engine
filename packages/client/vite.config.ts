@@ -27,7 +27,7 @@ import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
 import fs from 'fs'
-import lodash from 'lodash'
+import lodash from 'lodash-es'
 import path from 'path'
 import { defineConfig, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
@@ -44,6 +44,7 @@ import { getCoilSetting } from './scripts/getCoilSettings'
 const { isArray, mergeWith } = lodash
 
 const parseModuleName = (moduleName: string) => {
+  if (moduleName.includes('@etherealengine')) console.log(moduleName)
   // // chunk medisoup-client
   if (moduleName.includes('medisoup')) {
     return `vendor_medisoup-client_${moduleName.toString().split('client/lib/')[1].split('/')[0].toString()}`

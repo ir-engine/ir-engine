@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
+import _ from 'lodash-es'
 
 import logger from '@etherealengine/common/src/logger'
 import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
-import { random } from 'lodash'
+import { random } from 'lodash-es'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'

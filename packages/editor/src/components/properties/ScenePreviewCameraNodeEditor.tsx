@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
-import { debounce } from 'lodash'
+import { debounce } from 'lodash-es'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Scene } from 'three'

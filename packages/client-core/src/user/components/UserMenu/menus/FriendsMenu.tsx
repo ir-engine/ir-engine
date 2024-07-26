@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 

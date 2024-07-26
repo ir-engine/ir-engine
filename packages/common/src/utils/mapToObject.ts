@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { cloneDeep, merge } from 'lodash'
+import { cloneDeep, merge } from 'lodash-es'
 
 export const mapToObject = <K extends string | number, V>(map: Map<K, V>): Record<K, V> =>
   Array.from(map.entries()).reduce((obj, [key, value]) => {
