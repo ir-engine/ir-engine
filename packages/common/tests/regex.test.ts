@@ -86,6 +86,52 @@ describe('regex.test', () => {
     })
   })
 
+  describe('HEIRARCHY_SEARCH_REPLACE_REGEX', () => {
+    it('should replace special characters in search', () => {
+      const inValidHeirarchySearchs = [
+        'hello_world',
+        'file<name',
+        'email@example.com:80',
+        'path/to/file',
+        'back\\slash',
+        'pipe|symbol',
+        'question?mark',
+        'asterisk*char',
+        'control\0char',
+        'another\ncontrol'
+      ]
+      inValidHeirarchySearchs.forEach((filename) => {
+        assert.ok(INVALID_FILENAME_REGEX.test(filename), `Expected '${filename}' to be invalid`)
+      })
+    })
+
+    const escapeSpecialChars = (input) => {
+      return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    }
+
+    const testCases = [
+      { input: 'a.b', expected: 'a\\.b' },
+      { input: 'a*b', expected: 'a\\*b' },
+      { input: 'a+b', expected: 'a\\+b' },
+      { input: 'a?b', expected: 'a\\?b' },
+      { input: '^a', expected: '\\^a' },
+      { input: 'a$b', expected: 'a\\$b' },
+      { input: '(a)', expected: '\\(a\\)' },
+      { input: 'a|b', expected: 'a\\|b' },
+      { input: '[a]', expected: '\\[a\\]' },
+      { input: 'a\\b', expected: 'a\\\\b' },
+      { input: 'a.b*c+?^${}()|[]\\', expected: 'a\\.b\\*c\\+\\?\\^\\$\\{\\}\\(\\)\\|\\[\\]\\\\' },
+      { input: 'abc', expected: 'abc' }
+    ]
+
+    testCases.forEach(({ input, expected }) => {
+      it(`should escape special characters in "${input}" correctly`, function () {
+        const escaped = escapeSpecialChars(input)
+        assert.equal(escaped, expected, `Expected escaped ${input} string to match expected ${expected} value`)
+      })
+    })
+  })
+
   describe('INVALID_FILENAME_WHITESPACE_REGEX', () => {
     it('should match invalid filenames', () => {
       const invalidFilenames = [
