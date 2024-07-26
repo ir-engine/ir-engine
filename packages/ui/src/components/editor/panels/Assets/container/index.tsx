@@ -99,6 +99,28 @@ const generateParentBreadcrumbCategories = (categories: readonly Category[], tar
   return []
 }
 
+function mapCategoriesHelper(collapsedCategories: { [key: string]: boolean }) {
+  const result: Category[] = []
+  const generateCategories = (node: object, depth = 0) => {
+    for (const key in node) {
+      const isLeaf = Object.keys(node[key]).length === 0
+      const category: Category = {
+        name: key,
+        object: node[key],
+        collapsed: collapsedCategories[key] ?? true,
+        depth,
+        isLeaf
+      }
+      result.push(category)
+      if (typeof node[key] === 'object' && !category.collapsed) {
+        generateCategories(node[key], depth + 1)
+      }
+    }
+  }
+  generateCategories(getState(AssetsPanelCategories))
+  return result
+}
+
 const ResourceFile = (props: {
   resource: StaticResourceType
   selected: boolean
@@ -394,28 +416,7 @@ const AssetPanel = () => {
   const assetsPreviewContext = useHookstate({ selectAssetURL: '' })
   const parentCategories = useHookstate<Category[]>([])
 
-  const mapCategories = () => {
-    const result: Category[] = []
-    const generateCategories = (node: object, depth = 0) => {
-      for (const key in node) {
-        const isLeaf = Object.keys(node[key]).length === 0
-        const category: Category = {
-          name: key,
-          object: node[key],
-          collapsed: collapsedCategories[key].value ?? true,
-          depth,
-          isLeaf
-        }
-        result.push(category)
-        if (typeof node[key] === 'object' && !category.collapsed) {
-          generateCategories(node[key], depth + 1)
-        }
-      }
-    }
-    generateCategories(getState(AssetsPanelCategories))
-    categories.set(result)
-  }
-
+  const mapCategories = () => categories.set(mapCategoriesHelper(collapsedCategories.value))
   useEffect(mapCategories, [collapsedCategories])
 
   useEffect(() => {
@@ -526,7 +527,6 @@ const AssetPanel = () => {
 
   const handleRefresh = () => {
     categories.set([])
-    selectedCategory.set(null)
     collapsedCategories.set({})
     staticResourcesFindApi()
     mapCategories()
