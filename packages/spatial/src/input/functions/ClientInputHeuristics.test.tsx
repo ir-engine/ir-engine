@@ -40,9 +40,11 @@ import {
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
 import { Box3, BoxGeometry, Mesh, Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import { createMockXRUI } from '../../../tests/util/MockXRUI'
 import { EngineState } from '../../EngineState'
+import { initializeSpatialEngine } from '../../initializeEngine'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
-import { assertFloatApproxNotEq, assertVecApproxEq } from '../../physics/classes/Physics.test'
+import { assertFloatApproxEq, assertFloatApproxNotEq, assertVecApproxEq } from '../../physics/classes/Physics.test'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -847,45 +849,51 @@ describe('ClientInputHeuristics', () => {
     })
   })
 
-  /**
-  describe("applyXRUI", () => {
+  describe('applyXRUI', () => {
     beforeEach(async () => {
       createEngine()
+      initializeSpatialEngine()
     })
 
     afterEach(() => {
       return destroyEngine()
     })
 
-    // @todo how to setup objects so that they can be hit by WebContainer3D.hitTest?
-    it("should add the xruiQuery.entity and intersection.distance to the `@param intersectionData`", () => {
+    it('should add the xruiQuery.entity and intersection.distance to the `@param intersectionData`', () => {
       const testEntity = createEntity()
-      const xrui = getMutableComponent(testEntity, XRUIComponent)
-      const rootLayer = new WebLayer3D({} as Element, new WebContainer3D({} as Element))
-      xrui.rootLayer.set(rootLayer)
+      setComponent(testEntity, VisibleComponent)
+      createMockXRUI(testEntity, 1)
 
       const data = new Set<IntersectionData>()
       assert.equal(data.size, 0)
 
       const rayOrigin = new Vector3(0, 0, 0)
-      const rayDirection = new Vector3(3, 3, 3).normalize()
+      const rayDirection = new Vector3(0, 0, -1).normalize()
       const ray = new Ray(rayOrigin, rayDirection)
 
       ClientInputHeuristics.applyXRUI(data, ray)
       assert.notEqual(data.size, 0)
+      const result = [...data]
+      assert.equal(result[0].entity, testEntity)
+      assertFloatApproxEq(result[0].distance, 0)
     })
-    // WebContainer3D.rootLayer
 
-    // for every entity of xruiQuery ...
-      // get the XRUIComponent of the entity, and do a WebContainer3D.hitTest with the `@param ray`
-      // should add the xruiQuery.entity and layerHit.intersection.distance to the `@param intersectionData`
-      //   for every object hit by the `@param caster`
-      // should not do anything if ...
-      // ... we didn't hit anything
-      // ... we hit something, but its intersection.object is not marked as visible
-      // ... we hit something, but the material.opacity of the its intersection.object is less than 0.01
+    it("should not do anything if we didn't hit the WebContainer3D", () => {
+      const testEntity = createEntity()
+      setComponent(testEntity, VisibleComponent)
+      createMockXRUI(testEntity, 1)
+
+      const data = new Set<IntersectionData>()
+      assert.equal(data.size, 0)
+
+      const rayOrigin = new Vector3(10, 10, 10)
+      const rayDirection = new Vector3(0, 0, -1).normalize()
+      const ray = new Ray(rayOrigin, rayDirection)
+
+      ClientInputHeuristics.applyXRUI(data, ray)
+      assert.equal(data.size, 0)
+    })
   })
-  */
 
   /**
   // @todo
