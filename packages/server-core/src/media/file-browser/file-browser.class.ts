@@ -51,7 +51,7 @@ import config from '../../appconfig'
 import { getContentType } from '../../util/fileUtils'
 import { getIncrementalName } from '../FileUtil'
 import { getStorageProvider } from '../storageprovider/storageprovider'
-import { StorageObjectInterface } from '../storageprovider/storageprovider.interface'
+import { StorageObjectInterface, StorageProviderInterface } from '../storageprovider/storageprovider.interface'
 import { uploadStaticResource } from './file-helper'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
@@ -274,22 +274,26 @@ export class FileBrowserService
     return results
   }
 
-  private async moveFolderRecursively(storageProvider: any, oldPath: string, newPath: string) {
+  private async moveFolderRecursively(storageProvider: StorageProviderInterface, oldPath: string, newPath: string) {
     const items = await storageProvider.listFolderContent(oldPath)
 
     for (const item of items) {
       const oldItemPath = `${oldPath}/${item.name}`
       const newItemPath = `${newPath}/${item.name}`
 
-      if (item.isDirectory) {
+      if (item.type === 'directory') {
         await this.moveFolderRecursively(storageProvider, oldItemPath, newItemPath)
       } else {
-        await storageProvider.moveObject(oldItemPath, newItemPath)
+        await storageProvider.moveObject(item.name, item.name, oldPath, newPath, false)
       }
     }
 
     // move the folder itself
-    await storageProvider.moveObject(oldPath, newPath)
+    const oldFolderName = path.basename(oldPath)
+    const newFolderName = path.basename(newPath)
+    const oldFolderParent = path.dirname(oldPath)
+    const newFolderParent = path.dirname(newPath)
+    await storageProvider.moveObject(oldFolderName, newFolderName, oldFolderParent, newFolderParent, false)
   }
 
   /**
