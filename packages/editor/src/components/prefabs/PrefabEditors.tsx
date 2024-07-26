@@ -142,6 +142,11 @@ export const PrefabShelfState = defineState({
         name: 'Fog',
         url: `${config.client.fileServer}/projects/default-project/assets/prefabs/fog.prefab.gltf`,
         category: 'Lookdev'
+      },
+      {
+        name: 'Camera',
+        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/camera.prefab.gltf`,
+        category: 'Camera'
       }
     ] as PrefabShelfItem[]
 })

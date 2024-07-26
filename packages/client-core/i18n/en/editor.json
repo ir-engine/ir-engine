@@ -727,8 +727,16 @@
       }
     },
     "cameraSettings": {
-      "name": "Camera",
+      "name": "Camera Settings",
       "description": "Change the camera settings for this scene."
+    },
+    "cameraComponent": {
+      "name": "Camera",
+      "description": "Camera Component",
+      "lbl-fov": "FOV",
+      "lbl-aspect": "Aspect",
+      "lbl-near": "Near",
+      "lbl-far": "Far"
     },
     "postprocessing": {
       "name": "Post Processing Effect",
