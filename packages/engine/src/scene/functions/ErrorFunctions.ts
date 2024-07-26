@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 import {
   Component,

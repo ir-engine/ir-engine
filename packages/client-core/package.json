@@ -58,7 +58,7 @@
     "i18next": "21.6.16",
     "image-palette-core": "0.2.2",
     "jszip": "^3.10.1",
-    "lodash": "4.17.21",
+    "lodash-es": "4.17.21",
     "material-ui-confirm": "3.0.9",
     "mediasoup-client": "3.6.82",
     "moment": "2.29.4",

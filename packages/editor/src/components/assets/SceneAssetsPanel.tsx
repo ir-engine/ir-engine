@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import { CircularProgress } from '@mui/material'
 import { t } from 'i18next'
-import { debounce } from 'lodash'
+import { debounce } from 'lodash-es'
 import DockLayout, { DockMode, TabData } from 'rc-dock'
 import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react'
 import { useDrag } from 'react-dnd'

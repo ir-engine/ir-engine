@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated } from '@feathersjs/feathers'
-import { random } from 'lodash'
+import { random } from 'lodash-es'
 
 import { avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/common/src/schemas/user/github-repo-access-refresh.schema'

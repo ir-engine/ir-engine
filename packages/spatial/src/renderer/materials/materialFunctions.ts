@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isArray } from 'lodash'
+import { isArray } from 'lodash-es'
 import { Color, Material, Mesh, Texture } from 'three'
 
 import {

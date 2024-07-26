@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { uniqueId } from 'lodash'
+import { uniqueId } from 'lodash-es'
 import { useEffect } from 'react'
 
 import {

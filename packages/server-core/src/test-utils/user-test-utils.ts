@@ -29,7 +29,7 @@ import { InviteCode, UserName, UserType, userPath } from '@etherealengine/common
 import { Application } from '@etherealengine/server-core/declarations'
 import { Paginated, Params } from '@feathersjs/feathers'
 import crypto from 'crypto'
-import { random } from 'lodash'
+import { random } from 'lodash-es'
 import { v1 } from 'uuid'
 
 /**

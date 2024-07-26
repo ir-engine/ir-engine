@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { startCase } from 'lodash'
+import { startCase } from 'lodash-es'
 import matches from 'ts-matches'
 
 import { defineSystem, destroySystem, InputSystemGroup, SystemDefinitions, SystemUUID } from '@etherealengine/ecs'

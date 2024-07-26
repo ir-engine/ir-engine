@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { clamp } from 'lodash'
+import { clamp } from 'lodash-es'
 import { AnimationAction, AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 } from 'three'
 
 import { UUIDComponent } from '@etherealengine/ecs'

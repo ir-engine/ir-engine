@@ -17,7 +17,7 @@
   "license": "CPAL",
   "dependencies": {
     "@etherealengine/hyperflux": "^1.6.0",
-    "lodash": "4.17.21",
+    "lodash-es": "4.17.21",
     "three": "0.158.0",
     "ts-matches": "5.3.0",
     "ajv": "^8.11.2",

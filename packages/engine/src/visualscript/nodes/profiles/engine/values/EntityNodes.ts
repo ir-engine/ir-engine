@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { cloneDeep, isEqual, uniqueId } from 'lodash'
+import { cloneDeep, isEqual, uniqueId } from 'lodash-es'
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import { ComponentMap, getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'

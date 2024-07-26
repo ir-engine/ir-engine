@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
 import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
-import { startCase } from 'lodash'
+import { startCase } from 'lodash-es'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 

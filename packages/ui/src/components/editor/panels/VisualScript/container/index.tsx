@@ -30,7 +30,7 @@ import { SelectionState } from '@etherealengine/editor/src/services/SelectionSer
 import { VisualScriptComponent } from '@etherealengine/engine'
 import { getState } from '@etherealengine/hyperflux'
 import { VisualScriptState } from '@etherealengine/visual-script'
-import { isEqual } from 'lodash'
+import { isEqual } from 'lodash-es'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'

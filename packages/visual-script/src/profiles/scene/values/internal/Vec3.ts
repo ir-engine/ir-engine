@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { clamp } from 'lodash'
+import { clamp } from 'lodash-es'
 
 import { EPSILON, equalsTolerance, parseSafeFloats, toSafeString } from '../../../../VisualScriptModule'
 import { Mat3, mat4ToMat3, quatToMat3 } from './Mat3'

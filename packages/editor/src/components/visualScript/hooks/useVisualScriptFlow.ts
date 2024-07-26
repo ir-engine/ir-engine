@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { omit } from 'lodash'
+import { omit } from 'lodash-es'
 import { useCallback, useEffect, useState } from 'react'
 import { useEdgesState, useNodesState } from 'reactflow'
 

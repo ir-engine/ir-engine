@@ -41,7 +41,7 @@ import {
 import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { Channel } from '@feathersjs/transport-commons'
-import _ from 'lodash'
+import _ from 'lodash-es'
 import { Application } from '../../../declarations'
 import { StaticResourceService } from './static-resource.class'
 import staticResourceDocs from './static-resource.docs'

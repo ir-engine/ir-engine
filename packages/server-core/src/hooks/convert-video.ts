@@ -38,7 +38,7 @@ export {}
 // import createStaticResource from './create-static-resource';
 //
 // import fs from 'fs';
-// import _ from 'lodash';
+// import _ from 'lodash-es';
 // import appRootPath from 'app-root-path';
 // import uploadThumbnailLinkHook from './upload-thumbnail-link';
 // import { BadRequest } from '@feathersjs/errors';
