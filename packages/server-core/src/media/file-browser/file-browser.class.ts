@@ -221,7 +221,16 @@ export class FileBrowserService
 
     const isDirectory = await storageProvider.isDirectory(oldName, oldDirectory)
     const fileName = await getIncrementalName(newName, newDirectory, storageProvider, isDirectory)
-    await storageProvider.moveObject(oldName, fileName, oldDirectory, newDirectory, data.isCopy)
+
+    if (isDirectory) {
+      await this.moveFolderRecursively(
+        storageProvider,
+        path.join(oldDirectory, oldName),
+        path.join(newDirectory, fileName)
+      )
+    } else {
+      await storageProvider.moveObject(oldName, fileName, oldDirectory, newDirectory, data.isCopy)
+    }
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
@@ -263,6 +272,24 @@ export class FileBrowserService
     }
 
     return results
+  }
+
+  private async moveFolderRecursively(storageProvider: any, oldPath: string, newPath: string) {
+    const items = await storageProvider.listFolderContent(oldPath)
+
+    for (const item of items) {
+      const oldItemPath = `${oldPath}/${item.name}`
+      const newItemPath = `${newPath}/${item.name}`
+
+      if (item.isDirectory) {
+        await this.moveFolderRecursively(storageProvider, oldItemPath, newItemPath)
+      } else {
+        await storageProvider.moveObject(oldItemPath, newItemPath)
+      }
+    }
+
+    // move the folder itself
+    await storageProvider.moveObject(oldPath, newPath)
   }
 
   /**

@@ -328,18 +328,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         selectedFileKeys.map(async (fileKey) => {
           const file = files.find((f) => f.key === fileKey)
           if (file) {
-            if (file.isFolder) {
-              await fileService.create(`${destinationPath}${file.name}`)
-            } else {
-              const newName = `${file.name}${file.type ? '.' + file.type : ''}`
-              await moveContent(file.fullName, newName, file.path, destinationPath, false)
-            }
+            const newName = file.isFolder ? file.name : `${file.name}${file.type ? '.' + file.type : ''}`
+            await moveContent(file.fullName, newName, file.path, destinationPath, false)
           }
         })
       )
     } else if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
-        const newName = `${data.name}${data.type ? '.' + data.type : ''}`
+        const newName = data.isFolder ? data.name : `${data.name}${data.type ? '.' + data.type : ''}`
         await moveContent(data.fullName, newName, data.path, destinationPath, false)
       }
     } else {
