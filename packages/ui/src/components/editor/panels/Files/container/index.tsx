@@ -295,7 +295,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const onSelect = (params: FileDataType) => {
-    if (params.type !== 'folder') {
+    if (params.isFolder) {
+      if (!fileProperties.value.some((file) => file.key === params.key)) {
+        const newPath = `${selectedDirectory.value}${params.name}/`
+        changeDirectoryByPath(newPath)
+      }
+    } else {
       props.onSelectionChanged({
         resourceUrl: params.url,
         name: params.name,
@@ -304,9 +309,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       })
 
       ClickPlacementState.setSelectedAsset(params.url)
-    } else {
-      const newPath = `${selectedDirectory.value}${params.name}/`
-      changeDirectoryByPath(newPath)
     }
   }
 
@@ -320,7 +322,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     selectedFileKeys?: string[]
   ) => {
     if (isLoading) return
-
     const destinationPath = dropOn?.isFolder ? `${dropOn.key}/` : selectedDirectory.value
 
     if (selectedFileKeys && selectedFileKeys.length > 0) {
@@ -339,6 +340,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         await moveContent(data.fullName, newName, data.path, destinationPath, false)
       }
     } else {
+      // handle drops from user's local file system by creating/uploading dropped files
       const folder = destinationPath.substring(0, destinationPath.lastIndexOf('/') + 1)
       const projectName = folder.split('/')[1]
       const relativePath = folder.replace('projects/' + projectName + '/', '')
@@ -542,8 +544,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           ...newSelectedFiles.filter((newFile) => !prevFileProperties.some((file) => newFile.key === file.key))
         ])
       } else {
-        if (fileProperties.value.some((file) => file.key === currentFile.key)) {
-          fileProperties.set([])
+        if (currentFile.isFolder) {
+          onSelect(currentFile)
         } else {
           fileProperties.set([currentFile])
         }
@@ -575,7 +577,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   projectName={projectName}
                   onClick={(event, currentFile) => {
                     handleFileBrowserItemClick(event, currentFile)
-                    onSelect(file)
                   }}
                   currentContent={currentContentRef}
                   handleDropItemsOnPanel={(data, dropOn) =>
