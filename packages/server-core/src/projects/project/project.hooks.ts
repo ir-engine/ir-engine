@@ -72,6 +72,7 @@ import verifyScope from '../../hooks/verify-scope'
 import { createExecutorJob } from '../../k8s-job-helper'
 import logger from '../../ServerLogger'
 import { useGit } from '../../util/gitHelperFunctions'
+import { ActionTypes, projectHistoryPath } from '../project-history/project-history.schema'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
   deleteProjectFilesInStorageProvider,
@@ -577,6 +578,19 @@ const updateProjectJob = async (context: HookContext) => {
   }
 }
 
+const updateProjectHistory = async (context: HookContext<ProjectService>) => {
+  const data = context.result
+  const dataArr = data ? (Array.isArray(data) ? data : 'data' in data ? data.data : [data]) : []
+
+  for (const item of dataArr) {
+    await context.app.service(projectHistoryPath).create({
+      projectId: item.id,
+      userId: context.params.user!.id,
+      action: ActionTypes.CREATE_PROJECT
+    })
+  }
+}
+
 export default createSkippableHooks(
   {
     around: {
@@ -639,7 +653,7 @@ export default createSkippableHooks(
       all: [],
       find: [addDataToProjectResult],
       get: [],
-      create: [createProjectPermission],
+      create: [updateProjectHistory, createProjectPermission],
       update: [],
       patch: [],
       remove: []
