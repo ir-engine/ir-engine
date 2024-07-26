@@ -112,7 +112,6 @@ export const configurePrimus =
             ;(message as any).feathers.socketQuery = message.query
             ;(message as any).socketQuery = message.query
             ;(message as any).feathers.forwarded = message.forwarded
-            ;(message as any).forwarded = message.forwarded
             next()
           })
         }
