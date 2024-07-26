@@ -312,9 +312,13 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     <li
       style={props.style}
       className={twMerge(
-          props.index % 2
-            ? (selected ? 'bg-[#1d1f23]' : 'bg-theme-surfaceInput'} hover:bg-[#1d1f23]')
-            : (selected ? 'bg-zinc-700' : 'bg-zinc-800'} hover:bg-zinc-700'),
+        props.index % 2
+          ? selected
+            ? 'bg-[#1d1f23]'
+            : 'bg-theme-surfaceInput hover:bg-[#1d1f23]'
+          : selected
+          ? 'bg-zinc-700'
+          : 'bg-zinc-800 hover:bg-zinc-700',
         selected ? 'text-white' : 'text-gray-300',
         'hover:text-white',
         visible && 'bg-[#191B1F] text-[#6B7280]'
