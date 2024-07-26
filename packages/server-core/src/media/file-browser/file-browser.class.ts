@@ -289,11 +289,13 @@ export class FileBrowserService
     }
 
     // move the folder itself
-    const oldFolderName = path.basename(oldPath)
-    const newFolderName = path.basename(newPath)
-    const oldFolderParent = path.dirname(oldPath)
-    const newFolderParent = path.dirname(newPath)
-    await storageProvider.moveObject(oldFolderName, newFolderName, oldFolderParent, newFolderParent, false)
+    await storageProvider.moveObject(
+      path.basename(oldPath),
+      path.basename(newPath),
+      path.dirname(oldPath),
+      path.dirname(newPath),
+      false
+    )
   }
 
   /**
