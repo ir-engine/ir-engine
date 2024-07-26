@@ -24,7 +24,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { clone, debounce, isEmpty } from 'lodash'
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
@@ -424,7 +424,7 @@ const AssetPanel = () => {
     parentCategories.set(parentCategoryBreadcrumbs)
   }, [categories, selectedCategory])
 
-  const staticResourcesFindApi = useCallback(() => {
+  const staticResourcesFindApi = () => {
     loading.set(true)
     searchTimeoutCancelRef.current?.()
 
@@ -474,15 +474,11 @@ const AssetPanel = () => {
 
     debouncedSearchQuery()
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
-  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
+  }
 
   useEffect(() => {
     staticResourcesFindApi()
   }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
-
-  const handleRefreshPage = () => {
-    staticResourcesFindApi()
-  }
 
   const ResourceItems = () => {
     if (loading.value) {
@@ -510,9 +506,7 @@ const AssetPanel = () => {
                   assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
                   ClickPlacementState.setSelectedAsset(props.resourceUrl)
                 }}
-                onChange={() => {
-                  handleRefreshPage()
-                }}
+                onChange={() => staticResourcesFindApi()}
               />
             ))}
           </>
@@ -527,7 +521,7 @@ const AssetPanel = () => {
       collapsedCategories.set({})
       return
     }
-    selectedCategory.set(clone(parentCategories.value.at(-1)!))
+    handleSelectCategory(parentCategories.get(NO_PROXY).at(-1)!)
   }
 
   const handleRefresh = () => {
