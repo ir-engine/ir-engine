@@ -48,7 +48,7 @@ import { InviteCode, UserID, UserName, UserQuery, UserType } from '@etherealengi
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import verifyScope from '../../hooks/verify-scope'
+import checkScope from '../../hooks/check-scope'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
@@ -170,7 +170,7 @@ export const userExternalResolver = resolve<UserType, HookContext>({
   /** This must not be returned for other users */
   acceptedTOS: virtual(async (user, context) => {
     const isSelfOrAdmin = context.params.user
-      ? context.params.user?.id === user.id || (await verifyScope('admin', 'admin')(context))
+      ? context.params.user?.id === user.id || (await checkScope('admin', 'admin')(context))
       : false
     if (!isSelfOrAdmin) return undefined
     return !!user.acceptedTOS
