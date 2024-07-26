@@ -42,6 +42,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { EngineState } from '../../EngineState'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
@@ -127,6 +128,8 @@ const compareReferenceDepth = (a: Entity, b: Entity) => {
   return aDepth - bDepth
 }
 
+const isDirtyNonRigidbody = (entity: Entity) =>
+  TransformComponent.dirtyTransforms[entity] && !hasComponent(entity, RigidBodyComponent)
 export const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
 
 const sortedTransformEntities = [] as Entity[]
@@ -171,12 +174,11 @@ const execute = () => {
       false
   }
 
-  const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
+  const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirtyNonRigidbody)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
-  // XRUI is the only non ecs hierarchy with support still - see https://github.com/EtherealEngine/etherealengine/issues/8519
-  const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirty)
-  for (const entity of dirtyOrAnimatingGroupEntities) updateGroupChildren(entity)
+  const dirtyGroupEntities = groupQuery().filter(isDirty)
+  for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
 
   const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
   for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
