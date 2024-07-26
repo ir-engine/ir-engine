@@ -36,13 +36,11 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getState } from '@etherealengine/hyperflux'
 import { ObjectDirection, Vector3_Right, Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { AvatarCollisionMask, CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -80,7 +78,8 @@ export const SpawnEffectComponent = defineComponent({
       setComponent(entity, VisibleComponent, true)
       /** cast ray to move this downward to be on the ground */
       downwardGroundRaycast.origin.copy(sourceTransform.position)
-      const hits = Physics.castRay(getState(PhysicsState).physicsWorld, downwardGroundRaycast)
+      const physicsWorld = Physics.getWorld(entity)!
+      const hits = Physics.castRay(physicsWorld, downwardGroundRaycast)
       if (hits.length) {
         transform.position.y = hits[0].position.y
       }

@@ -23,23 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EventQueue, World as PhysicsWorld } from '@dimforge/rapier3d-compat'
+//https://stackoverflow.com/a/60476525
 
-import { UndefinedEntity } from '@etherealengine/ecs'
-import { defineState } from '@etherealengine/hyperflux'
-import { Physics } from '../classes/Physics'
+import { useCallback } from 'react'
+import { useHookstate } from './StateFunctions'
 
-export const PhysicsState = defineState({
-  name: 'ee.engine.PhysicsState',
-  initial: () => {
-    return {
-      physicsSubsteps: 1,
-      physicsWorld: null! as PhysicsWorld,
-      physicsCollisionEventQueue: null! as EventQueue,
-      // used to ignore raycast hits for an entity the camera is attached to
-      cameraAttachedRigidbodyEntity: UndefinedEntity,
-      drainCollisions: null! as ReturnType<typeof Physics.drainCollisionEventQueue>,
-      drainContacts: null! as ReturnType<typeof Physics.drainContactEventQueue>
-    }
-  }
-})
+export const useReactiveRef = <T extends HTMLElement>() => {
+  const ref = useHookstate({ current: null })
+  const handleRef = useCallback((node) => {
+    ref.current.set(node)
+  }, [])
+  return [ref.value as { current: T | null }, handleRef] as const
+}
