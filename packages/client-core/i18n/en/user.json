@@ -222,6 +222,10 @@
       "issueVC": "Issue a VC",
       "requestVC": "Request a VC",
       "addSocial": "Connect your Social Logins",
+      "logIn": "Log In",
+      "acceptTOS": "I accept the ",
+      "termsOfService": "Terms of Service",
+      "confirmAge": "I confirm that I am 18 years or older",
       "removeSocial": "Remove Social Logins",
       "connections": {
         "title": "Connections",

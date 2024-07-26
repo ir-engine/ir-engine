@@ -48,6 +48,7 @@ import { InviteCode, UserID, UserName, UserQuery, UserType } from '@etherealengi
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import verifyScope from '../../hooks/verify-scope'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
@@ -164,7 +165,16 @@ export const userExternalResolver = resolve<UserType, HookContext>({
       paginate: false
     })) as LocationBanType[]
   }),
-  isGuest: async (value, user) => !!user.isGuest // https://stackoverflow.com/a/56523892/2077741
+  // https://stackoverflow.com/a/56523892/2077741
+  isGuest: async (value, user) => !!user.isGuest,
+  /** This must not be returned for other users */
+  acceptedTOS: virtual(async (user, context) => {
+    const isSelfOrAdmin = context.params.user
+      ? context.params.user?.id === user.id || (await verifyScope('admin', 'admin')(context))
+      : false
+    if (!isSelfOrAdmin) return undefined
+    return !!user.acceptedTOS
+  })
 })
 
 export const userDataResolver = resolve<UserType, HookContext>({

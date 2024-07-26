@@ -459,8 +459,12 @@ export const InstanceChatWrapper = () => {
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
 
+  const acceptedTOS = useMutableState(AuthState).user.acceptedTOS.value
+
   const networkWorldConfig = useHookstate(getMutableState(NetworkState).config.world)
   const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
+
+  if (!acceptedTOS) return null
 
   return (
     <>
