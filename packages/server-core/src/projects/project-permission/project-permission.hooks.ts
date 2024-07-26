@@ -207,14 +207,16 @@ const makeRandomProjectOwner = async (context: HookContext<ProjectPermissionServ
  */
 const resolvePermissionId = async (context: HookContext<ProjectPermissionService>) => {
   if (context.id && typeof context.id === 'string') {
-    const projectId = (
-      (await context.app.service(projectPermissionPath).find({
-        query: {
-          id: context.id,
-          $limit: 1
-        }
-      })) as Paginated<ProjectPermissionType>
-    ).data[0].projectId
+    const project = (await context.app.service(projectPermissionPath).find({
+      query: {
+        id: context.id,
+        $limit: 1
+      }
+    })) as Paginated<ProjectPermissionType>
+
+    if (project.data.length === 0) throw new BadRequest('Invalid project-permission ID')
+
+    const projectId = project.data[0].projectId
 
     context.params.query = { ...context.params.query, projectId }
 
