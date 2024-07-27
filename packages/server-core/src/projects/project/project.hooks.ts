@@ -586,7 +586,8 @@ const updateProjectHistory = async (context: HookContext<ProjectService>) => {
     await context.app.service(projectHistoryPath).create({
       projectId: item.id,
       userId: context.params.user!.id,
-      action: ActionTypes.CREATE_PROJECT
+      action: ActionTypes.CREATE_PROJECT,
+      actionIdentifier: item.id
     })
   }
 }

@@ -45,12 +45,20 @@ export const projectHistoryDataResolver = resolve<ProjectHistoryType, HookContex
 
 export const projectHistoryExternalResolver = resolve<ProjectHistoryType, HookContext>({
   userName: virtual(async (projectHistory, context) => {
-    if (projectHistory.userId in context.usersInfo) {
-      return context.usersInfo[projectHistory.userId].userName
+    if (!projectHistory.userId) {
+      return ''
+    }
+
+    if (!('usersInfo' in context.params)) {
+      context.params['usersInfo'] = {} as Record<string, { userName: string; userAvatar: string }>
+    }
+
+    if (projectHistory.userId in context.params['usersInfo']) {
+      return context.params['usersInfo'][projectHistory.userId].userName
     }
 
     const user = await context.app.service(userPath).get(projectHistory.userId)
-    context.userInfo[projectHistory.userId] = {
+    context.params['usersInfo'][projectHistory.userId] = {
       userName: user.name,
       userAvatar: user.avatar?.thumbnailResource?.url || ''
     }
@@ -59,11 +67,20 @@ export const projectHistoryExternalResolver = resolve<ProjectHistoryType, HookCo
   }),
 
   userAvatar: virtual(async (projectHistory, context) => {
-    if (projectHistory.userId in context.usersInfo) {
-      return context.usersInfo[projectHistory.userId].userAvatarURL
+    if (!projectHistory.userId) {
+      return ''
     }
+
+    if (!('usersInfo' in context.params)) {
+      context.params['usersInfo'] = {} as Record<string, { userName: string; userAvatar: string }>
+    }
+
+    if (projectHistory.userId in context.params['usersInfo']) {
+      return context.params['usersInfo'][projectHistory.userId].userAvatarURL
+    }
+
     const user = await context.app.service(userPath).get(projectHistory.userId)
-    context.userInfo[projectHistory.userId] = {
+    context.params['usersInfo'][projectHistory.userId] = {
       userName: user.name,
       userAvatar: user.avatar?.thumbnailResource?.url || ''
     }
@@ -74,12 +91,21 @@ export const projectHistoryExternalResolver = resolve<ProjectHistoryType, HookCo
   actionResource: virtual(async (projectHistory, context) => {
     if (projectHistory.action in UserActionTypes) {
       const userId = projectHistory.actionIdentifier
-      if (userId in context.usersInfo) {
-        return context.usersInfo[userId].userName
+
+      if (!userId) {
+        return ''
+      }
+
+      if (!('usersInfo' in context.params)) {
+        context.params['usersInfo'] = {} as Record<string, { userName: string; userAvatar: string }>
+      }
+
+      if (userId in context.params['usersInfo']) {
+        return context.params['usersInfo'][userId].userName
       }
 
       const user = await context.app.service(userPath).get(userId)
-      context.userInfo[userId] = {
+      context.params['usersInfo'][userId] = {
         userName: user.name,
         userAvatar: user.avatar?.thumbnailResource?.url || ''
       }
@@ -87,12 +113,21 @@ export const projectHistoryExternalResolver = resolve<ProjectHistoryType, HookCo
       return user.name
     } else if (projectHistory.action in ResourceActionTypes) {
       const resourceId = projectHistory.actionIdentifier
-      if (resourceId in context.staticResourcesInfo) {
-        return context.staticResourcesInfo[resourceId].name
+
+      if (!resourceId) {
+        return ''
+      }
+
+      if (!('staticResourcesInfo' in context)) {
+        context.params['staticResourcesInfo'] = {} as Record<string, string>
+      }
+
+      if (resourceId in context.params['staticResourcesInfo']) {
+        return context.params['staticResourcesInfo'][resourceId].name
       }
 
       const resource = await context.app.service(staticResourcePath).get(resourceId)
-      context.staticResourcesInfo[resourceId] = resource.key
+      context.params['staticResourcesInfo'][resourceId] = resource.key
 
       return resource.key
     }

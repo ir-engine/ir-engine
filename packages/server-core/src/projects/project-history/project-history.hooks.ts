@@ -129,16 +129,13 @@ const populateData = async (context: HookContext<ProjectHistoryService>) => {
     staticResourcesInfo[resource.id] = resource.key
   }
 
-  context.usersInfo = usersInfo
-  context.staticResourcesInfo = staticResourcesInfo
+  context.parms['usersInfo'] = usersInfo
+  context.params['staticResourcesInfo'] = staticResourcesInfo
 }
 
 export default {
   around: {
-    all: [
-      schemaHooks.resolveExternal(projectHistoryExternalResolver),
-      schemaHooks.resolveResult(projectHistoryResolver)
-    ]
+    all: [schemaHooks.resolveResult(projectHistoryResolver)]
   },
 
   before: {
@@ -146,8 +143,8 @@ export default {
       () => schemaHooks.validateQuery(projectHistoryQueryValidator),
       schemaHooks.resolveQuery(projectHistoryQueryResolver)
     ],
-    find: [iff(isProvider('external'), setLoggedinUserInQuery('userId'), checkProjectAccess)],
-    get: [disallow('external')],
+    find: [iff(isProvider('external'), setLoggedinUserInQuery('userId'), checkProjectAccess, populateData)],
+    get: [iff(isProvider('external'), setLoggedinUserInQuery('userId'), checkProjectAccess, populateData)],
     create: [
       () => schemaHooks.validateData(projectHistoryDataValidator),
       iff(isProvider('external'), setLoggedinUserInQuery('userId'), checkProjectAccess),
@@ -160,8 +157,8 @@ export default {
 
   after: {
     all: [],
-    find: [populateData],
-    get: [populateData],
+    find: [schemaHooks.resolveExternal(projectHistoryExternalResolver)],
+    get: [schemaHooks.resolveExternal(projectHistoryExternalResolver)],
     create: [],
     update: [],
     patch: [],

@@ -34,25 +34,25 @@ export const projectHistoryMethods = ['create', 'find', 'remove'] as const
 
 export enum ActionTypes {
   CREATE_PROJECT = 'CREATE_PROJECT',
-  RENAME_PROJECT = 'RENAME_PROJECT',
+  UPDATE_PROJECT = 'UPDATE_PROJECT',
   COLLABORATER_ADDED = 'COLLABORATER_ADDED',
   COLLABORATER_REMOVED = 'COLLABORATER_REMOVED',
 
   CREATE_SCENE = 'CREATE_SCENE',
-  RENAME_SCENE = 'RENAME_SCENE',
+  UPDATE_SCENE = 'UPDATE_SCENE',
   REMOVE_SCENE = 'REMOVE_SCENE',
   CREATE_ASSET = 'CREATE_ASSET',
-  RENAME_ASSET = 'RENAME_ASSET',
+  UPDATE_ASSET = 'UPDATE_ASSET',
   REMOVE_ASSET = 'REMOVE_ASSET'
 }
 
 export const UserActionTypes = [ActionTypes.COLLABORATER_ADDED, ActionTypes.COLLABORATER_REMOVED]
 export const ResourceActionTypes = [
   ActionTypes.CREATE_SCENE,
-  ActionTypes.RENAME_SCENE,
+  ActionTypes.UPDATE_SCENE,
   ActionTypes.REMOVE_SCENE,
   ActionTypes.CREATE_ASSET,
-  ActionTypes.RENAME_ASSET,
+  ActionTypes.UPDATE_ASSET,
   ActionTypes.REMOVE_ASSET
 ]
 
@@ -83,13 +83,17 @@ export const projectHistorySchema = Type.Object(
 export interface ProjectHistoryType extends Static<typeof projectHistorySchema> {}
 
 // Schema for creating new entries
-export const projectHistoryDataSchema = Type.Partial(projectHistorySchema, {
-  $id: 'ProjectHistoryData'
-})
+export const projectHistoryDataSchema = Type.Pick(
+  projectHistorySchema,
+  ['projectId', 'userId', 'action', 'actionIdentifier'],
+  {
+    $id: 'ProjectHistoryData'
+  }
+)
 export interface ProjectHistoryData extends Static<typeof projectHistoryDataSchema> {}
 
 // Schema for allowed query properties
-export const projectHistoryQueryProperties = Type.Pick(projectHistorySchema, ['id', 'projectId', 'createdAt'])
+export const projectHistoryQueryProperties = Type.Pick(projectHistorySchema, ['id', 'projectId'])
 
 export const projectHistoryQuerySchema = Type.Intersect([querySyntax(projectHistoryQueryProperties, {})], {
   additionalProperties: false

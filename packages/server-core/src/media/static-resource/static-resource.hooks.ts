@@ -28,7 +28,7 @@ import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
-import { projectPath } from '@etherealengine/common/src/schema.type.module'
+import { UserID, projectPath } from '@etherealengine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import allowNullQuery from '../../hooks/allow-null-query'
 import checkScope from '../../hooks/check-scope'
@@ -192,12 +192,31 @@ const updateProjectHistory = async (context: HookContext<StaticResourceService>)
 
       const project = projectResult.data[0]
 
-      const actionType = item.type === 'scene' ? ActionTypes.CREATE_SCENE : ActionTypes.CREATE_ASSET
+      let actionType: ActionTypes
+
+      if (item.type === 'scene') {
+        if (context.method === 'create') {
+          actionType = ActionTypes.CREATE_SCENE
+        } else if (context.method === 'update' || context.method === 'patch') {
+          actionType = ActionTypes.UPDATE_SCENE
+        } else {
+          actionType = ActionTypes.REMOVE_ASSET
+        }
+      } else {
+        if (context.method === 'create') {
+          actionType = ActionTypes.CREATE_ASSET
+        } else if (context.method === 'update' || context.method === 'patch') {
+          actionType = ActionTypes.UPDATE_ASSET
+        } else {
+          actionType = ActionTypes.REMOVE_ASSET
+        }
+      }
 
       await context.app.service(projectHistoryPath).create({
         projectId: project.id,
-        userId: item.userId,
-        action: actionType
+        userId: (context.params.user?.id || null) as UserID,
+        action: actionType,
+        actionIdentifier: item.id
       })
     }
   }
