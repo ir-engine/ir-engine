@@ -107,8 +107,7 @@ export function findProximity(
   const inputSourceEntity =
     getState(XRControlsState).isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
 
-  // Skip Proximity Heuristic when the entity is undefined
-  // @note Clause Guard. This entire function was a block nested inside   if (inputSourceEntity !== UndefinedEntity) { ... }
+  // Skip finding nearby entities when there are no input source entities that match our conditions  (aka entity is undefined)
   if (inputSourceEntity === UndefinedEntity) return
 
   TransformComponent.getWorldPosition(inputSourceEntity, _worldPosInputSourceComponent)
