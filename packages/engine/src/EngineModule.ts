@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 /** World Module */
 import '@etherealengine/spatial'
 
-export * from './FeatureFlagsState'
 export * from './avatar/AvatarModule'
+export * from './FeatureFlagsState'
 export * from './interaction/InteractionModule'
 export * from './interaction/MediaModule'
 export * from './mocap/MocapModule'

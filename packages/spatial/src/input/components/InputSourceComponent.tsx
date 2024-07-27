@@ -70,7 +70,7 @@ export const InputSourceComponent = defineComponent({
             index: 0,
             mapping: '',
             timestamp: performance.now(),
-            vibrationActuator: null
+            vibrationActuator: {} as any
           } as Gamepad),
         profiles: [],
         hand: undefined

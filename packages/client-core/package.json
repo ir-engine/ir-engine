@@ -75,7 +75,7 @@
     "react-router-dom": "6.9.0",
     "recovery": "^0.2.6",
     "tick-tock": "^1.0.0",
-    "typescript": "5.4.5",
+    "typescript": "5.5.2",
     "util": "^0.12.5",
     "uuid": "9.0.0"
   },

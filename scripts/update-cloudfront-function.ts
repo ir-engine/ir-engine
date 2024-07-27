@@ -23,29 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '@feathersjs/feathers'
 import cli from 'cli'
 
-import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
 import { routePath } from '@etherealengine/common/src/schema.type.module'
+import { Application } from '@etherealengine/server-core/declarations'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
-import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 cli.enable('status')
 
 const PAGE_SIZE = 100
 
-const getAllRoutes = async (app: Application, routes: InstalledRoutesInterface[], skip: number) => {
+const getAllRoutes = async (app: Application, skip: number) => {
   const routePage = await app.service(routePath).find({
     query: {
       $limit: PAGE_SIZE,
       $skip: skip
     }
   })
-  routes = routes.concat(routePage.data)
-  if (routePage.total > routes.length) return await getAllRoutes(app, routes, skip + PAGE_SIZE)
-  else return routes
+  const routes = [...routePage.data]
+  if (routePage.total > routes.length) return routes.concat(await getAllRoutes(app, skip + PAGE_SIZE))
+  return routes
 }
 
 const options = cli.parse({
@@ -56,7 +55,7 @@ cli.main(async () => {
     const app = await createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const storageProvider = getStorageProvider()
-    const routes = (await getAllRoutes(app, [], 0)).map((item) => item.route)
+    const routes = (await getAllRoutes(app, 0)).map((item) => item.route)
     const name = `etherealengine-${options.stage}-client-route-function`
     const functionList = (await storageProvider.listFunctions(null, [])).map((thisFunction) => thisFunction.Name)
     const currentFunctions = [...new Set(functionList)]

@@ -28,7 +28,8 @@ Ethereal Engine. All Rights Reserved.
 import {
   BatchDeleteImageCommand as BatchDeletePrivateImageCommand,
   DescribeImagesCommand as DescribePrivateImagesCommand,
-  ECRClient
+  ECRClient,
+  ImageDetail
 } from '@aws-sdk/client-ecr'
 import { BatchDeleteImageCommand, DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
 import { fromIni } from '@aws-sdk/credential-providers'
@@ -70,10 +71,10 @@ const getAllPods = async (k8Client, continueValue, labelSelector, pods = []) => 
 }
 
 const getAllImages = async (
-  ecr: any,
+  ecr,
   repoName: string,
   token: string | undefined,
-  images = [] as string[],
+  images = [] as Array<ImageDetail>,
   publicRepo: boolean
 ) => {
   const input = {
@@ -160,7 +161,13 @@ cli.main(async () => {
             }),
             region: options.region || 'us-east-1'
           })
-    const images = await getAllImages(ecr, options.repoName || 'etherealengine', undefined, [], options.public === true)
+    const images = await getAllImages(
+      ecr as ECRClient,
+      options.repoName || 'etherealengine',
+      undefined,
+      [],
+      options.public === true
+    )
     if (!images) return
     const latestImage = images.find(
       (image) =>
@@ -169,7 +176,7 @@ cli.main(async () => {
           image.imageTags.indexOf(`latest_${options.releaseName}_cache`) >= 0)
     )
     if (latestImage) {
-      const latestImageTime = latestImage.imagePushedAt.getTime()
+      const latestImageTime = latestImage.imagePushedAt!.getTime()
       // ECR automatically supports multi-architecture builds, which results in multiple images/image indexes. In order
       // to not accidentally delete related images, we need to keep all of them for a given tag. Ran into problems
       // trying to inspect the image (and pulling it would be time-consuming), so just checking for images that
@@ -178,32 +185,32 @@ cli.main(async () => {
         ...images
           .filter(
             (image) =>
-              latestImageTime - image.imagePushedAt.getTime() <= 10000 &&
-              latestImageTime - image.imagePushedAt.getTime() >= 0
+              latestImageTime - image.imagePushedAt!.getTime() <= 10000 &&
+              latestImageTime - image.imagePushedAt!.getTime() >= 0
           )
-          .map((image) => image.imageDigest)
+          .map((image) => image.imageDigest!)
       )
     }
     const currentTaggedImages = images.filter(
       (image) => image.imageTags && image.imageTags.some((item) => currentImages.includes(item))
     )
     if (currentTaggedImages) {
-      for (let currentTaggedImage of currentTaggedImages) {
-        const currentTaggedImageTime = currentTaggedImage.imagePushedAt.getTime()
+      for (const currentTaggedImage of currentTaggedImages) {
+        const currentTaggedImageTime = currentTaggedImage.imagePushedAt!.getTime()
         excludedImageDigests.push(
           ...images
             .filter(
               (image) =>
-                currentTaggedImageTime - image.imagePushedAt.getTime() <= 10000 &&
-                currentTaggedImageTime - image.imagePushedAt.getTime() >= 0
+                currentTaggedImageTime - image.imagePushedAt!.getTime() <= 10000 &&
+                currentTaggedImageTime - image.imagePushedAt!.getTime() >= 0
             )
-            .map((image) => image.imageDigest)
+            .map((image) => image.imageDigest!)
         )
       }
     }
-    const withoutLatestOrCurrent = images.filter((image) => excludedImageDigests.indexOf(image.imageDigest) < 0)
-    const sorted = withoutLatestOrCurrent.sort((a, b) => b.imagePushedAt.getTime() - a.imagePushedAt.getTime())
-    let toBeDeleted = sorted.slice(9)
+    const withoutLatestOrCurrent = images.filter((image) => excludedImageDigests.indexOf(image.imageDigest!) < 0)
+    const sorted = withoutLatestOrCurrent.sort((a, b) => b.imagePushedAt!.getTime() - a.imagePushedAt!.getTime())
+    const toBeDeleted = sorted.slice(9)
     if (toBeDeleted.length > 0) {
       await deleteImages(ecr, toBeDeleted, options.public === true)
       process.exit(0)
