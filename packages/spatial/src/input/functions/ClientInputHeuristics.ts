@@ -78,13 +78,13 @@ export type HeuristicData = {
 }
 
 export type HeuristicFunctions = {
-  editor: typeof ClientInputHeuristics.applyEditor
-  xrui: typeof ClientInputHeuristics.applyXRUI
-  physicsColliders: typeof ClientInputHeuristics.applyPhysicsColliders
-  bboxes: typeof ClientInputHeuristics.applyBBoxes
-  meshes: typeof ClientInputHeuristics.applyMeshes
-  proximity: typeof ClientInputHeuristics.applyProximity
-  raycastedInput: typeof ClientInputHeuristics.applyRaycastedInput
+  editor: typeof ClientInputHeuristics.findEditor
+  xrui: typeof ClientInputHeuristics.findXRUI
+  physicsColliders: typeof ClientInputHeuristics.findPhysicsColliders
+  bboxes: typeof ClientInputHeuristics.findBBoxes
+  meshes: typeof ClientInputHeuristics.findMeshes
+  proximity: typeof ClientInputHeuristics.findProximity
+  raycastedInput: typeof ClientInputHeuristics.findRaycastedInput
 }
 
 /**Proximity query */
@@ -96,7 +96,7 @@ const spatialInputObjectsQuery = defineQuery([
   Not(XRScenePlacementComponent)
 ])
 
-export function applyProximity(
+export function findProximity(
   isSpatialInput: boolean,
   sourceEid: Entity,
   sortedIntersections: IntersectionData[],
@@ -159,7 +159,7 @@ const gizmoPickerObjectsQuery = defineQuery([
   TransformGizmoTagComponent
 ])
 
-export function applyEditor(intersectionData: Set<IntersectionData>, caster: Raycaster) {
+export function findEditor(intersectionData: Set<IntersectionData>, caster: Raycaster) {
   const pickerObj = gizmoPickerObjectsQuery() // gizmo heuristic
   const inputObj = inputObjectsQuery()
 
@@ -179,7 +179,7 @@ export function applyEditor(intersectionData: Set<IntersectionData>, caster: Ray
 
 const xruiQuery = defineQuery([VisibleComponent, XRUIComponent])
 
-export function applyXRUI(intersectionData: Set<IntersectionData>, ray: Ray) {
+export function findXRUI(intersectionData: Set<IntersectionData>, ray: Ray) {
   for (const entity of xruiQuery()) {
     const xrui = getComponent(entity, XRUIComponent)
     const layerHit = xrui.hitTest(ray)
@@ -193,7 +193,7 @@ export function applyXRUI(intersectionData: Set<IntersectionData>, ray: Ray) {
   }
 }
 
-export function applyPhysicsColliders(intersectionData: Set<IntersectionData>, raycast: RaycastArgs) {
+export function findPhysicsColliders(intersectionData: Set<IntersectionData>, raycast: RaycastArgs) {
   const physicsWorld = getState(PhysicsState).physicsWorld
   if (!physicsWorld) return // @note Clause Guard. The rest of this function was nested inside   if (physicsWorld) { ... }
 
@@ -206,7 +206,7 @@ export function applyPhysicsColliders(intersectionData: Set<IntersectionData>, r
 
 const boundingBoxesQuery = defineQuery([VisibleComponent, BoundingBoxComponent])
 
-export function applyBBoxes(intersectionData: Set<IntersectionData>, ray: Ray, hitTarget: Vector3) {
+export function findBBoxes(intersectionData: Set<IntersectionData>, ray: Ray, hitTarget: Vector3) {
   const inputState = getState(InputState)
   for (const entity of inputState.inputBoundingBoxes) {
     const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
@@ -219,7 +219,7 @@ export function applyBBoxes(intersectionData: Set<IntersectionData>, ray: Ray, h
 
 const meshesQuery = defineQuery([VisibleComponent, MeshComponent])
 
-export function applyMeshes(intersectionData: Set<IntersectionData>, isEditing: boolean, caster: Raycaster) {
+export function findMeshes(intersectionData: Set<IntersectionData>, isEditing: boolean, caster: Raycaster) {
   const inputState = getState(InputState)
   const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes)) // gizmo heuristic
     .filter((eid) => hasComponent(eid, GroupComponent))
@@ -234,7 +234,7 @@ export function applyMeshes(intersectionData: Set<IntersectionData>, isEditing: 
   }
 }
 
-export function applyRaycastedInput(
+export function findRaycastedInput(
   sourceEid: Entity,
   intersectionData: Set<IntersectionData>,
   data: HeuristicData,
@@ -266,12 +266,12 @@ export function applyRaycastedInput(
 }
 
 export const ClientInputHeuristics = {
-  applyProximity,
-  applyEditor,
-  applyXRUI,
-  applyPhysicsColliders,
-  applyBBoxes,
-  applyMeshes,
-  applyRaycastedInput
+  findProximity,
+  findEditor,
+  findXRUI,
+  findPhysicsColliders,
+  findBBoxes,
+  findMeshes,
+  findRaycastedInput
 }
 export default ClientInputHeuristics

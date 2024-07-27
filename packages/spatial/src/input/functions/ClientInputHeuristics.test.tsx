@@ -85,7 +85,7 @@ function createHeuristicDummyData(): HeuristicData {
 }
 
 describe('ClientInputHeuristics', () => {
-  describe('applyRaycastedInput', () => {
+  describe('findRaycastedInput', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
@@ -106,20 +106,20 @@ describe('ClientInputHeuristics', () => {
       const intersectionData = {} as Set<IntersectionData>
       const heuristicData = createHeuristicDummyData()
       const heuristicFunctions = {
-        editor: spy as typeof ClientInputHeuristics.applyEditor,
-        xrui: dummySpy as typeof ClientInputHeuristics.applyXRUI,
-        physicsColliders: dummySpy as typeof ClientInputHeuristics.applyPhysicsColliders,
-        bboxes: dummySpy as typeof ClientInputHeuristics.applyBBoxes,
-        meshes: dummySpy as typeof ClientInputHeuristics.applyMeshes,
-        proximity: dummySpy as typeof ClientInputHeuristics.applyProximity,
-        raycastedInput: dummySpy as typeof ClientInputHeuristics.applyRaycastedInput
+        editor: spy as typeof ClientInputHeuristics.findEditor,
+        xrui: dummySpy as typeof ClientInputHeuristics.findXRUI,
+        physicsColliders: dummySpy as typeof ClientInputHeuristics.findPhysicsColliders,
+        bboxes: dummySpy as typeof ClientInputHeuristics.findBBoxes,
+        meshes: dummySpy as typeof ClientInputHeuristics.findMeshes,
+        proximity: dummySpy as typeof ClientInputHeuristics.findProximity,
+        raycastedInput: dummySpy as typeof ClientInputHeuristics.findRaycastedInput
       } as HeuristicFunctions
       assert.equal(spy.called, false)
       assert.equal(getState(EngineState).isEditing, false)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       assert.equal(spy.called, false)
       getMutableState(EngineState).isEditing.set(true)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       assert.equal(spy.called, true)
     })
 
@@ -129,22 +129,22 @@ describe('ClientInputHeuristics', () => {
       const intersectionData = {} as Set<IntersectionData>
       const heuristicData = createHeuristicDummyData()
       const heuristicFunctions = {
-        xrui: spy as typeof ClientInputHeuristics.applyXRUI,
-        editor: dummySpy as typeof ClientInputHeuristics.applyEditor,
-        physicsColliders: dummySpy as typeof ClientInputHeuristics.applyPhysicsColliders,
-        bboxes: dummySpy as typeof ClientInputHeuristics.applyBBoxes,
-        meshes: dummySpy as typeof ClientInputHeuristics.applyMeshes,
-        proximity: dummySpy as typeof ClientInputHeuristics.applyProximity,
-        raycastedInput: dummySpy as typeof ClientInputHeuristics.applyRaycastedInput
+        xrui: spy as typeof ClientInputHeuristics.findXRUI,
+        editor: dummySpy as typeof ClientInputHeuristics.findEditor,
+        physicsColliders: dummySpy as typeof ClientInputHeuristics.findPhysicsColliders,
+        bboxes: dummySpy as typeof ClientInputHeuristics.findBBoxes,
+        meshes: dummySpy as typeof ClientInputHeuristics.findMeshes,
+        proximity: dummySpy as typeof ClientInputHeuristics.findProximity,
+        raycastedInput: dummySpy as typeof ClientInputHeuristics.findRaycastedInput
       } as HeuristicFunctions
       assert.equal(spy.called, false)
       assert.equal(getState(EngineState).isEditing, false)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       assert.equal(spy.callCount, 1)
       getMutableState(EngineState).isEditing.set(true)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       getMutableState(EngineState).isEditing.set(false)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       assert.equal(spy.callCount, 2)
     })
 
@@ -154,22 +154,22 @@ describe('ClientInputHeuristics', () => {
       const intersectionData = {} as Set<IntersectionData>
       const heuristicData = createHeuristicDummyData()
       const heuristicFunctions = {
-        physicsColliders: spy as typeof ClientInputHeuristics.applyPhysicsColliders,
-        editor: dummySpy as typeof ClientInputHeuristics.applyEditor,
-        xrui: dummySpy as typeof ClientInputHeuristics.applyXRUI,
-        bboxes: dummySpy as typeof ClientInputHeuristics.applyBBoxes,
-        meshes: dummySpy as typeof ClientInputHeuristics.applyMeshes,
-        proximity: dummySpy as typeof ClientInputHeuristics.applyProximity,
-        raycastedInput: dummySpy as typeof ClientInputHeuristics.applyRaycastedInput
+        physicsColliders: spy as typeof ClientInputHeuristics.findPhysicsColliders,
+        editor: dummySpy as typeof ClientInputHeuristics.findEditor,
+        xrui: dummySpy as typeof ClientInputHeuristics.findXRUI,
+        bboxes: dummySpy as typeof ClientInputHeuristics.findBBoxes,
+        meshes: dummySpy as typeof ClientInputHeuristics.findMeshes,
+        proximity: dummySpy as typeof ClientInputHeuristics.findProximity,
+        raycastedInput: dummySpy as typeof ClientInputHeuristics.findRaycastedInput
       } as HeuristicFunctions
       assert.equal(spy.called, false)
       assert.equal(getState(EngineState).isEditing, false)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       assert.equal(spy.callCount, 1)
       getMutableState(EngineState).isEditing.set(true)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       getMutableState(EngineState).isEditing.set(false)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       assert.equal(spy.callCount, 2)
     })
 
@@ -179,22 +179,22 @@ describe('ClientInputHeuristics', () => {
       const intersectionData = {} as Set<IntersectionData>
       const heuristicData = createHeuristicDummyData()
       const heuristicFunctions = {
-        bboxes: spy as typeof ClientInputHeuristics.applyBBoxes,
-        editor: dummySpy as typeof ClientInputHeuristics.applyEditor,
-        xrui: dummySpy as typeof ClientInputHeuristics.applyXRUI,
-        physicsColliders: dummySpy as typeof ClientInputHeuristics.applyPhysicsColliders,
-        meshes: dummySpy as typeof ClientInputHeuristics.applyMeshes,
-        proximity: dummySpy as typeof ClientInputHeuristics.applyProximity,
-        raycastedInput: dummySpy as typeof ClientInputHeuristics.applyRaycastedInput
+        bboxes: spy as typeof ClientInputHeuristics.findBBoxes,
+        editor: dummySpy as typeof ClientInputHeuristics.findEditor,
+        xrui: dummySpy as typeof ClientInputHeuristics.findXRUI,
+        physicsColliders: dummySpy as typeof ClientInputHeuristics.findPhysicsColliders,
+        meshes: dummySpy as typeof ClientInputHeuristics.findMeshes,
+        proximity: dummySpy as typeof ClientInputHeuristics.findProximity,
+        raycastedInput: dummySpy as typeof ClientInputHeuristics.findRaycastedInput
       } as HeuristicFunctions
       assert.equal(spy.called, false)
       assert.equal(getState(EngineState).isEditing, false)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       assert.equal(spy.callCount, 1)
       getMutableState(EngineState).isEditing.set(true)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       getMutableState(EngineState).isEditing.set(false)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       assert.equal(spy.callCount, 2)
     })
 
@@ -204,23 +204,23 @@ describe('ClientInputHeuristics', () => {
       const intersectionData = {} as Set<IntersectionData>
       const heuristicData = createHeuristicDummyData()
       const heuristicFunctions = {
-        meshes: spy as typeof ClientInputHeuristics.applyMeshes,
-        editor: dummySpy as typeof ClientInputHeuristics.applyEditor,
-        xrui: dummySpy as typeof ClientInputHeuristics.applyXRUI,
-        physicsColliders: dummySpy as typeof ClientInputHeuristics.applyPhysicsColliders,
-        bboxes: dummySpy as typeof ClientInputHeuristics.applyBBoxes,
-        proximity: dummySpy as typeof ClientInputHeuristics.applyProximity,
-        raycastedInput: dummySpy as typeof ClientInputHeuristics.applyRaycastedInput
+        meshes: spy as typeof ClientInputHeuristics.findMeshes,
+        editor: dummySpy as typeof ClientInputHeuristics.findEditor,
+        xrui: dummySpy as typeof ClientInputHeuristics.findXRUI,
+        physicsColliders: dummySpy as typeof ClientInputHeuristics.findPhysicsColliders,
+        bboxes: dummySpy as typeof ClientInputHeuristics.findBBoxes,
+        proximity: dummySpy as typeof ClientInputHeuristics.findProximity,
+        raycastedInput: dummySpy as typeof ClientInputHeuristics.findRaycastedInput
       } as HeuristicFunctions
       assert.equal(spy.called, false)
       assert.equal(getState(EngineState).isEditing, false)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       assert.equal(spy.callCount, 1)
       getMutableState(EngineState).isEditing.set(true)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       assert.equal(spy.callCount, 2)
       getMutableState(EngineState).isEditing.set(false)
-      ClientInputHeuristics.applyRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
+      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       assert.equal(spy.callCount, 3)
     })
 
@@ -235,7 +235,7 @@ describe('ClientInputHeuristics', () => {
     */
   })
 
-  describe('applyBBoxes', () => {
+  describe('findBBoxes', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
@@ -264,7 +264,7 @@ describe('ClientInputHeuristics', () => {
         const data = new Set<IntersectionData>()
 
         // Run and check that nothing was added
-        ClientInputHeuristics.applyBBoxes(data, ray, hitTarget)
+        ClientInputHeuristics.findBBoxes(data, ray, hitTarget)
         assert.equal(data.size, 0)
       })
 
@@ -281,7 +281,7 @@ describe('ClientInputHeuristics', () => {
         assert.equal(data.size, 0)
 
         // Run and check that nothing was added
-        ClientInputHeuristics.applyBBoxes(data, ray, hitTarget)
+        ClientInputHeuristics.findBBoxes(data, ray, hitTarget)
         assert.equal(data.size, 0)
       })
 
@@ -303,7 +303,7 @@ describe('ClientInputHeuristics', () => {
         const data = new Set<IntersectionData>()
         assert.equal(data.size, 0)
 
-        ClientInputHeuristics.applyBBoxes(data, ray, hitTarget)
+        ClientInputHeuristics.findBBoxes(data, ray, hitTarget)
         assertVecApproxEq(boxMin, hitTarget, 3)
         assert.equal(data.size, 1)
         const result = [...data]
@@ -342,7 +342,7 @@ describe('ClientInputHeuristics', () => {
         const data = new Set<IntersectionData>()
         assert.equal(data.size, 0)
 
-        ClientInputHeuristics.applyBBoxes(data, ray, hitTarget)
+        ClientInputHeuristics.findBBoxes(data, ray, hitTarget)
         assert.equal(data.size, boxes.length)
         const result = [...data]
         for (let id = 0; id < boxes.length; ++id) {
@@ -353,7 +353,7 @@ describe('ClientInputHeuristics', () => {
     })
   })
 
-  describe('applyPhysicsColliders', () => {
+  describe('findPhysicsColliders', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
@@ -394,7 +394,7 @@ describe('ClientInputHeuristics', () => {
       await act(() => rerender(<></>))
       getState(PhysicsState).physicsWorld.step()
 
-      ClientInputHeuristics.applyPhysicsColliders(data, raycast)
+      ClientInputHeuristics.findPhysicsColliders(data, raycast)
 
       assert.notEqual(data.size, 0)
       assert.equal(data.size, 1)
@@ -426,7 +426,7 @@ describe('ClientInputHeuristics', () => {
       // getState(PhysicsState).physicsWorld.step() // Cannot step the physics if there is no physicsWorld
 
       // Run and check that nothing was added
-      ClientInputHeuristics.applyPhysicsColliders(data, raycast)
+      ClientInputHeuristics.findPhysicsColliders(data, raycast)
       assert.equal(data.size, 0)
 
       unmount()
@@ -460,14 +460,14 @@ describe('ClientInputHeuristics', () => {
       getState(PhysicsState).physicsWorld.step()
 
       // Run and check that nothing was added
-      ClientInputHeuristics.applyPhysicsColliders(data, raycast)
+      ClientInputHeuristics.findPhysicsColliders(data, raycast)
       assert.equal(data.size, 0)
 
       unmount()
     })
   })
 
-  describe('applyMeshes', () => {
+  describe('findMeshes', () => {
     beforeEach(async () => {
       createEngine()
     })
@@ -502,7 +502,7 @@ describe('ClientInputHeuristics', () => {
         const rayDirection = new Vector3(3, 3, 3).normalize()
         const raycaster = new Raycaster(rayOrigin, rayDirection)
 
-        ClientInputHeuristics.applyMeshes(data, Editing, raycaster)
+        ClientInputHeuristics.findMeshes(data, Editing, raycaster)
         assert.notEqual(data.size, 0)
         for (const hit of [...data]) {
           assert.equal(KnownEntities.includes(hit.entity), true)
@@ -537,7 +537,7 @@ describe('ClientInputHeuristics', () => {
         box1.entity = undefined! as Entity
         box2.entity = undefined! as Entity
         // Run and check that nothing was added
-        ClientInputHeuristics.applyMeshes(data, Editing, raycaster)
+        ClientInputHeuristics.findMeshes(data, Editing, raycaster)
         assert.equal(data.size, 0)
       })
     })
@@ -569,7 +569,7 @@ describe('ClientInputHeuristics', () => {
         const rayDirection = new Vector3(3, 3, 3).normalize()
         const raycaster = new Raycaster(rayOrigin, rayDirection)
 
-        ClientInputHeuristics.applyMeshes(data, Editing, raycaster)
+        ClientInputHeuristics.findMeshes(data, Editing, raycaster)
         assert.notEqual(data.size, 0)
         for (const hit of [...data]) {
           assert.equal(KnownEntities.includes(hit.entity), true)
@@ -606,13 +606,13 @@ describe('ClientInputHeuristics', () => {
         box1.entity = undefined! as Entity
         box2.entity = undefined! as Entity
         // Run and check that nothing was added
-        ClientInputHeuristics.applyMeshes(data, Editing, raycaster)
+        ClientInputHeuristics.findMeshes(data, Editing, raycaster)
         assert.equal(data.size, 0)
       })
     })
   })
 
-  describe('applyEditor', () => {
+  describe('findEditor', () => {
     beforeEach(async () => {
       createEngine()
     })
@@ -639,7 +639,7 @@ describe('ClientInputHeuristics', () => {
         const raycaster = new Raycaster(rayOrigin, rayDirection)
 
         assert.equal(raycaster.layers.isEnabled(ObjectLayers.TransformGizmo), false)
-        ClientInputHeuristics.applyEditor(data, raycaster)
+        ClientInputHeuristics.findEditor(data, raycaster)
         assert.equal(raycaster.layers.isEnabled(ObjectLayers.TransformGizmo), true)
       })
 
@@ -683,7 +683,7 @@ describe('ClientInputHeuristics', () => {
         const data = new Set<IntersectionData>()
         assert.equal(data.size, 0)
 
-        ClientInputHeuristics.applyEditor(data, raycaster)
+        ClientInputHeuristics.findEditor(data, raycaster)
         assert.notEqual(data.size, 0)
         const result = [...data]
         for (const hit of result) {
@@ -725,7 +725,7 @@ describe('ClientInputHeuristics', () => {
         box1.entity = undefined! as Entity
         box2.entity = undefined! as Entity
         // Run and check that nothing was added
-        ClientInputHeuristics.applyEditor(data, raycaster)
+        ClientInputHeuristics.findEditor(data, raycaster)
         assert.equal(data.size, 0)
       })
     })
@@ -749,7 +749,7 @@ describe('ClientInputHeuristics', () => {
         raycaster.layers.enable(ObjectLayers.TransformGizmo)
 
         assert.equal(raycaster.layers.isEnabled(ObjectLayers.TransformGizmo), true)
-        ClientInputHeuristics.applyEditor(data, raycaster)
+        ClientInputHeuristics.findEditor(data, raycaster)
         assert.equal(raycaster.layers.isEnabled(ObjectLayers.TransformGizmo), false)
       })
 
@@ -792,7 +792,7 @@ describe('ClientInputHeuristics', () => {
         const data = new Set<IntersectionData>()
         assert.equal(data.size, 0)
 
-        ClientInputHeuristics.applyEditor(data, raycaster)
+        ClientInputHeuristics.findEditor(data, raycaster)
         assert.notEqual(data.size, 0)
         const result = [...data]
         for (const hit of result) {
@@ -843,13 +843,13 @@ describe('ClientInputHeuristics', () => {
         box1.entity = undefined! as Entity
         box2.entity = undefined! as Entity
         // Run and check that nothing was added
-        ClientInputHeuristics.applyEditor(data, raycaster)
+        ClientInputHeuristics.findEditor(data, raycaster)
         assert.equal(data.size, 0)
       })
     })
   })
 
-  describe('applyXRUI', () => {
+  describe('findXRUI', () => {
     beforeEach(async () => {
       createEngine()
       initializeSpatialEngine()
@@ -871,7 +871,7 @@ describe('ClientInputHeuristics', () => {
       const rayDirection = new Vector3(0, 0, -1).normalize()
       const ray = new Ray(rayOrigin, rayDirection)
 
-      ClientInputHeuristics.applyXRUI(data, ray)
+      ClientInputHeuristics.findXRUI(data, ray)
       assert.notEqual(data.size, 0)
       const result = [...data]
       assert.equal(result[0].entity, testEntity)
@@ -890,14 +890,16 @@ describe('ClientInputHeuristics', () => {
       const rayDirection = new Vector3(0, 0, -1).normalize()
       const ray = new Ray(rayOrigin, rayDirection)
 
-      ClientInputHeuristics.applyXRUI(data, ray)
+      ClientInputHeuristics.findXRUI(data, ray)
       assert.equal(data.size, 0)
     })
   })
 
+  describe('findProximity', () => {})
+
   /**
   // @todo
-  describe("applyProximity", () => {
+  describe("findProximity", () => {
     // if XRControlState.isCameraAttachedToAvatar and `@param isSpatialInput`,
     //   then inputSourceEntity should be `@param sourceEid`
     //   else it should be the avatar of the current User

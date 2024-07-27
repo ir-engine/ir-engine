@@ -82,13 +82,13 @@ const _heuristicData = {
 } as HeuristicData
 
 const _heuristicFunctions = {
-  editor: ClientInputHeuristics.applyEditor,
-  xrui: ClientInputHeuristics.applyXRUI,
-  physicsColliders: ClientInputHeuristics.applyPhysicsColliders,
-  bboxes: ClientInputHeuristics.applyBBoxes,
-  meshes: ClientInputHeuristics.applyMeshes,
-  proximity: ClientInputHeuristics.applyProximity,
-  raycastedInput: ClientInputHeuristics.applyRaycastedInput
+  editor: ClientInputHeuristics.findEditor,
+  xrui: ClientInputHeuristics.findXRUI,
+  physicsColliders: ClientInputHeuristics.findPhysicsColliders,
+  bboxes: ClientInputHeuristics.findBBoxes,
+  meshes: ClientInputHeuristics.findMeshes,
+  proximity: ClientInputHeuristics.findProximity,
+  raycastedInput: ClientInputHeuristics.findRaycastedInput
 } as HeuristicFunctions
 
 const pointersQuery = defineQuery([InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)])
