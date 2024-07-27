@@ -38,7 +38,7 @@ import {
   useEntityContext,
   useQuery
 } from '@etherealengine/ecs'
-import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
@@ -78,6 +78,7 @@ export const GLTFComponent = defineComponent({
 
 const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
   const resourceQuery = useQuery([SourceComponent, ResourcePendingComponent])
+  const gltfDocumentState = useMutableState(GLTFDocumentState)
   const sourceEntities = useHookstate(SourceComponent.entitiesBySourceState[props.documentID])
 
   useEffect(() => {
@@ -109,7 +110,7 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
 
     const percentage = total === 0 ? 100 : (progress / total) * 100
     getMutableComponent(props.entity, GLTFComponent).progress.set(percentage)
-  }, [resourceQuery, sourceEntities])
+  }, [resourceQuery, sourceEntities, gltfDocumentState[props.documentID]])
 
   return null
 }

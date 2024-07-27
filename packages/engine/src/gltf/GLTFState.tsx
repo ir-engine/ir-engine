@@ -25,7 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
-import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import {
+  BufferGeometry,
+  ColorManagement,
+  Group,
+  LinearSRGBColorSpace,
+  LoaderUtils,
+  MathUtils,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  Quaternion,
+  Vector3
+} from 'three'
 
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import {
@@ -63,15 +75,23 @@ import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/component
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  getAncestorWithComponent
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { ATTRIBUTES } from '../assets/loaders/gltf/GLTFConstants'
+import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
+import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
+import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
+import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 
 export const GLTFAssetState = defineState({
   name: 'ee.engine.gltf.GLTFAssetState',
@@ -336,7 +356,7 @@ const ChildGLTFReactor = (props: { source: string }) => {
     getMutableState(GLTFDocumentState)[source].set(data)
 
     // update the nodes dictionary
-    const nodesDictionary = GLTFNodeState.convertGltfToNodeDictionary(data)
+    const nodesDictionary = GLTFNodeState.convertGltfToNodeDictionary(data, source)
     getMutableState(GLTFNodeState)[source].set(nodesDictionary)
   }, [index])
 
@@ -385,8 +405,13 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
-  const entity = useHookstate(() => {
-    const uuid = node.extensions.value?.[UUIDComponent.jsonID] as EntityUUID
+  const entityState = useHookstate(UndefinedEntity)
+  const entity = entityState.value
+
+  useEffect(() => {
+    const uuid =
+      (node.extensions.value?.[UUIDComponent.jsonID] as EntityUUID) ??
+      ((props.documentID + '-' + props.nodeIndex) as EntityUUID)
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
 
     setComponent(entity, UUIDComponent, uuid)
@@ -406,6 +431,9 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
       setComponent(entity, TransformComponent, { position, rotation, scale })
     }
 
+    /** Always set visible extension if this is not an ECS node */
+    if (!node.extensions.value?.[UUIDComponent.jsonID]) setComponent(entity, VisibleComponent)
+
     // add all extensions for synchronous mount
     if (node.extensions.value) {
       for (const extension in node.extensions.value) {
@@ -423,10 +451,8 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
       setComponent(entity, Object3DComponent, obj3d)
     }
 
-    return entity
-  }).value
+    entityState.set(entity)
 
-  useEffect(() => {
     return () => {
       //check if entity is in some other document
       if (hasComponent(entity, UUIDComponent)) {
@@ -474,9 +500,9 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
   return (
     <>
-      {/* {node.mesh.value && (
+      {typeof node.mesh.get(NO_PROXY) === 'number' && (
         <MeshReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity} />
-      )} */}
+      )}
       {node.extensions.value &&
         Object.keys(node.extensions.get(NO_PROXY)!).map((extension) => (
           <ExtensionReactor
@@ -493,7 +519,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
 const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex: number; documentID: string }) => {
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
-  const nodes = documentState.nodes! // as State<GLTF.INode[]>
+  const nodes = documentState.nodes!.get(NO_PROXY)!
   const node = nodes[props.nodeIndex]!
   const extension = node.extensions![props.extension]
 
@@ -520,49 +546,195 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
   useLayoutEffect(() => {
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return console.warn('no component found for extension', props.extension)
-    setComponent(props.entity, Component, extension.get(NO_PROXY_STEALTH))
+    setComponent(props.entity, Component, extension)
   }, [extension])
 
   return null
 }
 
-// const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Entity }) => {
-//   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-//   const nodes = documentState.nodes! as State<GLTF.INode[]>
-//   const node = nodes[props.nodeIndex]!
+const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Entity }) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
 
-//   const mesh = documentState.meshes![node.mesh.value!] as State<GLTF.IMesh>
+  const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
 
-//   return (
-//     <>
-//       {mesh.primitives.value.map((primitive, index) => (
-//         <PrimitiveReactor
-//           key={index}
-//           primitiveIndex={index}
-//           nodeIndex={props.nodeIndex}
-//           documentID={props.documentID}
-//           entity={props.entity}
-//         />
-//       ))}
-//     </>
-//   )
-// }
+  useEffect(() => {
+    setComponent(props.entity, VisibleComponent)
+  }, [])
 
-// const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; documentID: string; entity: Entity }) => {
-//   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-//   const nodes = documentState.nodes! as State<GLTF.INode[]>
-//   const node = nodes[props.nodeIndex]!
+  return (
+    <>
+      {mesh.primitives.map((primitive, index) => (
+        <PrimitiveReactor
+          key={index}
+          primitiveIndex={index}
+          nodeIndex={props.nodeIndex}
+          documentID={props.documentID}
+          entity={props.entity}
+        />
+      ))}
+    </>
+  )
+}
 
-//   const primitive = documentState.meshes![node.mesh.value!].primitives[props.primitiveIndex]
+const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; documentID: string; entity: Entity }) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
 
-//   useEffect(() => {
-//     /** TODO implement all mesh types */
-//   }, [primitive])
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
 
-//   return null
-// }
+  const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
+
+  const primitive = mesh.primitives[props.primitiveIndex]
+
+  const geometry = useHookstate(null as null | BufferGeometry)
+
+  useEffect(() => {
+    if (primitive.extensions && primitive.extensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]) {
+      /** @todo */
+      // extensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION].decodePrimitive(primitive, parser).then((geom) => {
+      //   geometry.set(geom)
+      // })
+    } else {
+      geometry.set(new BufferGeometry())
+    }
+
+    if (ColorManagement.workingColorSpace !== LinearSRGBColorSpace && 'COLOR_0' in primitive.attributes) {
+      console.warn(
+        `THREE.GLTFLoader: Converting vertex colors from "srgb-linear" to "${ColorManagement.workingColorSpace}" not supported.`
+      )
+    }
+  }, [primitive.extensions])
+
+  useEffect(() => {
+    const mesh = new Mesh(geometry.value as BufferGeometry, new MeshBasicMaterial())
+    setComponent(props.entity, MeshComponent, mesh)
+    addObjectToGroup(props.entity, mesh)
+
+    GLTFLoaderFunctions.computeBounds(
+      documentState.get(NO_PROXY) as GLTF.IGLTF,
+      geometry.value as BufferGeometry,
+      primitive as GLTF.IMeshPrimitive
+    )
+
+    return () => {
+      removeComponent(props.entity, MeshComponent)
+    }
+  }, [geometry])
+
+  if (!geometry.value) return null
+
+  return (
+    <>
+      {Object.keys(primitive.attributes).map((attribute, index) => (
+        <PrimitiveAttributeReactor
+          key={attribute}
+          geometry={geometry.value as BufferGeometry}
+          attribute={attribute}
+          primitiveIndex={props.primitiveIndex}
+          nodeIndex={props.nodeIndex}
+          documentID={props.documentID}
+          entity={props.entity}
+        />
+      ))}
+      {typeof primitive.indices === 'number' && (
+        <PrimitiveIndicesAttributeReactor
+          geometry={geometry.value as BufferGeometry}
+          primitiveIndex={props.primitiveIndex}
+          nodeIndex={props.nodeIndex}
+          documentID={props.documentID}
+          entity={props.entity}
+        />
+      )}
+    </>
+  )
+}
+
+const PrimitiveAttributeReactor = (props: {
+  geometry: BufferGeometry
+  attribute: string
+  primitiveIndex: number
+  nodeIndex: number
+  documentID: string
+  entity: Entity
+}) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
+
+  const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
+
+  const primitive = mesh.primitives[props.primitiveIndex]
+
+  const attribute = primitive.attributes[props.attribute]
+
+  useEffect(() => {
+    const threeAttributeName = ATTRIBUTES[props.attribute] || props.attribute.toLowerCase()
+
+    // Skip attributes already provided by e.g. Draco extension.
+    if (threeAttributeName in props.geometry.attributes) return
+
+    // accessor
+    GLTFLoaderFunctions.loadAccessor(
+      getParserOptions(props.entity),
+      documentState.get(NO_PROXY) as GLTF.IGLTF,
+      attribute
+    ).then((accessor) => {
+      props.geometry.setAttribute(threeAttributeName, accessor)
+    })
+  }, [attribute, props.geometry])
+
+  return null
+}
+
+const PrimitiveIndicesAttributeReactor = (props: {
+  geometry: BufferGeometry
+  primitiveIndex: number
+  nodeIndex: number
+  documentID: string
+  entity: Entity
+}) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
+
+  const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
+
+  const primitive = mesh.primitives[props.primitiveIndex]
+
+  useEffect(() => {
+    // accessor
+    GLTFLoaderFunctions.loadAccessor(
+      getParserOptions(props.entity),
+      documentState.get(NO_PROXY) as GLTF.IGLTF,
+      primitive.indices!
+    ).then((accessor) => {
+      props.geometry.setIndex(accessor)
+    })
+  }, [primitive.indices, props.geometry])
+
+  return null
+}
 
 /**
  * TODO figure out how to support extensions that change the behaviour of these reactors
  * - we pretty much have to add a new API for each dependency type, like how the GLTFLoader does
  */
+
+const getParserOptions = (entity: Entity) => {
+  const gltfEntity = getAncestorWithComponent(entity, GLTFComponent)
+  const url = getComponent(gltfEntity, GLTFComponent).src
+  const gltfLoader = getState(AssetLoaderState).gltfLoader
+  return {
+    url,
+    path: LoaderUtils.extractUrlBase(url),
+    crossOrigin: gltfLoader.crossOrigin,
+    requestHeader: gltfLoader.requestHeader,
+    manager: gltfLoader.manager,
+    ktx2Loader: gltfLoader.ktx2Loader,
+    meshoptDecoder: gltfLoader.meshoptDecoder
+  } as GLTFParserOptions
+}

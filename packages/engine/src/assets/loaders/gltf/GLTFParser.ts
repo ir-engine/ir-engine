@@ -123,7 +123,7 @@ declare module '@gltf-transform/core/dist/types/gltf.d.ts' {
   }
 }
 
-type GLTFParserOptions = {
+export type GLTFParserOptions = {
   crossOrigin: 'anonymous' | string
   ktx2Loader: KTX2Loader
   manager: LoadingManager | any
@@ -1767,7 +1767,7 @@ export class GLTFParser {
 
 /* GLTFREGISTRY */
 
-class GLTFRegistry {
+export class GLTFRegistry {
   objects = {}
 
   get(key) {
