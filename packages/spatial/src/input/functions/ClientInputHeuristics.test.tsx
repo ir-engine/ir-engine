@@ -895,26 +895,38 @@ describe('ClientInputHeuristics', () => {
     })
   })
 
-  describe('findProximity', () => {})
+  describe('findProximity', () => {
+    /**
+    // @todo
+    describe("when both XRControlsState.isCameraAttachedToAvatar and `@param isSpatialInput` are truthy ...", () => {
+      it("should store the inputEntity and its distanceSquared to the inputSourceEntity into the intersectionData for every spatialInputObjectQuery entity that is within the proximity threshold", () => {})
+      it("should not store the User's avatar entity into the intersectionData set, even when there is an inputSourceEntity that is within the proximity threshold", () => {})
+      it("should not find any intersections when `@param sourceEid` entity is undefined ", () => {})
+      it("should not add anything to `@param sortedEntities` if no entities were found within the proximity threshold", () => {})
+      it("should add the entity found to the first element of `@param sortedEntities` when there is only one entity within the proximity threshold", () => {})
+      it("should sort the entities by distance and add the closest entity found to the first element of `@param sortedEntities` when there is more than one entity within the proximity threshold", () => {})
+      it("should only add one entity to the `@param sortedEntities` list when entities are found within the proximity threshold", () => {})
+    })
 
-  /**
-  // @todo
-  describe("findProximity", () => {
-    // if XRControlState.isCameraAttachedToAvatar and `@param isSpatialInput`,
-    //   then inputSourceEntity should be `@param sourceEid`
-    //   else it should be the avatar of the current User
-    // shouldn't do anything if we didn't find a valid inputSourceEntity
-    // get the position of the inputSourceEntity into the global _worldPosInputSourceComponent vector
-    // for every spatialInputObject
-      // skip the User avatar's entity
-      // get the position of the inputEntity into the global _worldPosInputComponent vector
-      // compute the distance from the inputSourceEntity to the inputEntity
-      // If the distance is within the proximity threshold
-        // should store the inputEntity and the distanceSquared to the inputSourceEntity into the intersectionData
-    // create an array of all entities from intersectionData (aka closestEntities)
-    // don't do anything else if the closestEntities array has no entities
-    // sort the array of entities by distance if there is more than 1, prioritizing entities with an InteractableComponent
-    // should add the closest (entity,distance) from the list (aka closetsEntities[0]) to the `@param sortedIntersections` array
+    describe("when XRControlsState.isCameraAttachedToAvatar is truthy and `@param isSpatialInput` is falsy ...", () => {
+      it("should store the inputEntity and its distanceSquared to the inputSourceEntity into the intersectionData for every spatialInputObjectQuery entity that is within the proximity threshold", () => {})
+      it("should not store the User's avatar entity into the intersectionData set, even when there is an inputSourceEntity that is within the proximity threshold", () => {})
+      it("should not find any intersections when selfAvatarEntity entity is undefined", () => {})
+      it("should not add anything to `@param sortedEntities` if no entities were found within the proximity threshold", () => {})
+      it("should add the entity found to the first element of `@param sortedEntities` when there is only one entity within the proximity threshold", () => {})
+      it("should sort the entities by distance and add the closest entity found to the first element of `@param sortedEntities` when there is more than one entity within the proximity threshold", () => {})
+      it("should only add one entity to the `@param sortedEntities` list when entities are found within the proximity threshold", () => {})
+    })
+
+    describe("when XRControlsState.isCameraAttachedToAvatar is falsy and `@param isSpatialInput` is truthy ...", () => {
+      it("should store the inputEntity and its distanceSquared to the inputSourceEntity into the intersectionData for every spatialInputObjectQuery entity that is within the proximity threshold", () => {})
+      it("should not store the User's avatar entity into the intersectionData set, even when there is an inputSourceEntity that is within the proximity threshold", () => {})
+      it("should not find any intersections when selfAvatarEntity entity is undefined", () => {})
+      it("should not add anything to `@param sortedEntities` if no entities were found within the proximity threshold", () => {})
+      it("should add the entity found to the first element of `@param sortedEntities` when there is only one entity within the proximity threshold", () => {})
+      it("should sort the entities by distance and add the closest entity found to the first element of `@param sortedEntities` when there is more than one entity within the proximity threshold", () => {})
+      it("should only add one entity to the `@param sortedEntities` list when entities are found within the proximity threshold", () => {})
+    })
+    */
   })
-  */
 })
