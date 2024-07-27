@@ -85,12 +85,14 @@ import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { ATTRIBUTES } from '../assets/loaders/gltf/GLTFConstants'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
+import { assignExtrasToUserData } from '../assets/loaders/gltf/GLTFLoaderFunctions'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
+import { GLTFExtensions } from './GLTFExtensions'
 import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 
 export const GLTFAssetState = defineState({
@@ -340,12 +342,8 @@ const ChildGLTFReactor = (props: { source: string }) => {
 
   const index = useHookstate(getMutableState(GLTFSnapshotState)[source].index).value
 
-  useLayoutEffect(() => {
-    return () => {
-      getMutableState(GLTFDocumentState)[source].set(none)
-      getMutableState(GLTFNodeState)[source].set(none)
-    }
-  }, [])
+  const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
+  const parentUUID = useComponent(entity, UUIDComponent).value
 
   useLayoutEffect(() => {
     // update the modified state
@@ -360,8 +358,12 @@ const ChildGLTFReactor = (props: { source: string }) => {
     getMutableState(GLTFNodeState)[source].set(nodesDictionary)
   }, [index])
 
-  const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
-  const parentUUID = useComponent(entity, UUIDComponent).value
+  useLayoutEffect(() => {
+    return () => {
+      getMutableState(GLTFDocumentState)[source].set(none)
+      getMutableState(GLTFNodeState)[source].set(none)
+    }
+  }, [])
 
   return <DocumentReactor documentID={source} parentUUID={parentUUID} />
 }
@@ -496,6 +498,30 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     setComponent(entity, TransformComponent, { position, rotation, scale })
   }, [entity, node.matrix])
 
+  useLayoutEffect(() => {
+    if (!entity) return
+
+    if (!node.translation.value) return
+    const position = new Vector3().fromArray(node.translation.value)
+    setComponent(entity, TransformComponent, { position })
+  }, [entity, node.translation])
+
+  useLayoutEffect(() => {
+    if (!entity) return
+
+    if (!node.rotation.value) return
+    const rotation = new Quaternion().fromArray(node.rotation.value)
+    setComponent(entity, TransformComponent, { rotation })
+  }, [entity, node.rotation])
+
+  useLayoutEffect(() => {
+    if (!entity) return
+
+    if (!node.scale.value) return
+    const scale = new Vector3().fromArray(node.scale.value)
+    setComponent(entity, TransformComponent, { scale })
+  }, [entity, node.scale])
+
   if (!entity) return null
 
   return (
@@ -590,12 +616,17 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
 
   const geometry = useHookstate(null as null | BufferGeometry)
 
+  const hasDracoCompression = primitive.extensions && primitive.extensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]
+
   useEffect(() => {
-    if (primitive.extensions && primitive.extensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]) {
+    if (hasDracoCompression) {
       /** @todo */
-      // extensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION].decodePrimitive(primitive, parser).then((geom) => {
-      //   geometry.set(geom)
-      // })
+      const options = getParserOptions(props.entity)
+      GLTFExtensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]
+        .decodePrimitive(options, documentState.get(NO_PROXY) as GLTF.IGLTF, primitive as GLTF.IMeshPrimitive)
+        .then((geom) => {
+          geometry.set(geom)
+        })
     } else {
       geometry.set(new BufferGeometry())
     }
@@ -608,9 +639,13 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
   }, [primitive.extensions])
 
   useEffect(() => {
+    if (!geometry.value) return
+
     const mesh = new Mesh(geometry.value as BufferGeometry, new MeshBasicMaterial())
     setComponent(props.entity, MeshComponent, mesh)
     addObjectToGroup(props.entity, mesh)
+
+    assignExtrasToUserData(geometry, primitive as GLTF.IMeshPrimitive)
 
     GLTFLoaderFunctions.computeBounds(
       documentState.get(NO_PROXY) as GLTF.IGLTF,
@@ -627,18 +662,27 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
 
   return (
     <>
-      {Object.keys(primitive.attributes).map((attribute, index) => (
-        <PrimitiveAttributeReactor
-          key={attribute}
-          geometry={geometry.value as BufferGeometry}
-          attribute={attribute}
-          primitiveIndex={props.primitiveIndex}
+      {typeof primitive.material === 'number' && (
+        <MaterialReactor
           nodeIndex={props.nodeIndex}
+          primitiveIndex={props.primitiveIndex}
           documentID={props.documentID}
           entity={props.entity}
         />
-      ))}
-      {typeof primitive.indices === 'number' && (
+      )}
+      {!hasDracoCompression &&
+        Object.keys(primitive.attributes).map((attribute, index) => (
+          <PrimitiveAttributeReactor
+            key={attribute}
+            geometry={geometry.value as BufferGeometry}
+            attribute={attribute}
+            primitiveIndex={props.primitiveIndex}
+            nodeIndex={props.nodeIndex}
+            documentID={props.documentID}
+            entity={props.entity}
+          />
+        ))}
+      {!hasDracoCompression && typeof primitive.indices === 'number' && (
         <PrimitiveIndicesAttributeReactor
           geometry={geometry.value as BufferGeometry}
           primitiveIndex={props.primitiveIndex}
@@ -719,6 +763,29 @@ const PrimitiveIndicesAttributeReactor = (props: {
   return null
 }
 
+const MaterialReactor = (props: { nodeIndex: number; documentID: string; primitiveIndex: number; entity: Entity }) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
+
+  const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
+
+  const primitive = mesh.primitives[props.primitiveIndex]
+
+  const material = primitive.material
+
+  useEffect(() => {
+    // const material = GLTFLoaderFunctions.createMaterial(
+    //   getParserOptions(props.entity),
+    //   documentState.get(NO_PROXY) as GLTF.IGLTF,
+    //   material
+    // )
+  }, [])
+
+  return null
+}
+
 /**
  * TODO figure out how to support extensions that change the behaviour of these reactors
  * - we pretty much have to add a new API for each dependency type, like how the GLTFLoader does
@@ -726,11 +793,12 @@ const PrimitiveIndicesAttributeReactor = (props: {
 
 const getParserOptions = (entity: Entity) => {
   const gltfEntity = getAncestorWithComponent(entity, GLTFComponent)
-  const url = getComponent(gltfEntity, GLTFComponent).src
+  const gltfComponent = getComponent(gltfEntity, GLTFComponent)
   const gltfLoader = getState(AssetLoaderState).gltfLoader
   return {
-    url,
-    path: LoaderUtils.extractUrlBase(url),
+    url: gltfComponent.src,
+    path: LoaderUtils.extractUrlBase(gltfComponent.src),
+    body: gltfComponent.body,
     crossOrigin: gltfLoader.crossOrigin,
     requestHeader: gltfLoader.requestHeader,
     manager: gltfLoader.manager,

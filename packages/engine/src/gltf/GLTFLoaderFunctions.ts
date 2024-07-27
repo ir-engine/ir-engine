@@ -176,17 +176,16 @@ const loadBufferView = async (options: GLTFParserOptions, json: GLTF.IGLTF, buff
 const loadBuffer = async (options: GLTFParserOptions, json: GLTF.IGLTF, bufferIndex: number) => {
   const bufferDef = json.buffers![bufferIndex]
 
-  /** @todo */
-  // if (bufferDef.type && bufferDef.type !== 'arraybuffer') {
-  //   throw new Error('THREE.GLTFLoader: ' + bufferDef.type + ' buffer type is not supported.')
-  // }
+  if (bufferDef.type && bufferDef.type !== 'arraybuffer') {
+    throw new Error('THREE.GLTFLoader: ' + bufferDef.type + ' buffer type is not supported.')
+  }
 
   // If present, GLB container is required to be the first buffer.
-  // if (bufferDef.uri === undefined && bufferIndex === 0) {
-  //   return Promise.resolve(this.extensions[EXTENSIONS.KHR_BINARY_GLTF].body)
-  // }
+  if (bufferDef.uri === undefined && bufferIndex === 0) {
+    return Promise.resolve(options.body!)
+  }
 
-  /** @todo use global file loader */
+  /** @todo use a global file loader */
   const fileLoader = new FileLoader(options.manager)
   fileLoader.setResponseType('arraybuffer')
   if (options.crossOrigin === 'use-credentials') {
@@ -202,6 +201,8 @@ const loadBuffer = async (options: GLTFParserOptions, json: GLTF.IGLTF, bufferIn
 
 export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primitiveDef: GLTF.IMeshPrimitive) {
   const attributes = primitiveDef.attributes
+
+  console.log('computeBounds', json, geometry, primitiveDef)
 
   const box = new Box3()
 

@@ -41,7 +41,11 @@ import {
 import { dispatchAction, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import { FileLoader } from '../assets/loaders/base/FileLoader'
-import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
+import {
+  BINARY_EXTENSION_CHUNK_TYPES,
+  BINARY_EXTENSION_HEADER_LENGTH,
+  BINARY_EXTENSION_HEADER_MAGIC
+} from '../assets/loaders/gltf/GLTFExtensions'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
@@ -55,7 +59,7 @@ export const GLTFComponent = defineComponent({
     return {
       src: '',
       // internals
-      extensions: {},
+      body: null as null | ArrayBuffer,
       progress: 0
     }
   },
@@ -153,14 +157,13 @@ const useGLTFDocument = (url: string, entity: Entity) => {
 
         if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
           try {
-            /** TODO we will need to refactor and persist this */
-            state.extensions.merge({ [EXTENSIONS.KHR_BINARY_GLTF]: new GLTFBinaryExtension(data) })
+            const { json: jsonContent, body } = parseBinaryData(data)
+            state.body.set(body)
+            json = jsonContent
           } catch (error) {
             if (onError) onError(error)
             return
           }
-
-          json = JSON.parse(state.extensions.value[EXTENSIONS.KHR_BINARY_GLTF].content)
         } else {
           json = JSON.parse(textDecoder.decode(data))
         }
@@ -192,9 +195,57 @@ const useGLTFDocument = (url: string, entity: Entity) => {
     return () => {
       abortController.abort()
       if (!hasComponent(entity, GLTFComponent)) return
-      state.merge({
-        extensions: {}
-      })
+      state.body.set(null)
     }
   }, [url])
+}
+
+export const parseBinaryData = (data) => {
+  const headerView = new DataView(data, 0, BINARY_EXTENSION_HEADER_LENGTH)
+  const textDecoder = new TextDecoder()
+
+  const header = {
+    magic: textDecoder.decode(new Uint8Array(data.slice(0, 4))),
+    version: headerView.getUint32(4, true),
+    length: headerView.getUint32(8, true)
+  }
+
+  if (header.magic !== BINARY_EXTENSION_HEADER_MAGIC) {
+    throw new Error('THREE.GLTFLoader: Unsupported glTF-Binary header.')
+  } else if (header.version < 2.0) {
+    throw new Error('THREE.GLTFLoader: Legacy binary file detected.')
+  }
+
+  const chunkContentsLength = header.length - BINARY_EXTENSION_HEADER_LENGTH
+  const chunkView = new DataView(data, BINARY_EXTENSION_HEADER_LENGTH)
+  let chunkIndex = 0
+
+  let content = null as string | null
+  let body = null as ArrayBuffer | null
+
+  while (chunkIndex < chunkContentsLength) {
+    const chunkLength = chunkView.getUint32(chunkIndex, true)
+    chunkIndex += 4
+
+    const chunkType = chunkView.getUint32(chunkIndex, true)
+    chunkIndex += 4
+
+    if (chunkType === BINARY_EXTENSION_CHUNK_TYPES.JSON) {
+      const contentArray = new Uint8Array(data, BINARY_EXTENSION_HEADER_LENGTH + chunkIndex, chunkLength)
+      content = textDecoder.decode(contentArray)
+    } else if (chunkType === BINARY_EXTENSION_CHUNK_TYPES.BIN) {
+      const byteOffset = BINARY_EXTENSION_HEADER_LENGTH + chunkIndex
+      body = data.slice(byteOffset, byteOffset + chunkLength)
+    }
+
+    // Clients must ignore chunks with unknown types.
+
+    chunkIndex += chunkLength
+  }
+
+  if (content === null) {
+    throw new Error('THREE.GLTFLoader: JSON content not found.')
+  }
+
+  return { json: JSON.parse(content), body }
 }
