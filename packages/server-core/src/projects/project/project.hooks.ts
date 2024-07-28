@@ -62,6 +62,7 @@ import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import templateManifestJson from '@etherealengine/projects/template-project/manifest.json'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
@@ -585,7 +586,7 @@ const updateProjectHistory = async (context: HookContext<ProjectService>) => {
   for (const item of dataArr) {
     await context.app.service(projectHistoryPath).create({
       projectId: item.id,
-      userId: context.params.user!.id,
+      userId: (context.params.user?.id || null) as UserID,
       action: ActionTypes.CREATE_PROJECT,
       actionIdentifier: item.id
     })
