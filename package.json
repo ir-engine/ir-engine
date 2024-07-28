@@ -123,6 +123,8 @@
     "depcheck": "1.4.3",
     "eslint": "9.5.0",
     "globals": "15.6.0",
+    "istanbul": "^0.4.5",
+    "istanbul-merge": "^2.0.0",
     "jsdom": "^21.1.1",
     "kill-port": "2.0.1",
     "lerna": "6.5.1",
