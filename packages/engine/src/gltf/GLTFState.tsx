@@ -53,6 +53,7 @@ import {
   setComponent,
   UndefinedEntity,
   useComponent,
+  useOptionalComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
 import {
@@ -71,7 +72,7 @@ import {
 import { TransformComponent } from '@etherealengine/spatial'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -642,6 +643,7 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
     if (!geometry.value) return
 
     const mesh = new Mesh(geometry.value as BufferGeometry, new MeshBasicMaterial())
+    /** @todo multiple primitive support */
     setComponent(props.entity, MeshComponent, mesh)
     addObjectToGroup(props.entity, mesh)
 
@@ -655,6 +657,7 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
 
     return () => {
       removeComponent(props.entity, MeshComponent)
+      removeObjectFromGroup(props.entity, mesh)
     }
   }, [geometry])
 
@@ -766,6 +769,8 @@ const PrimitiveIndicesAttributeReactor = (props: {
 const MaterialReactor = (props: { nodeIndex: number; documentID: string; primitiveIndex: number; entity: Entity }) => {
   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
 
+  const meshComponent = useOptionalComponent(props.entity, MeshComponent)
+
   const nodes = documentState.nodes!.get(NO_PROXY)!
   const node = nodes[props.nodeIndex]!
 
@@ -773,15 +778,19 @@ const MaterialReactor = (props: { nodeIndex: number; documentID: string; primiti
 
   const primitive = mesh.primitives[props.primitiveIndex]
 
-  const material = primitive.material
-
   useEffect(() => {
-    // const material = GLTFLoaderFunctions.createMaterial(
-    //   getParserOptions(props.entity),
-    //   documentState.get(NO_PROXY) as GLTF.IGLTF,
-    //   material
-    // )
-  }, [])
+    if (typeof primitive.material !== 'number' || !meshComponent) return
+
+    GLTFLoaderFunctions.loadMaterial(
+      getParserOptions(props.entity),
+      documentState.get(NO_PROXY) as GLTF.IGLTF,
+      primitive.material!
+    ).then((material) => {
+      ;(meshComponent.get(NO_PROXY) as Mesh).material = material
+    })
+
+    /** @todo use material API instead of hardcoding */
+  }, [meshComponent, primitive.material])
 
   return null
 }
