@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { staticResourcePath, userPath } from '@etherealengine/common/src/schema.type.module'
+import { avatarPath, staticResourcePath, userPath } from '@etherealengine/common/src/schema.type.module'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { ProjectHistoryQuery, ProjectHistoryType, ResourceActionTypes, UserActionTypes } from './project-history.schema'
@@ -43,94 +43,108 @@ export const projectHistoryDataResolver = resolve<ProjectHistoryType, HookContex
   createdAt: getDateTimeSql
 })
 
+const getUserNameAndAvatarId = async (projectHistory: ProjectHistoryType, context: HookContext) => {
+  if (context.method !== 'find' && context.method !== 'get') {
+    return {
+      userName: '',
+      avatarId: ''
+    }
+  }
+
+  if (!projectHistory.userId) {
+    return {
+      userName: '',
+      avatarId: ''
+    }
+  }
+
+  if (!('userNames' in context.params)) {
+    context.params['userNames'] = {} as Record<string, string>
+  }
+
+  if (!('avatarIds' in context.params)) {
+    context.params['avatarIds'] = {} as Record<string, string>
+  }
+
+  if (projectHistory.userId in context.params['userNames']) {
+    return {
+      userName: context.params['userNames'][projectHistory.userId],
+      avatarId: context.params['avatarIds'][projectHistory.userId]
+    }
+  }
+
+  const user = await context.app.service(userPath).get(projectHistory.userId)
+  context.params['userNames'][projectHistory.userId] = user.name
+  context.params['avatarIds'][projectHistory.userId] = user.avatarId
+
+  return {
+    userName: user.name,
+    avatarId: user.avatarId
+  }
+}
+
 export const projectHistoryExternalResolver = resolve<ProjectHistoryType, HookContext>({
   userName: virtual(async (projectHistory, context) => {
-    if (!projectHistory.userId) {
-      return ''
-    }
-
-    if (!('usersInfo' in context.params)) {
-      context.params['usersInfo'] = {} as Record<string, { userName: string; userAvatar: string }>
-    }
-
-    if (projectHistory.userId in context.params['usersInfo']) {
-      return context.params['usersInfo'][projectHistory.userId].userName
-    }
-
-    const user = await context.app.service(userPath).get(projectHistory.userId)
-    context.params['usersInfo'][projectHistory.userId] = {
-      userName: user.name,
-      userAvatar: user.avatar?.thumbnailResource?.url || ''
-    }
-
-    return user.name
+    return (await getUserNameAndAvatarId(projectHistory, context)).userName
   }),
 
   userAvatar: virtual(async (projectHistory, context) => {
+    if (context.method !== 'find' && context.method !== 'get') {
+      return ''
+    }
+
     if (!projectHistory.userId) {
       return ''
     }
 
-    if (!('usersInfo' in context.params)) {
-      context.params['usersInfo'] = {} as Record<string, { userName: string; userAvatar: string }>
+    if (!('userAvatars' in context.params)) {
+      console.log('userAvatars not in context.params. Creating new object')
+      context.params['userAvatars'] = {} as Record<string, string>
     }
 
-    if (projectHistory.userId in context.params['usersInfo']) {
-      return context.params['usersInfo'][projectHistory.userId].userAvatarURL
+    if (projectHistory.userId in context.params['userAvatars']) {
+      console.log(`User ${projectHistory.userId} already in userAvatars`)
+      return context.params['userAvatars'][projectHistory.userId].userAvatarURL
     }
 
-    const user = await context.app.service(userPath).get(projectHistory.userId)
-    context.params['usersInfo'][projectHistory.userId] = {
-      userName: user.name,
-      userAvatar: user.avatar?.thumbnailResource?.url || ''
-    }
+    const avatarId = (await getUserNameAndAvatarId(projectHistory, context)).avatarId
 
-    return user.avatar?.thumbnailResource?.url || ''
+    const avatar = await context.app.service(avatarPath).get(avatarId)
+
+    context.params['userAvatars'][projectHistory.userId] = avatar?.thumbnailResource?.url
+
+    return avatar?.thumbnailResource?.url || ''
   }),
 
   actionResource: virtual(async (projectHistory, context) => {
-    if (projectHistory.action in UserActionTypes) {
-      const userId = projectHistory.actionIdentifier
+    if (context.method !== 'find' && context.method !== 'get') {
+      return ''
+    }
 
-      if (!userId) {
-        return ''
-      }
-
-      if (!('usersInfo' in context.params)) {
-        context.params['usersInfo'] = {} as Record<string, { userName: string; userAvatar: string }>
-      }
-
-      if (userId in context.params['usersInfo']) {
-        return context.params['usersInfo'][userId].userName
-      }
-
-      const user = await context.app.service(userPath).get(userId)
-      context.params['usersInfo'][userId] = {
-        userName: user.name,
-        userAvatar: user.avatar?.thumbnailResource?.url || ''
-      }
-
-      return user.name
-    } else if (projectHistory.action in ResourceActionTypes) {
+    if (UserActionTypes.includes(projectHistory.action)) {
+      return (await getUserNameAndAvatarId(projectHistory, context)).userName
+    } else if (ResourceActionTypes.includes(projectHistory.action)) {
       const resourceId = projectHistory.actionIdentifier
 
       if (!resourceId) {
         return ''
       }
 
-      if (!('staticResourcesInfo' in context)) {
-        context.params['staticResourcesInfo'] = {} as Record<string, string>
+      if (!('staticResourcesKeys' in context)) {
+        context.params['staticResourcesKeys'] = {} as Record<string, string>
       }
 
-      if (resourceId in context.params['staticResourcesInfo']) {
-        return context.params['staticResourcesInfo'][resourceId].name
+      if (resourceId in context.params['staticResourcesKeys']) {
+        return context.params['staticResourcesKeys'][resourceId]
       }
 
       const resource = await context.app.service(staticResourcePath).get(resourceId)
-      context.params['staticResourcesInfo'][resourceId] = resource.key
+      context.params['staticResourcesKeys'][resourceId] = resource.key
 
       return resource.key
     }
+
+    return projectHistory.action
   })
 })
 

@@ -208,8 +208,10 @@
         "repo": "Repo",
         "access": "Access",
         "invalidateCache": "Invalidate Cache",
-        "update": "Update"
+        "update": "Update",
+        "history": "History"
       },
+      "projectHistory": "Project History",
       "addProject": "Add Project",
       "updateProject": "Update Project",
       "downloadProject": "Download Project",

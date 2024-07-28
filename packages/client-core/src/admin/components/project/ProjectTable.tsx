@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { GrGithub } from 'react-icons/gr'
 import {
   HiOutlineArrowPath,
+  HiOutlineClock,
   HiOutlineCommandLine,
   HiOutlineExclamationCircle,
   HiOutlineFolder,
@@ -55,6 +56,7 @@ import DataTable from '../../common/Table'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 import ManageUserPermissionModal from './ManageUserPermissionModal'
+import { ProjectHistoryModal } from './ProjectHistoryModal'
 
 const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 
@@ -180,6 +182,16 @@ export default function ProjectTable(props: { search: string }) {
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
         >
           {t('admin:components.common.view')}
+        </Button>
+        <Button
+          startIcon={<HiOutlineClock />}
+          size="small"
+          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          onClick={() => {
+            PopoverState.showPopupover(<ProjectHistoryModal projectId={project.id} projectName={project.name} />)
+          }}
+        >
+          {t('admin:components.project.actions.history')}
         </Button>
         <Button
           startIcon={<HiOutlineTrash />}

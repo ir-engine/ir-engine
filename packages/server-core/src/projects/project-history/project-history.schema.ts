@@ -55,6 +55,7 @@ export const ResourceActionTypes = [
   ActionTypes.UPDATE_ASSET,
   ActionTypes.REMOVE_ASSET
 ]
+export const ProjectActionTypes = [ActionTypes.CREATE_PROJECT, ActionTypes.UPDATE_PROJECT]
 
 // Schema for creating new entries
 export const projectHistorySchema = Type.Object(

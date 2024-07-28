@@ -135,7 +135,10 @@ const populateData = async (context: HookContext<ProjectHistoryService>) => {
 
 export default {
   around: {
-    all: [schemaHooks.resolveResult(projectHistoryResolver)]
+    all: [
+      schemaHooks.resolveResult(projectHistoryResolver),
+      schemaHooks.resolveExternal(projectHistoryExternalResolver)
+    ]
   },
 
   before: {
@@ -157,8 +160,8 @@ export default {
 
   after: {
     all: [],
-    find: [schemaHooks.resolveExternal(projectHistoryExternalResolver)],
-    get: [schemaHooks.resolveExternal(projectHistoryExternalResolver)],
+    find: [],
+    get: [],
     create: [],
     update: [],
     patch: [],
