@@ -122,7 +122,7 @@ describe('GLTFState', () => {
     assert.equal(nodeName, 'node')
     assert.equal(
       getComponent(nodeEntity, SourceComponent),
-      getComponent(gltfEntity, UUIDComponent) + '-' + '/test.gltf'
+      getComponent(gltfEntity, UUIDComponent) + '?' + '/test.gltf'
     )
 
     GLTFSourceState.unload(gltfEntity)

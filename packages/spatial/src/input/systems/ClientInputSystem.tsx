@@ -799,7 +799,7 @@ function applyHeuristicProximity(
   const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
 
   //use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
-  const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID) //would prefer a better way to do this
+  const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '-avatar') as EntityUUID) //would prefer a better way to do this
   const inputSourceEntity = isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
 
   // Skip Proximity Heuristic when the entity is undefined

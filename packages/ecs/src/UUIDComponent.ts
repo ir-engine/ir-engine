@@ -40,6 +40,9 @@ export const UUIDComponent = defineComponent({
   onSet: (entity, component, uuid: EntityUUID) => {
     if (!uuid) throw new Error('UUID cannot be empty')
 
+    // sanitize uuid
+    uuid = uuid.replace(/[^0-9a-zA-Z-]/gi, '') as EntityUUID
+
     if (component.value === uuid) return
 
     // throw error if uuid is already in use

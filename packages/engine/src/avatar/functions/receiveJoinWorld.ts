@@ -76,11 +76,11 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
       ...avatarSpawnPose,
       parentUUID,
       avatarID,
-      entityUUID: (entityUUID + '_avatar') as EntityUUID,
+      entityUUID: (entityUUID + '-avatar') as EntityUUID,
       name: props.name
     })
   )
-  dispatchAction(CameraActions.spawnCamera({ parentUUID, entityUUID: (entityUUID + '_camera') as EntityUUID }))
+  dispatchAction(CameraActions.spawnCamera({ parentUUID, entityUUID: (entityUUID + '-camera') as EntityUUID }))
 
   const headUUID = (entityUUID + ikTargets.head) as EntityUUID
   const leftHandUUID = (entityUUID + ikTargets.leftHand) as EntityUUID

@@ -145,7 +145,7 @@ const SpectatorReactor = () => {
 
 const SpectatingUserReactor = (props: { userID: UserID }) => {
   /** @todo reevaluate if we should use the _camera suffix */
-  const networkCameraEntity = UUIDComponent.useEntityByUUID((props.userID + '_camera') as EntityUUID)
+  const networkCameraEntity = UUIDComponent.useEntityByUUID((props.userID + '-camera') as EntityUUID)
 
   useEffect(() => {
     if (!networkCameraEntity) return

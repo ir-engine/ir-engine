@@ -80,11 +80,11 @@ export const AvatarComponent = defineComponent({
   },
 
   getSelfAvatarEntity() {
-    return UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
+    return UUIDComponent.getEntityByUUID((Engine.instance.userID + '-avatar') as EntityUUID)
   },
 
   useSelfAvatarEntity() {
-    return UUIDComponent.useEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
+    return UUIDComponent.useEntityByUUID((Engine.instance.userID + '-avatar') as EntityUUID)
   }
 })
 

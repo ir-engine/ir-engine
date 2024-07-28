@@ -647,7 +647,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
                 AvatarNetworkAction.spawn({
                   parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
                   ownerID: entityID,
-                  entityUUID: (entityID + '_avatar') as EntityUUID,
+                  entityUUID: (entityID + '-avatar') as EntityUUID,
                   avatarID: user.avatar.id!,
                   name: user.name + "'s Clone"
                 })

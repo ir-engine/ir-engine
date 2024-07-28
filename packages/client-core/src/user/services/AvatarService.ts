@@ -175,6 +175,6 @@ export const AvatarService = {
       .patch(userId, { name: name })) as UserType
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg').toString(), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
-    dispatchAction(AvatarNetworkAction.setName({ entityUUID: (userId + '_avatar') as EntityUUID, name: updatedName }))
+    dispatchAction(AvatarNetworkAction.setName({ entityUUID: (userId + '-avatar') as EntityUUID, name: updatedName }))
   }
 }

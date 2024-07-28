@@ -220,7 +220,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           <div className="justify-cneter flex items-center align-middle">
             <label>{t('editor:properties.mesh.material.path')}</label>
           </div>
-          <div>{getOptionalComponent(entity, SourceComponent) ?? 'None'}</div>
+          <div>{getOptionalComponent(entity, SourceComponent)?.split('?')[1] ?? 'None'}</div>
         </div>
       </InputGroup>
       <br />
