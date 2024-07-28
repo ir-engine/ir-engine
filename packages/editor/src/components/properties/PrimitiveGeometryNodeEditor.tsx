@@ -42,7 +42,7 @@ import NodeEditor from './NodeEditor'
 import { commitProperty, EditorComponentType } from './Util'
 
 /**
- * Types of skyboxes
+ * Types of geometry
  *
  * @type {Array}
  */
