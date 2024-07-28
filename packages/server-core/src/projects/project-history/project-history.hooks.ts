@@ -45,12 +45,12 @@ import {
 } from './project-history.resolvers'
 
 import { staticResourcePath, UserID, userPath } from '@etherealengine/common/src/schema.type.module'
-import { isSuperAdmin } from '@etherealengine/projects/projects/eepro-multitenancy/services/hooks/common/is-super-admin'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { HookContext } from '../../../declarations'
 import { ProjectHistoryService } from './project-history.class'
 
 const checkProjectAccess = async (context: HookContext<ProjectHistoryService>) => {
-  const isAdmin = await isSuperAdmin(context)
+  const isAdmin = context.params.user && (await checkScope(context.params.user, 'admin', 'admin'))
   if (isAdmin) {
     return
   }
@@ -152,7 +152,7 @@ export default {
     ],
     patch: [disallow('external')],
     update: [disallow('external')],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'super'))]
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'))]
   },
 
   after: {
