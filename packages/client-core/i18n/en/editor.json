@@ -70,7 +70,7 @@
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Provide a valid scene name"
+    "invalidSceneName": "Provide a valid scene name. Only alphanumerics, hyphens and underscores are allowed. (max length 64)"
   },
   "viewport": {
     "title": "Viewport",

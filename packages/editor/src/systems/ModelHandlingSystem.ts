@@ -30,8 +30,8 @@ import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import BufferHandlerExtension from '@etherealengine/engine/src/assets/exporters/gltf/extensions/BufferHandlerExtension'
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
-import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { clearModelResources, uploadProjectFiles } from '../functions/assetFunctions'
+import { ImportSettingsState } from '../services/ImportSettingsState'
 
 const beginModelExportQueue = defineActionQueue(BufferHandlerExtension.beginModelExport.matches)
 const saveBufferQueue = defineActionQueue(BufferHandlerExtension.saveBuffer.matches)

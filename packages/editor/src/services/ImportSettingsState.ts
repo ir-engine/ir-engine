@@ -23,41 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Node, OnConnectStartParams } from 'reactflow'
+import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
-import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
-import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType'
+import { defaultLODs } from '../constants/GLTFPresets'
 
-type NodePickerFilters = {
-  handleType: 'source' | 'target'
-  valueType: string
-}
-
-export const getNodePickerFilters = (
-  nodes: Node[],
-  params: OnConnectStartParams | undefined,
-  specGenerator: NodeSpecGenerator | undefined
-): NodePickerFilters | undefined => {
-  if (params === undefined) return
-
-  const originNode = nodes.find((node) => node.id === params.nodeId)
-  if (originNode === undefined) return
-
-  const sockets = specGenerator
-    ? getSocketsByNodeTypeAndHandleType(
-        specGenerator,
-        originNode.type,
-        originNode.data.configuration,
-        params.handleType
-      )
-    : undefined
-
-  const socket = sockets?.find((socket) => socket.name === params.handleId)
-
-  if (socket === undefined) return
-
-  return {
-    handleType: params.handleType === 'source' ? 'target' : 'source',
-    valueType: socket.valueType
-  }
-}
+export const ImportSettingsState = defineState({
+  name: 'ImportSettingsState',
+  initial: () => ({
+    LODsEnabled: false,
+    selectedLODS: defaultLODs,
+    imageCompression: false,
+    imageSettings: KTX2EncodeDefaultArguments,
+    importFolder: '/assets/',
+    LODFolder: 'LODs/'
+  }),
+  extension: syncStateWithLocalStorage([
+    'LODsEnabled',
+    'selectedLODS',
+    'imageCompression',
+    'imageSettings',
+    'importFolder',
+    'LODFolder'
+  ])
+})

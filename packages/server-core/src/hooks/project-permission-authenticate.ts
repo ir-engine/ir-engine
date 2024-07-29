@@ -91,7 +91,12 @@ export default (writeAccess) => {
       const split = githubPathRegexExec[1].split('/')
       const owner = split[0]
       const repo = split[1]
-      const userRepoWriteStatus = await checkUserRepoWriteStatus(owner, repo, githubIdentityProvider.data[0].oauthToken)
+      const userRepoWriteStatus = await checkUserRepoWriteStatus(
+        owner,
+        repo,
+        githubIdentityProvider.data[0].oauthToken!,
+        context.app
+      )
       if (userRepoWriteStatus !== 200) throw new Forbidden('You are not authorized to access this project')
     }
 
