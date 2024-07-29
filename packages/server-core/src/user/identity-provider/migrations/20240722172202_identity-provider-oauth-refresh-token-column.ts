@@ -23,34 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { OAuthStrategy } from '@feathersjs/authentication-oauth'
-import { Params } from '@feathersjs/feathers'
+import type { Knex } from 'knex'
 
-import multiLogger from '@etherealengine/common/src/logger'
-import { Application } from '../../../declarations'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 
-// import { OAuthProfile } from '@feathersjs/authentication-oauth/src/strategy'
-const logger = multiLogger.child({ component: 'engine:ecs:CustomOAuthParams' })
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export interface CustomOAuthParams extends Params {
-  redirect?: string
-  access_token?: string
-  refresh_token?: string
+  await knex.schema.alterTable(identityProviderPath, (table) => {
+    table.string('oauthRefreshToken', 255).defaultTo(null)
+  })
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export class CustomOAuthStrategy extends OAuthStrategy {
-  // @ts-ignore
-  app: Application
-  async getEntityQuery(profile: any, _params: Params): Promise<any> {
-    return {
-      token: profile.sub ? `${this.name}:::${profile.sub as string}` : `${this.name}:::${profile.id as string}`
-    }
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const oauthRefreshTokenColumnExists = await knex.schema.hasColumn(identityProviderPath, 'oauthRefreshToken')
+
+  if (oauthRefreshTokenColumnExists) {
+    await knex.schema.alterTable(identityProviderPath, async (table) => {
+      table.dropColumn('oauthRefreshToken')
+    })
   }
 
-  async getEntityData(profile: any, _existingEntity: any, _params: Params): Promise<any> {
-    return {
-      token: profile.sub ? `${this.name}:::${profile.sub as string}` : `${this.name}:::${profile.id as string}`
-    }
-  }
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
-export default CustomOAuthStrategy
