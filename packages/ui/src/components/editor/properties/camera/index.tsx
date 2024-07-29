@@ -37,13 +37,13 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { HiOutlineCamera } from 'react-icons/hi'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
-import PropertyGroup from '../group'
+import NodeEditor from '../nodeEditor'
 
 export const CameraNodeEditor: EditorComponentType = (props) => {
   const component = useComponent(props.entity, CameraComponent)
 
   return (
-    <PropertyGroup
+    <NodeEditor
       name={t('editor:properties.cameraComponent.name')}
       description={t('editor:properties.cameraComponent.description')}
       icon={<CameraNodeEditor.iconComponent />}
@@ -76,7 +76,7 @@ export const CameraNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(CameraComponent, 'far')}
         />
       </InputGroup>
-    </PropertyGroup>
+    </NodeEditor>
   )
 }
 
