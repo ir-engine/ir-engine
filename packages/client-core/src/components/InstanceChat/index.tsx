@@ -460,11 +460,32 @@ export const InstanceChatWrapper = () => {
   const { bottomShelfStyle } = useShelfStyles()
 
   const acceptedTOS = useMutableState(AuthState).user.acceptedTOS.value
+  const isGuest = useMutableState(AuthState).user.isGuest.value
 
   const networkWorldConfig = useHookstate(getMutableState(NetworkState).config.world)
   const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
 
-  if (!acceptedTOS) return null
+  if (!isGuest)
+    return (
+      <>
+        <div className={styles.modalConnecting}>
+          <div className={styles.modalConnectingTitle}>
+            <p>{t('common:loader.needToLogIn')}</p>
+          </div>
+        </div>
+      </>
+    )
+
+  if (!acceptedTOS)
+    return (
+      <>
+        <div className={styles.modalConnecting}>
+          <div className={styles.modalConnectingTitle}>
+            <p>{t('common:loader.needToAcceptTOS')}</p>
+          </div>
+        </div>
+      </>
+    )
 
   return (
     <>

@@ -109,14 +109,15 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const isGuest = selfUser.isGuest.value
   const acceptedTOS = !!selfUser.acceptedTOS.value
 
-  const checkedTOS = useHookstate(acceptedTOS)
+  const checkedTOS = useHookstate(!isGuest)
+  const checked13OrOver = useHookstate(!isGuest)
   const checked18OrOver = useHookstate(acceptedTOS)
-  const hasAcceptedTermsAndAge = checkedTOS.value && checked18OrOver.value
+  const hasAcceptedTermsAndAge = checkedTOS.value && checked13OrOver.value
 
   const originallyAcceptedTOS = useHookstate(acceptedTOS)
 
   useEffect(() => {
-    if (!originallyAcceptedTOS.value && hasAcceptedTermsAndAge) {
+    if (!originallyAcceptedTOS.value && checked18OrOver) {
       Engine.instance.api
         .service(userPath)
         .patch(userId, { acceptedTOS: true })
@@ -131,7 +132,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
           console.error(e, 'Error updating user')
         })
     }
-  }, [hasAcceptedTermsAndAge])
+  }, [checked18OrOver])
 
   const hasAdminAccess = useUserHasAccessHook('admin:admin')
   const avatarThumbnail = useUserAvatarThumbnail(userId)
@@ -463,7 +464,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               </Text>
             )}
 
-            {!originallyAcceptedTOS.value && (
+            {isGuest && (
               <Grid item xs={12}>
                 <FormControlLabel
                   control={
@@ -500,10 +501,10 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                   control={
                     <Checkbox
                       disabled={hasAcceptedTermsAndAge}
-                      value={checked18OrOver.value}
-                      onChange={(e) => checked18OrOver.set(e.target.checked)}
+                      value={checked13OrOver.value}
+                      onChange={(e) => checked13OrOver.set(e.target.checked)}
                       color="primary"
-                      name="is18OrOver"
+                      name="is13OrOver"
                     />
                   }
                   label={
@@ -513,7 +514,33 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                       }}
                       className={styles.termsLink}
                     >
-                      {t('user:usermenu.profile.confirmAge')}
+                      {t('user:usermenu.profile.confirmAge13')}
+                    </div>
+                  }
+                />
+              </Grid>
+            )}
+
+            {!isGuest && !originallyAcceptedTOS.value && (
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      disabled={checked18OrOver.value}
+                      value={checked18OrOver.value}
+                      onChange={(e) => checked18OrOver.set(e.target.checked)}
+                      color="primary"
+                      name="is13OrOver"
+                    />
+                  }
+                  label={
+                    <div
+                      style={{
+                        fontStyle: 'italic'
+                      }}
+                      className={styles.termsLink}
+                    >
+                      {t('user:usermenu.profile.confirmAge18')}
                     </div>
                   }
                 />
@@ -657,7 +684,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
           </div>
         )}
 
-        {!hideLogin && (
+        {!hideLogin && hasAcceptedTermsAndAge && (
           <>
             {isGuest && enableConnect && (
               <>
