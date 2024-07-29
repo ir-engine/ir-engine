@@ -82,7 +82,6 @@ export type HierarchyTreeNodeData = {
   renamingNode: RenameNodeData
   onToggle: (e: React.MouseEvent, node: Entity) => void
   onKeyDown: (e: Event, node: Entity) => void
-  onMouseDown: (e: React.MouseEvent, node: Entity) => void
   onClick: (e: React.MouseEvent, node: Entity) => void
   onChangeName: (node: Entity, name: string) => void
   onRenameSubmit: (node: Entity, name: string) => void
@@ -130,7 +129,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     else if (e.key === 'Enter') data.onRenameSubmit(entity, (e.target as any).value)
   }
   const onClickNode = (e: React.MouseEvent) => data.onClick(e, entity)
-  const onMouseDownNode = (e: React.MouseEvent) => data.onMouseDown(e, entity)
   const onChangeNodeName = (e: React.ChangeEvent<HTMLInputElement>) => data.onChangeName(entity, e.target.value)
 
   const [, drag, preview] = useDrag({
@@ -191,7 +189,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       }
 
     return (item: FileDataType | DnDFileType | DragItemType, monitor: DropTargetMonitor): void => {
-      console.log('debug1 item', item, 'and place', place, 'beforenode', beforeNode, 'parentnode', parentNode)
       if (parentNode) {
         if ('files' in item) {
           const dndItem: any = monitor.getItem()
@@ -234,33 +231,18 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const canDropItem = (entityNode: Entity, dropOn?: boolean) => {
     return (item: DragItemType, monitor: DropTargetMonitor): boolean => {
-      console.log('debug1 check can drop the item', item, 'and dropon', dropOn)
-
-      //check if monitor is over or object is not parent element
       if (!monitor.isOver()) {
-        console.log('debug1 check1')
         return false
       }
 
       if (!dropOn) {
         const entityTreeComponent = getComponent(entityNode, EntityTreeComponent)
         if (!entityTreeComponent) {
-          console.log('debug1 check2')
           return false
         }
       }
       if (item.type === ItemTypes.Node) {
         const entityTreeComponent = getComponent(entityNode, EntityTreeComponent)
-        console.log(
-          'debug1 check3',
-          dropOn || !!entityTreeComponent.parentEntity,
-          item.multiple,
-          isAncestor(item.value as Entity, entityNode),
-
-          !(item.multiple
-            ? (item.value as Entity[]).some((otherObject) => isAncestor(otherObject, entityNode))
-            : isAncestor(item.value as Entity, entityNode))
-        )
 
         return (
           (dropOn || !!entityTreeComponent.parentEntity) &&
@@ -269,7 +251,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             : isAncestor(item.value as Entity, entityNode))
         )
       }
-      console.log('debug1 check4')
       return true
     }
   }
@@ -328,13 +309,12 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         id={getNodeElId(node)}
         tabIndex={0}
         onKeyDown={onNodeKeyDown}
-        onMouseDown={onMouseDownNode}
         onClick={onClickNode}
         onContextMenu={(event) => props.onContextMenu(event, entity)}
         className="py-.5 ml-3.5 h-9 justify-between bg-inherit pr-2"
       >
         <div
-          className={twMerge('h-1', isOverBefore && canDropBefore && 'bg-blue-500')}
+          className={twMerge('h-1', isOverBefore && canDropBefore && 'bg-white')}
           style={{ marginLeft: `${node.depth * 1.25}em` }}
           ref={beforeDropTarget}
         />
@@ -396,7 +376,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         </div>
 
         <div
-          className={twMerge('h-1', isOverAfter && canDropAfter && 'bg-red-500')}
+          className={twMerge('h-1', isOverAfter && canDropAfter && 'bg-white')}
           style={{ marginLeft: `${node.depth * 1.25}em` }}
           ref={afterDropTarget}
         />
