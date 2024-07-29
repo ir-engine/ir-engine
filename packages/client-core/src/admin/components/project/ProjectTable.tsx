@@ -37,7 +37,7 @@ import {
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { ProjectService, ProjectVisibility } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
@@ -92,10 +92,7 @@ export default function ProjectTable(props: { search: string }) {
   }
 
   const handleVisibilityChange = async (project: ProjectType) => {
-    await ProjectService.setVisibility(
-      project.id,
-      project.visibility === ProjectVisibility.PRIVATE ? ProjectVisibility.PUBLIC : ProjectVisibility.PRIVATE
-    )
+    await ProjectService.setVisibility(project.id, project.visibility === 'private' ? 'public' : 'private')
     projectQuery.refetch()
   }
 
