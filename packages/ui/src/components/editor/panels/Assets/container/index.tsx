@@ -636,13 +636,7 @@ const AssetPanel = () => {
               <ResourceItems />
             </div>
           </InfiniteScroll>
-          <div className="mx-auto mb-10">
-            {/* <TablePagination
-              totalPages={staticResourcesPagination.totalPages.value}
-              currentPage={staticResourcesPagination.currentPage.value}
-              onPageChange={(newPage) => staticResourcesPagination.merge({ currentPage: newPage })}
-            /> */}
-          </div>
+          <div className="mx-auto mb-10"></div>
         </div>
         {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
       </div>
