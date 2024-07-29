@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import multiLogger from '@etherealengine/common/src/logger'
@@ -32,9 +32,6 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { getEntries, uploadProjectAssetsFromUpload } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
-import { DialogState } from '../dialogs/DialogState'
-import ErrorDialog from '../dialogs/ErrorDialog'
-import { ProgressDialog } from '../dialogs/ProgressDialog'
 
 const logger = multiLogger.child({ component: 'editor:useUpload' })
 
@@ -88,49 +85,12 @@ export default function useUpload(options: Props = {}) {
             await validateEntry(entries[index])
           }
         }
-        const abortController = new AbortController()
-        DialogState.setDialog(
-          <ProgressDialog
-            message={t('editor:asset.useUpload.progressMsg', { uploaded: 0, total: entries.length, percentage: 0 })}
-            cancelable={true}
-            onCancel={() => {
-              abortController.abort()
-              DialogState.setDialog(null)
-            }}
-          />
-        )
         const { projectName } = getState(EditorState)
-        const assets = await uploadProjectAssetsFromUpload(projectName!, entries, (item, total, progress) => {
-          DialogState.setDialog(
-            <ProgressDialog
-              message={t('editor:asset.useUpload.progressMsg', {
-                uploaded: item,
-                total,
-                percentage: Math.round(progress * 100)
-              })}
-              cancelable={true}
-              onCancel={() => {
-                assets.cancel()
-                abortController.abort()
-                DialogState.setDialog(null)
-              }}
-            />
-          )
-        })
+        const assets = await uploadProjectAssetsFromUpload(projectName!, entries)
         const result = await Promise.all(assets.promises)
-        DialogState.setDialog(null)
         return result.flat()
       } catch (error) {
         logger.error(error, 'Error on upload')
-        DialogState.setDialog(
-          <ErrorDialog
-            title={t('editor:asset.useUpload.uploadError')}
-            message={t('editor:asset.useUpload.uploadErrorMsg', {
-              message: error.message || t('editor:asset.useUpload.uploadErrorDefaultMsg')
-            })}
-            error={error}
-          />
-        )
         return null
       }
     },
