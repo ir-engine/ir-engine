@@ -27,7 +27,6 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getComponent, getMutableComponent, hasComponent, useComponent, UUIDComponent } from '@etherealengine/ecs'
-import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import {
   commitProperty,
   EditorComponentType,
@@ -39,6 +38,7 @@ import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scen
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import { LuUsers2 } from 'react-icons/lu'
 import { Vector3 } from 'three'
+import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
 import NodeEditor from '../nodeEditor'
