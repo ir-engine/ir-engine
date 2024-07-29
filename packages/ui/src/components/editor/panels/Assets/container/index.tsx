@@ -59,12 +59,14 @@ import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
-import { TablePagination } from '../../../../../primitives/tailwind/Table'
 import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
+import InfiniteScroll from '../../../../tailwind/InfiniteScroll'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
 import { FileIcon } from '../../Files/icon'
+
+const limit = 10
 
 type Category = {
   name: string
@@ -415,8 +417,14 @@ const AssetPanel = () => {
   const staticResourcesPagination = useHookstate({ totalPages: -1, currentPage: 0 })
   const assetsPreviewContext = useHookstate({ selectAssetURL: '' })
   const parentCategories = useHookstate<Category[]>([])
-  const observerRef = useRef<IntersectionObserver | null>(null)
-  const loadMoreRef = useRef<any>(null)
+
+  const offset = categories.value.length
+
+  const fetchMoreData = () => {
+    if (loading.value) return
+    staticResourcesPagination.currentPage.set(staticResourcesPagination.currentPage.value + 1)
+    staticResourcesFindApi()
+  }
 
   const mapCategories = useCallback(() => {
     categories.set(mapCategoriesHelper(collapsedCategories.value))
@@ -462,14 +470,15 @@ const AssetPanel = () => {
             }
           : undefined,
         $sort: { mimeType: 1 },
-        $skip: staticResourcesPagination.currentPage.value * 10
+        $limit: limit,
+        $skip: offset
       } as StaticResourceQuery
 
       Engine.instance.api
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
-          searchedStaticResources.set(resources.data)
+          searchedStaticResources.merge(resources.data)
           staticResourcesPagination.merge({ totalPages: Math.ceil(resources.total / 10) })
         })
         .then(() => {
@@ -483,7 +492,7 @@ const AssetPanel = () => {
 
   useEffect(() => {
     staticResourcesFindApi()
-  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
+  }, [selectedCategory, searchText])
 
   const ResourceItems = () => {
     if (loading.value) {
@@ -541,24 +550,6 @@ const AssetPanel = () => {
     staticResourcesPagination.currentPage.set(0)
     !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }
-
-  const onIntersection = (entries) => {
-    console.log('intersecting...')
-  }
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(onIntersection)
-
-    if (observerRef && loadMoreRef.current) {
-      observer.observe(loadMoreRef.current)
-    }
-
-    return () => {
-      if (observer) {
-        observerRef.current?.disconnect()
-      }
-    }
-  }, [categories])
 
   return (
     <>
@@ -637,16 +628,17 @@ const AssetPanel = () => {
           onSelectCategory={handleSelectCategory}
         />
         <div className="flex h-full w-full flex-col overflow-auto">
-          <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
-            <ResourceItems />
-            <div ref={loadMoreRef} className="h-10 w-full"></div>
-          </div>
+          <InfiniteScroll onScrollBottom={fetchMoreData}>
+            <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
+              <ResourceItems />
+            </div>
+          </InfiniteScroll>
           <div className="mx-auto mb-10">
-            <TablePagination
+            {/* <TablePagination
               totalPages={staticResourcesPagination.totalPages.value}
               currentPage={staticResourcesPagination.currentPage.value}
               onPageChange={(newPage) => staticResourcesPagination.merge({ currentPage: newPage })}
-            />
+            /> */}
           </div>
         </div>
         {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
