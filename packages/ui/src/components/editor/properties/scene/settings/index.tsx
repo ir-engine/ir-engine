@@ -29,7 +29,9 @@ import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { UUIDComponent, defineQuery } from '@etherealengine/ecs'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import BooleanInput from '@etherealengine/editor/src/components/inputs/BooleanInput'
 import {
   EditorComponentType,
   commitProperties,
@@ -46,7 +48,9 @@ import {
   imageDataToBlob
 } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState, useHookstate, useState } from '@etherealengine/hyperflux'
+import { VirtualCameraComponent } from '@etherealengine/spatial/src/camera/components/VirtualCameraComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RiLandscapeLine } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
@@ -54,7 +58,10 @@ import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import InputGroup from '../../../input/Group'
 import ImagePreviewInput from '../../../input/Image/Preview'
 import NumericInput from '../../../input/Numeric'
+import SelectInput from '../../../input/Select'
 import PropertyGroup from '../../group'
+
+const virtualCameraQuery = defineQuery([VirtualCameraComponent])
 
 export const SceneSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -164,12 +171,39 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     image.src = url
   }
 
+  const useSpectatingEntity = useState(sceneSettingsComponent.spectateEntity.value !== '')
+
   return (
     <PropertyGroup
       name={t('editor:properties.sceneSettings.name')}
       description={t('editor:properties.sceneSettings.description')}
       icon={<SceneSettingsEditor.iconComponent />}
     >
+      <InputGroup
+        name="Spectate Entity"
+        label={t('editor:properties.sceneSettings.lbl-spectate')}
+        info={t('editor:properties.sceneSettings.info-spectate')}
+      >
+        <BooleanInput value={useSpectatingEntity.value} onChange={useSpectatingEntity.set} />
+      </InputGroup>
+      {useSpectatingEntity.value ? (
+        <InputGroup
+          name="Entity UUID"
+          label={t('editor:properties.sceneSettings.lbl-uuid')}
+          info={t('editor:properties.sceneSettings.info-uuid')}
+        >
+          <SelectInput
+            value={sceneSettingsComponent.spectateEntity.value}
+            onChange={commitProperty(SceneSettingsComponent, `spectateEntity`)}
+            options={virtualCameraQuery().map((entity) => {
+              return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
+            })}
+          />
+        </InputGroup>
+      ) : (
+        <></>
+      )}
+
       <InputGroup
         name="Thumbnail"
         label={t('editor:properties.sceneSettings.lbl-thumbnail')}
