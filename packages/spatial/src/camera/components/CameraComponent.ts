@@ -31,6 +31,7 @@ import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/componen
 
 export const CameraComponent = defineComponent({
   name: 'CameraComponent',
+  jsonID: 'EE_camera',
   onInit: (entity) => {
     const camera = new ArrayCamera()
     camera.fov = 60
@@ -40,13 +41,23 @@ export const CameraComponent = defineComponent({
     camera.cameras = [new PerspectiveCamera().copy(camera, false)]
     return camera
   },
-  onSet: (entity, component, json: undefined) => {
+  onSet: (entity, component, json) => {
     addObjectToGroup(entity, component.value as ArrayCamera)
+    if (!json) return
+    if (typeof json.fov === 'number') component.fov.set(json.fov)
+    if (typeof json.aspect === 'number') component.fov.set(json.aspect)
+    if (typeof json.near === 'number') component.fov.set(json.near)
+    if (typeof json.far === 'number') component.fov.set(json.far)
   },
   onRemove: (entity, component) => {
     removeObjectFromGroup(entity, component.value as ArrayCamera)
   },
-  toJSON: () => {
-    return null
+  toJSON: (entity, component) => {
+    return {
+      fov: component.fov.value,
+      aspect: component.aspect.value,
+      near: component.near.value,
+      far: component.far.value
+    }
   }
 })
