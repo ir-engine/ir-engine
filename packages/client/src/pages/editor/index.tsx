@@ -24,24 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { Suspense, useEffect, useState } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import React, { Suspense, useEffect } from 'react'
+
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
 import { EditorPage, useStudioEditor } from '@etherealengine/editor/src/pages/EditorPage'
-import { useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { Route, Routes, useLocation } from 'react-router-dom'
 
-const EditorRouter = () => {
+export const EditorRouter = () => {
   const ready = useStudioEditor()
 
-  if (!ready) return <LoadingCircle message={t('common:loader.loadingEditor')} />
+  if (!ready) return <LoadingView fullScreen className="h-8 w-8" title={t('common:loader.loadingStudio')} />
 
   return (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingEditor')} />}>
+    <Suspense fallback={<LoadingView fullScreen className="h-8 w-8" title={t('common:loader.loadingStudio')} />}>
       <PopupMenuInline />
       <Routes>
         <Route path="*" element={<EditorPage />} />
@@ -52,21 +53,21 @@ const EditorRouter = () => {
 
 const EditorProtectedRoutes = () => {
   const location = useLocation()
-  const authState = useMutableState(AuthState)
+  const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
-  const [isAuthorized, setAuthorized] = useState<boolean | null>(null)
+  const isAuthorized = useHookstate<boolean | null>(null)
 
   useEffect(() => {
     if (user.scopes.value) {
       const hasAccess = userHasAccess('editor:write')
       if (!hasAccess) {
         RouterState.navigate('/', { redirectUrl: location.pathname })
-        setAuthorized(false)
-      } else setAuthorized(true)
+        isAuthorized.set(false)
+      } else isAuthorized.set(true)
     }
   }, [user.scopes])
 
-  if (!isAuthorized) return <LoadingCircle message={t('common:loader.auth')} />
+  if (!isAuthorized.value) return <LoadingView fullScreen className="h-8 w-8" title={t('common:loader.auth')} />
 
   return <EditorRouter />
 }

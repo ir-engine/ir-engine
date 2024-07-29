@@ -23,18 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// @ts-nocheck
+import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
-import RCSlider from 'rc-slider/es/Slider'
-import React from 'react'
+import { defaultLODs } from '../constants/GLTFPresets'
 
-import './Slider.css'
-
-/**
- *
- * @param props
- * @returns
- */
-export default function Slider(props) {
-  return <RCSlider {...props} />
-}
+export const ImportSettingsState = defineState({
+  name: 'ImportSettingsState',
+  initial: () => ({
+    LODsEnabled: false,
+    selectedLODS: defaultLODs,
+    imageCompression: false,
+    imageSettings: KTX2EncodeDefaultArguments,
+    importFolder: '/assets/',
+    LODFolder: 'LODs/'
+  }),
+  extension: syncStateWithLocalStorage([
+    'LODsEnabled',
+    'selectedLODS',
+    'imageCompression',
+    'imageSettings',
+    'importFolder',
+    'LODFolder'
+  ])
+})

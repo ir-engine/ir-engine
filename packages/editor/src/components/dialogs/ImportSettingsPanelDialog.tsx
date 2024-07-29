@@ -40,7 +40,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineInformationCircle } from 'react-icons/hi2'
 import { LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
-import { ImportSettingsState } from '../assets/ImportSettingsPanel'
+import { ImportSettingsState } from '../../services/ImportSettingsState'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },
