@@ -37,10 +37,10 @@ import {
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ProjectService, ProjectVisibility } from '@etherealengine/client-core/src/common/services/ProjectService'
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
-import { projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
@@ -50,8 +50,8 @@ import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 
 import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
-import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 import DataTable from '../../common/Table'
+import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 import ManageUserPermissionModal from './ManageUserPermissionModal'
@@ -92,7 +92,10 @@ export default function ProjectTable(props: { search: string }) {
   }
 
   const handleVisibilityChange = async (project: ProjectType) => {
-    await ProjectService.setVisibility(project.id, project.visibility === 'private' ? 'public' : 'private')
+    await ProjectService.setVisibility(
+      project.id,
+      project.visibility === ProjectVisibility.PRIVATE ? ProjectVisibility.PUBLIC : ProjectVisibility.PRIVATE
+    )
     projectQuery.refetch()
   }
 

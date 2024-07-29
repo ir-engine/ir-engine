@@ -58,6 +58,11 @@ const logger = multiLogger.child({ component: 'client-core:projects' })
 //State
 export const PROJECT_PAGE_LIMIT = 100
 
+export enum ProjectVisibility {
+  PRIVATE = 'private',
+  PUBLIC = 'public'
+}
+
 export const ProjectState = defineState({
   name: 'ProjectState',
   initial: () => ({
@@ -157,7 +162,7 @@ export const ProjectService = {
     }
   },
 
-  setVisibility: async (id: string, visibility: string) => {
+  setVisibility: async (id: string, visibility: ProjectVisibility) => {
     try {
       await Engine.instance.api.service(projectPath).patch(id, {
         visibility
