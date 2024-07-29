@@ -42,7 +42,7 @@ import {
   PUBLIC_SIGNED_REGEX,
   STATIC_ASSET_REGEX,
   USER_ID_REGEX,
-  VALID_HEIRACHY_SEARCH_REGEX,
+  VALID_HEIRARCHY_SEARCH_REGEX,
   VALID_PROJECT_NAME,
   VALID_SCENE_NAME_REGEX,
   WINDOWS_RESERVED_NAME_REGEX
@@ -90,7 +90,7 @@ describe('regex.test', () => {
   describe('HEIRARCHY_SEARCH_REPLACE_REGEX', () => {
     it('should replace special characters in search', () => {
       const escapeSpecialChars = (input) => {
-        return input.replace(VALID_HEIRACHY_SEARCH_REGEX, '\\$&')
+        return input.replace(VALID_HEIRARCHY_SEARCH_REGEX, '\\$&')
       }
 
       const testCases = [

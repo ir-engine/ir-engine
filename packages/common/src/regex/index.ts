@@ -31,7 +31,7 @@ export const INVALID_FILENAME_REGEX = /[_<>:"/\\|?*\u0000-\u001F]/
 export const INVALID_FILENAME_WHITESPACE_REGEX = /[\s_<>:"/\\|?*\u0000-\u001F]/
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
 export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-]{2,62}[a-zA-Z0-9_\-]$/
-export const VALID_HEIRACHY_SEARCH_REGEX = /[.*+?^${}()|[\]\\]/g
+export const VALID_HEIRARCHY_SEARCH_REGEX = /[.*+?^${}()|[\]\\]/g
 
 /**
  * Matches CSS imports & URLS.
