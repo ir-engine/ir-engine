@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { ImportSettingsState } from '@etherealengine/editor/src/components/assets/ImportSettingsPanel'
 import { LODList, LODVariantDescriptor } from '@etherealengine/editor/src/constants/GLTFPresets'
+import { ImportSettingsState } from '@etherealengine/editor/src/services/ImportSettingsState'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import { t } from 'i18next'
