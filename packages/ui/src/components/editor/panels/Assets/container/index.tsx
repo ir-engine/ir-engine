@@ -24,7 +24,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { clone, debounce, isEmpty } from 'lodash'
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
@@ -415,8 +415,12 @@ const AssetPanel = () => {
   const staticResourcesPagination = useHookstate({ totalPages: -1, currentPage: 0 })
   const assetsPreviewContext = useHookstate({ selectAssetURL: '' })
   const parentCategories = useHookstate<Category[]>([])
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const loadMoreRef = useRef<any>(null)
 
-  const mapCategories = () => categories.set(mapCategoriesHelper(collapsedCategories.value))
+  const mapCategories = useCallback(() => {
+    categories.set(mapCategoriesHelper(collapsedCategories.value))
+  }, [categories, collapsedCategories])
   useEffect(mapCategories, [collapsedCategories])
 
   useEffect(() => {
@@ -538,6 +542,24 @@ const AssetPanel = () => {
     !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }
 
+  const onIntersection = (entries) => {
+    console.log('intersecting...')
+  }
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(onIntersection)
+
+    if (observerRef && loadMoreRef.current) {
+      observer.observe(loadMoreRef.current)
+    }
+
+    return () => {
+      if (observer) {
+        observerRef.current?.disconnect()
+      }
+    }
+  }, [categories])
+
   return (
     <>
       <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
@@ -617,6 +639,7 @@ const AssetPanel = () => {
         <div className="flex h-full w-full flex-col overflow-auto">
           <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
             <ResourceItems />
+            <div ref={loadMoreRef} className="h-10 w-full"></div>
           </div>
           <div className="mx-auto mb-10">
             <TablePagination
