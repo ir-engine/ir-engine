@@ -40,6 +40,7 @@ export const IdentityProviderSeed: IdentityProviderType = {
   token: '',
   accountIdentifier: '',
   oauthToken: '',
+  oauthRefreshToken: '',
   type: '',
   userId: '' as UserID,
   createdAt: '',
