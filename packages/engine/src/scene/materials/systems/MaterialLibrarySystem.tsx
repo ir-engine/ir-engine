@@ -32,6 +32,7 @@ import {
   PresentationSystemGroup,
   QueryReactor,
   removeEntity,
+  setComponent,
   UndefinedEntity,
   useComponent,
   useEntityContext,
@@ -82,11 +83,18 @@ const MeshReactor = () => {
   const entity = useEntityContext()
   const materialComponent = useOptionalComponent(entity, MaterialInstanceComponent)
   const meshComponent = useComponent(entity, MeshComponent)
+
+  const createAndSourceMaterial = (material: Material) => {
+    const materialEntity = createAndAssignMaterial(entity, material)
+    const source = getOptionalComponent(entity, SourceComponent)
+    if (source) setComponent(materialEntity, SourceComponent, source)
+  }
+
   useEffect(() => {
     if (materialComponent) return
     const material = meshComponent.material.value as Material
-    if (!isArray(material)) createAndAssignMaterial(entity, material)
-    else for (const mat of material) createAndAssignMaterial(entity, mat)
+    if (!isArray(material)) createAndSourceMaterial(material)
+    else for (const mat of material) createAndSourceMaterial(mat)
   }, [])
   return null
 }
