@@ -30,9 +30,9 @@ import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { UploadRequestState } from '@etherealengine/engine/src/assets/state/UploadRequestState'
 import { getMutableState, getState, NO_PROXY, useState } from '@etherealengine/hyperflux'
 
-import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { uploadProjectFiles } from '../functions/assetFunctions'
 import { EditorState } from '../services/EditorServices'
+import { ImportSettingsState } from '../services/ImportSettingsState'
 
 export const UploadRequestSystem = defineSystem({
   uuid: 'ee.editor.UploadRequestSystem',
