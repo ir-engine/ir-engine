@@ -631,7 +631,7 @@ export class S3Provider implements StorageProviderInterface {
     const Bucket = this.bucket
     const Key = key
     const Conditions = conditions
-    const client = this.provider as any
+    const client = this.provider
     const result = await createPresignedPost(client, {
       Bucket,
       Conditions,
