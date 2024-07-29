@@ -18,8 +18,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import config from '@etherealengine/common/src/config'
-import { defineState } from '@etherealengine/hyperflux'
-import React, { ReactNode } from 'react'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import React, { ReactNode, useEffect } from 'react'
 import { FiHexagon } from 'react-icons/fi'
 
 export type PrefabShelfItem = {
@@ -143,5 +144,20 @@ export const PrefabShelfState = defineState({
         url: `${config.client.fileServer}/projects/default-project/assets/prefabs/fog.prefab.gltf`,
         category: 'Lookdev'
       }
-    ] as PrefabShelfItem[]
+    ] as PrefabShelfItem[],
+  reactor: () => {
+    const shelfState = useHookstate(getMutableState(PrefabShelfState))
+    return shelfState.value.map((shelfItem) => <ShelfItemReactor key={shelfItem.url} url={shelfItem.url} />)
+  }
 })
+
+const ShelfItemReactor = (props: { key: string; url: string }): JSX.Element | null => {
+  useEffect(() => {
+    AssetLoader.cacheAsset(props.url)
+    return () => {
+      AssetLoader.uncacheAsset(props.url)
+    }
+  }, [])
+
+  return null
+}
