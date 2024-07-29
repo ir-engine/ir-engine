@@ -25,39 +25,35 @@ Ethereal Engine. All Rights Reserved.
 
 import '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import '@etherealengine/engine/src/EngineModule'
-
-import React, { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-
-import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-
+import React, { useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import '../EditorModule'
-
 import EditorContainer from '../components/EditorContainer'
 import { EditorState } from '../services/EditorServices'
 import { ProjectPage } from './ProjectPage'
 
 export const useStudioEditor = () => {
-  const [engineReady, setEngineReady] = useState(false)
+  const engineReady = useHookstate(false)
 
   useEffect(() => {
     getMutableState(EngineState).isEditor.set(true)
     getMutableState(EngineState).isEditing.set(true)
     loadEngineInjection().then(() => {
-      setEngineReady(true)
+      engineReady.set(true)
     })
   }, [])
 
-  return engineReady
+  return engineReady.value
 }
 
 export const EditorPage = () => {
   const [params] = useSearchParams()
-  const { scenePath, projectName } = useMutableState(EditorState)
+  const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
 
-  useEffect(() => {
+  useImmediateEffect(() => {
     const sceneInParams = params.get('scenePath')
     if (sceneInParams) scenePath.set(sceneInParams)
     const projectNameInParams = params.get('project')
@@ -78,7 +74,7 @@ export const EditorPage = () => {
     }
   }, [scenePath])
 
-  if (!scenePath.value && !projectName.value) return <ProjectPage studioPath="/studio-old" />
+  if (!scenePath.value && !projectName.value) return <ProjectPage studioPath="/studio" />
 
   return <EditorContainer />
 }
