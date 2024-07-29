@@ -47,6 +47,7 @@ export const CameraNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.cameraComponent.name')}
       description={t('editor:properties.cameraComponent.description')}
       icon={<CameraNodeEditor.iconComponent />}
+      {...props}
     >
       <InputGroup name="Fov" label={t('editor:properties.cameraComponent.lbl-fov')}>
         <NumericInput
