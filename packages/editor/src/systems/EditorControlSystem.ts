@@ -317,8 +317,9 @@ const execute = () => {
         }
       }
 
-      // Get top most parent entity that isn't the scene entity
+      // Get top most parent entity from the GLTF document
       let selectedParentEntity = GLTFSnapshotState.findTopLevelParent(closestIntersection.entity)
+      // If selectedParentEntity has a parent in a different GLTF document use that as top most parent
       const parent = getOptionalComponent(selectedParentEntity, EntityTreeComponent)?.parentEntity
       if (parent && getComponent(parent, SourceComponent) !== getComponent(selectedParentEntity, SourceComponent)) {
         selectedParentEntity = parent
