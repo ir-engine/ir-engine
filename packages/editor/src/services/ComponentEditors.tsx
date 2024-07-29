@@ -83,7 +83,8 @@ import PersistentAnchorNodeEditor from '@etherealengine/ui/src/components/editor
 import LoopAnimationNodeEditor from '@etherealengine/ui/src/components/editor/properties/animation'
 import AudioAnalysisEditor from '@etherealengine/ui/src/components/editor/properties/audio/analysis'
 import PositionalAudioNodeEditor from '@etherealengine/ui/src/components/editor/properties/audio/positional'
-import CameraPropertiesNodeEditor from '@etherealengine/ui/src/components/editor/properties/camera'
+import CameraNodeEditor from '@etherealengine/ui/src/components/editor/properties/camera'
+import CameraPropertiesNodeEditor from '@etherealengine/ui/src/components/editor/properties/cameraProperties'
 import ColliderComponentEditor from '@etherealengine/ui/src/components/editor/properties/collider'
 import EnvMapBakeNodeEditor from '@etherealengine/ui/src/components/editor/properties/envMapBake'
 import EnvMapEditor from '@etherealengine/ui/src/components/editor/properties/envmap'
@@ -121,6 +122,7 @@ import SkyboxNodeEditor from '@etherealengine/ui/src/components/editor/propertie
 import SpawnPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline'
 
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import PlaylistNodeEditor from '@etherealengine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline/track'
@@ -143,6 +145,7 @@ export const ComponentEditorsState = defineState({
       [RenderSettingsComponent.name]: RenderSettingsEditor,
       [FogSettingsComponent.name]: FogSettingsEditor,
       [CameraSettingsComponent.name]: CameraPropertiesNodeEditor,
+      [CameraComponent.name]: CameraNodeEditor,
       [DirectionalLightComponent.name]: DirectionalLightNodeEditor,
       [HemisphereLightComponent.name]: HemisphereLightNodeEditor,
       [AmbientLightComponent.name]: AmbientLightNodeEditor,

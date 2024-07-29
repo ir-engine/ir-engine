@@ -35,7 +35,6 @@ import {
   getComponent,
   getOptionalComponent,
   removeComponent,
-  removeEntity,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -64,7 +63,7 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { MouseScroll } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -143,7 +142,6 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
         (uuid) => uuid !== getComponent(clickState.placementEntity.value, UUIDComponent)
       )
       EditorControlFunctions.removeObject([clickState.placementEntity.value])
-      removeEntity(clickState.placementEntity.value)
       clickState.placementEntity.set(UndefinedEntity)
       SelectionState.updateSelection(selectedEntities)
     }
@@ -276,6 +274,10 @@ export const ClickPlacementSystem = defineSystem({
     const placementEntity = clickState.placementEntity
     if (!placementEntity) return
 
+    const editorEntity = getState(EditorState).rootEntity
+    const physicsWorld = Physics.getWorld(editorEntity)
+    if (!physicsWorld) return
+
     //@todo: fix type of `typeof GroupComponent`
     const sceneObjects: any[] = []
     const candidates = objectLayerQuery()
@@ -286,8 +288,6 @@ export const ClickPlacementSystem = defineSystem({
     //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const pointerScreenRaycaster = new Raycaster()
-
-    const physicsWorld = getState(PhysicsState).physicsWorld
 
     let intersectEntity: Entity = UndefinedEntity
     let targetIntersection: { point: Vector3; normal: Vector3 } | null = null

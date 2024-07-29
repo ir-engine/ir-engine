@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { Component } from '@etherealengine/ecs'
-import { FeatureFlagsState, VisualScriptComponent } from '@etherealengine/engine'
+import { VisualScriptComponent } from '@etherealengine/engine'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
@@ -47,7 +46,6 @@ import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/com
 import { ReflectionProbeComponent } from '@etherealengine/engine/src/scene/components/ReflectionProbeComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
-import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
@@ -68,6 +66,7 @@ import {
   PointLightComponent,
   SpotLightComponent
 } from '@etherealengine/spatial'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -90,11 +89,11 @@ export const ComponentShelfCategoriesState = defineState({
         ImageComponent
       ],
       'Scene Composition': [
+        CameraComponent,
         PrimitiveGeometryComponent,
         GroundPlaneComponent,
         GroupComponent,
-        VariantComponent,
-        SceneDynamicLoadTagComponent
+        VariantComponent
       ],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
       Interaction: [
@@ -126,9 +125,7 @@ export const ComponentShelfCategoriesState = defineState({
       Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
       Visual: [
         EnvMapBakeComponent,
-        ...(FeatureFlagsState.enabled(FeatureFlags.Studio.ComponentShelfCategories.ScenePreviewCameraComponent)
-          ? [ScenePreviewCameraComponent]
-          : []),
+        ScenePreviewCameraComponent,
         SkyboxComponent,
         SplineTrackComponent,
         SplineComponent,

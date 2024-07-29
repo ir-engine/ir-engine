@@ -241,12 +241,6 @@ export async function takeScreenshot(
 
   const canvas = getResizedCanvas(renderer.domElement, width, height)
 
-  const imageBlob = await getCanvasBlob(
-    canvas,
-    format === 'jpeg' ? 'image/jpeg' : 'image/png',
-    format === 'jpeg' ? 0.9 : 1
-  )
-
   // restore
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   camera.layers.mask = prevLayersMask
@@ -257,6 +251,12 @@ export async function takeScreenshot(
   // Restoring previous state
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
+
+  const imageBlob = await getCanvasBlob(
+    canvas,
+    format === 'jpeg' ? 'image/jpeg' : 'image/png',
+    format === 'jpeg' ? 0.9 : 1
+  )
 
   return imageBlob
 }

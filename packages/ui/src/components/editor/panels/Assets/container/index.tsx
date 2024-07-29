@@ -23,11 +23,13 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { clone, debounce, isEmpty, last } from 'lodash'
+import { clone, debounce, isEmpty } from 'lodash'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import {
   StaticResourceQuery,
   StaticResourceType,
@@ -40,7 +42,7 @@ import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/as
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import {
@@ -61,6 +63,7 @@ import { TablePagination } from '../../../../../primitives/tailwind/Table'
 import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
+import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
 import { FileIcon } from '../../Files/icon'
 
 type Category = {
@@ -71,43 +74,63 @@ type Category = {
   depth: number
 }
 
-const generateAssetsBreadcrumb = (categories: Category[], target: string) => {
-  let path: string[] = []
-
-  function findCategory(category: any, currentPath: string[]) {
-    for (const key in category) {
+const generateParentBreadcrumbCategories = (categories: readonly Category[], target: string) => {
+  const findNestingCategories = (nestedCategory: Record<string, any>, parentCategory: string): Category[] => {
+    for (const key in nestedCategory) {
       if (key === target) {
-        path = currentPath.concat(key)
-        return true
-      }
-      if (
-        typeof category[key] === 'object' &&
-        category[key] !== null &&
-        findCategory(category[key], currentPath.concat(key))
-      ) {
-        return true
+        return [categories.find((c) => c.name === parentCategory)!]
+      } else if (typeof nestedCategory[key] === 'object' && nestedCategory[key] !== null) {
+        const nestedCategories = findNestingCategories(nestedCategory[key], key)
+        if (nestedCategories.length) {
+          return [categories.find((c) => c.name === parentCategory)!, ...nestedCategories]
+        }
       }
     }
-    return false
+    return []
   }
 
   for (const category of categories) {
-    if (findCategory(category.object, [category.name])) {
-      return path
+    const parentCategories = findNestingCategories(category.object, category.name)
+    if (parentCategories.length) {
+      return parentCategories
     }
   }
 
-  return categories.filter(({ name }) => name === target).map(({ name }) => name)
+  return []
+}
+
+function mapCategoriesHelper(collapsedCategories: { [key: string]: boolean }) {
+  const result: Category[] = []
+  const generateCategories = (node: object, depth = 0) => {
+    for (const key in node) {
+      const isLeaf = Object.keys(node[key]).length === 0
+      const category: Category = {
+        name: key,
+        object: node[key],
+        collapsed: collapsedCategories[key] ?? true,
+        depth,
+        isLeaf
+      }
+      result.push(category)
+      if (typeof node[key] === 'object' && !category.collapsed) {
+        generateCategories(node[key], depth + 1)
+      }
+    }
+  }
+  generateCategories(getState(AssetsPanelCategories))
+  return result
 }
 
 const ResourceFile = (props: {
   resource: StaticResourceType
   selected: boolean
   onClick: (props: AssetSelectionChangePropsType) => void
+  onChange: () => void
 }) => {
   const { t } = useTranslation()
 
-  const { resource, selected, onClick } = props
+  const userID = useMutableState(AuthState).user.id.value
+  const { resource, selected, onClick, onChange } = props
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -124,7 +147,9 @@ const ResourceFile = (props: {
   const [_, drag, preview] = useDrag(() => ({
     type: assetType,
     item: {
-      url: resource.url
+      url: resource.url,
+      type: assetType,
+      multiple: false
     },
     multiple: false
   }))
@@ -168,6 +193,39 @@ const ResourceFile = (props: {
               { label: t('editor:assetMetadata.tags'), value: `${resource.tags || 'none'}` }
             ]}
           />
+          {!!userID && userID === resource.userId && (
+            <Button
+              variant="outline"
+              size="small"
+              fullWidth
+              onClick={() => {
+                PopoverState.showPopupover(
+                  <DeleteFileModal
+                    files={[
+                      {
+                        key: resource.key,
+                        path: resource.url,
+                        name: resource.key,
+                        fullName: name,
+                        thumbnailURL: resource.thumbnailURL,
+                        url: resource.url,
+                        type: assetType,
+                        isFolder: false
+                      }
+                    ]}
+                    onComplete={(err?: unknown) => {
+                      if (!err) {
+                        onChange()
+                      }
+                    }}
+                  />
+                )
+                setAnchorEvent(undefined)
+              }}
+            >
+              {t('editor:layout.assetGrid.deleteAsset')}
+            </Button>
+          )}
           {/* TODO: add more actions (compressing images/models, editing tags, etc) here as desired  */}
         </div>
       </ContextMenu>
@@ -270,18 +328,29 @@ const AssetCategory = (props: {
   )
 }
 
-type AssetsBreadcrumbProps = {
-  path: string
-}
-export function AssetsBreadcrumb({ path }: AssetsBreadcrumbProps) {
+export function AssetsBreadcrumb({
+  parentCategories,
+  selectedCategory,
+  onSelectCategory
+}: {
+  parentCategories: Category[]
+  selectedCategory: Category | null
+  onSelectCategory: (c: Category) => void
+}) {
   return (
-    <div className="flex h-[28px] items-center gap-2 rounded-[4px] border border-[#42454D] bg-[#141619] px-2 ">
+    <div className="flex h-[28px] items-center gap-2 rounded-[4px] border border-[#42454D] bg-[#141619] px-2">
       <HiOutlineFolder className="text-xs text-[#A3A3A3]" />
-      <span
-        className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]"
-        style={{ direction: 'rtl' }}
-      >
-        {path}
+      {parentCategories.map((category) => (
+        <span
+          key={category.name}
+          className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline"
+          onClick={() => onSelectCategory(category)}
+        >
+          {category.name + ' > '}
+        </span>
+      ))}
+      <span className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]">
+        {selectedCategory?.name}
       </span>
     </div>
   )
@@ -342,45 +411,25 @@ const AssetPanel = () => {
   const loading = useHookstate(false)
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
   const searchText = useHookstate('')
-  const breadcrumbPath = useHookstate('')
   const originalPath = useMutableState(EditorState).projectName.value
   const staticResourcesPagination = useHookstate({ totalPages: -1, currentPage: 0 })
   const assetsPreviewContext = useHookstate({ selectAssetURL: '' })
+  const parentCategories = useHookstate<Category[]>([])
 
-  const mapCategories = () => {
-    const result: Category[] = []
-    const generateCategories = (node: object, depth = 0) => {
-      for (const key in node) {
-        const isLeaf = Object.keys(node[key]).length === 0
-        const category: Category = {
-          name: key,
-          object: node[key],
-          collapsed: collapsedCategories[key].value ?? true,
-          depth,
-          isLeaf
-        }
-        result.push(category)
-        if (typeof node[key] === 'object' && !category.collapsed) {
-          generateCategories(node[key], depth + 1)
-        }
-      }
-    }
-    generateCategories(getState(AssetsPanelCategories))
-    categories.set(result)
-  }
-
+  const mapCategories = () => categories.set(mapCategoriesHelper(collapsedCategories.value))
   useEffect(mapCategories, [collapsedCategories])
 
   useEffect(() => {
-    const assetsBreadcrumb = generateAssetsBreadcrumb(
-      categories.value as Category[],
-      selectedCategory.value?.name as string
-    )?.join(' > ')
-    breadcrumbPath.set(assetsBreadcrumb)
+    if (!selectedCategory.value?.name) return
+    const parentCategoryBreadcrumbs = generateParentBreadcrumbCategories(categories.value, selectedCategory.value.name)
+    parentCategories.set(parentCategoryBreadcrumbs)
   }, [categories, selectedCategory])
 
-  useEffect(() => {
-    const staticResourcesFindApi = () => {
+  const staticResourcesFindApi = () => {
+    loading.set(true)
+    searchTimeoutCancelRef.current?.()
+
+    const debouncedSearchQuery = debounce(() => {
       const tags = selectedCategory.value
         ? [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
         : []
@@ -422,17 +471,14 @@ const AssetPanel = () => {
         .then(() => {
           loading.set(false)
         })
-    }
+    }, 500)
 
-    loading.set(true)
-
-    searchTimeoutCancelRef.current?.()
-    const debouncedSearchQuery = debounce(staticResourcesFindApi, 500)
     debouncedSearchQuery()
-
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
+  }
 
-    return () => searchTimeoutCancelRef.current?.()
+  useEffect(() => {
+    staticResourcesFindApi()
   }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
 
   const ResourceItems = () => {
@@ -461,6 +507,7 @@ const AssetPanel = () => {
                   assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
                   ClickPlacementState.setSelectedAsset(props.resourceUrl)
                 }}
+                onChange={() => staticResourcesFindApi()}
               />
             ))}
           </>
@@ -470,33 +517,24 @@ const AssetPanel = () => {
   }
 
   const handleBack = () => {
-    if (isEmpty(breadcrumbPath.value)) {
-      return
-    }
-
-    const paths: string[] = breadcrumbPath.value
-      .split('>')
-      .slice(0, -1)
-      .map((item) => item.trim())
-
-    if (isEmpty(paths)) {
+    if (!parentCategories.length) {
       selectedCategory.set(null)
       collapsedCategories.set({})
       return
     }
-    const selected = categories?.find((category) => category.name.value === last(paths))
-    selectedCategory.set(clone(selected?.value) as Category)
+    handleSelectCategory(parentCategories.get(NO_PROXY).at(-1)!)
   }
 
   const handleRefresh = () => {
     categories.set([])
-    selectedCategory.set(null)
     collapsedCategories.set({})
+    staticResourcesFindApi()
     mapCategories()
   }
 
   const handleSelectCategory = (category: Category) => {
     selectedCategory.set(clone(category))
+    staticResourcesPagination.currentPage.set(0)
     !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }
 
@@ -530,7 +568,11 @@ const AssetPanel = () => {
 
         <div className="align-center flex h-7 flex-1 justify-center gap-2 pr-2">
           <div className="h-full flex-1">
-            <AssetsBreadcrumb path={breadcrumbPath.value} />
+            <AssetsBreadcrumb
+              parentCategories={parentCategories.get(NO_PROXY) as Category[]}
+              selectedCategory={selectedCategory.value}
+              onSelectCategory={handleSelectCategory}
+            />
           </div>
           <Input
             placeholder={t('editor:layout.scene-assets.search-placeholder')}

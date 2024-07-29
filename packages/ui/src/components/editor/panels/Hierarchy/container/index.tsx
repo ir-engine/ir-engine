@@ -43,6 +43,7 @@ import { Engine, Entity, EntityUUID, UUIDComponent, entityExists } from '@ethere
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { VALID_HEIRACHY_SEARCH_REGEX } from '@etherealengine/common/src/regex'
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
 import CreatePrefabPanel from '@etherealengine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
@@ -59,6 +60,7 @@ import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { GLTF } from '@gltf-transform/core'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
@@ -78,6 +80,20 @@ const toValidHierarchyNodeName = (entity: Entity, name: string): string => {
   name = name.trim()
   if (getComponent(entity, NameComponent) === name) return ''
   return name
+}
+
+const didHierarchyChange = (prev: HierarchyTreeNodeType[], curr: HierarchyTreeNodeType[]) => {
+  if (prev.length !== curr.length) return true
+
+  for (let i = 0; i < prev.length; i++) {
+    const prevNode = prev[i]
+    const currNode = curr[i]
+    for (const key in prevNode) {
+      if (prevNode[key] !== currNode[key]) return true
+    }
+  }
+
+  return false
 }
 
 /**
@@ -163,11 +179,16 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   const searchedNodes: HierarchyTreeNodeType[] = []
   if (searchHierarchy.value.length > 0) {
-    const condition = new RegExp(searchHierarchy.value.toLowerCase())
-    entityHierarchy.value.forEach((node) => {
-      if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
-        searchedNodes.push(node)
-    })
+    try {
+      const adjustedSearchValue = searchHierarchy.value.replace(VALID_HEIRACHY_SEARCH_REGEX, '\\$&')
+      const condition = new RegExp(adjustedSearchValue, 'i') // 'i' flag for case-insensitive search
+      entityHierarchy.value.forEach((node) => {
+        if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
+          searchedNodes.push(node)
+      })
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   useEffect(() => {
@@ -177,7 +198,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   }, [])
 
   useEffect(() => {
-    entityHierarchy.set(gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[]))
+    const hierarchy = gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[])
+    if (didHierarchyChange(entityHierarchy.value as HierarchyTreeNodeType[], hierarchy)) entityHierarchy.set(hierarchy)
   }, [expandedNodes, index, gltfSnapshot, gltfState, selectionState.selectedEntities])
 
   /* Expand & Collapse Functions */
@@ -233,7 +255,10 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
       if (e.detail === 1) {
         // Exit click placement mode when anything in the hierarchy is selected
         getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
+        // Deselect material entity since we've just clicked on a hierarchy node
+        getMutableState(MaterialSelectionState).selectedMaterial.set(null)
         if (e.ctrlKey) {
+          if (entity === rootEntity) return
           EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
         } else if (e.shiftKey && prevClickedNode) {
           const startIndex = entityHierarchy.value.findIndex((n) => n.entity === prevClickedNode)
@@ -272,6 +297,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
       switch (e.key) {
         case 'ArrowDown': {
           e.preventDefault()
+          if (entity === rootEntity) return
 
           const nextNode = nodeIndex !== -1 && entityHierarchy.value[nodeIndex + 1]
           if (!nextNode) return
@@ -289,6 +315,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
         case 'ArrowUp': {
           e.preventDefault()
+          if (entity === rootEntity) return
 
           const prevNode = nodeIndex !== -1 && entityHierarchy.value[nodeIndex - 1]
           if (!prevNode) return
@@ -319,6 +346,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           break
 
         case 'Enter':
+          if (entity === rootEntity) return
           if (e.shiftKey) {
             EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
           } else {
@@ -328,6 +356,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
         case 'Delete':
         case 'Backspace':
+          if (entity === rootEntity) return
           if (selectedNodes && !renamingNode) onDeleteNode(entity)
           break
       }
@@ -488,6 +517,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     </FixedSizeList>
   )
 
+  const [isAddEntityMenuOpen, setIsAddEntityMenuOpen] = useState(false)
+
   return (
     <>
       <div className="flex items-center gap-2 bg-theme-surface-main">
@@ -502,6 +533,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         />
         <Popup
           keepInside
+          open={isAddEntityMenuOpen}
+          onClose={() => setIsAddEntityMenuOpen(false)}
           trigger={
             <Button
               startIcon={<HiOutlinePlusCircle />}
@@ -510,13 +543,14 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
               className="ml-auto w-32 text-nowrap bg-theme-highlight px-2 py-3 text-white"
               size="small"
               textContainerClassName="mx-0"
+              onClick={() => setIsAddEntityMenuOpen(true)}
             >
               {t('editor:hierarchy.lbl-addEntity')}
             </Button>
           }
         >
-          <div className="h-[600px] w-72 overflow-y-auto">
-            <ElementList type="prefabs" />
+          <div className="h-[600px] w-96 overflow-y-auto">
+            <ElementList type="prefabs" onSelect={() => setIsAddEntityMenuOpen(false)} />
           </div>
         </Popup>
       </div>
@@ -625,12 +659,7 @@ export default function HierarchyPanel() {
 
     if (index === undefined) return null
     return (
-      <HierarchyPanelContents
-        key={`${sourceID}-${index.value}`}
-        rootEntityUUID={rootEntityUUID}
-        sceneURL={sourceID}
-        index={index.value}
-      />
+      <HierarchyPanelContents key={sourceID} rootEntityUUID={rootEntityUUID} sceneURL={sourceID} index={index.value} />
     )
   }
 
