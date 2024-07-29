@@ -29,7 +29,7 @@ import { FixedSizeList } from 'react-window'
 
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { Engine, EntityUUID, getComponent, useQuery, UUIDComponent } from '@etherealengine/ecs'
+import { Engine, EntityUUID, getComponent, getOptionalComponent, useQuery, UUIDComponent } from '@etherealengine/ecs'
 import { ImportSettingsState } from '@etherealengine/editor/src/components/assets/ImportSettingsPanel'
 import { uploadProjectFiles } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
@@ -41,11 +41,12 @@ import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materia
 import { getMutableState, getState, useHookstate, useMutableState, useState } from '@etherealengine/hyperflux'
 import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { useTranslation } from 'react-i18next'
+import { HiFilter, HiGlobeAlt } from 'react-icons/hi'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
 import StringInput from '../../../input/String'
 import { MaterialPreviewPanel } from '../../preview/material'
-import MaterialLibraryEntry, { MaterialLibraryEntryType } from '../node'
+import MaterialLibraryEntry from '../node'
 
 export default function MaterialLibraryPanel() {
   const { t } = useTranslation()
@@ -53,35 +54,39 @@ export default function MaterialLibraryPanel() {
   const materialPreviewPanelRef = React.useRef()
 
   const materialQuery = useQuery([MaterialStateComponent])
-  const nodes = useHookstate([] as MaterialLibraryEntryType[])
+  const nodes = useHookstate([] as string[])
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
   const selectedMaterial = useMutableState(MaterialSelectionState).selectedMaterial
   const hasSelectedMaterial = useState(false)
+  const useSelected = useState(false)
 
   useEffect(() => {
-    const materials = selected.value.length
-      ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selected.value[0]))
-      : materialQuery
-          .map((entity) => getComponent(entity, UUIDComponent))
-          .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterial)
-    const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
-      const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
-      return [
-        {
-          uuid: uuid,
-          path: source
-        }
-      ]
-    })
-    nodes.set(result)
-  }, [materialQuery.length, selected])
+    const materials =
+      selected.value.length && useSelected.value
+        ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selected.value[0]))
+        : materialQuery
+            .map((entity) => getComponent(entity, UUIDComponent))
+            .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterial)
+
+    const materialsBySource = {} as Record<string, EntityUUID[]>
+    for (const uuid of materials) {
+      const source = getOptionalComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent) ?? ''
+      materialsBySource[source] = materialsBySource[source] ? [...materialsBySource[source], uuid] : [uuid]
+    }
+    const materialsBySourceArray = Object.entries(materialsBySource)
+    const flattenedMaterials = materialsBySourceArray.reduce(
+      (acc: (EntityUUID | string)[], [source, uuids]) => acc.concat([source], uuids),
+      []
+    )
+    nodes.set(flattenedMaterials)
+  }, [materialQuery.length, selected, useSelected])
 
   useEffect(() => {
     hasSelectedMaterial.set(selectedMaterial.value !== null)
   }, [selectedMaterial.value])
 
-  const onClick = (e: MouseEvent, node: MaterialLibraryEntryType) => {
-    getMutableState(MaterialSelectionState).selectedMaterial.set(node.uuid)
+  const onClick = (e: MouseEvent, node) => {
+    getMutableState(MaterialSelectionState).selectedMaterial.set(node)
   }
 
   const MaterialList = ({ height, width }) => (
@@ -107,79 +112,58 @@ export default function MaterialLibraryPanel() {
         <div className="rounded-lg bg-zinc-800 p-2">
           <MaterialPreviewPanel ref={materialPreviewPanelRef} />
         </div>
-        <div className="w-full">
-          <InputGroup name="File Path" label="File Path">
+        <div className="mt-4 flex h-5 items-center gap-2">
+          <InputGroup name="File Path" label="Save to" className="flex-grow">
             <StringInput value={srcPath.value} onChange={srcPath.set} />
           </InputGroup>
-          <div className="flex-between flex h-7 gap-3">
-            <Button
-              className="w-full text-xs"
-              variant="outline"
-              onClick={async () => {
-                const projectName = getState(EditorState).projectName!
-                const materialUUID = getState(MaterialSelectionState).selectedMaterial ?? ('' as EntityUUID)
-                let libraryName = srcPath.value
-                if (!libraryName.endsWith('.material.gltf')) {
-                  libraryName += '.material.gltf'
-                }
-                const relativePath = pathJoin('assets', libraryName)
-                const gltf = (await exportMaterialsGLTF([UUIDComponent.getEntityByUUID(materialUUID)], {
-                  binary: false,
-                  relativePath
-                })!) as { [key: string]: any }
-                const blob = [JSON.stringify(gltf)]
-                const file = new File(blob, libraryName)
-                const importSettings = getState(ImportSettingsState)
-                const urls = await Promise.all(
-                  uploadProjectFiles(projectName, [file], [`projects/${projectName}${importSettings.importFolder}`])
-                    .promises
-                )
-                const adjustedLibraryName = libraryName.length > 0 ? libraryName.substring(1) : ''
-                const key = `projects/${projectName}${importSettings.importFolder}${adjustedLibraryName}`
-                const resources = await Engine.instance.api.service(staticResourcePath).find({
-                  query: { key: key }
-                })
-                if (resources.data.length === 0) {
-                  throw new Error('User not found')
-                }
-                const resource = resources.data[0]
-                const tags = ['Material']
-                await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags })
-                console.log('exported material data to ', ...urls)
-              }}
-            >
-              Save
-            </Button>
-
-            {/* 
-            // hiding the new and delete buttons for now till the we can do a full rework of materials as assets after phase 1 
-
-            <Button
-              className="w-full text-xs"
-              onClick={() => {
-                const selectedEntities = getState(SelectionState).selectedEntities
-                createAndAssignMaterial(
-                  UUIDComponent.getEntityByUUID(selectedEntities[selectedEntities.length - 1] ?? UndefinedEntity),
-                  new MeshBasicMaterial({ name: 'New Material' })
-                )
-              }}
-            >
-              New
-            </Button>
-            
-            {hasSelectedMaterial.value && (
-              <Button
-                className="w-full text-xs"
-                onClick={() => {
-                  const entity = UUIDComponent.getEntityByUUID(selectedMaterial.value as EntityUUID)
-                  selectedMaterial.set(null)
-                  removeEntity(entity)
-                }}
-              >
-                Delete
-              </Button>
-            )} */}
-          </div>
+          <Button
+            className="flex w-5 flex-grow items-center justify-center text-xs"
+            variant="outline"
+            onClick={async () => {
+              const projectName = getState(EditorState).projectName!
+              const materialUUID = getState(MaterialSelectionState).selectedMaterial ?? ('' as EntityUUID)
+              let libraryName = srcPath.value
+              if (!libraryName.endsWith('.material.gltf')) {
+                libraryName += '.material.gltf'
+              }
+              const relativePath = pathJoin('assets', libraryName)
+              const gltf = (await exportMaterialsGLTF([UUIDComponent.getEntityByUUID(materialUUID)], {
+                binary: false,
+                relativePath
+              })!) as { [key: string]: any }
+              const blob = [JSON.stringify(gltf)]
+              const file = new File(blob, libraryName)
+              const importSettings = getState(ImportSettingsState)
+              const urls = await Promise.all(
+                uploadProjectFiles(projectName, [file], [`projects/${projectName}${importSettings.importFolder}`])
+                  .promises
+              )
+              const adjustedLibraryName = libraryName.length > 0 ? libraryName.substring(1) : ''
+              const key = `projects/${projectName}${importSettings.importFolder}${adjustedLibraryName}`
+              const resources = await Engine.instance.api.service(staticResourcePath).find({
+                query: { key: key }
+              })
+              if (resources.data.length === 0) {
+                throw new Error('User not found')
+              }
+              const resource = resources.data[0]
+              const tags = ['Material']
+              await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags })
+              console.log('exported material data to ', ...urls)
+            }}
+          >
+            Save
+          </Button>
+          <div className="mx-2 h-full border-l"></div>
+          <Button
+            className="flex w-10 flex-grow items-center justify-center text-xs"
+            variant="outline"
+            onClick={() => {
+              useSelected.set(!useSelected.value)
+            }}
+          >
+            {useSelected.value ? <HiFilter /> : <HiGlobeAlt />}
+          </Button>
         </div>
       </div>
       <div id="material-panel" className="h-full overflow-hidden">
