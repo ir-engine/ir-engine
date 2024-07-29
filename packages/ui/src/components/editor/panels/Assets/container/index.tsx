@@ -414,7 +414,7 @@ const AssetPanel = () => {
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
   const searchText = useHookstate('')
   const originalPath = useMutableState(EditorState).projectName.value
-  const staticResourcesPagination = useHookstate({ totalPages: -1, currentPage: 0 })
+  const staticResourcesPagination = useHookstate({ totalPages: 0, currentPage: 0 })
   const assetsPreviewContext = useHookstate({ selectAssetURL: '' })
   const parentCategories = useHookstate<Category[]>([])
 
@@ -443,7 +443,11 @@ const AssetPanel = () => {
         ? [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
         : []
 
-      const offset = (staticResourcesPagination.currentPage.value - 1) * limit
+      const page =
+        staticResourcesPagination.currentPage.value === 0
+          ? staticResourcesPagination.currentPage.value
+          : staticResourcesPagination.currentPage.value - 1
+      const offset = page * limit
       const query = {
         key: {
           $like: `%${searchText.value}%`
@@ -476,7 +480,11 @@ const AssetPanel = () => {
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
-          searchedStaticResources.merge(resources.data)
+          if (staticResourcesPagination.value.currentPage > 0) {
+            searchedStaticResources.merge(resources.data)
+          } else {
+            searchedStaticResources.set(resources.data)
+          }
           staticResourcesPagination.merge({ totalPages: Math.ceil(resources.total / 10) })
         })
     }, 500)
@@ -487,7 +495,7 @@ const AssetPanel = () => {
 
   useEffect(() => {
     staticResourcesFindApi()
-  }, [selectedCategory, searchText])
+  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
 
   const ResourceItems = () => {
     if (loading.value) {
