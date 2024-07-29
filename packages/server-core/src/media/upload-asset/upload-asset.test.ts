@@ -49,13 +49,13 @@ describe('upload-asset', () => {
       [url]: {
         contentType: 'application/json',
         response: fs.readFileSync(
-          path.join(appRootPath.path, '/packages/projects/default-project/public/scenes/default.gltf')
+          path.join(appRootPath.path, '/packages/projects/@etherealengine/default-project/public/scenes/default.gltf')
         )
       },
       [url2]: {
         contentType: 'audio/mpeg',
         response: fs.readFileSync(
-          path.join(appRootPath.path, '/packages/projects/default-project/assets/SampleAudio.mp3')
+          path.join(appRootPath.path, '/packages/projects/@etherealengine/default-project/assets/SampleAudio.mp3')
         )
       }
     })

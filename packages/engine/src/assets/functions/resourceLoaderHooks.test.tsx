@@ -37,9 +37,9 @@ import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { useGLTF, useTexture } from './resourceLoaderHooks'
 
 describe('ResourceLoaderHooks', () => {
-  const gltfURL = '/packages/projects/default-project/assets/collisioncube.glb'
-  const gltfURL2 = '/packages/projects/default-project/assets/portal_frame.glb'
-  const texURL = '/packages/projects/default-project/assets/drop-shadow.png'
+  const gltfURL = '/packages/projects/@etherealengine/default-project/assets/collisioncube.glb'
+  const gltfURL2 = '/packages/projects/@etherealengine/default-project/assets/portal_frame.glb'
+  const texURL = '/packages/projects/@etherealengine/default-project/assets/drop-shadow.png'
 
   overrideFileLoaderLoad()
 

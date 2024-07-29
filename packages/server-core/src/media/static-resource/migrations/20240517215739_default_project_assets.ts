@@ -45,14 +45,20 @@ export async function up(knex: Knex): Promise<void> {
       for (const asset of assets) {
         if (
           asset.assetURL.startsWith('projects/default-project') &&
-          !asset.assetURL.startsWith('projects/default-project/public/scenes')
+          !asset.assetURL.startsWith('projects/@etherealengine/default-project/public/scenes')
         ) {
           await knex(assetPath)
             .where({ id: asset.id })
             .update({
-              assetURL: asset.assetURL.replace('projects/default-project', 'projects/default-project/public/scenes'),
+              assetURL: asset.assetURL.replace(
+                'projects/default-project',
+                'projects/@etherealengine/default-project/public/scenes'
+              ),
               thumbnailURL: asset.thumbnailURL
-                ? asset.thumbnailURL.replace('projects/default-project', 'projects/default-project/public/scenes')
+                ? asset.thumbnailURL.replace(
+                    'projects/default-project',
+                    'projects/@etherealengine/default-project/public/scenes'
+                  )
                 : null
             })
         }

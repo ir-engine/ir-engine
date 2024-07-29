@@ -51,7 +51,7 @@ export const PrefabShelfState = defineState({
       },
       {
         name: 'Ground Plane',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/ground-plane.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/ground-plane.prefab.gltf`,
         category: 'Geo'
       },
       {
@@ -110,22 +110,22 @@ export const PrefabShelfState = defineState({
       },
       {
         name: 'Title',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/title.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/title.prefab.gltf`,
         category: 'Text'
       },
       {
         name: 'Body',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/body.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/body.prefab.gltf`,
         category: 'Text'
       },
       {
         name: 'Image',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/image.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/image.prefab.gltf`,
         category: 'Image'
       },
       {
         name: 'Video',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/video.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/video.prefab.gltf`,
         category: 'Video'
       },
       {

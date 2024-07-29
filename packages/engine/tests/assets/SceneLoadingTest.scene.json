@@ -19,7 +19,7 @@
         {
           "name": "EE_model",
           "props": {
-            "src": "/packages/projects/default-project/assets/collisioncube.glb",
+            "src": "/packages/projects/@etherealengine/default-project/assets/collisioncube.glb",
             "cameraOcclusion": true,
             "convertToVRM": false
           }

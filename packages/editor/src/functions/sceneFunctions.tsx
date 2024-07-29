@@ -163,7 +163,7 @@ export const saveSceneGLTF = async (
 
 export const createScene = async (
   projectName: string,
-  templateURL = config.client.fileServer + '/projects/default-project/public/scenes/default.gltf'
+  templateURL = config.client.fileServer + '/projects/@etherealengine/default-project/public/scenes/default.gltf'
 ) => {
   const sceneData = await Engine.instance.api.service(fileBrowserPath).patch(null, {
     project: projectName,
