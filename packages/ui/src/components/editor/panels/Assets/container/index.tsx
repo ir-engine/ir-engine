@@ -418,8 +418,6 @@ const AssetPanel = () => {
   const assetsPreviewContext = useHookstate({ selectAssetURL: '' })
   const parentCategories = useHookstate<Category[]>([])
 
-  const offset = categories.value.length
-
   const fetchMoreData = () => {
     if (loading.value) return
     staticResourcesPagination.currentPage.set(staticResourcesPagination.currentPage.value + 1)
@@ -438,7 +436,6 @@ const AssetPanel = () => {
   }, [categories, selectedCategory])
 
   const staticResourcesFindApi = () => {
-    loading.set(true)
     searchTimeoutCancelRef.current?.()
 
     const debouncedSearchQuery = debounce(() => {
@@ -446,6 +443,7 @@ const AssetPanel = () => {
         ? [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
         : []
 
+      const offset = (staticResourcesPagination.currentPage.value - 1) * limit
       const query = {
         key: {
           $like: `%${searchText.value}%`
@@ -480,9 +478,6 @@ const AssetPanel = () => {
         .then((resources) => {
           searchedStaticResources.merge(resources.data)
           staticResourcesPagination.merge({ totalPages: Math.ceil(resources.total / 10) })
-        })
-        .then(() => {
-          loading.set(false)
         })
     }, 500)
 
