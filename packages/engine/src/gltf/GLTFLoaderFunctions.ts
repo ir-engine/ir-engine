@@ -31,6 +31,7 @@ import {
   Color,
   DoubleSide,
   ImageBitmapLoader,
+  ImageLoader,
   InterleavedBuffer,
   InterleavedBufferAttribute,
   LinearFilter,
@@ -79,7 +80,7 @@ const loadAccessor = (options: GLTFParserOptions, json: GLTF.IGLTF, accessorInde
     return Promise.resolve(new BufferAttribute(array, itemSize, normalized))
   }
 
-  const pendingBufferViews = [] as Array<Promise<ArrayBuffer> | null> // todo
+  const pendingBufferViews = [] as Array<Promise<ArrayBuffer> | null>
 
   if (accessorDef.bufferView !== undefined) {
     pendingBufferViews.push(GLTFLoaderFunctions.loadBufferView(options, json, accessorDef.bufferView))
@@ -318,17 +319,17 @@ const loadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialInde
   const materialParams = {} as any // todo
   const materialExtensions = materialDef.extensions || {}
 
-  const pending = [] as any[] // todo
+  const pending = [] as Array<Promise<any>>
 
   if (!materialExtensions[EXTENSIONS.EE_MATERIAL] && materialExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]) {
-    /** @todo */
-    // const kmuExtension = extensions[EXTENSIONS.KHR_MATERIALS_UNLIT]
-    // materialType = kmuExtension.getMaterialType()
-    // pending.push(kmuExtension.extendParams(materialParams, materialDef, parser))
+    const kmuExtension = GLTFExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]
+    materialType = kmuExtension.getMaterialType()
+    pending.push(kmuExtension.extendParams(options, json, materialParams, materialDef))
   } else {
     // Specification:
     // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#metallic-roughness-material
 
+    /** @todo move this to a base plugin */
     const metallicRoughness = materialDef.pbrMetallicRoughness || {}
 
     materialParams.color = new Color(1.0, 1.0, 1.0)
@@ -380,6 +381,10 @@ const loadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialInde
 
     /** @todo expose 'getMaterialType' API */
     materialType = MeshStandardMaterial
+
+    // materialType = this._invokeOne(function (ext) {
+    //   return ext.getMaterialType && ext.getMaterialType(materialIndex)
+    // })
 
     /** @todo expose API */
     // pending.push(
@@ -619,7 +624,12 @@ const loadTextureImage = (
 
 const sourceCache = {} as any // todo
 
-const loadImageSource = (options: GLTFParserOptions, json: GLTF.IGLTF, sourceIndex, loader) => {
+const loadImageSource = (
+  options: GLTFParserOptions,
+  json: GLTF.IGLTF,
+  sourceIndex: number,
+  loader: ImageLoader | ImageBitmapLoader
+) => {
   // eslint-disable-next-line @typescript-eslint/no-this-alias
 
   if (sourceCache[sourceIndex] !== undefined) {
@@ -651,7 +661,7 @@ const loadImageSource = (options: GLTFParserOptions, json: GLTF.IGLTF, sourceInd
       return new Promise<any>(function (resolve, reject) {
         let onLoad = resolve
 
-        if (loader.isImageBitmapLoader === true) {
+        if ((loader as ImageBitmapLoader).isImageBitmapLoader === true) {
           onLoad = function (imageBitmap) {
             const texture = new Texture(imageBitmap)
             texture.needsUpdate = true
@@ -663,7 +673,7 @@ const loadImageSource = (options: GLTFParserOptions, json: GLTF.IGLTF, sourceInd
         loader.load(LoaderUtils.resolveURL(sourceURI, options.path), onLoad, undefined, reject)
       })
     })
-    .then(function (texture) {
+    .then(function (texture: Texture) {
       // Clean up resources and configure Texture.
 
       if (isObjectURL === true) {

@@ -25,14 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 import { GLTF } from '@gltf-transform/core'
-import { BufferGeometry, NormalBufferAttributes } from 'three'
+import {
+  BufferGeometry,
+  Color,
+  LinearSRGBColorSpace,
+  MeshBasicMaterial,
+  NormalBufferAttributes,
+  SRGBColorSpace
+} from 'three'
 import { ATTRIBUTES, WEBGL_COMPONENT_TYPES } from '../assets/loaders/gltf/GLTFConstants'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 
-const khr_draco_mesh_compression = {
+const KHR_DRACO_MESH_COMPRESSION = {
   decodePrimitive(options: GLTFParserOptions, json: GLTF.IGLTF, primitive: GLTF.IMeshPrimitive) {
     const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
     const dracoMeshCompressionExtension = primitive.extensions![EXTENSIONS.KHR_DRACO_MESH_COMPRESSION] as any
@@ -83,6 +90,46 @@ const khr_draco_mesh_compression = {
   }
 }
 
+const KHR_MATERIALS_UNLIT = {
+  getMaterialType() {
+    return MeshBasicMaterial
+  },
+
+  extendParams(options: GLTFParserOptions, json: GLTF.IGLTF, materialParams, materialDef) {
+    const pending = [] as Promise<any>[]
+
+    materialParams.color = new Color(1.0, 1.0, 1.0)
+    materialParams.opacity = 1.0
+
+    const metallicRoughness = materialDef.pbrMetallicRoughness
+
+    if (metallicRoughness) {
+      if (Array.isArray(metallicRoughness.baseColorFactor)) {
+        const array = metallicRoughness.baseColorFactor
+
+        materialParams.color.setRGB(array[0], array[1], array[2], LinearSRGBColorSpace)
+        materialParams.opacity = array[3]
+      }
+
+      if (metallicRoughness.baseColorTexture !== undefined) {
+        pending.push(
+          GLTFLoaderFunctions.assignTexture(
+            options,
+            json,
+            materialParams,
+            'map',
+            metallicRoughness.baseColorTexture,
+            SRGBColorSpace
+          )
+        )
+      }
+    }
+
+    return Promise.all(pending)
+  }
+}
+
 export const GLTFExtensions = {
-  [EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]: khr_draco_mesh_compression
+  [EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]: KHR_DRACO_MESH_COMPRESSION,
+  [EXTENSIONS.KHR_MATERIALS_UNLIT]: KHR_MATERIALS_UNLIT
 }
