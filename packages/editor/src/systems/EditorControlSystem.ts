@@ -247,18 +247,6 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
   }
 }
 
-const findTopLevelParent = (entity: Entity) => {
-  while (
-    getOptionalComponent(
-      getOptionalComponent(entity, EntityTreeComponent)?.parentEntity || UndefinedEntity,
-      EntityTreeComponent
-    )?.parentEntity
-  ) {
-    entity = getComponent(entity, EntityTreeComponent).parentEntity!
-  }
-  return entity
-}
-
 const findNextSelectionEntity = (topLevelParent: Entity, child: Entity): Entity => {
   // Check for adjacent child
   const childTree = getComponent(child, EntityTreeComponent)
@@ -330,7 +318,12 @@ const execute = () => {
       }
 
       // Get top most parent entity that isn't the scene entity
-      const selectedParentEntity = findTopLevelParent(closestIntersection.entity)
+      let selectedParentEntity = GLTFSnapshotState.findTopLevelParent(closestIntersection.entity)
+      const parent = getOptionalComponent(selectedParentEntity, EntityTreeComponent)?.parentEntity
+      if (parent && getComponent(parent, SourceComponent) !== getComponent(selectedParentEntity, SourceComponent)) {
+        selectedParentEntity = parent
+      }
+
       // If entity is already selected set closest intersection, otherwise set top parent
       const selectedEntity =
         selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity

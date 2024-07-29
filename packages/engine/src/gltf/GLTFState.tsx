@@ -218,6 +218,44 @@ export const GLTFSnapshotState = defineState({
     return false
   },
 
+  findTopLevelParent: (entity: Entity): Entity => {
+    const source = getOptionalComponent(entity, SourceComponent)
+    const uuid = getOptionalComponent(entity, UUIDComponent)
+    if (!source || !uuid) return UndefinedEntity
+
+    const gltf = getState(GLTFSnapshotState)[source]
+    if (!gltf) return UndefinedEntity
+
+    const snapshot = gltf.snapshots[gltf.index]
+    if (!snapshot.nodes) return UndefinedEntity
+
+    let parentUUID: EntityUUID | undefined = uuid
+    let currentUUID: EntityUUID = uuid
+
+    const findParent = (uuid: EntityUUID): EntityUUID | undefined => {
+      for (let i = 0; i < snapshot.nodes!.length; i++) {
+        const node = snapshot.nodes![i]
+        if (node.children && node.children.length) {
+          for (const child of node.children) {
+            const childNode = snapshot.nodes![child]
+            const childUUID = childNode.extensions?.[UUIDComponent.jsonID]
+            if (childUUID === uuid) {
+              return node.extensions?.[UUIDComponent.jsonID] as EntityUUID
+            }
+          }
+        }
+      }
+
+      return undefined
+    }
+
+    while ((parentUUID = findParent(parentUUID)) && parentUUID) {
+      currentUUID = parentUUID
+    }
+
+    return UUIDComponent.getEntityByUUID(currentUUID)
+  },
+
   cloneCurrentSnapshot: (source: string) => {
     const state = getState(GLTFSnapshotState)[source]
     return JSON.parse(JSON.stringify({ source, data: state.snapshots[state.index] })) as {
