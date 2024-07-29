@@ -99,6 +99,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
   const entity = node.entity
   const data = props.data
+  const fixedSizeListStyles = props.style
 
   const uuid = useComponent(entity, UUIDComponent)
 
@@ -299,6 +300,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   return (
     <li
+      style={fixedSizeListStyles}
       className={twMerge(
         props.index % 2 ? 'bg-[#0E0F11]' : 'bg-[#080808]',
         selected ? 'border border-gray-100' : 'border-none'
