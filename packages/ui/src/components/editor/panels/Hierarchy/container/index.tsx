@@ -43,6 +43,7 @@ import { Engine, Entity, EntityUUID, UUIDComponent, entityExists } from '@ethere
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { VALID_HEIRACHY_SEARCH_REGEX } from '@etherealengine/common/src/regex'
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
 import CreatePrefabPanel from '@etherealengine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
@@ -178,11 +179,16 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   const searchedNodes: HierarchyTreeNodeType[] = []
   if (searchHierarchy.value.length > 0) {
-    const condition = new RegExp(searchHierarchy.value.toLowerCase())
-    entityHierarchy.value.forEach((node) => {
-      if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
-        searchedNodes.push(node)
-    })
+    try {
+      const adjustedSearchValue = searchHierarchy.value.replace(VALID_HEIRACHY_SEARCH_REGEX, '\\$&')
+      const condition = new RegExp(adjustedSearchValue, 'i') // 'i' flag for case-insensitive search
+      entityHierarchy.value.forEach((node) => {
+        if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
+          searchedNodes.push(node)
+      })
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   useEffect(() => {
