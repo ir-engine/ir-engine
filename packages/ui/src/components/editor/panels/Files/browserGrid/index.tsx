@@ -24,7 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import {
   FilesViewModeSettings,
   availableTableColumns
@@ -33,11 +34,9 @@ import { FileDataType } from '@etherealengine/editor/src/components/assets/FileB
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import React, { MouseEventHandler, MutableRefObject, useEffect } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -47,8 +46,11 @@ import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import { FileIcon } from '../icon'
 import DeleteFileModal from './DeleteFileModal'
+import ImageConvertModal from './ImageConvertModal'
 import RenameFileModal from './RenameFileModal'
 
 export const canDropItemOverFolder = (folderName: string) =>
@@ -66,7 +68,6 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
   }
   const { t } = useTranslation()
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
-  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
   return (
     <div className="table-container">
       <table className="w-full">
@@ -95,7 +96,8 @@ export const FileTableListBody = ({
   modifiedDate,
   drop,
   isOver,
-  drag
+  drag,
+  projectName
 }: {
   file: FileDataType
   onContextMenu: React.MouseEventHandler
@@ -105,21 +107,20 @@ export const FileTableListBody = ({
   drop?: ConnectDropTarget
   isOver: boolean
   drag?: ConnectDragSource
+  projectName: string
 }) => {
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
   const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
 
-  const { projectName } = useMutableState(EditorState)
-  const staticResource = useFind(staticResourcePath, { query: { key: file.key, project: projectName.value! } })
-  const thumbnailURL = staticResource.data[0]?.thumbnailURL
+  const thumbnailURL = file.thumbnailURL
 
   const tableColumns = {
     name: (
       <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]" style={{ fontSize: `${fontSize}px` }}>
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
-        <FileIcon thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
+        <FileIcon isMinified={true} thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
         {file.fullName}
       </span>
     ),
@@ -153,16 +154,17 @@ type FileGridItemProps = {
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
   onClick?: MouseEventHandler<HTMLDivElement>
   isSelected: boolean
+  projectName: string
 }
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
-  const { projectName } = useMutableState(EditorState)
-  const staticResource = useFind(staticResourcePath, { query: { key: props.item.key, project: projectName.value! } })
-  const thumbnailURL = staticResource.data[0]?.thumbnailURL
+  const thumbnailURL = props.item.thumbnailURL
+  const { t } = useTranslation()
+
   return (
     <div
-      className={`flex h-32 w-28 cursor-pointer flex-col items-center text-center ${
+      className={`flex h-auto max-h-32 w-28 cursor-pointer flex-col items-center text-center ${
         props.isSelected ? 'rounded-md bg-blue-700/20' : ''
       }`}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
@@ -183,7 +185,10 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
           color="text-[#375DAF]"
         />
       </div>
-      <div className="text-secondary mb-2 line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
+
+      <Tooltip title={t(props.item.fullName)}>
+        <div className="text-secondary line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
+      </Tooltip>
     </div>
   )
 }
@@ -192,42 +197,50 @@ type FileBrowserItemType = {
   item: FileDataType
   disableDnD?: boolean
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
-  setFileProperties: any
-  setOpenPropertiesModal: any
-  setOpenCompress: any
-  setOpenConvert: any
+  openModelCompress: () => void
+  openImageCompress: () => void
+  openFileProperties: () => void
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
-  dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
+  handleDropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   addFolder: () => void
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
   isSelected: boolean
+  refreshDirectory: () => Promise<void>
+}
+
+function fileConsistsOfContentType(file: FileDataType, contentType: string): boolean {
+  if (file.isFolder) {
+    return contentType.startsWith('image')
+  } else {
+    const guessedType: string = CommonKnownContentTypes[file.type]
+    return guessedType?.startsWith(contentType)
+  }
 }
 
 export function FileBrowserItem({
   item,
   disableDnD,
   currentContent,
-  setOpenPropertiesModal,
-  setFileProperties,
-  setOpenCompress,
-  setOpenConvert,
   projectName,
   onClick,
-  dropItemsOnPanel,
+  handleDropItemsOnPanel,
+  openModelCompress,
+  openImageCompress,
+  openFileProperties,
   isFilesLoading,
   addFolder,
   isListView,
   staticResourceModifiedDates,
-  isSelected
+  isSelected,
+  refreshDirectory
 }: FileBrowserItemType) {
   const { t } = useTranslation()
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const fileService = useMutation(fileBrowserPath)
-
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
@@ -289,25 +302,6 @@ export function FileBrowserItem({
     })
   }
 
-  const viewAssetProperties = () => {
-    setFileProperties(item)
-
-    setOpenPropertiesModal(true)
-    handleClose()
-  }
-
-  const viewCompress = () => {
-    setFileProperties(item)
-    setOpenCompress(true)
-    handleClose()
-  }
-
-  const viewConvert = () => {
-    setFileProperties(item)
-    setOpenConvert(true)
-    handleClose()
-  }
-
   const [_dragProps, drag, preview] = disableDnD
     ? [undefined, undefined, undefined]
     : useDrag(() => ({
@@ -320,7 +314,7 @@ export function FileBrowserItem({
     ? [{ isOver: false }, undefined]
     : useDrop({
         accept: [...SupportedFileTypes],
-        drop: (dropItem) => dropItemsOnPanel(dropItem, item),
+        drop: (dropItem) => handleDropItemsOnPanel(dropItem, item),
         canDrop: (dropItem: Record<string, unknown>) =>
           item.isFolder && ('key' in dropItem || canDropItemOverFolder(item.key)),
         collect: (monitor) => ({
@@ -344,73 +338,155 @@ export function FileBrowserItem({
           drop={drop}
           isOver={isOver}
           drag={drag}
+          projectName={projectName}
         />
       ) : (
         <div ref={drop} className={twMerge('h-min', isOver && 'border-2 border-gray-400')}>
           <div ref={drag}>
             <div onContextMenu={handleContextMenu}>
-              <FileGridItem item={item} onClick={onClickItem} onDoubleClick={onClickItem} isSelected={isSelected} />
+              <FileGridItem
+                item={item}
+                onClick={onClickItem}
+                onDoubleClick={onClickItem}
+                isSelected={isSelected}
+                projectName={projectName}
+              />
             </div>
           </div>
         </div>
       )}
 
-      <ContextMenu anchorEvent={anchorEvent} panelId={'file-browser-panel'} onClose={handleClose} className="gap-1">
-        <Button variant="outline" size="small" fullWidth onClick={addFolder}>
-          {t('editor:layout.filebrowser.addNewFolder')}
-        </Button>
-        {!item.isFolder && (
-          <Button variant="outline" size="small" fullWidth onClick={placeObject}>
-            {t('editor:layout.assetGrid.placeObject')}
+      <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
+        <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+          <Button variant="outline" size="small" fullWidth onClick={addFolder}>
+            {t('editor:layout.filebrowser.addNewFolder')}
           </Button>
-        )}
-        {!item.isFolder && (
-          <Button variant="outline" size="small" fullWidth onClick={placeObjectAtOrigin}>
-            {t('editor:layout.assetGrid.placeObjectAtOrigin')}
+          {!item.isFolder && (
+            <Button variant="outline" size="small" fullWidth onClick={placeObject}>
+              {t('editor:layout.assetGrid.placeObject')}
+            </Button>
+          )}
+          {!item.isFolder && (
+            <Button variant="outline" size="small" fullWidth onClick={placeObjectAtOrigin}>
+              {t('editor:layout.assetGrid.placeObjectAtOrigin')}
+            </Button>
+          )}
+          {!item.isFolder && (
+            <Button variant="outline" size="small" fullWidth onClick={openURL}>
+              {t('editor:layout.assetGrid.openInNewTab')}
+            </Button>
+          )}
+          <Button variant="outline" size="small" fullWidth onClick={copyURL}>
+            {t('editor:layout.assetGrid.copyURL')}
           </Button>
-        )}
-        {!item.isFolder && (
-          <Button variant="outline" size="small" fullWidth onClick={openURL}>
-            {t('editor:layout.assetGrid.openInNewTab')}
+          <Button variant="outline" size="small" fullWidth onClick={Cut}>
+            {t('editor:layout.filebrowser.cutAsset')}
           </Button>
-        )}
-        <Button variant="outline" size="small" fullWidth onClick={copyURL}>
-          {t('editor:layout.assetGrid.copyURL')}
-        </Button>
-        <Button variant="outline" size="small" fullWidth onClick={Cut}>
-          {t('editor:layout.filebrowser.cutAsset')}
-        </Button>
-        <Button variant="outline" size="small" fullWidth onClick={Copy}>
-          {t('editor:layout.filebrowser.copyAsset')}
-        </Button>
-        <Button variant="outline" size="small" fullWidth disabled={!currentContent.current} onClick={pasteContent}>
-          {t('editor:layout.filebrowser.pasteAsset')}
-        </Button>
-        <Button
-          variant="outline"
-          size="small"
-          fullWidth
-          onClick={() => PopoverState.showPopupover(<RenameFileModal projectName={projectName} file={item} />)}
-        >
-          {t('editor:layout.filebrowser.renameAsset')}
-        </Button>
-        <Button
-          variant="outline"
-          size="small"
-          fullWidth
-          onClick={() => PopoverState.showPopupover(<DeleteFileModal file={item} />)}
-        >
-          {t('editor:layout.assetGrid.deleteAsset')}
-        </Button>
-        <Button variant="outline" size="small" fullWidth onClick={viewAssetProperties}>
-          {t('editor:layout.filebrowser.viewAssetProperties')}
-        </Button>
-        <Button variant="outline" size="small" fullWidth onClick={viewCompress}>
-          {t('editor:layout.filebrowser.compress')}
-        </Button>
-        <Button variant="outline" size="small" fullWidth onClick={viewConvert}>
-          {t('editor:layout.filebrowser.convert')}
-        </Button>
+          <Button variant="outline" size="small" fullWidth onClick={Copy}>
+            {t('editor:layout.filebrowser.copyAsset')}
+          </Button>
+          <Button variant="outline" size="small" fullWidth disabled={!currentContent.current} onClick={pasteContent}>
+            {t('editor:layout.filebrowser.pasteAsset')}
+          </Button>
+          <Button
+            variant="outline"
+            size="small"
+            fullWidth
+            onClick={() => {
+              PopoverState.showPopupover(<RenameFileModal projectName={projectName} file={item} />)
+              handleClose()
+            }}
+          >
+            {t('editor:layout.filebrowser.renameAsset')}
+          </Button>
+          <Button
+            variant="outline"
+            size="small"
+            fullWidth
+            onClick={() => {
+              PopoverState.showPopupover(<DeleteFileModal file={item} />)
+              handleClose()
+            }}
+          >
+            {t('editor:layout.assetGrid.deleteAsset')}
+          </Button>
+          <Button
+            variant="outline"
+            size="small"
+            fullWidth
+            onClick={() => {
+              openFileProperties()
+              handleClose()
+            }}
+          >
+            {t('editor:layout.filebrowser.viewAssetProperties')}
+          </Button>
+          {/*
+          <Button
+            variant="outline"
+            size="small"
+            fullWidth
+            disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')}
+            onClick={() => {
+              if (fileConsistsOfContentType(item, 'model')) {
+                PopoverState.showPopupover(
+                  <ModelCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
+                )
+              } else if (fileConsistsOfContentType(item, 'image')) {
+                PopoverState.showPopupover(
+                  <ImageCompressionPanel selectedFile={item as FileType} refreshDirectory={refreshDirectory} />
+                )
+              }
+              handleClose()
+            }}
+          >
+            {t('editor:layout.filebrowser.compress')}
+          </Button>
+          */}
+
+          {fileConsistsOfContentType(item, 'model') && (
+            <Button
+              variant="outline"
+              size="small"
+              fullWidth
+              // disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')} // TODO: move context menu to its own component, with a State<Filetype[]> -JS
+              onClick={() => {
+                openModelCompress()
+                handleClose()
+              }}
+            >
+              {t('editor:layout.filebrowser.compress')}
+            </Button>
+          )}
+
+          {fileConsistsOfContentType(item, 'image') && (
+            <Button
+              variant="outline"
+              size="small"
+              fullWidth
+              // disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')} // TODO: move context menu to its own component, with a State<Filetype[]> -JS
+              onClick={() => {
+                openImageCompress()
+                handleClose()
+              }}
+            >
+              {t('editor:layout.filebrowser.compress')}
+            </Button>
+          )}
+
+          <Button
+            variant="outline"
+            size="small"
+            fullWidth
+            onClick={() => {
+              PopoverState.showPopupover(<ImageConvertModal file={item} refreshDirectory={refreshDirectory} />)
+              handleClose()
+            }}
+            disabled={!(['jpg', 'png', 'webp'].includes(item.type) || item.isFolder)}
+          >
+            {t('editor:layout.filebrowser.convert')}
+          </Button>
+        </div>
       </ContextMenu>
     </>
   )

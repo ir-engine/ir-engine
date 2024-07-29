@@ -26,57 +26,30 @@ Ethereal Engine. All Rights Reserved.
 import { RenderPass } from 'postprocessing'
 import { MeshBasicMaterial, MeshNormalMaterial } from 'three'
 
-import { Engine, getComponent } from '@etherealengine/ecs'
+import { Entity, getComponent } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 
-import { RenderModes } from '../constants/RenderModes'
 import { RendererState } from '../RendererState'
 import { RendererComponent } from '../WebGLRendererSystem'
+import { RenderModes } from '../constants/RenderModes'
 
 /**
  * Change render mode of the renderer
  * @param mode Mode which will be set to renderer
  */
-export function changeRenderMode() {
+
+export function changeRenderMode(entity: Entity) {
   const renderMode = getState(RendererState).renderMode
 
-  // revert any changes made by a render mode
-  switch (renderMode) {
-    case RenderModes.UNLIT:
-      // Not currently working, will be replaced with custom renderer in the future
-
-      // iterateObject3D(Engine.instance.scene, (obj: Light) => {
-      //   if (obj.isLight && obj.userData.editor_disabled) {
-      //     delete obj.userData.editor_disabled
-      //     obj.visible = true
-      //   }
-      // })
-      break
-    default:
-      break
-  }
-
-  const passes = getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.passes.filter(
+  const passes = getComponent(entity, RendererComponent).effectComposer?.passes.filter(
     (p) => p.name === 'RenderPass'
   ) as any
   const renderPass: RenderPass = passes ? passes[0] : undefined
-
   if (!renderPass) return
 
   switch (renderMode) {
     case RenderModes.UNLIT:
-      // See above comment
-      // iterateObject3D(Engine.instance.scene, (obj: Light) => {
-      //   if (obj.isLight && obj.visible) {
-      //     obj.userData.editor_disabled = true
-      //     obj.visible = false
-      //   }
-      // })
-      renderPass.overrideMaterial = null!
-      break
     case RenderModes.LIT:
-      renderPass.overrideMaterial = null!
-      break
     case RenderModes.SHADOW:
       renderPass.overrideMaterial = null!
       break

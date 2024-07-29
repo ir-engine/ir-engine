@@ -37,6 +37,7 @@ import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentS
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { handleScenePaths } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { Params } from '@feathersjs/feathers'
 import { EditorState } from '../services/EditorServices'
@@ -147,6 +148,21 @@ export const saveSceneGLTF = async (
   })
 }
 
+export const createScene = async (
+  projectName: string,
+  templateURL = config.client.fileServer + '/projects/default-project/public/scenes/default.gltf'
+) => {
+  const sceneData = await Engine.instance.api.service(fileBrowserPath).patch(null, {
+    project: projectName,
+    type: 'scene',
+    body: templateURL,
+    path: 'public/scenes/New-Scene.gltf',
+    thumbnailKey: templateURL.replace(`${config.client.fileServer}/`, '').replace('.gltf', '.thumbnail.jpg'),
+    unique: true
+  })
+  return sceneData
+}
+
 export const onNewScene = async (
   templateURL = config.client.fileServer + '/projects/default-project/public/scenes/default.gltf'
 ) => {
@@ -154,14 +170,7 @@ export const onNewScene = async (
   if (!projectName) return
 
   try {
-    const sceneData = await Engine.instance.api.service(fileBrowserPath).patch(null, {
-      project: projectName,
-      type: 'scene',
-      body: templateURL,
-      path: 'public/scenes/New-Scene.gltf',
-      thumbnailKey: templateURL.replace(config.client.fileServer, '').replace('.gltf', '.thumbnail.jpg'),
-      unique: true
-    })
+    const sceneData = await createScene(projectName, templateURL)
     if (!sceneData) return
     const sceneName = sceneData.key.split('/').pop()
 
@@ -178,7 +187,7 @@ export const onNewScene = async (
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   const gltfEntity = GLTFSourceState.load(sceneURL, uuid)
-  getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+  getMutableComponent(getState(EngineState).viewerEntity, SceneComponent).children.merge([gltfEntity])
   getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {
     getMutableState(EditorState).rootEntity.set(UndefinedEntity)

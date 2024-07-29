@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
+import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/regex'
 import {
   ProjectPermissionData,
   ProjectPermissionPatch,
@@ -210,7 +210,7 @@ export default {
 
   before: {
     all: [
-      () => schemaHooks.validateQuery(projectPermissionQueryValidator),
+      schemaHooks.validateQuery(projectPermissionQueryValidator),
       schemaHooks.resolveQuery(projectPermissionQueryResolver)
     ],
     find: [
@@ -222,7 +222,7 @@ export default {
     get: [],
     create: [
       iff(isProvider('external'), verifyProjectOwner()),
-      () => schemaHooks.validateData(projectPermissionDataValidator),
+      schemaHooks.validateData(projectPermissionDataValidator),
       schemaHooks.resolveData(projectPermissionDataResolver),
       setLoggedInUserData('createdBy'),
       ensureInviteCode,
@@ -231,7 +231,7 @@ export default {
     update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyProjectOwner()),
-      () => schemaHooks.validateData(projectPermissionPatchValidator),
+      schemaHooks.validateData(projectPermissionPatchValidator),
       schemaHooks.resolveData(projectPermissionPatchResolver),
       ensureTypeInPatch
     ],

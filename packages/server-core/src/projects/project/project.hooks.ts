@@ -31,8 +31,8 @@ import fs from 'fs'
 import { Knex } from 'knex'
 import path from 'path'
 
-import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
+import { GITHUB_URL_REGEX } from '@etherealengine/common/src/regex'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
@@ -65,7 +65,6 @@ import { checkScope } from '@etherealengine/spatial/src/common/functions/checkSc
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
-import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import { isSignedByAppJWT } from '../../hooks/is-signed-by-app-jwt'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
@@ -73,7 +72,6 @@ import verifyScope from '../../hooks/verify-scope'
 import { createExecutorJob } from '../../k8s-job-helper'
 import logger from '../../ServerLogger'
 import { useGit } from '../../util/gitHelperFunctions'
-import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
   deleteProjectFilesInStorageProvider,
@@ -165,7 +163,7 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
       allowedProjectGithubRepos.map(async (project) => {
         const regexExec = GITHUB_URL_REGEX.exec(project.repositoryPath)
         if (!regexExec) return { repositoryPath: '', name: '' }
-        const split = regexExec[2].split('/')
+        const split = regexExec[1].split('/')
         project.repositoryPath = `https://github.com/${split[0]}/${split[1]}`
         return project
       })
@@ -184,7 +182,7 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
           repositoryPaths.push(`${url}.git`)
           const regexExec = GITHUB_URL_REGEX.exec(url)
           if (regexExec) {
-            const split = regexExec[2].split('/')
+            const split = regexExec[1].split('/')
             repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}`)
             repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}.git`)
           }
@@ -246,7 +244,7 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
       ? data
       : {
           data: data,
-          total: data.length,
+          total: context.result?.['total'] ?? data.length,
           limit: context.params?.query?.$limit || 1000,
           skip: context.params?.query?.$skip || 0
         }
@@ -360,9 +358,9 @@ const linkGithubToProject = async (context: HookContext) => {
     if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
     if (githubIdentityProvider.data.length === 0)
       throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
-    const split = githubPathRegexExec[2].split('/')
+    const split = githubPathRegexExec[1].split('/')
     const org = split[0]
-    const repo = split[1].replace('.git', '')
+    const repo = split[1]
     const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken)
     if (!appOrgAccess)
       throw new Forbidden(
@@ -428,15 +426,9 @@ const createProjectPermission = async (context: HookContext<ProjectService>) => 
   const result = (Array.isArray(context.result) ? context.result : [context.result]) as ProjectType[]
 
   if (context.params?.user?.id) {
-    const projectPermissionData = await projectPermissionDataResolver.resolve(
-      {
-        userId: context.params.user.id,
-        projectId: result[0].id,
-        type: 'owner'
-      },
-      context as any
-    )
-    return context.app.service(projectPermissionPath).create(projectPermissionData)
+    return context.app
+      .service(projectPermissionPath)
+      .create({ projectId: result[0].id, userId: context.params.user.id, type: 'owner' })
   }
   return context
 }
@@ -549,6 +541,7 @@ const updateProjectJob = async (context: HookContext) => {
       returnData: '',
       status: 'pending'
     })
+    const projectJobName = data.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
     const jobBody = await getProjectUpdateJobBody(
       data,
       context.app,
@@ -559,7 +552,7 @@ const updateProjectJob = async (context: HookContext) => {
     await context.app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name
     })
-    const jobLabelSelector = `etherealengine/projectField=${data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
+    const jobLabelSelector = `etherealengine/projectField=${projectJobName},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
     const jobFinishedPromise = createExecutorJob(context.app, jobBody, jobLabelSelector, 1000, newJob.id)
     try {
       await jobFinishedPromise
@@ -591,9 +584,8 @@ export default createSkippableHooks(
     },
 
     before: {
-      all: [() => schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
+      all: [schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
       find: [
-        enableClientPagination(),
         iffElse(isAction('admin'), [], filterDisabledProjects),
         discardQuery('action'),
         ensurePushStatus,
@@ -603,7 +595,7 @@ export default createSkippableHooks(
       get: [],
       create: [
         iff(isProvider('external') && !isSignedByAppJWT(), verifyScope('editor', 'write')),
-        () => schemaHooks.validateData(projectDataValidator),
+        schemaHooks.validateData(projectDataValidator),
         schemaHooks.resolveData(projectDataResolver),
         discardQuery('action'),
         checkIfProjectExists,
@@ -625,7 +617,7 @@ export default createSkippableHooks(
           verifyScope('editor', 'write'),
           projectPermissionAuthenticate(false)
         ),
-        () => schemaHooks.validateData(projectPatchValidator),
+        schemaHooks.validateData(projectPatchValidator),
         schemaHooks.resolveData(projectPatchResolver),
         iff(isProvider('external'), iffElse(checkEnabled, [], linkGithubToProject))
       ],

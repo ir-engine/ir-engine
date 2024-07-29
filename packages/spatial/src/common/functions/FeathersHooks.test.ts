@@ -32,7 +32,7 @@ import { AvatarID, UserName, userPath } from '@etherealengine/common/src/schema.
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createState } from '@etherealengine/hyperflux'
 
-import { createEngine } from '../../initializeEngine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { EventDispatcher } from '../classes/EventDispatcher'
 import { useFind, useGet, useMutation } from './FeathersHooks'
 

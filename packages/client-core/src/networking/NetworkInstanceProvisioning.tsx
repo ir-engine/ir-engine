@@ -40,11 +40,11 @@ import {
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { InstanceID, LocationID, RoomCode } from '@etherealengine/common/src/schema.type.module'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
-
-import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
 import { FriendService } from '../social/services/FriendService'
 import { connectToInstance } from '../transports/SocketWebRTCClientFunctions'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
@@ -247,7 +247,7 @@ export const SocialMenus = {
 export const FriendMenus = () => {
   const { t } = useTranslation()
 
-  const socialsEnabled = FeatureFlagsState.useEnabled('ir.client.menu.social')
+  const [socialsEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.Social])
 
   useEffect(() => {
     if (!socialsEnabled) return

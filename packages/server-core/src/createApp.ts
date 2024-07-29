@@ -40,21 +40,19 @@ import healthcheck from 'koa-simple-healthcheck'
 
 import { pipeLogs } from '@etherealengine/common/src/logger'
 import { pipe } from '@etherealengine/common/src/utils/pipe'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { initializeNode } from '@etherealengine/engine/src/initializeNode'
+import { Engine, createEngine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
 import { Application } from '../declarations'
+import { logger } from './ServerLogger'
+import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import { default as appConfig, default as config } from './appconfig'
 import authenticate from './hooks/authenticate'
 import { logError } from './hooks/log-error'
 import persistHeaders from './hooks/persist-headers'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import mysql from './mysql'
-import { logger } from './ServerLogger'
-import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
@@ -187,9 +185,6 @@ export const createFeathersKoaApp = (
   }
 
   getMutableState(EngineState).publicPath.set(config.client.dist)
-  if (!appConfig.db.forceRefresh) {
-    initializeNode()
-  }
 
   const app = koa(feathers()) as Application
   Engine.instance.api = app

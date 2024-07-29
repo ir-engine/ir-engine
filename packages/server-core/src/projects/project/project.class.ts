@@ -31,7 +31,13 @@ import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import {
+  ScopeData,
+  ScopeType,
+  projectPermissionPath,
+  scopePath,
+  staticResourcePath
+} from '@etherealengine/common/src/schema.type.module'
 import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import {
   ProjectData,
@@ -43,6 +49,7 @@ import {
 import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { getState } from '@etherealengine/hyperflux'
 
+import { isDev } from '@etherealengine/common/src/config'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
@@ -85,7 +92,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
   async _seedProject(projectName: string): Promise<any> {
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
-    const projectConfig = getProjectConfig(projectName) ?? {}
+    const projectConfig = getProjectConfig(projectName)
     const enabled = getProjectEnabled(projectName)
 
     // if no manifest.json exists, add one
@@ -133,8 +140,22 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     await uploadLocalProjectToProvider(this.app, projectName)
 
     // run project install script
-    if (projectConfig.onEvent) {
+    if (projectConfig?.onEvent) {
       return onProjectEvent(this.app, project, projectConfig.onEvent, 'onInstall')
+    }
+
+    // if in dev mode, give all admins access to the project
+    if (isDev) {
+      const admins = (await this.app
+        .service(scopePath)
+        .find({ query: { type: 'static_resource:write' as ScopeType, paginate: false } })) as any as ScopeData[]
+      for (const admin of admins) {
+        await this.app.service(projectPermissionPath).create({
+          projectId: project.id,
+          userId: admin.userId,
+          type: 'owner'
+        })
+      }
     }
 
     return Promise.resolve()

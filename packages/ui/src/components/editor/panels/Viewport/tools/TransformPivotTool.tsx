@@ -35,6 +35,7 @@ import { useTranslation } from 'react-i18next'
 import { FaRegDotCircle } from 'react-icons/fa'
 import Button from '../../../../../primitives/tailwind/Button'
 import Select from '../../../../../primitives/tailwind/Select'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 const transformPivotOptions = [
   {
@@ -66,21 +67,23 @@ const TransformPivotTool = () => {
 
   return (
     <div id="transform-pivot" className="flex items-center bg-theme-surfaceInput">
-      <Button
-        startIcon={<FaRegDotCircle />}
-        onClick={toggleTransformPivot}
-        variant="transparent"
-        title={t('editor:toolbar.transformPivot.toggleTransformPivot')}
-        className="px-0"
-      />
-      <Select
-        key={editorHelperState.transformPivot.value}
-        inputClassName="py-1 h-6 rounded-sm text-[#A3A3A3] text-xs"
-        className="w-28 p-1"
-        onChange={setTransformPivot}
-        options={transformPivotOptions}
-        currentValue={editorHelperState.transformPivot.value}
-      />
+      <Tooltip title={t('editor:toolbar.transformPivot.toggleTransformPivot')}>
+        <Button startIcon={<FaRegDotCircle />} onClick={toggleTransformPivot} variant="transparent" className="px-0" />
+      </Tooltip>
+      <Tooltip
+        title={
+          transformPivotOptions.find((pivot) => pivot.value === editorHelperState.transformPivot.value)?.description
+        }
+      >
+        <Select
+          key={editorHelperState.transformPivot.value}
+          inputClassName="py-1 h-6 rounded-sm text-[#A3A3A3] text-xs"
+          className="m-1 w-28"
+          onChange={setTransformPivot}
+          options={transformPivotOptions}
+          currentValue={editorHelperState.transformPivot.value}
+        />
+      </Tooltip>
     </div>
   )
 }

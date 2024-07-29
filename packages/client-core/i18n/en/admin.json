@@ -366,6 +366,7 @@
       "defaults": "Defaults",
       "host": "Host",
       "protocol": "Protocol",
+      "apple": "Apple",
       "discord": "Discord",
       "facebook": "Meta",
       "google": "Google",
@@ -514,6 +515,14 @@
       "screenshareMidResMaxBitrate": "Screenshare mid-res video max bitrate (kbps)",
       "screenshareHighResMaxBitrate": "Screenshare high-res video max bitrate (kbps)",
       "privacyPolicy": "Privacy Policy",
+      "webRTCSettings": {
+        "main": "WebRTC Settings",
+        "useCustomICEServers": "Use custom iceServers configuration",
+        "iceServers": "iceServers (STUN/TURN configuration; must provide proper JSON)",
+        "useTimeLimitedCredentials": "Use time-limited credentials to authenticate STUN/TURN server",
+        "webRTCStaticAuthSecretKey": "Shared static-auth-secret for authenticating STUN/TURN server",
+        "usePrivateInstanceserverIP": "Return instanceservers' raw private IP address instead of DNS record"
+      },
       "project": {
         "header": "Project",
         "subtitle": "Edit Project Settings",
@@ -548,7 +557,13 @@
         "processInterval": "Process Interval"
       },
 
-      "plugins": "Plugins"
+      "plugins": "Plugins",
+      "zendesk": {
+        "header": "Zendesk",
+        "subtitle": "Edit Zendesk Settings"
+      }, 
+      "keyName": "key Name",
+      "kid": "Key Id"
     },
     "avatar": {
       "columns": {
@@ -639,6 +654,7 @@
       "clearAllScopes": "Clear All Scopes",
       "userSearch": "user by id, name or account identifier",
       "linkedAccounts": "Linked Accounts",
+      "apple": "Apple",
       "discord": "Discord",
       "facebook": "Meta",
       "google": "Google",

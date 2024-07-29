@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, getOptionalComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { TransformGizmoControlledComponent } from '@etherealengine/editor/src/classes/TransformGizmoControlledComponent'
@@ -35,7 +35,6 @@ import { VisualScriptActions, visualScriptQuery } from '@etherealengine/engine'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { WorldNetworkAction } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
@@ -46,16 +45,13 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
-import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { InfoTooltip } from '../../../layout/Tooltip'
 
 const PlayModeTool = () => {
   const { t } = useTranslation()
 
   const isEditing = useHookstate(getMutableState(EngineState).isEditing)
   const authState = useHookstate(getMutableState(AuthState))
-
-  const sceneEntity = useHookstate(getMutableState(EditorState).rootEntity)
-  const gltfComponent = getOptionalComponent(sceneEntity.value, GLTFComponent)
 
   const onTogglePlayMode = () => {
     const entity = AvatarComponent.getSelfAvatarEntity()
@@ -93,13 +89,13 @@ const PlayModeTool = () => {
 
   return (
     <div id="preview" className="flex items-center bg-theme-surfaceInput">
-      <Tooltip
+      <InfoTooltip
         title={
-          isEditing.value
-            ? `${t('editor:toolbar.command.lbl-playPreview')} (${t('editor:toolbar.command.info-playPreview')})`
-            : `${t('editor:toolbar.command.lbl-stopPreview')} (${t('editor:toolbar.command.info-stopPreview')})`
+          isEditing.value ? t('editor:toolbar.command.lbl-playPreview') : t('editor:toolbar.command.lbl-stopPreview')
         }
-        direction="bottom"
+        info={
+          isEditing.value ? t('editor:toolbar.command.info-playPreview') : t('editor:toolbar.command.info-stopPreview')
+        }
       >
         <Button
           variant="transparent"
@@ -107,7 +103,7 @@ const PlayModeTool = () => {
           className="p-0"
           onClick={onTogglePlayMode}
         />
-      </Tooltip>
+      </InfoTooltip>
     </div>
   )
 }

@@ -25,10 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { dataValidator, queryValidator } from '../validators'
-
-export type FeatureFlag = FeatureFlagSettingType['flagName']
 
 export const featureFlagSettingPath = 'feature-flag-setting'
 
@@ -40,12 +38,7 @@ export const featureFlagSettingSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    flagName: StringEnum([
-      'ir.client.menu.social',
-      'ir.client.menu.emote',
-      'ir.client.menu.avaturn',
-      'ir.client.menu.readyPlayerMe'
-    ]),
+    flagName: Type.String(),
     flagValue: Type.Boolean(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -72,7 +65,12 @@ export const featureFlagSettingQuerySchema = Type.Intersect(
   [
     querySyntax(featureFlagSettingQueryProperties),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        paginate: Type.Optional(Type.Boolean())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

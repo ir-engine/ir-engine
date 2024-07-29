@@ -63,6 +63,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
@@ -132,7 +133,7 @@ const raycastComponentData = {
 
 const onSecondaryClick = () => {
   const { physicsWorld } = getState(PhysicsState)
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const hits = Physics.castRayFromCamera(
@@ -159,9 +160,11 @@ const onSecondaryClick = () => {
 }
 
 const execute = () => {
+  const viewerEntity = getState(EngineState).viewerEntity
+  if (!viewerEntity) return
+
   const ecsState = getState(ECSState)
 
-  const viewerEntity = Engine.instance.viewerEntity
   const buttons = InputComponent.getMergedButtons(viewerEntity)
 
   // const buttons = InputSourceComponent.getMergedButtons()
@@ -190,7 +193,7 @@ const execute = () => {
     AvatarUI.set(userEntity, ui)
   }
 
-  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+  const cameraTransform = getComponent(viewerEntity, TransformComponent)
 
   const immersiveMedia = getState(MediaSettingsState).immersiveMedia
   const mediaNetwork = NetworkState.mediaNetwork

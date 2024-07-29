@@ -42,7 +42,7 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { UserName, userPath } from '@etherealengine/common/src/schema.type.module'
+import { UserName, clientSettingPath, userPath } from '@etherealengine/common/src/schema.type.module'
 import { useExecute } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
@@ -59,7 +59,7 @@ import {
   useMutableState
 } from '@etherealengine/hyperflux'
 import { NetworkState, VideoConstants } from '@etherealengine/network'
-import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -68,7 +68,6 @@ import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 
-import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -491,6 +490,9 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()
 
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSetting = clientSettingQuery.data[0]
+
   useDrawMocapLandmarks(videoElement, canvasCtxRef, canvasRef, peerID)
 
   useEffect(() => {
@@ -517,8 +519,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     const encodings = videoStream.rtpParameters.encodings
 
     const immersiveMedia = getMutableState(MediaSettingsState).immersiveMedia
-    const clientSettingState = getMutableState(AdminClientSettingsState)
-    const { maxResolution } = clientSettingState.client[0].mediaSettings.video.value
+    const { maxResolution } = clientSetting.mediaSettings.video
     const resolution = VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
     if (isPiP || immersiveMedia.value) {
       let maxLayer
@@ -575,7 +576,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           className={classNames({
             [styles['video-wrapper']]: !isScreen,
             [styles['screen-video-wrapper']]: isScreen,
-            [styles['border-lit']]: soundIndicatorOn && !audioStreamPaused
+            [styles['border-lit']]: soundIndicatorOn && (isSelf ? !audioProducerPaused : !audioStreamPaused)
           })}
         >
           {(videoStream == null ||

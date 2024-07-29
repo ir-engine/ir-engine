@@ -23,8 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import { Engine, getComponent, useComponent, useQuery } from '@etherealengine/ecs'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useEngineCanvas'
+import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import { clientSettingPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { getComponent, useComponent, useQuery } from '@etherealengine/ecs'
 import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
@@ -37,7 +41,7 @@ import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/Resour
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
@@ -50,11 +54,14 @@ import GizmoTool from '../tools/GizmoTool'
 import GridTool from '../tools/GridTool'
 import PlayModeTool from '../tools/PlayModeTool'
 import RenderModeTool from '../tools/RenderTool'
+import SceneHelpersTool from '../tools/SceneHelpersTool'
 import TransformPivotTool from '../tools/TransformPivotTool'
 import TransformSnapTool from '../tools/TransformSnapTool'
 import TransformSpaceTool from '../tools/TransformSpaceTool'
 
-const ViewportDnD = () => {
+const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
+  const projectName = useMutableState(EditorState).projectName
+
   const [{ isDragging }, dropRef] = useDrop({
     accept: [ItemTypes.Component, ...SupportedFileTypes],
     collect: (monitor) => ({
@@ -70,38 +77,44 @@ const ViewportDnD = () => {
         ])
       } else if ('url' in item) {
         addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+      } else if ('files' in item) {
+        const dropDataTransfer: DataTransfer = monitor.getItem()
+
+        Promise.all(
+          Array.from(dropDataTransfer.files).map(async (file) => {
+            try {
+              const name = processFileName(file.name)
+              return uploadToFeathersService(fileBrowserUploadPath, [file], {
+                args: [
+                  {
+                    project: projectName.value,
+                    path: `assets/` + name,
+                    contentType: file.type
+                  }
+                ]
+              }).promise as Promise<string>
+            } catch (err) {
+              NotificationService.dispatchNotify(err.message, { variant: 'error' })
+            }
+          })
+        ).then((urls) => {
+          const vec3 = new Vector3()
+          urls.forEach((url) => {
+            if (!url) return
+            addMediaNode(url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+          })
+        })
       }
     }
   })
 
-  useEffect(() => {
-    const viewportPanelNode = document.getElementById('viewport-panel')
-    if (!viewportPanelNode) return
-
-    const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement
-    viewportPanelNode.appendChild(canvas)
-
-    getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
-
-    const observer = new ResizeObserver(() => {
-      getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
-    })
-
-    observer.observe(viewportPanelNode)
-    return () => {
-      observer.disconnect()
-    }
-  }, [])
-
   return (
     <div
-      id="viewport-panel"
       ref={dropRef}
-      className={twMerge(
-        'h-full w-full border border-white',
-        isDragging ? 'pointer-events-auto border-4' : 'pointer-events-none border-none'
-      )}
-    />
+      className={twMerge('h-full w-full border border-white', isDragging ? 'border-4' : 'border-none')}
+    >
+      {children}
+    </div>
   )
 }
 
@@ -142,32 +155,40 @@ const ViewPortPanelContainer = () => {
   const { sceneName, rootEntity } = useMutableState(EditorState)
 
   const { t } = useTranslation()
-  const clientSettingState = useMutableState(AdminClientSettingsState)
-  const [clientSetting] = clientSettingState?.client?.value || []
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettings = clientSettingQuery.data[0]
+
+  const ref = React.useRef<HTMLDivElement>(null)
+
+  useEngineCanvas(ref)
+
   return (
-    <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
-      <div className="flex gap-1 p-1">
-        <TransformSpaceTool />
-        <TransformPivotTool />
-        <GridTool />
-        <TransformSnapTool />
-        <div className="flex-1" />
-        <RenderModeTool />
-        <PlayModeTool />
-      </div>
-      {sceneName.value ? <GizmoTool /> : null}
-      {sceneName.value ? (
-        <>
-          {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
-          <ViewportDnD />
-        </>
-      ) : (
-        <div className="flex h-full w-full flex-col justify-center gap-2">
-          <img src={clientSetting.appTitle} className="block scale-[.8]" />
-          <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
+    <ViewportDnD>
+      <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
+        <div className="z-10 flex gap-1 bg-theme-primary p-1">
+          <TransformSpaceTool />
+          <TransformPivotTool />
+          <GridTool />
+          <TransformSnapTool />
+          <SceneHelpersTool />
+          <div className="flex-1" />
+          <RenderModeTool />
+          <PlayModeTool />
         </div>
-      )}
-    </div>
+        {sceneName.value ? <GizmoTool /> : null}
+        {sceneName.value ? (
+          <>
+            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
+            <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
+          </>
+        ) : (
+          <div className="flex h-full w-full flex-col justify-center gap-2">
+            <img src={clientSettings?.appTitle} className="block scale-[.8]" />
+            <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
+          </div>
+        )}
+      </div>
+    </ViewportDnD>
   )
 }
 

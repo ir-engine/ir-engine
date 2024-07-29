@@ -58,11 +58,12 @@ export default function TexturePreviewInput({
   onRelease,
   ...rest
 }: {
-  value: string | Texture
+  value: string | Texture | null
   onRelease: (value: any) => void
+  onModify?: () => void
   preview?: string
 }) {
-  const { preview } = rest
+  const { preview, onModify } = rest
   const validSrcValue =
     typeof value === 'string' && [AssetType.Image, AssetType.Video].includes(AssetLoader.getAssetClass(value))
 
@@ -81,12 +82,22 @@ export default function TexturePreviewInput({
   const colorspace = useHookstate(
     texture?.colorSpace ? texture?.colorSpace : (new String(LinearSRGBColorSpace) as ColorSpace)
   )
+  const uvChannel = useHookstate(texture?.channel ?? 0)
+
+  useEffect(() => {
+    if (texture?.isTexture && !value) {
+      srcState.set(null)
+    } else if (srcState.value !== value) {
+      srcState.set(value)
+    }
+  }, [value])
 
   useEffect(() => {
     if (texture?.isTexture && !texture.isRenderTargetTexture) {
       offset.set(texture.offset)
       scale.set(texture.repeat)
       colorspace.set(texture.colorSpace)
+      uvChannel.set(texture.channel)
     }
   }, [srcState])
 
@@ -153,6 +164,23 @@ export default function TexturePreviewInput({
                   texture.colorSpace = value
                   texture.needsUpdate = true
                   console.log('DEBUG changed space', texture.colorSpace)
+                }}
+              />
+            </InputGroup>
+            <InputGroup name="UV Channel" label="UV Channel">
+              <SelectInput
+                value={uvChannel.value}
+                options={[
+                  { label: 'UV', value: 0 },
+                  { label: 'UV2', value: 1 },
+                  { label: 'UV3', value: 2 },
+                  { label: 'UV4', value: 3 }
+                ]}
+                onChange={(value: number) => {
+                  uvChannel.set(value)
+                  texture.channel = value
+                  texture.needsUpdate = true
+                  onModify?.()
                 }}
               />
             </InputGroup>

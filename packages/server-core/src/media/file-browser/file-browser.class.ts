@@ -124,9 +124,6 @@ export class FileBrowserService
     let total = result.length
 
     result = result.slice(skip, skip + limit)
-    result.forEach((file) => {
-      file.url = storageProvider.getCachedURL(file.key, params && params.provider == null)
-    })
 
     if (params.provider && !isAdmin) {
       const knexClient: Knex = this.app.get('knexClient')
@@ -148,6 +145,24 @@ export class FileBrowserService
           allowedProjectNames.some((project) => item.key.startsWith(`projects/${project}`)) || item.name === 'projects'
         )
       })
+    }
+
+    const resourceQuery = (await this.app.service(staticResourcePath).find({
+      query: {
+        key: { $in: result.map((file) => file.key) }
+      },
+      paginate: false
+    })) as unknown as StaticResourceType[]
+    const resourceMap: Record<string, StaticResourceType> = {}
+    for (const resource of resourceQuery) {
+      resourceMap[resource.key] = resource
+    }
+    for (const file of result) {
+      const resource = resourceMap[file.key]
+      if (resource) {
+        file.url = resource.url
+        file.thumbnailURL = resource.thumbnailURL
+      }
     }
 
     return {
@@ -194,8 +209,10 @@ export class FileBrowserService
     const storageProvider = getStorageProvider(storageProviderName)
 
     /** @todo future proofing for when projects include orgname */
-    if (!data.oldPath.startsWith('projects/' + data.oldProject)) throw new Error('Not allowed to access this directory')
-    if (!data.newPath.startsWith('projects/' + data.newProject)) throw new Error('Not allowed to access this directory')
+    if (!data.oldPath.startsWith('projects/' + data.oldProject))
+      throw new Error('Not allowed to access this directory ' + data.oldPath + ' ' + data.oldProject)
+    if (!data.newPath.startsWith('projects/' + data.newProject))
+      throw new Error('Not allowed to access this directory ' + data.newPath + ' ' + data.newProject)
 
     const oldDirectory = data.oldPath.split('/').slice(0, -1).join('/')
     const newDirectory = data.newPath.split('/').slice(0, -1).join('/')
@@ -208,10 +225,10 @@ export class FileBrowserService
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
-        key: { $like: `%${path.join(oldDirectory, oldName)}%` }
-      },
-      paginate: false
-    })) as StaticResourceType[]
+        key: { $like: `%${path.join(oldDirectory, oldName)}%` },
+        paginate: false
+      } as any
+    })) as unknown as StaticResourceType[]
 
     if (!staticResources?.length) throw new Error('Static resources not found')
 
@@ -262,7 +279,7 @@ export class FileBrowserService
         const arr = await response.arrayBuffer()
         data.body = Buffer.from(arr)
       } catch (error) {
-        throw new Error('Invalid URL ' + url)
+        throw new Error('Failure in fetching source URL: ' + url + 'Error: ' + error)
       }
     }
 

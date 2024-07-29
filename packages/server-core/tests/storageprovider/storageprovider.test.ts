@@ -31,8 +31,7 @@ import fetch from 'node-fetch'
 import path from 'path/posix'
 import { v4 as uuidv4 } from 'uuid'
 
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import LocalStorage from '../../src/media/storageprovider/local.storage'
 import S3Provider from '../../src/media/storageprovider/s3.storage'

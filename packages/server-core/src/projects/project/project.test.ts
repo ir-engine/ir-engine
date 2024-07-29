@@ -196,11 +196,10 @@ describe('project.test', () => {
 
   describe('patch', () => {
     it('should change the project data', async () => {
-      const randomUpdateType = `test-update-type-${Math.round(Math.random() * 1000)}`
-      const patchedProject = await app.service(projectPath).patch(testProject.id, { updateType: randomUpdateType })
+      const patchedProject = await app.service(projectPath).patch(testProject.id, { updateType: 'tag' })
 
       assert.equal(patchedProject.name, testProject.name)
-      assert.equal(patchedProject.updateType, randomUpdateType)
+      assert.equal(patchedProject.updateType, 'tag')
     })
   })
 

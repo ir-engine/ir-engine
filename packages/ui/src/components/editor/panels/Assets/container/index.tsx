@@ -27,14 +27,19 @@ import { clone, debounce, isEmpty, last } from 'lodash'
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import {
+  StaticResourceQuery,
+  StaticResourceType,
+  staticResourcePath
+} from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
+import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { getState, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { ContextMenu } from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
+import { State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import {
@@ -44,7 +49,6 @@ import {
   HiMagnifyingGlass,
   HiMiniArrowLeft,
   HiMiniArrowPath,
-  HiOutlineCog6Tooth,
   HiOutlineFolder,
   HiOutlinePlusCircle
 } from 'react-icons/hi2'
@@ -52,8 +56,10 @@ import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import { TablePagination } from '../../../../../primitives/tailwind/Table'
 import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import { FileIcon } from '../../Files/icon'
 
 type Category = {
@@ -63,6 +69,7 @@ type Category = {
   isLeaf: boolean
   depth: number
 }
+
 const AssetsPreviewContext = createContext({ onAssetSelectionChanged: (props: AssetSelectionChangePropsType) => {} })
 
 const generateAssetsBreadcrumb = (categories: Category[], target: string) => {
@@ -97,22 +104,12 @@ const generateAssetsBreadcrumb = (categories: Category[], target: string) => {
 const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const { t } = useTranslation()
 
-  const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
     setAnchorEvent(event)
-    setAnchorPosition({
-      top: event.clientY,
-      left: event.clientX
-    })
-  }
-
-  const handleClose = () => {
-    setAnchorEvent(undefined)
-    setAnchorPosition(undefined)
   }
 
   const { onAssetSelectionChanged } = useContext(AssetsPreviewContext)
@@ -147,20 +144,17 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
         })
       }
       onContextMenu={handleContextMenu}
-      className={'mt-[10px] flex cursor-pointer flex-col items-center justify-center align-middle'}
+      className={'flex cursor-pointer flex-col items-center justify-center align-middle'}
     >
       <span className="mb-[5px] h-[70px] w-[70px] text-[70px]">
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
-      <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
 
-      <ContextMenu
-        anchorEvent={anchorEvent}
-        panelId={'asset-browser-panel'}
-        anchorPosition={anchorPosition}
-        onClose={handleClose}
-        className="gap-1"
-      >
+      <Tooltip title={name}>
+        <span className="line-clamp-1 w-full text-wrap break-all text-sm text-white">{name}</span>
+      </Tooltip>
+
+      <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)} className="gap-1">
         <div className="w-full rounded-lg bg-theme-surface-main px-4 py-2 text-sm text-white">
           <MetadataTable
             rows={[
@@ -177,7 +171,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
             size="small"
             variant="transparent"
             className="text-s text-left hover:bg-theme-surfaceInput"
-            onClick={() => handleClose()}
+            onClick={() => () => setAnchorEvent(undefined)}
           >
             {t('editor:visualScript.modal.buttons.close')}
           </Button>
@@ -261,7 +255,7 @@ const AssetCategory = (props: {
     <div
       className={twMerge(
         'flex cursor-pointer items-center gap-2',
-        category.depth === 0 && !category.collapsed && 'mt-4'
+        category.depth === 0 && !category.collapsed && 'mt-0'
       )}
       style={{ marginLeft: category.depth * 16 }}
       onClick={handleSelectCategory}
@@ -299,6 +293,52 @@ export function AssetsBreadcrumb({ path }: AssetsBreadcrumbProps) {
   )
 }
 
+const CategoriesList = ({
+  categories,
+  selectedCategory,
+  collapsedCategories,
+  onSelectCategory
+}: {
+  categories: Category[]
+  selectedCategory: Category | null
+  collapsedCategories: State<{ [key: string]: boolean }>
+  onSelectCategory: (category: Category) => void
+}) => {
+  const savedScrollPosition = useRef<number>(0)
+  const listRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = savedScrollPosition.current
+    }
+  }, [categories, selectedCategory])
+
+  const handleScroll = () => {
+    if (listRef.current) {
+      savedScrollPosition.current = listRef.current.scrollTop
+    }
+  }
+
+  return (
+    <div ref={listRef} className="mb-8 h-full w-52 overflow-y-scroll bg-[#0E0F11] pb-8" onScroll={handleScroll}>
+      {categories.map((category, index) => (
+        <AssetCategory
+          key={category.name}
+          data={{
+            categories: categories as Category[],
+            selectedCategory: selectedCategory,
+            onClick: (category: Category) => {
+              onSelectCategory(category)
+            },
+            collapsedCategories
+          }}
+          index={index}
+        />
+      ))}
+    </div>
+  )
+}
+
 const AssetPanel = () => {
   const { t } = useTranslation()
   const searchTimeoutCancelRef = useRef<(() => void) | null>(null)
@@ -309,28 +349,8 @@ const AssetPanel = () => {
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
   const searchText = useHookstate('')
   const breadcrumbPath = useHookstate('')
-  const { projectName } = useMutableState(EditorState)
-
-  const CategoriesList = () => {
-    return (
-      <div className="mb-8 h-[100%] w-[200px] overflow-y-auto bg-[#0E0F11] pb-8">
-        {categories.map((category, index) => (
-          <AssetCategory
-            key={category.name.value}
-            data={{
-              categories: categories.value as Category[],
-              selectedCategory: selectedCategory.value,
-              onClick: (category: Category) => {
-                selectedCategory.set(clone(category))
-              },
-              collapsedCategories
-            }}
-            index={index}
-          />
-        ))}
-      </div>
-    )
-  }
+  const originalPath = useMutableState(EditorState).projectName.value
+  const staticResourcesPagination = useHookstate({ totalPages: -1, currentPage: 0 })
 
   const mapCategories = () => {
     const result: Category[] = []
@@ -366,30 +386,43 @@ const AssetPanel = () => {
 
   useEffect(() => {
     const staticResourcesFindApi = () => {
+      const tags = selectedCategory.value
+        ? [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
+        : []
+
       const query = {
         key: {
           $like: `%${searchText.value}%`
         },
-        type: 'asset',
-        project: projectName.value!,
+        type: {
+          $or: [{ type: 'file' }, { type: 'asset' }]
+        },
+        tags: selectedCategory.value
+          ? {
+              $or: tags.flatMap((tag) => [
+                { tags: { $like: `%${tag.toLowerCase()}%` } },
+                { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } },
+                {
+                  tags: {
+                    $like: `%${tag
+                      .split(' ')
+                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                      .join(' ')}%`
+                  }
+                }
+              ])
+            }
+          : undefined,
         $sort: { mimeType: 1 },
-        $limit: 10000
-      }
+        $skip: staticResourcesPagination.currentPage.value * 10
+      } as StaticResourceQuery
 
-      if (selectedCategory.value) {
-        const tags = [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
-        query['tags'] = {
-          $or: tags.flatMap((tag) => [
-            { tags: { $like: `%${tag.toLowerCase()}%` } },
-            { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } }
-          ])
-        }
-      }
       Engine.instance.api
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
           searchedStaticResources.set(resources.data)
+          staticResourcesPagination.merge({ totalPages: resources.total / 10 })
         })
         .then(() => {
           loading.set(false)
@@ -405,12 +438,12 @@ const AssetPanel = () => {
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
 
     return () => searchTimeoutCancelRef.current?.()
-  }, [searchText, selectedCategory])
+  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
 
   const ResourceItems = () => {
     if (loading.value) {
       return (
-        <div className="flex items-center justify-center">
+        <div className="col-start-2 flex items-center justify-center">
           <LoadingView className="h-4 w-4" spinnerOnly />
         </div>
       )
@@ -418,7 +451,7 @@ const AssetPanel = () => {
     return (
       <>
         {isEmpty(searchedStaticResources.value) && (
-          <div className="h-full w-full justify-center text-white">
+          <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
             {t('editor:layout.scene-assets.no-search-results')}
           </div>
         )}
@@ -459,32 +492,29 @@ const AssetPanel = () => {
     mapCategories()
   }
 
-  const handleSettings = () => {
-    // TODO: add settings functionality
-  }
-
-  const handleUpdateAsset = () => {
-    // TODO: add upload asset functionality
+  const handleSelectCategory = (category: Category) => {
+    selectedCategory.set(clone(category))
+    !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }
 
   return (
     <>
       <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
         <div className="mr-20 flex gap-2">
-          <div id="back" className="pointer-events-auto flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottom" className="left-1">
+          <div className="pointer-events-auto flex items-center">
+            <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
               <Button variant="transparent" startIcon={<HiMiniArrowLeft />} className="p-0" onClick={handleBack} />
             </Tooltip>
           </div>
 
-          <div id="refresh" className="flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.refresh')} direction="bottom">
+          <div className="flex items-center">
+            <Tooltip title={t('editor:layout.filebrowser.refresh')}>
               <Button variant="transparent" startIcon={<HiMiniArrowPath />} className="p-0" onClick={handleRefresh} />
             </Tooltip>
           </div>
 
-          <div id="settings" className="flex items-center">
-            <Tooltip title={t('editor:layout.scene-assets.settings')} direction="bottom">
+          {/* <div className="flex items-center">
+            <Tooltip title={t('editor:layout.scene-assets.settings')}>
               <Button
                 variant="transparent"
                 startIcon={<HiOutlineCog6Tooth />}
@@ -492,7 +522,7 @@ const AssetPanel = () => {
                 onClick={handleSettings}
               />
             </Tooltip>
-          </div>
+          </div> */}
         </div>
 
         <div className="align-center flex h-7 flex-1 justify-center gap-2 pr-2">
@@ -513,21 +543,43 @@ const AssetPanel = () => {
         </div>
 
         <Button
-          id="uploadAssets"
           startIcon={<HiOutlinePlusCircle className="text-lg" />}
           variant="transparent"
           rounded="none"
           className="h-full whitespace-nowrap bg-[#375DAF] px-2"
           size="small"
-          onClick={handleUpdateAsset}
+          onClick={() =>
+            inputFileWithAddToScene({
+              projectName: originalPath as string,
+              directoryPath: `projects/${originalPath}/assets/`
+            })
+              .then(handleRefresh)
+              .catch((err) => {
+                NotificationService.dispatchNotify(err.message, { variant: 'error' })
+              })
+          }
         >
           {t('editor:layout.filebrowser.uploadAssets')}
         </Button>
       </div>
-      <div id="asset-browser-panel" className="flex h-full overflow-y-auto">
-        <CategoriesList />
-        <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
-          <ResourceItems />
+      <div id="asset-browser-panel" className="flex h-full">
+        <CategoriesList
+          categories={categories.value as Category[]}
+          selectedCategory={selectedCategory.value}
+          collapsedCategories={collapsedCategories}
+          onSelectCategory={handleSelectCategory}
+        />
+        <div className="flex h-full w-full flex-col overflow-auto">
+          <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
+            <ResourceItems />
+          </div>
+          <div className="mx-auto mb-10">
+            <TablePagination
+              totalPages={staticResourcesPagination.totalPages.value}
+              currentPage={staticResourcesPagination.currentPage.value}
+              onPageChange={(newPage) => staticResourcesPagination.merge({ currentPage: newPage })}
+            />
+          </div>
         </div>
         {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
       </div>

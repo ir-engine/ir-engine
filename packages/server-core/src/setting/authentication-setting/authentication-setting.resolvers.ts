@@ -122,6 +122,10 @@ export const authenticationDbToSchema = (rawData: AuthenticationSettingDatabaseT
         oauth!.defaults = JSON.parse(oauth!.defaults) as AuthDefaultsType
       }
 
+      if (typeof oauth!.apple === 'string') {
+        oauth!.apple = JSON.parse(oauth!.apple) as AuthAppCredentialsType
+      }
+
       if (typeof oauth!.facebook === 'string') {
         oauth!.facebook = JSON.parse(oauth!.facebook) as AuthAppCredentialsType
       }

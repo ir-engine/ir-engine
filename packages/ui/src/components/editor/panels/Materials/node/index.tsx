@@ -26,12 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 
-import { EntityUUID, getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, getOptionalComponent, useOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { SiRoundcube } from 'react-icons/si'
 import { twMerge } from 'tailwind-merge'
@@ -66,6 +67,8 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
   const node = data.nodes[props.index]
 
   const selectionState = useMutableState(SelectionState)
+
+  const name = useOptionalComponent(UUIDComponent.getEntityByUUID(node.uuid as EntityUUID), NameComponent)
 
   const onClickNode = (e) => {
     data.onClick(e, node)
@@ -136,7 +139,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
             <SiRoundcube className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
             <div className="flex flex-1 items-center">
               <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
-                <span className="text-nowrap text-sm leading-4">{nodeDisplayName(node)}</span>
+                <span className="text-nowrap text-sm leading-4">{name?.value || ''}</span>
               </div>
             </div>
             {/*<button

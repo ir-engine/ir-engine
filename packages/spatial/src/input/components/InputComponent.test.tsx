@@ -34,13 +34,15 @@ import {
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { ReactorReconciler } from '@etherealengine/hyperflux'
 
-import { createEngine } from '../../initializeEngine'
+import { createEngine } from '@etherealengine/ecs/src/Engine'
+import { initializeSpatialEngine } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { InputComponent } from './InputComponent'
 
 describe('InputComponent', () => {
   beforeEach(() => {
     createEngine()
+    initializeSpatialEngine()
   })
 
   it('test input component', async () => {

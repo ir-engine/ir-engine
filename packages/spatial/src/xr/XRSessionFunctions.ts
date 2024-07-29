@@ -50,7 +50,7 @@ export const onSessionEnd = () => {
 
   getMutableState(XRState).xrFrame.set(null)
 
-  getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.style.display = ''
+  getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.domElement.style.display = ''
 
   const worldOriginTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
   worldOriginTransform.position.copy(Vector3_Zero)
@@ -67,7 +67,7 @@ export const onSessionEnd = () => {
 
 export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' | 'immersive-vr') => {
   const xrState = getMutableState(XRState)
-  const xrManager = getComponent(Engine.instance.viewerEntity, RendererComponent).xrManager
+  const xrManager = getComponent(Engine.instance.viewerEntity, RendererComponent).xrManager!
 
   // @todo - hack to detect nreal
   const params = new URL(document.location.href).searchParams
@@ -81,16 +81,16 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
       isXREAL ? undefined : 'dom-overlay', // dom overlay crashes nreal
       'hit-test',
       'light-estimation',
-      'depth-sensing',
+      // 'depth-sensing', // TODO: crashes meta quest
       'anchors',
       'plane-detection',
       'mesh-detection',
       'camera-access'
     ].filter(Boolean),
-    depthSensing: {
-      usagePreference: ['cpu-optimized', 'gpu-optimized'],
-      dataFormatPreference: ['luminance-alpha', 'float32']
-    },
+    // depthSensing: {
+    //   usagePreference: ['cpu-optimized', 'gpu-optimized'],
+    //   dataFormatPreference: ['luminance-alpha', 'float32']
+    // },
     domOverlay: isXREAL ? undefined : { root: document.body }
   } as XRSessionInit
   const mode =
@@ -126,7 +126,7 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
   /** Hide the canvas - do not do this for the WebXR emulator */
   /** @todo currently, XRSession.visibilityState is undefined in the webxr emulator - we need a better check*/
   if (typeof xrSession.visibilityState === 'string') {
-    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.style.display = 'none'
+    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.domElement.style.display = 'none'
   }
 
   xrState.session.set(xrSession)

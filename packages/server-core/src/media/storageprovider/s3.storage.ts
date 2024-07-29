@@ -66,12 +66,14 @@ import S3BlobStore from 's3-blob-store'
 import { PassThrough, Readable } from 'stream'
 
 import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
+
 import {
-  assetsRegex,
-  projectPublicRegex,
-  projectRegex,
-  projectThumbnailsRegex
-} from '@etherealengine/common/src/constants/ProjectKeyConstants'
+  ASSETS_REGEX,
+  PROJECT_PUBLIC_REGEX,
+  PROJECT_REGEX,
+  PROJECT_THUMBNAIL_REGEX
+} from '@etherealengine/common/src/regex'
+
 import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 
 import config from '../../appconfig'
@@ -94,11 +96,12 @@ function handler(event) {
     var recordingsRegex = new RegExp(recordingsRegexRoot)
     var publicRegexRoot = __$publicRegex$__
     var publicRegex = new RegExp(publicRegexRoot)
+    var tempRegex = new RegExp('/temp/')
     
     if (publicRegex.test(request.uri)) {
         request.uri = '/client' + request.uri
-    } else if (projectsRegex.test(request.uri) || recordingsRegex.test(request.uri)) {
-        // Projects and recordings paths should be passed as-is
+    } else if (projectsRegex.test(request.uri) || recordingsRegex.test(request.uri) || tempRegex.test(request.uri)) {
+        // Projects, temp files, and recordings paths should be passed as-is
     } else {
       // Anything that is not a static/public file, or a project or recording file, is assumed to be some sort
       // of engine route and passed to index.html to be handled by the router
@@ -112,7 +115,10 @@ const awsPath = './.aws/s3'
 const credentialsPath = `${awsPath}/credentials`
 
 export const getACL = (key: string) =>
-  projectRegex.test(key) && !projectPublicRegex.test(key) && !projectThumbnailsRegex.test(key) && !assetsRegex.test(key)
+  PROJECT_REGEX.test(key) &&
+  !PROJECT_PUBLIC_REGEX.test(key) &&
+  !PROJECT_THUMBNAIL_REGEX.test(key) &&
+  !ASSETS_REGEX.test(key)
     ? ObjectCannedACL.private
     : ObjectCannedACL.public_read
 

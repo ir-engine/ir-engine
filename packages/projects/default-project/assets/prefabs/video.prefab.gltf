@@ -1,0 +1,83 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "video",
+      "extensions": {
+        "EE_uuid": "fba0b72f-f097-47e3-be6f-d809dfa660b3",
+        "EE_visible": true,
+        "EE_video": {
+          "mediaUUID": "",
+          "side": 2,
+          "size": {
+            "x": 1,
+            "y": 1
+          },
+          "uvOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "uvScale": {
+            "x": 1,
+            "y": 1
+          },
+          "alphaUVOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "alphaUVScale": {
+            "x": 1,
+            "y": 1
+          },
+          "wrapS": 1001,
+          "wrapT": 1001,
+          "useAlpha": false,
+          "useAlphaUVTransform": false,
+          "alphaThreshold": 0.5,
+          "fit": "contain",
+          "projection": "Flat"
+        },
+        "EE_media": {
+          "controls": false,
+          "autoplay": true,
+          "resources": [],
+          "volume": 1,
+          "uiOffset": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "synchronize": true,
+          "playMode": "loop",
+          "isMusic": false,
+          "seekTime": 0
+        },
+        "EE_input": {
+          "inputSinks": [
+            "Self"
+          ],
+          "activationDistance": 2
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_video",
+    "EE_media",
+    "EE_input",
+    "EE_ecs"
+  ]
+}
