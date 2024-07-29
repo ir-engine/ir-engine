@@ -93,7 +93,10 @@ export const getSpawnPositionAtCenter = (() => {
  * @returns
  */
 export function getCursorSpawnPosition(mousePos: Vector2, target = new Vector3()): Vector3 {
-  const rect = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.getBoundingClientRect()
+  const rect = getComponent(
+    Engine.instance.viewerEntity,
+    RendererComponent
+  ).renderer!.domElement.getBoundingClientRect()
   const position = new Vector2()
   position.x = ((mousePos.x - rect.left) / rect.width) * 2 - 1
   position.y = ((mousePos.y - rect.top) / rect.height) * -2 + 1

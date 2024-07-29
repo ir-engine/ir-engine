@@ -26,14 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import {
-  createEntity,
   EntityUUID,
-  generateEntityUUID,
-  getComponent,
-  hasComponent,
-  setComponent,
+  UUIDComponent,
   UndefinedEntity,
-  UUIDComponent
+  createEntity,
+  generateEntityUUID,
+  hasComponent,
+  setComponent
 } from '@etherealengine/ecs'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
@@ -41,9 +40,8 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { RendererComponent, initializeEngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import {
   EntityTreeComponent,
   removeEntityNodeRecursively
@@ -66,7 +64,6 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
     setComponent(cameraEntity, TransformComponent)
     setComponent(cameraEntity, VisibleComponent)
     setComponent(cameraEntity, CameraOrbitComponent, { refocus: true })
-    setComponent(cameraEntity, SceneComponent, { children: [sceneEntity, cameraEntity] })
     setComponent(cameraEntity, InputComponent)
     setComponent(cameraEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
 
@@ -89,14 +86,17 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
     if (!canvas.current || canvasRef.value === canvas.current) return
     canvasRef.set(canvas.current)
 
-    const { cameraEntity } = panelState.value
+    const { cameraEntity, sceneEntity } = panelState.value
 
     setComponent(cameraEntity, NameComponent, '3D Preview Camera for ' + canvasRef.value.id)
 
     if (hasComponent(cameraEntity, RendererComponent)) return
 
-    setComponent(cameraEntity, RendererComponent, { canvas: canvasRef.value as HTMLCanvasElement })
-    getComponent(cameraEntity, RendererComponent).initialize()
+    setComponent(cameraEntity, RendererComponent, {
+      canvas: canvasRef.value as HTMLCanvasElement,
+      scenes: [sceneEntity]
+    })
+    initializeEngineRenderer(cameraEntity)
   }, [canvas.current])
 
   return panelState.value

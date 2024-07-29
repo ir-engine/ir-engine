@@ -116,7 +116,8 @@ export class MediasoupMediaConsumerActions {
     kind: matches.literals('audio', 'video').optional(),
     rtpParameters: matches.object,
     consumerType: matches.string,
-    paused: matches.boolean
+    paused: matches.boolean,
+    producerPaused: matches.boolean
   })
 
   static consumerLayers = defineAction({
@@ -172,6 +173,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
           channelID: ChannelID
           producerID: string
           paused?: boolean
+          producerPaused?: boolean
           kind?: 'audio' | 'video'
           rtpParameters: any
           type: string
@@ -232,6 +234,10 @@ export const MediasoupMediaProducerConsumerState = defineState({
     onProducerPaused: MediasoupMediaProducerActions.producerPaused.receive((action) => {
       const state = getMutableState(MediasoupMediaProducerConsumerState)
       const networkID = action.$network
+      const matchingConsumer = state.value[networkID]
+        ? Object.values(state.value[networkID].consumers).find((consumer) => consumer.producerID === action.producerID)
+        : null
+      if (matchingConsumer) state[networkID].consumers[matchingConsumer.consumerID].producerPaused.set(action.paused)
       if (!state.value[networkID]?.producers[action.producerID]) return
 
       const producerState = state[networkID].producers[action.producerID]
@@ -269,6 +275,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
           producerID: action.producerID,
           kind: action.kind!,
           paused: action.paused,
+          producerPaused: action.producerPaused,
           rtpParameters: action.rtpParameters,
           type: action.consumerType
         }
@@ -319,6 +326,8 @@ export const MediasoupMediaProducerConsumerState = defineState({
     onUpdatePeers: NetworkActions.updatePeers.receive((action) => {
       const state = getState(MediasoupMediaProducerConsumerState)
       const producers = state[action.$network]?.producers
+      const networkState = getState(NetworkState).networks[action.$network]
+      if (!networkState?.ready) return
       if (producers)
         for (const producer of Object.values(producers)) {
           const transport = getState(MediasoupTransportState)[action.$network]?.[producer.transportID]
@@ -422,34 +431,6 @@ export const NetworkMediaProducer = (props: { networkID: InstanceID; producerID:
 
   if (!consumer) return null
 
-  return <NetworkProducerConsumerPause networkID={networkID} producerID={producerID} consumerID={consumer.consumerID} />
-}
-
-const NetworkProducerConsumerPause = (props: { networkID: InstanceID; producerID: string; consumerID: string }) => {
-  const { networkID, producerID, consumerID } = props
-
-  const producerState = useHookstate(
-    getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
-  )
-
-  const consumerState = useHookstate(
-    getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers[consumerID]
-  )
-
-  useEffect(() => {
-    const consumer = consumerState.value
-
-    const network = getState(NetworkState).networks[networkID]
-
-    dispatchAction(
-      MediasoupMediaConsumerActions.consumerPaused({
-        consumerID: consumer.consumerID,
-        paused: !!producerState.paused.value,
-        $topic: network.topic
-      })
-    )
-  }, [producerState.paused.value])
-
   return null
 }
 
@@ -478,7 +459,9 @@ export const NetworkMediaConsumer = (props: { networkID: InstanceID; consumerID:
 
   useEffect(() => {
     const consumer = consumerObjectState.value as any
-    if (!consumer || consumer.closed || consumer._closed) return
+    const producerID = consumerState.producerID.value
+    const producer = getState(MediasoupMediaProducersConsumersObjectsState).producers[producerID]
+    if (!consumer || consumer.closed || consumer._closed || !producer || producer?.closed || producer?._closed) return
 
     if (consumerState.paused.value && typeof consumer.pause === 'function') consumer.pause()
     if (!consumerState.paused.value && typeof consumer.resume === 'function') consumer.resume()

@@ -92,7 +92,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
   async _seedProject(projectName: string): Promise<any> {
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
-    const projectConfig = getProjectConfig(projectName) ?? {}
+    const projectConfig = getProjectConfig(projectName)
     const enabled = getProjectEnabled(projectName)
 
     // if no manifest.json exists, add one
@@ -140,7 +140,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     await uploadLocalProjectToProvider(this.app, projectName)
 
     // run project install script
-    if (projectConfig.onEvent) {
+    if (projectConfig?.onEvent) {
       return onProjectEvent(this.app, project, projectConfig.onEvent, 'onInstall')
     }
 

@@ -33,11 +33,12 @@ import {
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '@etherealengine/server-core/declarations'
 import { Params } from '@feathersjs/feathers'
+import { v4 } from 'uuid'
 import { createUser, getAuthParams } from './user-test-utils'
 
 export const createProject = async (app: Application, projectName?: string, user?: UserType) => {
   if (!projectName) {
-    projectName = `__test/project-${Math.floor(Math.random() * (999 - 100 + 1) + 100)}`
+    projectName = `__test/project-${v4()}`
   }
 
   if (!user) {

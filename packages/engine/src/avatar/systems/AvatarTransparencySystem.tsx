@@ -40,7 +40,7 @@ import {
 import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
-import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
@@ -60,11 +60,12 @@ const avatarQuery = defineQuery([AvatarComponent])
 const execute = () => {
   const selfEntity = AvatarComponent.getSelfAvatarEntity()
   if (!selfEntity) return
+  const cameraAttached = XRState.isCameraAttachedToAvatar
+
   for (const entity of avatarQuery()) {
     const materials = getComponent(entity, TransparencyDitheringRoot)?.materials
     if (!materials) setComponent(entity, TransparencyDitheringRoot, { materials: [] })
 
-    const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
     const avatarComponent = getComponent(entity, AvatarComponent)
     const cameraComponent = getOptionalComponent(getState(EngineState).viewerEntity, FollowCameraComponent)
 
@@ -78,12 +79,15 @@ const execute = () => {
       const viewerPosition = getComponent(Engine.instance.viewerEntity, TransformComponent).position
       pluginComponent.centers.value[cameraDithering].set(viewerPosition.x, viewerPosition.y, viewerPosition.z)
       pluginComponent.distances.value[cameraDithering] = cameraAttached ? 8 : 3
-      pluginComponent.exponents.value[cameraDithering] = cameraAttached ? 10 : 2
+      pluginComponent.exponents.value[cameraDithering] = cameraAttached ? 10 : 6
       pluginComponent.useWorldCalculation.value[cameraDithering] = ditherCalculationType.worldTransformed
-      if (entity !== selfEntity) continue
+      if (entity !== selfEntity) {
+        pluginComponent.distances.value[headDithering] = 10
+        continue
+      }
       pluginComponent.centers.value[headDithering].setY(avatarComponent.eyeHeight)
       pluginComponent.distances.value[headDithering] =
-        cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 2.5), 3) : 3.25
+        cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 2.5), 3) : 3.5
       pluginComponent.exponents.value[headDithering] = cameraAttached ? 12 : 8
       pluginComponent.useWorldCalculation.value[headDithering] = ditherCalculationType.localPosition
     }

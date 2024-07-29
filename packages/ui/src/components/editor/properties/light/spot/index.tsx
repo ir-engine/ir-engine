@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
+import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/lights/SpotLightComponent'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuCircleDot } from 'react-icons/lu'
@@ -39,7 +39,6 @@ import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import NodeEditor from '../../nodeEditor'
-import LightShadowProperties from '../shadowProperties'
 
 /**
  * SpotLightNodeEditor component class used to provide editor view for property customization.
@@ -57,7 +56,11 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
       icon={<SpotLightNodeEditor.iconComponent />}
     >
       <InputGroup name="Color" label={t('editor:properties.spotLight.lbl-color')}>
-        <ColorInput value={lightComponent.color.value} onChange={updateProperty(SpotLightComponent, 'color')} />
+        <ColorInput
+          value={lightComponent.color.value}
+          onChange={updateProperty(SpotLightComponent, 'color')}
+          onRelease={commitProperty(SpotLightComponent, 'color')}
+        />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.spotLight.lbl-intensity')}>
         <NumericInput
@@ -117,7 +120,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SpotLightComponent, 'decay')}
         />
       </InputGroup>
-      <LightShadowProperties entity={props.entity} component={SpotLightComponent} />
+      {/* <LightShadowProperties entity={props.entity} component={SpotLightComponent} /> */}
     </NodeEditor>
   )
 }

@@ -197,7 +197,8 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
   const { create: projectCreateQuery, remove: projectRemoveQuery } = useMutation(projectPath)
   const projectFindQuery = useFind(projectPath, {
     query: {
-      paginate: false,
+      /** @todo - add pagination to UI */
+      $limit: 1000,
       action: 'studio',
       allowed: true,
       ...(!!search.query.value && { name: { $like: `%${search.query.value}%` } }),

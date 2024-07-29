@@ -23,8 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { EntityUUID, UUIDComponent, useQuery } from '@etherealengine/ecs'
+import { ComponentType, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  EditorComponentType,
+  commitProperty,
+  updateProperty
+} from '@etherealengine/editor/src/components/properties/Util'
+import { GLTFNodeState, GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { State, dispatchAction } from '@etherealengine/hyperflux'
+import { DirectionalLightComponent } from '@etherealengine/spatial'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { SiRender } from 'react-icons/si'
 import {
   ACESFilmicToneMapping,
   BasicShadowMap,
@@ -36,18 +51,6 @@ import {
   ReinhardToneMapping,
   VSMShadowMap
 } from 'three'
-
-import { EntityUUID, useQuery, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import {
-  commitProperty,
-  EditorComponentType,
-  updateProperty
-} from '@etherealengine/editor/src/components/properties/Util'
-import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
-import { SiRender } from 'react-icons/si'
 import Slider from '../../../../primitives/tailwind/Slider'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
@@ -107,7 +110,8 @@ const ShadowTypeOptions = [
 
 export const RenderSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const rendererSettingsState = useComponent(props.entity, RenderSettingsComponent)
+  const { entity } = props
+  const rendererSettingsState = useComponent(entity, RenderSettingsComponent)
 
   const directionalLightOptions = [
     {
@@ -122,6 +126,23 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
       }
     })
   )
+
+  useEffect(() => {
+    if (!UUIDComponent.getEntityByUUID(rendererSettingsState.primaryLight.value)) {
+      const source = getComponent(entity, SourceComponent)
+      const node = GLTFNodeState.getMutableNode(entity)
+      const renderSettingsExt = node.extensions[RenderSettingsComponent.jsonID] as State<
+        ComponentType<typeof RenderSettingsComponent>
+      >
+      if (!renderSettingsExt.primaryLight.value) return
+      renderSettingsExt.merge({
+        csm: false,
+        primaryLight: '' as EntityUUID
+      })
+      const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(source)
+      dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
+    }
+  }, [rendererSettingsState.primaryLight])
 
   return (
     <PropertyGroup
@@ -155,6 +176,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
           name="Cascades"
           label={t('editor:properties.renderSettings.lbl-csm-cascades')}
           info={t('editor:properties.renderSettings.info-csm-cascades')}
+          className="w-auto"
         >
           <Slider
             min={1}
@@ -183,6 +205,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
         name="Tone Mapping Exposure"
         label={t('editor:properties.renderSettings.lbl-toneMappingExposure')}
         info={t('editor:properties.renderSettings.info-toneMappingExposure')}
+        className="w-auto"
       >
         <Slider
           min={0}

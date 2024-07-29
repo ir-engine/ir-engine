@@ -27,10 +27,15 @@ import i18n from 'i18next'
 
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
-import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import {
+  StaticResourceData,
+  StaticResourceType,
+  fileBrowserPath,
+  staticResourcePath
+} from '@etherealengine/common/src/schema.type.module'
 import { cleanString } from '@etherealengine/common/src/utils/cleanString'
 import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
-import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
@@ -84,10 +89,11 @@ export const renameScene = async (
 const fileServer = config.client.fileServer
 
 export const saveSceneGLTF = async (
-  sceneAssetID: string | null,
+  sceneAssetID: string,
   projectName: string,
   sceneFile: string,
-  signal: AbortSignal
+  signal: AbortSignal,
+  saveAs?: boolean
 ) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
@@ -97,7 +103,7 @@ export const saveSceneGLTF = async (
   const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
 
-  if (!sceneAssetID) {
+  if (saveAs) {
     const existingScene = await Engine.instance.api.service(staticResourcePath).find({
       query: { key: `${currentSceneDirectory}/${sceneName}.gltf`, $limit: 1 }
     })
@@ -120,7 +126,7 @@ export const saveSceneGLTF = async (
   newURL.search = ''
   const assetURL = newURL.href.replace(fileServer, '').slice(1) // remove leading slash
 
-  if (sceneAssetID) {
+  if (!saveAs) {
     if (getState(EditorState).scenePath !== newPath) {
       const result = await Engine.instance.api
         .service(staticResourcePath)
@@ -136,9 +142,16 @@ export const saveSceneGLTF = async (
     return
   }
 
-  const result = await Engine.instance.api
-    .service(staticResourcePath)
-    .create({ key: assetURL, project: projectName, type: 'scene' })
+  const currentScene = await Engine.instance.api.service(staticResourcePath).get(sceneAssetID)
+
+  const newSceneData: StaticResourceData = {
+    key: assetURL,
+    project: projectName,
+    type: 'scene',
+    thumbnailKey: currentScene.thumbnailKey
+  }
+
+  const result = await Engine.instance.api.service(staticResourcePath).create(newSceneData)
 
   getMutableState(EditorState).merge({
     sceneName,
@@ -186,8 +199,8 @@ export const onNewScene = async (
 }
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
-  const gltfEntity = GLTFSourceState.load(sceneURL, uuid)
-  getMutableComponent(getState(EngineState).viewerEntity, SceneComponent).children.merge([gltfEntity])
+  const gltfEntity = GLTFSourceState.load(sceneURL, uuid, getState(EngineState).originEntity)
+  setComponent(gltfEntity, SceneComponent)
   getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {
     getMutableState(EditorState).rootEntity.set(UndefinedEntity)

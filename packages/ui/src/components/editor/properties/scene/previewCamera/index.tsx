@@ -35,20 +35,26 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { previewScreenshot } from '@etherealengine/editor/src/functions/takeScreenshot'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@etherealengine/hyperflux'
-import { getNestedVisibleChildren } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import {
+  RendererComponent,
+  getNestedVisibleChildren,
+  getSceneParameters
+} from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { Scene } from 'three'
+import Button from '../../../../../primitives/tailwind/Button'
 import ImagePreviewInput from '../../../input/Image/Preview'
 import NodeEditor from '../../nodeEditor'
 
 /**
  * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
  */
+
+const scene = new Scene()
+
 export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const [bufferUrl, setBufferUrl] = useState<string>('')
@@ -65,13 +71,15 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   }
 
   const updateScenePreview = async () => {
-    const rootEntity = getState(EditorState).rootEntity
-    const scene = new Scene()
-    scene.children = getComponent(rootEntity, SceneComponent)
-      .children.map(getNestedVisibleChildren)
-      .flat()
-      .map((entity) => getComponent(entity, GroupComponent))
-      .flat()
+    const rootEntity = getState(EngineState).viewerEntity
+    const entitiesToRender = getComponent(rootEntity, RendererComponent).scenes.map(getNestedVisibleChildren).flat()
+    const { background, environment, fog, children } = getSceneParameters(entitiesToRender)
+
+    scene.children = children
+    scene.environment = environment
+    scene.fog = fog
+    scene.background = background
+
     const imageBlob = (await previewScreenshot(
       512 / 2,
       320 / 2,
@@ -100,15 +108,17 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.sceneCamera.description')}
       icon={<ScenePreviewCameraNodeEditor.iconComponent />}
     >
-      {/*<Button
-        onClick={() => {
-          onSetFromViewport()
-          updateScenePreview()
-        }}
-      >
-        {t('editor:properties.sceneCamera.lbl-setFromViewPort')}
-      </Button>*/}
       <ImagePreviewInput value={bufferUrl} />
+      <div className="flex h-auto flex-col items-center">
+        <Button
+          onClick={() => {
+            onSetFromViewport()
+            updateScenePreview()
+          }}
+        >
+          {t('editor:properties.sceneCamera.lbl-setFromViewPort')}
+        </Button>
+      </div>
     </NodeEditor>
   )
 }

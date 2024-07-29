@@ -32,13 +32,14 @@ import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
 } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { ImmutableArray, useHookstate } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
 import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
+import { FileType, createFileDigest } from '@etherealengine/ui/src/components/editor/panels/Files/container'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
@@ -47,7 +48,6 @@ import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
-import { FileType } from './FileBrowser/FileBrowserContentPanel'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },
@@ -64,31 +64,33 @@ const UASTCFlagOptions = [
 ]
 
 export default function ImageCompressionPanel({
-  selectedFile,
+  selectedFiles,
   refreshDirectory
 }: {
-  selectedFile: FileType
+  selectedFiles: ImmutableArray<FileType>
   refreshDirectory: () => Promise<void>
 }) {
   const { t } = useTranslation()
+  const digest = createFileDigest(selectedFiles)
+
   const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const compressionLoading = useHookstate(false)
 
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
 
-    compressProperties.src.set(
-      selectedFile.type === 'folder' ? `${selectedFile.url}/${selectedFile.key}` : selectedFile.url
-    )
-
-    await compressImage()
+    for (const file of selectedFiles) {
+      await compressImage(file)
+    }
     await refreshDirectory()
 
     compressionLoading.set(false)
     PopoverState.hidePopupover()
   }
 
-  const compressImage = async () => {
+  const compressImage = async (props: FileType) => {
+    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
+
     const ktx2Encoder = new KTX2Encoder()
 
     const img = await new Promise<HTMLImageElement>((resolve) => {
@@ -118,9 +120,9 @@ export default function ImageCompressionPanel({
       uastcZstandard: compressProperties.uastcZstandard.value
     })
 
-    const newFileName = selectedFile.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
-    const path = selectedFile.key.replace(/(.*\/).*/, '$1')
-    const projectName = selectedFile.key.split('/')[1] // TODO: support projects with / in the name
+    const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
+    const path = props.key.replace(/(.*\/).*/, '$1')
+    const projectName = props.key.split('/')[1] // TODO: support projects with / in the name
     const relativePath = path.replace('projects/' + projectName + '/', '')
 
     const file = new File([data], newFileName, { type: 'image/ktx2' })
@@ -140,12 +142,17 @@ export default function ImageCompressionPanel({
     }
   }
 
+  let title: string
+  if (selectedFiles.length === 1) {
+    title = selectedFiles[0].name
+  } else {
+    title = selectedFiles.length + ' Items'
+  }
+
   return (
     <div className="max-h-[80vh] w-[680px] overflow-y-auto rounded-xl bg-[#0E0F11]">
       <div className="relative mb-3 flex items-center justify-center px-8 py-3">
-        <Text className="leading-6" fontFamily="Figtree">
-          {t('editor:properties.model.transform.compressImage')}
-        </Text>
+        <Text className="leading-6">{t('editor:properties.model.transform.compressImage')}</Text>
         <Button
           variant="outline"
           className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
@@ -156,16 +163,16 @@ export default function ImageCompressionPanel({
 
       <div className="mx-auto grid w-1/2 gap-y-2">
         <InputGroup
-          className="w-full justify-start"
+          containerClassName="w-full justify-start"
           labelClassName="w-24 text-[#D3D5D9]"
           name="mode"
           label={t('editor:properties.model.transform.dst')}
         >
-          <Input className="border-[#42454D] bg-[#141619] px-2 py-1.5" value={selectedFile.name} disabled />
+          <Input className="border-[#42454D] bg-[#141619] px-2 py-1.5" value={title} disabled />
         </InputGroup>
         <div className="w-full border border-[#2B2C30]" />
         <InputGroup
-          className="w-full justify-start"
+          containerClassName="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="mode"
@@ -184,7 +191,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
+          containerClassName="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="flipY"
@@ -198,7 +205,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
+          containerClassName="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="linear"
@@ -212,7 +219,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
+          containerClassName="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="mipmaps"
@@ -226,7 +233,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
+          containerClassName="w-full justify-start"
           labelClassName="w-20 text-[#D3D5D9]"
           infoClassName="text-[#D3D5D9]"
           name="normalMap"
@@ -242,7 +249,7 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'ETC1S' && (
           <>
             <InputGroup
-              className="w-full justify-start"
+              containerClassName="w-full justify-start"
               labelClassName="w-20 text-[#D3D5D9]"
               infoClassName="text-[#D3D5D9]"
               name="quality"
@@ -261,7 +268,7 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
-              className="w-full justify-start"
+              containerClassName="w-full justify-start"
               labelClassName="w-20 text-[#D3D5D9]"
               infoClassName="text-[#D3D5D9]"
               name="compressionLevel"
@@ -284,7 +291,7 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'UASTC' && (
           <>
             <InputGroup
-              className="w-full justify-start"
+              containerClassName="w-full justify-start"
               labelClassName="w-20 text-[#D3D5D9]"
               infoClassName="text-[#D3D5D9]"
               name="uastcFlags"
@@ -299,7 +306,7 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
-              className="w-full justify-start"
+              containerClassName="w-full justify-start"
               labelClassName="w-20 text-[#D3D5D9]"
               infoClassName="text-[#D3D5D9]"
               name="uastcZstandard"

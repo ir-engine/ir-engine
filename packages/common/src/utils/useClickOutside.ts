@@ -25,11 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-export const useClickOutside = (ref: React.RefObject<HTMLElement>, onClickOutsideCallback: () => void) => {
+export const useClickOutside = (
+  ref: React.RefObject<HTMLElement>,
+  onClickOutsideCallback: (event: MouseEvent) => void
+) => {
   useEffect(() => {
     const onClickOutside = (event: MouseEvent) => {
       if (ref.current && !ref.current.contains(event.target as Node)) {
-        onClickOutsideCallback()
+        onClickOutsideCallback(event)
       }
     }
     document.addEventListener('mousedown', onClickOutside)

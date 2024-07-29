@@ -36,15 +36,16 @@ interface Props {
   description?: string
   onClose?: () => void
   children?: React.ReactNode
+  minimizedDefault?: boolean
   rest?: Record<string, unknown>
 }
 
-const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: Props) => {
-  const [minimized, setMinimized] = useState(true)
+const PropertyGroup = ({ name, icon, description, children, onClose, minimizedDefault, ...rest }: Props) => {
+  const [minimized, setMinimized] = useState(minimizedDefault ?? true)
 
   return (
-    <div className="justify-left flex w-full flex-col items-start rounded border-solid bg-[#242424] px-4 py-1.5">
-      <div className="flex w-full items-center gap-2 text-[#FAFAFA]">
+    <div className="justify-left flex w-full flex-col items-start rounded border-solid bg-[#212226] px-4 py-1.5">
+      <div className="flex w-full items-center gap-2 text-[#D3D5D9]">
         <Button
           onClick={() => setMinimized(!minimized)}
           variant="outline"

@@ -46,7 +46,7 @@
   "dependencies": {
     "@aws-sdk/client-cloudfront": "^3.321.1",
     "@aws-sdk/client-ecr-public": "^3.316.0",
-    "@aws-sdk/client-s3": "^3.317.0",
+    "@aws-sdk/client-s3": "3.614.0",
     "@aws-sdk/client-sns": "^3.316.0",
     "@aws-sdk/credential-providers": "^3.549.0",
     "@aws-sdk/lib-storage": "^3.321.1",
@@ -110,6 +110,7 @@
     "pino-elasticsearch": "6.6.0",
     "pino-opensearch": "^1.1.0",
     "pino-pretty": "^10.0.0",
+    "pino-socket": "^7.3.0",
     "primus": "^8.0.6",
     "primus-emitter": "^3.1.1",
     "probe-image-size": "^7.2.3",

@@ -42,7 +42,6 @@ import fetch from 'node-fetch'
 import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
-import { v4 as uuidv4 } from 'uuid'
 
 import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/regex'
@@ -76,6 +75,7 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
+import { BUILDER_CHART_REGEX } from '@etherealengine/common/src/regex'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
@@ -86,7 +86,6 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
-import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
 import { getContentType } from '../../util/fileUtils'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
@@ -196,11 +195,16 @@ export const updateBuilder = async (
         )
       else {
         const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
-        const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)![1]
-        if (builderChartVersion)
-          await execAsync(
-            `helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
-          )
+
+        const matches = stdout.matchAll(BUILDER_CHART_REGEX)
+
+        for (const match of matches) {
+          const builderChartVersion = match[1]
+          if (builderChartVersion)
+            await execAsync(
+              `helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+            )
+        }
       }
     } catch (err) {
       logger.error(err)
@@ -308,16 +312,16 @@ export const onProjectEvent = async (
   }
 }
 
-export const getProjectConfig = (projectName: string): ProjectConfigInterface => {
+export const getProjectConfig = (projectName: string) => {
   try {
-    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')).default
+    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts'))
+      .default as ProjectConfigInterface
   } catch (e) {
     logger.error(
       e,
       '[Projects]: WARNING project with ' +
         `name ${projectName} has no xrengine.config.ts file - this is not recommended.`
     )
-    return null!
   }
 }
 export const getProjectManifest = (projectName: string): ManifestJson => {
@@ -338,7 +342,7 @@ export const getProjectManifest = (projectName: string): ManifestJson => {
       thumbnail: packageJson.etherealEngine?.thumbnail
     }
   }
-  throw new Error('No manifest.json or package.json found in project')
+  throw new Error(`No manifest.json or package.json found in project '${projectName}'`)
 }
 
 export const engineVersion = (
@@ -1038,14 +1042,17 @@ export async function getProjectUpdateJobBody(
     command.push(data.reset.toString())
   }
 
+  const projectJobName = data.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+
   const labels = {
     'etherealengine/projectUpdater': 'true',
     'etherealengine/autoUpdate': 'false',
-    'etherealengine/projectField': data.name,
+    'etherealengine/projectField': projectJobName,
     'etherealengine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-${data.name}-update`
+  const name = `${process.env.RELEASE_NAME}-${projectJobName}-update`
+
   return getJobBody(app, command, name, labels)
 }
 export async function getProjectPushJobBody(
@@ -1083,25 +1090,28 @@ export async function getProjectPushJobBody(
     command.push(storageProviderName)
   }
 
+  const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+
   const labels = {
     'etherealengine/projectPusher': 'true',
-    'etherealengine/projectField': project.name,
+    'etherealengine/projectField': projectJobName,
     'etherealengine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-gh-push`
+  const name = `${process.env.RELEASE_NAME}-${projectJobName}-gh-push`
 
   return getJobBody(app, command, name, labels)
 }
 
 export const getCronJobBody = (project: ProjectType, image: string): object => {
+  const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
+      name: `${process.env.RELEASE_NAME}-${projectJobName}-auto-update`,
       labels: {
         'etherealengine/projectUpdater': 'true',
         'etherealengine/autoUpdate': 'true',
-        'etherealengine/projectField': project.name,
+        'etherealengine/projectField': projectJobName,
         'etherealengine/projectId': project.id,
         'etherealengine/release': process.env.RELEASE_NAME
       }
@@ -1118,7 +1128,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
               labels: {
                 'etherealengine/projectUpdater': 'true',
                 'etherealengine/autoUpdate': 'true',
-                'etherealengine/projectField': project.name,
+                'etherealengine/projectField': projectJobName,
                 'etherealengine/projectId': project.id,
                 'etherealengine/release': process.env.RELEASE_NAME
               }
@@ -1170,13 +1180,15 @@ export async function getDirectoryArchiveJobBody(
     jobId
   ]
 
+  const projectJobName = projectName.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+
   const labels = {
     'etherealengine/directoryArchiver': 'true',
-    'etherealengine/projectField': projectName,
+    'etherealengine/projectField': projectJobName,
     'etherealengine/release': process.env.RELEASE_NAME || ''
   }
 
-  const name = `${process.env.RELEASE_NAME}-${projectName}-archive`
+  const name = `${process.env.RELEASE_NAME}-${projectJobName}-archive`
 
   return getJobBody(app, command, name, labels)
 }
@@ -1457,7 +1469,7 @@ export const updateProject = async (
 
   const { assetsOnly } = await uploadLocalProjectToProvider(app, projectName)
 
-  const projectConfig = getProjectConfig(projectName) ?? {}
+  const projectConfig = getProjectConfig(projectName)
 
   const enabled = getProjectEnabled(projectName)
 
@@ -1482,46 +1494,39 @@ export const updateProject = async (
 
   const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-  const returned = !existingProject
-    ? // Add to DB
-      await app.service(projectPath).create(
-        {
-          id: uuidv4(),
-          name: projectName,
-          enabled,
-          repositoryPath,
-          needsRebuild: data.needsRebuild ? data.needsRebuild : true,
-          hasLocalChanges: false,
-          sourceRepo: data.sourceURL,
-          sourceBranch: data.sourceBranch,
-          updateType: data.updateType,
-          updateSchedule: data.updateSchedule,
-          updateUserId: userId || null,
-          commitSHA,
-          commitDate: toDateTimeSql(commitDate),
-          assetsOnly: assetsOnly,
-          createdAt: await getDateTimeSql(),
-          updatedAt: await getDateTimeSql()
-        },
-        params || {}
-      )
-    : await app.service(projectPath).patch(
-        existingProject.id,
-        {
-          enabled,
-          commitSHA,
-          hasLocalChanges: false,
-          commitDate: toDateTimeSql(commitDate),
-          assetsOnly: assetsOnly,
-          sourceRepo: data.sourceURL,
-          sourceBranch: data.sourceBranch,
-          updateType: data.updateType,
-          updateSchedule: data.updateSchedule,
-          updateUserId: userId || null
-        },
-        params
-      )
-
+  let returned: ProjectType
+  if (!existingProject) {
+    const createData = {
+      name: projectName,
+      enabled,
+      repositoryPath,
+      needsRebuild: data.needsRebuild ? data.needsRebuild : true,
+      hasLocalChanges: false,
+      sourceRepo: data.sourceURL,
+      sourceBranch: data.sourceBranch,
+      commitSHA,
+      commitDate: toDateTimeSql(commitDate),
+      assetsOnly
+    } as ProjectType
+    if (data.updateType) createData.updateType = data.updateType
+    if (data.updateSchedule) createData.updateSchedule = data.updateSchedule
+    if (userId) createData.updateUserId = userId
+    returned = await app.service(projectPath).create(createData, params || {})
+  } else {
+    const patchData = {
+      enabled,
+      commitSHA,
+      hasLocalChanges: false,
+      commitDate: toDateTimeSql(commitDate),
+      assetsOnly: assetsOnly,
+      sourceRepo: data.sourceURL,
+      sourceBranch: data.sourceBranch
+    } as ProjectType
+    if (data.updateType) patchData.updateType = data.updateType
+    if (data.updateSchedule) patchData.updateSchedule = data.updateSchedule
+    if (userId) patchData.updateUserId = userId
+    returned = await app.service(projectPath).patch(existingProject.id, patchData, params)
+  }
   returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
 
   if (returned.name !== projectName)
@@ -1546,7 +1551,7 @@ export const updateProject = async (
     )
   }
   // run project install script
-  if (projectConfig.onEvent) {
+  if (projectConfig?.onEvent) {
     await onProjectEvent(app, returned, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
   }
 

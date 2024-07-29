@@ -39,13 +39,11 @@ function createPeer(network: Network, peerID: PeerID, peerIndex: number, userID:
   networkState.peerIDToPeerIndex[peerID].set(peerIndex)
   networkState.peerIndexToPeerID[peerIndex].set(peerID)
 
-  networkState.peers.merge({
-    [peerID]: {
-      peerID,
-      peerIndex,
-      userId: userID,
-      userIndex
-    }
+  networkState.peers[peerID].merge({
+    peerID,
+    peerIndex,
+    userId: userID,
+    userIndex
   })
 
   if (!network.users[userID]) {

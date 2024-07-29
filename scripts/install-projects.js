@@ -30,7 +30,6 @@ import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core
 import { createDefaultStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { download } from '@etherealengine/server-core/src/projects/project/downloadProjects'
 import { getProjectConfig, onProjectEvent } from '@etherealengine/server-core/src/projects/project/project-helper'
-import { seedDefaultProject } from '@etherealengine/server-core/src/seeder'
 import appRootPath from 'app-root-path'
 import dotenv from 'dotenv'
 import fs from 'fs'
@@ -63,8 +62,9 @@ async function installAllProjects() {
     const updatedProject = await app
       .service(projectPath)
       .update('', { sourceURL: '@etherealengine/default-project' }, { isInternal: true, isJob: true })
-    const projectConfig = getProjectConfig('@etherealengine/default-project') ?? {}
-    if (projectConfig.onEvent) await onProjectEvent(app, updatedProject, projectConfig.onEvent, 'onUpdate')
+    const projectConfig = getProjectConfig('@etherealengine/default-project')
+    if (projectConfig && projectConfig.onEvent)
+      await onProjectEvent(app, updatedProject, projectConfig.onEvent, 'onUpdate')
     process.exit(0)
   } catch (e) {
     logger.fatal(e)

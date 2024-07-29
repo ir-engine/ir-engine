@@ -43,11 +43,10 @@ import {
 
 import config from '@etherealengine/common/src/config'
 import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
-import { Engine, EntityUUID } from '@etherealengine/ecs'
-import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { EntityUUID } from '@etherealengine/ecs'
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
 import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -193,9 +192,6 @@ export function ImageReactor() {
 
       mesh.material.map.set(texture)
       mesh.visible.set(true)
-
-      // upload to GPU immediately
-      getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.initTexture(texture)
     },
     [texture]
   )
@@ -221,7 +217,7 @@ export function ImageReactor() {
 
   useEffect(
     function updateMaterial() {
-      mesh.material.transparent.set(image.alphaMode.value === ImageAlphaMode.Blend)
+      mesh.material.transparent.set(image.alphaMode.value !== ImageAlphaMode.Opaque)
       mesh.material.alphaTest.set(image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0)
       mesh.material.side.set(image.side.value)
     },

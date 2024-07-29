@@ -35,7 +35,6 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import logger from '@etherealengine/common/src/logger'
-import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
 import { Engine } from '@etherealengine/ecs'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import {
@@ -43,9 +42,9 @@ import {
   PlaybackState,
   RecordingState
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { dispatchAction, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
-import { SpectateActions, SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
+import { SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
 import { endXRSession, requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
@@ -53,7 +52,11 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
+import { SearchParamState } from '../../common/services/RouterService'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -67,6 +70,7 @@ export const MediaIconsBox = () => {
   const location = useLocation()
   const hasAudioDevice = useHookstate(false)
   const hasVideoDevice = useHookstate(false)
+  const numVideoDevices = useHookstate(0)
   const { topShelfStyle } = useShelfStyles()
 
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
@@ -96,12 +100,18 @@ export const MediaIconsBox = () => {
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
 
+  const [motionCaptureEnabled, xrEnabled] = useFeatureFlags([
+    FeatureFlags.Client.Menu.MotionCapture,
+    FeatureFlags.Client.Menu.XR
+  ])
+
   useEffect(() => {
     navigator.mediaDevices
       .enumerateDevices()
       .then((devices) => {
         hasAudioDevice.set(devices.filter((device) => device.kind === 'audioinput').length > 0)
         hasVideoDevice.set(devices.filter((device) => device.kind === 'videoinput').length > 0)
+        numVideoDevices.set(devices.filter((device) => device.kind === 'videoinput').length)
       })
       .catch((err) => logger.error(err, 'Could not get media devices.'))
   }, [])
@@ -131,9 +141,13 @@ export const MediaIconsBox = () => {
   }
 
   const xrSessionActive = xrState.sessionActive.value
+
   const handleExitSpectatorClick = () => {
-    deleteSearchParams('spectate')
-    dispatchAction(SpectateActions.exitSpectate({ spectatorUserID: Engine.instance.userID }))
+    if (spectating) {
+      SearchParamState.set('spectate', none)
+    } else {
+      SearchParamState.set('spectate', '')
+    }
   }
 
   return (
@@ -176,7 +190,7 @@ export const MediaIconsBox = () => {
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />}
           />
-          {isCamVideoEnabled && hasVideoDevice.value && (
+          {isCamVideoEnabled && numVideoDevices.value > 1 && (
             <IconButtonWithTooltip
               id="FlipVideo"
               title={t('user:menu.cycleCamera')}
@@ -187,18 +201,24 @@ export const MediaIconsBox = () => {
               icon={<Icon type={'FlipCameraAndroid'} />}
             />
           )}
-          <IconButtonWithTooltip
-            id="UserPoseTracking"
-            title={t('user:menu.poseTracking')}
-            className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
-            onClick={() => window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')}
-            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            icon={<Icon type={'Accessibility'} />}
-          />
+          {motionCaptureEnabled && (
+            <IconButtonWithTooltip
+              id="UserPoseTracking"
+              title={t('user:menu.poseTracking')}
+              className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
+              onClick={() => window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              icon={<Icon type={'Accessibility'} />}
+            />
+          )}
         </>
       ) : null}
-      {screenshareEnabled && mediaNetworkReady && mediaNetworkState?.ready.value ? (
+      {!isMobile &&
+      !(typeof navigator.mediaDevices.getDisplayMedia === 'undefined') &&
+      screenshareEnabled &&
+      mediaNetworkReady &&
+      mediaNetworkState?.ready.value ? (
         <>
           <IconButtonWithTooltip
             id="UserScreenSharing"
@@ -211,7 +231,7 @@ export const MediaIconsBox = () => {
           />
         </>
       ) : null}
-      {supportsVR && (
+      {supportsVR && xrEnabled && (
         <IconButtonWithTooltip
           id="UserVR"
           title={t('user:menu.enterVR')}
@@ -224,7 +244,7 @@ export const MediaIconsBox = () => {
           icon={<VrIcon />}
         />
       )}
-      {supportsAR && (
+      {supportsAR && xrEnabled && (
         <IconButtonWithTooltip
           id="UserAR"
           title={t('user:menu.enterAR')}
@@ -247,7 +267,8 @@ export const MediaIconsBox = () => {
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
-          Exit Spectate
+          {/* todo - better UX for entering spectate mode */}
+          {spectating ? 'Exit Spectate' : 'Enter Spectate'}
         </button>
       )}
       {/* {recordScopes && (

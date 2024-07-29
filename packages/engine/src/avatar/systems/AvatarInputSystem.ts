@@ -51,7 +51,7 @@ import { RigidBodyFixedTagComponent } from '@etherealengine/spatial/src/physics/
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
@@ -64,6 +64,7 @@ import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { FollowCameraMode } from '@etherealengine/spatial/src/camera/types/FollowCameraMode'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { getThumbstickOrThumbpadAxes } from '@etherealengine/spatial/src/input/functions/getThumbstickOrThumbpadAxes'
 
 const _quat = new Quaternion()
@@ -201,7 +202,8 @@ const execute = () => {
   const controller = getComponent(selfAvatarEntity, AvatarControllerComponent)
 
   const xrState = getState(XRState)
-  const { isCameraAttachedToAvatar, isMovementControlsEnabled } = getState(XRControlsState)
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
+  const isMovementControlsEnabled = XRState.isMovementControlsEnabled
 
   if (!isMovementControlsEnabled) return
 
@@ -238,7 +240,7 @@ const execute = () => {
 
   const inputPointerEntity = InputPointerComponent.getPointersForCamera(viewerEntity)[0]
 
-  if (!inputPointerEntity && !xrState.session) return
+  if (!isMobile && !inputPointerEntity && !xrState.session) return
 
   const buttons = InputComponent.getMergedButtons(viewerEntity)
 
@@ -275,13 +277,14 @@ const execute = () => {
 
   // TODO: refactor AvatarControlSchemes to allow multiple input sources to be passed
   for (const eid of InputSourceComponent.nonCapturedInputSources()) {
+    if (hasComponent(eid, InputPointerComponent)) continue
     const inputSource = getComponent(eid, InputSourceComponent)
-    if (inputSource.source.handedness === 'none') continue
-    const controlScheme = !isCameraAttachedToAvatar
-      ? AvatarAxesControlScheme.Move
-      : inputSource.source.handedness === inputState.preferredHand
-      ? avatarInputSettings.rightAxesControlScheme
-      : avatarInputSettings.leftAxesControlScheme
+    const controlScheme =
+      !isCameraAttachedToAvatar || inputSource.source.handedness === 'none'
+        ? AvatarAxesControlScheme.Move
+        : inputSource.source.handedness === inputState.preferredHand
+        ? avatarInputSettings.rightAxesControlScheme
+        : avatarInputSettings.leftAxesControlScheme
     AvatarAxesControlSchemeBehavior[controlScheme](
       inputSource.source,
       controller,

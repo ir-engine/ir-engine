@@ -28,10 +28,12 @@ import { setTransformMode } from '@etherealengine/editor/src/functions/transform
 import { EditorHelperState } from '@etherealengine/editor/src/services/EditorHelperState'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { useMutableState } from '@etherealengine/hyperflux'
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { TbPointer, TbRefresh, TbVector, TbWindowMaximize } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 function Placer() {
   return (
@@ -42,55 +44,131 @@ function Placer() {
   )
 }
 
-export default function GizmoTool() {
+export default function GizmoTool({
+  viewportRef,
+  toolbarRef
+}: {
+  viewportRef: React.RefObject<HTMLDivElement>
+  toolbarRef: React.RefObject<HTMLDivElement>
+}) {
   const editorHelperState = useMutableState(EditorHelperState)
   const transformMode = editorHelperState.transformMode.value
+  const { t } = useTranslation()
+  const [position, setPosition] = useState({ x: 16, y: 56 })
+  const [isDragging, setIsDragging] = useState(false)
+  const gizmoRef = useRef<HTMLDivElement>(null)
+  const [pointerSelected, setPointerSelected] = useState(false)
+
+  const [startingMouseX, setStartingMouseX] = useState(0)
+  const [startingMouseY, setStartingMouseY] = useState(0)
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true)
+    setStartingMouseX(e.clientX)
+    setStartingMouseY(e.clientY)
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && viewportRef.current && gizmoRef.current && toolbarRef.current) {
+      const viewportRect = viewportRef.current.getBoundingClientRect()
+      const gizmoRect = gizmoRef.current.getBoundingClientRect()
+      const toolbarRect = toolbarRef.current.getBoundingClientRect()
+      const offsetX = e.clientX - startingMouseX
+      const offsetY = e.clientY - startingMouseY
+
+      const newX = Math.max(0, Math.min(position.x + offsetX, viewportRect.width - gizmoRect.width))
+      const newY = Math.max(toolbarRect.height, Math.min(position.y + offsetY, viewportRect.height - gizmoRect.height))
+
+      setPosition({ x: newX, y: newY })
+    }
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  useEffect(() => {
+    document.addEventListener('mousemove', handleMouseMove as any)
+    document.addEventListener('mouseup', handleMouseUp)
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove as any)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isDragging])
 
   return (
-    <div className="absolute left-4 top-14 z-10 flex flex-col items-center rounded-lg bg-black p-2">
-      <Placer />
+    <div
+      ref={gizmoRef}
+      className={`absolute z-[5] flex flex-col items-center rounded-lg bg-black p-2`}
+      style={{
+        left: `${position.x}px`,
+        top: `${position.y}px`
+      }}
+    >
+      <div className={`z-[6] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`} onMouseDown={handleMouseDown}>
+        <Placer />
+      </div>
       <div className="mt-2 flex flex-col rounded bg-theme-surface-main">
-        <Button
-          variant="transparent"
-          className={twMerge('border-b border-b-theme-primary p-2 text-[#A3A3A3]')}
-          iconContainerClassName="m-0"
-          startIcon={<TbPointer />}
-          title="Pointer"
-          onClick={() => EditorControlFunctions.replaceSelection([])}
-        />
-        <Button
-          variant="transparent"
-          className={twMerge(
-            'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
-            transformMode === TransformMode.translate && 'bg-theme-highlight text-white'
-          )}
-          iconContainerClassName="m-0"
-          startIcon={<TbVector />}
-          title="Translate (key W)"
-          onClick={() => setTransformMode(TransformMode.translate)}
-        />
-        <Button
-          variant="transparent"
-          className={twMerge(
-            'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
-            transformMode === TransformMode.rotate && 'bg-theme-highlight text-white'
-          )}
-          iconContainerClassName="m-0"
-          startIcon={<TbRefresh />}
-          title="Rotate (key E)"
-          onClick={() => setTransformMode(TransformMode.rotate)}
-        />
-        <Button
-          variant="transparent"
-          className={twMerge(
-            'p-2 text-[#A3A3A3]',
-            transformMode === TransformMode.scale && 'bg-theme-highlight text-white'
-          )}
-          iconContainerClassName="m-0"
-          startIcon={<TbWindowMaximize />}
-          title="Scale (key R)"
-          onClick={() => setTransformMode(TransformMode.scale)}
-        />
+        <Tooltip title={t('editor:toolbar.gizmo.pointer')} position={'right center'}>
+          <Button
+            variant="transparent"
+            className={twMerge(
+              'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
+              pointerSelected && 'bg-theme-highlight text-white'
+            )}
+            iconContainerClassName="m-0"
+            startIcon={<TbPointer />}
+            onClick={() => {
+              setPointerSelected(true)
+              EditorControlFunctions.replaceSelection([])
+            }}
+          />
+        </Tooltip>
+        <Tooltip title={t('editor:toolbar.gizmo.translate')} position={'right center'}>
+          <Button
+            variant="transparent"
+            className={twMerge(
+              'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
+              !pointerSelected && transformMode === TransformMode.translate && 'bg-theme-highlight text-white'
+            )}
+            iconContainerClassName="m-0"
+            startIcon={<TbVector />}
+            onClick={() => {
+              setPointerSelected(false)
+              setTransformMode(TransformMode.translate)
+            }}
+          />
+        </Tooltip>
+        <Tooltip title={t('editor:toolbar.gizmo.rotate')} position={'right center'}>
+          <Button
+            variant="transparent"
+            className={twMerge(
+              'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
+              !pointerSelected && transformMode === TransformMode.rotate && 'bg-theme-highlight text-white'
+            )}
+            iconContainerClassName="m-0"
+            startIcon={<TbRefresh />}
+            onClick={() => {
+              setPointerSelected(false)
+              setTransformMode(TransformMode.rotate)
+            }}
+          />
+        </Tooltip>
+        <Tooltip title={t('editor:toolbar.gizmo.scale')} position={'right center'}>
+          <Button
+            variant="transparent"
+            className={twMerge(
+              'p-2 text-[#A3A3A3]',
+              !pointerSelected && transformMode === TransformMode.scale && 'bg-theme-highlight text-white'
+            )}
+            iconContainerClassName="m-0"
+            startIcon={<TbWindowMaximize />}
+            onClick={() => {
+              setPointerSelected(false)
+              setTransformMode(TransformMode.scale)
+            }}
+          />
+        </Tooltip>
       </div>
     </div>
   )

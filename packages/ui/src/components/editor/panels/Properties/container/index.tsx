@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UUIDComponent } from '@etherealengine/ecs'
@@ -36,13 +36,11 @@ import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { PopoverPosition } from '@mui/material'
+import { Bounds, getBounds, getViewportBounds } from '@etherealengine/xrui/core/dom-utils'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
-import { PropertiesPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
-import Popover from '../../../layout/Popover'
+import { Popup } from '../../../../tailwind/Popup'
 import TransformPropertyGroup from '../../../properties/transform'
-import { PopoverContext } from '../../../util/PopoverContext'
 import ElementList from '../elementList'
 import MaterialEditor from '../material'
 
@@ -57,11 +55,32 @@ const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
   return <Editor key={`${entity}-${Editor.name}`} multiEdit={multiEdit} entity={entity} component={component} />
 }
 
+const calculateAndApplyOffset = (popupRef: React.RefObject<HTMLDivElement>) => {
+  if (popupRef.current) {
+    const popupBounds = getBounds(popupRef.current)
+    const viewportBounds = getViewportBounds(new Bounds())
+
+    const overflowTop = viewportBounds.top - (popupBounds?.top ?? 0)
+    const overflowBottom =
+      (popupBounds?.top ?? 0) + (popupBounds?.height ?? 0) - (viewportBounds.top + viewportBounds.height)
+
+    let offsetY = 0
+
+    if (overflowTop > 0) {
+      // popup is overflowing at the top, move it down
+      offsetY = overflowTop
+    } else if (overflowBottom > 0) {
+      // popup is overflowing at the bottom, move it up
+      offsetY = -overflowBottom
+    }
+
+    popupRef.current.style.transform = `translateY(${offsetY}px)`
+  }
+}
+
 const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => {
   const { t } = useTranslation()
   const { entityUUID, multiEdit } = props
-  const anchorEl = useHookstate<HTMLButtonElement | null>(null)
-  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
 
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
   const componentEditors = useHookstate(getMutableState(ComponentEditorsState)).get(NO_PROXY)
@@ -73,47 +92,51 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
     components.push(component)
   }
 
-  const open = !!anchorEl.value
-  const panel = document.getElementById('propertiesPanel')
+  const popupRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleResize = () => {
+      calculateAndApplyOffset(popupRef)
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [popupRef])
+
+  const [isAddComponentMenuOpen, setIsAddComponentMenuOpen] = useState(false)
 
   return (
-    <PopoverContext.Provider
-      value={{
-        handlePopoverClose: () => {
-          anchorEl.set(null)
-        }
-      }}
-    >
+    <>
       <div className="ml-auto mt-4 flex h-8 bg-zinc-900" id="add-component-popover">
-        <Button
-          startIcon={<HiOutlinePlusCircle />}
-          variant="transparent"
-          rounded="none"
-          className="ml-auto w-40 bg-theme-highlight px-2"
-          size="small"
-          onClick={(event) => {
-            setAnchorPosition({ top: event.clientY - 10, left: panel?.getBoundingClientRect().left! + 10 })
-            anchorEl.set(event.currentTarget)
-          }}
+        <Popup
+          keepInside
+          position={'left center'}
+          open={isAddComponentMenuOpen}
+          onClose={() => setIsAddComponentMenuOpen(false)}
+          trigger={
+            <Button
+              startIcon={<HiOutlinePlusCircle />}
+              variant="transparent"
+              rounded="none"
+              className="ml-auto w-40 bg-theme-highlight px-2"
+              size="small"
+              onClick={() => setIsAddComponentMenuOpen(true)}
+            >
+              {t('editor:properties.lbl-addComponent')}
+            </Button>
+          }
+          onOpen={() => calculateAndApplyOffset(popupRef)}
         >
-          {t('editor:properties.lbl-addComponent')}
-        </Button>
+          <div ref={popupRef} className="h-[600px] w-96 overflow-y-auto">
+            <ElementList type="components" onSelect={() => setIsAddComponentMenuOpen(false)} />
+          </div>
+        </Popup>
       </div>
-      <Popover
-        open={open}
-        anchorEl={anchorEl.value as any}
-        onClose={() => {
-          anchorEl.set(null)
-          setAnchorPosition(undefined)
-        }}
-        panelId={PropertiesPanelTab.id!}
-        anchorPosition={anchorPosition}
-        className="h-[60%] w-full min-w-[300px] overflow-y-auto"
-      >
-        <ElementList type="components" />
-      </Popover>
       <TransformPropertyGroup entity={entity} />
-      {components.map((c, i) => (
+      {components.map((c) => (
         <EntityComponentEditor
           key={`${entityUUID + entity}-${c.name}`}
           multiEdit={multiEdit}
@@ -121,7 +144,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
           component={c}
         />
       ))}
-    </PopoverContext.Provider>
+    </>
   )
 }
 

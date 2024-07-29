@@ -25,16 +25,37 @@ Ethereal Engine. All Rights Reserved.
 
 import { LayoutData } from 'rc-dock'
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { EntityUUID, getComponent } from '@etherealengine/ecs'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { defineState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import {
+  defineState,
+  getMutableState,
+  getState,
+  syncStateWithLocalStorage,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 
 interface IExpandedNodes {
   [scene: string]: {
     [entity: Entity]: true
   }
+}
+
+export enum UIMode {
+  BASIC = 'BASIC',
+  ADVANCED = 'ADVANCED'
+}
+
+export type StudioUIAddons = {
+  container: Record<string, JSX.Element>
+  newScene: Record<string, JSX.Element>
+  //more addon points to come here
 }
 
 export const EditorState = defineState({
@@ -49,12 +70,36 @@ export const EditorState = defineState({
     expandedNodes: {} as IExpandedNodes,
     lockPropertiesPanel: '' as EntityUUID,
     panelLayout: {} as LayoutData,
-    rootEntity: UndefinedEntity
+    rootEntity: UndefinedEntity,
+    uiEnabled: true,
+    uiMode: UIMode.ADVANCED,
+    uiAddons: {
+      container: {},
+      newScene: {}
+    } as StudioUIAddons
   }),
+  useIsModified: () => {
+    const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
+    const modifiedState = useMutableState(GLTFModifiedState)
+    if (!rootEntity) return false
+    return !!modifiedState[getComponent(rootEntity, SourceComponent)].value
+  },
   isModified: () => {
     const rootEntity = getState(EditorState).rootEntity
     if (!rootEntity) return false
     return !!getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
   },
-  extension: syncStateWithLocalStorage(['expandedNodes'])
+  extension: syncStateWithLocalStorage(['expandedNodes']),
+  reactor: () => {
+    const linkState = useMutableState(LinkState)
+
+    useEffect(() => {
+      if (!linkState.location.value) return
+
+      NotificationService.dispatchNotify('Scene navigation is disabled in the studio', { variant: 'warning' })
+      linkState.location.set(undefined)
+    }, [linkState.location])
+
+    return null
+  }
 })

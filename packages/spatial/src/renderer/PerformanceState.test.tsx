@@ -29,7 +29,7 @@ import React, { useEffect } from 'react'
 import { act } from 'react-dom/test-utils'
 import sinon from 'sinon'
 
-import { destroyEngine } from '@etherealengine/ecs'
+import { ComponentType, destroyEngine } from '@etherealengine/ecs'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { createEngine } from '@etherealengine/ecs/src/Engine'
@@ -37,7 +37,7 @@ import { EngineState } from '../EngineState'
 import { initializeSpatialEngine } from '../initializeEngine'
 import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
-import { EngineRenderer, RenderSettingsState } from './WebGLRendererSystem'
+import { RenderSettingsState, RendererComponent } from './WebGLRendererSystem'
 
 describe('PerformanceState', () => {
   const mockRenderer = {
@@ -51,7 +51,7 @@ describe('PerformanceState', () => {
       MAX_ELEMENTS_INDICES: 4000,
       MAX_ELEMENTS_VERTICES: 5000
     }
-  } as unknown as EngineRenderer
+  } as unknown as ComponentType<typeof RendererComponent>
 
   let screen
   let dpr
@@ -65,9 +65,6 @@ describe('PerformanceState', () => {
     }
     dpr = globalThis.window.devicePixelRatio
     globalThis.window.devicePixelRatio = 3
-    getMutableState(EngineState).isEditing.set(false)
-    getMutableState(RendererState).automatic.set(true)
-    getMutableState(PerformanceState).enabled.set(true)
   })
 
   after(() => {
@@ -78,6 +75,12 @@ describe('PerformanceState', () => {
   beforeEach(async () => {
     createEngine()
     initializeSpatialEngine()
+    getMutableState(EngineState).isEditing.set(false)
+    getMutableState(RendererState).automatic.set(true)
+    getMutableState(PerformanceState).merge({
+      initialized: true,
+      enabled: true
+    })
   })
 
   afterEach(() => {
@@ -198,12 +201,12 @@ describe('PerformanceState', () => {
     const renderSettings = getState(RenderSettingsState)
     const engineSettings = getState(RendererState)
 
-    const { smaaPreset } = renderSettings
-    const { shadowMapResolution } = engineSettings
-
     const Reactor = PerformanceState.reactor
 
     const { rerender, unmount } = render(<Reactor />)
+
+    const { smaaPreset } = renderSettings
+    const { shadowMapResolution } = engineSettings
 
     act(async () => {
       performanceState.gpuTier.set(updatedTier as any)

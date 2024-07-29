@@ -70,6 +70,8 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
+import { FeatureFlagsState } from '@etherealengine/engine'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
@@ -330,7 +332,19 @@ const execute = () => {
       // Get top most parent entity that isn't the scene entity
       const selectedParentEntity = findTopLevelParent(closestIntersection.entity)
       // If entity is already selected set closest intersection, otherwise set top parent
-      clickStartEntity = selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
+      const selectedEntity =
+        selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
+
+      // If not showing model children in hierarchy don't allow those objects to be selected
+      if (!FeatureFlagsState.enabled(FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren)) {
+        const inAuthoringLayer = GLTFSnapshotState.isInSnapshot(
+          getOptionalComponent(selectedParentEntity, SourceComponent),
+          selectedEntity
+        )
+        clickStartEntity = inAuthoringLayer ? selectedEntity : clickStartEntity
+      } else {
+        clickStartEntity = selectedEntity
+      }
 
       /** @todo decide how we want selection to work with heirarchies */
       // Walks object heirarchy everytime a selected object is clicked again

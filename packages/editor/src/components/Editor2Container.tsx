@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
 import { FilesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Files'
@@ -53,7 +52,9 @@ import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
 import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { EntityUUID } from '@etherealengine/ecs'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import 'rc-dock/dist/rc-dock.css'
@@ -86,62 +87,77 @@ const onEditorError = (error) => {
   )
 }
 
-const defaultLayout: LayoutData = {
-  dockbox: {
-    mode: 'horizontal' as DockMode,
-    children: [
-      {
-        mode: 'vertical' as DockMode,
-        size: 8,
-        children: [
-          {
-            tabs: [ViewportPanelTab]
-          },
-          {
-            tabs: [ScenePanelTab, FilesPanelTab, AssetsPanelTab, VisualScriptPanelTab]
-          }
-        ]
-      },
-      {
-        mode: 'vertical' as DockMode,
-        size: 3,
-        children: [
-          {
-            tabs: [HierarchyPanelTab, MaterialsPanelTab]
-          },
-          {
-            tabs: [PropertiesPanelTab]
-          }
-        ]
-      }
-    ]
+const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
+  const tabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
+  flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
+
+  return {
+    dockbox: {
+      mode: 'horizontal' as DockMode,
+      children: [
+        {
+          mode: 'vertical' as DockMode,
+          size: 8,
+          children: [
+            {
+              tabs: [ViewportPanelTab]
+            },
+            {
+              tabs: tabs
+            }
+          ]
+        },
+        {
+          mode: 'vertical' as DockMode,
+          size: 3,
+          children: [
+            {
+              tabs: [HierarchyPanelTab, MaterialsPanelTab]
+            },
+            {
+              tabs: [PropertiesPanelTab]
+            }
+          ]
+        }
+      ]
+    }
   }
 }
 
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath } = useMutableState(EditorState)
-  const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '' } }).data
-
+  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, uiAddons } = useMutableState(EditorState)
+  const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '', type: 'scene' } }).data
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
   const dockPanelRef = useRef<DockLayout>(null)
 
-  useHotkeys(`${cmdOrCtrlString}+s`, () => PopoverState.showPopupover(<SaveSceneDialog />))
+  useHotkeys(`${cmdOrCtrlString}+s`, (e) => {
+    e.preventDefault()
+    PopoverState.showPopupover(<SaveSceneDialog />)
+  })
 
   const viewerEntity = useMutableState(EngineState).viewerEntity.value
 
   const { initialized, isWidgetVisible, openChat } = useZendesk()
   const { t } = useTranslation()
 
+  const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
+
   useEffect(() => {
     const scene = sceneQuery[0]
-    if (!scene || !viewerEntity) return
+    if (!scene) return
 
     projectName.set(scene.project!)
     sceneName.set(scene.key.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
+  }, [sceneQuery[0]?.key])
+
+  useEffect(() => {
+    const scene = sceneQuery[0]
+    if (!sceneAssetID.value || !scene || !viewerEntity) return
+
     return setCurrentEditorScene(sceneQuery[0].url, sceneAssetID.value as EntityUUID)
-  }, [viewerEntity, sceneQuery[0]?.key])
+  }, [viewerEntity, sceneAssetID, sceneQuery[0]?.url])
 
   useEffect(() => {
     return () => {
@@ -157,31 +173,29 @@ const EditorContainer = () => {
 
   return (
     <main className="pointer-events-auto">
-      <MetaTags>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap"
-          rel="stylesheet"
-          type="text/css"
-        />
-      </MetaTags>
       <div
         id="editor-container"
         className="flex flex-col bg-black"
         style={scenePath.value ? { background: 'transparent' } : {}}
       >
-        <DndWrapper id="editor-container">
-          <DragLayer />
-          <Toolbar />
-          <div className="mt-1 flex overflow-hidden">
-            <DockContainer>
-              <DockLayout
-                ref={dockPanelRef}
-                defaultLayout={defaultLayout}
-                style={{ position: 'absolute', left: 5, top: 45, right: 5, bottom: 5 }}
-              />
-            </DockContainer>
-          </div>
-        </DndWrapper>
+        {uiEnabled.value && (
+          <DndWrapper id="editor-container">
+            <DragLayer />
+            <Toolbar />
+            <div className="mt-1 flex overflow-hidden">
+              <DockContainer>
+                <DockLayout
+                  ref={dockPanelRef}
+                  defaultLayout={defaultLayout({ visualScriptPanelEnabled })}
+                  style={{ position: 'absolute', left: 5, top: 45, right: 5, bottom: 5 }}
+                />
+              </DockContainer>
+            </div>
+          </DndWrapper>
+        )}
+        {Object.entries(uiAddons.container.get(NO_PROXY)).map(([key, value]) => {
+          return value
+        })}
       </div>
       <PopupMenu />
       {!isWidgetVisible && initialized && (

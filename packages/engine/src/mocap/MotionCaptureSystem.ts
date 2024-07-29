@@ -83,7 +83,7 @@ const handleMocapData = (
   message: ArrayBufferLike
 ) => {
   if (network.isHosting) {
-    network.transport.bufferToAll(dataChannel, fromPeerID, message)
+    network.bufferToAll(dataChannel, fromPeerID, message)
   }
   const results = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
   if (!timeSeriesMocapData.has(fromPeerID)) {
