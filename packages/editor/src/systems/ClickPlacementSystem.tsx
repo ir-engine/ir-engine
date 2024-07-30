@@ -58,7 +58,7 @@ import {
   useHookstate,
   useState
 } from '@etherealengine/hyperflux'
-import { TransformComponent, TransformSystem } from '@etherealengine/spatial'
+import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
@@ -70,6 +70,7 @@ import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/comp
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { HolographicMaterial } from '@etherealengine/spatial/src/renderer/materials/prototypes/HolographicMaterial.mat'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformDirtyCleanupSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
 import { Euler, Material, Mesh, Quaternion, Raycaster, Vector3 } from 'three'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -259,7 +260,7 @@ const clickListener = () => {
 
 export const ClickPlacementSystem = defineSystem({
   uuid: 'ee.studio.ClickPlacementSystem',
-  insert: { before: TransformSystem },
+  insert: { after: TransformDirtyCleanupSystem },
   reactor: () => {
     const parentEntity = useHookstate(getMutableState(EditorState)).rootEntity
 
