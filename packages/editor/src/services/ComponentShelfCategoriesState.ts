@@ -66,7 +66,7 @@ import {
   PointLightComponent,
   SpotLightComponent
 } from '@etherealengine/spatial'
-import { VirtualCameraComponent } from '@etherealengine/spatial/src/camera/components/VirtualCameraComponent'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -89,7 +89,7 @@ export const ComponentShelfCategoriesState = defineState({
         ImageComponent
       ],
       'Scene Composition': [
-        VirtualCameraComponent,
+        CameraComponent,
         PrimitiveGeometryComponent,
         GroundPlaneComponent,
         GroupComponent,

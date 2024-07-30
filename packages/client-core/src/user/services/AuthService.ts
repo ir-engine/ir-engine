@@ -95,6 +95,7 @@ export const UserSeed: UserType = {
     createdAt: '',
     updatedAt: ''
   },
+  acceptedTOS: false,
   userSetting: {
     id: '' as UserSettingID,
     themeModes: {},
