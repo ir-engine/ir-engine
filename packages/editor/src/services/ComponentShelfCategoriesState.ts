@@ -55,7 +55,7 @@ import { VariantComponent } from '@etherealengine/engine/src/scene/components/Va
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import {
   AmbientLightComponent,
   DirectionalLightComponent,
@@ -111,13 +111,12 @@ export const ComponentShelfCategoriesState = defineState({
   },
   reactor: () => {
     const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
-    const cShelfState = getState(ComponentShelfCategoriesState)
+    const cShelfState = getMutableState(ComponentShelfCategoriesState)
     useEffect(() => {
       if (visualScriptPanelEnabled) {
-        cShelfState.Scripting.push(VisualScriptComponent)
+        cShelfState.Scripting.set([VisualScriptComponent])
         return () => {
-          const index = cShelfState.Scripting.findIndex((item) => item.name === VisualScriptComponent.name)
-          cShelfState.Scripting.splice(index, 1)
+          cShelfState.Scripting.set([]) /** @todo when we have more scripting components in here don't do this */
         }
       }
     }, [visualScriptPanelEnabled])
