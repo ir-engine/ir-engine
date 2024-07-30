@@ -319,8 +319,8 @@ export const InteractableComponent = defineComponent({
 
     InputComponent.useExecuteWithInput(
       () => {
+        if (!interactableComponent.clickInteract.value) return
         const buttons = InputComponent.getMergedButtons(entity)
-
         if (
           buttons.Interact?.pressed &&
           !buttons.Interact?.dragging &&
