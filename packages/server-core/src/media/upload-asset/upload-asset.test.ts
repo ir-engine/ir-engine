@@ -43,19 +43,19 @@ describe('upload-asset', () => {
     app = createFeathersKoaApp()
     await app.setup()
     const storageProvider = getStorageProvider()
-    const url = storageProvider.getCachedURL('/projects/@etherealengine/default-project/public/scenes/default.gltf')
-    const url2 = storageProvider.getCachedURL('/projects/@etherealengine/default-project/assets/SampleAudio.mp3')
+    const url = storageProvider.getCachedURL('/projects/default-project/public/scenes/default.gltf')
+    const url2 = storageProvider.getCachedURL('/projects/default-project/assets/SampleAudio.mp3')
     mockFetch({
       [url]: {
         contentType: 'application/json',
         response: fs.readFileSync(
-          path.join(appRootPath.path, '/packages/projects/@etherealengine/default-project/public/scenes/default.gltf')
+          path.join(appRootPath.path, '/packages/projects/default-project/public/scenes/default.gltf')
         )
       },
       [url2]: {
         contentType: 'audio/mpeg',
         response: fs.readFileSync(
-          path.join(appRootPath.path, '/packages/projects/@etherealengine/default-project/assets/SampleAudio.mp3')
+          path.join(appRootPath.path, '/packages/projects/default-project/assets/SampleAudio.mp3')
         )
       }
     })

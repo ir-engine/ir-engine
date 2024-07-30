@@ -38,7 +38,7 @@ import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { setDefaultLoadingManager } from './ResourceLoadingManagerState'
 
 describe('ResourceLoadingManager', () => {
-  const url = '/packages/projects/@etherealengine/default-project/assets/collisioncube.glb'
+  const url = '/packages/projects/default-project/assets/collisioncube.glb'
 
   beforeEach(async () => {
     createEngine()

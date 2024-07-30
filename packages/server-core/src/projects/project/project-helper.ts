@@ -1299,7 +1299,7 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
 export const copyDefaultProject = () => {
   deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
   copyFolderRecursiveSync(
-    path.join(appRootPath.path, 'packages/projects/@etherealengine/default-project'),
+    path.join(appRootPath.path, 'packages/projects/default-project'),
     path.join(projectsRootFolder, '@etherealengine')
   )
 }
