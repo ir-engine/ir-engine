@@ -55,7 +55,7 @@ import { VariantComponent } from '@etherealengine/engine/src/scene/components/Va
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
-import { defineState } from '@etherealengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 import {
   AmbientLightComponent,
   DirectionalLightComponent,
@@ -70,13 +70,11 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { LookAtComponent } from '@etherealengine/spatial/src/transform/components/LookAtComponent'
+import { useEffect } from 'react'
 
 export const ComponentShelfCategoriesState = defineState({
   name: 'ee.editor.ComponentShelfCategories',
   initial: () => {
-    const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
-    const scriptingComps: Component[] = []
-    if (visualScriptPanelEnabled) scriptingComps.push(VisualScriptComponent)
     return {
       Files: [
         ModelComponent,
@@ -106,9 +104,22 @@ export const ComponentShelfCategoriesState = defineState({
         HemisphereLightComponent
       ],
       FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
-      Scripting: scriptingComps,
+      Scripting: [],
       Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
       Visual: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, TextComponent, LookAtComponent]
     } as Record<string, Component[]>
+  },
+  reactor: () => {
+    const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
+    const cShelfState = getState(ComponentShelfCategoriesState)
+    useEffect(() => {
+      if (visualScriptPanelEnabled) {
+        cShelfState.Scripting.push(VisualScriptComponent)
+        return () => {
+          const index = cShelfState.Scripting.findIndex((item) => item.name === VisualScriptComponent.name)
+          cShelfState.Scripting.splice(index, 1)
+        }
+      }
+    }, [visualScriptPanelEnabled])
   }
 })
