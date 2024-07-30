@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AudioLoader } from 'three'
 
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 
@@ -91,11 +91,6 @@ export const getLoader = (assetType: AssetExt) => {
 }
 
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineState).publicPath + url)
-
-const AssetLoaderCacheState = defineState({
-  name: 'AssetLoaderCacheState',
-  initial: () => ({}) as Record<string, any>
-})
 
 const loadAsset = async <T>(
   url: string,
