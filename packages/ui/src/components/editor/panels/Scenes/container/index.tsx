@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import SceneContainer from '@etherealengine/client-core/src/admin/components/scene/SceneContainer'
+import { SceneItem } from '@etherealengine/client-core/src/admin/components/scene/SceneItem'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import CreateSceneDialog from '@etherealengine/editor/src/components/dialogs/CreateScenePanelDialog'
-import { deleteScene, onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
+import { onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useRealtime } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -65,20 +65,6 @@ export default function ScenesPanel() {
     isCreatingScene.set(false)
   }
 
-  const deleteSelectedScene = async (scene: StaticResourceType) => {
-    if (scene) {
-      await deleteScene(scene.key)
-      if (editorState.sceneAssetID.value === scene.id) {
-        editorState.sceneName.set(null)
-        editorState.sceneAssetID.set(null)
-      }
-    }
-    PopoverState.hidePopupover()
-  }
-
-  const getSceneName = (scene: StaticResourceType) =>
-    scene.key.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')
-
   return (
     <div className="h-full bg-theme-primary">
       <div className="mb-4 w-full bg-theme-surface-main">
@@ -102,12 +88,12 @@ export default function ScenesPanel() {
           <div className="relative h-full flex-1 overflow-y-auto px-4 py-3 pb-8">
             <div className="flex flex-wrap gap-4 pb-8">
               {scenes.map((scene) => (
-                <SceneContainer
+                <SceneItem
+                  key={scene.id}
                   scene={scene}
+                  updateEditorState
                   handleOpenScene={() => onClickScene(scene)}
                   refetchProjectsData={scenesQuery.refetch}
-                  getSceneName={getSceneName}
-                  deleteSelectedScene={deleteSelectedScene}
                 />
               ))}
             </div>
