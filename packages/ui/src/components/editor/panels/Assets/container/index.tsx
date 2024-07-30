@@ -122,7 +122,9 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const [_, drag, preview] = useDrag(() => ({
     type: assetType,
     item: {
-      url: resource.url
+      url: resource.url,
+      type: assetType,
+      multiple: false
     },
     multiple: false
   }))

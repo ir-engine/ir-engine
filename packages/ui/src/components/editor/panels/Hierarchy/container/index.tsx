@@ -60,6 +60,7 @@ import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { GLTF } from '@gltf-transform/core'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -182,6 +183,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
       if (e.detail === 1) {
         // Exit click placement mode when anything in the hierarchy is selected
         getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
+        // Deselect material entity since we've just clicked on a hierarchy node
+        getMutableState(MaterialSelectionState).selectedMaterial.set(null)
         if (e.ctrlKey) {
           EditorControlFunctions.toggleSelection([getComponent(node.entity, UUIDComponent)])
           setSelectedNode(null)
