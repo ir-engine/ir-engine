@@ -62,6 +62,7 @@ export const userSchema = Type.Object(
       format: 'uuid'
     }),
     name: TypedString<UserName>(),
+    acceptedTOS: Type.Boolean(),
     isGuest: Type.Boolean(),
     inviteCode: Type.Optional(TypedString<InviteCode>()),
     avatarId: TypedString<AvatarID>({
