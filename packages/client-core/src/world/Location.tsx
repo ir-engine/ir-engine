@@ -46,7 +46,7 @@ import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
 import { clientContextParams } from '../util/contextParams'
 
-const logger = multiLogger.child({ component: 'system:location ', modifier: clientContextParams })
+const logger = multiLogger.child({ component: 'system:location', modifier: clientContextParams })
 
 type Props = {
   online?: boolean

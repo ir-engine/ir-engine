@@ -43,6 +43,8 @@ import { Engine, Entity, EntityUUID, UUIDComponent, entityExists } from '@ethere
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
+import { VALID_HEIRACHY_SEARCH_REGEX } from '@etherealengine/common/src/regex'
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
 import CreatePrefabPanel from '@etherealengine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
@@ -60,6 +62,7 @@ import { SelectionState } from '@etherealengine/editor/src/services/SelectionSer
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { GLTF } from '@gltf-transform/core'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
@@ -118,6 +121,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const rootEntitySource = useComponent(rootEntity, SourceComponent)
   const gltfState = useMutableState(GLTFSnapshotState)
   const gltfSnapshot = gltfState[rootEntitySource.value].snapshots[props.index]
+
+  const [showModelChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
 
   const setSelectedNode = (selection: Entity[]) => !lockPropertiesPanel.value && _setSelectedNodes(selection)
 
@@ -178,11 +183,16 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   const searchedNodes: HierarchyTreeNodeType[] = []
   if (searchHierarchy.value.length > 0) {
-    const condition = new RegExp(searchHierarchy.value.toLowerCase())
-    entityHierarchy.value.forEach((node) => {
-      if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
-        searchedNodes.push(node)
-    })
+    try {
+      const adjustedSearchValue = searchHierarchy.value.replace(VALID_HEIRACHY_SEARCH_REGEX, '\\$&')
+      const condition = new RegExp(adjustedSearchValue, 'i') // 'i' flag for case-insensitive search
+      entityHierarchy.value.forEach((node) => {
+        if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
+          searchedNodes.push(node)
+      })
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   useEffect(() => {
@@ -192,9 +202,9 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   }, [])
 
   useEffect(() => {
-    const hierarchy = gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[])
+    const hierarchy = gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[], showModelChildren)
     if (didHierarchyChange(entityHierarchy.value as HierarchyTreeNodeType[], hierarchy)) entityHierarchy.set(hierarchy)
-  }, [expandedNodes, index, gltfSnapshot, gltfState, selectionState.selectedEntities])
+  }, [expandedNodes, index, gltfSnapshot, gltfState, selectionState.selectedEntities, showModelChildren])
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
