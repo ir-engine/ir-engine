@@ -584,7 +584,7 @@ export const checkProjectDestinationMatch = async (
       error: 'invalidRepoProjectName',
       text: 'The repository you are attempting to update from contains a different project than the one you are updating'
     }
-  else return { sourceProjectMatchesDestination: true, projectName: sourceContent.name }
+  else return { sourceProjectMatchesDestination: true, projectName: `${sourceRepo}/${sourceContent.name}` }
 }
 
 export const checkDestination = async (app: Application, url: string, params?: ProjectParams) => {
