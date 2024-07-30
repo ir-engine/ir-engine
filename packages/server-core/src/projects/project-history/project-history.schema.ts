@@ -27,35 +27,45 @@ Ethereal Engine. All Rights Reserved.
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { dataValidator, queryValidator } from '@etherealengine/common/src/schemas/validators'
 import { TypedString } from '@etherealengine/common/src/types/TypeboxUtils'
-import { Static, Type, getValidator, querySyntax } from '@feathersjs/typebox'
+import { Static, StringEnum, Type, getValidator, querySyntax } from '@feathersjs/typebox'
 
 export const projectHistoryPath = 'project-history'
 export const projectHistoryMethods = ['create', 'find', 'remove'] as const
 
-export enum ActionTypes {
-  CREATE_PROJECT = 'CREATE_PROJECT',
-  UPDATE_PROJECT = 'UPDATE_PROJECT',
-  COLLABORATER_ADDED = 'COLLABORATER_ADDED',
-  COLLABORATER_REMOVED = 'COLLABORATER_REMOVED',
+export const ActionTypes = [
+  'SCENE_CREATED',
+  'SCENE_RENAMED',
+  'SCENE_MODIFIED',
+  'SCENE_REMOVED',
+  'RESOURCE_CREATED',
+  'RESOURCE_RENAMED',
+  'RESOURCE_MODIFIED',
+  'RESOURCE_REMOVED',
+  'PROJECT_CREATED',
+  'PERMISSION_CREATED',
+  'PERMISSION_MODIFIED',
+  'PERMISSION_REMOVED',
+  'LOCATION_PUBLISHED',
+  'LOCATION_UNPUBLISHED'
+] as const
 
-  CREATE_SCENE = 'CREATE_SCENE',
-  UPDATE_SCENE = 'UPDATE_SCENE',
-  REMOVE_SCENE = 'REMOVE_SCENE',
-  CREATE_ASSET = 'CREATE_ASSET',
-  UPDATE_ASSET = 'UPDATE_ASSET',
-  REMOVE_ASSET = 'REMOVE_ASSET'
-}
+export type ActionType = (typeof ActionTypes)[number]
 
-export const UserActionTypes = [ActionTypes.COLLABORATER_ADDED, ActionTypes.COLLABORATER_REMOVED]
-export const ResourceActionTypes = [
-  ActionTypes.CREATE_SCENE,
-  ActionTypes.UPDATE_SCENE,
-  ActionTypes.REMOVE_SCENE,
-  ActionTypes.CREATE_ASSET,
-  ActionTypes.UPDATE_ASSET,
-  ActionTypes.REMOVE_ASSET
+export const ResourceActionTypes: ActionType[] = [
+  'SCENE_CREATED',
+  'SCENE_RENAMED',
+  'SCENE_MODIFIED',
+  'SCENE_REMOVED',
+  'RESOURCE_CREATED',
+  'RESOURCE_RENAMED',
+  'RESOURCE_MODIFIED',
+  'RESOURCE_REMOVED'
 ]
-export const ProjectActionTypes = [ActionTypes.CREATE_PROJECT, ActionTypes.UPDATE_PROJECT]
+export const ProjectActionTypes: ActionType[] = ['PROJECT_CREATED']
+export const PermissionActionTypes: ActionType[] = ['PERMISSION_CREATED', 'PERMISSION_MODIFIED', 'PERMISSION_REMOVED']
+export const LocationActionTypes: ActionType[] = ['LOCATION_PUBLISHED', 'LOCATION_UNPUBLISHED']
+
+export const ActionIdentifierTypes = ['static-resource', 'project', 'user', 'location', 'project-permission'] as const
 
 // Schema for creating new entries
 export const projectHistorySchema = Type.Object(
@@ -66,16 +76,23 @@ export const projectHistorySchema = Type.Object(
     projectId: Type.String({
       format: 'uuid'
     }),
-    userId: TypedString<UserID>({
-      format: 'uuid'
-    }),
+    userId: Type.Union([
+      TypedString<UserID>({
+        format: 'uuid'
+      }),
+      Type.Null()
+    ]),
 
     userName: Type.String(),
-    userAvatar: Type.String({ format: 'uri' }),
+    userAvatarURL: Type.String({ format: 'uri' }),
 
-    action: Type.Enum(ActionTypes),
-    actionIdentifier: Type.String(), // can be resourceId or userId or projectId
-    actionResource: Type.String(), // can be assetURL or user name or project name
+    // @ts-ignore
+    action: StringEnum(ActionTypes),
+    actionIdentifier: Type.String(),
+
+    // @ts-ignore
+    actionIdentiferType: StringEnum(ActionIdentifierTypes),
+    actionDetail: Type.String(),
 
     createdAt: Type.String({ format: 'date-time' })
   },
@@ -86,7 +103,7 @@ export interface ProjectHistoryType extends Static<typeof projectHistorySchema> 
 // Schema for creating new entries
 export const projectHistoryDataSchema = Type.Pick(
   projectHistorySchema,
-  ['projectId', 'userId', 'action', 'actionIdentifier'],
+  ['projectId', 'userId', 'action', 'actionIdentifier', 'actionIdentiferType', 'actionDetail'],
   {
     $id: 'ProjectHistoryData'
   }
@@ -94,7 +111,7 @@ export const projectHistoryDataSchema = Type.Pick(
 export interface ProjectHistoryData extends Static<typeof projectHistoryDataSchema> {}
 
 // Schema for allowed query properties
-export const projectHistoryQueryProperties = Type.Pick(projectHistorySchema, ['id', 'projectId'])
+export const projectHistoryQueryProperties = Type.Pick(projectHistorySchema, ['projectId', 'createdAt'])
 
 export const projectHistoryQuerySchema = Type.Intersect([querySyntax(projectHistoryQueryProperties, {})], {
   additionalProperties: false

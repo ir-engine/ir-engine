@@ -27,10 +27,9 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { avatarPath, staticResourcePath, userPath } from '@etherealengine/common/src/schema.type.module'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { ProjectHistoryQuery, ProjectHistoryType, ResourceActionTypes, UserActionTypes } from './project-history.schema'
+import { ProjectHistoryQuery, ProjectHistoryType } from './project-history.schema'
 
 export const projectHistoryResolver = resolve<ProjectHistoryType, HookContext>({
   createdAt: virtual(async (projectHistory) => fromDateTimeSql(projectHistory.createdAt))
@@ -43,108 +42,36 @@ export const projectHistoryDataResolver = resolve<ProjectHistoryType, HookContex
   createdAt: getDateTimeSql
 })
 
-const getUserNameAndAvatarId = async (projectHistory: ProjectHistoryType, context: HookContext) => {
-  if (context.method !== 'find' && context.method !== 'get') {
+const getUserNameAndAvatarURL = (projectHistory: ProjectHistoryType, context: HookContext) => {
+  if (context.method !== 'find') {
     return {
       userName: '',
-      avatarId: ''
+      userAvatarURL: ''
     }
   }
 
   if (!projectHistory.userId) {
     return {
-      userName: '',
-      avatarId: ''
+      userName: 'Admin',
+      userAvatarURL: ''
     }
   }
 
-  if (!('userNames' in context.params)) {
-    context.params['userNames'] = {} as Record<string, string>
+  const userInfo = context.userInfo[projectHistory.userId] as {
+    userName: string
+    userAvatarURL: string
   }
 
-  if (!('avatarIds' in context.params)) {
-    context.params['avatarIds'] = {} as Record<string, string>
-  }
-
-  if (projectHistory.userId in context.params['userNames']) {
-    return {
-      userName: context.params['userNames'][projectHistory.userId],
-      avatarId: context.params['avatarIds'][projectHistory.userId]
-    }
-  }
-
-  const user = await context.app.service(userPath).get(projectHistory.userId)
-  context.params['userNames'][projectHistory.userId] = user.name
-  context.params['avatarIds'][projectHistory.userId] = user.avatarId
-
-  return {
-    userName: user.name,
-    avatarId: user.avatarId
-  }
+  return userInfo
 }
 
 export const projectHistoryExternalResolver = resolve<ProjectHistoryType, HookContext>({
   userName: virtual(async (projectHistory, context) => {
-    return (await getUserNameAndAvatarId(projectHistory, context)).userName
+    return getUserNameAndAvatarURL(projectHistory, context).userName
   }),
 
-  userAvatar: virtual(async (projectHistory, context) => {
-    if (context.method !== 'find' && context.method !== 'get') {
-      return ''
-    }
-
-    if (!projectHistory.userId) {
-      return ''
-    }
-
-    if (!('userAvatars' in context.params)) {
-      console.log('userAvatars not in context.params. Creating new object')
-      context.params['userAvatars'] = {} as Record<string, string>
-    }
-
-    if (projectHistory.userId in context.params['userAvatars']) {
-      console.log(`User ${projectHistory.userId} already in userAvatars`)
-      return context.params['userAvatars'][projectHistory.userId].userAvatarURL
-    }
-
-    const avatarId = (await getUserNameAndAvatarId(projectHistory, context)).avatarId
-
-    const avatar = await context.app.service(avatarPath).get(avatarId)
-
-    context.params['userAvatars'][projectHistory.userId] = avatar?.thumbnailResource?.url
-
-    return avatar?.thumbnailResource?.url || ''
-  }),
-
-  actionResource: virtual(async (projectHistory, context) => {
-    if (context.method !== 'find' && context.method !== 'get') {
-      return ''
-    }
-
-    if (UserActionTypes.includes(projectHistory.action)) {
-      return (await getUserNameAndAvatarId(projectHistory, context)).userName
-    } else if (ResourceActionTypes.includes(projectHistory.action)) {
-      const resourceId = projectHistory.actionIdentifier
-
-      if (!resourceId) {
-        return ''
-      }
-
-      if (!('staticResourcesKeys' in context)) {
-        context.params['staticResourcesKeys'] = {} as Record<string, string>
-      }
-
-      if (resourceId in context.params['staticResourcesKeys']) {
-        return context.params['staticResourcesKeys'][resourceId]
-      }
-
-      const resource = await context.app.service(staticResourcePath).get(resourceId)
-      context.params['staticResourcesKeys'][resourceId] = resource.key
-
-      return resource.key
-    }
-
-    return projectHistory.action
+  userAvatarURL: virtual(async (projectHistory, context) => {
+    return getUserNameAndAvatarURL(projectHistory, context).userAvatarURL
   })
 })
 

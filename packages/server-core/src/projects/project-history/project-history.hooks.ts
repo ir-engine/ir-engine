@@ -26,16 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import {
-  projectHistoryDataValidator,
-  projectHistoryQueryValidator,
-  ResourceActionTypes,
-  UserActionTypes
-} from './project-history.schema'
+import { projectHistoryDataValidator, projectHistoryQueryValidator } from './project-history.schema'
 
 import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import setLoggedinUserInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
-import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 import { BadRequest } from '@feathersjs/errors'
 import {
   projectHistoryDataResolver,
@@ -44,7 +38,14 @@ import {
   projectHistoryResolver
 } from './project-history.resolvers'
 
-import { staticResourcePath, UserID, userPath } from '@etherealengine/common/src/schema.type.module'
+import {
+  AvatarID,
+  avatarPath,
+  AvatarType,
+  userAvatarPath,
+  UserID,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { HookContext } from '../../../declarations'
 import { ProjectHistoryService } from './project-history.class'
@@ -60,6 +61,11 @@ const checkProjectAccess = async (context: HookContext<ProjectHistoryService>) =
   for (const data of dataArr) {
     const { projectId, userId } = data
 
+    if (!userId) {
+      // If userId is not present, then it is a system action (or admin action)
+      continue
+    }
+
     const projectPermission = await context.app.service(projectPermissionPath).find({
       query: {
         projectId,
@@ -73,64 +79,67 @@ const checkProjectAccess = async (context: HookContext<ProjectHistoryService>) =
   }
 }
 
-const populateData = async (context: HookContext<ProjectHistoryService>) => {
-  if (!context.data) return
-  const dataArr = Array.isArray(context.data) ? context.data : [context.data]
+const populateUsernameAndAvatar = async (context: HookContext<ProjectHistoryService>) => {
+  if (!context.result) return
+  const data = context.result
+  const dataArr = data ? (Array.isArray(data) ? data : 'data' in data ? data.data : [data]) : []
 
   const userIds: UserID[] = []
-  const staticResourceIds: string[] = []
 
   for (const data of dataArr) {
     const { userId } = data
-    if (userId) {
-      userIds.push(userId)
-    }
-
-    if (!data.action || !data.actionIdentifier) {
-      continue
-    }
-
-    if (data.action in ResourceActionTypes) {
-      staticResourceIds.push(data.actionIdentifier)
-    }
-
-    if (data.action in UserActionTypes) {
-      userIds.push(data.actionIdentifier as UserID)
-    }
+    if (userId) userIds.push(userId)
   }
   const uniqueUsers = [...new Set(userIds)]
+  const nonNullUsers = uniqueUsers.filter((userId) => !!userId)
+
   const users = await context.app.service(userPath).find({
     query: {
       id: {
-        $in: uniqueUsers
+        $in: nonNullUsers
       }
     },
     paginate: false
   })
+
+  const userAvatars = await context.app.service(userAvatarPath).find({
+    query: {
+      userId: {
+        $in: nonNullUsers
+      }
+    },
+    paginate: false
+  })
+
+  const uniqueUserAvatarIds = [...new Set(userAvatars.map((avatar) => avatar.avatarId))]
+  const avatars = await context.app.service(avatarPath).find({
+    query: {
+      id: {
+        $in: uniqueUserAvatarIds
+      }
+    },
+    paginate: false
+  })
+
+  const avatarIdAvatarMap = {} as Record<AvatarID, AvatarType>
+  for (const avatar of avatars) {
+    avatarIdAvatarMap[avatar.id] = avatar
+  }
+
+  const userIdAvatarIdMap = {} as Record<UserID, AvatarType>
+  for (const userAvatar of userAvatars) {
+    userIdAvatarIdMap[userAvatar.userId] = avatarIdAvatarMap[userAvatar.avatarId]
+  }
+
   const usersInfo = {} as Record<UserID, { userName: string; userAvatarURL: string }>
   for (const user of users) {
     usersInfo[user.id] = {
       userName: user.name,
-      userAvatarURL: user.avatar?.thumbnailResource?.url || ''
+      userAvatarURL: userIdAvatarIdMap[user.id].thumbnailResource?.url || ''
     }
   }
 
-  const uniqueStaticResources = [...new Set(staticResourceIds)]
-  const staticResources = await context.app.service(staticResourcePath).find({
-    query: {
-      id: {
-        $in: uniqueStaticResources
-      }
-    },
-    paginate: false
-  })
-  const staticResourcesInfo = {} as Record<string, string>
-  for (const resource of staticResources) {
-    staticResourcesInfo[resource.id] = resource.key
-  }
-
-  context.parms['usersInfo'] = usersInfo
-  context.params['staticResourcesInfo'] = staticResourcesInfo
+  context.userInfo = usersInfo
 }
 
 export default {
@@ -143,24 +152,25 @@ export default {
 
   before: {
     all: [
-      () => schemaHooks.validateQuery(projectHistoryQueryValidator),
+      schemaHooks.validateQuery(projectHistoryQueryValidator),
       schemaHooks.resolveQuery(projectHistoryQueryResolver)
     ],
-    find: [iff(isProvider('external'), setLoggedinUserInQuery('userId'), checkProjectAccess, populateData)],
-    get: [iff(isProvider('external'), setLoggedinUserInQuery('userId'), checkProjectAccess, populateData)],
+    find: [iff(isProvider('external'), setLoggedinUserInQuery('userId'))],
+    get: [disallow('external')],
     create: [
-      () => schemaHooks.validateData(projectHistoryDataValidator),
-      iff(isProvider('external'), setLoggedinUserInQuery('userId'), checkProjectAccess),
-      schemaHooks.resolveData(projectHistoryDataResolver)
+      disallow('external'),
+      schemaHooks.validateData(projectHistoryDataValidator),
+      schemaHooks.resolveData(projectHistoryDataResolver),
+      checkProjectAccess
     ],
     patch: [disallow('external')],
     update: [disallow('external')],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'))]
+    remove: [disallow('external')]
   },
 
   after: {
     all: [],
-    find: [],
+    find: [populateUsernameAndAvatar],
     get: [],
     create: [],
     update: [],

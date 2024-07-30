@@ -32,6 +32,7 @@ import ProjectCheckUnfetchedCommit from './project-check-unfetched-commit/projec
 import ProjectCommits from './project-commits/project-commits'
 import ProjectDestinationCheck from './project-destination-check/project-destination-check'
 import ProjectGithubPush from './project-github-push/project-github-push'
+import './project-history/hooks'
 import ProjectHistory from './project-history/project-history'
 import ProjectInvalidate from './project-invalidate/project-invalidate'
 import ProjectPermission from './project-permission/project-permission'
