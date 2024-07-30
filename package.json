@@ -96,39 +96,6 @@
     "add-license-headers": "cross-env ts-node --swc scripts/add-license-headers.ts",
     "storybook": "cd packages/ui && npm run storybook"
   },
-  "nyc": {
-    "extension": [
-      ".ts",
-      ".tsx"
-    ],
-    "exclude": [
-      ".d.ts"
-    ],
-    "check-coverage": true,
-    "per-file": true,
-    "statements": 80,
-    "branches": 80,
-    "functions": 80,
-    "lines": 80,
-    "watermarks": {
-      "statements": [
-        80,
-        95
-      ],
-      "branches": [
-        80,
-        95
-      ],
-      "functions": [
-        80,
-        95
-      ],
-      "lines": [
-        80,
-        95
-      ]
-    }
-  },
   "types": "lib/",
   "pre-commit": [
     "add-license-headers",
@@ -146,6 +113,7 @@
     "@eslint/eslintrc": "3.1.0",
     "@eslint/js": "9.5.0",
     "@ianvs/prettier-plugin-sort-imports": "4.1.0",
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@swc/core": "1.3.41",
     "@testing-library/react": "15.0.4",
     "@types/app-root-path": "1.2.4",
