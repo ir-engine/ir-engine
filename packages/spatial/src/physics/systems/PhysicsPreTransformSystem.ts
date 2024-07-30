@@ -40,10 +40,13 @@ import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent, getAncestorWithComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix, isDirty, TransformSystem } from '../../transform/systems/TransformSystem'
+import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../../transform/systems/TransformSystem'
 import { Physics } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
+
+const _vec3 = new Vector3()
+const _quat = new Quaternion()
 
 const position = new Vector3()
 const rotation = new Quaternion()
@@ -86,9 +89,9 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   if (parentEntity) {
     const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
     const sceneTransform = getComponent(sceneEntity, TransformComponent)
-    // todo: figure out proper scale support
-    const scale = getComponent(entity, TransformComponent).scale
     // if the entity has a parent, we need to use the scene space
+    TransformComponent.getMatrixRelativeToScene(entity, mat4)
+    mat4.decompose(_vec3, _quat, scale)
     transform.matrix.compose(position, rotation, scale)
     transform.matrixWorld.multiplyMatrices(sceneTransform.matrixWorld, transform.matrix)
 
@@ -165,9 +168,10 @@ const copyTransformToCollider = (entity: Entity) => {
   computeTransformMatrix(entity)
   const rigidbodyEntity = getAncestorWithComponent(entity, RigidBodyComponent)
   if (!rigidbodyEntity) return
-  TransformComponent.getMatrixRelativeToEntity(entity, rigidbodyEntity, mat4)
-  mat4.decompose(position, rotation, scale)
-  Physics.setColliderPose(world, entity, position, rotation)
+  const colliderDesc = Physics.createColliderDesc(world, entity, rigidbodyEntity)
+  if (!colliderDesc) return
+  Physics.removeCollider(world, entity)
+  Physics.attachCollider(world, colliderDesc, rigidbodyEntity, entity)
 }
 
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
@@ -209,6 +213,6 @@ export const execute = () => {
 
 export const PhysicsPreTransformSystem = defineSystem({
   uuid: 'ee.engine.PhysicsPreTransformSystem',
-  insert: { before: TransformSystem },
+  insert: { after: TransformDirtyUpdateSystem },
   execute
 })
