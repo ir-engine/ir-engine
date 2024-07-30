@@ -43,7 +43,7 @@ import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
 
-import { AssetType } from '@etherealengine/common/src/constants/AssetType'
+import { AssetType, FileToAssetType } from '@etherealengine/common/src/constants/AssetType'
 import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/regex'
 
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
@@ -1659,8 +1659,9 @@ const getResourceType = (key: string, resource?: ResourceType) => {
   // TODO: figure out a better way of handling thumbnails rather than by convention
   if (key.startsWith('public/thumbnails') || key.endsWith('.thumbnail.jpg')) return 'thumbnail'
   if (!resource) return 'file'
-  if (resource.tags && (resource.type ?? 'file' === 'file')) return 'asset'
+  if (staticResourceClasses.includes(FileToAssetType(key))) return 'asset'
   if (resource.type) return resource.type
+  if (resource.tags) return 'asset'
   return 'file'
 }
 
@@ -1670,6 +1671,7 @@ const staticResourceClasses = [
   AssetType.Model,
   AssetType.Video,
   AssetType.Volumetric,
+  AssetType.Lookdev,
   AssetType.Material,
   AssetType.Prefab
 ]

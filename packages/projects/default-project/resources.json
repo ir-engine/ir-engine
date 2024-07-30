@@ -279,6 +279,13 @@
     ],
     "dependencies": []
   },
+  "assets/prefabs/camera.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Default Prefab"
+    ],
+    "dependencies": []
+  },
   "assets/prefabs/title.prefab.gltf": {
     "type": "file",
     "tags": [
