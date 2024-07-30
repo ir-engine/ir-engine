@@ -493,7 +493,7 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
               <Button onClick={() => handleOpenProjectDrawer(false)} className={styles.btn}>
                 {t(`editor.projects.install`)}
               </Button>
-              <Button onClick={openCreateDialog} className={styles.btn}>
+              <Button onClick={openCreateDialog} className={styles.btn} disabled>
                 {t(`editor.projects.lbl-createProject`)}
               </Button>
             </div>
