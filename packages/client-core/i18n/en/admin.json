@@ -199,6 +199,7 @@
         "name": "Name",
         "projectVersion": "Version",
         "enabled": "Enabled",
+        "visibility": "Visibility",
         "commitSHA": "Commit SHA",
         "commitDate": "Commit Date",
         "actions": "Actions"
