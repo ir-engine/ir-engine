@@ -47,7 +47,7 @@ import logger from '../../ServerLogger'
 import checkScopeHook from '../../hooks/check-scope'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import resolveProjectId from '../../hooks/resolve-project-id'
-import verifyProjectOwner from '../../hooks/verify-project-owner'
+import verifyProjectPermission from '../../hooks/verify-project-permission'
 import { ProjectPermissionService } from './project-permission.class'
 import {
   projectPermissionDataResolver,
@@ -200,6 +200,30 @@ const makeRandomProjectOwner = async (context: HookContext<ProjectPermissionServ
   if (context.id && context.result) await context.service.makeRandomProjectOwnerIfNone(result[0].projectId)
 }
 
+/**
+ * Gets project id from permission and sets it in query
+ * @param context
+ * @returns
+ */
+const resolvePermissionId = async (context: HookContext<ProjectPermissionService>) => {
+  if (context.id && typeof context.id === 'string') {
+    const project = (await context.app.service(projectPermissionPath).find({
+      query: {
+        id: context.id,
+        $limit: 1
+      }
+    })) as Paginated<ProjectPermissionType>
+
+    if (project.data.length === 0) throw new BadRequest('Invalid project-permission ID')
+
+    const projectId = project.data[0].projectId
+
+    context.params.query = { ...context.params.query, projectId }
+
+    return context
+  }
+}
+
 export default {
   around: {
     all: [
@@ -221,7 +245,10 @@ export default {
     ],
     get: [],
     create: [
-      iff(isProvider('external'), verifyProjectOwner()),
+      iff(
+        isProvider('external'),
+        iffElse(checkScopeHook('projects', 'write'), [], [resolvePermissionId, verifyProjectPermission(['owner'])])
+      ),
       schemaHooks.validateData(projectPermissionDataValidator),
       schemaHooks.resolveData(projectPermissionDataResolver),
       setLoggedInUserData('createdBy'),
@@ -230,12 +257,20 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyProjectOwner()),
+      iff(
+        isProvider('external'),
+        iffElse(checkScopeHook('projects', 'write'), [], [resolvePermissionId, verifyProjectPermission(['owner'])])
+      ),
       schemaHooks.validateData(projectPermissionPatchValidator),
       schemaHooks.resolveData(projectPermissionPatchResolver),
       ensureTypeInPatch
     ],
-    remove: [iff(isProvider('external'), verifyProjectOwner())]
+    remove: [
+      iff(
+        isProvider('external'),
+        iffElse(checkScopeHook('projects', 'write'), [], [resolvePermissionId, verifyProjectPermission(['owner'])])
+      )
+    ]
   },
 
   after: {

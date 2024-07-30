@@ -54,6 +54,7 @@ import { EngineState } from '@etherealengine/spatial/src/EngineState'
 
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
+import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
@@ -143,15 +144,17 @@ export const useLoadEngineWithScene = () => {
 }
 
 export const useNetwork = (props: { online?: boolean }) => {
+  const acceptedTOS = useMutableState(AuthState).user.acceptedTOS.value
+
   useEffect(() => {
     getMutableState(NetworkState).config.set({
       world: !!props.online,
-      media: !!props.online,
+      media: !!props.online && acceptedTOS,
       friends: !!props.online,
       instanceID: !!props.online,
       roomID: false
     })
-  }, [props.online])
+  }, [props.online, acceptedTOS])
 
   /** Offline/local world network */
   useEffect(() => {

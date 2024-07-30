@@ -61,6 +61,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
       ...baseData,
       accountIdentifier: profile.login,
       oauthToken: params.access_token,
+      oauthRefreshToken: params.refresh_token,
       type: 'github',
       userId
     }
@@ -86,11 +87,13 @@ export class GithubStrategy extends CustomOAuthStrategy {
       entity.userId = newUser.id
       await this.app.service(identityProviderPath)._patch(entity.id, {
         userId: newUser.id,
-        oauthToken: params.access_token
+        oauthToken: params.access_token,
+        oauthRefreshToken: params.refresh_token
       })
     } else
       await this.app.service(identityProviderPath)._patch(entity.id, {
-        oauthToken: params.access_token
+        oauthToken: params.access_token,
+        oauthRefreshToken: params.refresh_token
       })
     const identityProvider = authResult[identityProviderPath]
     const user = await this.app.service(userPath).get(entity.userId)
@@ -118,6 +121,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
     if (!existingEntity) {
       profile.userId = user.id
       profile.oauthToken = params.access_token
+      profile.oauthRefreshToken = params.refresh_token
       const newIP = await super.createEntity(profile, params)
       if (entity.type === 'guest') await this.app.service(identityProviderPath)._remove(entity.id)
       await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
@@ -165,6 +169,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
       else throw new Error('There was a problem with the GitHub OAuth login flow: ' + authentication.error_description)
     }
     originalParams.access_token = authentication.access_token
+    originalParams.refresh_token = authentication.refresh_token
     return super.authenticate(authentication, originalParams)
   }
 }
