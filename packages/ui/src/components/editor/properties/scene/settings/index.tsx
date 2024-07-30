@@ -29,9 +29,8 @@ import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { UUIDComponent, defineQuery } from '@etherealengine/ecs'
-import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import BooleanInput from '@etherealengine/editor/src/components/inputs/BooleanInput'
+import { defineQuery } from '@etherealengine/ecs'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   EditorComponentType,
   commitProperties,
@@ -50,15 +49,14 @@ import {
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { getState, useHookstate, useState } from '@etherealengine/hyperflux'
 import { VirtualCameraComponent } from '@etherealengine/spatial/src/camera/components/VirtualCameraComponent'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RiLandscapeLine } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import ImagePreviewInput from '../../../input/Image/Preview'
 import NumericInput from '../../../input/Numeric'
-import SelectInput from '../../../input/Select'
 import PropertyGroup from '../../group'
 
 const virtualCameraQuery = defineQuery([VirtualCameraComponent])
@@ -186,7 +184,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
       >
         <BooleanInput value={useSpectatingEntity.value} onChange={useSpectatingEntity.set} />
       </InputGroup>
-      {useSpectatingEntity.value ? (
+      {/* {useSpectatingEntity.value ? (
         <InputGroup
           name="Entity UUID"
           label={t('editor:properties.sceneSettings.lbl-uuid')}
@@ -202,7 +200,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         </InputGroup>
       ) : (
         <></>
-      )}
+      )} */}
 
       <InputGroup
         name="Thumbnail"
