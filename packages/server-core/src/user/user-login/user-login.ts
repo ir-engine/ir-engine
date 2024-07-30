@@ -23,23 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
+import { userLoginMethods, userLoginPath } from '@etherealengine/common/src/schemas/user/user-login.schema'
+import { Application } from '../../../declarations'
+import { UserLoginService } from './user-login.class'
+import userLoginDocs from './user-login.docs'
+import hooks from './user-login.hooks'
 
-import { ITableHeadCell } from '../Table'
-
-type IdType = 'select' | 'id' | 'name' | 'accountIdentifier' | 'isGuest' | 'action' | 'avatar'
-
-export type UserRowType = Record<IdType, string | JSX.Element | undefined>
-
-interface IUserColumn extends ITableHeadCell {
-  id: IdType
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [userLoginPath]: UserLoginService
+  }
 }
 
-export const userColumns: IUserColumn[] = [
-  { id: 'id', label: t('admin:components.user.columns.id') },
-  { id: 'name', sortable: true, label: t('admin:components.user.columns.name') },
-  { id: 'avatar', label: t('admin:components.user.columns.avatar') },
-  { id: 'accountIdentifier', label: t('admin:components.user.columns.accountIdentifier') },
-  { id: 'isGuest', sortable: true, label: t('admin:components.user.columns.isGuest') },
-  { id: 'action', label: t('admin:components.user.columns.action') }
-]
+export default (app: Application): void => {
+  const options = {
+    name: userLoginPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(userLoginPath, new UserLoginService(options), {
+    // A list of all methods this service exposes externally
+    methods: userLoginMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: userLoginDocs
+  })
+
+  const service = app.service(userLoginPath)
+  service.hooks(hooks)
+}

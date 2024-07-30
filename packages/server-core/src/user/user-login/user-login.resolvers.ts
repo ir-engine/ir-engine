@@ -23,23 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve, virtual } from '@feathersjs/schema'
+import { v4 as uuidv4 } from 'uuid'
 
-import { ITableHeadCell } from '../Table'
+import { UserLoginQuery, UserLoginType } from '@etherealengine/common/src/schemas/user/user-login.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-type IdType = 'select' | 'id' | 'name' | 'accountIdentifier' | 'isGuest' | 'action' | 'avatar'
+export const userLoginResolver = resolve<UserLoginType, HookContext>({
+  createdAt: virtual(async (userLogin) => fromDateTimeSql(userLogin.createdAt))
+})
 
-export type UserRowType = Record<IdType, string | JSX.Element | undefined>
+export const userLoginExternalResolver = resolve<UserLoginType, HookContext>({})
 
-interface IUserColumn extends ITableHeadCell {
-  id: IdType
-}
+export const userLoginDataResolver = resolve<UserLoginType, HookContext>({
+  id: async () => {
+    return uuidv4()
+  },
+  createdAt: getDateTimeSql
+})
 
-export const userColumns: IUserColumn[] = [
-  { id: 'id', label: t('admin:components.user.columns.id') },
-  { id: 'name', sortable: true, label: t('admin:components.user.columns.name') },
-  { id: 'avatar', label: t('admin:components.user.columns.avatar') },
-  { id: 'accountIdentifier', label: t('admin:components.user.columns.accountIdentifier') },
-  { id: 'isGuest', sortable: true, label: t('admin:components.user.columns.isGuest') },
-  { id: 'action', label: t('admin:components.user.columns.action') }
-]
+export const userLoginPatchResolver = resolve<UserLoginType, HookContext>({})
+
+export const userLoginQueryResolver = resolve<UserLoginQuery, HookContext>({})

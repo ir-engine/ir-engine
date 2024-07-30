@@ -110,6 +110,7 @@ export type * from './schemas/user/sms.schema'
 export type * from './schemas/user/user-api-key.schema'
 export type * from './schemas/user/user-avatar.schema'
 export type * from './schemas/user/user-kick.schema'
+export type * from './schemas/user/user-login.schema'
 export type * from './schemas/user/user-relationship-type.schema'
 export type * from './schemas/user/user-relationship.schema'
 export type * from './schemas/user/user-setting.schema'
@@ -146,6 +147,8 @@ export const avatarPath = 'avatar'
 export const magicLinkPath = 'magic-link'
 
 export const userKickPath = 'user-kick'
+
+export const userLoginPath = 'user-login'
 
 export const userSettingPath = 'user-setting'
 

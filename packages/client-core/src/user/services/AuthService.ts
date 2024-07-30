@@ -109,8 +109,7 @@ export const UserSeed: UserType = {
   locationBans: [],
   instanceAttendance: [],
   createdAt: '',
-  updatedAt: '',
-  lastLogin: null
+  updatedAt: ''
 }
 
 const resolveWalletUser = (credentials: any): UserType => {

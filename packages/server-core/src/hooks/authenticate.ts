@@ -32,7 +32,6 @@ import { isProvider } from 'feathers-hooks-common'
 
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
-import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 import { decode, JwtPayload } from 'jsonwebtoken'
 import { Application } from '../../declarations'
@@ -113,7 +112,6 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
       const user = await context.app.service(userPath).get(key.data[0].userId)
       context.params.user = user
       asyncLocalStorage.enterWith({ user })
-      await addLastLogin(context)
       return next()
     }
   }
@@ -128,7 +126,6 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
     const user = await context.app.service(userPath).get(context.params[config.authentication.entity].userId)
     context.params.user = user
     asyncLocalStorage.enterWith({ user })
-    await addLastLogin(context)
   }
 
   return next()
@@ -148,8 +145,4 @@ const checkWhitelist = (context: HookContext<Application>): boolean => {
   }
 
   return false
-}
-
-const addLastLogin = async (context: HookContext<Application>) => {
-  await context.app.service('user')._patch(context.params.user.id, { lastLogin: toDateTimeSql(new Date()) })
 }

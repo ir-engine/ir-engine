@@ -23,23 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { ITableHeadCell } from '../Table'
+import {
+  userLoginDataSchema,
+  userLoginPatchSchema,
+  userLoginQuerySchema,
+  userLoginSchema
+} from '@etherealengine/common/src/schemas/user/user-login.schema'
 
-type IdType = 'select' | 'id' | 'name' | 'accountIdentifier' | 'isGuest' | 'action' | 'avatar'
-
-export type UserRowType = Record<IdType, string | JSX.Element | undefined>
-
-interface IUserColumn extends ITableHeadCell {
-  id: IdType
-}
-
-export const userColumns: IUserColumn[] = [
-  { id: 'id', label: t('admin:components.user.columns.id') },
-  { id: 'name', sortable: true, label: t('admin:components.user.columns.name') },
-  { id: 'avatar', label: t('admin:components.user.columns.avatar') },
-  { id: 'accountIdentifier', label: t('admin:components.user.columns.accountIdentifier') },
-  { id: 'isGuest', sortable: true, label: t('admin:components.user.columns.isGuest') },
-  { id: 'action', label: t('admin:components.user.columns.action') }
-]
+export default createSwaggerServiceOptions({
+  schemas: {
+    userLoginDataSchema,
+    userLoginPatchSchema,
+    userLoginQuerySchema,
+    userLoginSchema
+  },
+  docs: {
+    description: 'User login service description',
+    securities: ['all']
+  }
+})
