@@ -1659,8 +1659,8 @@ const getResourceType = (key: string, resource?: ResourceType) => {
   // TODO: figure out a better way of handling thumbnails rather than by convention
   if (key.startsWith('public/thumbnails') || key.endsWith('.thumbnail.jpg')) return 'thumbnail'
   if (!resource) return 'file'
+  if (resource.tags && (resource.type ?? 'file' === 'file')) return 'asset'
   if (resource.type) return resource.type
-  if (resource.tags) return 'asset'
   return 'file'
 }
 
