@@ -83,6 +83,7 @@
       "all": "All",
       "refresh": "Refresh",
       "name": "Name",
+      "lastUpdatedBy": "Last updated by user id: {{userId}} on {{updatedAt}}",
       "fillRequiredFields": "Please fill all required field",
       "fixErrorFields": "Please fix all errors",
       "logOut": "Log Out"
@@ -533,7 +534,6 @@
         "delete": "Delete",
         "add": "Add",
         "noSettingsMessage": "No settings available",
-        "lastUpdatedBy": "Last updated by user id: {{userId}}",
         "duplicateKey": "Duplicate keys cannot exist",
         "keyName": "Key Name",
         "value": "Value"
@@ -562,7 +562,7 @@
       "zendesk": {
         "header": "Zendesk",
         "subtitle": "Edit Zendesk Settings"
-      }, 
+      },
       "keyName": "key Name",
       "kid": "Key Id"
     },
