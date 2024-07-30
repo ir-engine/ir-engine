@@ -477,6 +477,11 @@ const AssetPanel = () => {
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
   }
 
+  //reset pagination when search text changes
+  useEffect(() => {
+    staticResourcesPagination.currentPage.set(0)
+  }, [searchText])
+
   useEffect(() => {
     staticResourcesFindApi()
   }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
