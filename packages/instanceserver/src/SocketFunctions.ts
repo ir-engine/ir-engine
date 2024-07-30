@@ -104,7 +104,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
 
       // Check that this use is allowed on this instance
       const instance = await app.service(instancePath).get(getState(InstanceServerState).instance.id)
-      if (!(await authorizeUserToJoinServer(app, instance, userId))) {
+      if (!(await authorizeUserToJoinServer(app, instance, user))) {
         authTask.status = 'fail'
         authTask.error = AuthError.USER_NOT_AUTHORIZED
         logger.error('[MessageTypes.Authorization]: user %s not authorized over peer %s %o', userId, peerID, authTask)
