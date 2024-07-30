@@ -281,7 +281,7 @@ describe('regex.test', () => {
     it('should match static asset URLs', () => {
       const positiveCases = [
         {
-          url: 'https://example.com/projects/@etherealengine/default-project/assets/images/logo.png',
+          url: 'https://example.com/projects/default-project/assets/images/logo.png',
           projectName: 'default-project',
           assetPath: 'assets/images/logo.png'
         },
@@ -291,12 +291,12 @@ describe('regex.test', () => {
           assetPath: 'assets/images/logo.png'
         },
         {
-          url: 'https://example.com/projects/@etherealengine/default-project/assets/animations/emotes.glb',
+          url: 'https://example.com/projects/default-project/assets/animations/emotes.glb',
           projectName: 'default-project',
           assetPath: 'assets/animations/emotes.glb'
         },
         {
-          url: 'https://example.com/projects/@etherealengine/default-project/assets/animations/locomotion.glb',
+          url: 'https://example.com/projects/default-project/assets/animations/locomotion.glb',
           projectName: 'default-project',
           assetPath: 'assets/animations/locomotion.glb'
         }
@@ -610,9 +610,9 @@ describe('regex.test', () => {
   describe('ASSETS_REGEX', () => {
     it('should match assets URLs', () => {
       const positiveCases = [
-        'https://example.com/projects/@etherealengine/default-project/assets/images/logo.png',
-        'https://example.com/projects/@etherealengine/default-project/assets/animations/emotes.glb',
-        'https://example.com/projects/@etherealengine/default-project/assets/animations/locomotion.glb'
+        'https://example.com/projects/default-project/assets/images/logo.png',
+        'https://example.com/projects/default-project/assets/animations/emotes.glb',
+        'https://example.com/projects/default-project/assets/animations/locomotion.glb'
       ]
       positiveCases.forEach((url) => {
         assert.match(url, ASSETS_REGEX, `Expected '${url}' to match ASSETS_REGEX`)
@@ -621,8 +621,8 @@ describe('regex.test', () => {
 
     it('should not match non-assets URLs', () => {
       const negativeCases = [
-        'https://example.com/projects/@etherealengine/default-project/scene.json',
-        'https://example.com/projects/@etherealengine/default-project/assets',
+        'https://example.com/projects/default-project/scene.json',
+        'https://example.com/projects/default-project/assets',
         'https://example.com/default-project/assets/animations/emotes.glb'
       ]
       negativeCases.forEach((url) => {
@@ -634,11 +634,11 @@ describe('regex.test', () => {
   describe('PROJECT_REGEX', () => {
     it('should match valid project paths', () => {
       const positiveCases = [
-        'projects/@etherealengine/project123',
-        'projects/@etherealengine/project-name',
-        'projects/@etherealengine/project_name',
-        'projects/@etherealengine/project/123',
-        'projects/@etherealengine/project/abc_def'
+        'projects/project123',
+        'projects/project-name',
+        'projects/project_name',
+        'projects/project/123',
+        'projects/project/abc_def'
       ]
       positiveCases.forEach((value) => {
         assert.match(value, PROJECT_REGEX, `Expected '${value}' to match PROJECT_REGEX`)
