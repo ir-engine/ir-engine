@@ -149,14 +149,14 @@ const EditorContainer = () => {
 
     projectName.set(scene.project!)
     sceneName.set(scene.key.split('/').pop() ?? null)
-    sceneAssetID.set(sceneQuery[0].id)
+    sceneAssetID.set(scene.id)
   }, [sceneQuery[0]?.key])
 
   useEffect(() => {
     const scene = sceneQuery[0]
     if (!sceneAssetID.value || !scene || !viewerEntity) return
 
-    return setCurrentEditorScene(sceneQuery[0].url, sceneAssetID.value as EntityUUID)
+    return setCurrentEditorScene(scene.url, sceneAssetID.value as EntityUUID)
   }, [viewerEntity, sceneAssetID, sceneQuery[0]?.url])
 
   useEffect(() => {
