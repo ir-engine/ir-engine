@@ -117,7 +117,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const originallyAcceptedTOS = useHookstate(acceptedTOS)
 
   useEffect(() => {
-    if (!originallyAcceptedTOS.value && checked18OrOver) {
+    if (!originallyAcceptedTOS.value && checked18OrOver.value) {
       Engine.instance.api
         .service(userPath)
         .patch(userId, { acceptedTOS: true })

@@ -465,7 +465,7 @@ export const InstanceChatWrapper = () => {
   const networkWorldConfig = useHookstate(getMutableState(NetworkState).config.world)
   const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
 
-  if (!isGuest)
+  if (isGuest)
     return (
       <>
         <div className={styles.modalConnecting}>
