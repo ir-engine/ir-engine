@@ -56,6 +56,8 @@ import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
 
+const logger = multiLogger.child({ component: 'system:settings-menu', modifier: clientContextParams })
+
 export const ShadowMapResolutionOptions: InputMenuItem[] = [
   {
     label: '256px',

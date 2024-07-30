@@ -43,6 +43,9 @@ import { LoadingCircle } from '../components/LoadingCircle'
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
 import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
+import { clientContextParams } from '../util/contextParams'
+
+const logger = multiLogger.child({ component: 'system:location', modifier: clientContextParams })
 
 type Props = {
   online?: boolean
