@@ -23,41 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Node, OnConnectStartParams } from 'reactflow'
+import type { Knex } from 'knex'
 
-import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
-import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType'
+import { projectPath } from '@etherealengine/common/src/schema.type.module'
 
-type NodePickerFilters = {
-  handleType: 'source' | 'target'
-  valueType: string
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const visibilityColumnExists = await knex.schema.hasColumn(projectPath, 'visibility')
+  if (!visibilityColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.string('visibility', 255).defaultTo('private')
+    })
+  }
 }
 
-export const getNodePickerFilters = (
-  nodes: Node[],
-  params: OnConnectStartParams | undefined,
-  specGenerator: NodeSpecGenerator | undefined
-): NodePickerFilters | undefined => {
-  if (params === undefined) return
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const visibilityColumnExists = await knex.schema.hasColumn(projectPath, 'visibility')
 
-  const originNode = nodes.find((node) => node.id === params.nodeId)
-  if (originNode === undefined) return
-
-  const sockets = specGenerator
-    ? getSocketsByNodeTypeAndHandleType(
-        specGenerator,
-        originNode.type,
-        originNode.data.configuration,
-        params.handleType
-      )
-    : undefined
-
-  const socket = sockets?.find((socket) => socket.name === params.handleId)
-
-  if (socket === undefined) return
-
-  return {
-    handleType: params.handleType === 'source' ? 'target' : 'source',
-    valueType: socket.valueType
+  if (visibilityColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.dropColumn('visibility')
+    })
   }
 }

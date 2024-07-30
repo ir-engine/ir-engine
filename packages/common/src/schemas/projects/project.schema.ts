@@ -63,6 +63,7 @@ export const projectSchema = Type.Object(
     commitSHA: Type.Optional(Type.String()),
     commitDate: Type.Optional(Type.String({ format: 'date-time' })),
     assetsOnly: Type.Boolean(),
+    visibility: StringEnum(['private', 'public']),
     settings: Type.Optional(Type.Array(Type.Ref(projectSettingSchema))),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -103,6 +104,7 @@ export const projectQueryProperties = Type.Pick(projectSchema, [
   'updateSchedule',
   'updateUserId',
   'hasWriteAccess',
+  'visibility',
   'commitSHA',
   'commitDate'
 ])

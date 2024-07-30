@@ -70,7 +70,7 @@
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Provide a valid scene name"
+    "invalidSceneName": "Provide a valid scene name. Only alphanumerics, hyphens and underscores are allowed. (max length 64)"
   },
   "viewport": {
     "title": "Viewport",
@@ -727,8 +727,16 @@
       }
     },
     "cameraSettings": {
-      "name": "Camera",
+      "name": "Camera Settings",
       "description": "Change the camera settings for this scene."
+    },
+    "cameraComponent": {
+      "name": "Camera",
+      "description": "Camera Component",
+      "lbl-fov": "FOV",
+      "lbl-aspect": "Aspect",
+      "lbl-near": "Near",
+      "lbl-far": "Far"
     },
     "postprocessing": {
       "name": "Post Processing Effect",
