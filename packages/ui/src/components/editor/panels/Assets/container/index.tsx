@@ -23,7 +23,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { clone, debounce, isEmpty } from 'lodash'
+import { clone, debounce } from 'lodash'
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -66,7 +66,7 @@ import InfiniteScroll from '../../../../tailwind/InfiniteScroll'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
 import { FileIcon } from '../../Files/icon'
 
-const limit = 10
+const ASSETS_PAGE_LIMIT = 10
 
 type Category = {
   name: string
@@ -233,10 +233,6 @@ const ResourceFile = (props: {
       </ContextMenu>
     </div>
   )
-}
-
-export const MenuDivider = () => {
-  return <div className="my-2 flex w-full border-b border-theme-primary" />
 }
 
 interface MetadataTableProps {
@@ -414,15 +410,9 @@ const AssetPanel = () => {
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
   const searchText = useHookstate('')
   const originalPath = useMutableState(EditorState).projectName.value
-  const staticResourcesPagination = useHookstate({ totalPages: 0, currentPage: 0 })
+  const staticResourcesPagination = useHookstate({ total: 0, skip: 0 })
   const assetsPreviewContext = useHookstate({ selectAssetURL: '' })
   const parentCategories = useHookstate<Category[]>([])
-
-  const fetchMoreData = () => {
-    if (loading.value) return
-    staticResourcesPagination.currentPage.set(staticResourcesPagination.currentPage.value + 1)
-    staticResourcesFindApi()
-  }
 
   const mapCategories = useCallback(() => {
     categories.set(mapCategoriesHelper(collapsedCategories.value))
@@ -437,17 +427,13 @@ const AssetPanel = () => {
 
   const staticResourcesFindApi = () => {
     searchTimeoutCancelRef.current?.()
+    loading.set(true)
 
     const debouncedSearchQuery = debounce(() => {
       const tags = selectedCategory.value
         ? [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
         : []
 
-      const page =
-        staticResourcesPagination.currentPage.value === 0
-          ? staticResourcesPagination.currentPage.value
-          : staticResourcesPagination.currentPage.value - 1
-      const offset = page * limit
       const query = {
         key: {
           $like: `%${searchText.value}%`
@@ -472,20 +458,21 @@ const AssetPanel = () => {
             }
           : undefined,
         $sort: { mimeType: 1 },
-        $limit: limit,
-        $skip: offset
+        $limit: ASSETS_PAGE_LIMIT,
+        $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
       } as StaticResourceQuery
 
       Engine.instance.api
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
-          if (staticResourcesPagination.value.currentPage > 0) {
+          if (staticResourcesPagination.skip.value > 0) {
             searchedStaticResources.merge(resources.data)
           } else {
             searchedStaticResources.set(resources.data)
           }
-          staticResourcesPagination.merge({ totalPages: Math.ceil(resources.total / 10) })
+          staticResourcesPagination.merge({ total: resources.total })
+          loading.set(false)
         })
     }, 500)
 
@@ -493,26 +480,17 @@ const AssetPanel = () => {
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
   }
 
-  useEffect(() => {
-    staticResourcesFindApi()
-  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
+  useEffect(() => staticResourcesFindApi(), [searchText, selectedCategory, staticResourcesPagination.skip])
 
   const ResourceItems = () => {
-    if (loading.value) {
-      return (
-        <div className="col-start-2 flex items-center justify-center">
-          <LoadingView className="h-4 w-4" spinnerOnly />
-        </div>
-      )
-    }
     return (
       <>
-        {isEmpty(searchedStaticResources.value) && (
+        {searchedStaticResources.length === 0 && (
           <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
             {t('editor:layout.scene-assets.no-search-results')}
           </div>
         )}
-        {!isEmpty(searchedStaticResources.value) && (
+        {searchedStaticResources.length > 0 && (
           <>
             {searchedStaticResources.value.map((resource) => (
               <ResourceFile
@@ -550,7 +528,7 @@ const AssetPanel = () => {
 
   const handleSelectCategory = (category: Category) => {
     selectedCategory.set(clone(category))
-    staticResourcesPagination.currentPage.set(0)
+    staticResourcesPagination.skip.set(0)
     !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }
 
@@ -631,12 +609,16 @@ const AssetPanel = () => {
           onSelectCategory={handleSelectCategory}
         />
         <div className="flex h-full w-full flex-col overflow-auto">
-          <InfiniteScroll onScrollBottom={fetchMoreData}>
+          <InfiniteScroll
+            disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value}
+            onScrollBottom={() => staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)}
+          >
             <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
               <ResourceItems />
             </div>
+            {loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
           </InfiniteScroll>
-          <div className="mx-auto mb-10"></div>
+          <div className="mx-auto mb-10" />
         </div>
         {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
       </div>

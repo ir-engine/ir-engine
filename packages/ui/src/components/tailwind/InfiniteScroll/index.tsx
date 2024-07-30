@@ -35,13 +35,11 @@ interface IInfiniteScrollProps {
 
 export default function InfiniteScroll({
   onScrollBottom,
-  threshold = 0.8,
+  threshold = 1,
   disableEvent,
-  children,
-  className
+  children
 }: IInfiniteScrollProps) {
   const observerRef = useRef<any>(null)
-  const loadMoreRef = useRef<any>(null)
 
   const onIntersection = (entries) => {
     if (entries[0].isIntersecting && !disableEvent) {
@@ -52,8 +50,8 @@ export default function InfiniteScroll({
   useEffect(() => {
     const observer = new IntersectionObserver(onIntersection, { threshold })
 
-    if (observerRef && loadMoreRef.current) {
-      observer.observe(loadMoreRef.current)
+    if (observerRef.current) {
+      observer.observe(observerRef.current)
     }
 
     return () => {
@@ -62,9 +60,9 @@ export default function InfiniteScroll({
   }, [disableEvent])
 
   return (
-    <div style={{ all: 'unset' }} ref={observerRef} className={className}>
+    <div style={{ all: 'unset' }}>
       {children}
-      <div ref={loadMoreRef} className="h-10 w-full"></div>
+      <span ref={observerRef} style={{ all: 'unset' }} />
     </div>
   )
 }
