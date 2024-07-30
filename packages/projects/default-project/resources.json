@@ -1,6 +1,6 @@
 {
   "assets/animations/default_skeleton.vrm": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -9,14 +9,14 @@
     "thumbnailMode": "automatic"
   },
   "assets/animations/emotes.glb": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
     "dependencies": []
   },
   "assets/animations/locomotion.glb": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -25,14 +25,14 @@
     "thumbnailMode": "automatic"
   },
   "assets/animations/optional/seated.fbx": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
     "dependencies": []
   },
   "assets/apartment_skybox.jpg": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -41,14 +41,14 @@
     "thumbnailMode": "automatic"
   },
   "assets/apartment-CubemapBake.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "assets/apartment.glb": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -57,7 +57,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/female_01.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -75,7 +75,7 @@
     ]
   },
   "assets/avatars/female_02.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -93,7 +93,7 @@
     ]
   },
   "assets/avatars/female_03.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -113,7 +113,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_01.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -133,7 +133,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_02.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -151,7 +151,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_03.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -171,7 +171,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/cloud.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -180,7 +180,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/collisioncube.glb": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -189,7 +189,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/controllers/left_controller.glb": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -198,7 +198,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/controllers/left.glb": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -207,14 +207,14 @@
     "thumbnailMode": "automatic"
   },
   "assets/controllers/right_controller.glb": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
     "dependencies": []
   },
   "assets/controllers/right.glb": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -230,7 +230,7 @@
     "dependencies": []
   },
   "assets/drop-shadow.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -239,7 +239,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/galaxyTexture.jpg": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -248,7 +248,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/keycard.glb": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -257,14 +257,14 @@
     "thumbnailMode": "automatic"
   },
   "assets/platform.glb": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
     "dependencies": []
   },
   "assets/portal_frame.glb": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -273,56 +273,14 @@
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/3d-model.prefab.gltf": {
-    "type": "file",
-    "tags": [
-      "Default Prefab"
-    ],
-    "dependencies": []
-  },
-  "assets/prefabs/camera.prefab.gltf": {
-    "type": "file",
-    "tags": [
-      "Default Prefab"
-    ],
-    "dependencies": []
-  },
-  "assets/prefabs/title.prefab.gltf": {
-    "type": "file",
-    "tags": [
-      "Default Prefab"
-    ],
-    "dependencies": []
-  },
-  "assets/prefabs/video.prefab.gltf": {
-    "type": "file",
-    "tags": [
-      "Default Prefab"
-    ],
-    "dependencies": []
-  },
-  "assets/prefabs/image.prefab.gltf": {
-    "type": "file",
-    "tags": [
-      "Default Prefab"
-    ],
-    "dependencies": []
-  },
-  "assets/prefabs/ground-plane.prefab.gltf": {
-    "type": "file",
-    "tags": [
-      "Default Prefab"
-    ],
-    "dependencies": []
-  },
-  "assets/prefabs/body.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
     "dependencies": []
   },
   "assets/prefabs/ambient-light.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
@@ -330,8 +288,15 @@
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsambient-light.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
+  "assets/prefabs/body.prefab.gltf": {
+    "type": "asset",
+    "tags": [
+      "Default Prefab"
+    ],
+    "dependencies": []
+  },
   "assets/prefabs/box-collider.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
@@ -339,8 +304,15 @@
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsbox-collider.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
+  "assets/prefabs/camera.prefab.gltf": {
+    "type": "asset",
+    "tags": [
+      "Default Prefab"
+    ],
+    "dependencies": []
+  },
   "assets/prefabs/cylinder-collider.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
@@ -349,7 +321,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/directional-light.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
@@ -358,7 +330,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/fog.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
@@ -367,7 +339,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/geo.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
@@ -375,8 +347,15 @@
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabsgeo.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
+  "assets/prefabs/ground-plane.prefab.gltf": {
+    "type": "asset",
+    "tags": [
+      "Default Prefab"
+    ],
+    "dependencies": []
+  },
   "assets/prefabs/hemisphere-light.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
@@ -384,15 +363,22 @@
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabshemisphere-light.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
+  "assets/prefabs/image.prefab.gltf": {
+    "type": "asset",
+    "tags": [
+      "Default Prefab"
+    ],
+    "dependencies": []
+  },
   "assets/prefabs/mesh-collider.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
     "dependencies": []
   },
   "assets/prefabs/point-light.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
@@ -401,7 +387,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/postprocessing.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
@@ -410,7 +396,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/skybox.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
@@ -419,7 +405,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/sphere-collider.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
@@ -428,7 +414,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/spot-light.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
@@ -437,7 +423,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/text.prefab.gltf": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Default Prefab"
     ],
@@ -445,8 +431,22 @@
     "thumbnailKey": "projects/default-project/public/thumbnails/default-projectassetsprefabstext.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
+  "assets/prefabs/title.prefab.gltf": {
+    "type": "asset",
+    "tags": [
+      "Default Prefab"
+    ],
+    "dependencies": []
+  },
+  "assets/prefabs/video.prefab.gltf": {
+    "type": "asset",
+    "tags": [
+      "Default Prefab"
+    ],
+    "dependencies": []
+  },
   "assets/sample_etc1s.ktx2": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -455,14 +455,14 @@
     "thumbnailMode": "automatic"
   },
   "assets/SampleAudio.mp3": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Audio"
     ],
     "dependencies": []
   },
   "assets/SampleVideo.mp4": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Video"
     ],
@@ -471,7 +471,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/sky_skybox.jpg": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -480,7 +480,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/Skybase.glb": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -489,7 +489,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/skyboxsun25deg/negx.jpg": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -498,14 +498,14 @@
     "thumbnailMode": "automatic"
   },
   "assets/skyboxsun25deg/negy.jpg": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "assets/skyboxsun25deg/negz.jpg": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -514,7 +514,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/skyboxsun25deg/posx.jpg": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -523,7 +523,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/skyboxsun25deg/posy.jpg": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -532,14 +532,14 @@
     "thumbnailMode": "automatic"
   },
   "assets/skyboxsun25deg/posz.jpg": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "assets/test-equippable.glb": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -548,7 +548,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/UV.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
@@ -557,28 +557,28 @@
     "thumbnailMode": "automatic"
   },
   "public/scenes/apartment-New-EnvMap Bake.ktx2": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "public/scenes/apartment-Portal.ktx2": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "public/scenes/apartment.envmap.ktx2": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "public/scenes/apartment.gltf": {
-    "type": "scene",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -586,21 +586,21 @@
     "thumbnailKey": "projects/default-project/public/scenes/apartment.thumbnail.jpg"
   },
   "public/scenes/apartment.loadingscreen.ktx2": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "public/scenes/default.envmap.ktx2": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "public/scenes/default.gltf": {
-    "type": "scene",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -608,42 +608,42 @@
     "thumbnailKey": "projects/default-project/public/scenes/default.thumbnail.jpg"
   },
   "public/scenes/default.loadingscreen.ktx2": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "public/scenes/sky-station-Portal-- Sky Station Exterior.ktx2": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "public/scenes/sky-station-Portal-- Sky Station Interior.ktx2": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "public/scenes/sky-station-Portal-- to Apartment.ktx2": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "public/scenes/sky-station.envmap.ktx2": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "public/scenes/sky-station.gltf": {
-    "type": "scene",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -651,7 +651,7 @@
     "thumbnailKey": "projects/default-project/public/scenes/sky-station.thumbnail.jpg"
   },
   "public/scenes/sky-station.loadingscreen.ktx2": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
