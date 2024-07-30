@@ -47,5 +47,4 @@ fi
 #_____________________________
 info "Running $server with the test-coverage results generated at:  $reportDir"
 echo "  $serverRunCmd"
-rm "$reportDir/coverage-final.json" # Remove the raw json to unconfuse http-server
 $serverRunCmd

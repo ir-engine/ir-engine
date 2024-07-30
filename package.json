@@ -82,9 +82,11 @@
     "test": "cross-env TEST=true lerna run --scope '@etherealengine/*' --ignore '@etherealengine/server-core' test && lerna run --scope '@etherealengine/server-core' test && lerna run --ignore '@etherealengine/*' test",
     "test-e2e": "ts-node --swc scripts/run_e2e_tests.ts",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
-    "test-coverage": "npm run test-coverage-generate ; npm run test-coverate-launch",
-    "test-coverage-generate": "nyc npm run test",
+    "test-coverage": "npm run test-coverage-generate ; npm run test-coverage-launch",
+    "test-coverage-generate": "nyc --reporter=html npm run test",
     "test-coverage-launch": "./scripts/test-coverage-launch.sh",
+    "test-coverage-check": "nyc --check-coverage --per-file --silent --clean false npm run test",
+    "test-coverage-cli-report": "nyc --reporter=text --skip-full true npm run test",
     "validate": "npm run lint && lerna run validate",
     "version-increment": "lerna version --conventional-commits --yes",
     "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
@@ -95,9 +97,37 @@
     "storybook": "cd packages/ui && npm run storybook"
   },
   "nyc": {
-    "extension": [".ts", ".tsx"],
-    "exclude": [".d.ts"],
-    "reporter": ["text", "html"]
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      ".d.ts"
+    ],
+    "check-coverage": true,
+    "per-file": true,
+    "statements": 80,
+    "branches": 80,
+    "functions": 80,
+    "lines": 80,
+    "watermarks": {
+      "statements": [
+        80,
+        95
+      ],
+      "branches": [
+        80,
+        95
+      ],
+      "functions": [
+        80,
+        95
+      ],
+      "lines": [
+        80,
+        95
+      ]
+    }
   },
   "types": "lib/",
   "pre-commit": [
@@ -130,8 +160,6 @@
     "depcheck": "1.4.3",
     "eslint": "9.5.0",
     "globals": "15.6.0",
-    "istanbul": "^0.4.5",
-    "istanbul-merge": "^2.0.0",
     "jsdom": "^21.1.1",
     "kill-port": "2.0.1",
     "lerna": "6.5.1",
