@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { Component } from '@etherealengine/ecs'
 import { VisualScriptComponent } from '@etherealengine/engine'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
@@ -43,21 +44,17 @@ import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/compone
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
-import { ReflectionProbeComponent } from '@etherealengine/engine/src/scene/components/ReflectionProbeComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
-import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
-import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
-import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
-import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { defineState } from '@etherealengine/hyperflux'
 import {
   AmbientLightComponent,
@@ -71,13 +68,15 @@ import { InputComponent } from '@etherealengine/spatial/src/input/components/Inp
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { LookAtComponent } from '@etherealengine/spatial/src/transform/components/LookAtComponent'
 
 export const ComponentShelfCategoriesState = defineState({
   name: 'ee.editor.ComponentShelfCategories',
   initial: () => {
+    const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
+    const scriptingComps: Component[] = []
+    if (visualScriptPanelEnabled) scriptingComps.push(VisualScriptComponent)
     return {
       Files: [
         ModelComponent,
@@ -88,13 +87,7 @@ export const ComponentShelfCategoriesState = defineState({
         VideoComponent,
         ImageComponent
       ],
-      'Scene Composition': [
-        CameraComponent,
-        PrimitiveGeometryComponent,
-        GroundPlaneComponent,
-        GroupComponent,
-        VariantComponent
-      ],
+      'Scene Composition': [CameraComponent, PrimitiveGeometryComponent, GroundPlaneComponent, VariantComponent],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
       Interaction: [
         SpawnPointComponent,
@@ -112,27 +105,10 @@ export const ComponentShelfCategoriesState = defineState({
         DirectionalLightComponent,
         HemisphereLightComponent
       ],
-      FX: [
-        LoopAnimationComponent,
-        ShadowComponent,
-        ParticleSystemComponent,
-        EnvmapComponent,
-        SDFComponent,
-        PostProcessingComponent,
-        ReflectionProbeComponent
-      ],
-      Scripting: [VisualScriptComponent],
+      FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
+      Scripting: scriptingComps,
       Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
-      Visual: [
-        EnvMapBakeComponent,
-        ScenePreviewCameraComponent,
-        SkyboxComponent,
-        SplineTrackComponent,
-        SplineComponent,
-        TextComponent,
-        ScreenshareTargetComponent,
-        LookAtComponent
-      ]
+      Visual: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, TextComponent, LookAtComponent]
     } as Record<string, Component[]>
   }
 })
