@@ -40,7 +40,7 @@ export const SceneSettingsComponent = defineComponent({
       backgroundColor: '#FFFFFF',
       alternativeColor: '#000000',
       sceneKillHeight: DefaultKillHeight,
-      spectateEntity: '' as EntityUUID
+      spectateEntity: null as null | EntityUUID
     }
   },
 
