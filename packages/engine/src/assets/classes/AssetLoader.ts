@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AudioLoader } from 'three'
 
-import { defineState, getMutableState, getState, NO_PROXY, none } from '@etherealengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 
@@ -97,31 +97,13 @@ const AssetLoaderCacheState = defineState({
   initial: () => ({}) as Record<string, any>
 })
 
-const cacheAsset = (url: string) => {
-  loadAsset(
-    url,
-    () => {},
-    () => {},
-    () => {},
-    undefined,
-    undefined,
-    true
-  )
-}
-
-const uncacheAsset = (url: string) => {
-  const cacheState = getMutableState(AssetLoaderCacheState)
-  cacheState[url].set(none)
-}
-
 const loadAsset = async <T>(
   url: string,
   onLoad: (response: T) => void = () => {},
   onProgress: (request: ProgressEvent) => void = () => {},
   onError: (event: ErrorEvent | Error) => void = () => {},
   signal?: AbortSignal,
-  loader?: ReturnType<typeof getLoader>,
-  cache?: boolean
+  loader?: ReturnType<typeof getLoader>
 ) => {
   if (!url) {
     onError(new Error('URL is empty'))
@@ -129,28 +111,13 @@ const loadAsset = async <T>(
   }
   url = getAbsolutePath(url)
 
-  const cacheState = getMutableState(AssetLoaderCacheState)
-  if (cache && cacheState[url].value) {
-    onLoad(cacheState[url].get(NO_PROXY))
-    return
-  }
-
   if (!loader) {
     const assetExt = getAssetType(url)
     loader = getLoader(assetExt)
   }
 
-  const loadCallback = cache
-    ? (response: T) => {
-        if (cache) {
-          cacheState.merge({ [url]: response })
-        }
-        onLoad(response)
-      }
-    : onLoad
-
   try {
-    return loader.load(url, loadCallback, onProgress, onError, signal)
+    return loader.load(url, onLoad, onProgress, onError, signal)
   } catch (error) {
     onError(error)
   }
@@ -161,7 +128,5 @@ export const AssetLoader = {
   getAssetType,
   getAssetClass,
   /** @deprecated Use resourceLoaderHooks instead */
-  loadAsset,
-  cacheAsset,
-  uncacheAsset
+  loadAsset
 }

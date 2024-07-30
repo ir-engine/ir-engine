@@ -18,9 +18,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import config from '@etherealengine/common/src/config'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { useGLTF } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import React, { ReactNode, useEffect } from 'react'
+import React, { ReactNode } from 'react'
 import { FiHexagon } from 'react-icons/fi'
 
 export type PrefabShelfItem = {
@@ -152,12 +152,6 @@ export const PrefabShelfState = defineState({
 })
 
 const ShelfItemReactor = (props: { key: string; url: string }): JSX.Element | null => {
-  useEffect(() => {
-    AssetLoader.cacheAsset(props.url)
-    return () => {
-      AssetLoader.uncacheAsset(props.url)
-    }
-  }, [])
-
+  useGLTF(props.url)
   return null
 }
