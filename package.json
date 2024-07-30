@@ -45,7 +45,6 @@
     "check-eslint": "eslint --quiet .",
     "checkout-dev": "lerna exec 'git checkout dev' --parallel --no-bail",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
-    "coverage": "nyc npm run test",
     "create-root-package-json": "cross-env ts-node --swc scripts/create-root-package-json",
     "create-project": "cross-env ts-node --swc scripts/create-project",
     "depcheck": "lerna exec --no-bail --stream -- depcheck",
@@ -83,6 +82,9 @@
     "test": "cross-env TEST=true lerna run --scope '@etherealengine/*' --ignore '@etherealengine/server-core' test && lerna run --scope '@etherealengine/server-core' test && lerna run --ignore '@etherealengine/*' test",
     "test-e2e": "ts-node --swc scripts/run_e2e_tests.ts",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
+    "test-coverage": "npm run test-coverage-generate ; npm run test-coverate-launch",
+    "test-coverage-generate": "nyc npm run test",
+    "test-coverage-launch": "./scripts/test-coverage-launch.sh",
     "validate": "npm run lint && lerna run validate",
     "version-increment": "lerna version --conventional-commits --yes",
     "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
@@ -91,6 +93,11 @@
     "record-build-success": "cross-env ts-node --swc scripts/record-build-success",
     "add-license-headers": "cross-env ts-node --swc scripts/add-license-headers.ts",
     "storybook": "cd packages/ui && npm run storybook"
+  },
+  "nyc": {
+    "extension": [".ts", ".tsx"],
+    "exclude": [".d.ts"],
+    "reporter": ["text", "html"]
   },
   "types": "lib/",
   "pre-commit": [
