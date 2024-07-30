@@ -29,7 +29,6 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { projectHistoryDataValidator, projectHistoryQueryValidator } from './project-history.schema'
 
 import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import setLoggedinUserInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 import { BadRequest } from '@feathersjs/errors'
 import {
   projectHistoryDataResolver,
@@ -155,7 +154,7 @@ export default {
       schemaHooks.validateQuery(projectHistoryQueryValidator),
       schemaHooks.resolveQuery(projectHistoryQueryResolver)
     ],
-    find: [iff(isProvider('external'), setLoggedinUserInQuery('userId'))],
+    find: [iff(isProvider('external'))],
     get: [disallow('external')],
     create: [
       disallow('external'),
