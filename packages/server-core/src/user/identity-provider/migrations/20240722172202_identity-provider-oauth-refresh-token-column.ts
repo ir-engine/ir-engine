@@ -23,41 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Node, OnConnectStartParams } from 'reactflow'
+import type { Knex } from 'knex'
 
-import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
-import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 
-type NodePickerFilters = {
-  handleType: 'source' | 'target'
-  valueType: string
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await knex.schema.alterTable(identityProviderPath, (table) => {
+    table.string('oauthRefreshToken', 255).defaultTo(null)
+  })
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export const getNodePickerFilters = (
-  nodes: Node[],
-  params: OnConnectStartParams | undefined,
-  specGenerator: NodeSpecGenerator | undefined
-): NodePickerFilters | undefined => {
-  if (params === undefined) return
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const originNode = nodes.find((node) => node.id === params.nodeId)
-  if (originNode === undefined) return
+  const oauthRefreshTokenColumnExists = await knex.schema.hasColumn(identityProviderPath, 'oauthRefreshToken')
 
-  const sockets = specGenerator
-    ? getSocketsByNodeTypeAndHandleType(
-        specGenerator,
-        originNode.type,
-        originNode.data.configuration,
-        params.handleType
-      )
-    : undefined
-
-  const socket = sockets?.find((socket) => socket.name === params.handleId)
-
-  if (socket === undefined) return
-
-  return {
-    handleType: params.handleType === 'source' ? 'target' : 'source',
-    valueType: socket.valueType
+  if (oauthRefreshTokenColumnExists) {
+    await knex.schema.alterTable(identityProviderPath, async (table) => {
+      table.dropColumn('oauthRefreshToken')
+    })
   }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

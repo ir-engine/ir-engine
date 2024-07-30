@@ -85,10 +85,10 @@ cli.main(async () => {
       const jwtDecoded = decode(token)! as JwtPayload
       if (jwtDecoded.iss == null || parseInt(jwtDecoded.iss) !== appId)
         throw new NotAuthenticated('Invalid app credentials')
-      const octokit = new Octokit({ auth: token })
+      const octoKit = new Octokit({ auth: token })
       let appResponse
       try {
-        appResponse = await octokit.rest.apps.getAuthenticated()
+        appResponse = await octoKit.rest.apps.getAuthenticated()
       } catch (err) {
         throw new NotAuthenticated('Invalid app credentials')
       }
