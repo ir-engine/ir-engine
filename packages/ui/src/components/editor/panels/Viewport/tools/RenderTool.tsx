@@ -43,11 +43,11 @@ import SelectInput from '../../../input/Select'
 const renderModes: { name: RenderModesType; icon: JSX.Element }[] = [
   {
     name: 'Unlit',
-    icon: <TbInnerShadowBottomFilled />
+    icon: <TbInnerShadowBottom />
   },
   {
     name: 'Lit',
-    icon: <TbInnerShadowBottom />
+    icon: <TbInnerShadowBottomFilled />
   },
   { name: 'Normals', icon: <TbBallBowling /> },
   {
