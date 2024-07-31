@@ -31,8 +31,6 @@ import {
   EMAIL_REGEX,
   GITHUB_URL_REGEX,
   INSTALLATION_SIGNED_REGEX,
-  INVALID_FILENAME_REGEX,
-  INVALID_FILENAME_WHITESPACE_REGEX,
   INVITE_CODE_REGEX,
   MAIN_CHART_REGEX,
   PHONE_REGEX,
@@ -42,6 +40,7 @@ import {
   PUBLIC_SIGNED_REGEX,
   STATIC_ASSET_REGEX,
   USER_ID_REGEX,
+  VALID_FILENAME_REGEX,
   VALID_HEIRARCHY_SEARCH_REGEX,
   VALID_PROJECT_NAME,
   VALID_SCENE_NAME_REGEX,
@@ -50,7 +49,7 @@ import {
 
 describe('regex.test', () => {
   describe('INVALID_FILENAME_REGEX', () => {
-    it('should match invalid filenames', () => {
+    it('should not match invalid filenames', () => {
       const invalidFilenames = [
         'hello_world',
         'file<name',
@@ -61,14 +60,23 @@ describe('regex.test', () => {
         'question?mark',
         'asterisk*char',
         'control\0char',
-        'another\ncontrol'
+        'another\ncontrol',
+        'file name', // (a space and an underscore)
+        '< tag >', // (spaces and less-than < and greater-than > characters)
+        'key : value', // (a space and a colon :)
+        'quote " example', // (a space and a double quote ")
+        'path / to / file', // (spaces and forward slashes /)
+        'C:\\ path \\ to \\ file', // (spaces and backslashes \)
+        'pipe | character', // (a space and a pipe |)
+        'question ? mark', // (a space and a question mark ?)
+        'star * char' // (a space and an asterisk *)
       ]
       invalidFilenames.forEach((filename) => {
-        assert.ok(INVALID_FILENAME_REGEX.test(filename), `Expected '${filename}' to be invalid`)
+        assert.ok(!VALID_FILENAME_REGEX.test(filename), `Expected '${filename}' to be invalid`)
       })
     })
 
-    it('should not match valid filenames', () => {
+    it('should match valid filenames', () => {
       const validFilenames = [
         'helloworld',
         'filename',
@@ -82,7 +90,7 @@ describe('regex.test', () => {
         'anothercontrol'
       ]
       validFilenames.forEach((filename) => {
-        assert.ok(!INVALID_FILENAME_REGEX.test(filename), `Expected '${filename}' to be valid`)
+        assert.ok(VALID_FILENAME_REGEX.test(filename), `Expected '${filename}' to be valid`)
       })
     })
   })
@@ -113,43 +121,6 @@ describe('regex.test', () => {
           const escaped = escapeSpecialChars(input)
           assert.equal(escaped, expected, `Expected escaped ${input} string to match expected ${expected} value`)
         })
-      })
-    })
-  })
-
-  describe('INVALID_FILENAME_WHITESPACE_REGEX', () => {
-    it('should match invalid filenames', () => {
-      const invalidFilenames = [
-        'file name', // (a space and an underscore)
-        '< tag >', // (spaces and less-than < and greater-than > characters)
-        'key : value', // (a space and a colon :)
-        'quote " example', // (a space and a double quote ")
-        'path / to / file', // (spaces and forward slashes /)
-        'C:\\ path \\ to \\ file', // (spaces and backslashes \)
-        'pipe | character', // (a space and a pipe |)
-        'question ? mark', // (a space and a question mark ?)
-        'star * char' // (a space and an asterisk *)
-      ]
-      invalidFilenames.forEach((filename) => {
-        assert.ok(INVALID_FILENAME_WHITESPACE_REGEX.test(filename), `Expected '${filename}' to be invalid`)
-      })
-    })
-
-    it('should not match valid filenames', () => {
-      const validFilenames = [
-        'helloworld',
-        'filename',
-        'emailexample.com',
-        'pathtofile',
-        'backslash',
-        'pipesymbol',
-        'questionmark',
-        'asteriskchar',
-        'controlchar',
-        'anothercontrol'
-      ]
-      validFilenames.forEach((filename) => {
-        assert.ok(!INVALID_FILENAME_WHITESPACE_REGEX.test(filename), `Expected '${filename}' to be valid`)
       })
     })
   })
