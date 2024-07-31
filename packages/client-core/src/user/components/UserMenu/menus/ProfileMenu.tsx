@@ -483,7 +483,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                         fontStyle: 'italic'
                       }}
                     >
-                      {t('user:usermenu.profile.acceptTOS')}
+                      {t('user:usermenu.profile.agreeTOS')}
                       <Link
                         style={{
                           fontStyle: 'italic',

@@ -481,7 +481,7 @@ export const InstanceChatWrapper = () => {
       <>
         <div className={styles.modalConnecting}>
           <div className={styles.modalConnectingTitle}>
-            <p>{t('common:loader.needToAcceptTOS')}</p>
+            <p>{t('common:loader.needToAgreeTOS')}</p>
           </div>
         </div>
       </>
