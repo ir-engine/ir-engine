@@ -30,7 +30,7 @@ import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { Engine, Entity, createEntity, getComponent, removeEntity, setComponent } from '@etherealengine/ecs'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -44,8 +44,6 @@ import { Quaternion, Scene, Vector3 } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
-import { SelectionState } from '../../services/SelectionServices'
-
 export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
@@ -92,19 +90,21 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
       const resource = resources.data[0]
       const tags = [...prefabTag.value]
       await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags })
-      PopoverState.hidePopupover()
-      defaultPrefabFolder.set('assets/custom-prefabs')
-      prefabName.set('prefab')
-      prefabTag.set([])
+
       removeEntity(prefabEntity)
-      const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
+      await EditorControlFunctions.createPrefabObjectFromSceneElement(
         [
           { name: ModelComponent.jsonID, props: { src: fileURL } },
           { name: TransformComponent.jsonID, props: { position, rotation, scale } }
         ],
-        parentEntity
+        entity,
+        undefined,
+        undefined
       )
-      getMutableState(SelectionState).selectedEntities.set([entityUUID])
+      PopoverState.hidePopupover()
+      defaultPrefabFolder.set('assets/custom-prefabs')
+      prefabName.set('prefab')
+      prefabTag.set([])
     } catch (e) {
       console.error(e)
     }
