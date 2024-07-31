@@ -32,7 +32,7 @@ import Label from '../Label'
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value: boolean
-  label?: string | React.ReactNode
+  label?: React.ReactNode
   className?: string
   containerClassName?: string
   onChange: (value: boolean) => void
