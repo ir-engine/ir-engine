@@ -100,12 +100,12 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     const data = (await super._find({ paginate: false })) as ProjectType[]
 
     for (const project of data) {
-      if (project.repositoryPath) {
+      if (project.repositoryPath || project.name === '@etherealengine/default-project') {
         const [orgName, projectName] = project.name.split('/')
-        const projectRootPath = path.resolve('projects/', projectName)
+
         try {
           if (await storageProvider.doesExist(projectName, `projects/`)) {
-            const files = await storageProvider.listObjects(projectRootPath, true)
+            const files = await storageProvider.listObjects(`projects/${projectName}`, true)
             for (const file of files.Contents) {
               const fileName = file.Key.split('/').pop()!
               const oldDirectory = file.Key.replace(fileName, '')

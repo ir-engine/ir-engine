@@ -37,12 +37,16 @@ export async function up(knex: Knex): Promise<void> {
     const projects: ProjectType[] = await knex.select('*').from(projectPath)
 
     for (const project of projects) {
-      if (project.repositoryPath) {
+      if (project.name === 'default-project') {
+        await knex(projectPath).where('id', project.id).update({
+          name: '@etherealengine/default-project'
+        })
+      } else if (project.repositoryPath) {
         const repositorySplit = project.repositoryPath.split('/')
         await knex(projectPath)
           .where('id', project.id)
           .update({
-            name: `${repositorySplit[repositorySplit.length - 2]}/${project.name}`
+            name: `@${repositorySplit[repositorySplit.length - 2].toLowerCase()}/${project.name}`
           })
       }
     }
