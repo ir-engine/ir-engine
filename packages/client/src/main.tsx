@@ -29,7 +29,7 @@ import { createRoot } from 'react-dom/client'
 import { Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 import './pages/styles.scss'
 import './pages/mui.styles.scss' /** @todo Remove when MUI is removed */
@@ -56,7 +56,9 @@ const App = () => {
             key="location"
             path="/location/*"
             element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+              <Suspense
+                fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.starting')} />}
+              >
                 <AppPage>
                   <$location />
                 </AppPage>
@@ -67,7 +69,9 @@ const App = () => {
             key="offline"
             path="/offline/*"
             element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+              <Suspense
+                fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.starting')} />}
+              >
                 <AppPage>
                   <$offline />
                 </AppPage>
@@ -79,7 +83,9 @@ const App = () => {
             key="auth"
             path="/auth/*"
             element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+              <Suspense
+                fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.starting')} />}
+              >
                 <$auth />
               </Suspense>
             }

@@ -1,5 +1,6 @@
 {
   "loading": "Loading Project",
+  "loadingNode": "Loading {{name}} Editor...",
   "loadingError": "Error loading project",
   "loadingErrorMsg": "There was an error when loading the project.",
   "selectSceneMsg": "Select a Scene in the Project to Start",
