@@ -35,6 +35,7 @@ export interface CSSClasses {
   'bg-surface-input': string
   'bg-table-secondary': string
   'bg-blue-secondary': string
+  'bg-studio-surface': string
   'bg-banner-informative': string
 
   'bg-tag-green': string
@@ -42,13 +43,18 @@ export interface CSSClasses {
   'bg-tag-red': string
   'bg-tag-yellow': string
 
+  'text-input': string
   'text-primary': string
   'text-secondary': string
   'text-highlight': string
+  'text-gray3': string
+
   'icon-green': string
   'icon-red': string
 
   'border-primary': string
+  'border-input': string
+
   selection: string
 }
 
@@ -60,6 +66,7 @@ const lightTheme: CSSClasses = {
   'bg-surface-input': '#FFFFFF',
   'bg-table-secondary': '#F9FAFB',
   'bg-blue-secondary': '#D4DFF7',
+  'bg-studio-surface': '#F5F5F5',
   'bg-banner-informative': '#FFFBEB',
 
   'bg-tag-green': '#10B981',
@@ -67,13 +74,17 @@ const lightTheme: CSSClasses = {
   'bg-tag-red': '#D1004B',
   'bg-tag-yellow': '#FEF3C7',
 
+  'text-input': '#9CA0AA',
   'text-primary': '#262626',
   'text-secondary': '#6B7280',
   'text-highlight': '#000000',
+  'text-gray3': '#D3D5D9',
+
   'icon-green': '#0D9488 ',
   'icon-red': '#E11D48',
 
   'border-primary': '#E5E7EB',
+  'border-input': '#42454D',
   selection: '#3166D0'
 }
 
@@ -85,6 +96,7 @@ const darkTheme: CSSClasses = {
   'bg-surface-input': '#141619',
   'bg-table-secondary': '#212226',
   'bg-blue-secondary': '#2A3753',
+  'bg-studio-surface': '#191B1F',
   'bg-banner-informative': '#D9770633',
 
   'bg-tag-green': '#064E3B',
@@ -92,13 +104,17 @@ const darkTheme: CSSClasses = {
   'bg-tag-red': '#B30911',
   'bg-tag-yellow': '#CA8A04',
 
+  'text-input': '#9CA0AA',
   'text-primary': '#F5F5F5',
   'text-secondary': '#D4D4D4',
   'text-highlight': '#FFFFFF',
+  'text-gray3': '#D3D5D9',
+
   'icon-green': '#0D9488 ',
   'icon-red': '#FB7185',
 
   'border-primary': '#2B2C30',
+  'border-input': '#42454D',
   selection: '#1E4273'
 }
 

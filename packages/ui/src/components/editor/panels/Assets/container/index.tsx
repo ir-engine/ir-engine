@@ -342,7 +342,7 @@ export function AssetsBreadcrumb({
   onSelectCategory: (c: Category) => void
 }) {
   return (
-    <div className="flex h-[28px] items-center gap-2 rounded-[4px] border border-[#42454D] bg-[#141619] px-2">
+    <div className="flex h-[28px] items-center gap-2 rounded-[4px] border border-theme-input bg-[#141619] px-2 ">
       <HiOutlineFolder className="text-xs text-[#A3A3A3]" />
       {parentCategories.map((category) => (
         <span
@@ -480,6 +480,11 @@ const AssetPanel = () => {
     debouncedSearchQuery()
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
   }
+
+  //reset pagination when search text changes
+  useEffect(() => {
+    staticResourcesPagination.currentPage.set(0)
+  }, [searchText])
 
   useEffect(() => {
     staticResourcesFindApi()
