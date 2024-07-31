@@ -79,7 +79,6 @@ import { LookAtComponent } from '@etherealengine/spatial/src/transform/component
 import { PersistentAnchorComponent } from '@etherealengine/spatial/src/xr/XRAnchorComponents'
 
 // everything above still needs to be built
-import { VirtualCameraComponent } from '@etherealengine/spatial/src/camera/components/VirtualCameraComponent'
 import PersistentAnchorNodeEditor from '@etherealengine/ui/src/components/editor/properties/anchor'
 import LoopAnimationNodeEditor from '@etherealengine/ui/src/components/editor/properties/animation'
 import AudioAnalysisEditor from '@etherealengine/ui/src/components/editor/properties/audio/analysis'
@@ -131,7 +130,6 @@ import TextNodeEditor from '@etherealengine/ui/src/components/editor/properties/
 import TriggerComponentEditor from '@etherealengine/ui/src/components/editor/properties/trigger'
 import VariantNodeEditor from '@etherealengine/ui/src/components/editor/properties/variant'
 import VideoNodeEditor from '@etherealengine/ui/src/components/editor/properties/video'
-import VirtualCameraNodeEditor from '@etherealengine/ui/src/components/editor/properties/virtualCamera'
 import VisualScriptNodeEditor from '@etherealengine/ui/src/components/editor/properties/visualScript'
 import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric'
 import NewVolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric/new'
@@ -192,8 +190,7 @@ export const ComponentEditorsState = defineState({
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor,
       [LookAtComponent.name]: LookAtNodeEditor,
-      [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor,
-      [VirtualCameraComponent.name]: VirtualCameraNodeEditor
+      [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor
     } as Record<string, EditorComponentType>
   }
 })

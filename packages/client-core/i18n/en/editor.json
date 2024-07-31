@@ -823,7 +823,11 @@
       "lbl-loading": "Loading Screen",
       "info-loading": "Change the loading screen",
       "lbl-colors": "Colors",
-      "lbl-killHeight": "Kill Height"
+      "lbl-killHeight": "Kill Height",
+      "lbl-spectate": "Force Spectator",
+      "info-spectate": "Disable avatars and force the user to spectate the scene",
+      "lbl-uuid": "Spectate Entity",
+      "info-uuid": "Optional entity to spectate"
     },
     "scene": {
       "name": "Scene",
