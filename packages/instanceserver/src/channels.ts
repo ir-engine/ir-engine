@@ -88,6 +88,11 @@ interface PrimusConnectionType {
     transport: string
     t: string
   }
+  forwarded?: {
+    ip: string
+    port: number
+    secure: boolean
+  }
   /** @deprecated - @todo refactor */
   instanceId?: InstanceID
   /** @deprecated - @todo refactor */

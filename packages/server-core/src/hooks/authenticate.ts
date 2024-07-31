@@ -67,6 +67,10 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
     return next()
   }
 
+  console.error('FORWARDED: ', JSON.stringify(context.params.forwarded))
+  console.error('AGENT: ', JSON.stringify(context.params.headers['user-agent']))
+  console.error('HEADERS: ', JSON.stringify(context.params.headers))
+
   if (context.arguments[1]?.token && context.path === 'project' && context.method === 'update') {
     const appId = config.authentication.oauth.github.appId ? parseInt(config.authentication.oauth.github.appId) : null
     const token = context.arguments[1].token
