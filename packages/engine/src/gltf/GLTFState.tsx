@@ -46,6 +46,7 @@ import {
   Entity,
   EntityUUID,
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -53,7 +54,6 @@ import {
   setComponent,
   UndefinedEntity,
   useComponent,
-  useOptionalComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
 import {
@@ -84,6 +84,10 @@ import {
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { ATTRIBUTES } from '../assets/loaders/gltf/GLTFConstants'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { assignExtrasToUserData } from '../assets/loaders/gltf/GLTFLoaderFunctions'
@@ -409,7 +413,8 @@ const ChildGLTFReactor = (props: { source: string }) => {
 
 export const DocumentReactor = (props: { documentID: string; parentUUID: EntityUUID }) => {
   const nodeState = useHookstate(getMutableState(GLTFNodeState)[props.documentID])
-  if (!nodeState.value) return null
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+  if (!documentState.value || !nodeState.value) return null
   return (
     <>
       {Object.entries(nodeState.get(NO_PROXY)).map(([uuid, { nodeIndex, childIndex, parentUUID }]) => (
@@ -421,8 +426,86 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
           documentID={props.documentID}
         />
       ))}
+      {documentState
+        .get(NO_PROXY)
+        .materials?.map((material, index) => (
+          <MaterialReactor
+            key={'material-' + index}
+            index={index}
+            parentUUID={props.parentUUID}
+            documentID={props.documentID}
+          />
+        ))}
     </>
   )
+}
+
+const MaterialReactor = (props: { index: number; parentUUID: EntityUUID; documentID: string }) => {
+  const documentState = useMutableState(GLTFDocumentState)[props.documentID]
+  const materials = documentState.materials!
+
+  const material = materials[props.index]!.get(NO_PROXY) as GLTF.IMaterial
+
+  const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
+
+  const entityState = useHookstate(UndefinedEntity)
+  const entity = entityState.value
+
+  useEffect(() => {
+    const uuid = (props.documentID + '-material-' + props.index) as EntityUUID
+    const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
+
+    setComponent(entity, UUIDComponent, uuid)
+    setComponent(entity, SourceComponent, props.documentID)
+
+    /** Ensure all base components are added for synchronous mount */
+    setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.index })
+    setComponent(entity, NameComponent, material.name ?? 'Material-' + props.index)
+
+    entityState.set(entity)
+
+    return () => {
+      //check if entity is in some other document
+      if (hasComponent(entity, UUIDComponent)) {
+        const uuid = getComponent(entity, UUIDComponent)
+        const documents = getState(GLTFDocumentState)
+        for (const documentID in documents) {
+          const document = documents[documentID]
+          if (!document?.materials) continue
+          for (const material of document.materials) {
+            if (material.extensions?.[UUIDComponent.jsonID] === uuid) return
+          }
+        }
+      }
+      removeEntity(entity)
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    if (!entity) return
+
+    setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.index })
+  }, [entity, parentEntity, props.index])
+
+  useLayoutEffect(() => {
+    if (!entity) return
+
+    setComponent(entity, NameComponent, material.name ?? 'Material-' + props.index)
+  }, [entity, material.name])
+
+  useLayoutEffect(() => {
+    if (!entity) return
+
+    GLTFLoaderFunctions.loadMaterial(
+      getParserOptions(entity),
+      documentState.get(NO_PROXY) as GLTF.IGLTF,
+      props.index
+    ).then((material) => {
+      setComponent(entity, MaterialStateComponent, { material })
+    })
+  }, [entity, material])
+
+  return null
 }
 
 const ParentNodeReactor = (props: {
@@ -704,7 +787,7 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
   return (
     <>
       {typeof primitive.material === 'number' && (
-        <MaterialReactor
+        <MaterialInstanceReactor
           nodeIndex={props.nodeIndex}
           primitiveIndex={props.primitiveIndex}
           documentID={props.documentID}
@@ -804,10 +887,13 @@ const PrimitiveIndicesAttributeReactor = (props: {
   return null
 }
 
-const MaterialReactor = (props: { nodeIndex: number; documentID: string; primitiveIndex: number; entity: Entity }) => {
+const MaterialInstanceReactor = (props: {
+  nodeIndex: number
+  documentID: string
+  primitiveIndex: number
+  entity: Entity
+}) => {
   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-
-  const meshComponent = useOptionalComponent(props.entity, MeshComponent)
 
   const nodes = documentState.nodes!.get(NO_PROXY)!
   const node = nodes[props.nodeIndex]!
@@ -816,19 +902,15 @@ const MaterialReactor = (props: { nodeIndex: number; documentID: string; primiti
 
   const primitive = mesh.primitives[props.primitiveIndex]
 
+  const materialUUID = (props.documentID + '-material-' + primitive.material!) as EntityUUID
+  const materialEntity = UUIDComponent.useEntityByUUID(materialUUID)
+
   useEffect(() => {
-    if (typeof primitive.material !== 'number' || !meshComponent) return
+    if (typeof primitive.material !== 'number' || !materialEntity) return
 
-    GLTFLoaderFunctions.loadMaterial(
-      getParserOptions(props.entity),
-      documentState.get(NO_PROXY) as GLTF.IGLTF,
-      primitive.material!
-    ).then((material) => {
-      ;(meshComponent.get(NO_PROXY) as Mesh).material = material
-    })
-
-    /** @todo use material API instead of hardcoding */
-  }, [meshComponent, primitive.material])
+    setComponent(props.entity, MaterialInstanceComponent)
+    getMutableComponent(props.entity, MaterialInstanceComponent).uuid.merge([materialUUID])
+  }, [materialEntity, primitive.material])
 
   return null
 }
