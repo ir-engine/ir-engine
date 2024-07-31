@@ -70,8 +70,8 @@ const LocationPage = ({ online }: Props) => {
   useLoadEngineWithScene()
 
   useEffect(() => {
-    if (ready.value) logger.info({ event_name: 'enter_location', event_value: '' })
-    return () => logger.info({ event_name: 'exit_location', event_value: '' })
+    if (ready.value) logger.info({ event_name: 'enter_location' })
+    return () => logger.info({ event_name: 'exit_location' })
   }, [ready.value])
 
   return (
