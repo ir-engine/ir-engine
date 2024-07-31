@@ -170,6 +170,9 @@ export const BoundingBoxHelperComponent = defineComponent({
 })
 
 const defaultMax = new Vector3(0.5, 0.5, 0.5)
+const originalPosition = new Vector3()
+const originalRotation = new Quaternion()
+const originalScale = new Vector3()
 
 export const ObjectGridSnapComponent = defineComponent({
   name: 'ObjectGridSnapComponent',
@@ -195,9 +198,6 @@ export const ObjectGridSnapComponent = defineComponent({
 
     useEffect(() => {
       if (!modelComponent.scene.value) return
-      const originalPosition = new Vector3()
-      const originalRotation = new Quaternion()
-      const originalScale = new Vector3()
       const originalParent = getComponent(entity, EntityTreeComponent).parentEntity
       const transform = getComponent(entity, TransformComponent)
       transform.matrix.decompose(originalPosition, originalRotation, originalScale)
@@ -219,7 +219,7 @@ export const ObjectGridSnapComponent = defineComponent({
       }
 
       //compute bounding box
-      const bbox = new Box3()
+      const bbox = snapComponent.bbox.value.makeEmpty()
       if (meshes.length > 0) {
         bbox.setFromObject(meshes[0])
         for (let i = 1; i < meshes.length; i++) {
@@ -242,7 +242,7 @@ export const ObjectGridSnapComponent = defineComponent({
       }
       //set bounding box in component
       snapComponent.bbox.set(bbox)
-    }, [modelComponent, meshComponents])
+    }, [modelComponent.scene, meshComponents])
 
     useEffect(() => {
       if (!engineState.isEditing.value) return
