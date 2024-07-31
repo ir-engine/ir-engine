@@ -29,7 +29,6 @@ import { uploadToFeathersService } from '@etherealengine/client-core/src/util/up
 import { clientSettingPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { getComponent, useComponent, useQuery } from '@etherealengine/ecs'
-import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
@@ -50,6 +49,7 @@ import { Vector2, Vector3 } from 'three'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
 import { DnDFileType, FileType } from '../../Files/container'
+import { SceneElementType } from '../../Properties/elementList'
 import GizmoTool from '../tools/GizmoTool'
 import GridTool from '../tools/GridTool'
 import PlayModeTool from '../tools/PlayModeTool'
@@ -165,8 +165,8 @@ const ViewPortPanelContainer = () => {
 
   return (
     <ViewportDnD>
-      <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
-        <div ref={toolbarRef} className="z-10 flex gap-1 bg-theme-primary p-1">
+      <div className="relative z-30 flex h-full w-full flex-col">
+        <div ref={toolbarRef} className="z-10 flex gap-1 bg-theme-studio-surface p-1">
           <TransformSpaceTool />
           <TransformPivotTool />
           <GridTool />

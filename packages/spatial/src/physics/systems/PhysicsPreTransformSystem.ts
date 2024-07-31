@@ -25,30 +25,28 @@ Ethereal Engine. All Rights Reserved.
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import {
-  defineQuery,
-  defineSystem,
-  Entity,
-  getComponent,
-  getOptionalComponent,
-  hasComponent
-} from '@etherealengine/ecs'
+import { defineQuery, defineSystem, Entity, getComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
 
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { EntityTreeComponent, getAncestorWithComponent } from '../../transform/components/EntityTree'
+import { EntityTreeComponent, getAncestorWithComponent, iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix, isDirty, TransformSystem } from '../../transform/systems/TransformSystem'
+import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../../transform/systems/TransformSystem'
 import { Physics } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
+
+const _vec3 = new Vector3()
+const _quat = new Quaternion()
 
 const position = new Vector3()
 const rotation = new Quaternion()
 const scale = new Vector3()
 const mat4 = new Matrix4()
+
+const setDirty = (entity: Entity) => (TransformComponent.dirtyTransforms[entity] = true)
 
 export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   /*
@@ -82,43 +80,27 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
   const transform = getComponent(entity, TransformComponent)
 
-  const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
-  if (parentEntity) {
-    const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
-    const sceneTransform = getComponent(sceneEntity, TransformComponent)
-    // todo: figure out proper scale support
-    const scale = getComponent(entity, TransformComponent).scale
-    // if the entity has a parent, we need to use the scene space
-    transform.matrix.compose(position, rotation, scale)
-    transform.matrixWorld.multiplyMatrices(sceneTransform.matrixWorld, transform.matrix)
+  const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+  const sceneTransform = getComponent(sceneEntity, TransformComponent)
+  // if the entity has a parent, we need to use the scene space
+  TransformComponent.getMatrixRelativeToScene(entity, mat4)
+  mat4.decompose(_vec3, _quat, scale)
+  transform.matrix.compose(position, rotation, scale)
+  transform.matrixWorld.multiplyMatrices(sceneTransform.matrixWorld, transform.matrix)
 
-    TransformComponent.dirtyTransforms[entity] = false
-
-    for (const child of getComponent(entity, EntityTreeComponent).children)
-      TransformComponent.dirtyTransforms[child] = true
-  } else {
-    // otherwise, we can use the local space
-    transform.position.copy(position)
-    transform.rotation.copy(rotation)
-  }
+  /** set all children dirty deeply, but set this entity to clean */
+  iterateEntityNode(entity, setDirty)
+  TransformComponent.dirtyTransforms[entity] = false
 }
 
 export const copyTransformToRigidBody = (entity: Entity) => {
   const world = Physics.getWorld(entity)
   if (!world) return
 
-  const transform = getComponent(entity, TransformComponent)
-  const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
-  if (parentEntity) {
-    // if the entity has a parent, we need to use the scene space
-    computeTransformMatrix(entity)
-    TransformComponent.getMatrixRelativeToScene(entity, mat4)
-    mat4.decompose(position, rotation, scale)
-  } else {
-    // otherwise, we can use the local space
-    position.copy(transform.position)
-    rotation.copy(transform.rotation)
-  }
+  // if the entity has a parent, we need to use the scene space
+  computeTransformMatrix(entity)
+  TransformComponent.getMatrixRelativeToScene(entity, mat4)
+  mat4.decompose(position, rotation, scale)
 
   RigidBodyComponent.position.x[entity] =
     RigidBodyComponent.previousPosition.x[entity] =
@@ -152,11 +134,9 @@ export const copyTransformToRigidBody = (entity: Entity) => {
   const rigidbody = getComponent(entity, RigidBodyComponent)
   Physics.setRigidbodyPose(world, entity, rigidbody.position, rigidbody.rotation, Vector3_Zero, Vector3_Zero)
 
+  /** set all children dirty deeply, but set this entity to clean */
+  iterateEntityNode(entity, setDirty)
   TransformComponent.dirtyTransforms[entity] = false
-
-  if (hasComponent(entity, EntityTreeComponent))
-    for (const child of getComponent(entity, EntityTreeComponent).children)
-      TransformComponent.dirtyTransforms[child] = true
 }
 
 const copyTransformToCollider = (entity: Entity) => {
@@ -165,18 +145,19 @@ const copyTransformToCollider = (entity: Entity) => {
   computeTransformMatrix(entity)
   const rigidbodyEntity = getAncestorWithComponent(entity, RigidBodyComponent)
   if (!rigidbodyEntity) return
-  TransformComponent.getMatrixRelativeToEntity(entity, rigidbodyEntity, mat4)
-  mat4.decompose(position, rotation, scale)
-  Physics.setColliderPose(world, entity, position, rotation)
+  const colliderDesc = Physics.createColliderDesc(world, entity, rigidbodyEntity)
+  if (!colliderDesc) return
+  Physics.removeCollider(world, entity)
+  Physics.attachCollider(world, colliderDesc, rigidbodyEntity, entity)
 }
 
-const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
-const colliderQuery = defineQuery([TransformComponent, ColliderComponent]) // @todo maybe add Not(RigidBodyComponent) to this query
+const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent, EntityTreeComponent])
+const colliderQuery = defineQuery([TransformComponent, ColliderComponent, EntityTreeComponent]) // @todo maybe add Not(RigidBodyComponent) to this query
 
 const filterAwakeCleanRigidbodies = (entity: Entity) => {
   // if the entity has a parent that is dirty, we need to update the transform
-  const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
-  if (parentEntity && TransformComponent.dirtyTransforms[parentEntity]) return true
+  const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+  if (TransformComponent.dirtyTransforms[parentEntity]) return true
   // if the entity is dirty, we don't need to update the transform
   if (isDirty(entity)) return false
   const world = Physics.getWorld(entity)
@@ -209,6 +190,6 @@ export const execute = () => {
 
 export const PhysicsPreTransformSystem = defineSystem({
   uuid: 'ee.engine.PhysicsPreTransformSystem',
-  insert: { before: TransformSystem },
+  insert: { after: TransformDirtyUpdateSystem },
   execute
 })
