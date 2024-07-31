@@ -33,7 +33,7 @@ export const ProjectHistoryModal = ({ projectId, projectName }: { projectId: str
   const { t } = useTranslation()
   return (
     <Modal
-      className="relative max-h-full w-[50vw] max-w-2xl p-4"
+      className="relative max-h-full w-[75vw] p-4"
       title={t('admin:components.project.projectHistory')}
       onClose={() => {
         PopoverState.hidePopupover()

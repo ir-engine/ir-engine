@@ -101,7 +101,7 @@ const updateLocationHistory = async (context: HookContext<LocationService>) => {
       actionIdentifier: item.id,
       actionIdentiferType: locationPath,
       actionDetail: JSON.stringify({
-        locationName: item.name,
+        locationName: item.slugifiedName,
         sceneURL: scene.key,
         sceneId: item.sceneId
       })

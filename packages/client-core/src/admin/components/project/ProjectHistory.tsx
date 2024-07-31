@@ -29,14 +29,25 @@ import {
   ProjectHistoryType
 } from '@etherealengine/server-core/src/projects/project-history/project-history.schema'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+
+import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { TablePagination } from '@etherealengine/ui/src/primitives/tailwind/Table'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaSortAmountDown, FaSortAmountUpAlt } from 'react-icons/fa'
 
 const PROJECT_HISTORY_PAGE_LIMIT = 10
+
+const getRelativeURLFromProject = (projectName: string, url: string) => {
+  const prefix = `projects/${projectName}/`
+  if (url.startsWith(prefix)) {
+    return url.replace(prefix, '')
+  }
+  return url
+}
 
 function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHistoryType; projectName: string }) {
   const { t } = useTranslation()
@@ -47,7 +58,6 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
   const dateStr = useMemo(() => {
     const date = new Date(projectHistory.createdAt)
-
     const formattedDate = date
       .toLocaleDateString('en-GB', {
         year: 'numeric',
@@ -61,37 +71,178 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
     return formattedDate
   }, [projectHistory.createdAt])
 
-  // const assetURL = useMemo(() => {
-  //   if (!projectHistory.assetURL) return projectHistory.assetURL
-  //   const commonPrefix = `projects/${projectName}/`
-  //   return projectHistory.assetURL.replace(commonPrefix, '')
-  // }, [projectHistory.assetURL])
+  const RenderAction = () => {
+    if (projectHistory.action === 'LOCATION_PUBLISHED' || projectHistory.action === 'LOCATION_UNPUBLISHED') {
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        locationName: string
+        sceneURL: string
+        sceneId: string
+      }
+
+      const verb = projectHistory.action === 'LOCATION_PUBLISHED' ? 'published' : 'unpublished'
+
+      return (
+        <>
+          <Text id="blah">{verb} the location</Text>
+
+          <a href={`/location/${actionDetail.locationName}`}>
+            <Text className="underline-offset-4 hover:underline" fontWeight="semibold">
+              {actionDetail.locationName}
+            </Text>
+          </a>
+
+          <Text>from the scene</Text>
+
+          <Text
+            href={`/studio?project=${projectName}&scenePath=${actionDetail.sceneURL}`}
+            component="a"
+            className="underline-offset-4 hover:underline"
+            fontWeight="semibold"
+          >
+            {getRelativeURLFromProject(projectName, actionDetail.sceneURL)}.
+          </Text>
+        </>
+      )
+    } else if (projectHistory.action === 'PERMISSION_CREATED' || projectHistory.action === 'PERMISSION_REMOVED') {
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        userName: string
+        permissionType: string
+      }
+
+      const verb = projectHistory.action === 'PERMISSION_CREATED' ? 'added' : 'removed'
+      const userId = projectHistory.actionIdentifier
+
+      return (
+        <>
+          <Text>{verb} the</Text>
+          <Text fontWeight="semibold">{actionDetail.permissionType}</Text>
+
+          <Text>access to</Text>
+
+          <Tooltip title={`UserId: ${userId}`}>
+            <Text>{actionDetail.userName}</Text>
+          </Tooltip>
+        </>
+      )
+    } else if (projectHistory.action === 'PERMISSION_MODIFIED') {
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        userName: string
+        oldPermissionType: string
+        newPermissionType: string
+      }
+
+      const userId = projectHistory.actionIdentifier
+
+      return (
+        <>
+          <Text>updated the permission of the user</Text>
+          <Tooltip title={`UserId: ${userId}`}>
+            <Text>{actionDetail.userName}</Text>
+          </Tooltip>
+          <Text>from</Text>
+          <Text fontWeight="semibold">{actionDetail.oldPermissionType}</Text>
+          <Text>to</Text>
+          <Text fontWeight="semibold">{actionDetail.newPermissionType}</Text>
+        </>
+      )
+    } else if (projectHistory.action === 'PROJECT_CREATED') {
+      return <Text>created the project</Text>
+    } else if (
+      projectHistory.action === 'RESOURCE_CREATED' ||
+      projectHistory.action === 'RESOURCE_REMOVED' ||
+      projectHistory.action === 'SCENE_CREATED' ||
+      projectHistory.action === 'SCENE_REMOVED'
+    ) {
+      const verb =
+        projectHistory.action === 'RESOURCE_CREATED' || projectHistory.action === 'SCENE_CREATED'
+          ? 'created'
+          : 'removed'
+      const object =
+        projectHistory.action === 'RESOURCE_CREATED' || projectHistory.action === 'RESOURCE_REMOVED'
+          ? 'resource'
+          : 'scene'
+
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        url: string
+      }
+
+      return (
+        <>
+          <Text>
+            {verb} the {object}
+          </Text>
+          <Text
+            href={`/studio?project=${projectName}&scenePath=${actionDetail.url}`}
+            component="a"
+            fontWeight="semibold"
+            className="underline-offset-4 hover:underline"
+          >
+            {getRelativeURLFromProject(projectName, actionDetail.url)}
+          </Text>
+        </>
+      )
+    } else if (projectHistory.action === 'RESOURCE_RENAMED' || projectHistory.action === 'SCENE_RENAMED') {
+      const object = projectHistory.action === 'RESOURCE_RENAMED' ? 'resource' : 'scene'
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        oldURL: string
+        newURL: string
+      }
+
+      return (
+        <>
+          <Text>renamed a {object} from</Text>
+
+          <Text fontWeight="semibold">{getRelativeURLFromProject(projectName, actionDetail.oldURL)}</Text>
+          <Text>to</Text>
+          <Text
+            href={`/studio?project=${projectName}&scenePath=${actionDetail.newURL}`}
+            component="a"
+            fontWeight="semibold"
+            className="underline-offset-4 hover:underline"
+          >
+            {getRelativeURLFromProject(projectName, actionDetail.newURL)}
+          </Text>
+        </>
+      )
+    } else if (projectHistory.action === 'RESOURCE_MODIFIED' || projectHistory.action === 'SCENE_MODIFIED') {
+      const object = projectHistory.action === 'RESOURCE_MODIFIED' ? 'resource' : 'scene'
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        url: string
+      }
+
+      return (
+        <>
+          <Text>modified the {object}</Text>
+          <Text
+            href={`/studio?project=${projectName}&scenePath=${actionDetail.url}`}
+            component="a"
+            fontWeight="semibold"
+            className="underline-offset-4 hover:underline"
+          >
+            {getRelativeURLFromProject(projectName, actionDetail.url)}
+          </Text>
+        </>
+      )
+    }
+
+    return null
+  }
 
   return (
-    <div className="flex w-full items-center justify-between rounded-lg bg-[#191B1F] px-5 py-2">
-      {/* <div>
-        <img
-          className="inline-block h-14 w-14 rounded-full mr-2"
-          src={avatar.data[0]?.thumbnailResource?.url || defaultThumbnail}
-          alt="User Profile Picture"
+    <div className="mb-3 flex w-full items-center justify-between rounded-lg bg-[#191B1F] px-5 py-2">
+      <div className="grid grid-flow-col place-items-center gap-x-2 [&>*]:text-nowrap">
+        <AvatarImage
+          className="inline-grid min-h-10 min-w-10 rounded-full"
+          src={projectHistory.userAvatarURL}
+          name={projectHistory.userName}
         />
 
-        <Text className="text-primary mr-4" fontWeight="normal" fontSize="base">
-          {user.data?.name}
-        </Text>
+        <Text className="text-nowrap">{projectHistory.userName}</Text>
 
-        <Text className="text-primary mr-2" fontWeight="normal" fontSize="base">
-          {VERBS[projectHistory.updateMessage]}
-        </Text>
+        <RenderAction />
+      </div>
 
-        <Text className="text-primary" fontWeight="semibold" fontSize="base">
-          {assetURL}
-        </Text>
-      </div> */}
-
-      <Text className="text-primary mr-2" fontWeight="normal" fontSize="base">
-        {dateStr}
-      </Text>
+      <Text className="text-nowrap">{dateStr}</Text>
     </div>
   )
 }
@@ -125,7 +276,11 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
 
   return (
     <div className="mt-[40px] flex-row justify-between gap-5">
-      <Button onClick={toggleSortOrder} endIcon={sortOrder === -1 ? <FaSortAmountDown /> : <FaSortAmountUpAlt />}>
+      <Button
+        className="mb-4"
+        onClick={toggleSortOrder}
+        endIcon={sortOrder === -1 ? <FaSortAmountDown /> : <FaSortAmountUpAlt />}
+      >
         {sortOrder === -1 ? t('multitenancy:common.newestFirst') : t('multitenancy:common.oldestFirst')}
       </Button>
 

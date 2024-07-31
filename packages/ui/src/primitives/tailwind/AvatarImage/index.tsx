@@ -43,15 +43,25 @@ export interface AvatarImageProps extends React.HTMLAttributes<HTMLImageElement>
   name?: string
 }
 
-const AvatarPlaceholder = ({ className, name }: { className: string; name: string }) => (
-  <div className={twMerge('grid grid-cols-1 place-items-center rounded-lg bg-[#10BCAA] text-white', className)}>
-    {name[0] ? name[0] : 'U'}
+const AvatarPlaceholder = ({ className, label }: { className: string; label: string }) => (
+  <div
+    className={twMerge('grid select-none grid-cols-1 place-items-center rounded-lg bg-[#10BCAA] text-white', className)}
+  >
+    {label}
   </div>
 )
 
 const AvatarImage = ({ src, size = 'medium', className, name }: AvatarImageProps) => {
   const imageLoaded = useHookstate(true)
   const twClassName = twMerge(`${sizes[size]}`, className)
+  const label = name
+    ? name
+        .split(' ')
+        .map((s) => s[0])
+        .join()
+        .slice(0, 2)
+        .toUpperCase()
+    : 'U'
 
   return imageLoaded.value ? (
     <img
@@ -61,7 +71,7 @@ const AvatarImage = ({ src, size = 'medium', className, name }: AvatarImageProps
       onError={() => imageLoaded.set(false)}
     />
   ) : (
-    <AvatarPlaceholder className={twClassName} name={name || 'U'} />
+    <AvatarPlaceholder className={twClassName} label={label} />
   )
 }
 
