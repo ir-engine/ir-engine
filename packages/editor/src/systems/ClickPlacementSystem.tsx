@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 import { Ray } from '@dimforge/rapier3d-compat'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { AssetExt, FileToAssetExt } from '@etherealengine/common/src/constants/AssetType'
+import { AssetExt, AssetType, FileToAssetExtAndType } from '@etherealengine/common/src/constants/AssetType'
 import {
   Engine,
   Entity,
@@ -92,8 +92,8 @@ export const ClickPlacementState = defineState({
     materialCache: [] as [Mesh, Material][]
   },
   setSelectedAsset: (src: string) => {
-    const assetExt = FileToAssetExt(src)
-    if (assetExt && (assetExt === AssetExt.GLTF || assetExt === AssetExt.GLB))
+    const [assetExt, assetType] = FileToAssetExtAndType(src)
+    if (assetExt && (assetExt === AssetExt.GLTF || assetExt === AssetExt.GLB) && assetType === AssetType.Model)
       getMutableState(ClickPlacementState).selectedAsset.set(src)
     else {
       // If in click placement mode and non-placeable asset was selected, show warning

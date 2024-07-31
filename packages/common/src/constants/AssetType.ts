@@ -140,6 +140,10 @@ export const FileToAssetExt = (file: string): AssetExt | undefined => {
   return ext ? FileExtToAssetExt(ext) : undefined
 }
 
+export const FileToAssetExtAndType = (file: string): [AssetExt | undefined, AssetType] => {
+  return [FileToAssetExt(file), FileToAssetType(file)]
+}
+
 export const FileToAssetType = (fileName: string): AssetType => {
   if (!fileName || fileName === '') {
     return AssetType.Unknown
