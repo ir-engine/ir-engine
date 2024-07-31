@@ -290,7 +290,9 @@ export default function ModelCompressionPanel({
               <Button
                 variant="transparent"
                 className={`rounded-none px-1 pb-4 text-sm font-medium ${
-                  selectedLODIndex.value === index ? 'border-b border-blue-primary text-blue-primary' : 'text-[#9CA0AA]'
+                  selectedLODIndex.value === index
+                    ? 'border-b border-blue-primary text-blue-primary'
+                    : 'text-theme-input'
                 }`}
                 onClick={() => selectedLODIndex.set(Math.min(index, lods.length - 1))}
               >

@@ -181,7 +181,7 @@ export default function ImageCompressionPanel({
         >
           <Select
             className="w-full"
-            inputClassName="px-2 py-0.5 text-[#9CA0AA] text-sm"
+            inputClassName="px-2 py-0.5 text-theme-input text-sm"
             options={[
               { label: 'ETC1S', value: 'ETC1S' },
               { label: 'UASTC', value: 'UASTC' }

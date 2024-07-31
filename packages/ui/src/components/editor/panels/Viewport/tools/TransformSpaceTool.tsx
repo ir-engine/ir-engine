@@ -60,7 +60,7 @@ const TransformSpaceTool = () => {
     <div id="transform-space" className="flex items-center">
       <Tooltip title={t('editor:toolbar.transformSpace.lbl-toggleTransformSpace')}>
         <Button
-          startIcon={<PiGlobeSimple color="#9CA0AA" />}
+          startIcon={<PiGlobeSimple className="text-theme-input" />}
           onClick={toggleTransformSpace}
           variant="transparent"
           className="px-0"

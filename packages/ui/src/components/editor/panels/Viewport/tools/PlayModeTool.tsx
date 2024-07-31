@@ -99,7 +99,13 @@ const PlayModeTool = () => {
       >
         <Button
           variant="transparent"
-          startIcon={isEditing.value ? <HiOutlinePlay color="#9CA0AA" /> : <HiOutlinePause color="#9CA0AA" />}
+          startIcon={
+            isEditing.value ? (
+              <HiOutlinePlay className="text-theme-input" />
+            ) : (
+              <HiOutlinePause className="text-theme-input" />
+            )
+          }
           className="p-0"
           onClick={onTogglePlayMode}
         />

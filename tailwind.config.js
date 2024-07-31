@@ -44,6 +44,7 @@ module.exports = {
       },
       textColor: {
         theme: {
+          input: 'var(--text-input)',
           primary: 'var(--text-primary)',
           secondary: 'var(--text-secondary)',
           highlight: 'var(--text-highlight)',

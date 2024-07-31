@@ -43,6 +43,7 @@ export interface CSSClasses {
   'bg-tag-red': string
   'bg-tag-yellow': string
 
+  'text-input': string
   'text-primary': string
   'text-secondary': string
   'text-highlight': string
@@ -73,6 +74,7 @@ const lightTheme: CSSClasses = {
   'bg-tag-red': '#D1004B',
   'bg-tag-yellow': '#FEF3C7',
 
+  'text-input': '#9CA0AA',
   'text-primary': '#262626',
   'text-secondary': '#6B7280',
   'text-highlight': '#000000',
@@ -102,6 +104,7 @@ const darkTheme: CSSClasses = {
   'bg-tag-red': '#B30911',
   'bg-tag-yellow': '#CA8A04',
 
+  'text-input': '#9CA0AA',
   'text-primary': '#F5F5F5',
   'text-secondary': '#D4D4D4',
   'text-highlight': '#FFFFFF',

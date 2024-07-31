@@ -53,7 +53,7 @@ const GridTool = () => {
     <div className="flex items-center">
       <Tooltip title={t('editor:toolbar.grid.info-toggleGridVisibility')}>
         <Button
-          startIcon={<MdBorderClear color="#9CA0AA" />}
+          startIcon={<MdBorderClear className="text-theme-input" />}
           onClick={onToggleGridVisible}
           variant={rendererState.gridVisibility.value ? 'outline' : 'transparent'}
           className="px-0"

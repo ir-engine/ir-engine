@@ -47,7 +47,7 @@ export default function SceneHelpersTool() {
     <div className="flex items-center gap-1">
       <Tooltip title={t('editor:toolbar.placement.click')}>
         <Button
-          startIcon={<LuMousePointerClick color="#9CA0AA" />}
+          startIcon={<LuMousePointerClick className="text-theme-input" />}
           onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
           variant={editorHelperState.placementMode.value === PlacementMode.CLICK ? 'outline' : 'transparent'}
           className="px-0"
@@ -55,7 +55,7 @@ export default function SceneHelpersTool() {
       </Tooltip>
       <Tooltip title={t('editor:toolbar.placement.drag')}>
         <Button
-          startIcon={<LuMove3D color="#9CA0AA" />}
+          startIcon={<LuMove3D className="text-theme-input" />}
           onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
           variant={editorHelperState.placementMode.value === PlacementMode.DRAG ? 'outline' : 'transparent'}
           className="px-0"
@@ -66,7 +66,7 @@ export default function SceneHelpersTool() {
         info={t('editor:toolbar.helpersToggle.info-helpers')}
       >
         <Button
-          startIcon={<RulerSvg color="#9CA0AA" />}
+          startIcon={<RulerSvg className="text-theme-input" />}
           onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
           variant={rendererState.physicsDebug.value ? 'outline' : 'transparent'}
           title={t('editor:toolbar.helpersToggle.lbl-helpers')}
@@ -78,7 +78,7 @@ export default function SceneHelpersTool() {
         info={t('editor:toolbar.helpersToggle.info-nodeHelpers')}
       >
         <Button
-          startIcon={<ColliderAtomsSvg color="#9CA0AA" />}
+          startIcon={<ColliderAtomsSvg className="text-theme-input" />}
           onClick={() => rendererState.nodeHelperVisibility.set(!rendererState.nodeHelperVisibility.value)}
           variant={rendererState.nodeHelperVisibility.value ? 'outline' : 'transparent'}
           title={t('editor:toolbar.helpersToggle.lbl-nodeHelpers')}
@@ -90,7 +90,7 @@ export default function SceneHelpersTool() {
       </InfoTooltip>
       <InfoTooltip title={t('editor:toolbar.sceneScreenshot.lbl')} info={t('editor:toolbar.sceneScreenshot.info')}>
         <Button
-          startIcon={<ScreenshotSvg color="#9CA0AA" />}
+          startIcon={<ScreenshotSvg className="text-theme-input" />}
           onClick={() => downloadScreenshot()}
           variant="transparent"
           title={t('editor:toolbar.sceneScreenshot.lbl')}

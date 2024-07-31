@@ -74,7 +74,7 @@ function TextParam({
 
       <div className="col-span-2 col-start-3">
         <Input
-          className="py-0 text-xs text-[#9CA0AA]"
+          className="py-0 text-xs text-theme-input"
           value={state.value}
           onChange={(e) => {
             state.set(parseFunction(e.target.value))
@@ -127,14 +127,14 @@ export default function GLTFTransformProperties({
                 onChange={(e) => {
                   transformParms.dst.set(e.target.value)
                 }}
-                className="px-2 py-0.5 text-sm text-[#9CA0AA]"
+                className="px-2 py-0.5 text-sm text-theme-input"
               />
               <Input
                 value={transformParms.resourceUri.value}
                 onChange={(e) => {
                   transformParms.resourceUri.set(e.target.value)
                 }}
-                className="px-2 py-0.5 text-sm text-[#9CA0AA]"
+                className="px-2 py-0.5 text-sm text-theme-input"
               />
             </div>
           </div>
@@ -157,7 +157,7 @@ export default function GLTFTransformProperties({
               <Input
                 value={`${itemCount} Items`}
                 disabled={true}
-                className="px-2 py-0.5 font-['Figtree'] text-sm text-[#9CA0AA]"
+                className="px-2 py-0.5 font-['Figtree'] text-sm text-theme-input"
               />
             </div>
           </div>
@@ -179,7 +179,7 @@ export default function GLTFTransformProperties({
 
             <div className="col-span-2 col-start-3">
               <Select
-                inputClassName="text-[#9CA0AA] text-xs py-0"
+                inputClassName="text-theme-input text-xs py-0"
                 options={[
                   { label: 'Default', value: 'default' },
                   { label: 'JPG', value: 'jpg' },
@@ -223,7 +223,7 @@ export default function GLTFTransformProperties({
 
             <div className="col-span-2 col-start-3">
               <Select
-                inputClassName="text-[#9CA0AA] text-xs py-0"
+                inputClassName="text-theme-input text-xs py-0"
                 options={[
                   { label: 'UASTC', value: 'uastc' },
                   { label: 'ETC1', value: 'etc1' }
