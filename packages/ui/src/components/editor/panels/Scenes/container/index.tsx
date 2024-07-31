@@ -48,7 +48,13 @@ export default function ScenesPanel() {
   const scenesLoading = scenesQuery.status === 'pending'
 
   const onClickScene = (scene: StaticResourceType) => {
-    getMutableState(EditorState).scenePath.set(scene.key)
+    const sceneName = scene.key.split('/').pop()
+
+    getMutableState(EditorState).merge({
+      sceneName,
+      scenePath: scene.key,
+      sceneAssetID: scene.id
+    })
   }
 
   useRealtime(fileBrowserPath, scenesQuery.refetch)
