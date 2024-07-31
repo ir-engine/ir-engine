@@ -49,12 +49,20 @@ const getRelativeURLFromProject = (projectName: string, url: string) => {
   return url
 }
 
+const getResourceURL = (projectName: string, url: string, resourceType: 'resource' | 'scene') => {
+  const relativeURL = getRelativeURLFromProject(projectName, url)
+  const resourceURL =
+    resourceType === 'resource'
+      ? `/projects/${projectName}/${relativeURL}`
+      : `/studio?project=${projectName}&scenePath=${url}`
+  return {
+    relativeURL,
+    resourceURL
+  }
+}
+
 function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHistoryType; projectName: string }) {
   const { t } = useTranslation()
-
-  useEffect(() => {
-    console.log('projectHistory: ', projectHistory)
-  }, [projectHistory])
 
   const dateStr = useMemo(() => {
     const date = new Date(projectHistory.createdAt)
@@ -81,6 +89,8 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       const verb = projectHistory.action === 'LOCATION_PUBLISHED' ? 'published' : 'unpublished'
 
+      const { relativeURL, resourceURL } = getResourceURL(projectName, actionDetail.sceneURL, 'scene')
+
       return (
         <>
           <Text id="blah">{verb} the location</Text>
@@ -93,13 +103,8 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
           <Text>from the scene</Text>
 
-          <Text
-            href={`/studio?project=${projectName}&scenePath=${actionDetail.sceneURL}`}
-            component="a"
-            className="underline-offset-4 hover:underline"
-            fontWeight="semibold"
-          >
-            {getRelativeURLFromProject(projectName, actionDetail.sceneURL)}.
+          <Text href={resourceURL} component="a" className="underline-offset-4 hover:underline" fontWeight="semibold">
+            {relativeURL}.
           </Text>
         </>
       )
@@ -166,18 +171,15 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         url: string
       }
 
+      const { relativeURL, resourceURL } = getResourceURL(projectName, actionDetail.url, object)
+
       return (
         <>
           <Text>
             {verb} the {object}
           </Text>
-          <Text
-            href={`/studio?project=${projectName}&scenePath=${actionDetail.url}`}
-            component="a"
-            fontWeight="semibold"
-            className="underline-offset-4 hover:underline"
-          >
-            {getRelativeURLFromProject(projectName, actionDetail.url)}
+          <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
+            {relativeURL}
           </Text>
         </>
       )
@@ -188,19 +190,26 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         newURL: string
       }
 
+      const { relativeURL: oldRelativeURL } = getResourceURL(projectName, actionDetail.oldURL, object)
+      const { relativeURL: newRelativeURL, resourceURL: newResourceURL } = getResourceURL(
+        projectName,
+        actionDetail.newURL,
+        object
+      )
+
       return (
         <>
           <Text>renamed a {object} from</Text>
 
-          <Text fontWeight="semibold">{getRelativeURLFromProject(projectName, actionDetail.oldURL)}</Text>
+          <Text fontWeight="semibold">{oldRelativeURL}</Text>
           <Text>to</Text>
           <Text
-            href={`/studio?project=${projectName}&scenePath=${actionDetail.newURL}`}
+            href={newResourceURL}
             component="a"
             fontWeight="semibold"
             className="underline-offset-4 hover:underline"
           >
-            {getRelativeURLFromProject(projectName, actionDetail.newURL)}
+            {getRelativeURLFromProject(projectName, newRelativeURL)}
           </Text>
         </>
       )
@@ -210,16 +219,13 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         url: string
       }
 
+      const { relativeURL, resourceURL } = getResourceURL(projectName, actionDetail.url, object)
+
       return (
         <>
           <Text>modified the {object}</Text>
-          <Text
-            href={`/studio?project=${projectName}&scenePath=${actionDetail.url}`}
-            component="a"
-            fontWeight="semibold"
-            className="underline-offset-4 hover:underline"
-          >
-            {getRelativeURLFromProject(projectName, actionDetail.url)}
+          <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
+            {relativeURL}
           </Text>
         </>
       )
