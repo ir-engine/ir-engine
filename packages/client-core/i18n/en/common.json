@@ -47,6 +47,8 @@
     "loadingAllowed": "Loading allowed routes...",
     "loadingXRSystems": "Loading immersive session...",
     "connectingToWorld": "Connecting to world...",
+    "needToAgreeTOS": "You need to agree the terms of service to access chat.",
+    "needToLogIn": "You need to log in to access chat.",
     "connectingToMedia": "Connecting to media...",
     "entering": "Entering world...",
     "loading": "Loading...",
