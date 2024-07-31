@@ -43,7 +43,7 @@ import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
 
-import { AssetType } from '@etherealengine/common/src/constants/AssetType'
+import { AssetType, FileToAssetType } from '@etherealengine/common/src/constants/AssetType'
 import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/regex'
 
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
@@ -75,6 +75,7 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
+import { BUILDER_CHART_REGEX } from '@etherealengine/common/src/regex'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
@@ -85,7 +86,6 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
-import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
 import { getContentType } from '../../util/fileUtils'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
@@ -195,11 +195,16 @@ export const updateBuilder = async (
         )
       else {
         const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
-        const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)![1]
-        if (builderChartVersion)
-          await execAsync(
-            `helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
-          )
+
+        const matches = stdout.matchAll(BUILDER_CHART_REGEX)
+
+        for (const match of matches) {
+          const builderChartVersion = match[1]
+          if (builderChartVersion)
+            await execAsync(
+              `helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+            )
+        }
       }
     } catch (err) {
       logger.error(err)
@@ -337,7 +342,7 @@ export const getProjectManifest = (projectName: string): ManifestJson => {
       thumbnail: packageJson.etherealEngine?.thumbnail
     }
   }
-  throw new Error('No manifest.json or package.json found in project')
+  throw new Error(`No manifest.json or package.json found in project '${projectName}'`)
 }
 
 export const engineVersion = (
@@ -601,7 +606,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
     }
 
   try {
-    const [authUser, repos] = await Promise.all([octoKit.rest.users.getAuthenticated(), getUserRepos(token)])
+    const [authUser, repos] = await Promise.all([octoKit.rest.users.getAuthenticated(), getUserRepos(token!, app)])
     const matchingRepo = repos.find(
       (repo) =>
         repo.html_url.toLowerCase() === url.toLowerCase() ||
@@ -1410,7 +1415,14 @@ export const updateProject = async (
     })
     signingToken = installationAccessToken.data.token
     usesInstallationToken = true
-    repoPath = await getAuthenticatedRepo(signingToken, data.sourceURL, usesInstallationToken)
+    const { authenticatedRepo, token } = await getAuthenticatedRepo(
+      signingToken,
+      data.sourceURL,
+      usesInstallationToken,
+      app
+    )
+    repoPath = authenticatedRepo
+    signingToken = token
     params.provider = 'server'
   } else {
     userId = params!.user?.id || project?.updateUserId
@@ -1427,7 +1439,9 @@ export const updateProject = async (
     if (githubIdentityProvider.data.length === 0) throw new Forbidden('You are not authorized to access this project')
 
     signingToken = githubIdentityProvider.data[0].oauthToken
-    repoPath = await getAuthenticatedRepo(signingToken, data.sourceURL)
+    const { authenticatedRepo, token } = await getAuthenticatedRepo(signingToken, data.sourceURL, false, app)
+    repoPath = authenticatedRepo
+    signingToken = token
     if (!repoPath) repoPath = data.sourceURL //public repo
   }
 
@@ -1527,9 +1541,14 @@ export const updateProject = async (
     })
 
   if (data.reset) {
-    let repoPath = await getAuthenticatedRepo(signingToken, data.destinationURL, usesInstallationToken)
-    if (!repoPath) repoPath = data.destinationURL //public repo
-    await git.addRemote('destination', repoPath)
+    let { authenticatedRepo } = await getAuthenticatedRepo(
+      signingToken,
+      data.destinationURL,
+      usesInstallationToken,
+      app
+    )
+    if (!authenticatedRepo) authenticatedRepo = data.destinationURL //public repo
+    await git.addRemote('destination', authenticatedRepo)
     await git.raw(['lfs', 'fetch', '--all'])
     await git.push('destination', branchName, ['-f', '--tags'])
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
@@ -1640,6 +1659,7 @@ const getResourceType = (key: string, resource?: ResourceType) => {
   // TODO: figure out a better way of handling thumbnails rather than by convention
   if (key.startsWith('public/thumbnails') || key.endsWith('.thumbnail.jpg')) return 'thumbnail'
   if (!resource) return 'file'
+  if (staticResourceClasses.includes(FileToAssetType(key))) return 'asset'
   if (resource.type) return resource.type
   if (resource.tags) return 'asset'
   return 'file'
@@ -1651,6 +1671,7 @@ const staticResourceClasses = [
   AssetType.Model,
   AssetType.Video,
   AssetType.Volumetric,
+  AssetType.Lookdev,
   AssetType.Material,
   AssetType.Prefab
 ]

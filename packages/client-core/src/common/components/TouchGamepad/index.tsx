@@ -27,10 +27,10 @@ import React, { useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
 import { InteractableState } from '@etherealengine/engine/src/interaction/functions/interactableFunctions'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { isTouchAvailable } from '@etherealengine/spatial/src/common/functions/DetectFeatures'
 import { AnyButton, XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { XRControlsState, isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+import { XRState, isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AppState } from '../../services/AppService'
@@ -72,7 +72,7 @@ export const TouchGamepad = () => {
   const availableInteractable = interactableState.available.value?.[0]
   const appState = useMutableState(AppState)
 
-  const isMovementControlsEnabled = useHookstate(getMutableState(XRControlsState).isMovementControlsEnabled)
+  const isMovementControlsEnabled = XRState.useMovementControlsEnabled()
 
   const hasGamepad = useHookstate(false)
 

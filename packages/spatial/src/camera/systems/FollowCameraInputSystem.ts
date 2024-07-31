@@ -31,7 +31,7 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { getState } from '@etherealengine/hyperflux'
+import { getState, useMutableState } from '@etherealengine/hyperflux'
 import { CameraSettings } from '@etherealengine/spatial/src/camera/CameraState'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
@@ -44,6 +44,10 @@ import { getThumbstickOrThumbpadAxes } from '@etherealengine/spatial/src/input/f
 import { AxisValueMap } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { useEffect } from 'react'
+import { EngineState } from '../../EngineState'
+import { TransformComponent } from '../../SpatialModule'
+import { Q_Y_180 } from '../../common/constants/MathConstants'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 
 // const throttleHandleCameraZoom = throttle(handleFollowCameraZoom, 30, { leading: true, trailing: false })
@@ -163,8 +167,34 @@ const execute = () => {
   }
 }
 
+const reactor = () => {
+  const xrSession = useMutableState(XRState).session.value
+
+  useEffect(() => {
+    if (!xrSession) return
+
+    const { localFloorEntity, viewerEntity } = getState(EngineState)
+
+    /**
+     * Upon entering a new XR session, we need to update the world origin to match the local floor.
+     */
+    const worldOriginTransform = getComponent(localFloorEntity, TransformComponent)
+    const cameraAttachedEntity = getOptionalComponent(viewerEntity, FollowCameraComponent)?.targetEntity || viewerEntity
+    const transform = getComponent(cameraAttachedEntity, TransformComponent)
+
+    /**
+     * Since the world origin is based on gamepad movement, we need to transform it by the pose of Whatever the camera is currently following
+     */
+    worldOriginTransform.position.copy(transform.position)
+    worldOriginTransform.rotation.copy(transform.rotation).multiply(Q_Y_180)
+  }, [xrSession])
+
+  return null
+}
+
 export const FollowCameraInputSystem = defineSystem({
   uuid: 'ee.engine.FollowCameraInputSystem',
   insert: { after: InputSystemGroup },
-  execute
+  execute,
+  reactor
 })

@@ -30,6 +30,7 @@ Ethereal Engine. All Rights Reserved.
  *  API endpoint).
  */
 import appRootPath from 'app-root-path'
+import dotenv from 'dotenv-flow'
 import net from 'net'
 import os from 'os'
 import path from 'path'
@@ -38,9 +39,18 @@ import pinoElastic from 'pino-elasticsearch'
 import pinoOpensearch from 'pino-opensearch'
 import pretty from 'pino-pretty'
 
+const kubernetesEnabled = process.env.KUBERNETES === 'true'
+
+if (!kubernetesEnabled) {
+  dotenv.config({
+    path: appRootPath.path,
+    node_env: 'local'
+  })
+}
+
 const node = process.env.ELASTIC_HOST || 'http://localhost:9200'
 const nodeOpensearch = process.env.OPENSEARCH_HOST || 'http://localhost:9200'
-const useLogger = !process.env.DISABLE_SERVER_LOG
+const useLogger = process.env.DISABLE_SERVER_LOG !== 'true'
 
 const logStashAddress = process.env.LOGSTASH_ADDRESS || 'logstash-service'
 const logStashPort = process.env.LOGSTASH_PORT || 5044
@@ -141,7 +151,7 @@ const defaultStreams = [streamToPretty, streamToElastic, streamToOpenSearch]
 
 // Enable log to local file
 if (process.env.LOG_TO_FILE === 'true') {
-  defaultStreams.push(streamToFile)
+  defaultStreams.unshift(streamToFile)
 }
 
 const multiStream = pino.multistream(defaultStreams)
@@ -155,28 +165,57 @@ export const logger = pino(
     },
     hooks: {
       logMethod(inputArgs, method, level) {
-        const pushOrUnshift = (key: string, value: string) => {
+        const pushOrUnshift = (pairs: { [key: string]: string }) => {
           if (inputArgs.length > 0 && typeof inputArgs[0] === 'string') {
-            inputArgs.unshift({ [key]: value })
+            inputArgs.unshift(pairs)
           } else if (inputArgs.length > 0 && typeof inputArgs[0] !== 'string') {
-            if (!(inputArgs[0] as any)[key]) {
-              ;(inputArgs[0] as any)[key] = value
+            for (const key in pairs) {
+              if (!(inputArgs[0] as any)[key]) {
+                ;(inputArgs[0] as any)[key] = pairs[key]
+              }
             }
           }
         }
 
-        const { component: bindingsComponent, userId: bindingsUserId } = this.bindings()
+        const defaultPairs = {
+          component: 'server-core',
+          event_name: '',
+          event_value: '',
+          userId: '',
+          location_id: '',
+          project_id: ''
+        }
+        const defaultProperties = Object.keys(defaultPairs)
 
-        const { component: inputArgsComponent, userId: inputArgsUserId } =
-          inputArgs.length > 0 && typeof inputArgs[0] !== 'string' ? inputArgs[0] : { component: '', userId: '' }
+        const bindingPairs = this.bindings()
+        const bindingProperties = Object.keys(bindingPairs)
+        const bindingHasDefaultProps = bindingProperties.some(
+          (item) => defaultProperties.includes(item) && bindingPairs[item]
+        )
 
-        if (!bindingsComponent && !bindingsUserId && !inputArgsComponent && !inputArgsUserId) {
-          pushOrUnshift('component', 'server-core')
-          pushOrUnshift('userId', '')
-        } else if (bindingsComponent || inputArgsComponent) {
-          pushOrUnshift('userId', '')
-        } else if (bindingsUserId || inputArgsUserId) {
-          pushOrUnshift('component', 'server-core')
+        const inputPairs = inputArgs.length > 0 && typeof inputArgs[0] !== 'string' ? inputArgs[0] : {}
+        const inputProperties = Object.keys(inputPairs)
+        const inputHasDefaultProps = inputProperties.some(
+          (item) => defaultProperties.includes(item) && inputPairs[item]
+        )
+
+        if (!bindingHasDefaultProps && !inputHasDefaultProps) {
+          pushOrUnshift(defaultPairs)
+        } else {
+          const pairsToAdd = {}
+
+          for (const key of defaultProperties) {
+            const existsInBinding = bindingProperties.includes(key) && bindingPairs[key]
+            const existsInInput = inputProperties.includes(key) && inputPairs[key]
+
+            if (!existsInBinding && !existsInInput) {
+              pairsToAdd[key] = defaultPairs[key]
+            }
+          }
+
+          if (Object.keys(pairsToAdd).length > 0) {
+            pushOrUnshift(pairsToAdd)
+          }
         }
 
         return method.apply(this, inputArgs)

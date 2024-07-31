@@ -36,9 +36,14 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Input from '../../../../../primitives/tailwind/Input'
 import Modal from '../../../../../primitives/tailwind/Modal'
 
-type Props = { sceneName: string; scene: StaticResourceType; refetch: () => void }
+type Props = {
+  sceneName: string
+  scene: StaticResourceType
+  updateEditorState?: boolean
+  refetchProjectsData: () => void
+}
 
-export default function RenameSceneModal({ sceneName, refetch, scene }: Props) {
+export default function RenameSceneModal({ sceneName, updateEditorState, scene, refetchProjectsData }: Props) {
   const { t } = useTranslation()
   const newSceneName = useHookstate(sceneName)
   const inputError = useHookstate('')
@@ -51,21 +56,29 @@ export default function RenameSceneModal({ sceneName, refetch, scene }: Props) {
     const currentURL = scene.key
     const newURL = currentURL.replace(currentURL.split('/').pop()!, newSceneName.value + '.gltf')
     const newData = await renameScene(scene, newURL, scene.project!)
-    refetch()
-    getMutableState(EditorState).scenePath.set(newData[0].key)
+    refetchProjectsData()
+
+    if (updateEditorState) {
+      getMutableState(EditorState).scenePath.set(newData[0].key)
+    }
+
     PopoverState.hidePopupover()
   }
 
   return (
     <Modal
-      title={t('editor:hierarchy.lbl-rename')}
+      title={t('editor:hierarchy.lbl-renameScene')}
       className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
+      submitButtonDisabled={newSceneName.value === sceneName || inputError.value.length > 0}
     >
       <Input
         value={newSceneName.value}
-        onChange={(event) => newSceneName.set(event.target.value)}
+        onChange={(event) => {
+          inputError.set('')
+          newSceneName.set(event.target.value)
+        }}
         description={t('editor:dialog.saveNewScene.info-name')}
         error={inputError.value}
       />

@@ -23,23 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SceneItem } from '@etherealengine/client-core/src/admin/components/scene/SceneItem'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import CreateSceneDialog from '@etherealengine/editor/src/components/dialogs/CreateScenePanelDialog'
-import { deleteScene, onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
+import { onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useRealtime } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiDotsHorizontal } from 'react-icons/hi'
 import { HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
-import Text from '../../../../../primitives/tailwind/Text'
-import ConfirmDialog from '../../../../tailwind/ConfirmDialog'
-import { Popup } from '../../../../tailwind/Popup'
-import RenameSceneModal from '../modals/RenameScene'
 
 export default function ScenesPanel() {
   const { t } = useTranslation()
@@ -52,7 +48,13 @@ export default function ScenesPanel() {
   const scenesLoading = scenesQuery.status === 'pending'
 
   const onClickScene = (scene: StaticResourceType) => {
-    getMutableState(EditorState).scenePath.set(scene.key)
+    const sceneName = scene.key.split('/').pop()
+
+    getMutableState(EditorState).merge({
+      sceneName,
+      scenePath: scene.key,
+      sceneAssetID: scene.id
+    })
   }
 
   useRealtime(fileBrowserPath, scenesQuery.refetch)
@@ -68,20 +70,6 @@ export default function ScenesPanel() {
     }
     isCreatingScene.set(false)
   }
-
-  const deleteSelectedScene = async (scene: StaticResourceType) => {
-    if (scene) {
-      await deleteScene(scene.key)
-      if (editorState.sceneAssetID.value === scene.id) {
-        editorState.sceneName.set(null)
-        editorState.sceneAssetID.set(null)
-      }
-    }
-    PopoverState.hidePopupover()
-  }
-
-  const getSceneName = (scene: StaticResourceType) =>
-    scene.key.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')
 
   return (
     <div className="h-full bg-theme-primary">
@@ -106,72 +94,13 @@ export default function ScenesPanel() {
           <div className="relative h-full flex-1 overflow-y-auto px-4 py-3 pb-8">
             <div className="flex flex-wrap gap-4 pb-8">
               {scenes.map((scene) => (
-                <div
+                <SceneItem
                   key={scene.id}
-                  className="my-2 flex h-[240px] w-[250px] flex-col justify-end rounded-lg bg-theme-surface-main"
-                >
-                  <img
-                    src={scene.thumbnailURL}
-                    alt={scene.key}
-                    onError={(e) => {
-                      e.currentTarget.src = 'static/ir.svg'
-                    }}
-                    crossOrigin="anonymous"
-                    className="block h-full grow cursor-pointer self-center rounded-t-lg object-cover"
-                    onClick={() => onClickScene(scene)}
-                  />
-                  <div className="flex items-center justify-between px-4 py-1">
-                    <Text className="truncate text-sm leading-5 dark:text-[#A3A3A3]">{getSceneName(scene)}</Text>
-                    <div className="relative">
-                      <Popup
-                        keepInside
-                        trigger={
-                          <Button
-                            variant="transparent"
-                            startIcon={<HiDotsHorizontal />}
-                            iconContainerClassName="mx-0"
-                          />
-                        }
-                      >
-                        <div className="flex flex-col">
-                          <Button
-                            variant="outline"
-                            size="small"
-                            fullWidth
-                            onClick={() => {
-                              PopoverState.showPopupover(
-                                <RenameSceneModal
-                                  sceneName={getSceneName(scene)}
-                                  refetch={scenesQuery.refetch}
-                                  scene={scene}
-                                />
-                              )
-                            }}
-                          >
-                            {t('editor:hierarchy.lbl-rename')}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="small"
-                            fullWidth
-                            onClick={() => {
-                              {
-                                PopoverState.showPopupover(
-                                  <ConfirmDialog
-                                    text={t('editor:hierarchy.lbl-deleteScene')}
-                                    onSubmit={async () => deleteSelectedScene(scene)}
-                                  />
-                                )
-                              }
-                            }}
-                          >
-                            {t('editor:hierarchy.lbl-delete')}
-                          </Button>
-                        </div>
-                      </Popup>
-                    </div>
-                  </div>
-                </div>
+                  scene={scene}
+                  updateEditorState
+                  handleOpenScene={() => onClickScene(scene)}
+                  refetchProjectsData={scenesQuery.refetch}
+                />
               ))}
             </div>
           </div>
