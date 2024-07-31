@@ -28,18 +28,18 @@ import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { destroySpatialEngine, initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
   const lastRef = useHookstate(ref.current)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (ref.current !== lastRef.value) {
       lastRef.set(ref.current)
     }
   }, [ref.current])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!lastRef.value) return
 
     const parent = lastRef.value as HTMLElement
