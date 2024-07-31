@@ -37,12 +37,16 @@ import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugComponentUtils'
 import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { LineSegmentComponent } from '@etherealengine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  useChildrenWithComponent
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
@@ -165,6 +169,8 @@ export const BoundingBoxHelperComponent = defineComponent({
   }
 })
 
+const defaultMax = new Vector3(0.5, 0.5, 0.5)
+
 export const ObjectGridSnapComponent = defineComponent({
   name: 'ObjectGridSnapComponent',
 
@@ -183,8 +189,9 @@ export const ObjectGridSnapComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const engineState = useState(getMutableState(EngineState))
-    const modelComponent = useComponent(entity, ModelComponent)
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
+    const modelComponent = useComponent(entity, ModelComponent)
+    const meshComponents = useChildrenWithComponent(entity, MeshComponent)
 
     useEffect(() => {
       if (!modelComponent.scene.value) return
@@ -198,16 +205,19 @@ export const ObjectGridSnapComponent = defineComponent({
       setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
       transform.matrixWorld.identity()
       TransformComponent.updateFromWorldMatrix(entity)
+
+      const meshEntities = meshComponents.value
       const meshes: Mesh[] = []
+      const validChildrenEntities: Entity[] = []
       //iterate through children and update their transforms to reflect identity from parent
-      iterateEntityNode(entity, (childEntity: Entity) => {
+      for (const childEntity of meshEntities) {
         if (hasComponent(childEntity, TransformComponent)) {
           computeTransformMatrix(childEntity)
-          if (hasComponent(childEntity, MeshComponent)) {
-            meshes.push(getComponent(childEntity, MeshComponent))
-          }
+          meshes.push(getComponent(childEntity, MeshComponent))
+          validChildrenEntities.push(childEntity)
         }
-      })
+      }
+
       //compute bounding box
       const bbox = new Box3()
       if (meshes.length > 0) {
@@ -215,6 +225,8 @@ export const ObjectGridSnapComponent = defineComponent({
         for (let i = 1; i < meshes.length; i++) {
           bbox.expandByObject(meshes[i])
         }
+      } else {
+        bbox.set(Vector3_Zero, defaultMax)
       }
 
       //set entity transform back to original
@@ -224,10 +236,13 @@ export const ObjectGridSnapComponent = defineComponent({
         rotation: originalRotation,
         scale: originalScale
       })
-      iterateEntityNode(entity, computeTransformMatrix, (childEntity) => hasComponent(childEntity, TransformComponent))
+
+      for (const childEntity of validChildrenEntities) {
+        computeTransformMatrix(childEntity)
+      }
       //set bounding box in component
       snapComponent.bbox.set(bbox)
-    }, [modelComponent.scene])
+    }, [modelComponent, meshComponents])
 
     useEffect(() => {
       if (!engineState.isEditing.value) return
