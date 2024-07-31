@@ -1658,6 +1658,7 @@ const migrateResourcesJson = (projectName: string, resourceJsonPath: string) => 
 const getResourceType = (key: string, resource?: ResourceType) => {
   // TODO: figure out a better way of handling thumbnails rather than by convention
   if (key.startsWith('public/thumbnails') || key.endsWith('.thumbnail.jpg')) return 'thumbnail'
+  if (key.startsWith('public/scenes') && key.endsWith('.gltf')) return 'scene'
   if (!resource) return 'file'
   if (staticResourceClasses.includes(FileToAssetType(key))) return 'asset'
   if (resource.type) return resource.type
