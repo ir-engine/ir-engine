@@ -68,7 +68,8 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
   const sceneModified = EditorState.useIsModified()
 
   const submitLoading = useHookstate(false)
-  const isLoading = submitLoading.value || locationQuery.status === 'pending'
+  const unpublishLoading = useHookstate(false)
+  const isLoading = submitLoading.value || locationQuery.status === 'pending' || unpublishLoading.value
   const errors = useHookstate(getDefaultErrors())
 
   const name = useHookstate(location?.name || '')
@@ -168,7 +169,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
 
   const unpublishLocation = async () => {
     if (location?.id) {
-      submitLoading.set(true)
+      unpublishLoading.set(true)
       try {
         await locationMutation.remove(location.id, { query: { projectId: location.projectId } })
         locationID.set(null)
@@ -176,7 +177,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
       } catch (err) {
         errors.serverError.set(err.message)
       }
-      submitLoading.set(false)
+      unpublishLoading.set(false)
     }
   }
 
@@ -288,7 +289,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
             {location?.id && (
               <Button
                 className="bg-[#162546]"
-                endIcon={isLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
+                endIcon={unpublishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
                 disabled={isLoading}
                 onClick={unpublishLocation}
               >
@@ -296,7 +297,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               </Button>
             )}
             <Button
-              endIcon={isLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
+              endIcon={submitLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
               disabled={isLoading}
               onClick={handleSubmit}
             >
