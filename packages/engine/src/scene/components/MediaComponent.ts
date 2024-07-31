@@ -362,7 +362,7 @@ export function MediaReactor() {
 
       const track = media.track.value
       let nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
-      if (nextTrack === -1) return
+      if (nextTrack === -1 && hasComponent(entity, MediaElementComponent)) return
       let path = media.resources[nextTrack].value
 
       while (!path) {
