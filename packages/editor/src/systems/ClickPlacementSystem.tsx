@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 import { Ray } from '@dimforge/rapier3d-compat'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { AssetExt, FileToAssetExtAndType } from '@etherealengine/common/src/constants/AssetType'
+import { AssetExt, FileToAssetExt } from '@etherealengine/common/src/constants/AssetType'
 import {
   Engine,
   Entity,
@@ -92,7 +92,7 @@ export const ClickPlacementState = defineState({
     materialCache: [] as [Mesh, Material][]
   },
   setSelectedAsset: (src: string) => {
-    const [assetExt, assetType] = FileToAssetExtAndType(src)
+    const assetExt = FileToAssetExt(src)
     if (assetExt && (assetExt === AssetExt.GLTF || assetExt === AssetExt.GLB))
       getMutableState(ClickPlacementState).selectedAsset.set(src)
     else {
