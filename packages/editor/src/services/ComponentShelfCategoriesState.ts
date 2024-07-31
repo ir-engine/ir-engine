@@ -114,9 +114,11 @@ export const ComponentShelfCategoriesState = defineState({
     const cShelfState = getMutableState(ComponentShelfCategoriesState)
     useEffect(() => {
       if (visualScriptPanelEnabled) {
-        cShelfState.Scripting.set([VisualScriptComponent])
+        cShelfState.Scripting.merge([VisualScriptComponent])
         return () => {
-          cShelfState.Scripting.set([]) /** @todo when we have more scripting components in here don't do this */
+          cShelfState.Scripting.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == VisualScriptComponent.name))
+          })
         }
       }
     }, [visualScriptPanelEnabled])
