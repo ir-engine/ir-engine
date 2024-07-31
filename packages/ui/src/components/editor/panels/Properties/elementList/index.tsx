@@ -152,7 +152,7 @@ const useComponentShelfCategories = (search: string) => {
   useMutableState(ComponentShelfCategoriesState).value
 
   if (!search) {
-    return Object.entries(getState(ComponentShelfCategoriesState))
+    return Object.entries(getState(ComponentShelfCategoriesState)).filter(([_, items]) => !!items.length)
   }
 
   const searchString = search.toLowerCase()
