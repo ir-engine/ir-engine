@@ -720,28 +720,6 @@ const removeObject = (entities: Entity[]) => {
     dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
 }
-const removePrefabObject = (entity: Entity) => {
-  /** we have to manually set this here or it will cause react errors when entities are removed */
-  //getMutableState(SelectionState).selectedEntities.set([])
-
-  // const scenes = getSourcesForEntities(entities)
-
-  // for (const [sceneID, entities] of Object.entries(scenes)) {
-  //   const uuidsToRemove = new Set(entities.map((entity) => getComponent(entity, UUIDComponent)))
-  //   const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
-  //   const gltfData = gltf.data
-
-  //   const nodesToRemove = collectNodesToRemove(gltf.data, uuidsToRemove)
-  //   removeNodes(gltfData, nodesToRemove)
-  //   compactNodes(gltfData)
-
-  //   dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
-  // }
-
-  const selected = getState(SelectionState).selectedEntities.includes(getComponent(entity, UUIDComponent))
-  const objs = selected ? SelectionState.getSelectedEntities() : [entity]
-  EditorControlFunctions.removeObject(objs)
-}
 const collectNodesToRemove = (gltfData: GLTF.IGLTF, uuidsToRemove: Set<EntityUUID>): Set<number> => {
   const nodesToRemove = new Set<number>()
 
@@ -889,7 +867,6 @@ export const EditorControlFunctions = {
   reparentObject,
   groupObjects,
   removeObject,
-  removePrefabObject,
   addToSelection,
   replaceSelection,
   toggleSelection,
