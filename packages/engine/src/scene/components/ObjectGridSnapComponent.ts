@@ -45,6 +45,7 @@ import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/M
 import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import {
   EntityTreeComponent,
+  iterateEntityNode,
   useChildrenWithComponent
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -206,17 +207,16 @@ export const ObjectGridSnapComponent = defineComponent({
       transform.matrixWorld.identity()
       TransformComponent.updateFromWorldMatrix(entity)
 
-      const meshEntities = meshComponents.value
       const meshes: Mesh[] = []
-      const validChildrenEntities: Entity[] = []
       //iterate through children and update their transforms to reflect identity from parent
-      for (const childEntity of meshEntities) {
+      iterateEntityNode(entity, (childEntity: Entity) => {
         if (hasComponent(childEntity, TransformComponent)) {
           computeTransformMatrix(childEntity)
-          meshes.push(getComponent(childEntity, MeshComponent))
-          validChildrenEntities.push(childEntity)
+          if (hasComponent(childEntity, MeshComponent)) {
+            meshes.push(getComponent(childEntity, MeshComponent))
+          }
         }
-      }
+      })
 
       //compute bounding box
       const bbox = snapComponent.bbox.value.makeEmpty()
@@ -237,9 +237,8 @@ export const ObjectGridSnapComponent = defineComponent({
         scale: originalScale
       })
 
-      for (const childEntity of validChildrenEntities) {
-        computeTransformMatrix(childEntity)
-      }
+      iterateEntityNode(entity, computeTransformMatrix, (childEntity) => hasComponent(childEntity, TransformComponent))
+
       //set bounding box in component
       snapComponent.bbox.set(bbox)
     }, [modelComponent.scene, meshComponents])
