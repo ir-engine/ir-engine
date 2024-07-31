@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import getImagePalette from 'image-palette-core'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
@@ -171,7 +171,9 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
   }
 
   const useSpectatingEntity = useState(sceneSettingsComponent.spectateEntity.value !== null)
-  console.log('useSpectatingEntity', useSpectatingEntity.value)
+  useEffect(() => {
+    commitProperty(SceneSettingsComponent, 'spectateEntity')(useSpectatingEntity.value ? ('' as EntityUUID) : null)
+  }, [useSpectatingEntity])
 
   return (
     <PropertyGroup

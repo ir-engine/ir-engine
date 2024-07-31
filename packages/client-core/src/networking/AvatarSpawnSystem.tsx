@@ -63,12 +63,10 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     if (!settingsQuery.length) return
     const sceneSettingsSpectateEntity = getComponent(settingsQuery[0], SceneSettingsComponent).spectateEntity
     spectateEntity.set(sceneSettingsSpectateEntity ?? (getSearchParamFromURL('spectate') as EntityUUID))
-    console.log(searchParams.spectate.value)
   }, [settingsQuery])
 
   useEffect(() => {
     if (spectateEntity.value === null) return
-    console.log(spectateEntity.value)
     dispatchAction(
       SpectateActions.spectateEntity({
         spectatorUserID: Engine.instance.userID,
