@@ -91,7 +91,7 @@ export const projectHistorySchema = Type.Object(
     actionIdentifier: Type.String(),
 
     // @ts-ignore
-    actionIdentiferType: StringEnum(ActionIdentifierTypes),
+    actionIdentifierType: StringEnum(ActionIdentifierTypes),
     actionDetail: Type.String(),
 
     createdAt: Type.String({ format: 'date-time' })
@@ -103,7 +103,7 @@ export interface ProjectHistoryType extends Static<typeof projectHistorySchema> 
 // Schema for creating new entries
 export const projectHistoryDataSchema = Type.Pick(
   projectHistorySchema,
-  ['projectId', 'userId', 'action', 'actionIdentifier', 'actionIdentiferType', 'actionDetail'],
+  ['projectId', 'userId', 'action', 'actionIdentifier', 'actionIdentifierType', 'actionDetail'],
   {
     $id: 'ProjectHistoryData'
   }
