@@ -79,8 +79,19 @@ const isLogStashRunning = () => {
   })
 }
 
+const defaultPairs = {
+  component: 'server-core',
+  event_name: '',
+  event_value: '',
+  userId: '',
+  location_id: '',
+  project_id: ''
+}
+const defaultProperties = Object.keys(defaultPairs)
+
 const streamToPretty = pretty({
-  colorize: true
+  colorize: true,
+  ignore: defaultProperties.filter((item) => item !== 'component').join(',')
 })
 
 const streamToFile = pino.transport({
@@ -176,16 +187,6 @@ export const logger = pino(
             }
           }
         }
-
-        const defaultPairs = {
-          component: 'server-core',
-          event_name: '',
-          event_value: '',
-          userId: '',
-          location_id: '',
-          project_id: ''
-        }
-        const defaultProperties = Object.keys(defaultPairs)
 
         const bindingPairs = this.bindings()
         const bindingProperties = Object.keys(bindingPairs)
