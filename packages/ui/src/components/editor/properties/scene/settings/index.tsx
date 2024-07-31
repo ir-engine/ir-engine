@@ -170,7 +170,8 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     image.src = url
   }
 
-  const useSpectatingEntity = useState(sceneSettingsComponent.spectateEntity.value !== '')
+  const useSpectatingEntity = useState(sceneSettingsComponent.spectateEntity.value !== null)
+  console.log('useSpectatingEntity', useSpectatingEntity.value)
 
   return (
     <PropertyGroup
