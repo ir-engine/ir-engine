@@ -124,8 +124,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         .then(() => {
           selfUser.acceptedTOS.set(true)
           logger.info({
-            event_name: 'accept_tos',
-            event_value: ''
+            event_name: 'accept_tos'
           })
         })
         .catch((e) => {
@@ -183,7 +182,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   }, [selfUser.name.value])
 
   useEffect(() => {
-    if (!loading.value) logger.info({ event_name: 'view_profile', event_value: '' })
+    if (!loading.value) logger.info({ event_name: 'view_profile' })
   }, [loading.value])
 
   useEffect(() => {
@@ -234,8 +233,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
       // @ts-ignore
       AvatarService.updateUsername(userId, name).then(() =>
         logger.info({
-          event_name: 'rename_user',
-          event_value: ''
+          event_name: 'rename_user'
         })
       )
     }
@@ -483,7 +481,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                         fontStyle: 'italic'
                       }}
                     >
-                      {t('user:usermenu.profile.acceptTOS')}
+                      {t('user:usermenu.profile.agreeTOS')}
                       <Link
                         style={{
                           fontStyle: 'italic',
