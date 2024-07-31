@@ -59,6 +59,9 @@ export const staticResourceSchema = Type.Object(
     thumbnailKey: Type.Optional(Type.String()),
     thumbnailURL: Type.Optional(Type.String()),
     thumbnailMode: Type.Optional(Type.String()), // 'automatic' | 'manual'
+    updatedBy: TypedString<UserID>({
+      format: 'uuid'
+    }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -139,7 +142,8 @@ export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
   'thumbnailKey',
   'thumbnailMode',
   'createdAt',
-  'updatedAt'
+  'updatedAt',
+  'updatedBy'
 ])
 export const staticResourceQuerySchema = Type.Intersect(
   [
