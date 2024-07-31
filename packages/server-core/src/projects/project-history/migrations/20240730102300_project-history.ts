@@ -50,7 +50,7 @@ export async function up(knex: Knex): Promise<void> {
 
       table.string('actionIdentifier').notNullable()
 
-      table.enum('actionIdentiferType', ActionIdentifierTypes).notNullable()
+      table.enum('actionIdentifierType', ActionIdentifierTypes).notNullable()
 
       table.string('actionDetail').notNullable()
 

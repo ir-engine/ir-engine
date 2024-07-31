@@ -79,7 +79,7 @@ const updateProjectPermissionHistory = async (context: HookContext<ProjectPermis
       userId: context.params.user?.id || null,
       action: action,
       actionIdentifier: item.id,
-      actionIdentiferType: projectPermissionPath,
+      actionIdentifierType: projectPermissionPath,
       actionDetail: JSON.stringify(actionDetail)
     })
   }
@@ -99,7 +99,7 @@ const updateLocationHistory = async (context: HookContext<LocationService>) => {
       userId: context.params.user?.id || null,
       action: action,
       actionIdentifier: item.id,
-      actionIdentiferType: locationPath,
+      actionIdentifierType: locationPath,
       actionDetail: JSON.stringify({
         locationName: item.slugifiedName,
         sceneURL: scene.key,
@@ -169,7 +169,7 @@ const updateStaticResourceHistory = async (context: HookContext<StaticResourceSe
         userId: context.params.user?.id || null,
         action: actionType,
         actionIdentifier: item.id,
-        actionIdentiferType: staticResourcePath,
+        actionIdentifierType: staticResourcePath,
         actionDetail: actionDetailStr
       })
     }
@@ -191,7 +191,7 @@ const updateProjectHistory = async (context: HookContext<ProjectService>) => {
       userId: context.params.user?.id || null,
       action: 'PROJECT_CREATED',
       actionIdentifier: item.id,
-      actionIdentiferType: projectPath,
+      actionIdentifierType: projectPath,
       actionDetail: actionDetailStr
     })
   }
