@@ -33,6 +33,11 @@ import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 import './pages/styles.scss'
 import './pages/mui.styles.scss' /** @todo Remove when MUI is removed */
+
+import './themes/base.css'
+import './themes/components.css'
+import './themes/utilities.css'
+
 // tslint:disable:ordered-imports
 // @ts-ignore
 ;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }

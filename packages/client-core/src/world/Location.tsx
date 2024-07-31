@@ -39,8 +39,8 @@ import './LocationModule'
 import { t } from 'i18next'
 
 import multiLogger from '@etherealengine/common/src/logger'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { StyledEngineProvider } from '@mui/material/styles'
-import { LoadingCircle } from '../components/LoadingCircle'
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
 import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
@@ -78,7 +78,9 @@ const LocationPage = ({ online }: Props) => {
     <>
       <ThemeContextProvider>
         <StyledEngineProvider injectFirst>
-          {!ready.value && <LoadingCircle message={t('common:loader.loadingEngine')} />}
+          {!ready.value && (
+            <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingEngine')} />
+          )}
           <LocationIcons />
         </StyledEngineProvider>
       </ThemeContextProvider>
