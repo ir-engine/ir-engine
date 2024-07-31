@@ -439,7 +439,7 @@ const AssetPanel = () => {
           $like: `%${searchText.value}%`
         },
         type: {
-          $or: [{ type: 'file' }, { type: 'asset' }]
+          $or: [{ type: 'asset' }]
         },
         tags: selectedCategory.value
           ? {
