@@ -23,44 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Tooltip, TooltipProps } from '@mui/material'
-import createStyles from '@mui/styles/createStyles'
-import makeStyles from '@mui/styles/makeStyles'
-import React from 'react'
+import type { Knex } from 'knex'
 
-const useStyles = makeStyles<any, any, any>((theme: any) => {
-  return createStyles({
-    tooltip: {
-      background: theme.panel
-    }
-  })
-})
+import { projectPath } from '@etherealengine/common/src/schema.type.module'
 
 /**
- * @param {Object} props
- * @param {string} props.info additional info added to the tooltip label
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
  */
-export function InfoTooltip(props: TooltipProps & { info?: string }) {
-  if (!props.title) return <>{props.children}</>
-
-  const title = props.info ? (
-    <p>
-      {props.title}
-      <hr />
-      {props.info}
-    </p>
-  ) : (
-    props.title
-  )
-
-  const styles = useStyles({})
-
-  return (
-    <Tooltip {...props} title={title} classes={{ tooltip: styles.tooltip }} arrow disableInteractive>
-      {/* Span is required to trigger events like hover in safari for disabled elements */}
-      <span>{props.children}</span>
-    </Tooltip>
-  )
+export async function up(knex: Knex): Promise<void> {
+  const visibilityColumnExists = await knex.schema.hasColumn(projectPath, 'visibility')
+  if (!visibilityColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.string('visibility', 255).defaultTo('private')
+    })
+  }
 }
 
-export default Tooltip
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const visibilityColumnExists = await knex.schema.hasColumn(projectPath, 'visibility')
+
+  if (visibilityColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.dropColumn('visibility')
+    })
+  }
+}

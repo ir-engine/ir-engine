@@ -23,44 +23,42 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Menu, PopoverPosition } from '@mui/material'
-import React from 'react'
+import type { Knex } from 'knex'
 
-import styles from './styles.module.scss'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 
-type ContextMenuProps = {
-  open: boolean
-  anchorEl: null | HTMLElement
-  anchorPosition: undefined | PopoverPosition
-  rootStyle?: React.CSSProperties | undefined
-  onClose: () => void
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const acceptedTOSColumnExists = await knex.schema.hasColumn(userPath, 'acceptedTOS')
+
+  if (!acceptedTOSColumnExists) {
+    await knex.schema.alterTable(userPath, async (table) => {
+      table.boolean('acceptedTOS').nullable().defaultTo(false)
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export const ContextMenu = ({
-  children,
-  open,
-  anchorEl,
-  anchorPosition,
-  rootStyle,
-  onClose
-}: React.PropsWithChildren<ContextMenuProps>) => {
-  return (
-    <Menu
-      className={styles.contextMenu}
-      open={open}
-      onClose={onClose}
-      anchorEl={anchorEl}
-      anchorReference="anchorPosition"
-      anchorPosition={anchorPosition}
-      PaperProps={{
-        style: rootStyle
-      }}
-      onContextMenu={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
-      }}
-    >
-      {children}
-    </Menu>
-  )
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const acceptedTOSColumnExists = await knex.schema.hasColumn(userPath, 'acceptedTOS')
+
+  if (acceptedTOSColumnExists) {
+    await knex.schema.alterTable(userPath, async (table) => {
+      table.dropColumn('acceptedTOS')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
