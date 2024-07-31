@@ -175,16 +175,14 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className={`flex cursor-pointer flex-col items-center justify-center align-middle ${
-        selected ? 'border border-gray-100' : ''
-      }`}
+      className="mb-2 flex cursor-pointer flex-col items-center justify-center align-middle"
     >
-      <span className="mb-[5px] h-[70px] w-[70px] text-[70px]">
+      <span className={`mb-[5px] h-40 w-40 text-[70px] ${selected ? 'rounded-lg border border-blue-primary' : ''}`}>
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
 
       <Tooltip title={name}>
-        <span className="line-clamp-1 w-full text-wrap break-all text-sm text-white">{name}</span>
+        <span className="line-clamp-1 w-full text-wrap break-all text-sm text-[#F5F5F5]">{name}</span>
       </Tooltip>
 
       <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)} className="gap-1">
@@ -624,7 +622,7 @@ const AssetPanel = () => {
           onSelectCategory={handleSelectCategory}
         />
         <div className="flex h-full w-full flex-col overflow-auto">
-          <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-2 p-2">
             <ResourceItems />
           </div>
           <div className="mx-auto mb-10">
