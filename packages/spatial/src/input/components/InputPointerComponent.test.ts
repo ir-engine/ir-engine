@@ -34,8 +34,10 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
+import { getState, startReactor } from '@etherealengine/hyperflux'
 import assert from 'assert'
+import { useEffect } from 'react'
+import sinon from 'sinon'
 import { Vector2 } from 'three'
 import { CameraPointerHash, InputPointerComponent, InputPointerState } from './InputPointerComponent'
 
@@ -267,4 +269,84 @@ describe('InputPointerComponent', () => {
       assert.equal(result, Expected)
     })
   }) // << getPointerByID
+
+  describe('usePointersForCamera', () => {
+    beforeEach(() => {
+      createEngine()
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    it.skip('should return an array of entities for which all of their InputPointerComponent.cameraEntity properties are the same entity as the `@param cameraEntity`', () => {
+      const cameraEntity = createEntity()
+      const Dummy = { pointerId: 12356, cameraEntity: createEntity() }
+      const pointerEntity1 = createEntity()
+      const pointerEntity2 = createEntity()
+      const pointerEntity3 = createEntity()
+      setComponent(pointerEntity1, InputPointerComponent, { pointerId: 21, cameraEntity: cameraEntity })
+      setComponent(pointerEntity2, InputPointerComponent, { pointerId: 42, cameraEntity: cameraEntity })
+      setComponent(pointerEntity3, InputPointerComponent, Dummy)
+
+      const effectSpy = sinon.spy()
+      const reactorSpy = sinon.spy()
+      let cameraPointers = [] as Entity[]
+      assert.equal(reactorSpy.callCount, 0)
+      assert.equal(effectSpy.callCount, 0)
+      assert.equal(cameraPointers.length, 0)
+      const Reactor = () => {
+        reactorSpy()
+        cameraPointers = InputPointerComponent.usePointersForCamera(cameraEntity)
+        useEffect(effectSpy, [cameraPointers.length])
+        return null
+      }
+      const root = startReactor(Reactor)
+      assert.equal(reactorSpy.callCount, 3)
+      assert.equal(effectSpy.callCount, 1)
+      // Check that the assumptions are correct
+      assert.equal(cameraPointers.length, 2)
+      for (const pointer of cameraPointers) {
+        assert.equal(getComponent(pointer, InputPointerComponent).cameraEntity, cameraEntity)
+      }
+    })
+
+    it.only('should be possible to use the returned array reactively', () => {
+      const cameraEntity = createEntity()
+      const Dummy = { pointerId: 12356, cameraEntity: createEntity() }
+      const pointerEntity1 = createEntity()
+      const pointerEntity2 = createEntity()
+      const pointerEntity3 = createEntity()
+      setComponent(pointerEntity1, InputPointerComponent, { pointerId: 21, cameraEntity: cameraEntity })
+      setComponent(pointerEntity2, InputPointerComponent, { pointerId: 42, cameraEntity: cameraEntity })
+      setComponent(pointerEntity3, InputPointerComponent, Dummy)
+
+      const effectSpy = sinon.spy()
+      const reactorSpy = sinon.spy()
+      let cameraPointers = [] as Entity[]
+      assert.equal(reactorSpy.callCount, 0)
+      assert.equal(effectSpy.callCount, 0)
+      assert.equal(cameraPointers.length, 0)
+      const Reactor = () => {
+        reactorSpy()
+        cameraPointers = InputPointerComponent.usePointersForCamera(cameraEntity)
+        useEffect(effectSpy, [cameraPointers.length])
+        return null
+      }
+      const root = startReactor(Reactor)
+      assert.equal(reactorSpy.callCount, 3)
+      assert.equal(effectSpy.callCount, 1)
+      // Check the basic assumptions
+      assert.equal(cameraPointers.length, 2)
+      for (const pointer of cameraPointers) {
+        assert.equal(getComponent(pointer, InputPointerComponent).cameraEntity, cameraEntity)
+      }
+      // Update the components and Check the results
+      removeComponent(pointerEntity2, InputPointerComponent)
+      root.run()
+      assert.equal(reactorSpy.callCount, 5)
+      assert.equal(effectSpy.callCount, 2)
+      assert.equal(cameraPointers.length, 1)
+    })
+  }) // << usePointersForCamera
 })
