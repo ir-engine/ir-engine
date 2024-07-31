@@ -78,7 +78,11 @@ const generateParentBreadcrumbCategories = (categories: readonly Category[], tar
   const findNestingCategories = (nestedCategory: Record<string, any>, parentCategory: string): Category[] => {
     for (const key in nestedCategory) {
       if (key === target) {
-        return [categories.find((c) => c.name === parentCategory)!]
+        const foundCategory = categories.find((c) => c.name === parentCategory)
+        if (foundCategory) {
+          return [foundCategory]
+        }
+        return []
       } else if (typeof nestedCategory[key] === 'object' && nestedCategory[key] !== null) {
         const nestedCategories = findNestingCategories(nestedCategory[key], key)
         if (nestedCategories.length) {
