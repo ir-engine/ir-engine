@@ -28,8 +28,6 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import { projectHistoryDataValidator, projectHistoryQueryValidator } from './project-history.schema'
 
-import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import { BadRequest } from '@feathersjs/errors'
 import {
   projectHistoryDataResolver,
   projectHistoryExternalResolver,
@@ -45,38 +43,8 @@ import {
   UserID,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
-import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { HookContext } from '../../../declarations'
 import { ProjectHistoryService } from './project-history.class'
-
-const checkProjectAccess = async (context: HookContext<ProjectHistoryService>) => {
-  const isAdmin = context.params.user && (await checkScope(context.params.user, 'admin', 'admin'))
-  if (isAdmin) {
-    return
-  }
-  if (!context.data) return
-  const dataArr = Array.isArray(context.data) ? context.data : [context.data]
-
-  for (const data of dataArr) {
-    const { projectId, userId } = data
-
-    if (!userId) {
-      // If userId is not present, then it is a system action (or admin action)
-      continue
-    }
-
-    const projectPermission = await context.app.service(projectPermissionPath).find({
-      query: {
-        projectId,
-        userId
-      }
-    })
-
-    if (projectPermission.total === 0) {
-      throw new BadRequest('No permission to access project')
-    }
-  }
-}
 
 const populateUsernameAndAvatar = async (context: HookContext<ProjectHistoryService>) => {
   if (!context.result) return
@@ -159,8 +127,7 @@ export default {
     create: [
       disallow('external'),
       schemaHooks.validateData(projectHistoryDataValidator),
-      schemaHooks.resolveData(projectHistoryDataResolver),
-      checkProjectAccess
+      schemaHooks.resolveData(projectHistoryDataResolver)
     ],
     patch: [disallow('external')],
     update: [disallow('external')],
