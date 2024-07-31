@@ -54,6 +54,7 @@ import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
 import config from '../../appconfig'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 import {
   deleteProjectFilesInStorageProvider,
@@ -88,6 +89,36 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
   constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
+
+    this.app.isSetup.then(() => this._addOrgNameToProject())
+  }
+
+  async _addOrgNameToProject(): Promise<any> {
+    if (getState(ServerState).serverMode !== ServerMode.API) return
+
+    const storageProvider = getStorageProvider()
+    const data = (await super._find({ paginate: false })) as ProjectType[]
+
+    for (const project of data) {
+      if (project.repositoryPath) {
+        const [orgName, projectName] = project.name.split('/')
+        const projectRootPath = path.resolve('projects/', projectName)
+        try {
+          if (await storageProvider.doesExist(projectName, `projects/`)) {
+            const files = await storageProvider.listObjects(projectRootPath, true)
+            for (const file of files.Contents) {
+              const fileName = file.Key.split('/').pop()!
+              const oldDirectory = file.Key.replace(fileName, '')
+              const newDirectory = `projects/${orgName}/${oldDirectory.replace('projects/', '')}`
+              await storageProvider.moveObject(fileName, fileName, oldDirectory, newDirectory, false)
+            }
+          }
+        } catch (error) {
+          logger.error(`[Projects]: Error moving project files for ${project.name}. Error: ${error}`)
+        }
+      }
+    }
+    return Promise.resolve()
   }
 
   async _seedProject(projectName: string): Promise<any> {
