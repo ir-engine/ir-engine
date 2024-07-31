@@ -222,6 +222,11 @@
       "issueVC": "Issue a VC",
       "requestVC": "Request a VC",
       "addSocial": "Connect your Social Logins",
+      "logIn": "Log In",
+      "agreeTOS": "I agree to the Infinite Reality ",
+      "termsOfService": "Terms of Service",
+      "confirmAge13": "I am 13 years of age or older",
+      "confirmAge18": "I am 18 years of age or older",
       "removeSocial": "Remove Social Logins",
       "connections": {
         "title": "Connections",

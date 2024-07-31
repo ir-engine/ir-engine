@@ -23,24 +23,42 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
+import type { Knex } from 'knex'
 
-import { ITableHeadCell } from '../Table'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 
-type IdType = 'name' | 'projectVersion' | 'enabled' | 'visibility' | 'commitSHA' | 'commitDate' | 'actions'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export type ProjectRowType = Record<IdType, string | JSX.Element | undefined>
+  const acceptedTOSColumnExists = await knex.schema.hasColumn(userPath, 'acceptedTOS')
 
-interface IProjectColumn extends ITableHeadCell {
-  id: IdType
+  if (!acceptedTOSColumnExists) {
+    await knex.schema.alterTable(userPath, async (table) => {
+      table.boolean('acceptedTOS').nullable().defaultTo(false)
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export const projectsColumns: IProjectColumn[] = [
-  { id: 'name', sortable: true, label: t('admin:components.project.columns.name') },
-  { id: 'projectVersion', label: t('admin:components.project.columns.projectVersion') },
-  { id: 'enabled', label: t('admin:components.project.columns.enabled') },
-  { id: 'visibility', label: t('admin:components.project.columns.visibility') },
-  { id: 'commitSHA', label: t('admin:components.project.columns.commitSHA') },
-  { id: 'commitDate', sortable: true, label: t('admin:components.project.columns.commitDate') },
-  { id: 'actions', label: t('admin:components.project.columns.actions') }
-]
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const acceptedTOSColumnExists = await knex.schema.hasColumn(userPath, 'acceptedTOS')
+
+  if (acceptedTOSColumnExists) {
+    await knex.schema.alterTable(userPath, async (table) => {
+      table.dropColumn('acceptedTOS')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
