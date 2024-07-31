@@ -84,7 +84,7 @@ export const SceneItem = ({ scene, updateEditorState, handleOpenScene, refetchPr
     const updatePosition = () => {
       if (!threeDotsContainRef.current) return
       const rect = threeDotsContainRef.current.getBoundingClientRect()
-      menuPosition.set({ top: rect.bottom, left: rect.left })
+      menuPosition.set({ top: rect.top - rect.height, left: rect.left })
       animationFrameId = requestAnimationFrame(updatePosition)
     }
 
