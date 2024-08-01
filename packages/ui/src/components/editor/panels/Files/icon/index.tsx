@@ -90,7 +90,7 @@ export const FileIcon = ({
           alt=""
         />
       ) : FallbackIcon ? (
-        <FallbackIcon className={`${color} h-full w-full`} />
+        <FallbackIcon className={`${color} h-full w-full p-4`} />
       ) : (
         <>
           <TbFileDescription className={`${color}`} />
