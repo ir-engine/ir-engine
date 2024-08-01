@@ -57,7 +57,7 @@ import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/Resour
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { twMerge } from 'tailwind-merge'
-import TransformPropertyGroup from '../../../properties/transform'
+import TransformPropertyGroup from '../../../../properties/transform'
 
 //import styles from './styles.module.scss'
 

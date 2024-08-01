@@ -66,11 +66,11 @@ import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { GLTF } from '@gltf-transform/core'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
-import Button from '../../../../../primitives/tailwind/Button'
-import Input from '../../../../../primitives/tailwind/Input'
-import { ContextMenu } from '../../../../tailwind/ContextMenu'
-import { Popup } from '../../../../tailwind/Popup'
-import ElementList from '../../Properties/elementList'
+import Button from '../../../../../../primitives/tailwind/Button'
+import Input from '../../../../../../primitives/tailwind/Input'
+import { ContextMenu } from '../../../../../tailwind/ContextMenu'
+import { Popup } from '../../../../../tailwind/Popup'
+import ElementList from '../../../Properties/elementList'
 import HierarchyTreeNode, { HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from '../node'
 
 const uploadOptions = {
@@ -657,7 +657,7 @@ const GLTFHierarchySub = (props: { sourceID: string; rootEntity: Entity }) => {
   return <HierarchyPanelContents key={sourceID} sceneURL={sourceID} rootEntity={rootEntity} index={index.value} />
 }
 
-export default function HierarchyPanel() {
+export default function GltfHierarchyPanel() {
   const { scenePath, rootEntity } = useMutableState(EditorState).value
   const sourceID = useOptionalComponent(rootEntity, SourceComponent)?.value
 

@@ -1267,6 +1267,12 @@
     }
   },
   "hierarchy": {
+    "gltf":{
+      "lbl" : "Gltf Hierarchy"
+    },
+    "ecs":{
+      "lbl" : "ECS Hierarchy"
+    },
     "lbl": "Hierarchy",
     "info": "The scene Hierarchy contains all element currently in your scene (assets, lighting, items from the tool menu, etc).",
     "lbl-rename": "Rename",

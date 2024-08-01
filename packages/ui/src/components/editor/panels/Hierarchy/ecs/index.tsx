@@ -26,26 +26,26 @@ Ethereal Engine. All Rights Reserved.
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import HierarchyPanel from './container'
+import { PanelDragContainer, PanelTitle } from '../../../layout/Panel'
+import EcsHierarchyPanel from './container'
 
-export const HierarchyPanelTitle = () => {
+export const EcsHierarchyPanelTitle = () => {
   const { t } = useTranslation()
 
   return (
     <div>
       <PanelDragContainer>
-        <PanelTitle>{t('editor:hierarchy.lbl')}</PanelTitle>
+        <PanelTitle>{t('editor:hierarchy.ecs.lbl')}</PanelTitle>
       </PanelDragContainer>
     </div>
   )
 }
 
-export default HierarchyPanelTitle
+export default EcsHierarchyPanelTitle
 
-export const HierarchyPanelTab: TabData = {
-  id: 'hierarchyPanel',
+export const EcsHierarchyPanelTab: TabData = {
+  id: 'ecsHierarchyPanel',
   closable: true,
-  title: <HierarchyPanelTitle />,
-  content: <HierarchyPanel />
+  title: <EcsHierarchyPanelTitle />,
+  content: <EcsHierarchyPanel />
 }

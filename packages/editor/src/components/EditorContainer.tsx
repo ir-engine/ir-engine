@@ -29,12 +29,13 @@ import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ether
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
 import { FilesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Files'
-import { HierarchyPanelTab } from '@etherealengine/ui/src/components/editor/panels/Hierarchy'
+import { EcsHierarchyPanelTab } from '@etherealengine/ui/src/components/editor/panels/Hierarchy/ecs'
 import { MaterialsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Materials'
 import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Properties'
 import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/Scenes'
 import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
 import { VisualScriptPanelTab } from '@etherealengine/ui/src/components/editor/panels/VisualScript'
+import { GltfHierarchyPanelTab } from '../../../ui/src/components/editor/panels/Hierarchy/gltf'
 
 import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
@@ -112,7 +113,7 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
           size: 3,
           children: [
             {
-              tabs: [HierarchyPanelTab, MaterialsPanelTab]
+              tabs: [GltfHierarchyPanelTab, EcsHierarchyPanelTab, MaterialsPanelTab]
             },
             {
               tabs: [PropertiesPanelTab]
