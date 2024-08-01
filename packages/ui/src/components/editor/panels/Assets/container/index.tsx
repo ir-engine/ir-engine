@@ -177,7 +177,11 @@ const ResourceFile = (props: {
       onContextMenu={handleContextMenu}
       className="mb-2 flex cursor-pointer flex-col items-center justify-center align-middle"
     >
-      <span className={`mb-[5px] h-40 w-40 text-[70px] ${selected ? 'rounded-lg border border-blue-primary' : ''}`}>
+      <span
+        className={`mb-[5px] h-40 w-40 text-[70px] ${
+          selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
+        }`}
+      >
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
 
