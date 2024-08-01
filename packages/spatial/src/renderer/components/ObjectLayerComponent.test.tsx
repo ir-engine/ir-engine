@@ -28,13 +28,14 @@ import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 
+import { UndefinedEntity } from '@etherealengine/ecs'
 import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { addObjectToGroup } from './GroupComponent'
 import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 
-describe('ObjectLayerComponent', () => {
+describe('ObjectLayerComponent : todo.Organize', () => {
   beforeEach(async () => {
     createEngine()
   })
@@ -196,3 +197,80 @@ describe('ObjectLayerComponent', () => {
     assert(layer2.test(layer3))
   })
 })
+
+const ObjectLayerMaskComponentDefaults = 1 << 0 // enable layer 0
+
+function assertObjectLayerMaskComponentEq(A, B) {
+  assert.equal(Boolean(A), Boolean(B))
+  assert.equal(A.isObjectLayerMask, B.isObjectLayerMask)
+}
+
+describe('ObjectLayerMaskComponent', () => {
+  describe('IDs', () => {
+    it('should initialize the ObjectLayerMaskComponent.name field with the expected value', () => {
+      assert.equal(ObjectLayerMaskComponent.name, 'ObjectLayerMaskComponent')
+    })
+  }) //:: IDs
+
+  describe('schema', () => {})
+
+  describe('onInit', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, ObjectLayerMaskComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should initialize the component with the expected default values', () => {
+      const data = getComponent(testEntity, ObjectLayerMaskComponent)
+      assertObjectLayerMaskComponentEq(data, ObjectLayerMaskComponentDefaults)
+    })
+  }) //:: onInit
+
+  describe('onSet', () => {}) //:: onSet
+  describe('onRemove', () => {}) //:: onRemove
+  describe('toJSON', () => {}) //:: toJSON
+  describe('setLayer', () => {}) //:: setLayer
+  describe('enableLayer', () => {}) //:: enableLayer
+  describe('enableLayers', () => {}) //:: enableLayers
+  describe('disableLayer', () => {}) //:: disableLayer
+  describe('disableLayers', () => {}) //:: disableLayers
+  describe('toggleLayer', () => {}) //:: toggleLayer
+  describe('setMask', () => {}) //:: setMask
+})
+
+const maxBitWidth = 32
+
+describe('ObjectLayerComponents', () => {
+  describe('IDs', () => {
+    ;[...Array(maxBitWidth)].forEach((_, index, __) => {
+      it(`should initialize the ObjectLayerComponents[${index}].name field with the expected value`, () => {
+        assert.equal(ObjectLayerComponents[index].name, `ObjectLayer${index}`)
+      })
+    })
+  }) //:: IDs
+
+  describe('onSet', () => {}) //:: onSet
+  describe('onRemove', () => {}) //:: onRemove
+})
+
+describe('Layer', () => {
+  describe('constructor', () => {}) //:: constructor
+  describe('get mask', () => {}) //:: get mask
+  describe('set mask', () => {}) //:: set mask
+  describe('set', () => {}) //:: set
+  describe('enable', () => {}) //:: enable
+  describe('enableAll', () => {}) //:: enableAll
+  describe('toggle', () => {}) //:: toggle
+  describe('disable', () => {}) //:: disable
+  describe('disableAll', () => {}) //:: disableAll
+  describe('test', () => {}) //:: test
+  describe('isEnabled', () => {}) //:: isEnabled
+}) //:: Layer
