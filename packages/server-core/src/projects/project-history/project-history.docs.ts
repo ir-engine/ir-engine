@@ -25,7 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { projectHistoryDataSchema, projectHistoryQuerySchema, projectHistorySchema } from './project-history.schema'
+import {
+  projectHistoryDataSchema,
+  projectHistoryQuerySchema,
+  projectHistorySchema
+} from '@etherealengine/common/src/schemas/projects/project-history.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

@@ -23,11 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { projectHistoryPath } from '@etherealengine/common/src/schema.type.module'
+import { ProjectHistoryType } from '@etherealengine/common/src/schemas/projects/project-history.schema'
 import { useHookstate } from '@etherealengine/hyperflux'
-import {
-  projectHistoryPath,
-  ProjectHistoryType
-} from '@etherealengine/server-core/src/projects/project-history/project-history.schema'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'

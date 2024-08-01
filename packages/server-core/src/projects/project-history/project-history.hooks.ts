@@ -26,7 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import { projectHistoryDataValidator, projectHistoryQueryValidator } from './project-history.schema'
+import {
+  projectHistoryDataValidator,
+  projectHistoryQueryValidator
+} from '@etherealengine/common/src/schemas/projects/project-history.schema'
 
 import {
   projectHistoryDataResolver,

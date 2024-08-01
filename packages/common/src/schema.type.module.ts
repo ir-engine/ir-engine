@@ -115,6 +115,7 @@ export type * from './schemas/user/user-relationship.schema'
 export type * from './schemas/user/user-setting.schema'
 export type * from './schemas/user/user.schema'
 export type * from './schemas/world/spawn-point.schema'
+
 export const locationPath = 'location'
 
 export const userRelationshipPath = 'user-relationship'
@@ -303,3 +304,5 @@ export const invalidationPath = 'invalidation'
 export const imageConvertPath = 'image-convert'
 
 export const zendeskPath = 'zendesk'
+
+export const projectHistoryPath = 'project-history'

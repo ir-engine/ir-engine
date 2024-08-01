@@ -23,11 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  projectHistoryMethods,
+  projectHistoryPath
+} from '@etherealengine/common/src/schemas/projects/project-history.schema'
 import { Application } from '@etherealengine/server-core/declarations'
 import { ProjectHistoryService } from './project-history.class'
 import projectHistoryDocs from './project-history.docs'
 import hooks from './project-history.hooks'
-import { projectHistoryMethods, projectHistoryPath } from './project-history.schema'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
