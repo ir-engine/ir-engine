@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 
+import { calculateAndApplyYOffset } from '@etherealengine/common/src/utils/offsets'
 import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
 import { useHookstate } from '@etherealengine/hyperflux'
 
@@ -77,9 +78,10 @@ const Select = <T extends OptionValueType>({
   inputContainerClassName
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
   const showOptions = useHookstate(false)
-  const filteredOptions = useHookstate(JSON.parse(JSON.stringify(options)))
+  const filteredOptions = useHookstate(JSON.parse(JSON.stringify(options)) as SelectOptionsType[])
   const selectLabel = useHookstate('')
 
   useClickOutside(ref, () => showOptions.set(false))
@@ -92,6 +94,10 @@ const Select = <T extends OptionValueType>({
   useEffect(() => {
     filteredOptions.set(JSON.parse(JSON.stringify(options)))
   }, [options])
+
+  useEffect(() => {
+    if (showOptions.value) calculateAndApplyYOffset(menuRef.current)
+  }, [showOptions])
 
   const toggleDropdown = () => {
     if (options.length === 0) return
@@ -157,6 +163,7 @@ const Select = <T extends OptionValueType>({
         className={`absolute z-30 mt-2 w-full rounded border border-theme-primary bg-theme-surface-main ${
           showOptions.value ? 'visible' : 'hidden'
         }`}
+        ref={menuRef}
       >
         <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2', menuClassname)}>
           {filteredOptions.value.map((option) => (
