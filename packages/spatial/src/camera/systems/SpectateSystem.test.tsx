@@ -30,6 +30,7 @@ import React from 'react'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import {
   Engine,
+  EntityUUID,
   SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,
@@ -73,6 +74,7 @@ describe('SpectateSystem', async () => {
     it('should start spectating an entity when the `spectateEntity` action is dispatched', async () => {
       const hostUserId = 'world' as UserID
       const userId = 'user id' as UserID
+      const userUuid = 'user id' as EntityUUID
       const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
       const peerID3 = 'peer id 3' as PeerID
@@ -91,7 +93,7 @@ describe('SpectateSystem', async () => {
       dispatchAction(
         SpectateActions.spectateEntity({
           spectatorUserID: spectatorID,
-          spectatingUserID: userId,
+          spectatingEntity: userUuid,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID
         })
@@ -107,6 +109,7 @@ describe('SpectateSystem', async () => {
     it('should stop spectating an entity when the `exitSpectate` action is dispatched', async () => {
       const hostUserId = 'world' as UserID
       const userId = 'user id' as UserID
+      const userUuid = 'user id' as EntityUUID
       const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
       const peerID3 = 'peer id 3' as PeerID
@@ -125,7 +128,7 @@ describe('SpectateSystem', async () => {
       dispatchAction(
         SpectateActions.spectateEntity({
           spectatorUserID: spectatorID,
-          spectatingUserID: userId,
+          spectatingEntity: userUuid,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID
         })
