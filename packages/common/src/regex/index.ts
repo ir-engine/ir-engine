@@ -112,22 +112,22 @@ export const INSTALLATION_SIGNED_REGEX = /https:\/\/oauth2:[\w\d\s\-_]+@github.c
 /**
  * This regex is used to match specific file paths or directory structures that start with `projects/`, followed by one or more valid characters (letters, digits, hyphens, underscores, or forward slashes), and end with `/assets/`
  */
-export const ASSETS_REGEX = /projects\/[a-zA-Z0-9-_\/]+\/assets\//
+export const ASSETS_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/assets\//
 
 /**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes.
  */
-export const PROJECT_REGEX = /projects\/[a-zA-Z0-9-_\/]+/
+export const PROJECT_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+/
 
 /**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/public/`.
  */
-export const PROJECT_PUBLIC_REGEX = /projects\/[a-zA-Z0-9-_\/]+\/public\//
+export const PROJECT_PUBLIC_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/public\//
 
 /**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/thumbnails/`.
  */
-export const PROJECT_THUMBNAIL_REGEX = /projects\/[a-zA-Z0-9-_\/]+\/thumbnails\//
+export const PROJECT_THUMBNAIL_REGEX = /projects\+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/thumbnails\//
 
 export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
 
