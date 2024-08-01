@@ -293,7 +293,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
                 disabled={isLoading}
                 onClick={unPublishLocation}
               >
-                {t('editor:toolbar.publishLocation.unPublish')}
+                {t('editor:toolbar.publishLocation.unpublish')}
               </Button>
             )}
             <Button
