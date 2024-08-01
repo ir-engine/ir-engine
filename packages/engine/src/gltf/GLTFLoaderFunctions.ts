@@ -399,7 +399,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
   // Specification:
   // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#metallic-roughness-material
 
-  const map = GLTFLoaderFunctions.assignTexture(options, json, materialDef.pbrMetallicRoughness?.baseColorTexture)
+  const map = GLTFLoaderFunctions.useAssignTexture(options, json, materialDef.pbrMetallicRoughness?.baseColorTexture)
 
   useEffect(() => {
     if (!map) return
@@ -435,7 +435,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
     })
   }, [materialDef.pbrMetallicRoughness?.roughnessFactor])
 
-  const metalnessMap = GLTFLoaderFunctions.assignTexture(
+  const metalnessMap = GLTFLoaderFunctions.useAssignTexture(
     options,
     json,
     materialType.value === 'basic' ? undefined : materialDef.pbrMetallicRoughness?.metallicRoughnessTexture
@@ -446,7 +446,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
     result.value?.setValues({ metalnessMap })
   }, [metalnessMap])
 
-  const roughnessMap = GLTFLoaderFunctions.assignTexture(
+  const roughnessMap = GLTFLoaderFunctions.useAssignTexture(
     options,
     json,
     materialType.value === 'basic' ? undefined : materialDef.pbrMetallicRoughness?.metallicRoughnessTexture
@@ -479,7 +479,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
     }
   }, [materialDef.alphaCutoff])
 
-  const normalMap = GLTFLoaderFunctions.assignTexture(
+  const normalMap = GLTFLoaderFunctions.useAssignTexture(
     options,
     json,
     materialType.value === 'basic' ? undefined : materialDef.normalTexture
@@ -500,7 +500,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
   // }
   // }, [])
 
-  const aoMap = GLTFLoaderFunctions.assignTexture(
+  const aoMap = GLTFLoaderFunctions.useAssignTexture(
     options,
     json,
     materialType.value === 'basic' ? undefined : materialDef.occlusionTexture
@@ -524,7 +524,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
     })
   }, [materialDef.emissiveFactor])
 
-  const emissiveMap = GLTFLoaderFunctions.assignTexture(
+  const emissiveMap = GLTFLoaderFunctions.useAssignTexture(
     options,
     json,
     materialType.value === 'basic' ? undefined : materialDef.emissiveTexture
@@ -546,7 +546,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
  * @param {Object} mapDef
  * @return {Promise<Texture>}
  */
-const assignTexture = (options: GLTFParserOptions, json: GLTF.IGLTF, mapDef?: GLTF.ITextureInfo) => {
+const useAssignTexture = (options: GLTFParserOptions, json: GLTF.IGLTF, mapDef?: GLTF.ITextureInfo) => {
   const result = useHookstate<Texture | null>(null)
 
   const texture = GLTFLoaderFunctions.useLoadTexture(options, json, mapDef?.index)
@@ -564,6 +564,8 @@ const assignTexture = (options: GLTFParserOptions, json: GLTF.IGLTF, mapDef?: GL
       textureClone.channel = mapDef.texCoord
       result.set(textureClone)
     }
+
+    result.set(texture)
 
     if (GLTFExtensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM]) {
       const transform =
@@ -629,7 +631,6 @@ const useLoadTexture = (options: GLTFParserOptions, json: GLTF.IGLTF, textureInd
   }
 
   const texture = GLTFLoaderFunctions.useLoadTextureImage(options, json, textureIndex, sourceIndex, loader)
-
   useEffect(() => {
     result.set(texture)
   }, [texture])
@@ -745,13 +746,6 @@ const useLoadImageSource = (
 
   useEffect(() => {
     if (!sourceURI.value) return
-    console.log(
-      'sourceURI',
-      loader,
-      options,
-      sourceURI.value,
-      LoaderUtils.resolveURL(sourceURI.value as string, options.path)
-    )
     loader!.load(
       LoaderUtils.resolveURL(sourceURI.value as string, options.path),
       (imageBitmap) => {
@@ -798,7 +792,7 @@ export const GLTFLoaderFunctions = {
   useLoadBufferView,
   useLoadBuffer,
   useLoadMaterial,
-  assignTexture,
+  useAssignTexture,
   useLoadTexture,
   useLoadImageSource,
   useLoadTextureImage

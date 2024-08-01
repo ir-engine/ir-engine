@@ -35,8 +35,7 @@ import {
   setComponent,
   UndefinedEntity,
   useComponent,
-  useEntityContext,
-  useOptionalComponent
+  useEntityContext
 } from '@etherealengine/ecs'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import {
@@ -72,16 +71,15 @@ const reactor = (): ReactElement => {
 
   return (
     <>
-      <QueryReactor Components={[MaterialInstanceComponent]} ChildEntityReactor={MaterialInstanceReactor} />
+      <QueryReactor Components={[MeshComponent, MaterialInstanceComponent]} ChildEntityReactor={MeshReactor} />
       <QueryReactor Components={[MaterialStateComponent]} ChildEntityReactor={MaterialEntityReactor} />
-      <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshReactor} />
     </>
   )
 }
 
 const MeshReactor = () => {
   const entity = useEntityContext()
-  const materialComponent = useOptionalComponent(entity, MaterialInstanceComponent)
+  const materialComponent = useComponent(entity, MaterialInstanceComponent)
   const meshComponent = useComponent(entity, MeshComponent)
 
   const createAndSourceMaterial = (material: Material) => {
@@ -91,11 +89,15 @@ const MeshReactor = () => {
   }
 
   useEffect(() => {
-    if (materialComponent) return
     const material = meshComponent.material.value as Material
     if (!isArray(material)) createAndSourceMaterial(material)
     else for (const mat of material) createAndSourceMaterial(mat)
   }, [])
+
+  useEffect(() => {
+    const uuid = materialComponent.uuid.value
+    if (uuid) setMeshMaterial(entity, uuid as EntityUUID[])
+  }, [materialComponent.uuid])
   return null
 }
 
@@ -122,16 +124,6 @@ const MaterialEntityReactor = () => {
     if (materialComponent.instances.value?.length === 0) removeEntity(entity)
   }, [materialComponent.instances])
 
-  return null
-}
-
-const MaterialInstanceReactor = () => {
-  const entity = useEntityContext()
-  const materialComponent = useComponent(entity, MaterialInstanceComponent)
-  const uuid = materialComponent.uuid
-  useEffect(() => {
-    if (uuid.value) setMeshMaterial(entity, uuid.value as EntityUUID[])
-  }, [materialComponent.uuid])
   return null
 }
 
