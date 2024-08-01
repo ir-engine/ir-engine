@@ -27,9 +27,12 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
+import {
+  ProjectHistoryQuery,
+  ProjectHistoryType
+} from '@etherealengine/common/src/schemas/projects/project-history.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { ProjectHistoryQuery, ProjectHistoryType } from './project-history.schema'
 
 export const projectHistoryResolver = resolve<ProjectHistoryType, HookContext>({
   createdAt: virtual(async (projectHistory) => fromDateTimeSql(projectHistory.createdAt))

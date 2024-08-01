@@ -30,6 +30,7 @@ import {
   staticResourcePath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
+import { ActionType, projectHistoryPath } from '@etherealengine/common/src/schemas/projects/project-history.schema'
 import { HookContext } from '../../../declarations'
 import { StaticResourceService } from '../../media/static-resource/static-resource.class'
 import staticResourceHooks from '../../media/static-resource/static-resource.hooks'
@@ -39,7 +40,6 @@ import { ProjectPermissionService } from '../project-permission/project-permissi
 import projectPermissionHooks from '../project-permission/project-permission.hooks'
 import { ProjectService } from '../project/project.class'
 import projectHooks from '../project/project.hooks'
-import { ActionType, projectHistoryPath } from './project-history.schema'
 
 const updateProjectPermissionHistory = async (context: HookContext<ProjectPermissionService>) => {
   const data = context.result

@@ -26,8 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import type { Params } from '@feathersjs/feathers'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
+import {
+  ProjectHistoryData,
+  ProjectHistoryQuery,
+  ProjectHistoryType
+} from '@etherealengine/common/src/schemas/projects/project-history.schema'
 import { Application } from '@etherealengine/server-core/declarations'
-import { ProjectHistoryData, ProjectHistoryQuery, ProjectHistoryType } from './project-history.schema'
 
 export interface ProjectHistoryParams extends KnexAdapterParams<ProjectHistoryQuery> {}
 
