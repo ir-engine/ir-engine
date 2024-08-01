@@ -41,7 +41,7 @@ import { SourceComponent } from '@etherealengine/engine/src/scene/components/Sou
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -50,6 +50,7 @@ import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
 import { DnDFileType, FileType } from '../../Files/container'
 import { SceneElementType } from '../../Properties/elementList'
+import LoadingOverlay from '../overlay/LoadingOverlay'
 import GizmoTool from '../tools/GizmoTool'
 import GridTool from '../tools/GridTool'
 import PlayModeTool from '../tools/PlayModeTool'
@@ -61,6 +62,23 @@ import TransformSpaceTool from '../tools/TransformSpaceTool'
 
 const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
   const projectName = useMutableState(EditorState).projectName
+  const [isLoading, setIsLoading] = useState(false)
+  const [itemsToLoad, setItemsToLoad] = useState(0)
+
+  const incrementItemsToLoad = () => {
+    setItemsToLoad((prev) => prev + 1)
+    setIsLoading(true)
+  }
+
+  const decrementItemsToLoad = () => {
+    setItemsToLoad((prev) => {
+      const newCount = prev - 1
+      if (newCount === 0) {
+        setIsLoading(false)
+      }
+      return newCount
+    })
+  }
 
   const [{ isDragging }, dropRef] = useDrop({
     accept: [ItemTypes.Component, ...SupportedFileTypes],
@@ -68,15 +86,21 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
       isDragging: monitor.getItem() !== null && monitor.canDrop() && monitor.isOver()
     }),
     drop(item: SceneElementType | FileType | DnDFileType, monitor) {
+      incrementItemsToLoad()
+
       const vec3 = new Vector3()
       getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
+
       if ('componentJsonID' in item) {
         EditorControlFunctions.createObjectFromSceneElement([
           { name: item.componentJsonID },
           { name: TransformComponent.jsonID, props: { position: vec3 } }
         ])
+        decrementItemsToLoad()
       } else if ('url' in item) {
-        addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+        addMediaNode(item.url, undefined, undefined, [
+          { name: TransformComponent.jsonID, props: { position: vec3 } }
+        ]).then(decrementItemsToLoad)
       } else if ('files' in item) {
         const dropDataTransfer: DataTransfer = monitor.getItem()
 
@@ -95,14 +119,19 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
               }).promise as Promise<string>
             } catch (err) {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
+              return null
             }
           })
         ).then((urls) => {
           const vec3 = new Vector3()
-          urls.forEach((url) => {
-            if (!url) return
-            addMediaNode(url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
-          })
+          Promise.all(
+            urls.map((url) => {
+              if (!url) return Promise.resolve()
+              return addMediaNode(url, undefined, undefined, [
+                { name: TransformComponent.jsonID, props: { position: vec3 } }
+              ])
+            })
+          ).then(decrementItemsToLoad)
         })
       }
     }
@@ -114,6 +143,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
       className={twMerge('h-full w-full border border-white', isDragging ? 'border-4' : 'border-none')}
     >
       {children}
+      <LoadingOverlay isLoading={isLoading} />
     </div>
   )
 }
