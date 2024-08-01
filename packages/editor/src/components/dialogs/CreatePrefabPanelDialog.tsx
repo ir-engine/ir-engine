@@ -38,6 +38,7 @@ import {
 } from '@etherealengine/ecs'
 import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
 import { getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
@@ -103,8 +104,10 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
 
       removeEntity(prefabEntity)
       EditorControlFunctions.removeObject([entity])
+      const sceneID = getComponent(parentEntity, SourceComponent)
       const reactor = startReactor(() => {
         const documentState = useHookstate(getMutableState(GLTFDocumentState))
+        const nodes = documentState[sceneID].nodes
         useEffect(() => {
           if (!entityExists(entity)) {
             const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
@@ -116,8 +119,10 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
             )
             getMutableState(SelectionState).selectedEntities.set([entityUUID])
             reactor.stop()
+          } else {
+            console.log('Entity not removed')
           }
-        }, [documentState])
+        }, [nodes])
         return null
       })
       PopoverState.hidePopupover()
