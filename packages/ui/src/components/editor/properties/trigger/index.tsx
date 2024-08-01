@@ -138,7 +138,6 @@ const TriggerProperties: EditorComponentType = (props) => {
       {triggerComponent.triggers.map((trigger, index) => {
         const targetOption = targets.value.find((o) => o.value === trigger.target.value)
         const target = targetOption ? targetOption.value : ''
-        console.log('debug1 ', targetOption, 'and', targetOption?.callbacks.length)
         return (
           <div className="-ml-4 h-[calc(100%+1.5rem)] w-[calc(100%+2rem)] bg-[#1A1A1A] pb-1.5">
             <Button

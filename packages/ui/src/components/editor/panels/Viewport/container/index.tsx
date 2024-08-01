@@ -189,7 +189,7 @@ const SceneLoadingProgress = ({ rootEntity }) => {
   return (
     <LoadingView
       fullSpace
-      className="mb-2 flex h-1/2 w-1/2 justify-center"
+      className="block h-12 w-12"
       title={t('editor:loadingScenesWithProgress', { progress, assetsLeft: resourcePendingQuery.length })}
     />
   )
@@ -209,8 +209,8 @@ const ViewPortPanelContainer = () => {
 
   return (
     <ViewportDnD>
-      <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
-        <div ref={toolbarRef} className="z-10 flex gap-1 bg-theme-primary p-1">
+      <div className="relative z-30 flex h-full w-full flex-col">
+        <div ref={toolbarRef} className="z-10 flex gap-1 bg-theme-studio-surface p-1">
           <TransformSpaceTool />
           <TransformPivotTool />
           <GridTool />
