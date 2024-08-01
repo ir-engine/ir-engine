@@ -330,6 +330,7 @@ const createObjectFromSceneElement = (
   }
   return { entityUUID, sceneID: sceneIDUsed }
 }
+
 /**
  * @todo copying an object should be rooted to which object is currently selected
  */
@@ -666,6 +667,7 @@ const removeObject = (entities: Entity[]) => {
     dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
 }
+
 const collectNodesToRemove = (gltfData: GLTF.IGLTF, uuidsToRemove: Set<EntityUUID>): Set<number> => {
   const nodesToRemove = new Set<number>()
 
