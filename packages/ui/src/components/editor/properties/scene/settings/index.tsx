@@ -28,7 +28,6 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { EntityUUID, defineQuery } from '@etherealengine/ecs'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
@@ -217,7 +216,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
             {t('editor:properties.sceneSettings.generate')}
           </Button>
           {state.uploadingThumbnail.value ? (
-            <LoadingCircle />
+            <LoadingView spinnerOnly />
           ) : (
             <Button onClick={uploadThumbnail} disabled={!state.thumbnail.value} className="mt-2 w-full">
               {t('editor:properties.sceneSettings.save')}
