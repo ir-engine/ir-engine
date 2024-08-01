@@ -37,11 +37,6 @@ module.exports = {
           return acc;
         }, {})
       },
-      backgroundImage: {
-        'gradient-onboarding': 'linear-gradient(180deg, #0A0A0A 0%, #262626 100%)',
-        'text-gradient-onboarding': 'linear-gradient(275deg, #4195FB 4.98%, #4E9CFB 61.64%, #A5CDFD 97.96%)',
-        'button-gradient-onboarding': 'linear-gradient(96deg, #375DAF 57.63%, #6481C1 100%)'
-      },
       textColor: {
         theme: {
           input: 'var(--text-input)',
