@@ -141,7 +141,7 @@ function assertFogSettingsComponentEq(A, B): void {
   assertFloatApproxEq(A.height, B.height)
 }
 
-describe.only('FogSettingsComponent', () => {
+describe('FogSettingsComponent', () => {
   describe('IDs', () => {
     it('should initialize the FogSettingsComponent.name field with the expected value', () => {
       assert.equal(FogSettingsComponent.name, 'FogSettingsComponent')
