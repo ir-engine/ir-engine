@@ -27,7 +27,7 @@ import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
+import { FileBrowserPatch, fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 
 import { Application } from '../../../declarations'
 
@@ -51,13 +51,24 @@ export class FileBrowserUploadService implements ServiceInterface<string[], any,
       await Promise.all(
         params.files.map((file, i) => {
           const args = data[i]
-          return this.app.service(fileBrowserPath).patch(null, {
+
+          const patchArgs: FileBrowserPatch = {
             ...args,
             project: args.project,
             path: args.path,
             body: file.buffer as Buffer,
-            contentType: file.mimetype
-          })
+            contentType: args.contentType || file.mimetype
+          }
+
+          if (args.thumbnailKey) {
+            patchArgs.thumbnailKey = args.thumbnailKey
+          }
+
+          if (args.tags) {
+            patchArgs.tags = args.tags
+          }
+
+          return this.app.service(fileBrowserPath).patch(null, patchArgs)
         })
       )
     ).map((result) => result.url)
