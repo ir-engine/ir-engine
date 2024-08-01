@@ -38,8 +38,7 @@ const componentTypes = {
   a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props} />
 }
 
-export interface TextProps extends React.HTMLAttributes<HTMLElement> {
-  fontFamily?: 'Figtree' | string
+export interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
   fontSize?: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl'
   fontWeight?: 'light' | 'normal' | 'semibold' | 'medium' | 'bold'
   component?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'a'
@@ -49,7 +48,6 @@ export interface TextProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 const Text = ({
-  fontFamily = 'Figtree',
   fontSize = 'base',
   fontWeight = 'normal',
   className,
@@ -62,7 +60,7 @@ const Text = ({
 
   const twClassName = twMerge(
     'inline-block leading-normal',
-    `font-${fontWeight} font-['${fontFamily}'] text-${fontSize} text-theme-${theme}`,
+    `font-${fontWeight} text-${fontSize} text-theme-${theme}`,
     className
   )
 

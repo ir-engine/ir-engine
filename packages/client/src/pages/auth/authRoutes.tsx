@@ -27,8 +27,7 @@ import { t } from 'i18next'
 import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import $magiclink from './magiclink'
 import $apple from './oauth/apple'
 import $discord from './oauth/discord'
@@ -40,7 +39,7 @@ import $twitter from './oauth/twitter'
 
 const AuthRoutes = () => {
   return (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingAuth')} />}>
+    <Suspense fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingAuth')} />}>
       <Routes>
         <Route path="oauth/apple" element={<$apple />} />
         <Route path="oauth/discord" element={<$discord />} />
