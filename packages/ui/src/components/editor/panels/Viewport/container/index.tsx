@@ -98,9 +98,12 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
         ])
         decrementItemsToLoad()
       } else if ('url' in item) {
-        addMediaNode(item.url, undefined, undefined, [
-          { name: TransformComponent.jsonID, props: { position: vec3 } }
-        ]).then(decrementItemsToLoad)
+        addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+          .catch((error) => {
+            console.error('Error adding media node:', error)
+            NotificationService.dispatchNotify('Error adding media node', { variant: 'error' })
+          })
+          .finally(decrementItemsToLoad)
       } else if ('files' in item) {
         const dropDataTransfer: DataTransfer = monitor.getItem()
 
@@ -122,17 +125,28 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
               return null
             }
           })
-        ).then((urls) => {
-          const vec3 = new Vector3()
-          Promise.all(
-            urls.map((url) => {
-              if (!url) return Promise.resolve()
-              return addMediaNode(url, undefined, undefined, [
-                { name: TransformComponent.jsonID, props: { position: vec3 } }
-              ])
-            })
-          ).then(decrementItemsToLoad)
-        })
+        )
+          .then((urls) => {
+            const vec3 = new Vector3()
+            Promise.all(
+              urls.map((url) => {
+                if (!url) return Promise.resolve()
+                return addMediaNode(url, undefined, undefined, [
+                  { name: TransformComponent.jsonID, props: { position: vec3 } }
+                ])
+              })
+            )
+              .catch((error) => {
+                console.error('Error adding media nodes:', error)
+                NotificationService.dispatchNotify('Error adding media nodes', { variant: 'error' })
+              })
+              .finally(decrementItemsToLoad)
+          })
+          .catch((error) => {
+            console.error('Error uploading files:', error)
+            NotificationService.dispatchNotify('Error uploading files', { variant: 'error' })
+            decrementItemsToLoad()
+          })
       }
     }
   })

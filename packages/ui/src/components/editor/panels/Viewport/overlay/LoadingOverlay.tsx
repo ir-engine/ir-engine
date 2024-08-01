@@ -10,7 +10,6 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isLoading }) => {
   useEffect(() => {
     let timeout: NodeJS.Timeout
     if (isLoading) {
-      // immediately dim viewport
       timeout = setTimeout(() => setShowSpinner(true), 500) // show spinner after 500ms
     } else {
       setShowSpinner(false)
@@ -21,6 +20,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isLoading }) => {
   if (!isLoading) return null
 
   return (
+    // immediately dim viewport
     <div className="absolute inset-0 z-[80] flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300">
       {showSpinner && (
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
