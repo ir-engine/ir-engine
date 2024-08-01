@@ -330,60 +330,6 @@ const createObjectFromSceneElement = (
   }
   return { entityUUID, sceneID: sceneIDUsed }
 }
-const createPrefabObjectFromSceneElement = (
-  componentJson: ComponentJsonType[] = [],
-  originalEntity: Entity,
-  parentEntity = getState(EditorState).rootEntity,
-  beforeEntity?: Entity
-) => {
-  const scenes = getSourcesForEntities([parentEntity])
-  const entityUUID: EntityUUID =
-    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
-  const sceneIDUsed = Object.keys(scenes)[0]
-  for (const [sceneID, entities] of Object.entries(scenes)) {
-    const name = 'New Object'
-    const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
-
-    const nodeIndex = gltf.data.nodes!.length
-
-    const extensions = {} as Record<string, any>
-    for (const comp of componentJson) {
-      extensions[comp.name] = {
-        ...componentJsonDefaults(ComponentJSONIDMap.get(comp.name)!),
-        ...comp.props
-      }
-    }
-    if (!extensions[UUIDComponent.jsonID]) {
-      extensions[UUIDComponent.jsonID] = entityUUID
-    }
-    if (!extensions[VisibleComponent.jsonID]) {
-      extensions[VisibleComponent.jsonID] = true
-    }
-
-    const node = {
-      name,
-      extensions
-    } as GLTF.INode
-
-    gltf.data.nodes!.push(node)
-
-    if (parentEntity === getState(EditorState).rootEntity) {
-      const sceneIndex = 0 // TODO: how should this work? gltf.data.scenes!.findIndex((s) => s.nodes.includes(nodeIndex))
-
-      let beforeIndex = gltf.data.scenes![sceneIndex].nodes.length
-
-      gltf.data.scenes![sceneIndex].nodes.splice(beforeIndex, 0, nodeIndex)
-    }
-    //remove original entity
-    const uuidsToRemove = new Set<EntityUUID>([getComponent(originalEntity, UUIDComponent)])
-    const nodesToRemove = collectNodesToRemove(gltf.data, uuidsToRemove)
-    removeNodes(gltf.data, nodesToRemove)
-    compactNodes(gltf.data)
-    dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
-    getMutableState(SelectionState).selectedEntities.set([])
-  }
-  return { entityUUID, sceneID: sceneIDUsed }
-}
 /**
  * @todo copying an object should be rooted to which object is currently selected
  */
@@ -858,7 +804,6 @@ export const EditorControlFunctions = {
   modifyName,
   modifyMaterial,
   createObjectFromSceneElement,
-  createPrefabObjectFromSceneElement,
   duplicateObject,
   positionObject,
   rotateObject,
