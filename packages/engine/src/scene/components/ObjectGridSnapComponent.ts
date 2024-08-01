@@ -221,8 +221,7 @@ export const ObjectGridSnapComponent = defineComponent({
       //compute bounding box
       const bbox = snapComponent.bbox.value.makeEmpty()
       if (meshes.length > 0) {
-        bbox.setFromObject(meshes[0])
-        for (let i = 1; i < meshes.length; i++) {
+        for (let i = 0; i < meshes.length; i++) {
           bbox.expandByObject(meshes[i])
         }
       } else {
