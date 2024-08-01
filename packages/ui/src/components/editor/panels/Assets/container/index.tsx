@@ -78,7 +78,11 @@ const generateParentBreadcrumbCategories = (categories: readonly Category[], tar
   const findNestingCategories = (nestedCategory: Record<string, any>, parentCategory: string): Category[] => {
     for (const key in nestedCategory) {
       if (key === target) {
-        return [categories.find((c) => c.name === parentCategory)!]
+        const foundCategory = categories.find((c) => c.name === parentCategory)
+        if (foundCategory) {
+          return [foundCategory]
+        }
+        return []
       } else if (typeof nestedCategory[key] === 'object' && nestedCategory[key] !== null) {
         const nestedCategories = findNestingCategories(nestedCategory[key], key)
         if (nestedCategories.length) {
@@ -348,7 +352,7 @@ export function AssetsBreadcrumb({
   onSelectCategory: (c: Category) => void
 }) {
   return (
-    <div className="flex h-[28px] items-center gap-2 rounded-[4px] border border-[#42454D] bg-[#141619] px-2">
+    <div className="flex h-[28px] items-center gap-2 rounded-[4px] border border-theme-input bg-[#141619] px-2 ">
       <HiOutlineFolder className="text-xs text-[#A3A3A3]" />
       {parentCategories.map((category) => (
         <span
@@ -457,7 +461,7 @@ const AssetPanel = () => {
           $like: `%${searchText.value}%`
         },
         type: {
-          $or: [{ type: 'file' }, { type: 'asset' }]
+          $or: [{ type: 'asset' }]
         },
         tags: selectedCategory.value
           ? {
@@ -494,6 +498,11 @@ const AssetPanel = () => {
     debouncedSearchQuery()
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
   }
+
+  //reset pagination when search text changes
+  useEffect(() => {
+    staticResourcesPagination.currentPage.set(0)
+  }, [searchText])
 
   useEffect(() => {
     staticResourcesFindApi()
