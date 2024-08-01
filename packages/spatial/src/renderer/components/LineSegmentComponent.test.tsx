@@ -27,9 +27,27 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
-import { BoxGeometry, LineBasicMaterial, LineSegments, MeshBasicMaterial, SphereGeometry } from 'three'
+import {
+  BoxGeometry,
+  BufferGeometry,
+  Color,
+  ColorRepresentation,
+  LineBasicMaterial,
+  LineSegments,
+  Material,
+  MeshBasicMaterial,
+  SphereGeometry
+} from 'three'
 
-import { getComponent, getMutableComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs'
+import {
+  Entity,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  UndefinedEntity
+} from '@etherealengine/ecs'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
@@ -41,7 +59,7 @@ import { GroupComponent } from './GroupComponent'
 import { LineSegmentComponent } from './LineSegmentComponent'
 import { ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 
-describe('LineSegmentComponent', () => {
+describe('LineSegmentComponent : todo.Organize', () => {
   beforeEach(async () => {
     createEngine()
   })
@@ -226,4 +244,66 @@ describe('LineSegmentComponent', () => {
       done()
     })
   })
+})
+
+const LineSegmentComponentDefaults = {
+  name: 'line-segment',
+  geometry: null! as BufferGeometry,
+  material: new LineBasicMaterial() as Material & { color: Color },
+  color: undefined as undefined | ColorRepresentation,
+  layerMask: ObjectLayers.NodeHelper,
+  entity: undefined as undefined | Entity
+}
+
+function assertLineSegmentComponentEq(A, B) {
+  assert.equal(A.name, B.name)
+  assert.deepEqual(A.geometry, B.geometry)
+  assert.deepEqual(A.material, B.material)
+  assert.deepEqual(A.color, B.color)
+  assert.equal(A.layerMask, B.layerMask)
+  assert.equal(A.entity, B.entity)
+}
+
+describe('LineSegmentComponent', () => {
+  describe('IDs', () => {
+    it('should initialize the LineSegmentComponent.name field with the expected value', () => {
+      assert.equal(LineSegmentComponent.name, 'LineSegmentComponent')
+    })
+  }) //:: IDs
+
+  describe('onInit', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, LineSegmentComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should initialize the component with the expected default values', () => {
+      const data = getComponent(testEntity, LineSegmentComponent)
+      assertLineSegmentComponentEq(data, LineSegmentComponentDefaults)
+    })
+  }) //:: onInit
+
+  describe('onSet', () => {
+    // it('should change the values of an initialized LineSegmentComponent', () => {})
+    // it('should not change values of an initialized LineSegmentComponent when the data passed had incorrect types', () => {})
+    // it('should throw an error if the data assigned does not provide a valid `LineSegmentComponent.geometry` object', () => {})
+  }) //:: onSet
+
+  describe('reactor', () => {
+    // it('should ??@todo when it mounts', () => {})
+    // it('should ??@todo when it unmounts', () => {})
+    // it('should trigger when component.name changes', () => {})
+    // it('should trigger when component.layerMask changes', () => {})
+    // it('should trigger when component.color changes', () => {})
+    // it('should trigger when component.geometry changes', () => {})
+    // it('should trigger when component.material changes', () => {})
+  }) //:: reactor
 })
