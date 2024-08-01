@@ -58,7 +58,7 @@ export const RadioRoot = ({
           name={label}
           onChange={onChange}
           disabled={disabled}
-          className="mr-2 h-3 w-3 shrink-0 appearance-none rounded-full border border-[#212226] bg-[#141619] bg-clip-content checked:border-blue-primary checked:bg-blue-500 checked:p-[2px] indeterminate:hover:border-[#9CA0AA]  focus:ring-blue-primary disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-800"
+          className="mr-2 h-4 w-4 shrink-0 appearance-none rounded-full border border-[#212226] bg-[#141619] bg-clip-content checked:border-blue-primary checked:bg-blue-500 checked:p-[2px] indeterminate:hover:border-[#9CA0AA]  focus:ring-blue-primary disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-800"
         />
         {label}
       </label>
