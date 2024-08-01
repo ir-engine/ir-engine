@@ -77,7 +77,7 @@ const Toolbar = ({
     //             onClick={toggleDetecting}
     //             icon={
     //               detectingStatus === 'loading' ? (
-    //                 <LoadingCircle className={`block w-6 h-6 top-0`} />
+    //                 <LoadingView fullScreen className="block h-12 w-12" />
     //               ) : (
     //                 <svg
     //                   className={`block w-6 h-6`}
@@ -201,7 +201,7 @@ const Toolbar = ({
     //             onClick={toggleWebcam}
     //             icon={
     //               videoStatus === 'loading' ? (
-    //                 <LoadingCircle className={`block w-6 h-6`} />
+    //                 <LoadingView spinnerOnly className={`block w-6 h-6`} />
     //               ) : (
     //                 <CameraIcon className={`block w-6 h-6`} />
     //               )

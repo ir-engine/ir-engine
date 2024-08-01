@@ -811,7 +811,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           {t('editor:layout.filebrowser.uploadFolder')}
         </Button>
       </div>
-      {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}
+      {isLoading && (
+        <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} fullSpace className="block h-12 w-12" />
+      )}
       <GeneratingThumbnailsProgress />
       <div id="file-browser-panel" className="h-full overflow-auto">
         <DndWrapper id="file-browser-panel">
