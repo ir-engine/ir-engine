@@ -68,7 +68,7 @@ import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
 import { FiDownload, FiGrid, FiRefreshCcw } from 'react-icons/fi'
-import { HiOutlinePlusCircle } from 'react-icons/hi'
+import { HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { PiFolderPlusBold } from 'react-icons/pi'
@@ -466,28 +466,26 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
 
     return (
-      <nav
-        className="flex h-full w-full rounded-[4px] border border-theme-primary bg-theme-primary text-xs text-[#A3A3A3]"
-        aria-label="Breadcrumb"
-      >
-        <span className="flex h-full w-full items-center justify-center space-x-2 overflow-x-auto whitespace-nowrap px-4">
+      <nav className="flex items-center rounded-lg border border-theme-input bg-[#141619] px-2" aria-label="Breadcrumb">
+        <HiOutlineFolder className="text-sm text-[#A3A3A3]" />
+        <span className="flex h-full w-full items-center overflow-x-auto whitespace-nowrap px-4">
           {breadcrumbDirectoryFiles.map((file, index, arr) => (
             <Fragment key={index}>
               {index !== 0 && ( // Add separator for all but the first item
-                <span className="cursor-default align-middle text-xs">{'>'}</span>
+                <span className="mx-1 cursor-default items-center text-sm text-[#A3A3A3]"> {'>'} </span>
               )}
               {index === arr.length - 1 || (orgName && index === 0) ? (
                 <span className="overflow-hidden">
-                  <span className="inline-block w-full cursor-default overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
+                  <span className="inline-block w-full cursor-default overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle text-sm text-[#A3A3A3]">
                     {file}
                   </span>
                 </span>
               ) : (
                 <a
-                  className="cursor-pointer overflow-hidden align-middle text-xs text-[#A3A3A3] hover:text-theme-highlight hover:underline focus:text-theme-highlight"
+                  className="inline-flex cursor-pointer items-center overflow-hidden text-sm text-[#A3A3A3] hover:text-theme-highlight hover:underline focus:text-theme-highlight"
                   onClick={() => handleBreadcrumbDirectoryClick(file)}
                 >
-                  <span className="inline-block w-full overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
+                  <span className="inline-block w-full cursor-default overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle text-sm text-[#A3A3A3]">
                     {file}
                   </span>
                 </a>
@@ -652,7 +650,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         position={'bottom left'}
         trigger={
           <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
-            <Button variant="transparent" startIcon={<IoSettingsSharp />} className="p-0" />
+            <Button
+              variant="transparent"
+              startIcon={<IoSettingsSharp />}
+              className="h-7 w-7 rounded-lg bg-[#2F3137] p-0"
+            />
           </Tooltip>
         }
       >
@@ -706,7 +708,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       <div className="mb-1 flex h-8 items-center gap-2 bg-theme-surface-main">
         <div
           id="backDir"
-          className={`flex items-center ${
+          className={`flex h-7 w-7 items-center rounded-lg bg-[#2F3137] ${
             showBackButton ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
           }`}
         >
@@ -715,7 +717,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           </Tooltip>
         </div>
 
-        <div id="refreshDir" className="flex items-center">
+        <div id="refreshDir" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
           <Tooltip title={t('editor:layout.filebrowser.refresh')}>
             <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={refreshDirectory} />
           </Tooltip>
@@ -723,7 +725,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
         <ViewModeSettings />
 
-        <div className="w-30 flex h-7 flex-row items-center gap-1 rounded bg-theme-surfaceInput px-2 py-1">
+        <div className="w-30 flex h-7 flex-row items-center gap-1 rounded rounded-lg bg-[#2F3137] px-2 py-1 ">
           {viewModes.map(({ mode, icon }) => (
             <Button
               key={mode}
