@@ -60,7 +60,6 @@ const variants = {
   danger: 'bg-red-500',
   success: 'bg-teal-700',
   transparent: 'bg-transparent',
-  onboarding: 'bg-button-gradient-onboarding',
   sidebar: 'bg-[#141619]'
 }
 
