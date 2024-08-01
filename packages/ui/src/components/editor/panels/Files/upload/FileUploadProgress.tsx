@@ -32,7 +32,7 @@ export const FileUploadProgress = () => {
   const { t } = useTranslation()
   const [completed, total, progress] = useUploadingFiles()
 
-  return total || true ? (
+  return total ? (
     <div className="flex h-auto w-full justify-center pb-2 pt-2">
       <div className="flex w-1/2">
         <span className="inline-block pr-2 text-xs font-normal leading-none text-theme-primary">

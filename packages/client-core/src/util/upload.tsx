@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 
 import config from '@etherealengine/common/src/config'
-import { defineState, getMutableState, getState, none, useMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, useMutableState } from '@etherealengine/hyperflux'
 
 import '@etherealengine/common/src/utils/jsonUtils'
 
@@ -74,7 +74,6 @@ export const FileUploadState = defineState({
       {}
     )
     getMutableState(FileUploadState).merge(toMerge)
-    console.log(getState(FileUploadState))
   },
 
   updateFileUpload: (files: Array<File>, progress: number) => {
@@ -88,7 +87,6 @@ export const FileUploadState = defineState({
       {}
     )
     getMutableState(FileUploadState).merge(toMerge)
-    console.log(getState(FileUploadState))
   },
 
   endFileUpload: (files: Array<File>) => {
@@ -101,23 +99,7 @@ export const FileUploadState = defineState({
       {}
     )
     getMutableState(FileUploadState).merge(toMerge)
-    console.log(getState(FileUploadState))
   }
-
-  // reactor: () => {
-  //   const fileUploadState = useMutableState(FileUploadState)
-
-  //   useEffect(() => {
-  //     const files = fileUploadState.value
-  //     const toMerge = {}
-
-  //     for (const file in files) {
-  //       if (files[file] === 1) toMerge[file] = none
-  //     }
-
-  //     fileUploadState.merge(toMerge)
-  //   }, [fileUploadState])
-  // }
 })
 
 export const uploadToFeathersService = (

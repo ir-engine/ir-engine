@@ -64,6 +64,7 @@ import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
 import { FileIcon } from '../../Files/icon'
+import { FileUploadProgress } from '../../Files/upload/FileUploadProgress'
 import { AssetIconMap } from '../icons'
 
 type Category = {
@@ -654,6 +655,7 @@ const AssetPanel = () => {
           {t('editor:layout.filebrowser.uploadAssets')}
         </Button>
       </div>
+      <FileUploadProgress />
       <div className="flex h-full w-full" onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}>
         <CategoriesList
           categories={categories.value as Category[]}
