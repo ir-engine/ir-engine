@@ -32,7 +32,7 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   endIcon?: ReactNode
   children?: ReactNode
   size?: 'small' | 'medium' | 'large'
-  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success' | 'transparent' | 'onboarding' | 'sidebar'
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success' | 'transparent' | 'sidebar'
   disabled?: boolean
   fullWidth?: boolean
   rounded?: 'partial' | 'full' | 'none'
