@@ -110,7 +110,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
 
   return (
     <>
-      <div className="ml-auto mt-4 flex h-8 bg-zinc-900" id="add-component-popover">
+      <div className="ml-auto flex bg-zinc-900" id="add-component-popover">
         <Popup
           keepInside
           position={'left center'}
@@ -167,7 +167,7 @@ export const PropertiesPanelContainer = () => {
   const materialUUID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
 
   return (
-    <div className="flex h-full flex-col gap-2 overflow-y-auto rounded-[5px] bg-neutral-900 px-1">
+    <div className="flex h-full flex-col gap-0.5 overflow-y-auto rounded-[5px] bg-neutral-900 px-1">
       {materialUUID ? (
         <MaterialEditor materialUUID={materialUUID} />
       ) : uuid ? (
