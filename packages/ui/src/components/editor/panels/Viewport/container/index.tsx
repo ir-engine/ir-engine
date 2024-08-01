@@ -145,7 +145,7 @@ const SceneLoadingProgress = ({ rootEntity }) => {
   return (
     <LoadingView
       fullSpace
-      className="mb-2 flex h-1/2 w-1/2 justify-center"
+      className="block h-12 w-12"
       title={t('editor:loadingScenesWithProgress', { progress, assetsLeft: resourcePendingQuery.length })}
     />
   )

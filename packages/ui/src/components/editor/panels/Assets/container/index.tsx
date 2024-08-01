@@ -492,7 +492,7 @@ const AssetPanel = () => {
     if (loading.value) {
       return (
         <div className="col-start-2 flex items-center justify-center">
-          <LoadingView className="h-4 w-4" spinnerOnly />
+          <LoadingView title={t('editor:loadingAssets')} fullSpace className="block h-12 w-12" />
         </div>
       )
     }
