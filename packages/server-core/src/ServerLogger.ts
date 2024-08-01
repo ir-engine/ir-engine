@@ -178,12 +178,7 @@ export const logger = pino(
         }
 
         const defaultPairs = {
-          component: 'server-core',
-          event_name: '',
-          event_value: '',
-          userId: '',
-          location_id: '',
-          project_id: ''
+          component: 'server-core'
         }
         const defaultProperties = Object.keys(defaultPairs)
 
