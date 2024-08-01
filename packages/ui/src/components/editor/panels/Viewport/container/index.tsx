@@ -41,7 +41,7 @@ import { SourceComponent } from '@etherealengine/engine/src/scene/components/Sou
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -62,19 +62,19 @@ import TransformSpaceTool from '../tools/TransformSpaceTool'
 
 const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
   const projectName = useMutableState(EditorState).projectName
-  const [isLoading, setIsLoading] = useState(false)
-  const [itemsToLoad, setItemsToLoad] = useState(0)
+  const isLoading = useHookstate<boolean>(false)
+  const itemsToLoad = useHookstate<number>(0)
 
   const incrementItemsToLoad = () => {
-    setItemsToLoad((prev) => prev + 1)
-    setIsLoading(true)
+    itemsToLoad.set((prev) => prev + 1)
+    isLoading.set(true)
   }
 
   const decrementItemsToLoad = () => {
-    setItemsToLoad((prev) => {
+    itemsToLoad.set((prev) => {
       const newCount = prev - 1
       if (newCount === 0) {
-        setIsLoading(false)
+        isLoading.set(false)
       }
       return newCount
     })
@@ -157,7 +157,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
       className={twMerge('h-full w-full border border-white', isDragging ? 'border-4' : 'border-none')}
     >
       {children}
-      <LoadingOverlay isLoading={isLoading} />
+      <LoadingOverlay isLoading={isLoading.value} />
     </div>
   )
 }
