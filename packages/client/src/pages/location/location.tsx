@@ -27,10 +27,10 @@ import { t } from 'i18next'
 import React, { Suspense, useRef } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useEngineCanvas'
 import LocationPage from '@etherealengine/client-core/src/world/Location'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 const LocationRoutes = () => {
   const ref = useRef<HTMLElement>(document.body)
@@ -38,10 +38,13 @@ const LocationRoutes = () => {
 
   const projectsLoaded = useEngineInjection()
 
-  if (!projectsLoaded) return <LoadingCircle message={t('common:loader.loadingProjects')} />
+  if (!projectsLoaded)
+    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingProjects')} />
 
   return (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
+    <Suspense
+      fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingLocation')} />}
+    >
       <Routes>
         <Route path=":locationName" element={<LocationPage online />} />
       </Routes>
