@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Shader, WebGLRenderer } from 'three'
+import { Material, Mesh, Shader, WebGLRenderer } from 'three'
 
 import {
   Component,
@@ -31,15 +31,19 @@ import {
   defineComponent,
   defineQuery,
   getComponent,
-  getMutableComponent
+  getMutableComponent,
+  useComponent,
+  useEntityContext
 } from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
+import React, { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { MeshComponent } from '../components/MeshComponent'
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
 import { TransparencyDitheringPlugin } from './constants/plugins/TransparencyDitheringComponent'
-import { setMeshMaterial } from './materialFunctions'
+import { materialPrototypeMatches, setMeshMaterial, updateMaterialPrototype } from './materialFunctions'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './prototypes/MeshMatcapMaterial.mat'
@@ -115,6 +119,17 @@ export const MaterialStateComponent = defineComponent({
     for (const instanceEntity of materialComponent.instances) {
       setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
     }
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const materialComponent = useComponent(entity, MaterialStateComponent)
+
+    useEffect(() => {
+      if (materialComponent.prototypeEntity.value && !materialPrototypeMatches(entity)) updateMaterialPrototype(entity)
+    }, [materialComponent.prototypeEntity])
+
+    return null
   }
 })
 
@@ -136,8 +151,47 @@ export const MaterialInstanceComponent = defineComponent({
       if (materialComponent.instances.value)
         materialComponent.instances.set(materialComponent.instances.value.filter((instance) => instance !== entity))
     }
+  },
+  reactor: () => {
+    const entity = useEntityContext()
+    const materialComponent = useComponent(entity, MaterialInstanceComponent)
+    const meshComponent = useComponent(entity, MeshComponent)
+
+    if (Array.isArray(meshComponent.material.value))
+      return (
+        <>
+          {materialComponent.uuid.value.map((uuid, index) => (
+            <MaterialInstanceSubReactor key={uuid} index={index} uuid={uuid} entity={entity} />
+          ))}
+        </>
+      )
+
+    return (
+      <MaterialInstanceSubReactor
+        key={materialComponent.uuid.value[0]}
+        index={0}
+        uuid={materialComponent.uuid.value[0]}
+        entity={entity}
+      />
+    )
   }
 })
+
+const MaterialInstanceSubReactor = (props: { uuid: EntityUUID; entity: Entity; index: number }) => {
+  const { uuid, entity, index } = props
+  const materialStateEntity = UUIDComponent.useEntityByUUID(uuid)
+  const materialStateComponent = useComponent(materialStateEntity, MaterialStateComponent)
+  const meshComponent = useComponent(entity, MeshComponent)
+
+  useEffect(() => {
+    const mesh = meshComponent.value as Mesh
+    const material = materialStateComponent.material.value as Material
+    if (Array.isArray(mesh.material)) mesh.material[index] = material
+    mesh.material = material
+  }, [materialStateComponent.material])
+
+  return null
+}
 
 export const MaterialPrototypeComponent = defineComponent({
   name: 'MaterialPrototypeComponent',
