@@ -29,10 +29,10 @@ import React from 'react'
 import sinon from 'sinon'
 import { BoxGeometry, Color, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
-import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs'
+import { getComponent, hasComponent, removeComponent, setComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { State, getState } from '@etherealengine/hyperflux'
+import { getState, State } from '@etherealengine/hyperflux'
 
 import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { Geometry } from '../../common/constants/Geometry'
@@ -40,7 +40,7 @@ import { ResourceState } from '../../resources/ResourceState'
 import { GroupComponent } from './GroupComponent'
 import { MeshComponent, useMeshComponent } from './MeshComponent'
 
-describe('MeshComponent', () => {
+describe('MeshComponent : todo.Organize', () => {
   beforeEach(async () => {
     createEngine()
   })
@@ -233,4 +233,56 @@ describe('MeshComponent', () => {
       })
     })
   })
+})
+
+const MeshComponentDefaults = null! as Mesh
+
+function assertMeshComponentEq(A, B) {
+  assert.equal(Boolean(A), Boolean(B))
+  assert.equal(A.isMesh, B.isMesh)
+  /** @todo Check other properties */
+}
+
+describe('MeshComponent', () => {
+  describe('IDs', () => {
+    it('should initialize the MeshComponent.name field with the expected value', () => {
+      assert.equal(MeshComponent.name, 'MeshComponent')
+    })
+
+    it('should initialize the MeshComponent.jsonID field with the expected value', () => {
+      assert.equal(MeshComponent.jsonID, 'EE_mesh')
+    })
+  }) //:: IDs
+
+  describe('onInit', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      // setComponent(testEntity, MeshComponent) /** @todo @fix Throws an error without a Mesh */
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    //it('should initialize the component with the expected default values', () => {
+    //  const data = getComponent(testEntity, MeshComponent)
+    //  assertMeshComponentEq(data, MeshComponentDefaults)
+    //})
+  }) //:: onInit
+
+  describe('onSet', () => {
+    // it('should change the values of an initialized MeshComponent', () => {})
+    // it('should not change values of an initialized MeshComponent when the data passed had incorrect types', () => {})
+    // it('should throw an error if the data assigned does not provide a valid `MeshComponent.geometry` object', () => {})
+  }) //:: onSet
+
+  describe('reactor', () => {
+    // it('should trigger when component changes', () => {})
+    // it('should trigger when component.geometry changes', () => {})
+    // it('should trigger when component.material changes', () => {})
+  }) //:: reactor
 })
