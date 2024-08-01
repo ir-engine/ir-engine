@@ -46,7 +46,7 @@ import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
 import { clientContextParams } from '../util/contextParams'
 
-const logger = multiLogger.child({ component: 'system:location ', modifier: clientContextParams })
+const logger = multiLogger.child({ component: 'system:location', modifier: clientContextParams })
 
 type Props = {
   online?: boolean
@@ -70,8 +70,8 @@ const LocationPage = ({ online }: Props) => {
   useLoadEngineWithScene()
 
   useEffect(() => {
-    if (ready.value) logger.info({ event_name: 'enter_location', event_value: '' })
-    return () => logger.info({ event_name: 'exit_location', event_value: '' })
+    if (ready.value) logger.info({ event_name: 'enter_location' })
+    return () => logger.info({ event_name: 'exit_location' })
   }, [ready.value])
 
   return (

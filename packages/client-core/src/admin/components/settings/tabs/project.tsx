@@ -29,6 +29,7 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { ProjectSettingType, projectPath, projectSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
 import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
@@ -204,8 +205,10 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 endComponent={
                   setting.userId && (
                     <Tooltip
-                      title={t('admin:components.setting.project.lastUpdatedBy', { userId: setting.userId })}
-                      position="left center"
+                      title={t('admin:components.common.lastUpdatedBy', {
+                        userId: setting.userId,
+                        updatedAt: toDisplayDateTime(setting.updatedAt)
+                      })}
                     >
                       <HiUser className="mr-2" />
                     </Tooltip>

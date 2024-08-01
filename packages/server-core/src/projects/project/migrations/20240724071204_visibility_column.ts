@@ -23,24 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
+import type { Knex } from 'knex'
 
-import { ITableHeadCell } from '../Table'
+import { projectPath } from '@etherealengine/common/src/schema.type.module'
 
-type IdType = 'name' | 'projectVersion' | 'enabled' | 'visibility' | 'commitSHA' | 'commitDate' | 'actions'
-
-export type ProjectRowType = Record<IdType, string | JSX.Element | undefined>
-
-interface IProjectColumn extends ITableHeadCell {
-  id: IdType
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const visibilityColumnExists = await knex.schema.hasColumn(projectPath, 'visibility')
+  if (!visibilityColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.string('visibility', 255).defaultTo('private')
+    })
+  }
 }
 
-export const projectsColumns: IProjectColumn[] = [
-  { id: 'name', sortable: true, label: t('admin:components.project.columns.name') },
-  { id: 'projectVersion', label: t('admin:components.project.columns.projectVersion') },
-  { id: 'enabled', label: t('admin:components.project.columns.enabled') },
-  { id: 'visibility', label: t('admin:components.project.columns.visibility') },
-  { id: 'commitSHA', label: t('admin:components.project.columns.commitSHA') },
-  { id: 'commitDate', sortable: true, label: t('admin:components.project.columns.commitDate') },
-  { id: 'actions', label: t('admin:components.project.columns.actions') }
-]
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const visibilityColumnExists = await knex.schema.hasColumn(projectPath, 'visibility')
+
+  if (visibilityColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.dropColumn('visibility')
+    })
+  }
+}
