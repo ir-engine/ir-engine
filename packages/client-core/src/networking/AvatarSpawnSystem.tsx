@@ -42,19 +42,17 @@ import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { SpectateActions } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
 
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
-import { SearchParamState } from '../common/services/RouterService'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   const { sceneEntity } = props
   const gltfLoaded = useComponent(sceneEntity, GLTFComponent).progress.value === 100
-  const searchParams = useMutableState(SearchParamState)
 
   const spawnAvatar = useHookstate(false)
   const spectateEntity = useHookstate(null as null | EntityUUID)

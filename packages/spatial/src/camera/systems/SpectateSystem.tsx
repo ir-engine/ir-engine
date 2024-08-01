@@ -106,7 +106,7 @@ const SpectatorReactor = () => {
   const state = useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID])
 
   useEffect(() => {
-    const cameraEntity = Engine.instance.viewerEntity
+    const cameraEntity = getState(EngineState).viewerEntity
 
     if (!state.spectating.value) {
       setComponent(cameraEntity, FlyControlComponent, {
