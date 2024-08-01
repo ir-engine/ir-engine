@@ -110,7 +110,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
 
   return (
     <>
-      <div className="ml-auto flex bg-zinc-900" id="add-component-popover">
+      <div className="flex w-full justify-end bg-theme-highlight" id="add-component-popover">
         <Popup
           keepInside
           position={'left center'}
@@ -121,7 +121,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
               startIcon={<HiOutlinePlusCircle />}
               variant="transparent"
               rounded="none"
-              className="ml-auto w-40 bg-theme-highlight px-2"
+              className="ml-auto w-40 bg-[#2F3137] px-2"
               size="small"
               onClick={() => setIsAddComponentMenuOpen(true)}
             >
