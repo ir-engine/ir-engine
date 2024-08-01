@@ -304,8 +304,8 @@ describe('regex.test', () => {
       positiveCases.forEach(({ url, projectName, assetPath }) => {
         const match = STATIC_ASSET_REGEX.exec(url)
         assert.ok(match, `Expected '${url}' to match STATIC_ASSET_REGEX`)
-        assert.equal(match?.[1], projectName, `Expected project name '${projectName}' in '${url}'. Found ${match?.[1]}`)
-        assert.equal(match?.[2], assetPath, `Expected asset path '${assetPath}' in '${url}'. Found ${match?.[2]}`)
+        assert.equal(match?.[2], projectName, `Expected project name '${projectName}' in '${url}'. Found ${match?.[2]}`)
+        assert.equal(match?.[3], assetPath, `Expected asset path '${assetPath}' in '${url}'. Found ${match?.[3]}`)
       })
     })
 
@@ -637,8 +637,8 @@ describe('regex.test', () => {
         'projects/@etherealengine/project123',
         'projects/@etherealengine/project-name',
         'projects/@etherealengine/project_name',
-        'projects/@etherealengine/project/123',
-        'projects/@etherealengine/project/abc_def'
+        'projects/project/123',
+        'projects/project/abc_def'
       ]
       positiveCases.forEach((value) => {
         assert.match(value, PROJECT_REGEX, `Expected '${value}' to match PROJECT_REGEX`)
@@ -662,8 +662,8 @@ describe('regex.test', () => {
         'projects/@etherealengine/project123/public/',
         'projects/@etherealengine/project-name/public/',
         'projects/@etherealengine/project_name/public/',
-        'projects/@etherealengine/project/123/public/',
-        'projects/@etherealengine/project/abc_def/public/'
+        'projects/project/123/public/',
+        'projects/project/abc_def/public/'
       ]
       positiveCases.forEach((value) => {
         assert.match(value, PROJECT_PUBLIC_REGEX, `Expected '${value}' to match PROJECT_PUBLIC_REGEX`)
@@ -690,8 +690,8 @@ describe('regex.test', () => {
         'projects/@etherealengine/project123/thumbnails/',
         'projects/@etherealengine/project-name/thumbnails/',
         'projects/@etherealengine/project_name/thumbnails/',
-        'projects/@etherealengine/project/123/thumbnails/',
-        'projects/@etherealengine/project/abc_def/thumbnails/'
+        'projects/project/123/thumbnails/',
+        'projects/project/abc_def/thumbnails/'
       ]
       positiveCases.forEach((value) => {
         assert.match(value, PROJECT_THUMBNAIL_REGEX, `Expected '${value}' to match PROJECT_THUMBNAIL_REGEX`)

@@ -46,12 +46,13 @@ export const CSS_URL_REGEX = /(@import\s+["']([^"']+)["']|url\((?!['"]?(?:data):
 export const ABSOLUTE_URL_PROTOCOL_REGEX = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/
 
 /**
- * Captures project name and asset path from a URL.
+ * Captures org name, project name and asset path from a URL.
  * For eg: `/path/to/projects/project123/assets/images/logo.png` will capture following groups
- * - `project123` => Group 1
- * - `assets/images/logo.png` => Group 2
+ * - `@org123` => Group 1
+ * - `project123` => Group 2
+ * - `assets/images/logo.png` => Group 3
  */
-export const STATIC_ASSET_REGEX = /^(?:.*\/(?:projects|static-resources)\/([^\/]*)\/((?:assets\/|).*)$)/
+export const STATIC_ASSET_REGEX = /^(?:.*\/(?:projects|static-resources)\/([^\/]*)\/([^\/]*)\/((?:assets\/|).*)$)/
 
 // =====================================================================
 // ========================= ID Regex Patterns =========================
@@ -117,7 +118,7 @@ export const ASSETS_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/assets\
 /**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes.
  */
-export const PROJECT_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+/
+export const PROJECT_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]/
 
 /**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/public/`.
@@ -127,7 +128,7 @@ export const PROJECT_PUBLIC_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\
 /**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/thumbnails/`.
  */
-export const PROJECT_THUMBNAIL_REGEX = /projects\+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/thumbnails\//
+export const PROJECT_THUMBNAIL_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/thumbnails\//
 
 export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
 
