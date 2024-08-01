@@ -27,10 +27,12 @@ import {
   Entity,
   EntityUUID,
   UUIDComponent,
+  UndefinedEntity,
   createEntity,
   destroyEngine,
   getComponent,
   getMutableComponent,
+  removeEntity,
   setComponent
 } from '@etherealengine/ecs'
 import { createEngine } from '@etherealengine/ecs/src/Engine'
@@ -41,13 +43,14 @@ import React from 'react'
 import { Fog, FogExp2, MathUtils, ShaderChunk } from 'three'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
+import { assertFloatApproxEq } from '../../physics/classes/Physics.test'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { RendererComponent } from '../WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './FogSettingsComponent'
 import { FogShaders } from './FogShaders'
 import { FogComponent } from './SceneComponents'
 
-describe('FogSettingsComponent', () => {
+describe('FogSettingsComponent : todo.Organize', () => {
   let rootEntity: Entity
   let entity: Entity
 
@@ -116,4 +119,75 @@ describe('FogSettingsComponent', () => {
     assert(ShaderChunk.fog_vertex == FogShaders.fog_vertex.brownianMotionFog)
     assert(ShaderChunk.fog_pars_vertex == FogShaders.fog_pars_vertex.brownianMotionFog)
   })
+})
+
+const FogSettingsComponentDefaults = {
+  type: FogType.Disabled as FogType,
+  color: '#FFFFFF',
+  density: 0.005,
+  near: 1,
+  far: 1000,
+  timeScale: 1,
+  height: 0.05
+}
+
+function assertFogSettingsComponentEq(A, B): void {
+  assert.equal(A.type, B.type)
+  assert.equal(A.color, B.color)
+  assertFloatApproxEq(A.density, B.density)
+  assert.equal(A.near, B.near)
+  assert.equal(A.far, B.far)
+  assert.equal(A.timeScale, B.timeScale)
+  assertFloatApproxEq(A.height, B.height)
+}
+
+describe.only('FogSettingsComponent', () => {
+  describe('IDs', () => {
+    it('should initialize the FogSettingsComponent.name field with the expected value', () => {
+      assert.equal(FogSettingsComponent.name, 'FogSettingsComponent')
+    })
+
+    it('should initialize the FogSettingsComponent.jsonID field with the expected value', () => {
+      assert.equal(FogSettingsComponent.jsonID, 'EE_fog')
+    })
+  }) //:: IDs
+
+  describe('onInit', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, FogSettingsComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should initialize the component with the expected default values', () => {
+      const data = getComponent(testEntity, FogSettingsComponent)
+      assertFogSettingsComponentEq(data, FogSettingsComponentDefaults)
+    })
+  }) //:: onInit
+
+  describe('toJSON', () => {
+    // it("should serialize the component's default data as expected", () => {})
+  }) //:: toJSON
+
+  describe('onSet', () => {
+    // it('should change the values of an initialized FogSettingsComponent', () => {})
+    // it('should not change values of an initialized FogSettingsComponent when the data passed had incorrect types', () => {})
+  }) //:: onSet
+
+  describe('reactor', () => {
+    // it('should trigger when fog.type changes', () => {})
+    // it('should trigger when fog.color changes', () => {})
+    // it('should trigger when fog.density changes', () => {})
+    // it('should trigger when fog.near changes', () => {})
+    // it('should trigger when fog.far changes', () => {})
+    // it('should trigger when fog.height changes', () => {})
+    // it('should trigger when fog.timeScale changes', () => {})
+  }) //:: reactor
 })
