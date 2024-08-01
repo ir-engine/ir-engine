@@ -92,7 +92,7 @@ describe('route.test', () => {
   })
 
   it('should find the installed project routes', async () => {
-    testProject = `test-project-${uuidv4()}`
+    testProject = `@org1/test-project-${uuidv4()}`
     testRoute = `test-route-${uuidv4()}`
 
     await app.service(projectPath).create({ name: testProject }, params)

@@ -28,13 +28,13 @@ import packagejson from '../../package.json'
 const engineVersion = packagejson.version
 
 export const repo1ManifestJSON = {
-  name: 'my-first-project',
+  name: '@myorg/my-first-project',
   version: '0.0.0',
   engineVersion
 }
 
 export const repo2ManifestJSON = {
-  name: 'my-second-project',
+  name: '@myorg/my-second-project',
   version: '0.0.0',
   engineVersion
 }

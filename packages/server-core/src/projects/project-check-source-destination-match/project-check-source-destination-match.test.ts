@@ -147,7 +147,7 @@ describe('project-check-source-destination-match.test', () => {
 
     before(async () => {
       createdProject = await app.service(projectPath).create({
-        name: 'my-first-project'
+        name: '@myorg/my-first-project'
       })
     })
 

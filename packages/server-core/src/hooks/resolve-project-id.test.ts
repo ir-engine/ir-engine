@@ -73,7 +73,7 @@ describe('resolve-project-id', () => {
   it('should find project id by name', async () => {
     const resolveProject = resolveProjectId()
     const project = await app.service(projectPath).create({
-      name: `Project #${Math.random()}`
+      name: `@org/project #${Math.random()}`
     })
     const hookContext = mockHookContext(app, { project: project.name })
     const contextUpdated = await resolveProject(hookContext)

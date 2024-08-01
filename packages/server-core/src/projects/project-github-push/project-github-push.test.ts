@@ -85,7 +85,7 @@ describe('project-github-push.test', () => {
   })
 
   before(async () => {
-    const projectName = `test-project-github-push-${uuidv4()}`
+    const projectName = `@org1/test-project-github-push-${uuidv4()}`
     testProject = await app
       .service(projectPath)
       .create({ name: projectName, repositoryPath: `https://github.com/test-user/${projectName}` })

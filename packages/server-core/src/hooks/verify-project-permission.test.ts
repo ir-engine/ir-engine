@@ -113,7 +113,7 @@ describe('verify-project-permission', () => {
       scopes: []
     })
     const project = await app.service(projectPath).create({
-      name: `Project #${Math.random()}`
+      name: `@org/project #${Math.random()}`
     })
 
     await app.service(projectPermissionPath).create({
@@ -142,7 +142,7 @@ describe('verify-project-permission', () => {
       scopes: []
     })
     const project = await app.service(projectPath).create({
-      name: `Project #${Math.random()}`
+      name: `@org/project #${Math.random()}`
     })
 
     await app.service(projectPermissionPath).create({
