@@ -40,11 +40,11 @@ import { createFeathersKoaApp } from '../../createApp'
 
 const params = { isInternal: true } as any
 
-const cleanup = async (app: Application, projectName: string) => {
-  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+const cleanup = async (app: Application, projectName: string, projectId: string) => {
+  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${projectName.split('/')[0]}/`)
   deleteFolderRecursive(projectDir)
   try {
-    await app.service(projectPath).remove(null, { query: { name: projectName } })
+    await app.service(projectPath).remove(projectId)
   } catch (e) {
     //
   }
@@ -80,6 +80,7 @@ describe('route.test', () => {
   let app: Application
   let testProject: string
   let testRoute: string
+  let testProjectId: string
 
   before(async () => {
     app = createFeathersKoaApp()
@@ -87,7 +88,7 @@ describe('route.test', () => {
   })
 
   after(async () => {
-    await cleanup(app, testProject)
+    await cleanup(app, testProject, testProjectId)
     await destroyEngine()
   })
 
@@ -95,7 +96,7 @@ describe('route.test', () => {
     testProject = `@org1/test-project-${uuidv4()}`
     testRoute = `test-route-${uuidv4()}`
 
-    await app.service(projectPath).create({ name: testProject }, params)
+    testProjectId = await (await app.service(projectPath).create({ name: testProject }, params)).id
     updateXREngineConfigForTest(testProject, testRoute)
 
     const installedRoutes = await app.service('routes-installed').find()

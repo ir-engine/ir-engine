@@ -45,7 +45,7 @@ import { createFeathersKoaApp } from '../../createApp'
 import { useGit } from '../../util/gitHelperFunctions'
 
 const cleanup = async (app: Application, projectName: string) => {
-  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${projectName.split('/')[0]}/`)
   deleteFolderRecursive(projectDir)
   const removingProjects = await app.service(projectPath).find({ query: { name: projectName } })
   if (removingProjects.data.length) await app.service(projectPath).remove(removingProjects.data[0].id)

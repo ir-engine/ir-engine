@@ -43,10 +43,10 @@ import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-const newProjectName1 = 'projecttest_test_project_name_1'
+const newProjectName1 = '@org/projecttest_test_project_name_1'
 
 const cleanup = async (app: Application) => {
-  const project1Dir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName1}/`)
+  const project1Dir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName1.split('/')[0]}/`)
   deleteFolderRecursive(project1Dir)
   try {
     await app.service(projectPath).remove(null, { query: { name: newProjectName1 } })
