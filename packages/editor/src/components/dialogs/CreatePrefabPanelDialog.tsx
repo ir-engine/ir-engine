@@ -102,7 +102,6 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
       await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags })
 
       removeEntity(prefabEntity)
-      await EditorControlFunctions.removeObject([entity])
       EditorControlFunctions.removeObject([entity])
       const reactor = startReactor(() => {
         const documentState = useHookstate(getMutableState(GLTFDocumentState))
