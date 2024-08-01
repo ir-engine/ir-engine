@@ -127,17 +127,17 @@ const SpectatorReactor = () => {
 }
 
 const SpectatingUserReactor = (props: { entityUUID: EntityUUID }) => {
-  const networkCameraEntity = UUIDComponent.useEntityByUUID(props.entityUUID)
+  const spectateEntity = UUIDComponent.useEntityByUUID(props.entityUUID)
 
   useEffect(() => {
-    if (!networkCameraEntity) return
+    if (!spectateEntity) return
 
     const cameraEntity = getState(EngineState).viewerEntity
     const cameraTransform = getComponent(cameraEntity, TransformComponent)
     setComponent(cameraEntity, ComputedTransformComponent, {
-      referenceEntities: [networkCameraEntity],
+      referenceEntities: [spectateEntity],
       computeFunction: () => {
-        const networkTransform = getOptionalComponent(networkCameraEntity, TransformComponent)
+        const networkTransform = getOptionalComponent(spectateEntity, TransformComponent)
         if (!networkTransform) return
         cameraTransform.position.copy(networkTransform.position)
         cameraTransform.rotation.copy(networkTransform.rotation)
@@ -146,7 +146,7 @@ const SpectatingUserReactor = (props: { entityUUID: EntityUUID }) => {
     return () => {
       removeComponent(cameraEntity, ComputedTransformComponent)
     }
-  }, [networkCameraEntity])
+  }, [spectateEntity])
 
   return null
 }
