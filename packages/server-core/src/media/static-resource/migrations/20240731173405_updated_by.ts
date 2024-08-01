@@ -50,6 +50,7 @@ export async function down(knex: Knex): Promise<void> {
   const updatedByColumnExists = await knex.schema.hasColumn(staticResourcePath, 'updatedBy')
   if (updatedByColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropForeign('updatedBy')
       table.dropColumn('updatedBy')
     })
   }
