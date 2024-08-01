@@ -67,8 +67,9 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
 
   const sceneModified = EditorState.useIsModified()
 
-  const submitLoading = useHookstate(false)
-  const isLoading = submitLoading.value || locationQuery.status === 'pending'
+  const publishLoading = useHookstate(false)
+  const unPublishLoading = useHookstate(false)
+  const isLoading = locationQuery.status === 'pending' || publishLoading.value || unPublishLoading.value
   const errors = useHookstate(getDefaultErrors())
 
   const name = useHookstate(location?.name || '')
@@ -100,7 +101,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
     }
   })
 
-  const handleSubmit = async () => {
+  const handlePublish = async () => {
     errors.set(getDefaultErrors())
 
     if (!name.value) {
@@ -116,7 +117,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
       return
     }
 
-    submitLoading.set(true)
+    publishLoading.set(true)
 
     if (sceneModified) {
       try {
@@ -127,7 +128,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
         await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
       } catch (e) {
         errors.serverError.set(e.message)
-        submitLoading.set(false)
+        publishLoading.set(false)
         return
       }
     }
@@ -163,12 +164,12 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
     } catch (err) {
       errors.serverError.set(err.message)
     }
-    submitLoading.set(false)
+    publishLoading.set(false)
   }
 
-  const unpublishLocation = async () => {
+  const unPublishLocation = async () => {
     if (location?.id) {
-      submitLoading.set(true)
+      unPublishLoading.set(true)
       try {
         await locationMutation.remove(location.id, { query: { projectId: location.projectId } })
         locationID.set(null)
@@ -176,7 +177,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
       } catch (err) {
         errors.serverError.set(err.message)
       }
-      submitLoading.set(false)
+      unPublishLoading.set(false)
     }
   }
 
@@ -288,17 +289,17 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
             {location?.id && (
               <Button
                 className="bg-[#162546]"
-                endIcon={isLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
+                endIcon={unPublishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
                 disabled={isLoading}
-                onClick={unpublishLocation}
+                onClick={unPublishLocation}
               >
                 {t('editor:toolbar.publishLocation.unpublish')}
               </Button>
             )}
             <Button
-              endIcon={isLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
+              endIcon={publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
               disabled={isLoading}
-              onClick={handleSubmit}
+              onClick={handlePublish}
             >
               {location?.id
                 ? t('common:components.update')

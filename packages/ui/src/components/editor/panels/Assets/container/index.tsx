@@ -487,33 +487,31 @@ const AssetPanel = () => {
   useEffect(() => staticResourcesPagination.skip.set(0), [searchText])
   useEffect(() => staticResourcesFindApi(), [searchText, selectedCategory, staticResourcesPagination.skip])
 
-  const ResourceItems = () => {
-    return (
-      <>
-        {searchedStaticResources.length === 0 && (
-          <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
-            {t('editor:layout.scene-assets.no-search-results')}
-          </div>
-        )}
-        {searchedStaticResources.length > 0 && (
-          <>
-            {searchedStaticResources.value.map((resource) => (
-              <ResourceFile
-                key={resource.id}
-                resource={resource as StaticResourceType}
-                selected={resource.url === assetsPreviewContext.selectAssetURL.value}
-                onClick={(props: AssetSelectionChangePropsType) => {
-                  assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
-                  ClickPlacementState.setSelectedAsset(props.resourceUrl)
-                }}
-                onChange={() => staticResourcesFindApi()}
-              />
-            ))}
-          </>
-        )}
-      </>
-    )
-  }
+  const ResourceItems = () => (
+    <>
+      {searchedStaticResources.length === 0 && (
+        <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
+          {t('editor:layout.scene-assets.no-search-results')}
+        </div>
+      )}
+      {searchedStaticResources.length > 0 && (
+        <>
+          {searchedStaticResources.value.map((resource) => (
+            <ResourceFile
+              key={resource.id}
+              resource={resource as StaticResourceType}
+              selected={resource.url === assetsPreviewContext.selectAssetURL.value}
+              onClick={(props: AssetSelectionChangePropsType) => {
+                assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
+                ClickPlacementState.setSelectedAsset(props.resourceUrl)
+              }}
+              onChange={() => staticResourcesFindApi()}
+            />
+          ))}
+        </>
+      )}
+    </>
+  )
 
   const handleBack = () => {
     if (!parentCategories.length) {
