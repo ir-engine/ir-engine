@@ -1212,6 +1212,7 @@
       "uploadAssets": "Upload Assets",
       "uploadFiles": "Upload Files",
       "uploadFolder": "Upload Folder",
+      "uploadingFiles": "Uploading Files ({{completed}}/{{total}})",
       "search-placeholder": "Search folders",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
