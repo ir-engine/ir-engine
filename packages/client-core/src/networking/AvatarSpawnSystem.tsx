@@ -32,6 +32,7 @@ import {
   Entity,
   EntityUUID,
   getComponent,
+  getOptionalComponent,
   PresentationSystemGroup,
   useComponent,
   useQuery,
@@ -42,26 +43,29 @@ import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { SpectateActions } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
+import { SearchParamState } from '../common/services/RouterService'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
+  if (!isClient) return null
   const { sceneEntity } = props
   const gltfLoaded = useComponent(sceneEntity, GLTFComponent).progress.value === 100
+  const searchParams = useMutableState(SearchParamState)
 
   const spawnAvatar = useHookstate(false)
   const spectateEntity = useHookstate(null as null | EntityUUID)
   const settingsQuery = useQuery([SceneSettingsComponent])
   useEffect(() => {
-    if (!settingsQuery.length) return
-    const sceneSettingsSpectateEntity = getComponent(settingsQuery[0], SceneSettingsComponent).spectateEntity
+    const sceneSettingsSpectateEntity = getOptionalComponent(settingsQuery[0], SceneSettingsComponent)?.spectateEntity
     spectateEntity.set(sceneSettingsSpectateEntity ?? (getSearchParamFromURL('spectate') as EntityUUID))
-  }, [settingsQuery])
+  }, [settingsQuery, searchParams])
 
   useEffect(() => {
     if (spectateEntity.value === null) return

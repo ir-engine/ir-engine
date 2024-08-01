@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import getImagePalette from 'image-palette-core'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
@@ -170,9 +170,6 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
   }
 
   const useSpectatingEntity = useState(sceneSettingsComponent.spectateEntity.value !== null)
-  useEffect(() => {
-    commitProperty(SceneSettingsComponent, 'spectateEntity')(useSpectatingEntity.value ? ('' as EntityUUID) : null)
-  }, [useSpectatingEntity])
 
   return (
     <PropertyGroup
@@ -185,7 +182,16 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         label={t('editor:properties.sceneSettings.lbl-spectate')}
         info={t('editor:properties.sceneSettings.info-spectate')}
       >
-        <BooleanInput value={useSpectatingEntity.value} onChange={useSpectatingEntity.set} />
+        <BooleanInput
+          value={useSpectatingEntity.value}
+          onChange={(value) => {
+            useSpectatingEntity.set(value)
+            commitProperty(
+              SceneSettingsComponent,
+              'spectateEntity'
+            )(useSpectatingEntity.value ? ('' as EntityUUID) : null)
+          }}
+        />
       </InputGroup>
       {useSpectatingEntity.value ? (
         <InputGroup
