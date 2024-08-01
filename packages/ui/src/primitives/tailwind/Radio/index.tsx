@@ -46,24 +46,22 @@ export const RadioRoot = ({
   const twClassname = twMerge('flex flex-col gap-2', className)
   return (
     <div className={twClassname}>
-      <div className="flex items-center">
-        <label
-          onClick={() => onChange({ target: { value } } as any)}
-          htmlFor={label}
-          className="cursor-pointer align-bottom text-sm font-medium text-theme-primary"
-        >
-          <input
-            type="radio"
-            checked={selected}
-            value={value}
-            name={label}
-            onChange={onChange}
-            disabled={disabled}
-            className="mr-2 h-3 w-3 shrink-0 appearance-none rounded-full border border-[#212226] bg-[#141619] bg-clip-content checked:border-blue-primary checked:bg-blue-500 checked:p-[2px] indeterminate:hover:border-[#9CA0AA]  focus:ring-blue-primary disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-800"
-          />
-          {label}
-        </label>
-      </div>
+      <label
+        onClick={() => onChange({ target: { value } } as any)}
+        htmlFor={label}
+        className="flex cursor-pointer items-center text-sm font-medium text-theme-primary"
+      >
+        <input
+          type="radio"
+          checked={selected}
+          value={value}
+          name={label}
+          onChange={onChange}
+          disabled={disabled}
+          className="mr-2 h-3 w-3 shrink-0 appearance-none rounded-full border border-[#212226] bg-[#141619] bg-clip-content checked:border-blue-primary checked:bg-blue-500 checked:p-[2px] indeterminate:hover:border-[#9CA0AA]  focus:ring-blue-primary disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-800"
+        />
+        {label}
+      </label>
       {description && <div className="ml-5 text-sm text-theme-primary">{description}</div>}
     </div>
   )
