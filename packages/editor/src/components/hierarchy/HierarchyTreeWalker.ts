@@ -27,7 +27,7 @@ import { ComponentType, getComponent, hasComponent } from '@etherealengine/ecs/s
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { getState } from '@etherealengine/hyperflux'
+import { HyperFlux, getState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { UUIDComponent } from '@etherealengine/ecs'
@@ -35,6 +35,7 @@ import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { GLTF } from '@gltf-transform/core'
+import { getAllEntities } from 'bitecs'
 import { EditorState } from '../../services/EditorServices'
 
 export type HierarchyTreeNodeType = {
@@ -175,17 +176,21 @@ export function gltfHierarchyTreeWalker(
  * @param  {entityNode}    expandedNodes
  */
 
-export function* hierarchyTreeWalker(sceneID: string, treeNode: Entity): Generator<HierarchyTreeNodeType> {
-  if (!treeNode) return
-
+export function* ecsHierarchyTreeWalker(sceneID: string): Generator<HierarchyTreeNodeType> {
   const stack = [] as HierarchyTreeNodeType[]
-
-  stack.push({ depth: 0, entity: treeNode, childIndex: 0, lastChild: true })
+  const entities = getAllEntities(HyperFlux.store).filter(
+    (entity) =>
+      hasComponent(entity as Entity, UUIDComponent) &&
+      (!hasComponent(entity as Entity, EntityTreeComponent) || !hasComponent(entity as Entity, SourceComponent))
+  ) as Entity[]
+  entities.forEach((entity) => {
+    stack.push({ depth: 0, entity: entity, childIndex: 0, lastChild: true })
+  })
 
   while (stack.length !== 0) {
     const { depth, entity: entityNode, childIndex, lastChild } = stack.pop() as HierarchyTreeNodeType
 
-    if (!entityExists(entityNode) || !hasComponent(entityNode, SourceComponent)) continue
+    if (!entityExists(entityNode)) continue
 
     const expandedNodes = getState(EditorState).expandedNodes
 
@@ -193,11 +198,15 @@ export function* hierarchyTreeWalker(sceneID: string, treeNode: Entity): Generat
 
     const entityTreeComponent = getComponent(entityNode as Entity, EntityTreeComponent)
 
+    const hasTreeComponent = hasComponent(entityNode, EntityTreeComponent)
+    const hasChildren = entityTreeComponent?.children.length > 0
+
+    const allhelperChildren = entityTreeComponent?.children?.every((child) => !hasComponent(child, SourceComponent))
+
     // treat entites with all helper children as leaf nodes
-    const allhelperChildren = entityTreeComponent.children.every((child) => !hasComponent(child, SourceComponent))
 
     yield {
-      isLeaf: entityTreeComponent.children.length === 0 || allhelperChildren,
+      isLeaf: !hasChildren || allhelperChildren,
       isCollapsed,
       depth,
       entity: entityNode,
@@ -205,10 +214,11 @@ export function* hierarchyTreeWalker(sceneID: string, treeNode: Entity): Generat
       lastChild
     }
 
+    if (!hasTreeComponent) continue
     if (entityTreeComponent.children.length !== 0 && !isCollapsed) {
       for (let i = entityTreeComponent.children.length - 1; i >= 0; i--) {
         const childEntity = entityTreeComponent.children[i]
-        if (hasComponent(childEntity, SourceComponent)) {
+        if (hasComponent(childEntity, UUIDComponent)) {
           stack.push({
             depth: depth + 1,
             entity: childEntity,

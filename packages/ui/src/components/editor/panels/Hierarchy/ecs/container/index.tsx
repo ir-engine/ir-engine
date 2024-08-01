@@ -49,7 +49,7 @@ import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
 import CreatePrefabPanel from '@etherealengine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
   HierarchyTreeNodeType,
-  gltfHierarchyTreeWalker
+  ecsHierarchyTreeWalker
 } from '@etherealengine/editor/src/components/hierarchy/HierarchyTreeWalker'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { CopyPasteFunctions } from '@etherealengine/editor/src/functions/CopyPasteFunctions'
@@ -63,7 +63,6 @@ import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gl
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
-import { GLTF } from '@gltf-transform/core'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../../primitives/tailwind/Button'
@@ -108,6 +107,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
   const [prevClickedNode, setPrevClickedNode] = useState<Entity | null>(null)
+  const sceneID = getComponent(rootEntity, SourceComponent)
+
   const onUpload = useUpload(uploadOptions)
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const expandedNodes = useHookstate(getMutableState(EditorState).expandedNodes)
@@ -200,7 +201,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
   }, [])
 
   useEffect(() => {
-    const hierarchy = gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[], showModelChildren)
+    const hierarchy = Array.from(ecsHierarchyTreeWalker(sceneID))
     if (didHierarchyChange(entityHierarchy.value as HierarchyTreeNodeType[], hierarchy)) entityHierarchy.set(hierarchy)
   }, [expandedNodes, index, gltfSnapshot, gltfState, selectionState.selectedEntities, showModelChildren])
 
