@@ -1,7 +1,7 @@
 {
     "info": {
-      "title": "Ethereal Engine API Surface",
-      "description": "APIs for the Ethereal Engine application",
+      "title": "iR Engine API Surface",
+      "description": "APIs for the iR Engine application",
       "version": "1.0.0"
     },
     "paths": {
