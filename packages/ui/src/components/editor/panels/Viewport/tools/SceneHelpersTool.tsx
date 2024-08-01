@@ -46,7 +46,7 @@ export default function SceneHelpersTool() {
     <div className="flex items-center gap-1">
       <Tooltip content={t('editor:toolbar.placement.click')}>
         <Button
-          startIcon={<LuMousePointerClick />}
+          startIcon={<LuMousePointerClick className="text-theme-input" />}
           onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
           variant={editorHelperState.placementMode.value === PlacementMode.CLICK ? 'outline' : 'transparent'}
           className="px-0"
@@ -54,7 +54,7 @@ export default function SceneHelpersTool() {
       </Tooltip>
       <Tooltip content={t('editor:toolbar.placement.drag')}>
         <Button
-          startIcon={<LuMove3D />}
+          startIcon={<LuMove3D className="text-theme-input" />}
           onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
           variant={editorHelperState.placementMode.value === PlacementMode.DRAG ? 'outline' : 'transparent'}
           className="px-0"
@@ -65,7 +65,7 @@ export default function SceneHelpersTool() {
         content={t('editor:toolbar.helpersToggle.info-helpers')}
       >
         <Button
-          startIcon={<RulerSvg />}
+          startIcon={<RulerSvg className="text-theme-input" />}
           onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
           variant={rendererState.physicsDebug.value ? 'outline' : 'transparent'}
           className={twMerge('px-0', rendererState.physicsDebug.value && 'border border-solid border-transparent')}
@@ -76,7 +76,7 @@ export default function SceneHelpersTool() {
         content={t('editor:toolbar.helpersToggle.info-nodeHelpers')}
       >
         <Button
-          startIcon={<ColliderAtomsSvg />}
+          startIcon={<ColliderAtomsSvg className="text-theme-input" />}
           onClick={() => rendererState.nodeHelperVisibility.set(!rendererState.nodeHelperVisibility.value)}
           variant={rendererState.nodeHelperVisibility.value ? 'outline' : 'transparent'}
           className={twMerge(
@@ -87,7 +87,7 @@ export default function SceneHelpersTool() {
       </Tooltip>
       <Tooltip title={t('editor:toolbar.sceneScreenshot.lbl')} content={t('editor:toolbar.sceneScreenshot.info')}>
         <Button
-          startIcon={<ScreenshotSvg />}
+          startIcon={<ScreenshotSvg className="text-theme-input" />}
           onClick={() => downloadScreenshot()}
           variant="transparent"
           className="border border-solid border-transparent px-0"

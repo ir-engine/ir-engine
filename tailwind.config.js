@@ -37,16 +37,13 @@ module.exports = {
           return acc;
         }, {})
       },
-      backgroundImage: {
-        'gradient-onboarding': 'linear-gradient(180deg, #0A0A0A 0%, #262626 100%)',
-        'text-gradient-onboarding': 'linear-gradient(275deg, #4195FB 4.98%, #4E9CFB 61.64%, #A5CDFD 97.96%)',
-        'button-gradient-onboarding': 'linear-gradient(96deg, #375DAF 57.63%, #6481C1 100%)'
-      },
       textColor: {
         theme: {
+          input: 'var(--text-input)',
           primary: 'var(--text-primary)',
           secondary: 'var(--text-secondary)',
           highlight: 'var(--text-highlight)',
+          'gray3': 'var(--text-gray3)',
           iconGreen: 'var(--icon-green)',
           iconRed: 'var(--icon-red)'
         }
@@ -60,6 +57,7 @@ module.exports = {
           'surface-main': 'var(--bg-surface-main)',
           'table-secondary': 'var(--bg-table-secondary)',
           'blue-secondary': 'var(--bg-blue-secondary)',
+          'studio-surface': 'var(--bg-studio-surface)',
           bannerInformative: 'var(--bg-banner-informative)',
           tagGreen: 'var(--bg-tag-green)',
           tagLime: 'var(--bg-tag-lime)',
@@ -69,7 +67,8 @@ module.exports = {
       },
       borderColor: {
         theme: {
-          primary: 'var(--border-primary)'
+          primary: 'var(--border-primary)',
+          input: 'var(--border-input)',
         }
       },
       colors: {

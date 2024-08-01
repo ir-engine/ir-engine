@@ -82,10 +82,10 @@ const TransformSnapTool = () => {
   }
 
   return (
-    <div id="transform-snap" className="flex items-center bg-theme-surfaceInput">
+    <div id="transform-snap" className="flex items-center">
       <Tooltip content={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')}>
         <Button
-          startIcon={<LuUtilityPole />}
+          startIcon={<LuUtilityPole className="text-theme-input" />}
           onClick={toggleAttachmentPointSnap}
           variant={objectSnapState.enabled.value ? 'outline' : 'transparent'}
           className="px-0"
@@ -93,7 +93,7 @@ const TransformSnapTool = () => {
       </Tooltip>
       <Tooltip content={t('editor:toolbar.transformSnapTool.toggleSnapMode')}>
         <Button
-          startIcon={<MdOutlineCenterFocusWeak />}
+          startIcon={<MdOutlineCenterFocusWeak className="text-theme-input" />}
           onClick={toggleSnapMode}
           variant={editorHelperState.gridSnap.value === SnapMode.Grid ? 'outline' : 'transparent'}
           className="px-0"
@@ -102,8 +102,8 @@ const TransformSnapTool = () => {
       <Tooltip content={t('editor:toolbar.transformSnapTool.info-translate')}>
         <Select
           key={editorHelperState.translationSnap.value}
-          inputClassName="py-1 h-6 rounded-sm text-[#A3A3A3] text-xs"
-          className="w-20 p-1"
+          inputClassName="py-1 h-6 rounded-sm text-theme-gray3 text-xs"
+          className="w-20 border-theme-input p-1 text-theme-gray3"
           onChange={onChangeTranslationSnap}
           options={translationSnapOptions}
           currentValue={editorHelperState.translationSnap.value}
@@ -112,8 +112,8 @@ const TransformSnapTool = () => {
       <Tooltip content={t('editor:toolbar.transformSnapTool.info-rotate')}>
         <Select
           key={editorHelperState.rotationSnap.value}
-          inputClassName="py-1 h-6 rounded-sm text-[#A3A3A3] text-xs pe-9"
-          className="w-20 p-1"
+          inputClassName="py-1 h-6 rounded-sm text-theme-gray3 text-xs pe-9"
+          className="w-20 border-theme-input p-1 text-theme-gray3"
           onChange={onChangeRotationSnap}
           options={rotationSnapOptions}
           currentValue={editorHelperState.rotationSnap.value}

@@ -108,7 +108,7 @@ export default function GizmoTool({
       <div className={`z-[6] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`} onMouseDown={handleMouseDown}>
         <Placer />
       </div>
-      <div className="mt-2 flex flex-col rounded bg-theme-surface-main">
+      <div className="mt-2 flex flex-col rounded">
         <Tooltip content={t('editor:toolbar.gizmo.pointer')} position={'right center'}>
           <Button
             variant="transparent"

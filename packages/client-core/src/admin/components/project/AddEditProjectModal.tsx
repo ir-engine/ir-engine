@@ -345,7 +345,8 @@ export default function AddEditProjectModal({
         ProjectUpdateService.setProjectName(project.name, '')
         ProjectUpdateService.setSubmitDisabled(project.name, true)
         ProjectUpdateService.setSourceProjectMatchesDestination(project.name, false)
-      }
+      } else if (!projectUpdateStatus?.value?.destinationValid || !projectUpdateStatus?.value?.sourceValid)
+        ProjectUpdateService.setSubmitDisabled(project.name, true)
     }
   }, [
     projectUpdateStatus?.value?.destinationValid,
@@ -386,6 +387,7 @@ export default function AddEditProjectModal({
         PopoverState.hidePopupover()
       }}
       onSubmit={handleSubmit}
+      submitButtonDisabled={projectUpdateStatus.value?.submitDisabled}
       submitLoading={modalProcessing.value}
     >
       <div className="grid gap-6">
@@ -550,8 +552,7 @@ export default function AddEditProjectModal({
         {!update && (
           <Text
             className={
-              'flex items-center gap-2 ' +
-              (projectUpdateStatus.value?.destinationValid ? 'text-green-400' : 'text-red-700')
+              'flex items-center gap-2 ' + (projectUpdateStatus.value?.sourceValid ? 'text-green-400' : 'text-red-700')
             }
           >
             {projectUpdateStatus.value?.sourceValid && <CiCircleCheck />}
@@ -564,7 +565,7 @@ export default function AddEditProjectModal({
           <Text
             className={
               'flex items-center gap-2 ' +
-              (projectUpdateStatus.value?.destinationValid ? 'text-green-400' : 'text-red-700')
+              (projectUpdateStatus.value?.sourceProjectMatchesDestination ? 'text-green-400' : 'text-red-700')
             }
           >
             {projectUpdateStatus.value?.sourceProjectMatchesDestination && <CiCircleCheck />}

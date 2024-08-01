@@ -24,7 +24,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { clone, debounce, isEmpty } from 'lodash'
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
@@ -78,7 +78,11 @@ const generateParentBreadcrumbCategories = (categories: readonly Category[], tar
   const findNestingCategories = (nestedCategory: Record<string, any>, parentCategory: string): Category[] => {
     for (const key in nestedCategory) {
       if (key === target) {
-        return [categories.find((c) => c.name === parentCategory)!]
+        const foundCategory = categories.find((c) => c.name === parentCategory)
+        if (foundCategory) {
+          return [foundCategory]
+        }
+        return []
       } else if (typeof nestedCategory[key] === 'object' && nestedCategory[key] !== null) {
         const nestedCategories = findNestingCategories(nestedCategory[key], key)
         if (nestedCategories.length) {
@@ -97,6 +101,28 @@ const generateParentBreadcrumbCategories = (categories: readonly Category[], tar
   }
 
   return []
+}
+
+function mapCategoriesHelper(collapsedCategories: { [key: string]: boolean }) {
+  const result: Category[] = []
+  const generateCategories = (node: object, depth = 0) => {
+    for (const key in node) {
+      const isLeaf = Object.keys(node[key]).length === 0
+      const category: Category = {
+        name: key,
+        object: node[key],
+        collapsed: collapsedCategories[key] ?? true,
+        depth,
+        isLeaf
+      }
+      result.push(category)
+      if (typeof node[key] === 'object' && !category.collapsed) {
+        generateCategories(node[key], depth + 1)
+      }
+    }
+  }
+  generateCategories(getState(AssetsPanelCategories))
+  return result
 }
 
 const ResourceFile = (props: {
@@ -316,7 +342,7 @@ export function AssetsBreadcrumb({
   onSelectCategory: (c: Category) => void
 }) {
   return (
-    <div className="flex h-[28px] items-center gap-2 rounded-[4px] border border-[#42454D] bg-[#141619] px-2">
+    <div className="flex h-[28px] items-center gap-2 rounded-[4px] border border-theme-input bg-[#141619] px-2 ">
       <HiOutlineFolder className="text-xs text-[#A3A3A3]" />
       {parentCategories.map((category) => (
         <span
@@ -394,28 +420,7 @@ const AssetPanel = () => {
   const assetsPreviewContext = useHookstate({ selectAssetURL: '' })
   const parentCategories = useHookstate<Category[]>([])
 
-  const mapCategories = () => {
-    const result: Category[] = []
-    const generateCategories = (node: object, depth = 0) => {
-      for (const key in node) {
-        const isLeaf = Object.keys(node[key]).length === 0
-        const category: Category = {
-          name: key,
-          object: node[key],
-          collapsed: collapsedCategories[key].value ?? true,
-          depth,
-          isLeaf
-        }
-        result.push(category)
-        if (typeof node[key] === 'object' && !category.collapsed) {
-          generateCategories(node[key], depth + 1)
-        }
-      }
-    }
-    generateCategories(getState(AssetsPanelCategories))
-    categories.set(result)
-  }
-
+  const mapCategories = () => categories.set(mapCategoriesHelper(collapsedCategories.value))
   useEffect(mapCategories, [collapsedCategories])
 
   useEffect(() => {
@@ -424,7 +429,7 @@ const AssetPanel = () => {
     parentCategories.set(parentCategoryBreadcrumbs)
   }, [categories, selectedCategory])
 
-  const staticResourcesFindApi = useCallback(() => {
+  const staticResourcesFindApi = () => {
     loading.set(true)
     searchTimeoutCancelRef.current?.()
 
@@ -438,7 +443,7 @@ const AssetPanel = () => {
           $like: `%${searchText.value}%`
         },
         type: {
-          $or: [{ type: 'file' }, { type: 'asset' }]
+          $or: [{ type: 'asset' }]
         },
         tags: selectedCategory.value
           ? {
@@ -474,15 +479,16 @@ const AssetPanel = () => {
 
     debouncedSearchQuery()
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
-  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
+  }
+
+  //reset pagination when search text changes
+  useEffect(() => {
+    staticResourcesPagination.currentPage.set(0)
+  }, [searchText])
 
   useEffect(() => {
     staticResourcesFindApi()
   }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
-
-  const handleRefreshPage = () => {
-    staticResourcesFindApi()
-  }
 
   const ResourceItems = () => {
     if (loading.value) {
@@ -510,9 +516,7 @@ const AssetPanel = () => {
                   assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
                   ClickPlacementState.setSelectedAsset(props.resourceUrl)
                 }}
-                onChange={() => {
-                  handleRefreshPage()
-                }}
+                onChange={() => staticResourcesFindApi()}
               />
             ))}
           </>
@@ -527,12 +531,11 @@ const AssetPanel = () => {
       collapsedCategories.set({})
       return
     }
-    selectedCategory.set(clone(parentCategories.value.at(-1)!))
+    handleSelectCategory(parentCategories.get(NO_PROXY).at(-1)!)
   }
 
   const handleRefresh = () => {
     categories.set([])
-    selectedCategory.set(null)
     collapsedCategories.set({})
     staticResourcesFindApi()
     mapCategories()

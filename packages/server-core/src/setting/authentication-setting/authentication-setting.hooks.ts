@@ -57,7 +57,11 @@ import {
  */
 const mapSettingsAdmin = async (context: HookContext<AuthenticationSettingService>) => {
   const loggedInUser = context.params!.user!
-  if (context.result && (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))) {
+  if (
+    context.result &&
+    !context.params!.isInternal &&
+    (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
+  ) {
     const auth: AuthenticationSettingType[] = context.result['data'] ? context.result['data'] : context.result
     const data = auth.map((el) => {
       return {

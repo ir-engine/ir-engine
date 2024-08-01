@@ -130,8 +130,8 @@ const SceneElementListItem = ({
   return (
     <button
       className={twMerge(
-        'col-span-1 grid place-items-center gap-1 text-ellipsis rounded-xl border-[#42454D] bg-[#191B1F] px-3 py-2.5 text-sm font-medium',
-        selected ? 'text-primary' : 'text-[#B2B5BD]'
+        'col-span-1 grid place-items-center gap-1 text-ellipsis rounded-xl border-[1px] border-[#212226] bg-theme-primary px-3 py-2.5 text-sm font-medium',
+        selected ? 'text-primary border-[#42454D] bg-[#212226]' : 'text-[#B2B5BD]'
       )}
       onClick={onClick}
     >
@@ -145,7 +145,7 @@ const useComponentShelfCategories = (search: string) => {
   useMutableState(ComponentShelfCategoriesState).value
 
   if (!search) {
-    return Object.entries(getState(ComponentShelfCategoriesState))
+    return Object.entries(getState(ComponentShelfCategoriesState)).filter(([_, items]) => !!items.length)
   }
 
   const searchString = search.toLowerCase()
