@@ -50,7 +50,7 @@ import { EngineState } from '../../EngineState'
 import { RendererState } from '../RendererState'
 import { PostProcessingComponent } from './PostProcessingComponent'
 
-describe('PostProcessingComponent', () => {
+describe('PostProcessingComponent : todo.Organize', () => {
   let rootEntity: Entity
   let entity: Entity
 
