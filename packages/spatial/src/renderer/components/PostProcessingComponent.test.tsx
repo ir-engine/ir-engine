@@ -26,7 +26,15 @@
 import assert from 'assert'
 import { MathUtils } from 'three'
 
-import { Entity, EntityUUID, UUIDComponent, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
+import {
+  Entity,
+  EntityUUID,
+  UUIDComponent,
+  UndefinedEntity,
+  getComponent,
+  getMutableComponent,
+  setComponent
+} from '@etherealengine/ecs'
 import { createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { noiseAddToEffectRegistry } from '@etherealengine/engine/src/postprocessing/NoiseEffect'
@@ -35,6 +43,7 @@ import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRen
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
+import { Effect } from 'postprocessing'
 import React from 'react'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
@@ -128,4 +137,54 @@ describe('PostProcessingComponent', () => {
     removeEntity(entity)
     unmount()
   })
+})
+
+const PostProcessingComponentDefaults = {
+  enabled: false,
+  effects: {} as Record<string, Effect> // effect name, parameters
+}
+
+function assertPostProcessingComponentEq(A, B) {
+  assert.equal(A.enabled, B.enabled)
+  /** @todo Check other properties */
+}
+
+describe('PostProcessingComponent', () => {
+  describe('IDs', () => {
+    it('should initialize the PostProcessingComponent.name field with the expected value', () => {
+      assert.equal(PostProcessingComponent.name, 'PostProcessingComponent')
+    })
+
+    it('should initialize the PostProcessingComponent.jsonID field with the expected value', () => {
+      assert.equal(PostProcessingComponent.jsonID, 'EE_postprocessing')
+    })
+  }) //:: IDs
+
+  describe('onInit', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, PostProcessingComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should initialize the component with the expected default values', () => {
+      const data = getComponent(testEntity, PostProcessingComponent)
+      assertPostProcessingComponentEq(data, PostProcessingComponentDefaults)
+    })
+  }) //:: onInit
+
+  describe('onSet', () => {
+    // it('should change the values of an initialized PostProcessingComponent', () => {})
+    // it('should not change values of an initialized PostProcessingComponent when the data passed had incorrect types', () => {})
+  }) //:: onSet
+
+  describe('toJSON', () => {}) //:: toJSON
+  describe('reactor', () => {}) //:: reactor
 })
