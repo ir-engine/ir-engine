@@ -429,7 +429,7 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
       {documentState
         .get(NO_PROXY)
         .materials?.map((material, index) => (
-          <MaterialReactor
+          <MaterialEntityReactor
             key={'material-' + index}
             index={index}
             parentUUID={props.parentUUID}
@@ -440,11 +440,11 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
   )
 }
 
-const MaterialReactor = (props: { index: number; parentUUID: EntityUUID; documentID: string }) => {
+const MaterialEntityReactor = (props: { index: number; parentUUID: EntityUUID; documentID: string }) => {
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
   const materials = documentState.materials!
 
-  const material = materials[props.index]!.get(NO_PROXY) as GLTF.IMaterial
+  const materialDef = materials[props.index]!.get(NO_PROXY) as GLTF.IMaterial
 
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
@@ -460,24 +460,24 @@ const MaterialReactor = (props: { index: number; parentUUID: EntityUUID; documen
 
     /** Ensure all base components are added for synchronous mount */
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.index })
-    setComponent(entity, NameComponent, material.name ?? 'Material-' + props.index)
+    setComponent(entity, NameComponent, materialDef.name ?? 'Material-' + props.index)
 
     entityState.set(entity)
 
     return () => {
       //check if entity is in some other document
-      if (hasComponent(entity, UUIDComponent)) {
-        const uuid = getComponent(entity, UUIDComponent)
-        const documents = getState(GLTFDocumentState)
-        for (const documentID in documents) {
-          const document = documents[documentID]
-          if (!document?.materials) continue
-          for (const material of document.materials) {
-            if (material.extensions?.[UUIDComponent.jsonID] === uuid) return
-          }
-        }
-      }
-      removeEntity(entity)
+      // if (hasComponent(entity, UUIDComponent)) {
+      //   const uuid = getComponent(entity, UUIDComponent)
+      //   const documents = getState(GLTFDocumentState)
+      //   for (const documentID in documents) {
+      //     const document = documents[documentID]
+      //     if (!document?.materials) continue
+      //     for (const material of document.materials) {
+      //       if (material.extensions?.[UUIDComponent.jsonID] === uuid) return
+      //     }
+      //   }
+      // }
+      // removeEntity(entity)
     }
   }, [])
 
@@ -490,20 +490,38 @@ const MaterialReactor = (props: { index: number; parentUUID: EntityUUID; documen
   useLayoutEffect(() => {
     if (!entity) return
 
-    setComponent(entity, NameComponent, material.name ?? 'Material-' + props.index)
-  }, [entity, material.name])
+    setComponent(entity, NameComponent, materialDef.name ?? 'Material-' + props.index)
+  }, [entity, materialDef.name])
+
+  if (!entity) return null
+  return (
+    <>
+      <MaterialStateReactor
+        index={props.index}
+        parentUUID={props.parentUUID}
+        documentID={props.documentID}
+        entity={entity}
+      />
+    </>
+  )
+}
+
+const MaterialStateReactor = (props: { index: number; parentUUID: EntityUUID; documentID: string; entity: Entity }) => {
+  const documentState = useMutableState(GLTFDocumentState)[props.documentID]
+  const entity = props.entity
+
+  const material = GLTFLoaderFunctions.useLoadMaterial(
+    getParserOptions(entity),
+    documentState.get(NO_PROXY) as GLTF.IGLTF,
+    props.index
+  )
 
   useLayoutEffect(() => {
-    if (!entity) return
-
-    GLTFLoaderFunctions.loadMaterial(
-      getParserOptions(entity),
-      documentState.get(NO_PROXY) as GLTF.IGLTF,
-      props.index
-    ).then((material) => {
-      setComponent(entity, MaterialStateComponent, { material })
-    })
-  }, [entity, material])
+    if (!entity || !material) return
+    const uuid = getComponent(entity, UUIDComponent)
+    material.uuid = uuid
+    setComponent(entity, MaterialStateComponent, { material })
+  }, [material])
 
   return null
 }
@@ -836,23 +854,23 @@ const PrimitiveAttributeReactor = (props: {
 
   const primitive = mesh.primitives[props.primitiveIndex]
 
-  const attribute = primitive.attributes[props.attribute]
+  const threeAttributeName = ATTRIBUTES[props.attribute] || props.attribute.toLowerCase()
+  const attributeAlreadyLoaded = threeAttributeName in props.geometry.attributes
+
+  // Skip attributes already provided by e.g. Draco extension.
+  const attribute = attributeAlreadyLoaded ? undefined : primitive.attributes[props.attribute]
+
+  const accessor = GLTFLoaderFunctions.useLoadAccessor(
+    getParserOptions(props.entity),
+    documentState.get(NO_PROXY) as GLTF.IGLTF,
+    attribute
+  )
 
   useEffect(() => {
-    const threeAttributeName = ATTRIBUTES[props.attribute] || props.attribute.toLowerCase()
+    if (!accessor) return
 
-    // Skip attributes already provided by e.g. Draco extension.
-    if (threeAttributeName in props.geometry.attributes) return
-
-    // accessor
-    GLTFLoaderFunctions.loadAccessor(
-      getParserOptions(props.entity),
-      documentState.get(NO_PROXY) as GLTF.IGLTF,
-      attribute
-    ).then((accessor) => {
-      props.geometry.setAttribute(threeAttributeName, accessor)
-    })
-  }, [attribute, props.geometry])
+    props.geometry.setAttribute(threeAttributeName, accessor)
+  }, [accessor, props.geometry])
 
   return null
 }
@@ -873,16 +891,16 @@ const PrimitiveIndicesAttributeReactor = (props: {
 
   const primitive = mesh.primitives[props.primitiveIndex]
 
+  const accessor = GLTFLoaderFunctions.useLoadAccessor(
+    getParserOptions(props.entity),
+    documentState.get(NO_PROXY) as GLTF.IGLTF,
+    primitive.indices!
+  )
+
   useEffect(() => {
-    // accessor
-    GLTFLoaderFunctions.loadAccessor(
-      getParserOptions(props.entity),
-      documentState.get(NO_PROXY) as GLTF.IGLTF,
-      primitive.indices!
-    ).then((accessor) => {
-      props.geometry.setIndex(accessor)
-    })
-  }, [primitive.indices, props.geometry])
+    if (!accessor) return
+    props.geometry.setIndex(accessor)
+  }, [accessor, props.geometry])
 
   return null
 }

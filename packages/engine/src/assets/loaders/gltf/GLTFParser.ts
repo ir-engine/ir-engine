@@ -127,7 +127,7 @@ export type GLTFParserOptions = {
   body: null | ArrayBuffer
   crossOrigin: 'anonymous' | string
   ktx2Loader: KTX2Loader
-  manager: LoadingManager | any
+  manager: LoadingManager
   meshoptDecoder: any
   path: string
   requestHeader: Record<string, any>
@@ -689,7 +689,7 @@ export class GLTFParser {
 
     if (sourceDef.uri) {
       const handler = options.manager.getHandler(sourceDef.uri)
-      if (handler !== null) loader = handler
+      if (handler !== null) loader = handler as any
     }
 
     return this.loadTextureImage(textureIndex, sourceIndex, loader)

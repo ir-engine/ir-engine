@@ -23,13 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { GLTF } from '@gltf-transform/core'
+import { useEffect } from 'react'
 import {
   Box3,
   BufferAttribute,
   BufferGeometry,
   Color,
   DoubleSide,
+  FrontSide,
   ImageBitmapLoader,
   ImageLoader,
   InterleavedBuffer,
@@ -45,7 +48,6 @@ import {
   Sphere,
   Texture,
   TextureLoader,
-  Vector2,
   Vector3
 } from 'three'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
@@ -68,33 +70,41 @@ import { GLTFExtensions } from './GLTFExtensions'
 // todo make this a state
 const cache = new GLTFRegistry()
 
-const loadAccessor = (options: GLTFParserOptions, json: GLTF.IGLTF, accessorIndex: number) => {
-  const accessorDef = json.accessors![accessorIndex]
+const useLoadAccessor = (options: GLTFParserOptions, json: GLTF.IGLTF, accessorIndex?: number) => {
+  const result = useHookstate<BufferAttribute | null>(null)
 
-  if (accessorDef.bufferView === undefined && accessorDef.sparse === undefined) {
-    const itemSize = WEBGL_TYPE_SIZES[accessorDef.type]
-    const TypedArray = WEBGL_COMPONENT_TYPES[accessorDef.componentType]
-    const normalized = accessorDef.normalized === true
+  const accessorDef = typeof accessorIndex === 'number' ? json.accessors![accessorIndex] : null
 
-    const array = new TypedArray(accessorDef.count * itemSize)
-    return Promise.resolve(new BufferAttribute(array, itemSize, normalized))
-  }
+  const bufferView = GLTFLoaderFunctions.useLoadBufferView(options, json, accessorDef?.bufferView)
 
-  const pendingBufferViews = [] as Array<Promise<ArrayBuffer> | null>
+  const sparseBufferViewIndices = GLTFLoaderFunctions.useLoadBufferView(
+    options,
+    json,
+    accessorDef?.sparse?.indices?.bufferView
+  )
+  const sparseBufferViewValues = GLTFLoaderFunctions.useLoadBufferView(
+    options,
+    json,
+    accessorDef?.sparse?.values?.bufferView
+  )
 
-  if (accessorDef.bufferView !== undefined) {
-    pendingBufferViews.push(GLTFLoaderFunctions.loadBufferView(options, json, accessorDef.bufferView))
-  } else {
-    pendingBufferViews.push(null)
-  }
+  useEffect(() => {
+    if (!accessorDef) return
 
-  if (accessorDef.sparse !== undefined) {
-    pendingBufferViews.push(GLTFLoaderFunctions.loadBufferView(options, json, accessorDef.sparse.indices.bufferView))
-    pendingBufferViews.push(GLTFLoaderFunctions.loadBufferView(options, json, accessorDef.sparse.values.bufferView))
-  }
+    if (accessorDef.bufferView === undefined && accessorDef.sparse === undefined) {
+      const itemSize = WEBGL_TYPE_SIZES[accessorDef.type]
+      const TypedArray = WEBGL_COMPONENT_TYPES[accessorDef.componentType]
+      const normalized = accessorDef.normalized === true
 
-  return Promise.all(pendingBufferViews).then(function (bufferViews) {
-    const bufferView = bufferViews[0]
+      const array = new TypedArray(accessorDef.count * itemSize)
+      result.set(new BufferAttribute(array, itemSize, normalized))
+      return
+    }
+
+    if (accessorDef.bufferView && !bufferView) return
+    if (accessorDef.sparse && !sparseBufferViewIndices && !sparseBufferViewValues) return
+
+    const bufferViews = accessorDef.bufferView ? [bufferView, null] : [sparseBufferViewIndices, sparseBufferViewValues]
 
     const itemSize = WEBGL_TYPE_SIZES[accessorDef.type]
     const TypedArray = WEBGL_COMPONENT_TYPES[accessorDef.componentType]
@@ -184,45 +194,73 @@ const loadAccessor = (options: GLTFParserOptions, json: GLTF.IGLTF, accessorInde
       }
     }
 
-    return bufferAttribute
-  })
+    result.set(bufferAttribute)
+  }, [bufferView, sparseBufferViewIndices, sparseBufferViewValues])
+
+  return result.value
 }
 
-const loadBufferView = async (options: GLTFParserOptions, json: GLTF.IGLTF, bufferViewIndex: number) => {
-  const bufferViewDef = json.bufferViews![bufferViewIndex]
+const useLoadBufferView = (options: GLTFParserOptions, json: GLTF.IGLTF, bufferViewIndex?: number) => {
+  const result = useHookstate<ArrayBuffer | null>(null)
 
-  const buffer = await GLTFLoaderFunctions.loadBuffer(options, json, bufferViewDef.buffer)
+  const bufferViewDef = typeof bufferViewIndex === 'number' ? json.bufferViews![bufferViewIndex] : null
+  const buffer = GLTFLoaderFunctions.useLoadBuffer(options, json, bufferViewDef?.buffer)
 
-  const byteLength = bufferViewDef.byteLength || 0
-  const byteOffset = bufferViewDef.byteOffset || 0
+  useEffect(() => {
+    if (!bufferViewDef || !buffer) return
 
-  return buffer.slice(byteOffset, byteOffset + byteLength)
+    const byteLength = bufferViewDef.byteLength || 0
+    const byteOffset = bufferViewDef.byteOffset || 0
+
+    result.set(buffer.slice(byteOffset, byteOffset + byteLength))
+  }, [buffer])
+
+  return result.value
 }
 
-const loadBuffer = async (options: GLTFParserOptions, json: GLTF.IGLTF, bufferIndex: number) => {
-  const bufferDef = json.buffers![bufferIndex]
+const useLoadBuffer = (options: GLTFParserOptions, json: GLTF.IGLTF, bufferIndex?: number) => {
+  const result = useHookstate<ArrayBuffer | null>(null)
 
-  if (bufferDef.type && bufferDef.type !== 'arraybuffer') {
-    throw new Error('THREE.GLTFLoader: ' + bufferDef.type + ' buffer type is not supported.')
-  }
+  const bufferDef = typeof bufferIndex === 'number' ? json.buffers![bufferIndex] : null
 
-  // If present, GLB container is required to be the first buffer.
-  if (bufferDef.uri === undefined && bufferIndex === 0) {
-    return Promise.resolve(options.body!)
-  }
+  useEffect(() => {
+    if (!bufferDef) return
 
-  /** @todo use a global file loader */
-  const fileLoader = new FileLoader(options.manager)
-  fileLoader.setResponseType('arraybuffer')
-  if (options.crossOrigin === 'use-credentials') {
-    fileLoader.setWithCredentials(true)
-  }
+    if (bufferDef.type && bufferDef.type !== 'arraybuffer') {
+      console.warn('THREE.GLTFLoader: ' + bufferDef.type + ' buffer type is not supported.')
+    }
+  }, [bufferDef?.type])
 
-  return new Promise<ArrayBuffer>(function (resolve, reject) {
-    fileLoader.load(LoaderUtils.resolveURL(bufferDef.uri!, options.path), resolve as any, undefined, function () {
-      reject(new Error('THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".'))
-    })
-  })
+  useEffect(() => {
+    if (!bufferDef) return
+
+    // If present, GLB container is required to be the first buffer.
+    if (bufferDef.uri === undefined && bufferIndex === 0) {
+      result.set(options.body!)
+      return
+    }
+
+    /** @todo use a global file loader */
+    const fileLoader = new FileLoader(options.manager)
+    fileLoader.setResponseType('arraybuffer')
+    if (options.crossOrigin === 'use-credentials') {
+      fileLoader.setWithCredentials(true)
+    }
+
+    fileLoader.load(
+      LoaderUtils.resolveURL(bufferDef.uri!, options.path),
+      (val: ArrayBuffer) => {
+        result.set(val)
+      },
+      undefined,
+      function () {
+        result.set(null)
+        console.error(new Error('THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".'))
+      }
+    )
+  }, [bufferDef?.uri])
+
+  return result.value
 }
 
 export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primitiveDef: GLTF.IMeshPrimitive) {
@@ -312,162 +350,16 @@ export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primit
  * @param {number} materialIndex
  * @return {Promise<Material>}
  */
-const loadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialIndex: number) => {
-  const materialDef = json.materials![materialIndex]
+const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialIndex: number) => {
+  const materialType = useHookstate<'standard' | 'basic'>('standard')
 
-  let materialType
-  const materialParams = {} as any // todo
-  const materialExtensions = materialDef.extensions || {}
+  const result = useHookstate(null as null | MeshStandardMaterial | MeshBasicMaterial)
 
-  const pending = [] as Array<Promise<any>>
+  useEffect(() => {
+    const materialTypeValue = materialType.get(NO_PROXY) === 'standard' ? MeshStandardMaterial : MeshBasicMaterial
+    const material = new materialTypeValue()
 
-  if (!materialExtensions[EXTENSIONS.EE_MATERIAL] && materialExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]) {
-    const kmuExtension = GLTFExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]
-    materialType = kmuExtension.getMaterialType()
-    pending.push(kmuExtension.extendParams(options, json, materialParams, materialDef))
-  } else {
-    // Specification:
-    // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#metallic-roughness-material
-
-    /** @todo move this to a base plugin */
-    const metallicRoughness = materialDef.pbrMetallicRoughness || {}
-
-    materialParams.color = new Color(1.0, 1.0, 1.0)
-    materialParams.opacity = 1.0
-
-    if (Array.isArray(metallicRoughness.baseColorFactor)) {
-      const array = metallicRoughness.baseColorFactor
-
-      materialParams.color.setRGB(array[0], array[1], array[2], LinearSRGBColorSpace)
-      materialParams.opacity = array[3]
-    }
-
-    if (metallicRoughness.baseColorTexture !== undefined) {
-      pending.push(
-        GLTFLoaderFunctions.assignTexture(
-          options,
-          json,
-          materialParams,
-          'map',
-          metallicRoughness.baseColorTexture,
-          SRGBColorSpace
-        )
-      )
-    }
-
-    materialParams.metalness = metallicRoughness.metallicFactor !== undefined ? metallicRoughness.metallicFactor : 1.0
-    materialParams.roughness = metallicRoughness.roughnessFactor !== undefined ? metallicRoughness.roughnessFactor : 1.0
-
-    if (metallicRoughness.metallicRoughnessTexture !== undefined) {
-      pending.push(
-        GLTFLoaderFunctions.assignTexture(
-          options,
-          json,
-          materialParams,
-          'metalnessMap',
-          metallicRoughness.metallicRoughnessTexture
-        )
-      )
-      pending.push(
-        GLTFLoaderFunctions.assignTexture(
-          options,
-          json,
-          materialParams,
-          'roughnessMap',
-          metallicRoughness.metallicRoughnessTexture
-        )
-      )
-    }
-
-    /** @todo expose 'getMaterialType' API */
-    materialType = MeshStandardMaterial
-
-    // materialType = this._invokeOne(function (ext) {
-    //   return ext.getMaterialType && ext.getMaterialType(materialIndex)
-    // })
-
-    /** @todo expose API */
-    // pending.push(
-    //   Promise.all(
-    //     this._invokeAll(function (ext) {
-    //       return ext.extendMaterialParams && ext.extendMaterialParams(materialIndex, materialParams)
-    //     })
-    //   )
-    // )
-  }
-
-  if (materialDef.doubleSided === true) {
-    materialParams.side = DoubleSide
-  }
-
-  const alphaMode = materialDef.alphaMode || ALPHA_MODES.OPAQUE
-
-  if (alphaMode === ALPHA_MODES.BLEND) {
-    materialParams.transparent = true
-
-    // See: https://github.com/mrdoob/three.js/issues/17706
-    if (materialParams.depthWrite === undefined) {
-      materialParams.depthWrite = false
-    }
-  } else {
-    materialParams.transparent = false
-
-    if (alphaMode === ALPHA_MODES.MASK) {
-      materialParams.alphaTest = materialDef.alphaCutoff !== undefined ? materialDef.alphaCutoff : 0.5
-    }
-  }
-
-  if (materialDef.normalTexture !== undefined && materialType !== MeshBasicMaterial) {
-    pending.push(
-      GLTFLoaderFunctions.assignTexture(options, json, materialParams, 'normalMap', materialDef.normalTexture)
-    )
-
-    materialParams.normalScale = new Vector2(1, 1)
-
-    if (materialDef.normalTexture.scale !== undefined) {
-      const scale = materialDef.normalTexture.scale
-
-      materialParams.normalScale.set(scale, scale)
-    }
-  }
-
-  if (materialDef.occlusionTexture !== undefined && materialType !== MeshBasicMaterial) {
-    pending.push(
-      GLTFLoaderFunctions.assignTexture(options, json, materialParams, 'aoMap', materialDef.occlusionTexture)
-    )
-
-    if (materialDef.occlusionTexture.strength !== undefined) {
-      materialParams.aoMapIntensity = materialDef.occlusionTexture.strength
-    }
-  }
-
-  if (materialDef.emissiveFactor !== undefined && materialType !== MeshBasicMaterial) {
-    const emissiveFactor = materialDef.emissiveFactor
-    materialParams.emissive = new Color().setRGB(
-      emissiveFactor[0],
-      emissiveFactor[1],
-      emissiveFactor[2],
-      LinearSRGBColorSpace
-    )
-  }
-
-  if (materialDef.emissiveTexture !== undefined && materialType !== MeshBasicMaterial) {
-    pending.push(
-      GLTFLoaderFunctions.assignTexture(
-        options,
-        json,
-        materialParams,
-        'emissiveMap',
-        materialDef.emissiveTexture,
-        SRGBColorSpace
-      )
-    )
-  }
-
-  return Promise.all(pending).then(function () {
-    const material = new materialType(materialParams)
-
-    if (materialDef.name) material.name = materialDef.name
+    result.set(material)
 
     assignExtrasToUserData(material, materialDef)
 
@@ -476,8 +368,175 @@ const loadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialInde
 
     if (materialDef.extensions) addUnknownExtensionsToUserData(GLTFExtensions, material, materialDef)
 
-    return material
-  })
+    result.set(material)
+  }, [materialType])
+
+  const materialDef = json.materials![materialIndex]
+
+  const materialExtensions = materialDef.extensions || {}
+
+  /** @todo expose 'getMaterialType' API */
+
+  // materialType = this._invokeOne(function (ext) {
+  //   return ext.getMaterialType && ext.getMaterialType(materialIndex)
+  // })
+
+  /** @todo expose API */
+  // pending.push(
+  //   Promise.all(
+  //     this._invokeAll(function (ext) {
+  //       return ext.extendMaterialParams && ext.extendMaterialParams(materialIndex, materialParams)
+  //     })
+  //   )
+  // )
+  // }
+
+  // if (!materialExtensions[EXTENSIONS.EE_MATERIAL] && materialExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]) {
+  //   const kmuExtension = GLTFExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]
+  //   materialType = kmuExtension.getMaterialType()
+  //   pending.push(kmuExtension.extendParams(options, json, materialParams, materialDef))
+  // } else {
+  // Specification:
+  // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#metallic-roughness-material
+
+  const map = GLTFLoaderFunctions.assignTexture(options, json, materialDef.pbrMetallicRoughness?.baseColorTexture)
+
+  useEffect(() => {
+    if (!map) return
+    map.colorSpace = SRGBColorSpace
+    result.value?.setValues({ map })
+  }, [map])
+
+  useEffect(() => {
+    if (Array.isArray(materialDef.pbrMetallicRoughness?.baseColorFactor)) {
+      const array = materialDef.pbrMetallicRoughness.baseColorFactor
+      result.value?.setValues({
+        color: new Color().setRGB(array[0], array[1], array[2], LinearSRGBColorSpace),
+        opacity: array[3]
+      })
+    }
+  }, [materialDef.pbrMetallicRoughness?.baseColorFactor])
+
+  useEffect(() => {
+    result.value?.setValues({
+      metalness:
+        materialDef.pbrMetallicRoughness?.metallicFactor !== undefined
+          ? materialDef.pbrMetallicRoughness.metallicFactor
+          : 1.0
+    })
+  }, [materialDef.pbrMetallicRoughness?.metallicFactor])
+
+  useEffect(() => {
+    result.value?.setValues({
+      roughness:
+        materialDef.pbrMetallicRoughness?.roughnessFactor !== undefined
+          ? materialDef.pbrMetallicRoughness.roughnessFactor
+          : 1.0
+    })
+  }, [materialDef.pbrMetallicRoughness?.roughnessFactor])
+
+  const metalnessMap = GLTFLoaderFunctions.assignTexture(
+    options,
+    json,
+    materialType.value === 'basic' ? undefined : materialDef.pbrMetallicRoughness?.metallicRoughnessTexture
+  )
+
+  useEffect(() => {
+    if (!metalnessMap) return
+    result.value?.setValues({ metalnessMap })
+  }, [metalnessMap])
+
+  const roughnessMap = GLTFLoaderFunctions.assignTexture(
+    options,
+    json,
+    materialType.value === 'basic' ? undefined : materialDef.pbrMetallicRoughness?.metallicRoughnessTexture
+  )
+
+  useEffect(() => {
+    if (!roughnessMap) return
+    result.value?.setValues({ roughnessMap })
+  }, [roughnessMap])
+
+  useEffect(() => {
+    result.value?.setValues({ side: materialDef.doubleSided === true ? DoubleSide : FrontSide })
+  }, [materialDef.doubleSided])
+
+  useEffect(() => {
+    const alphaMode = materialDef.alphaMode || ALPHA_MODES.OPAQUE
+    result.value?.setValues({ transparent: alphaMode !== ALPHA_MODES.OPAQUE })
+
+    // See: https://github.com/mrdoob/three.js/issues/17706
+    if (alphaMode !== ALPHA_MODES.OPAQUE) {
+      result.value?.setValues({ depthWrite: false })
+    }
+  }, [materialDef.alphaMode])
+
+  useEffect(() => {
+    if (materialDef.alphaMode === ALPHA_MODES.MASK) {
+      result.value?.setValues({ alphaTest: materialDef.alphaCutoff !== undefined ? materialDef.alphaCutoff : 0.5 })
+    } else {
+      result.value?.setValues({ alphaTest: 0 })
+    }
+  }, [materialDef.alphaCutoff])
+
+  const normalMap = GLTFLoaderFunctions.assignTexture(
+    options,
+    json,
+    materialType.value === 'basic' ? undefined : materialDef.normalTexture
+  )
+
+  useEffect(() => {
+    if (!normalMap) return
+    result.value?.setValues({ normalMap })
+  }, [normalMap])
+
+  // useEffect(() => {
+  // materialParams.normalScale = new Vector2(1, 1)
+
+  // if (materialDef.normalTexture.scale !== undefined) {
+  //   const scale = materialDef.normalTexture.scale
+
+  //   materialParams.normalScale.set(scale, scale)
+  // }
+  // }, [])
+
+  const aoMap = GLTFLoaderFunctions.assignTexture(
+    options,
+    json,
+    materialType.value === 'basic' ? undefined : materialDef.occlusionTexture
+  )
+
+  useEffect(() => {
+    if (!aoMap) return
+    result.value?.setValues({ aoMap })
+  }, [aoMap])
+
+  useEffect(() => {
+    result.value?.setValues({ aoMapIntensity: materialDef.occlusionTexture?.strength ?? 1.0 })
+  }, [materialDef.occlusionTexture?.strength])
+
+  useEffect(() => {
+    const emissiveFactor = materialDef.emissiveFactor
+    if (!emissiveFactor) return
+
+    result.value?.setValues({
+      emissive: new Color().setRGB(emissiveFactor[0], emissiveFactor[1], emissiveFactor[2], LinearSRGBColorSpace)
+    })
+  }, [materialDef.emissiveFactor])
+
+  const emissiveMap = GLTFLoaderFunctions.assignTexture(
+    options,
+    json,
+    materialType.value === 'basic' ? undefined : materialDef.emissiveTexture
+  )
+
+  useEffect(() => {
+    if (!emissiveMap) return
+    emissiveMap.colorSpace = SRGBColorSpace
+    result.value?.setValues({ emissiveMap })
+  }, [emissiveMap])
+
+  return result.value as MeshStandardMaterial | null
 }
 
 /**
@@ -487,15 +546,23 @@ const loadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialInde
  * @param {Object} mapDef
  * @return {Promise<Texture>}
  */
-const assignTexture = (options: GLTFParserOptions, json: GLTF.IGLTF, materialParams, mapName, mapDef, colorSpace?) => {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
+const assignTexture = (options: GLTFParserOptions, json: GLTF.IGLTF, mapDef?: GLTF.ITextureInfo) => {
+  const result = useHookstate<Texture | null>(null)
 
-  return GLTFLoaderFunctions.loadTexture(options, json, mapDef.index).then(function (texture) {
-    if (!texture) return null
+  const texture = GLTFLoaderFunctions.useLoadTexture(options, json, mapDef?.index)
+
+  useEffect(() => {
+    if (!texture) {
+      result.set(null)
+      return
+    }
+
+    if (!mapDef) return
 
     if (mapDef.texCoord !== undefined && mapDef.texCoord > 0) {
-      texture = texture.clone()
-      texture.channel = mapDef.texCoord
+      const textureClone = texture.clone()
+      textureClone.channel = mapDef.texCoord
+      result.set(textureClone)
     }
 
     if (GLTFExtensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM]) {
@@ -509,15 +576,9 @@ const assignTexture = (options: GLTFParserOptions, json: GLTF.IGLTF, materialPar
         // parser.associations.set(texture, gltfReference)
       }
     }
+  }, [texture, mapDef])
 
-    if (colorSpace !== undefined) {
-      texture.colorSpace = colorSpace
-    }
-
-    materialParams[mapName] = texture
-
-    return texture
-  })
+  return result.value as Texture | null
 }
 
 /**
@@ -525,184 +586,220 @@ const assignTexture = (options: GLTFParserOptions, json: GLTF.IGLTF, materialPar
  * @param {number} textureIndex
  * @return {Promise<THREE.Texture|null>}
  */
-const loadTexture = (options: GLTFParserOptions, json: GLTF.IGLTF, textureIndex: number) => {
-  const textureDef = json.textures![textureIndex]
-  const sourceIndex = textureDef.source!
-  const sourceDef = json.images![sourceIndex]
+const useLoadTexture = (options: GLTFParserOptions, json: GLTF.IGLTF, textureIndex?: number) => {
+  const result = useHookstate<Texture | null>(null)
 
-  let isSafari = false
-  let isFirefox = false
-  let firefoxVersion = -1 as any // ???
+  const textureDef = typeof textureIndex === 'number' ? json.textures![textureIndex] : null
+  const sourceIndex = textureDef?.source!
+  const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
 
-  if (typeof navigator !== 'undefined') {
-    isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) === true
-    isFirefox = navigator.userAgent.indexOf('Firefox') > -1
-    firefoxVersion = isFirefox ? navigator.userAgent.match(/Firefox\/([0-9]+)\./)![1] : -1
-  }
+  const textureLoader = useHookstate(() => {
+    let isSafari = false
+    let isFirefox = false
+    let firefoxVersion = -1 as any // ???
 
-  let textureLoader
+    if (typeof navigator !== 'undefined') {
+      isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) === true
+      isFirefox = navigator.userAgent.indexOf('Firefox') > -1
+      firefoxVersion = isFirefox ? navigator.userAgent.match(/Firefox\/([0-9]+)\./)![1] : -1
+    }
 
-  /** @todo make global loader */
-  if (typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)) {
-    textureLoader = new TextureLoader(options.manager)
-  } else {
-    textureLoader = new ImageBitmapLoader(options.manager)
-  }
+    let textureLoader
 
-  textureLoader.setCrossOrigin(options.crossOrigin)
-  textureLoader.setRequestHeader(options.requestHeader)
+    /** @todo make global loader */
+    if (typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)) {
+      textureLoader = new TextureLoader(options.manager)
+    } else {
+      textureLoader = new ImageBitmapLoader(options.manager)
+    }
 
-  let loader = textureLoader
+    return textureLoader
+  })
 
-  if (sourceDef.uri) {
+  /** @todo clean all this up */
+
+  textureLoader.value.setCrossOrigin(options.crossOrigin)
+  textureLoader.value.setRequestHeader(options.requestHeader)
+
+  let loader = textureLoader.value
+
+  if (sourceDef?.uri) {
     const handler = options.manager.getHandler(sourceDef.uri)
     if (handler !== null) loader = handler
   }
 
-  return GLTFLoaderFunctions.loadTextureImage(options, json, textureIndex, sourceIndex, loader)
+  const texture = GLTFLoaderFunctions.useLoadTextureImage(options, json, textureIndex, sourceIndex, loader)
+
+  useEffect(() => {
+    result.set(texture)
+  }, [texture])
+
+  return result.value as Texture | null
 }
 
 const textureCache = {} as any // todo
 
-const loadTextureImage = (
+const useLoadTextureImage = (
   options: GLTFParserOptions,
   json: GLTF.IGLTF,
-  textureIndex: number,
-  sourceIndex: number,
-  loader
+  textureIndex?: number,
+  sourceIndex?: number,
+  loader?: ImageLoader | ImageBitmapLoader
 ) => {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  const result = useHookstate<Texture | null>(null)
 
-  const textureDef = json.textures![textureIndex]
-  const sourceDef = json.images![sourceIndex]
+  const textureDef = typeof textureIndex === 'number' ? json.textures![textureIndex] : null
+  const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
 
-  const cacheKey = (sourceDef.uri || sourceDef.bufferView) + ':' + textureDef.sampler
+  /** @todo cache */
+  // const cacheKey = (sourceDef.uri || sourceDef.bufferView) + ':' + textureDef.sampler
 
-  if (textureCache[cacheKey]) {
-    // See https://github.com/mrdoob/three.js/issues/21559.
-    return textureCache[cacheKey]
-  }
+  // if (textureCache[cacheKey]) {
+  //   // See https://github.com/mrdoob/three.js/issues/21559.
+  //   return textureCache[cacheKey]
+  // }
 
-  const promise = GLTFLoaderFunctions.loadImageSource(options, json, sourceIndex, loader)
-    .then(function (texture) {
-      texture.flipY = false
+  const texture = GLTFLoaderFunctions.useLoadImageSource(options, json, sourceIndex, loader)
 
-      texture.name = textureDef.name || sourceDef.name || ''
+  useEffect(() => {
+    if (!texture || !sourceDef || !textureDef) return
 
-      if (
-        texture.name === '' &&
-        typeof sourceDef.uri === 'string' &&
-        sourceDef.uri.startsWith('data:image/') === false
-      ) {
-        texture.name = sourceDef.uri
-      }
+    texture.flipY = false
 
-      const samplers = json.samplers || {}
-      const sampler = samplers[textureDef.sampler!] || {}
+    texture.name = textureDef.name || sourceDef.name || ''
 
-      texture.magFilter = WEBGL_FILTERS[sampler.magFilter] || LinearFilter
-      texture.minFilter = WEBGL_FILTERS[sampler.minFilter] || LinearMipmapLinearFilter
-      texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || RepeatWrapping
-      texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || RepeatWrapping
+    if (texture.name === '' && typeof sourceDef.uri === 'string' && sourceDef.uri.startsWith('data:image/') === false) {
+      texture.name = sourceDef.uri
+    }
 
-      /** @todo */
-      // parser.associations.set(texture, { textures: textureIndex })
+    const samplers = json.samplers || {}
+    const sampler = samplers[textureDef.sampler!] || {}
 
-      return texture
-    })
-    .catch(function (error) {
-      console.error('THREE.GLTFLoader: Error in texture onLoad for texture', sourceDef)
-      console.error(error)
-      throw error
-      return null
-    })
+    texture.magFilter = WEBGL_FILTERS[sampler.magFilter] || LinearFilter
+    texture.minFilter = WEBGL_FILTERS[sampler.minFilter] || LinearMipmapLinearFilter
+    texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || RepeatWrapping
+    texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || RepeatWrapping
 
-  textureCache[cacheKey] = promise
+    /** @todo */
+    // parser.associations.set(texture, { textures: textureIndex })
 
-  return promise
+    result.set(texture)
+  }, [textureDef, sourceDef, texture])
+
+  // textureCache[cacheKey] = promise
+
+  return result.value as Texture | null
 }
 
-const sourceCache = {} as any // todo
+// const sourceCache = {} as any // todo
 
-const loadImageSource = (
+const URL = self.URL || self.webkitURL
+
+const useLoadImageSource = (
   options: GLTFParserOptions,
   json: GLTF.IGLTF,
-  sourceIndex: number,
-  loader: ImageLoader | ImageBitmapLoader
+  sourceIndex?: number,
+  loader?: ImageLoader | ImageBitmapLoader
 ) => {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  const result = useHookstate<Texture | null>(null)
 
-  if (sourceCache[sourceIndex] !== undefined) {
-    return sourceCache[sourceIndex].then((texture) => texture.clone())
-  }
+  /** @todo caching */
+  // if (sourceCache[sourceIndex] !== undefined) {
+  //   return sourceCache[sourceIndex].then((texture) => texture.clone())
+  // }
 
-  const sourceDef = json.images![sourceIndex]
+  const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
 
-  const URL = self.URL || self.webkitURL
-
-  let sourceURI = sourceDef.uri || ('' as string | Promise<string>)
+  const sourceURI = useHookstate(null as null | string)
   let isObjectURL = false
 
-  if (sourceDef.bufferView !== undefined) {
-    // Load binary image data from bufferView, if provided.
+  const bufferViewSourceURI = GLTFLoaderFunctions.useLoadBufferView(options, json, sourceDef?.bufferView)
 
-    sourceURI = GLTFLoaderFunctions.loadBufferView(options, json, sourceDef.bufferView).then(function (bufferView) {
-      isObjectURL = true
-      const blob = new Blob([bufferView], { type: sourceDef.mimeType })
-      sourceURI = URL.createObjectURL(blob)
-      return sourceURI
-    })
-  } else if (sourceDef.uri === undefined) {
-    throw new Error('THREE.GLTFLoader: Image ' + sourceIndex + ' is missing URI and bufferView')
-  }
+  useEffect(() => {
+    if (!sourceDef) return
 
-  const promise = Promise.resolve(sourceURI)
-    .then(function (sourceURI) {
-      return new Promise<any>(function (resolve, reject) {
-        let onLoad = resolve
+    if (sourceDef.uri === undefined && sourceDef.bufferView === undefined) {
+      console.error('THREE.GLTFLoader: Image ' + sourceIndex + ' is missing URI and bufferView')
+      return
+    }
 
-        if ((loader as ImageBitmapLoader).isImageBitmapLoader === true) {
-          onLoad = function (imageBitmap) {
-            const texture = new Texture(imageBitmap)
-            texture.needsUpdate = true
-
-            resolve(texture)
-          }
-        }
-
-        loader.load(LoaderUtils.resolveURL(sourceURI, options.path), onLoad, undefined, reject)
-      })
-    })
-    .then(function (texture: Texture) {
-      // Clean up resources and configure Texture.
-
-      if (isObjectURL === true) {
-        URL.revokeObjectURL(sourceURI as string)
-      } else {
-        texture.userData.src = sourceURI
+    if (sourceDef.uri) {
+      const url = LoaderUtils.resolveURL(sourceDef.uri, options.path)
+      sourceURI.set(url)
+      return () => {
+        sourceURI.set(null)
       }
+    }
 
-      texture.userData.mimeType = sourceDef.mimeType || getImageURIMimeType(sourceDef.uri)
+    if (bufferViewSourceURI) {
+      isObjectURL = true
+      const blob = new Blob([bufferViewSourceURI], { type: sourceDef.mimeType })
+      const url = URL.createObjectURL(blob)
+      sourceURI.set(url)
+      return () => {
+        URL.revokeObjectURL(url)
+        sourceURI.set(null)
+      }
+    }
+  }, [sourceDef?.uri, bufferViewSourceURI])
 
-      return texture
-    })
-    .catch(function (error) {
-      console.error("THREE.GLTFLoader: Couldn't load texture", sourceURI)
-      throw error
-    })
+  useEffect(() => {
+    if (!sourceURI.value) return
+    console.log(
+      'sourceURI',
+      loader,
+      options,
+      sourceURI.value,
+      LoaderUtils.resolveURL(sourceURI.value as string, options.path)
+    )
+    loader!.load(
+      LoaderUtils.resolveURL(sourceURI.value as string, options.path),
+      (imageBitmap) => {
+        if ((loader as ImageBitmapLoader).isImageBitmapLoader === true) {
+          const texture = new Texture(imageBitmap)
+          texture.needsUpdate = true
+          result.set(texture)
+        } else {
+          result.set(imageBitmap)
+        }
+      },
+      undefined,
+      (e) => {
+        console.error(e)
+        console.error("THREE.GLTFLoader: Couldn't load image", sourceURI.value)
+      }
+    )
+  }, [sourceURI.value])
 
-  sourceCache[sourceIndex] = promise
-  return promise
+  useEffect(() => {
+    if (!result.value || !sourceURI.value || !sourceDef) return
+
+    const texture = result.value as Texture
+
+    // Clean up resources and configure Texture.
+
+    if (isObjectURL === true) {
+      URL.revokeObjectURL(sourceURI.value!)
+    } else {
+      texture.userData.src = sourceURI
+    }
+
+    texture.userData.mimeType = sourceDef.mimeType || getImageURIMimeType(sourceDef.uri)
+
+    // sourceCache[sourceIndex] = promise
+  }, [result.value])
+
+  return result.value as Texture | null
 }
 
 export const GLTFLoaderFunctions = {
-  loadAccessor,
-  loadBufferView,
-  loadBuffer,
   computeBounds,
-  loadMaterial,
+  useLoadAccessor,
+  useLoadBufferView,
+  useLoadBuffer,
+  useLoadMaterial,
   assignTexture,
-  loadTexture,
-  loadImageSource,
-  loadTextureImage
+  useLoadTexture,
+  useLoadImageSource,
+  useLoadTextureImage
 }
