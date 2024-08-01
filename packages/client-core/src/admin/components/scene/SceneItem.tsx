@@ -129,7 +129,7 @@ export const SceneItem = ({ scene, updateEditorState, handleOpenScene, refetchPr
               <Button
                 variant="transparent"
                 size="medium"
-                className="h-full p-0 font-[Figtree] text-zinc-400 hover:text-[var(--text-primary)]"
+                className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
                 startIcon={<MdOutlineEdit />}
                 onClick={() => {
                   showContentMenu.set(false)
@@ -150,7 +150,7 @@ export const SceneItem = ({ scene, updateEditorState, handleOpenScene, refetchPr
               <Button
                 variant="transparent"
                 size="medium"
-                className="h-full p-0 font-[Figtree] text-zinc-400 hover:text-[var(--text-primary)]"
+                className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
                 startIcon={<LuTrash />}
                 onClick={() => {
                   showContentMenu.set(false)

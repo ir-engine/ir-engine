@@ -238,7 +238,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
   }
 
   return (
-    <div className="rounded-xl bg-theme-primary p-4 font-['Figtree']">
+    <div className="rounded-xl bg-theme-primary p-4">
       <div className="h-auto w-full overflow-x-hidden overflow-y-scroll  p-2">
         <Text className="mb-1.5 w-full text-center uppercase text-white">{t(`editor:layout.assetGrid.${type}`)}</Text>
         <StringInput
