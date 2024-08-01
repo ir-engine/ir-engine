@@ -458,7 +458,7 @@ export const AuthService = {
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     } finally {
       authState.merge({ isProcessing: false, error: '' })
-      AuthService.doLoginAuto(true)
+      window.location.reload()
     }
   },
 

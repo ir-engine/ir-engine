@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent, getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -39,7 +39,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { Engine, Entity, EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
+import { Engine, Entity, UUIDComponent, entityExists } from '@etherealengine/ecs'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
@@ -101,8 +101,8 @@ const didHierarchyChange = (prev: HierarchyTreeNodeType[], curr: HierarchyTreeNo
 /**
  * HierarchyPanel function component provides view for hierarchy tree.
  */
-function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: EntityUUID; index: number }) {
-  const { sceneURL, rootEntityUUID, index } = props
+function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; index: number }) {
+  const { sceneURL, rootEntity, index } = props
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | Entity>(undefined)
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
@@ -117,10 +117,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const searchHierarchy = useHookstate('')
   const selectionState = useMutableState(SelectionState)
 
-  const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
-  const rootEntitySource = useComponent(rootEntity, SourceComponent)
   const gltfState = useMutableState(GLTFSnapshotState)
-  const gltfSnapshot = gltfState[rootEntitySource.value].snapshots[props.index]
+  const gltfSnapshot = gltfState[sceneURL].snapshots[index]
 
   const [showModelChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
 
@@ -501,7 +499,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     <FixedSizeList
       height={height}
       width={width}
-      itemSize={32}
+      itemSize={40}
       itemCount={validNodes.length}
       itemData={{
         renamingNode,
@@ -513,7 +511,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         onToggle,
         onUpload
       }}
-      itemKey={(index) => index}
+      itemKey={(index: number) => index}
       outerRef={treeContainerDropTarget}
       innerElementType="ul"
     >
@@ -651,21 +649,18 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   )
 }
 
+const GLTFHierarchySub = (props: { sourceID: string; rootEntity: Entity }) => {
+  const { sourceID, rootEntity } = props
+  const index = GLTFSnapshotState.useSnapshotIndex(sourceID)
+
+  if (index === undefined) return null
+  return <HierarchyPanelContents key={sourceID} sceneURL={sourceID} rootEntity={rootEntity} index={index.value} />
+}
+
 export default function HierarchyPanel() {
-  const sceneID = useHookstate(getMutableState(EditorState).scenePath).value
-  const gltfEntity = useMutableState(EditorState).rootEntity.value
-  if (!sceneID || !gltfEntity) return null
+  const { scenePath, rootEntity } = useMutableState(EditorState).value
+  const sourceID = useOptionalComponent(rootEntity, SourceComponent)?.value
 
-  const GLTFHierarchySub = () => {
-    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
-    const sourceID = getComponent(gltfEntity, SourceComponent)
-    const index = GLTFSnapshotState.useSnapshotIndex(sourceID)
-
-    if (index === undefined) return null
-    return (
-      <HierarchyPanelContents key={sourceID} rootEntityUUID={rootEntityUUID} sceneURL={sourceID} index={index.value} />
-    )
-  }
-
-  return <GLTFHierarchySub />
+  if (!scenePath || !rootEntity || !sourceID) return null
+  return <GLTFHierarchySub sourceID={sourceID} rootEntity={rootEntity} />
 }

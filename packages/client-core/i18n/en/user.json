@@ -223,10 +223,10 @@
       "requestVC": "Request a VC",
       "addSocial": "Connect your Social Logins",
       "logIn": "Log In",
-      "acceptTOS": "I accept the ",
+      "agreeTOS": "I agree to the Infinite Reality ",
       "termsOfService": "Terms of Service",
-      "confirmAge13": "I confirm that I am 13 years or older",
-      "confirmAge18": "I confirm that I am 18 years or older",
+      "confirmAge13": "I am 13 years of age or older",
+      "confirmAge18": "I am 18 years of age or older",
       "removeSocial": "Remove Social Logins",
       "connections": {
         "title": "Connections",
