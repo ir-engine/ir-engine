@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import type Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
-import { DoubleSide, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
+import { AudioContext, DoubleSide, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Engine, hasComponent, UndefinedEntity } from '@etherealengine/ecs'
+import { ComponentType, Engine, UndefinedEntity } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -303,7 +303,7 @@ export function MediaReactor() {
         }
       }
     },
-    [media.paused.value, mediaElement]
+    [media.paused, mediaElement]
   )
 
   useEffect(
@@ -360,10 +360,22 @@ export function MediaReactor() {
 
       if (media.resources.value.every((resource) => !resource)) return // if all resources are empty, we dont move to next track
 
+      const mediaElement = getOptionalComponent(entity, MediaElementComponent)
       const track = media.track.value
       let nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
-      if (nextTrack === -1 && hasComponent(entity, MediaElementComponent)) return
-      let path = media.resources[nextTrack].value
+
+      //check if we haven't set up for single play yet, or if our sources don't match the new resources
+      //TODO make this more robust in a refactor, feels very error prone with edge cases
+      if (
+        nextTrack === -1 &&
+        mediaElement &&
+        mediaElement.element &&
+        media.resources.value.length > 0 &&
+        mediaElement.element.src === media.resources.value[0]
+      )
+        return
+      nextTrack = Math.max(nextTrack, 0)
+      let path = media.resources.value[nextTrack]
 
       while (!path) {
         // we already remove the case where we dont have any track
@@ -371,8 +383,6 @@ export function MediaReactor() {
         nextTrack = (nextTrack + 1) % media.resources.length
         path = media.resources[nextTrack].value
       }
-
-      const mediaElement = getOptionalComponent(entity, MediaElementComponent)
 
       const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
 
@@ -385,55 +395,7 @@ export function MediaReactor() {
       media.track.set(nextTrack)
 
       if (!mediaElement || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
-        setComponent(entity, MediaElementComponent, {
-          element: document.createElement(assetClass) as HTMLMediaElement
-        })
-        const mediaElementState = getMutableComponent(entity, MediaElementComponent)
-
-        const element = mediaElementState.element.value as HTMLMediaElement
-
-        element.crossOrigin = 'anonymous'
-        element.preload = 'auto'
-        element.muted = false
-        element.setAttribute('playsinline', 'true')
-
-        const signal = mediaElementState.abortController.signal.value
-
-        element.addEventListener(
-          'playing',
-          () => {
-            media.waiting.set(false)
-            clearErrors(entity, MediaElementComponent)
-          },
-          { signal }
-        )
-        element.addEventListener('waiting', () => media.waiting.set(true), { signal })
-        element.addEventListener(
-          'error',
-          (err) => {
-            addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
-            media.ended.set(true)
-            media.waiting.set(false)
-          },
-          { signal }
-        )
-
-        element.addEventListener(
-          'ended',
-          () => {
-            media.ended.set(true)
-            media.waiting.set(false)
-          },
-          { signal }
-        )
-
-        const audioNodes = createAudioNodeGroup(
-          element,
-          audioContext.createMediaElementSource(element),
-          media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
-        )
-
-        audioNodes.gain.gain.setTargetAtTime(media.volume.value, audioContext.currentTime, 0.1)
+        setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
       }
 
       setComponent(entity, MediaElementComponent)
@@ -505,6 +467,70 @@ export function MediaReactor() {
   }, [debugEnabled, audioHelperTexture])
 
   return null
+}
+
+const setUpMediaElement = (
+  entity: Entity,
+  path: string,
+  media: State<ComponentType<typeof MediaComponent>>,
+  audioContext: AudioContext,
+  gainNodeMixBuses: {
+    mediaStreams: GainNode
+    notifications: GainNode
+    music: GainNode
+    soundEffects: GainNode
+  }
+) => {
+  const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+  setComponent(entity, MediaElementComponent, {
+    element: document.createElement(assetClass) as HTMLMediaElement
+  })
+  const mediaElementState = getMutableComponent(entity, MediaElementComponent)
+
+  const element = mediaElementState.element.value as HTMLMediaElement
+
+  element.crossOrigin = 'anonymous'
+  element.preload = 'auto'
+  element.muted = false
+  element.setAttribute('playsinline', 'true')
+
+  const signal = mediaElementState.abortController.signal.value
+
+  element.addEventListener(
+    'playing',
+    () => {
+      media.waiting.set(false)
+      clearErrors(entity, MediaElementComponent)
+    },
+    { signal }
+  )
+  element.addEventListener('waiting', () => media.waiting.set(true), { signal })
+  element.addEventListener(
+    'error',
+    (err) => {
+      addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
+      media.ended.set(true)
+      media.waiting.set(false)
+    },
+    { signal }
+  )
+
+  element.addEventListener(
+    'ended',
+    () => {
+      media.ended.set(true)
+      media.waiting.set(false)
+    },
+    { signal }
+  )
+
+  const audioNodes = createAudioNodeGroup(
+    element,
+    audioContext.createMediaElementSource(element),
+    media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
+  )
+
+  audioNodes.gain.gain.setTargetAtTime(media.volume.value, audioContext.currentTime, 0.1)
 }
 
 export const setupHLS = async (entity: Entity, url: string): Promise<Hls> => {
