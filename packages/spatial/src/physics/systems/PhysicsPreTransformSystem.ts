@@ -36,7 +36,7 @@ import {
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
 
-import { Vector3_Zero } from '../../common/constants/MathConstants'
+import { Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
 import { EntityTreeComponent, getAncestorWithComponent, iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../../transform/systems/TransformSystem'
@@ -45,14 +45,11 @@ import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { PhysicsState } from '../state/PhysicsState'
 
+const localMatrix = new Matrix4()
+const parentMatrixInverse = new Matrix4()
 const position = new Vector3()
 const rotation = new Quaternion()
 const scale = new Vector3()
-const mat4 = new Matrix4()
-
-const localPosition = new Vector3()
-const localRotation = new Quaternion()
-const localMatrix = new Matrix4()
 
 export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   /*
@@ -89,12 +86,11 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
   if (parentEntity) {
     const parentTransform = getComponent(parentEntity, TransformComponent)
-    localPosition.copy(position).sub(parentTransform.position)
-    localRotation.copy(parentTransform.rotation).invert().multiply(rotation)
-    localMatrix.compose(localPosition, localRotation, transform.scale)
-
-    // if the entity has a parent, we need to use the world space
-    transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, localMatrix)
+    parentMatrixInverse.copy(parentTransform.matrixWorld).invert()
+    localMatrix.compose(position, rotation, Vector3_One).premultiply(parentMatrixInverse)
+    localMatrix.decompose(position, rotation, scale)
+    transform.matrix.compose(position, rotation, transform.scale)
+    transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
 
     iterateEntityNode(entity, (child) => {
       TransformComponent.dirtyTransforms[child] = true
