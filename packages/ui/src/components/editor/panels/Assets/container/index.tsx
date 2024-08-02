@@ -513,7 +513,7 @@ const AssetPanel = () => {
   const ResourceItems = () => {
     if (loading.value) {
       return (
-        <div className="flex w-full items-center justify-center">
+        <div className="flex h-full w-full items-center justify-center">
           <LoadingView title={t('editor:loadingAssets')} fullSpace className="block h-12 w-12" />
         </div>
       )
@@ -662,14 +662,16 @@ const AssetPanel = () => {
           onSelectCategory={handleSelectCategory}
           style={{ width: width.value }}
         />
-        <div className="flex w-[20px] cursor-pointer resize items-center">
+        <div className="flex w-[20px] cursor-pointer items-center">
           <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
         </div>
-        <div className="h-full w-full overflow-y-scroll">
-          <div className="flex flex-wrap gap-2">
-            <ResourceItems />
+        <div className="flex h-full w-full flex-col overflow-auto">
+          <div className="flex-grow overflow-y-scroll p-2">
+            <div className="mt-auto flex h-full w-full flex-wrap gap-2">
+              <ResourceItems />
+            </div>
           </div>
-          <div className="mx-auto mb-10">
+          <div className="mx-auto mb-10 mt-auto">
             <TablePagination
               totalPages={staticResourcesPagination.totalPages.value}
               currentPage={staticResourcesPagination.currentPage.value}
