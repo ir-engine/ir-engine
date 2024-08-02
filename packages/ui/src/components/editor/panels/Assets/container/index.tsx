@@ -175,10 +175,10 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="mb-2 flex cursor-pointer flex-col items-center justify-center align-middle"
+      className="mb-3 flex h-auto w-40 cursor-pointer flex-col items-center text-center"
     >
       <span
-        className={`mb-[5px] h-40 w-40 text-[70px] ${
+        className={`mx-4 mt-2 h-40 w-40 font-['Figtree'] ${
           selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
         }`}
       >
@@ -665,8 +665,8 @@ const AssetPanel = () => {
         <div className="flex w-[20px] cursor-pointer resize items-center">
           <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
         </div>
-        <div className="flex h-full w-full flex-col overflow-auto">
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-2 p-2">
+        <div className="h-full w-full overflow-y-scroll">
+          <div className="flex flex-wrap gap-2">
             <ResourceItems />
           </div>
           <div className="mx-auto mb-10">
