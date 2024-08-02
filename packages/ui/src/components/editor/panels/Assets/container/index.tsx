@@ -314,31 +314,37 @@ const AssetCategory = (props: {
   return (
     <div
       className={twMerge(
-        'flex h-9 cursor-pointer items-center gap-2 text-[#B2B5BD]',
-        category.depth === 0 && !category.collapsed && 'mt-0',
-        selectedCategory?.name === category.name && 'rounded bg-[#191B1F]'
+        'rounded-md bg-[#141619]',
+        selectedCategory?.name === category.name && 'text-primary bg-[#191B1F] py-1'
       )}
-      style={{ marginLeft: category.depth > 1 ? category.depth * 16 : 0 }}
-      onClick={handleSelectCategory}
     >
-      <Button
-        variant="transparent"
-        className={twMerge('m-0 p-0', category.isLeaf && 'invisible cursor-auto')}
-        title={category.collapsed ? 'expand' : 'collapse'}
-        startIcon={category.collapsed ? <IoIosArrowForward /> : <IoIosArrowDown />}
-      />
-      <AssetIconMap name={category.name} />
-      <div className="flex w-full items-center gap-1 pr-2">
-        <span
-          className={twMerge(
-            "flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]",
-            selectedCategory?.name === category.name && 'text-[#F5F5F5]'
-          )}
-          style={{ fontSize: `${fontSize}px` }}
-        >
-          {category.name}
-        </span>
-        {/* <HiEye className="flex flex-row items-center gap-2 ml-auto text-[#e7e7e7] text-sm" onClick={handlePreview} /> */}
+      <div
+        className={twMerge(
+          'flex h-7 cursor-pointer items-center gap-2 rounded-md bg-[#141619] text-[#B2B5BD]',
+          category.depth === 0 && !category.collapsed && 'mt-0'
+        )}
+        style={{ marginLeft: category.depth > 1 ? category.depth * 16 : 0 }}
+        onClick={handleSelectCategory}
+      >
+        <Button
+          variant="transparent"
+          className={twMerge('m-0 p-0', category.isLeaf && 'invisible cursor-auto')}
+          title={category.collapsed ? 'expand' : 'collapse'}
+          startIcon={category.collapsed ? <IoIosArrowForward /> : <IoIosArrowDown />}
+        />
+        <AssetIconMap name={category.name} />
+        <div className="flex w-full items-center gap-1 pr-2">
+          <span
+            className={twMerge(
+              "flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]",
+              selectedCategory?.name === category.name && 'text-[#F5F5F5]'
+            )}
+            style={{ fontSize: `${fontSize}px` }}
+          >
+            {category.name}
+          </span>
+          {/* <HiEye className="flex flex-row items-center gap-2 ml-auto text-[#e7e7e7] text-sm" onClick={handlePreview} /> */}
+        </div>
       </div>
     </div>
   )
@@ -403,7 +409,7 @@ const CategoriesList = ({
   return (
     <div
       ref={listRef}
-      className="mb-8 h-full overflow-x-hidden overflow-y-scroll bg-[#0E0F11] px-2 pb-8"
+      className="mb-8 h-full space-y-1 overflow-x-hidden overflow-y-scroll bg-[#0E0F11] px-2 pb-8"
       style={style}
       onScroll={handleScroll}
     >
@@ -587,7 +593,7 @@ const AssetPanel = () => {
 
   return (
     <>
-      <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
+      <div className="mb-1 flex h-7 items-center bg-theme-surface-main">
         <div className="mr-20 flex gap-2">
           <div className="pointer-events-auto flex items-center">
             <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
