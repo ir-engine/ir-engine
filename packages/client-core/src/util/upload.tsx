@@ -50,14 +50,14 @@ const getFileKeys = (files: Array<File> | File) => {
   return keys
 }
 
-export const useUploadingFiles = (): [number, number, number] => {
+export const useUploadingFiles = () => {
   const fileUploadState = useMutableState(FileUploadState).value
   const values = Object.values(fileUploadState)
   const total = values.length
   const completed = values.reduce((prev, curr) => (curr === 1 ? prev + 1 : prev), 0)
   const sum = values.reduce((prev, curr) => prev + curr, 0)
   const progress = sum ? (sum / total) * 100 : 0
-  return [completed, total, progress]
+  return { completed, total, progress }
 }
 
 export const FileUploadState = defineState({

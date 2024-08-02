@@ -30,7 +30,7 @@ import Progress from '../../../../../primitives/tailwind/Progress'
 
 export const FileUploadProgress = () => {
   const { t } = useTranslation()
-  const [completed, total, progress] = useUploadingFiles()
+  const { completed, total, progress } = useUploadingFiles()
 
   return total ? (
     <div className="flex h-auto w-full justify-center pb-2 pt-2">
