@@ -111,9 +111,9 @@
     "gizmo": {
       "pointer": "Pointer",
       "description": "Transform Gizmo",
-      "translate": "[T] Translate",
-      "rotate": "[R] Rotate",
-      "scale": "[Y] Scale",
+      "translate": "[W] Translate",
+      "rotate": "[E] Rotate",
+      "scale": "[R] Scale",
       "combined": "[U] Combined Transform"
     },
     "transformSpace": {
