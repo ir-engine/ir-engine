@@ -483,7 +483,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                         fontStyle: 'italic'
                       }}
                     >
-                      {t('user:usermenu.profile.acceptTOS')}
+                      {t('user:usermenu.profile.agreeTOS')}
                       <Link
                         style={{
                           fontStyle: 'italic',
@@ -573,42 +573,82 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Settings)}
             />
           )}
-          {!isGuest && initialized && (
-            <IconButton
-              background="var(--textColor)"
-              sx={{
-                width: '110px',
-                height: '45px',
-                marginTop: '1rem',
-                borderRadius: '10px'
-              }}
-              icon={
-                <>
-                  <Icon
-                    type="Help"
-                    sx={{
-                      display: 'block',
-                      width: '30%',
-                      height: '100%',
-                      margin: 'auto',
-                      color: 'var(--inputBackground)'
-                    }}
-                  />
-                  <Text
-                    align="center"
-                    sx={{
-                      width: '100%',
-                      marginLeft: '4px',
-                      fontSize: '12px',
-                      color: 'var(--inputBackground)'
-                    }}
-                  >
-                    {t('user:usermenu.profile.helpChat')}
-                  </Text>
-                </>
-              }
-              onClick={openChat}
-            ></IconButton>
+          {initialized && (
+            <Box display="flex" flexDirection="column" alignItems="center">
+              {!isGuest && (
+                <IconButton
+                  background="var(--textColor)"
+                  sx={{
+                    width: '125px',
+                    height: '45px',
+                    marginTop: '1rem',
+                    borderRadius: '10px'
+                  }}
+                  icon={
+                    <>
+                      <Icon
+                        type="Help"
+                        sx={{
+                          display: 'block',
+                          width: '30%',
+                          height: '100%',
+                          margin: 'auto',
+                          color: 'var(--inputBackground)'
+                        }}
+                      />
+                      <Text
+                        align="center"
+                        sx={{
+                          width: '100%',
+                          marginLeft: '4px',
+                          fontSize: '12px',
+                          color: 'var(--inputBackground)'
+                        }}
+                      >
+                        {t('user:usermenu.profile.helpChat')}
+                      </Text>
+                    </>
+                  }
+                  onClick={openChat}
+                ></IconButton>
+              )}
+
+              <IconButton
+                background="red"
+                sx={{
+                  width: '125px',
+                  height: '45px',
+                  marginTop: '1rem',
+                  borderRadius: '10px'
+                }}
+                icon={
+                  <>
+                    <Icon
+                      type="Report"
+                      sx={{
+                        display: 'block',
+                        width: '30%',
+                        height: '100%',
+                        margin: 'auto',
+                        color: 'var(--inputBackground)'
+                      }}
+                    />
+                    <Text
+                      align="center"
+                      sx={{
+                        width: '100%',
+                        marginLeft: '4px',
+                        fontSize: '12px',
+                        color: 'var(--inputBackground)'
+                      }}
+                    >
+                      {t('user:usermenu.profile.reportWorld')}
+                    </Text>
+                  </>
+                }
+                onClick={openChat}
+              ></IconButton>
+            </Box>
           )}
         </Box>
 
