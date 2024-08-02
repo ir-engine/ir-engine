@@ -354,7 +354,7 @@ export function AssetsBreadcrumb({
   onSelectCategory: (c: Category) => void
 }) {
   return (
-    <div className="flex h-[28px] items-center gap-2 rounded-lg border border-theme-input bg-[#141619] px-2 ">
+    <div className="flex h-[28px] w-96 items-center gap-2 rounded-lg border border-theme-input bg-[#141619] px-2 ">
       <HiOutlineFolder className="text-xs text-[#A3A3A3]" />
       {parentCategories.map((category) => (
         <span
@@ -613,14 +613,12 @@ const AssetPanel = () => {
           </div> */}
         </div>
 
-        <div className="align-center flex h-7 flex-1 justify-center gap-2 pr-2">
-          <div className="h-full flex-1">
-            <AssetsBreadcrumb
-              parentCategories={parentCategories.get(NO_PROXY) as Category[]}
-              selectedCategory={selectedCategory.value}
-              onSelectCategory={handleSelectCategory}
-            />
-          </div>
+        <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
+          <AssetsBreadcrumb
+            parentCategories={parentCategories.get(NO_PROXY) as Category[]}
+            selectedCategory={selectedCategory.value}
+            onSelectCategory={handleSelectCategory}
+          />
           <Input
             placeholder={t('editor:layout.scene-assets.search-placeholder')}
             value={searchText.value}

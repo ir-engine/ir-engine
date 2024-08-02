@@ -466,7 +466,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
 
     return (
-      <div className="flex h-[28px] items-center gap-1 rounded-lg border border-theme-input bg-[#141619] px-2 ">
+      <div className="flex h-[28px] w-96 items-center gap-1 rounded-lg border border-theme-input bg-[#141619] px-2 ">
         <HiOutlineFolder className="text-sm text-[#A3A3A3]" />
         {breadcrumbDirectoryFiles.map((file, index, arr) => (
           <Fragment key={index}>
@@ -736,9 +736,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
 
         <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
-          <div className="h-full flex-1">
-            <BreadcrumbItems />
-          </div>
+          <BreadcrumbItems />
           <Input
             placeholder={t('editor:layout.filebrowser.search-placeholder')}
             value={searchText.value}
