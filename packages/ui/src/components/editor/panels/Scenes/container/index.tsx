@@ -78,7 +78,6 @@ export default function ScenesPanel() {
           startIcon={<HiOutlinePlusCircle />}
           endIcon={isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
           disabled={isCreatingScene.value}
-          variant="transparent"
           rounded="none"
           className="ml-auto bg-theme-highlight px-2"
           size="small"
