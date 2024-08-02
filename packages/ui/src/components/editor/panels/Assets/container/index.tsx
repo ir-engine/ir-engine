@@ -513,7 +513,7 @@ const AssetPanel = () => {
   const ResourceItems = () => {
     if (loading.value) {
       return (
-        <div className="col-start-2 flex items-center justify-center">
+        <div className="flex w-full items-center justify-center">
           <LoadingView title={t('editor:loadingAssets')} fullSpace className="block h-12 w-12" />
         </div>
       )
@@ -666,7 +666,7 @@ const AssetPanel = () => {
           <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
         </div>
         <div className="h-full w-full overflow-y-scroll">
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap gap-2">
             <ResourceItems />
           </div>
           <div className="mx-auto mb-10">
