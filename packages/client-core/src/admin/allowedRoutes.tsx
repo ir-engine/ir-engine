@@ -29,8 +29,8 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 
 import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
 
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { Redirect } from '../common/components/Redirect'
-import { LoadingCircle } from '../components/LoadingCircle'
 import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'
 
 const AllowedRoutes = () => {
@@ -49,7 +49,9 @@ const AllowedRoutes = () => {
   const allowed = currentRoute?.access?.value
 
   return (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingAllowed')} />}>
+    <Suspense
+      fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingAllowed')} />}
+    >
       <Routes>{allowed && Element && <Route key={path} path={`*`} element={<Element />} />}</Routes>
     </Suspense>
   )
