@@ -71,6 +71,7 @@ function buildHierarchyTree(
 ) {
   const uuid = node.extensions && (node.extensions[UUIDComponent.jsonID] as ComponentType<typeof UUIDComponent>)
   const entity = UUIDComponent.getEntityByUUID(uuid!)
+  if (!entity) return
 
   const item = {
     depth,
@@ -112,7 +113,7 @@ function buildHierarchyTreeForNodes(depth: number, nodes: GLTF.INode[], outArray
     if (isChild(i, nodes)) continue
     buildHierarchyTree(depth, i, nodes[i], nodes, outArray, false, sceneID)
   }
-  outArray[outArray.length - 1].lastChild = true
+  if (outArray.length) outArray[outArray.length - 1].lastChild = true
 }
 
 function flattenTree(array: NestedHierarchyTreeNode[], outArray: HierarchyTreeNodeType[]) {

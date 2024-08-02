@@ -25,7 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent, getMutableComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import {
+  ErrorBoundary,
+  getMutableState,
+  getState,
+  none,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
   EntityTreeComponent,
@@ -133,11 +140,13 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
-      <HierarchyTreeNode
-        {...props}
-        key={props.data.nodes[props.index].depth + ' ' + props.index + ' ' + props.data.nodes[props.index].entity}
-        onContextMenu={onContextMenu}
-      />
+      <ErrorBoundary>
+        <HierarchyTreeNode
+          {...props}
+          key={props.data.nodes[props.index].depth + ' ' + props.index + ' ' + props.data.nodes[props.index].entity}
+          onContextMenu={onContextMenu}
+        />
+      </ErrorBoundary>
     ),
     [entityHierarchy]
   )
