@@ -407,7 +407,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
     if (!map) return
     map.colorSpace = SRGBColorSpace
     result.value?.setValues({ map })
-    material.needsUpdate = true
+    if (material) material.needsUpdate = true
   }, [map])
 
   useEffect(() => {
@@ -417,7 +417,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
         color: new Color().setRGB(array[0], array[1], array[2], LinearSRGBColorSpace),
         opacity: array[3]
       })
-      material.needsUpdate = true
+      if (material) material.needsUpdate = true
     }
   }, [materialDef.pbrMetallicRoughness?.baseColorFactor])
 
@@ -428,7 +428,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
           ? materialDef.pbrMetallicRoughness.metallicFactor
           : 1.0
     })
-    material.needsUpdate = true
+    if (material) material.needsUpdate = true
   }, [materialDef.pbrMetallicRoughness?.metallicFactor])
 
   useEffect(() => {
@@ -438,7 +438,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
           ? materialDef.pbrMetallicRoughness.roughnessFactor
           : 1.0
     })
-    material.needsUpdate = true
+    if (material) material.needsUpdate = true
   }, [materialDef.pbrMetallicRoughness?.roughnessFactor])
 
   const metalnessMap = GLTFLoaderFunctions.useAssignTexture(
@@ -450,7 +450,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
   useEffect(() => {
     if (!metalnessMap) return
     result.value?.setValues({ metalnessMap })
-    material.needsUpdate = true
+    if (material) material.needsUpdate = true
   }, [metalnessMap])
 
   const roughnessMap = GLTFLoaderFunctions.useAssignTexture(
@@ -462,12 +462,12 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
   useEffect(() => {
     if (!roughnessMap) return
     result.value?.setValues({ roughnessMap })
-    material.needsUpdate = true
+    if (material) material.needsUpdate = true
   }, [roughnessMap])
 
   useEffect(() => {
     result.value?.setValues({ side: materialDef.doubleSided === true ? DoubleSide : FrontSide })
-    material.needsUpdate = true
+    if (material) material.needsUpdate = true
   }, [materialDef.doubleSided])
 
   useEffect(() => {
@@ -478,7 +478,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
     if (alphaMode !== ALPHA_MODES.OPAQUE) {
       result.value?.setValues({ depthWrite: false })
     }
-    material.needsUpdate = true
+    if (material) material.needsUpdate = true
   }, [materialDef.alphaMode])
 
   useEffect(() => {
@@ -487,7 +487,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
     } else {
       result.value?.setValues({ alphaTest: 0 })
     }
-    material.needsUpdate = true
+    if (material) material.needsUpdate = true
   }, [materialDef.alphaCutoff])
 
   const normalMap = GLTFLoaderFunctions.useAssignTexture(
@@ -499,7 +499,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
   useEffect(() => {
     if (!normalMap) return
     result.value?.setValues({ normalMap })
-    material.needsUpdate = true
+    if (material) material.needsUpdate = true
   }, [normalMap])
 
   // useEffect(() => {
@@ -521,12 +521,12 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
   useEffect(() => {
     if (!aoMap) return
     result.value?.setValues({ aoMap })
-    material.needsUpdate = true
+    if (material) material.needsUpdate = true
   }, [aoMap])
 
   useEffect(() => {
     result.value?.setValues({ aoMapIntensity: materialDef.occlusionTexture?.strength ?? 1.0 })
-    material.needsUpdate = true
+    if (material) material.needsUpdate = true
   }, [materialDef.occlusionTexture?.strength])
 
   useEffect(() => {
@@ -536,7 +536,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
     result.value?.setValues({
       emissive: new Color().setRGB(emissiveFactor[0], emissiveFactor[1], emissiveFactor[2], LinearSRGBColorSpace)
     })
-    material.needsUpdate = true
+    if (material) material.needsUpdate = true
   }, [materialDef.emissiveFactor])
 
   const emissiveMap = GLTFLoaderFunctions.useAssignTexture(
@@ -549,7 +549,7 @@ const useLoadMaterial = (options: GLTFParserOptions, json: GLTF.IGLTF, materialI
     if (!emissiveMap) return
     emissiveMap.colorSpace = SRGBColorSpace
     result.value?.setValues({ emissiveMap })
-    material.needsUpdate = true
+    if (material) material.needsUpdate = true
   }, [emissiveMap])
 
   return result.value as MeshStandardMaterial | null
