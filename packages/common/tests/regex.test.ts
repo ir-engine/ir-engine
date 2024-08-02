@@ -61,15 +61,15 @@ describe('regex.test', () => {
         'asterisk*char',
         'control\0char',
         'another\ncontrol',
-        'file name', // (a space and an underscore)
-        '< tag >', // (spaces and less-than < and greater-than > characters)
-        'key : value', // (a space and a colon :)
-        'quote " example', // (a space and a double quote ")
-        'path / to / file', // (spaces and forward slashes /)
-        'C:\\ path \\ to \\ file', // (spaces and backslashes \)
-        'pipe | character', // (a space and a pipe |)
-        'question ? mark', // (a space and a question mark ?)
-        'star * char' // (a space and an asterisk *)
+        'file name',
+        '< tag >',
+        'key : value',
+        'quote " example',
+        'path / to / file',
+        'C:\\ path \\ to \\ file',
+        'pipe | character',
+        'question ? mark',
+        'star * char'
       ]
       invalidFilenames.forEach((filename) => {
         assert.ok(!VALID_FILENAME_REGEX.test(filename), `Expected '${filename}' to be invalid`)
