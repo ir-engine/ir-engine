@@ -88,10 +88,9 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
   const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
   if (parentEntity) {
-    // todo: figure out proper scale support
     const parentTransform = getComponent(parentEntity, TransformComponent)
-    localPosition.copy(position.clone().sub(parentTransform.position))
-    localRotation.copy(parentTransform.rotation.clone().invert().multiply(rotation))
+    localPosition.copy(position).sub(parentTransform.position)
+    localRotation.copy(parentTransform.rotation).invert().multiply(rotation)
     localMatrix.compose(localPosition, localRotation, transform.scale)
 
     // if the entity has a parent, we need to use the world space
