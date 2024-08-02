@@ -466,18 +466,18 @@ const MaterialEntityReactor = (props: { index: number; parentUUID: EntityUUID; d
 
     return () => {
       //check if entity is in some other document
-      // if (hasComponent(entity, UUIDComponent)) {
-      //   const uuid = getComponent(entity, UUIDComponent)
-      //   const documents = getState(GLTFDocumentState)
-      //   for (const documentID in documents) {
-      //     const document = documents[documentID]
-      //     if (!document?.materials) continue
-      //     for (const material of document.materials) {
-      //       if (material.extensions?.[UUIDComponent.jsonID] === uuid) return
-      //     }
-      //   }
-      // }
-      // removeEntity(entity)
+      if (hasComponent(entity, UUIDComponent)) {
+        const uuid = getComponent(entity, UUIDComponent)
+        const documents = getState(GLTFDocumentState)
+        for (const documentID in documents) {
+          const document = documents[documentID]
+          if (!document?.materials) continue
+          for (const material of document.materials) {
+            if (material.extensions?.[UUIDComponent.jsonID] === uuid) return
+          }
+        }
+      }
+      removeEntity(entity)
     }
   }, [])
 
@@ -541,7 +541,7 @@ const ParentNodeReactor = (props: {
 
 const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID: EntityUUID; documentID: string }) => {
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
-  const nodes = documentState.nodes! // as State<GLTF.INode[]>
+  const nodes = documentState.nodes!
 
   const node = nodes[props.nodeIndex]! as State<GLTF.INode>
 

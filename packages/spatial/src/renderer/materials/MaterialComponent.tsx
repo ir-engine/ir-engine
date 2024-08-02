@@ -187,7 +187,7 @@ const MaterialInstanceSubReactor = (props: { uuid: EntityUUID; entity: Entity; i
     const mesh = meshComponent.value as Mesh
     const material = materialStateComponent.material.value as Material
     if (Array.isArray(mesh.material)) mesh.material[index] = material
-    mesh.material = material
+    else mesh.material = material
   }, [materialStateComponent.material])
 
   return null
