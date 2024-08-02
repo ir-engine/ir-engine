@@ -44,6 +44,7 @@ const handleUploadFiles = (projectName: string, directoryPath: string, files: Fi
           {
             project: projectName,
             path: directoryPath.replace('projects/' + projectName + '/', '') + fileDirectory,
+            type: 'asset',
             contentType: file.type
           }
         ]
