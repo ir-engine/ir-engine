@@ -43,6 +43,16 @@ const AllowedRoutes = () => {
 
   const currentRoute = allowedRoutes[path]
 
+  const allowedRoutesKeys = Object.keys(allowedRoutes)
+  if (!path) {
+    for (const key of allowedRoutesKeys) {
+      const allowedRoute = allowedRoutes[key]
+      if (allowedRoute?.value && allowedRoute?.value?.access) {
+        return <Redirect to={`/admin/${key}`} />
+      }
+    }
+  }
+
   if (currentRoute?.value && currentRoute.redirect.value) return <Redirect to={currentRoute.redirect?.value} />
 
   const Element = currentRoute?.get(NO_PROXY)?.component

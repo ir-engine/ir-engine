@@ -31,7 +31,6 @@ import { getMutableState, getState, NO_PROXY, useHookstate, useMutableState } fr
 
 import { AuthState } from '../user/services/AuthService'
 import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'
-import Projects from './components/project'
 
 import '@etherealengine/engine/src/EngineModule'
 
@@ -150,7 +149,6 @@ const AdminRoutes = () => {
         <div className="mb-8 h-[calc(100vh_-_88px_-_4rem)] w-full overflow-x-auto overflow-y-auto px-3">
           <Routes>
             <Route path="/*" element={<$allowed />} />
-            {<Route path="/" element={<Projects />} />}
           </Routes>
         </div>
         <PopupMenu />
