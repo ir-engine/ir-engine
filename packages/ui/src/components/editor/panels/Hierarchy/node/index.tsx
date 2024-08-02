@@ -302,8 +302,13 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     <li
       style={fixedSizeListStyles}
       className={twMerge(
-        props.index % 2 ? 'bg-[#0E0F11]' : 'bg-[#080808]',
-        selected ? 'border border-gray-100' : 'border-none'
+        'cursor-pointer',
+        selected ? 'text-white' : 'text-[#b2b5bd]',
+        selected && (props.index % 2 ? 'bg-[#1d1f23]' : 'bg-zinc-900'),
+        !selected && (props.index % 2 ? 'bg-[#141619] hover:bg-[#1d1f23]' : 'bg-[#080808] hover:bg-zinc-900'),
+        !visible && (props.index % 2 ? 'bg-[#191B1F]' : 'bg-[#0e0f11]'),
+        !visible && 'text-[#42454d]',
+        'hover:text-white'
       )}
     >
       <div
@@ -343,14 +348,14 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             </button>
           )}
 
-          <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
-            {IconComponent && <IconComponent className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />}
+          <div className="flex flex-1 items-center gap-2 bg-inherit py-0.5 pl-0 pr-1 text-inherit ">
+            {IconComponent && <IconComponent className="h-5 w-5 flex-shrink-0 text-inherit" />}
             <div className="flex flex-1 items-center">
               {renaming ? (
-                <div className="relative h-[15px] w-full">
+                <div className="relative h-[15px] w-full bg-inherit px-1 text-inherit">
                   <input
                     type="text"
-                    className="absolute top-[-3px] m-0 w-full rounded-lg px-1 py-0.5"
+                    className="absolute top-[-3px] m-0 w-full rounded-none bg-inherit py-0.5 pl-0.5 text-sm"
                     onChange={onChangeNodeName}
                     onKeyDown={onKeyDownNameInput}
                     value={data.renamingNode.name}
@@ -358,7 +363,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   />
                 </div>
               ) : (
-                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
+                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit ">
                   <span className="text-nowrap text-sm leading-4">{nodeName}</span>
                 </div>
               )}
@@ -371,7 +376,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
               {visible ? (
                 <PiEyeBold className="font-small text-[#6B7280]" />
               ) : (
-                <PiEyeClosedBold className="font-small text-[#6B7280]" />
+                <PiEyeClosedBold className="font-small text-[#42454d]" />
               )}
             </button>
           </div>
