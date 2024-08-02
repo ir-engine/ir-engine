@@ -270,7 +270,8 @@
       "apiKeyCopied": "API Key copied",
       "refreshApiKey": "Refresh API Key",
       "privacyPolicy": "Privacy Policy",
-      "helpChat": "Help Chat"
+      "helpChat": "Help Chat",
+      "reportWorld": "Report World"
     },
     "oauth": {
       "authenticating": "Authenticating...",
