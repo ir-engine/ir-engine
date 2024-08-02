@@ -466,34 +466,32 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
 
     return (
-      <nav className="flex items-center rounded-lg border border-theme-input bg-[#141619] px-2" aria-label="Breadcrumb">
+      <div className="flex h-[28px] items-center gap-1 rounded-lg border border-theme-input bg-[#141619] px-2 ">
         <HiOutlineFolder className="text-sm text-[#A3A3A3]" />
-        <span className="flex h-full w-full items-center overflow-x-auto whitespace-nowrap px-4">
-          {breadcrumbDirectoryFiles.map((file, index, arr) => (
-            <Fragment key={index}>
-              {index !== 0 && ( // Add separator for all but the first item
-                <span className="mx-1 cursor-default items-center text-sm text-[#A3A3A3]"> {'>'} </span>
-              )}
-              {index === arr.length - 1 || (orgName && index === 0) ? (
-                <span className="overflow-hidden">
-                  <span className="inline-block w-full cursor-default overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle text-sm text-[#A3A3A3]">
-                    {file}
-                  </span>
+        {breadcrumbDirectoryFiles.map((file, index, arr) => (
+          <Fragment key={index}>
+            {index !== 0 && ( // Add separator for all but the first item
+              <span className="cursor-default items-center text-sm text-[#A3A3A3]"> {'>'} </span>
+            )}
+            {index === arr.length - 1 || (orgName && index === 0) ? (
+              // <span className="overflow-hidden">
+              <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline">
+                {file}
+              </span>
+            ) : (
+              // </span>
+              <a
+                className="inline-flex cursor-pointer items-center overflow-hidden text-sm text-[#A3A3A3] hover:text-theme-highlight hover:underline focus:text-theme-highlight"
+                onClick={() => handleBreadcrumbDirectoryClick(file)}
+              >
+                <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline">
+                  {file}
                 </span>
-              ) : (
-                <a
-                  className="inline-flex cursor-pointer items-center overflow-hidden text-sm text-[#A3A3A3] hover:text-theme-highlight hover:underline focus:text-theme-highlight"
-                  onClick={() => handleBreadcrumbDirectoryClick(file)}
-                >
-                  <span className="inline-block w-full cursor-default overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle text-sm text-[#A3A3A3]">
-                    {file}
-                  </span>
-                </a>
-              )}
-            </Fragment>
-          ))}
-        </span>
-      </nav>
+              </a>
+            )}
+          </Fragment>
+        ))}
+      </div>
     )
   }
 
@@ -738,7 +736,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
 
         <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
-          <div className="hidden h-full lg:block lg:w-1/2 xl:w-[400px]">
+          <div className="h-full flex-1">
             <BreadcrumbItems />
           </div>
           <Input
@@ -748,8 +746,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               searchText.set(e.target.value)
             }}
             labelClassname="text-sm text-red-500"
-            containerClassname="flex h-full bg-theme-primary rounded-[4px] w-full"
-            className="h-7 w-full rounded-[4px] bg-theme-primary py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
+            containerClassname="flex h-full bg-theme-primary rounded w-auto"
+            className="h-7 rounded-[4px] bg-theme-primary py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
           />
         </div>
