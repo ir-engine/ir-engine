@@ -703,7 +703,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   return (
     <>
-      <div className="mb-1 flex h-8 items-center gap-2 bg-theme-surface-main">
+      <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
         <div
           id="backDir"
           className={`flex h-7 w-7 items-center rounded-lg bg-[#2F3137] ${

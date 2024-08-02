@@ -587,7 +587,7 @@ const AssetPanel = () => {
 
   return (
     <>
-      <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
+      <div className="mb-1 flex h-9 items-center bg-theme-surface-main">
         <div className="mr-20 flex gap-2">
           <div className="pointer-events-auto flex items-center">
             <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
