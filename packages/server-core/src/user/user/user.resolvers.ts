@@ -49,7 +49,6 @@ import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/util
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { isDev } from '@etherealengine/common/src/config'
-import checkScope from '../../hooks/check-scope'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
@@ -104,7 +103,11 @@ export const userResolver = resolve<UserType, HookContext>({
   }),
   lastLogin: virtual(async (user) => (user.lastLogin ? fromDateTimeSql(user.lastLogin) : null)),
   createdAt: virtual(async (user) => fromDateTimeSql(user.createdAt)),
-  updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt))
+  updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt)),
+  acceptedTOS: virtual(async (user, context) => {
+    if (isDev) return true
+    return !!user.acceptedTOS
+  })
 })
 
 export const userExternalResolver = resolve<UserType, HookContext>({
@@ -167,16 +170,7 @@ export const userExternalResolver = resolve<UserType, HookContext>({
     })) as LocationBanType[]
   }),
   // https://stackoverflow.com/a/56523892/2077741
-  isGuest: async (value, user) => !!user.isGuest,
-  /** This must not be returned for other users */
-  acceptedTOS: virtual(async (user, context) => {
-    if (isDev) return true
-    const isSelfOrAdmin = context.params.user
-      ? context.params.user?.id === user.id || (await checkScope('admin', 'admin')(context))
-      : false
-    if (!isSelfOrAdmin) return undefined
-    return !!user.acceptedTOS
-  })
+  isGuest: async (value, user) => !!user.isGuest
 })
 
 export const userDataResolver = resolve<UserType, HookContext>({

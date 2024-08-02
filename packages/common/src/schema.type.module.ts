@@ -116,6 +116,8 @@ export type * from './schemas/user/user-setting.schema'
 export type * from './schemas/user/user.schema'
 export type * from './schemas/world/spawn-point.schema'
 
+export type * from './schemas/projects/project-history.schema'
+
 export const locationPath = 'location'
 
 export const userRelationshipPath = 'user-relationship'
