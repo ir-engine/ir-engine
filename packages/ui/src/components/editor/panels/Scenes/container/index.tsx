@@ -89,7 +89,7 @@ export default function ScenesPanel() {
       </div>
       <div className="h-full bg-theme-primary">
         {scenesLoading ? (
-          <LoadingView title={t('editor:loadingScenes')} className="h-5 w-5" />
+          <LoadingView title={t('editor:loadingScenes')} fullSpace className="block h-12 w-12" />
         ) : (
           <div className="relative h-full flex-1 overflow-y-auto px-4 py-3 pb-8">
             <div className="flex flex-wrap gap-4 pb-8">
