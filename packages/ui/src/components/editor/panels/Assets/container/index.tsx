@@ -38,33 +38,33 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
+import { FilesViewModeSettings } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { NO_PROXY, State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
+import { HiDotsVertical } from 'react-icons/hi'
 import {
-  HiChevronDown,
-  HiChevronRight,
-  HiEye,
   HiMagnifyingGlass,
   HiMiniArrowLeft,
   HiMiniArrowPath,
   HiOutlineFolder,
   HiOutlinePlusCircle
 } from 'react-icons/hi2'
+import { IoIosArrowDown, IoIosArrowForward } from 'react-icons/io'
 import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import { TablePagination } from '../../../../../primitives/tailwind/Table'
-import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
 import { FileIcon } from '../../Files/icon'
+import { AssetIconMap } from '../icons'
 
 type Category = {
   name: string
@@ -175,16 +175,18 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className={`flex cursor-pointer flex-col items-center justify-center align-middle ${
-        selected ? 'border border-gray-100' : ''
-      }`}
+      className="mb-2 flex cursor-pointer flex-col items-center justify-center align-middle"
     >
-      <span className="mb-[5px] h-[70px] w-[70px] text-[70px]">
+      <span
+        className={`mb-[5px] h-40 w-40 text-[70px] ${
+          selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
+        }`}
+      >
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
 
       <Tooltip content={name}>
-        <span className="line-clamp-1 w-full text-wrap break-all text-sm text-white">{name}</span>
+        <span className="line-clamp-1 w-full text-wrap break-all text-sm text-[#F5F5F5]">{name}</span>
       </Tooltip>
 
       <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)} className="gap-1">
@@ -291,6 +293,7 @@ const AssetCategory = (props: {
     onClick: (category: Category) => void
     selectedCategory: Category | null
     collapsedCategories: State<{ [key: string]: boolean }>
+    category: Category
   }
   index: number
 }) => {
@@ -306,27 +309,36 @@ const AssetCategory = (props: {
   const handlePreview = () => {
     // TODO: add preview functionality
   }
+  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
 
   return (
     <div
       className={twMerge(
-        'flex cursor-pointer items-center gap-2',
-        category.depth === 0 && !category.collapsed && 'mt-0'
+        'flex h-9 cursor-pointer items-center gap-2 text-[#B2B5BD]',
+        category.depth === 0 && !category.collapsed && 'mt-0',
+        selectedCategory?.name === category.name && 'rounded bg-[#191B1F]'
       )}
-      style={{ marginLeft: category.depth * 16 }}
+      style={{ marginLeft: category.depth > 1 ? category.depth * 16 : 0 }}
       onClick={handleSelectCategory}
     >
       <Button
         variant="transparent"
         className={twMerge('m-0 p-0', category.isLeaf && 'invisible cursor-auto')}
         title={category.collapsed ? 'expand' : 'collapse'}
-        startIcon={category.collapsed ? <HiChevronRight /> : <HiChevronDown />}
+        startIcon={category.collapsed ? <IoIosArrowForward /> : <IoIosArrowDown />}
       />
+      <AssetIconMap name={category.name} />
       <div className="flex w-full items-center gap-1 pr-2">
-        <Text className={twMerge('text-[#B2B5BD]', selectedCategory?.name === category.name && 'font-bold')}>
+        <span
+          className={twMerge(
+            "flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]",
+            selectedCategory?.name === category.name && 'text-[#F5F5F5]'
+          )}
+          style={{ fontSize: `${fontSize}px` }}
+        >
           {category.name}
-        </Text>
-        <HiEye className="ml-auto text-[#B2B5BD]" onClick={handlePreview} />
+        </span>
+        {/* <HiEye className="flex flex-row items-center gap-2 ml-auto text-[#e7e7e7] text-sm" onClick={handlePreview} /> */}
       </div>
     </div>
   )
@@ -364,12 +376,14 @@ const CategoriesList = ({
   categories,
   selectedCategory,
   collapsedCategories,
-  onSelectCategory
+  onSelectCategory,
+  style
 }: {
   categories: Category[]
   selectedCategory: Category | null
   collapsedCategories: State<{ [key: string]: boolean }>
   onSelectCategory: (category: Category) => void
+  style: any
 }) => {
   const savedScrollPosition = useRef<number>(0)
   const listRef = useRef<HTMLDivElement>(null)
@@ -387,17 +401,23 @@ const CategoriesList = ({
   }
 
   return (
-    <div ref={listRef} className="mb-8 h-full w-52 overflow-y-scroll bg-[#0E0F11] pb-8" onScroll={handleScroll}>
+    <div
+      ref={listRef}
+      className="mb-8 h-full overflow-x-hidden overflow-y-scroll bg-[#0E0F11] px-2 pb-8"
+      style={style}
+      onScroll={handleScroll}
+    >
       {categories.map((category, index) => (
         <AssetCategory
-          key={category.name}
+          key={category.name + index}
           data={{
             categories: categories as Category[],
             selectedCategory: selectedCategory,
             onClick: (category: Category) => {
               onSelectCategory(category)
             },
-            collapsedCategories
+            collapsedCategories,
+            category
           }}
           index={index}
         />
@@ -547,6 +567,24 @@ const AssetPanel = () => {
     !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }
 
+  const width = useHookstate(300)
+  const mouseDown = useHookstate(false)
+
+  const handleMouseDown = (event) => {
+    event.preventDefault()
+    mouseDown.set(true)
+  }
+
+  const handleMouseUp = () => {
+    mouseDown.set(false)
+  }
+
+  const handleMouseMove = (event) => {
+    if (mouseDown.value) {
+      width.set(event.pageX)
+    }
+  }
+
   return (
     <>
       <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
@@ -616,15 +654,19 @@ const AssetPanel = () => {
           {t('editor:layout.filebrowser.uploadAssets')}
         </Button>
       </div>
-      <div id="asset-browser-panel" className="flex h-full">
+      <div className="flex h-full w-full" onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}>
         <CategoriesList
           categories={categories.value as Category[]}
           selectedCategory={selectedCategory.value}
           collapsedCategories={collapsedCategories}
           onSelectCategory={handleSelectCategory}
+          style={{ width: width.value }}
         />
+        <div className="flex w-[20px] cursor-pointer resize items-center">
+          <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
+        </div>
         <div className="flex h-full w-full flex-col overflow-auto">
-          <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-2 p-2">
             <ResourceItems />
           </div>
           <div className="mx-auto mb-10">
