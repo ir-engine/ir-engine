@@ -47,9 +47,8 @@ export async function up(knex: Knex): Promise<void> {
       'id' | 'key'
     >[]
 
-    const queries: Knex.QueryBuilder[] = []
-
     knex.transaction(async (trx) => {
+      const queries: Knex.QueryBuilder[] = []
       for (const row of rows) {
         const query = knex<StaticResourceType>(staticResourcePath)
           .where({ id: row.id })
