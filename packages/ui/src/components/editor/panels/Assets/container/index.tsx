@@ -315,15 +315,16 @@ const AssetCategory = (props: {
     <div
       className={twMerge(
         'rounded-md bg-[#141619]',
-        selectedCategory?.name === category.name && 'text-primary bg-[#191B1F] py-1'
+        selectedCategory?.name === category.name && 'text-primary bg-[#191B1F]'
       )}
     >
       <div
         className={twMerge(
-          'flex h-7 cursor-pointer items-center gap-2 rounded-md bg-[#141619] text-[#B2B5BD]',
-          category.depth === 0 && !category.collapsed && 'mt-0'
+          'flex h-9 w-full cursor-pointer items-center gap-2 text-[#B2B5BD]',
+          category.depth === 0 && !category.collapsed && 'mt-0',
+          category.depth > 0 && 'h-7'
         )}
-        style={{ marginLeft: category.depth > 1 ? category.depth * 16 : 0 }}
+        style={{ marginLeft: category.depth * 16 }}
         onClick={handleSelectCategory}
       >
         <Button
@@ -331,6 +332,7 @@ const AssetCategory = (props: {
           className={twMerge('m-0 p-0', category.isLeaf && 'invisible cursor-auto')}
           title={category.collapsed ? 'expand' : 'collapse'}
           startIcon={category.collapsed ? <IoIosArrowForward /> : <IoIosArrowDown />}
+          iconContainerClassName="ml-2"
         />
         <AssetIconMap name={category.name} />
         <div className="flex w-full items-center gap-1 pr-2">
