@@ -178,7 +178,7 @@ const ResourceFile = (props: {
       className="mb-3 flex h-auto w-40 cursor-pointer flex-col items-center text-center"
     >
       <span
-        className={`mx-4 mt-2 h-40 w-40 font-['Figtree'] ${
+        className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
           selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
         }`}
       >
