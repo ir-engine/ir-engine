@@ -365,7 +365,7 @@ export function MediaReactor() {
       let nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
 
       //check if we haven't set up for single play yet, or if our sources don't match the new resources
-      //TODO make this more robust in a refactor, feels very error prone with edge cases
+      //** todo  make this more robust in a refactor, feels very error prone with edge cases */
       if (nextTrack === -1 && mediaElement?.element?.src === media.resources.value[0]) return
 
       let path = media.resources.value[nextTrack]
