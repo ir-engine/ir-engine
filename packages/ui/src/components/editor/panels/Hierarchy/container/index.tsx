@@ -499,7 +499,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
     <FixedSizeList
       height={height}
       width={width}
-      itemSize={32}
+      itemSize={40}
       itemCount={validNodes.length}
       itemData={{
         renamingNode,
@@ -511,7 +511,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
         onToggle,
         onUpload
       }}
-      itemKey={(index) => index}
+      itemKey={(index: number) => index}
       outerRef={treeContainerDropTarget}
       innerElementType="ul"
     >
