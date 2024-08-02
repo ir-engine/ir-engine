@@ -298,20 +298,16 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const IconComponent = icons.length ? icons[icons.length - 1] : TransformPropertyGroup.iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entity
 
-  const baseBgColor = props.index % 2 ? 'bg-[#141619]' : 'bg-[#080808]'
-  const hoverBgColor = props.index % 2 ? 'hover:bg-[#1d1f23]' : 'hover:bg-zinc-900'
-  const selectedBgColor = props.index % 2 ? 'bg-[#1d1f23]' : 'bg-zinc-900'
-  const textColor = selected ? 'text-white' : 'text-[#b2b5bd]'
-  const invisibleBgColor = props.index % 2 ? 'bg-[#191B1F]' : 'bg-[#0e0f11]'
-  const invisibleTextColor = 'text-[#42454d]'
-
   return (
     <li
       style={fixedSizeListStyles}
       className={twMerge(
-        selected ? selectedBgColor : `${baseBgColor} ${hoverBgColor}`,
-        textColor,
-        !visible && `${invisibleBgColor} ${invisibleTextColor}`,
+        'cursor-pointer',
+        selected ? 'text-white' : 'text-[#b2b5bd]',
+        selected && (props.index % 2 ? 'bg-[#1d1f23]' : 'bg-zinc-900'),
+        !selected && (props.index % 2 ? 'bg-[#141619] hover:bg-[#1d1f23]' : 'bg-[#080808] hover:bg-zinc-900'),
+        !visible && (props.index % 2 ? 'bg-[#191B1F]' : 'bg-[#0e0f11]'),
+        !visible && 'text-[#42454d]',
         'hover:text-white'
       )}
     >
