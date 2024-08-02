@@ -558,7 +558,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       <div
         ref={fileDropRef}
         className={twMerge(
-          'mb-2 h-auto p-6 px-4 text-gray-400 ',
+          'mb-2 h-auto px-3 pb-6 text-gray-400 ',
           isListView ? '' : 'flex py-8',
           isFileDropOver ? 'border-2 border-gray-300' : ''
         )}

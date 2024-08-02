@@ -23,24 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
+import { BsStars } from 'react-icons/bs'
+import { FaRegCircle } from 'react-icons/fa6'
+import { FiSun } from 'react-icons/fi'
+import { LuWaves } from 'react-icons/lu'
+import { PiMountains } from 'react-icons/pi'
+import { RxCube } from 'react-icons/rx'
+import { TbMaximize, TbRoute } from 'react-icons/tb'
 
-import { ITableHeadCell } from '../Table'
+import React from 'react'
 
-type IdType = 'name' | 'projectVersion' | 'enabled' | 'visibility' | 'commitSHA' | 'commitDate' | 'actions'
-
-export type ProjectRowType = Record<IdType, string | JSX.Element | undefined>
-
-interface IProjectColumn extends ITableHeadCell {
-  id: IdType
+export const iconMap: { [key: string]: React.ReactElement } = {
+  Model: <RxCube />,
+  Material: <FaRegCircle />,
+  Texture: <LuWaves />,
+  Image: <PiMountains />,
+  Lighting: <FiSun />,
+  'Particle system': <BsStars />,
+  'Visual script': <TbRoute />
 }
 
-export const projectsColumns: IProjectColumn[] = [
-  { id: 'name', sortable: true, label: t('admin:components.project.columns.name') },
-  { id: 'projectVersion', label: t('admin:components.project.columns.projectVersion') },
-  { id: 'enabled', sortable: true, label: t('admin:components.project.columns.enabled') },
-  { id: 'visibility', sortable: true, label: t('admin:components.project.columns.visibility') },
-  { id: 'commitSHA', label: t('admin:components.project.columns.commitSHA') },
-  { id: 'commitDate', sortable: true, label: t('admin:components.project.columns.commitDate') },
-  { id: 'actions', label: t('admin:components.project.columns.actions') }
-]
+const defaultIcon = <TbMaximize />
+
+export const AssetIconMap = ({ name }): React.ReactElement => {
+  return <div className="h-4 w-4">{iconMap[name] ?? defaultIcon}</div>
+}
