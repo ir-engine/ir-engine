@@ -629,7 +629,6 @@ const AssetPanel = () => {
 
         <Button
           startIcon={<HiOutlinePlusCircle className="text-lg" />}
-          variant="transparent"
           rounded="none"
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
           size="small"

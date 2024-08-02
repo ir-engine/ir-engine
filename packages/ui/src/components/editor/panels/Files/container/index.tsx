@@ -644,11 +644,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         position={'bottom left'}
         trigger={
           <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
-            <Button
-              variant="transparent"
-              startIcon={<IoSettingsSharp />}
-              className="h-7 w-7 rounded-lg bg-[#2F3137] p-0"
-            />
+            <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
           </Tooltip>
         }
       >
@@ -765,7 +761,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <Button
           id="uploadFiles"
           startIcon={<HiOutlinePlusCircle />}
-          variant="transparent"
           disabled={!showUploadButtons}
           rounded="none"
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
@@ -783,7 +778,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <Button
           id="uploadFiles"
           startIcon={<HiOutlinePlusCircle />}
-          variant="transparent"
           disabled={!showUploadButtons}
           rounded="none"
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
