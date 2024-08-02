@@ -260,24 +260,12 @@ export class S3Provider implements StorageProviderInterface {
     // https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-folders.htmlhow to
     const command = new ListObjectsV2Command({
       Bucket: this.bucket,
-      Prefix: path.join(directoryPath, fileName),
+      Prefix: path.join(directoryPath, fileName, '/'),
       MaxKeys: 1
     })
     try {
       const response = await this.provider.send(command)
-
-      if (response.Contents) {
-        for (const content of response.Contents) {
-          if (content.Key) {
-            const lastSlug = content.Key.split('/').filter(Boolean).pop()
-            if (lastSlug === fileName && content.Key.endsWith('/')) {
-              return true
-            }
-          }
-        }
-      }
-
-      return false
+      return (response.Contents && response.Contents.length > 0) || false
     } catch {
       return false
     }
