@@ -207,7 +207,12 @@ const initializeInstance = async ({
 
   if (existingInstanceResult.total > 0) {
     const instance = existingInstanceResult.data[0]
-    if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return false
+    if (userId) {
+      const user = await app.service(userPath).get(userId)
+      if (!user) return false
+      const authorised = await authorizeUserToJoinServer(app, instance, user)
+      if (!authorised) return false
+    }
     if (instance.locationId) {
       const existingChannel = (await app.service(channelPath).find({
         query: {
@@ -403,6 +408,8 @@ const updateInstance = async ({
     instanceStarted = true
     const initialized = await initializeInstance({ app, status, headers, userId })
     if (initialized) await loadEngine({ app, sceneId, headers })
+    else instanceStarted = false
+    return true
   } else {
     try {
       if (!getState(InstanceServerState).ready)
@@ -415,7 +422,12 @@ const updateInstance = async ({
           }, 1000)
         })
       const instance = await app.service(instancePath).get(instanceServerState.instance.id, { headers })
-      if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return false
+      if (userId) {
+        const user = await app.service(userPath).get(userId)
+        if (!user) return false
+        const authorised = await authorizeUserToJoinServer(app, instance, user)
+        if (!authorised) return false
+      }
 
       logger.info(`Authorized user ${userId} to join server`)
       await serverState.agonesSDK.allocate()
@@ -603,6 +615,15 @@ export const onConnection = (app: Application) => async (connection: PrimusConne
   }
 
   logger.info(`user ${userId} joining ${locationId ?? channelId} and room code ${roomCode}`)
+
+  if (userId) {
+    const user = await app.service(userPath).get(userId)
+    // disallow users from joining media servers if they haven't accepted the TOS
+    if (channelId && !user.acceptedTOS) {
+      logger.warn('User tried to connect without accepting TOS')
+      return
+    }
+  }
 
   const instanceServerState = getState(InstanceServerState)
   const serverState = getState(ServerState)

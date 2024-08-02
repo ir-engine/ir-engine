@@ -59,7 +59,11 @@ export class LogsApiService implements ServiceInterface<void, any, LogsApiParams
   }
 
   _processLogItem = (logItem, userId?: string) => {
-    const { msg, level, component } = logItem
-    logger[level]({ component, userId }, msg)
+    const { msg, level } = logItem
+
+    delete logItem.level
+    delete logItem.msg
+
+    logger[level]({ ...logItem, userId }, msg)
   }
 }

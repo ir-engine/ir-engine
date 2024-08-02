@@ -23,41 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Node, OnConnectStartParams } from 'reactflow'
+import { LogParamsObject } from '@etherealengine/common/src/logger'
+import { getState } from '@etherealengine/hyperflux'
+import { LocationState } from '../social/services/LocationService'
 
-import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
-import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType'
+/**
+ * @function clientContextParams
+ * @description This function will collect contextual parameters
+ * from url's query params
+ */
+export function clientContextParams(params: LogParamsObject) {
+  const locationState = getState(LocationState)
+  /*
+  console.log('IR> location state', locationState.currentLocation.location)
 
-type NodePickerFilters = {
-  handleType: 'source' | 'target'
-  valueType: string
-}
+  console.log('IR> location_id', locationState.currentLocation.location.id)
 
-export const getNodePickerFilters = (
-  nodes: Node[],
-  params: OnConnectStartParams | undefined,
-  specGenerator: NodeSpecGenerator | undefined
-): NodePickerFilters | undefined => {
-  if (params === undefined) return
-
-  const originNode = nodes.find((node) => node.id === params.nodeId)
-  if (originNode === undefined) return
-
-  const sockets = specGenerator
-    ? getSocketsByNodeTypeAndHandleType(
-        specGenerator,
-        originNode.type,
-        originNode.data.configuration,
-        params.handleType
-      )
-    : undefined
-
-  const socket = sockets?.find((socket) => socket.name === params.handleId)
-
-  if (socket === undefined) return
-
+  console.log('IR> project_id', locationState.currentLocation.location.projectId)
+*/
   return {
-    handleType: params.handleType === 'source' ? 'target' : 'source',
-    valueType: socket.valueType
+    ...params,
+    location_id: locationState.currentLocation.location.id,
+    project_id: locationState.currentLocation.location.projectId
   }
 }

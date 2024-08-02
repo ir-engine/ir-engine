@@ -185,6 +185,9 @@
   "video": {
     "back": "Back"
   },
+  "user": {
+    "reportUser": "Report User"
+  },
   "terms": {
     "confirmTerms": "I agree to Terms of Service",
     "confirmPolicy": "I agree to Privacy Policy"
