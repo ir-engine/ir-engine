@@ -470,16 +470,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <HiOutlineFolder className="text-sm text-[#A3A3A3]" />
         {breadcrumbDirectoryFiles.map((file, index, arr) => (
           <Fragment key={index}>
-            {index !== 0 && ( // Add separator for all but the first item
-              <span className="cursor-default items-center text-sm text-[#A3A3A3]"> {'>'} </span>
-            )}
+            {index !== 0 && <span className="cursor-default items-center text-sm text-[#A3A3A3]"> {'>'} </span>}
             {index === arr.length - 1 || (orgName && index === 0) ? (
-              // <span className="overflow-hidden">
               <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline">
                 {file}
               </span>
             ) : (
-              // </span>
               <a
                 className="inline-flex cursor-pointer items-center overflow-hidden text-sm text-[#A3A3A3] hover:text-theme-highlight hover:underline focus:text-theme-highlight"
                 onClick={() => handleBreadcrumbDirectoryClick(file)}
