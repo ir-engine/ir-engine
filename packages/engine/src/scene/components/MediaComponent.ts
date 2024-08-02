@@ -366,15 +366,8 @@ export function MediaReactor() {
 
       //check if we haven't set up for single play yet, or if our sources don't match the new resources
       //TODO make this more robust in a refactor, feels very error prone with edge cases
-      if (
-        nextTrack === -1 &&
-        mediaElement &&
-        mediaElement.element &&
-        media.resources.value.length > 0 &&
-        mediaElement.element.src === media.resources.value[0]
-      )
-        return
-      nextTrack = Math.max(nextTrack, 0)
+      if (nextTrack === -1 && mediaElement?.element?.src === media.resources.value[0]) return
+
       let path = media.resources.value[nextTrack]
 
       while (!path) {
