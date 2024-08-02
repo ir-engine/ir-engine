@@ -411,7 +411,7 @@ const CategoriesList = ({
   return (
     <div
       ref={listRef}
-      className="mb-8 h-full space-y-1 overflow-x-hidden overflow-y-scroll bg-[#0E0F11] px-2 pb-8"
+      className="mb-8 h-full space-y-1 overflow-x-hidden overflow-y-scroll bg-[#0E0F11] pb-8 pl-1 pr-2 pt-2"
       style={style}
       onScroll={handleScroll}
     >
