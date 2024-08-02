@@ -265,7 +265,19 @@ export class S3Provider implements StorageProviderInterface {
     })
     try {
       const response = await this.provider.send(command)
-      return response?.Contents?.[0]?.Key?.endsWith('/') || false
+
+      if (response.Contents) {
+        for (const content of response.Contents) {
+          if (content.Key) {
+            const lastSlug = content.Key.split('/').filter(Boolean).pop()
+            if (lastSlug === fileName && content.Key.endsWith('/')) {
+              return true
+            }
+          }
+        }
+      }
+
+      return false
     } catch {
       return false
     }
