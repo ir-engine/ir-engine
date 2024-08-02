@@ -71,6 +71,7 @@ function buildHierarchyTree(
 ) {
   const uuid = node.extensions && (node.extensions[UUIDComponent.jsonID] as ComponentType<typeof UUIDComponent>)
   const entity = UUIDComponent.getEntityByUUID(uuid!)
+  if (!entity) return
 
   const item = {
     depth,
