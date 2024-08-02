@@ -587,31 +587,29 @@ const AssetPanel = () => {
 
   return (
     <>
-      <div className="mb-1 flex h-9 items-center bg-theme-surface-main">
-        <div className="mr-20 flex gap-2">
-          <div className="pointer-events-auto flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
-              <Button variant="transparent" startIcon={<HiMiniArrowLeft />} className="p-0" onClick={handleBack} />
-            </Tooltip>
-          </div>
-
-          <div className="flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.refresh')}>
-              <Button variant="transparent" startIcon={<HiMiniArrowPath />} className="p-0" onClick={handleRefresh} />
-            </Tooltip>
-          </div>
-
-          {/* <div className="flex items-center">
-            <Tooltip title={t('editor:layout.scene-assets.settings')}>
-              <Button
-                variant="transparent"
-                startIcon={<HiOutlineCog6Tooth />}
-                className="p-0"
-                onClick={handleSettings}
-              />
-            </Tooltip>
-          </div> */}
+      <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
+        <div className="ml-2 flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+          <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
+            <Button variant="transparent" startIcon={<HiMiniArrowLeft />} className="p-0" onClick={handleBack} />
+          </Tooltip>
         </div>
+
+        <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+          <Tooltip title={t('editor:layout.filebrowser.refresh')}>
+            <Button variant="transparent" startIcon={<HiMiniArrowPath />} className="p-0" onClick={handleRefresh} />
+          </Tooltip>
+        </div>
+
+        {/* <div className="flex items-center">
+          <Tooltip title={t('editor:layout.scene-assets.settings')}>
+            <Button
+              variant="transparent"
+              startIcon={<HiOutlineCog6Tooth />}
+              className="p-0"
+              onClick={handleSettings}
+            />
+          </Tooltip>
+        </div> */}
 
         <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
           <AssetsBreadcrumb
@@ -636,7 +634,7 @@ const AssetPanel = () => {
           startIcon={<HiOutlinePlusCircle className="text-lg" />}
           variant="transparent"
           rounded="none"
-          className="h-full whitespace-nowrap bg-[#375DAF] px-2"
+          className="h-full whitespace-nowrap bg-theme-highlight px-2"
           size="small"
           onClick={() =>
             inputFileWithAddToScene({

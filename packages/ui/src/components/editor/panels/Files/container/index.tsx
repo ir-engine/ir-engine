@@ -706,7 +706,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
         <div
           id="backDir"
-          className={`flex h-7 w-7 items-center rounded-lg bg-[#2F3137] ${
+          className={`ml-2 flex h-7 w-7 items-center rounded-lg bg-[#2F3137] ${
             showBackButton ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
           }`}
         >
@@ -750,7 +750,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           />
         </div>
 
-        <div id="downloadProject" className="flex items-center">
+        <div id="downloadProject" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
           <Tooltip title={t('editor:layout.filebrowser.downloadProject')}>
             <Button
               variant="transparent"
@@ -762,7 +762,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           </Tooltip>
         </div>
 
-        <div id="newFolder" className="flex items-center">
+        <div id="newFolder" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
           <Tooltip title={t('editor:layout.filebrowser.addNewFolder')}>
             <Button variant="transparent" startIcon={<PiFolderPlusBold />} className="p-0" onClick={createNewFolder} />
           </Tooltip>
