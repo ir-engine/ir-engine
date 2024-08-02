@@ -1213,7 +1213,7 @@
       "uploadFiles": "Upload Files",
       "uploadFolder": "Upload Folder",
       "uploadingFiles": "Uploading Files ({{completed}}/{{total}})",
-      "search-placeholder": "Search folders",
+      "search-placeholder": "Search",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
       "directory": "Directory",
@@ -1262,7 +1262,7 @@
     },
     "scene-assets": {
       "no-category": "No category selected",
-      "search-placeholder": "Search for an asset ...",
+      "search-placeholder": "Search",
       "preview": "Preview",
       "info-drag-drop": "Drag and Drop these items into the scene",
       "settings": "Settings",
