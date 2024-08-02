@@ -36,18 +36,20 @@ import {
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
 
-import { Vector3_Zero } from '../../common/constants/MathConstants'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
+import { EntityTreeComponent, getAncestorWithComponent, iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix, isDirty, TransformSystem } from '../../transform/systems/TransformSystem'
+import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../../transform/systems/TransformSystem'
 import { Physics } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
+import { PhysicsState } from '../state/PhysicsState'
 
+const localMatrix = new Matrix4()
+const parentMatrixInverse = new Matrix4()
 const position = new Vector3()
 const rotation = new Quaternion()
 const scale = new Vector3()
-const mat4 = new Matrix4()
 
 export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   /*
@@ -83,15 +85,18 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
   const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
   if (parentEntity) {
-    // todo: figure out proper scale support
-    const scale = getComponent(entity, TransformComponent).scale
-    // if the entity has a parent, we need to use the world space
-    transform.matrixWorld.compose(position, rotation, scale)
+    const parentTransform = getComponent(parentEntity, TransformComponent)
+    parentMatrixInverse.copy(parentTransform.matrixWorld).invert()
+    localMatrix.compose(position, rotation, Vector3_One).premultiply(parentMatrixInverse)
+    localMatrix.decompose(position, rotation, scale)
+    transform.matrix.compose(position, rotation, transform.scale)
+    transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
+
+    iterateEntityNode(entity, (child) => {
+      TransformComponent.dirtyTransforms[child] = true
+    })
 
     TransformComponent.dirtyTransforms[entity] = false
-
-    for (const child of getComponent(entity, EntityTreeComponent).children)
-      TransformComponent.dirtyTransforms[child] = true
   } else {
     // otherwise, we can use the local space (for things like avatars)
     transform.position.copy(position)
@@ -100,6 +105,7 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 }
 
 export const copyTransformToRigidBody = (entity: Entity) => {
+  computeTransformMatrix(entity)
   const transform = getComponent(entity, TransformComponent)
   const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
   if (parentEntity) {
@@ -143,23 +149,37 @@ export const copyTransformToRigidBody = (entity: Entity) => {
   const rigidbody = getComponent(entity, RigidBodyComponent)
   Physics.setRigidbodyPose(entity, rigidbody.position, rigidbody.rotation, Vector3_Zero, Vector3_Zero)
 
-  TransformComponent.dirtyTransforms[entity] = false
-
   if (hasComponent(entity, EntityTreeComponent))
-    for (const child of getComponent(entity, EntityTreeComponent).children)
+    iterateEntityNode(entity, (child) => {
       TransformComponent.dirtyTransforms[child] = true
+    })
+  TransformComponent.dirtyTransforms[entity] = false
 }
 
 const copyTransformToCollider = (entity: Entity) => {
   computeTransformMatrix(entity)
   getComponent(entity, TransformComponent).matrixWorld.decompose(position, rotation, scale)
-  Physics.setColliderPose(entity, position, rotation)
+  const rigidbodyEntity = getAncestorWithComponent(entity, RigidBodyComponent)
+  if (!rigidbodyEntity) return
+  const colliderDesc = Physics.createColliderDesc(entity, rigidbodyEntity)
+  if (!colliderDesc) return
+  const world = getState(PhysicsState).physicsWorld
+  Physics.removeCollider(world, entity)
+  Physics.attachCollider(world, colliderDesc, rigidbodyEntity, entity)
 }
 
-const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
-const colliderQuery = defineQuery([TransformComponent, ColliderComponent])
+const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent, EntityTreeComponent])
+const colliderQuery = defineQuery([TransformComponent, ColliderComponent, EntityTreeComponent])
 
-const filterAwakeCleanRigidbodies = (entity: Entity) => !isDirty(entity) && !Physics.isSleeping(entity)
+const filterAwakeCleanRigidbodies = (entity: Entity) => {
+  // if the entity has a parent that is dirty, we need to update the transform
+  const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+  if (TransformComponent.dirtyTransforms[parentEntity]) return true
+  // if the entity is dirty, we don't need to update the transform
+  if (isDirty(entity)) return false
+  // if the entity is not dirty, we only need to update the transform if it is awake
+  return !Physics.isSleeping(entity)
+}
 
 export const execute = () => {
   const ecsState = getState(ECSState)
@@ -187,6 +207,6 @@ export const execute = () => {
 
 export const PhysicsPreTransformSystem = defineSystem({
   uuid: 'ee.engine.PhysicsPreTransformSystem',
-  insert: { before: TransformSystem },
+  insert: { after: TransformDirtyUpdateSystem },
   execute
 })
