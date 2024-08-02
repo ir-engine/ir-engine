@@ -48,6 +48,7 @@ import { InviteCode, UserID, UserName, UserQuery, UserType } from '@etherealengi
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { isDev } from '@etherealengine/common/src/config'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
@@ -102,7 +103,11 @@ export const userResolver = resolve<UserType, HookContext>({
   }),
   lastLogin: virtual(async (user) => (user.lastLogin ? fromDateTimeSql(user.lastLogin) : null)),
   createdAt: virtual(async (user) => fromDateTimeSql(user.createdAt)),
-  updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt))
+  updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt)),
+  acceptedTOS: virtual(async (user, context) => {
+    if (isDev) return true
+    return !!user.acceptedTOS
+  })
 })
 
 export const userExternalResolver = resolve<UserType, HookContext>({
@@ -164,7 +169,8 @@ export const userExternalResolver = resolve<UserType, HookContext>({
       paginate: false
     })) as LocationBanType[]
   }),
-  isGuest: async (value, user) => !!user.isGuest // https://stackoverflow.com/a/56523892/2077741
+  // https://stackoverflow.com/a/56523892/2077741
+  isGuest: async (value, user) => !!user.isGuest
 })
 
 export const userDataResolver = resolve<UserType, HookContext>({
