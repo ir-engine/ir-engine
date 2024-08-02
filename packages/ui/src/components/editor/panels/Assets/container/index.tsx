@@ -46,15 +46,11 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
+import { FiRefreshCcw } from 'react-icons/fi'
 import { HiDotsVertical } from 'react-icons/hi'
-import {
-  HiMagnifyingGlass,
-  HiMiniArrowLeft,
-  HiMiniArrowPath,
-  HiOutlineFolder,
-  HiOutlinePlusCircle
-} from 'react-icons/hi2'
+import { HiMagnifyingGlass, HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi2'
 import { IoIosArrowDown, IoIosArrowForward } from 'react-icons/io'
+import { IoArrowBack } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
@@ -590,13 +586,13 @@ const AssetPanel = () => {
       <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
         <div className="ml-2 flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
           <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
-            <Button variant="transparent" startIcon={<HiMiniArrowLeft />} className="p-0" onClick={handleBack} />
+            <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={handleBack} />
           </Tooltip>
         </div>
 
         <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
           <Tooltip title={t('editor:layout.filebrowser.refresh')}>
-            <Button variant="transparent" startIcon={<HiMiniArrowPath />} className="p-0" onClick={handleRefresh} />
+            <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={handleRefresh} />
           </Tooltip>
         </div>
 
