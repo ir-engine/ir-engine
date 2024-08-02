@@ -61,6 +61,7 @@ import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/sy
 import React, { useEffect } from 'react'
 import { Color, Euler, MathUtils, Matrix4, Quaternion, Sphere, Vector3 } from 'three'
 
+import config from '@etherealengine/common/src/config'
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -104,7 +105,7 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
     .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '')
     .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
-  const pathname = new URL(
+  const thumbnailURL = new URL(
     await uploadToFeathersService(fileBrowserUploadPath, [file], {
       args: [
         {
@@ -118,10 +119,15 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
         }
       ]
     }).promise
-  ).pathname
+  )
+
+  thumbnailURL.hash = ''
+  thumbnailURL.search = ''
+
+  const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
   await Engine.instance.api
     .service(staticResourcePath)
-    .patch(staticResourceId, { thumbnailKey: pathname.slice(1), thumbnailMode })
+    .patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode })
 }
 
 const seenResources = new Set<string>()
