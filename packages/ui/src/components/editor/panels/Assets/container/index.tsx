@@ -666,7 +666,7 @@ const AssetPanel = () => {
           <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
         </div>
         <div className="h-full w-full overflow-y-scroll">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
             <ResourceItems />
           </div>
           <div className="mx-auto mb-10">
