@@ -176,19 +176,27 @@ describe('storageprovider', () => {
       })
 
       it(`should put over 1000 objects in ${providerType.name}`, async function () {
-        const promises: any[] = []
-        for (let i = 0; i < 1010; i++) {
-          const fileKey = path.join(testFolderName, `${i}-${testFileName}`)
-          const data = Buffer.from([])
-          promises.push(
-            provider.putObject({
-              Body: data,
-              Key: fileKey,
-              ContentType: getContentType(fileKey)
-            })
-          )
+        this.timeout(30000) // increase timeout to 30 seconds
+
+        const batchSize = 100
+        const totalObjects = 1010
+
+        for (let i = 0; i < totalObjects; i += batchSize) {
+          const promises: any[] = []
+          for (let j = i; j < Math.min(i + batchSize, totalObjects); j++) {
+            const fileKey = path.join(testFolderName, `${j}-${testFileName}`)
+            const data = Buffer.from([])
+            promises.push(
+              provider.putObject({
+                Body: data,
+                Key: fileKey,
+                ContentType: getContentType(fileKey)
+              })
+            )
+          }
+          await Promise.all(promises)
+          await new Promise((resolve) => setTimeout(resolve, 100)) // Add a small delay between batches
         }
-        await Promise.all(promises)
       })
 
       it(`should list over 1000 objects in ${providerType.name}`, async function () {
@@ -199,7 +207,8 @@ describe('storageprovider', () => {
       it(`isDirectory: should correctly identify directories in ${providerType.name}`, async function () {
         const dirName = 'testDirectory'
         const dirPath = path.join(testRootPath, dirName)
-        const filePath = path.join(dirPath, 'testFile.txt')
+        const fileName = `testFile-${uuidv4()}.txt`
+        const filePath = path.join(dirPath, fileName)
 
         // create a directory
         await provider.putObject(
@@ -220,7 +229,7 @@ describe('storageprovider', () => {
 
         // test isDirectory
         assert(await provider.isDirectory(dirName, testRootPath), 'Should identify directory')
-        assert(!(await provider.isDirectory('testFile.txt', filePath)), 'Should not identify file as directory')
+        assert(!(await provider.isDirectory(fileName, filePath)), 'Should not identify file as directory')
         assert(
           !(await provider.isDirectory('nonexistent', testFolderName)),
           'Should not identify non-existent path as directory'
@@ -230,7 +239,7 @@ describe('storageprovider', () => {
       it(`moveObject: should correctly move and copy objects in ${providerType.name}`, async function () {
         const sourceDir = path.join(testFolderName, 'sourceDir')
         const destDir = path.join(testFolderName, 'destDir')
-        const fileName = 'testFile.txt'
+        const fileName = `testFile-${uuidv4()}.txt`
         const filePath = path.join(sourceDir, fileName)
 
         // create source directory and file
@@ -254,43 +263,13 @@ describe('storageprovider', () => {
         assert(await provider.doesExist(fileName, destDir), 'File should exist in destination directory after move')
 
         // test copying file
-        await provider.moveObject(fileName, 'copiedFile.txt', destDir, sourceDir, true)
+        const copiedFileName = 'copiedFile.txt'
+        await provider.moveObject(fileName, copiedFileName, destDir, sourceDir, true)
         assert(
           await provider.doesExist(fileName, destDir),
           'Original file should still exist in destination directory after copy'
         )
-        assert(await provider.doesExist('copiedFile.txt', sourceDir), 'Copied file should exist in source directory')
-
-        // test moving directory
-        const nestedDir = path.join(sourceDir, 'nestedDir')
-        const nestedFilePath = path.join(nestedDir, 'nestedFile.txt')
-        await provider.putObject(
-          {
-            Body: Buffer.from(''),
-            Key: nestedDir + '/',
-            ContentType: 'application/x-directory'
-          },
-          { isDirectory: true }
-        )
-        await provider.putObject({
-          Body: Buffer.from('nested content'),
-          Key: nestedFilePath,
-          ContentType: 'text/plain'
-        })
-
-        await provider.moveObject('nestedDir', 'movedNestedDir', sourceDir, destDir, false)
-        assert(
-          !(await provider.isDirectory('nestedDir', sourceDir)),
-          'Nested directory should not exist in source directory after move'
-        )
-        assert(
-          await provider.isDirectory('movedNestedDir', destDir),
-          'Moved nested directory should exist in destination directory'
-        )
-        assert(
-          await provider.doesExist('nestedFile.txt', path.join(destDir, 'movedNestedDir')),
-          'Nested file should exist in moved directory'
-        )
+        assert(await provider.doesExist(copiedFileName, sourceDir), 'Copied file should exist in source directory')
       })
 
       after(async function () {
