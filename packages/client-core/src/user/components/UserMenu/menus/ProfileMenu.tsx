@@ -73,7 +73,7 @@ import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 
-const termsOfService = config.client.tosAddress ?? '/terms-of-service'
+const termsOfService = 'https://ir.world/terms-of-service' //config.client.tosAddress ?? '/terms-of-service'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ProfileMenu', modifier: clientContextParams })
 
