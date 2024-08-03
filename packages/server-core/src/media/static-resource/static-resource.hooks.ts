@@ -172,6 +172,52 @@ const isKeyPublic = (context: HookContext<StaticResourceService>) => {
   return context
 }
 
+const resolveThumbnailURL = async (context: HookContext<StaticResourceService>) => {
+  if (!context.result) return context
+  const data = context.result
+  const dataArr = data ? (Array.isArray(data) ? data : 'data' in data ? data.data : [data]) : []
+
+  context.hashedThumbnailResults = {}
+
+  const thumbkeyToIndex = new Map<string, string>()
+  const storageProvider = getStorageProvider()
+
+  for (const resource of dataArr) {
+    /** Thumbnail resources should resolve themselves for their thumbnail fields */
+    if (resource.type === 'thumbnail') {
+      resource.thumbnailKey = resource.key
+      const thumbnailURL = storageProvider.getCachedURL(resource.key, context.params.isInternal)
+      const thumbnailURLWithHash = thumbnailURL + '?hash=' + resource.hash.slice(0, 6)
+      context.hashedThumbnailResults[resource.id] = thumbnailURLWithHash
+    } else {
+      if (resource.thumbnailKey) thumbkeyToIndex.set(resource.thumbnailKey, resource.id)
+    }
+  }
+
+  if (!thumbkeyToIndex.size) return context
+
+  const thumbnailResources = await context.app.service(staticResourcePath).find({
+    query: {
+      type: 'thumbnail',
+      key: {
+        $in: [...thumbkeyToIndex.keys()]
+      }
+    },
+    paginate: false
+  })
+
+  for (const thumbnailResource of thumbnailResources) {
+    const thumbnailURL = storageProvider.getCachedURL(thumbnailResource.key, context.params.isInternal)
+    const thumbnailURLWithHash = thumbnailURL + '?hash=' + thumbnailResource.hash.slice(0, 6)
+    const id = thumbkeyToIndex.get(thumbnailResource.key)!
+
+    if (!id) continue
+    context.hashedThumbnailResults[id] = thumbnailURLWithHash
+  }
+
+  return context
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveResult(staticResourceResolver)]
@@ -267,8 +313,9 @@ export default {
 
   after: {
     all: [],
-    find: [],
+    find: [resolveThumbnailURL],
     get: [
+      resolveThumbnailURL,
       iff(
         isProvider('external'),
         iffElse(
