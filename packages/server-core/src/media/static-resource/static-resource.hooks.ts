@@ -209,7 +209,7 @@ const resolveThumbnailURL = async (context: HookContext<StaticResourceService>) 
   for (const thumbnailResource of thumbnailResources) {
     const thumbnailURL = storageProvider.getCachedURL(thumbnailResource.key, context.params.isInternal)
     const thumbnailURLWithHash = thumbnailURL + '?hash=' + thumbnailResource.hash.slice(0, 6)
-    const id = thumbkeyToIndex.get(thumbnailResource.key)!
+    const id = thumbkeyToIndex.get(thumbnailResource.key)
 
     if (!id) continue
     context.hashedThumbnailResults[id] = thumbnailURLWithHash
