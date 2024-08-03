@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
 
@@ -37,11 +37,6 @@ module.exports = {
           return acc;
         }, {})
       },
-      backgroundImage: {
-        'gradient-onboarding': 'linear-gradient(180deg, #0A0A0A 0%, #262626 100%)',
-        'text-gradient-onboarding': 'linear-gradient(275deg, #4195FB 4.98%, #4E9CFB 61.64%, #A5CDFD 97.96%)',
-        'button-gradient-onboarding': 'linear-gradient(96deg, #375DAF 57.63%, #6481C1 100%)'
-      },
       textColor: {
         theme: {
           input: 'var(--text-input)',
@@ -50,7 +45,8 @@ module.exports = {
           highlight: 'var(--text-highlight)',
           'gray3': 'var(--text-gray3)',
           iconGreen: 'var(--icon-green)',
-          iconRed: 'var(--icon-red)'
+          iconRed: 'var(--icon-red)',
+          'menu-default': 'var(--text-menu-default)',
         }
       },
       backgroundColor: {
@@ -59,7 +55,10 @@ module.exports = {
           secondary: 'var(--bg-secondary)',
           highlight: 'var(--bg-highlight)',
           surfaceInput: 'var(--bg-surface-input)',
+          'surrface-bg': 'var(--bg-surface-bg)',
           'surface-main': 'var(--bg-surface-main)',
+          'surface-dropdown': 'var(--bg-surface-dropdown)',
+          'surface-card': 'var(--bg-surface-card)',
           'table-secondary': 'var(--bg-table-secondary)',
           'blue-secondary': 'var(--bg-blue-secondary)',
           'studio-surface': 'var(--bg-studio-surface)',
@@ -78,9 +77,14 @@ module.exports = {
       },
       colors: {
         'blue-primary': '#375DAF',
+        'blue-secondary': '#162546',
         'pink-primary': '#A24482',
         'purple-primary': '#8261D2',
-      }
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        figtree: ['Figtree', 'sans-serif'],
+      },
     }
   },
   safelist: [

@@ -23,31 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
-import React, { Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { BsStars } from 'react-icons/bs'
+import { FaRegCircle } from 'react-icons/fa6'
+import { FiSun } from 'react-icons/fi'
+import { LuWaves } from 'react-icons/lu'
+import { PiMountains } from 'react-icons/pi'
+import { RxCube } from 'react-icons/rx'
+import { TbMaximize, TbRoute } from 'react-icons/tb'
 
-import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import React from 'react'
 
-import Capture from './capture'
-
-const LocationRoutes = () => {
-  const projectsLoaded = useEngineInjection()
-
-  if (!projectsLoaded)
-    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingProjects')} />
-
-  return (
-    <Suspense
-      fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingLocation')} />}
-    >
-      <Routes>
-        <Route path=":locationName" element={<Capture />} />
-        <Route path="/" element={<Capture />} />
-      </Routes>
-    </Suspense>
-  )
+export const iconMap: { [key: string]: React.ReactElement } = {
+  Model: <RxCube />,
+  Material: <FaRegCircle />,
+  Texture: <LuWaves />,
+  Image: <PiMountains />,
+  Lighting: <FiSun />,
+  'Particle system': <BsStars />,
+  'Visual script': <TbRoute />
 }
 
-export default LocationRoutes
+const defaultIcon = <TbMaximize />
+
+export const AssetIconMap = ({ name }): React.ReactElement => {
+  return <div className="h-4 w-4">{iconMap[name] ?? defaultIcon}</div>
+}

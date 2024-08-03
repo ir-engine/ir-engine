@@ -78,7 +78,6 @@ export default function ScenesPanel() {
           startIcon={<HiOutlinePlusCircle />}
           endIcon={isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
           disabled={isCreatingScene.value}
-          variant="transparent"
           rounded="none"
           className="ml-auto bg-theme-highlight px-2"
           size="small"
@@ -89,7 +88,7 @@ export default function ScenesPanel() {
       </div>
       <div className="h-full bg-theme-primary">
         {scenesLoading ? (
-          <LoadingView title={t('editor:loadingScenes')} className="h-5 w-5" />
+          <LoadingView title={t('editor:loadingScenes')} fullSpace className="block h-12 w-12" />
         ) : (
           <div className="relative h-full flex-1 overflow-y-auto px-4 py-3 pb-8">
             <div className="flex flex-wrap gap-4 pb-8">
