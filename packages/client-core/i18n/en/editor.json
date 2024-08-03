@@ -825,7 +825,11 @@
       "lbl-loading": "Loading Screen",
       "info-loading": "Change the loading screen",
       "lbl-colors": "Colors",
-      "lbl-killHeight": "Kill Height"
+      "lbl-killHeight": "Kill Height",
+      "lbl-spectate": "Force Spectator",
+      "info-spectate": "Disable avatars and force the user to spectate the scene",
+      "lbl-uuid": "Spectate Entity",
+      "info-uuid": "Optional entity to spectate"
     },
     "scene": {
       "name": "Scene",
@@ -1212,7 +1216,7 @@
       "uploadAssets": "Upload Assets",
       "uploadFiles": "Upload Files",
       "uploadFolder": "Upload Folder",
-      "search-placeholder": "Search folders",
+      "search-placeholder": "Search",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
       "directory": "Directory",
@@ -1261,7 +1265,7 @@
     },
     "scene-assets": {
       "no-category": "No category selected",
-      "search-placeholder": "Search for an asset ...",
+      "search-placeholder": "Search",
       "preview": "Preview",
       "info-drag-drop": "Drag and Drop these items into the scene",
       "settings": "Settings",
