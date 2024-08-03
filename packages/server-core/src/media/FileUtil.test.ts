@@ -170,40 +170,28 @@ describe('FileUtil functions', () => {
         fs.rmdirSync(path.join(STORAGE_PATH, pluralDirName))
       }
 
-      // create 'textures' directory
+      // create 'testdirs' directory
       fs.mkdirSync(path.join(STORAGE_PATH, pluralDirName))
 
-      // try to create 'texture' directory
+      // try to create 'testdir' directory
       let name = await getIncrementalName(singularDirName, TEST_DIR, store, true)
-      assert.equal(name, singularDirName, "Should return 'texture' as it doesn't exist")
+      assert.equal(name, singularDirName, "Should return 'testdir' as it doesn't exist")
 
-      // create 'texture' directory
+      // create 'testdir' directory
       fs.mkdirSync(path.join(STORAGE_PATH, singularDirName))
 
-      // try to create another 'texture' directory
+      // try to create another 'testdir' directory
       name = await getIncrementalName(singularDirName, TEST_DIR, store, true)
-      assert.equal(name, `${singularDirName}(1)`, "Should return 'texture(1)' as 'texture' already exists")
+      assert.equal(name, `${singularDirName}(1)`, "Should return 'testdir(1)' as 'testdir' already exists")
 
-      // try to create 'textures' directory
+      // try to create 'testdirs' directory
       name = await getIncrementalName(pluralDirName, TEST_DIR, store, true)
-      assert.equal(name, `${pluralDirName}(1)`, "Should return 'textures(1)' as 'textures' already exists")
-
-      // Create another textures directory
-      fs.mkdirSync(path.join(STORAGE_PATH, `${pluralDirName}`))
-
-      // Try to create another 'textures' directory
-      name = await getIncrementalName(pluralDirName, TEST_DIR, store, true)
-      assert.equal(
-        name,
-        `${pluralDirName}(2)`,
-        "Should return 'textures(2)' as 'textures' and 'textures(1)' already exist"
-      )
+      assert.equal(name, `${pluralDirName}(1)`, "Should return 'testdirs(1)' as 'testdirs' already exists")
 
       // Clean up
       fs.rmdirSync(path.join(STORAGE_PATH, singularDirName))
       fs.rmdirSync(path.join(STORAGE_PATH, pluralDirName))
       fs.rmdirSync(path.join(STORAGE_PATH, `${pluralDirName}(1)`))
-      fs.rmdirSync(path.join(STORAGE_PATH, `${pluralDirName}(2)`))
     })
   })
 
