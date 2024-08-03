@@ -69,7 +69,6 @@ const getThumbnailURL = (staticResource: StaticResourceType, context: HookContex
   }
 
   const values = context.hashedThumbnailResults
-  console.log(values, staticResource.id, values[staticResource.id])
 
   return values[staticResource.id]
 }
