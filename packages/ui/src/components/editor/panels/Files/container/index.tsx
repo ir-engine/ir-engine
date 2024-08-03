@@ -84,6 +84,7 @@ import InputGroup from '../../../input/Group'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
 import DeleteFileModal from '../browserGrid/DeleteFileModal'
 import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
+import { FileUploadProgress } from '../upload/FileUploadProgress'
 
 type FileBrowserContentPanelProps = {
   projectName?: string
@@ -340,15 +341,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         await moveContent(data.fullName, newName, data.path, destinationPath, false)
       }
     } else {
-      // handle drops from user's local file system by creating/uploading dropped files
-      const folder = destinationPath.substring(0, destinationPath.lastIndexOf('/') + 1)
+      const destinationPathCleaned = removeLeadingTrailingSlash(destinationPath)
+      const folder = destinationPathCleaned //destinationPathCleaned.substring(0, destinationPathCleaned.lastIndexOf('/') + 1)
       const projectName = folder.split('/')[1]
       const relativePath = folder.replace('projects/' + projectName + '/', '')
 
       await Promise.all(
         data.files.map(async (file) => {
-          const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
-          if (!assetType) {
+          const assetType = !file.type || file.type.length === 0 ? AssetLoader.getAssetType(file.name) : file.type
+          if (!assetType || assetType === file.name) {
             // creating directory
             await fileService.create(`${destinationPath}${file.name}`)
           } else {
@@ -358,7 +359,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                 args: [
                   {
                     project: projectName,
-                    path: relativePath + name,
+                    path: relativePath + '/' + name,
                     contentType: file.type
                   }
                 ]
@@ -372,6 +373,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     }
 
     await refreshDirectory()
+  }
+
+  function removeLeadingTrailingSlash(str) {
+    if (str.startsWith('/')) {
+      str = str.substring(1)
+    }
+    if (str.endsWith('/')) {
+      str = str.substring(0, str.length - 1)
+    }
+    return str
   }
 
   const onBackDirectory = () => {
@@ -794,6 +805,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           {t('editor:layout.filebrowser.uploadFolder')}
         </Button>
       </div>
+      <FileUploadProgress />
       {isLoading && (
         <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} fullSpace className="block h-12 w-12" />
       )}
