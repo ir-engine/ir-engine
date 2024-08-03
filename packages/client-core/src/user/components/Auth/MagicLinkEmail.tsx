@@ -27,7 +27,6 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
-import config from '@etherealengine/common/src/config'
 import { authenticationSettingPath, UserID } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -56,7 +55,7 @@ const defaultState = {
   descr: ''
 }
 
-const termsOfService = config.client.tosAddress ?? '/terms-of-service'
+const termsOfService = 'https://ir.world/terms-of-service' //config.client.tosAddress ?? '/terms-of-service'
 
 const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   const auth = useMutableState(AuthState)
