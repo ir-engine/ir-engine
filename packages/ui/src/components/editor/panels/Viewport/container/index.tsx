@@ -50,7 +50,6 @@ import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
 import { DnDFileType, FileType } from '../../Files/container'
 import { SceneElementType } from '../../Properties/elementList'
-import LoadingOverlay from '../overlay/LoadingOverlay'
 import GizmoTool from '../tools/GizmoTool'
 import GridTool from '../tools/GridTool'
 import PlayModeTool from '../tools/PlayModeTool'
@@ -157,7 +156,12 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
       className={twMerge('h-full w-full border border-white', isDragging ? 'border-4' : 'border-none')}
     >
       {children}
-      <LoadingOverlay isLoading={isLoading.value} />
+      {isLoading.value && (
+        // immediately dim the viewport, then show LoadingView after delay
+        <div className="absolute inset-0 z-[80] flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300">
+          <LoadingView fullSpace delaySpinner className="block h-12 w-12" />
+        </div>
+      )}
     </div>
   )
 }
