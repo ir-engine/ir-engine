@@ -188,10 +188,8 @@ describe('FileUtil functions', () => {
       name = await getIncrementalName(pluralDirName, TEST_DIR, store, true)
       assert.equal(name, `${pluralDirName}(1)`, "Should return 'testdirs(1)' as 'testdirs' already exists")
 
-      // Clean up
       fs.rmdirSync(path.join(STORAGE_PATH, singularDirName))
       fs.rmdirSync(path.join(STORAGE_PATH, pluralDirName))
-      fs.rmdirSync(path.join(STORAGE_PATH, `${pluralDirName}(1)`))
     })
   })
 
