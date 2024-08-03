@@ -273,6 +273,77 @@ describe('storageprovider', () => {
         )
       })
 
+      it(`moveFolderRecursively: should recursively move a directory along with its files and subdirectories ${providerType.name}`, async function () {
+        const sourceDir = path.join(testFolderName, 'sourceDir')
+        const destDir = path.join(testFolderName, 'destDir')
+
+        // create a directory structure with files and subdirectories
+        const structure = {
+          'rootFile.txt': 'root file content',
+          'subDir1/': {
+            'subDir1File.txt': 'subdir1 file content',
+            'subSubDir/': {
+              'subSubDirFile.txt': 'subsubdir file content'
+            }
+          },
+          'subDir2/': {
+            'subDir2File.txt': 'subdir2 file content'
+          }
+        }
+
+        await createDirectoryStructure(provider, sourceDir, structure)
+
+        // move the entire directory structure
+        await provider.moveObject('sourceDir', 'destDir', testFolderName, testFolderName, false)
+
+        // verify the move
+        assert(
+          !(await provider.isDirectory('sourceDir', testFolderName)),
+          'Source directory should not exist after move'
+        )
+        assert(await provider.isDirectory('destDir', testFolderName), 'Destination directory should exist after move')
+
+        // check if all files and directories were moved correctly and verify file contents
+        await verifyDirectoryStructure(provider, destDir, structure)
+      })
+
+      async function createDirectoryStructure(provider, baseDir, structure, currentPath = '') {
+        for (const [key, value] of Object.entries(structure)) {
+          const fullPath = path.join(baseDir, currentPath, key)
+          if (typeof value === 'string') {
+            await provider.putObject({
+              Body: Buffer.from(value),
+              Key: fullPath,
+              ContentType: 'text/plain'
+            })
+          } else if (typeof value === 'object') {
+            await provider.putObject({
+              Body: Buffer.from(''),
+              Key: fullPath,
+              ContentType: 'application/x-directory'
+            })
+            await createDirectoryStructure(provider, baseDir, value, path.join(currentPath, key))
+          }
+        }
+      }
+
+      async function verifyDirectoryStructure(provider, baseDir, structure, currentPath = '') {
+        for (const [key, value] of Object.entries(structure)) {
+          const fullPath = path.join(baseDir, currentPath, key)
+          if (typeof value === 'string') {
+            assert(await provider.doesExist(key, path.join(baseDir, currentPath)), `${key} should exist in destination`)
+            const file = await provider.getObject(fullPath)
+            assert.strictEqual(file.Body.toString(), value, `${key} content should be correct`)
+          } else if (typeof value === 'object') {
+            assert(
+              await provider.isDirectory(key, path.join(baseDir, currentPath)),
+              `${key} should exist in destination`
+            )
+            await verifyDirectoryStructure(provider, baseDir, value, path.join(currentPath, key))
+          }
+        }
+      }
+
       after(async function () {
         await destroyEngine()
         await providerAfterTest(provider, testFolderName)

@@ -159,8 +159,16 @@ describe('FileUtil functions', () => {
     })
 
     it('should handle singular and plural directory names correctly', async () => {
-      const singularDirName = 'texture'
-      const pluralDirName = 'textures'
+      const singularDirName = 'testdir'
+      const pluralDirName = 'testdirs'
+
+      // ensure directories don't exist before starting
+      if (fs.existsSync(path.join(STORAGE_PATH, singularDirName))) {
+        fs.rmdirSync(path.join(STORAGE_PATH, singularDirName))
+      }
+      if (fs.existsSync(path.join(STORAGE_PATH, pluralDirName))) {
+        fs.rmdirSync(path.join(STORAGE_PATH, pluralDirName))
+      }
 
       // create 'textures' directory
       fs.mkdirSync(path.join(STORAGE_PATH, pluralDirName))
