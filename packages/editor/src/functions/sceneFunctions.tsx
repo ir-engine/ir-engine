@@ -131,6 +131,13 @@ export const saveSceneGLTF = async (
       const result = await Engine.instance.api
         .service(staticResourcePath)
         .patch(sceneAssetID, { key: assetURL, project: projectName })
+
+      getMutableState(EditorState).merge({
+        sceneName,
+        scenePath: result.url,
+        projectName,
+        sceneAssetID: result.id
+      })
     }
     return
   }
@@ -148,7 +155,7 @@ export const saveSceneGLTF = async (
 
   getMutableState(EditorState).merge({
     sceneName,
-    scenePath: assetURL,
+    scenePath: result.url,
     projectName,
     sceneAssetID: result.id
   })
