@@ -740,13 +740,16 @@ export class S3Provider implements StorageProviderInterface {
    * @param isCopy If true it will create a copy of object.
    */
   async moveObject(oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) {
+    const isDirectory = await this.isDirectory(oldName, oldPath)
     const oldFilePath = path.join(oldPath, oldName)
     const newFilePath = path.join(newPath, newName)
-    const listResponse = await this.listObjects(oldFilePath, true)
+    const listResponse = await this.listObjects(oldFilePath + (isDirectory ? '/' : ''), false)
 
     const result = await Promise.all([
       ...listResponse.Contents.map(async (file) => {
-        const key = path.join(newFilePath, file.Key.replace(oldFilePath, ''))
+        const relativePath = file.Key.replace(oldFilePath, '')
+        const key = newFilePath + relativePath
+
         const input = {
           Bucket: this.bucket,
           CopySource: `/${this.bucket}/${file.Key}`,

@@ -275,11 +275,11 @@ export class FileBrowserService
   }
 
   private async moveFolderRecursively(storageProvider: StorageProviderInterface, oldPath: string, newPath: string) {
-    const items = await storageProvider.listFolderContent(oldPath)
+    const items = await storageProvider.listFolderContent(oldPath + '/')
 
     for (const item of items) {
-      const oldItemPath = `${oldPath}/${item.name}`
-      const newItemPath = `${newPath}/${item.name}`
+      const oldItemPath = path.join(oldPath, item.name)
+      const newItemPath = path.join(newPath, item.name)
 
       if (item.type === 'directory') {
         await this.moveFolderRecursively(storageProvider, oldItemPath, newItemPath)
