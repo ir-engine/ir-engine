@@ -157,6 +157,46 @@ describe('FileUtil functions', () => {
       fs.rmdirSync(path.join(STORAGE_PATH, dirName))
       fs.rmdirSync(path.join(STORAGE_PATH, dirName_1))
     })
+
+    it('should handle singular and plural directory names correctly', async () => {
+      const singularDirName = 'texture'
+      const pluralDirName = 'textures'
+
+      // create 'textures' directory
+      fs.mkdirSync(path.join(STORAGE_PATH, pluralDirName))
+
+      // try to create 'texture' directory
+      let name = await getIncrementalName(singularDirName, TEST_DIR, store, true)
+      assert.equal(name, singularDirName, "Should return 'texture' as it doesn't exist")
+
+      // create 'texture' directory
+      fs.mkdirSync(path.join(STORAGE_PATH, singularDirName))
+
+      // try to create another 'texture' directory
+      name = await getIncrementalName(singularDirName, TEST_DIR, store, true)
+      assert.equal(name, `${singularDirName}(1)`, "Should return 'texture(1)' as 'texture' already exists")
+
+      // try to create 'textures' directory
+      name = await getIncrementalName(pluralDirName, TEST_DIR, store, true)
+      assert.equal(name, `${pluralDirName}(1)`, "Should return 'textures(1)' as 'textures' already exists")
+
+      // Create another textures directory
+      fs.mkdirSync(path.join(STORAGE_PATH, `${pluralDirName}`))
+
+      // Try to create another 'textures' directory
+      name = await getIncrementalName(pluralDirName, TEST_DIR, store, true)
+      assert.equal(
+        name,
+        `${pluralDirName}(2)`,
+        "Should return 'textures(2)' as 'textures' and 'textures(1)' already exist"
+      )
+
+      // Clean up
+      fs.rmdirSync(path.join(STORAGE_PATH, singularDirName))
+      fs.rmdirSync(path.join(STORAGE_PATH, pluralDirName))
+      fs.rmdirSync(path.join(STORAGE_PATH, `${pluralDirName}(1)`))
+      fs.rmdirSync(path.join(STORAGE_PATH, `${pluralDirName}(2)`))
+    })
   })
 
   after(() => {
