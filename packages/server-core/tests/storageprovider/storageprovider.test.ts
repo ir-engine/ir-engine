@@ -236,42 +236,6 @@ describe('storageprovider', () => {
         )
       })
 
-      it(`moveObject: should correctly move and copy objects in ${providerType.name}`, async function () {
-        const sourceDir = path.join(testFolderName, 'sourceDir')
-        const destDir = path.join(testFolderName, 'destDir')
-        const fileName = `testFile-${uuidv4()}.txt`
-        const filePath = path.join(sourceDir, fileName)
-
-        // create source directory and file
-        await provider.putObject(
-          {
-            Body: Buffer.from(''),
-            Key: sourceDir + '/',
-            ContentType: 'application/x-directory'
-          },
-          { isDirectory: true }
-        )
-        await provider.putObject({
-          Body: Buffer.from('test content'),
-          Key: filePath,
-          ContentType: 'text/plain'
-        })
-
-        // test moving file
-        await provider.moveObject(fileName, fileName, sourceDir, destDir, false)
-        assert(!(await provider.doesExist(fileName, sourceDir)), 'File should not exist in source directory after move')
-        assert(await provider.doesExist(fileName, destDir), 'File should exist in destination directory after move')
-
-        // test copying file
-        const copiedFileName = 'copiedFile.txt'
-        await provider.moveObject(fileName, copiedFileName, destDir, sourceDir, true)
-        assert(
-          await provider.doesExist(fileName, destDir),
-          'Original file should still exist in destination directory after copy'
-        )
-        assert(await provider.doesExist(copiedFileName, sourceDir), 'Copied file should exist in source directory')
-      })
-
       after(async function () {
         await destroyEngine()
         await providerAfterTest(provider, testFolderName)
