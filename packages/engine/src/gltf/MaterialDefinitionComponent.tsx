@@ -698,6 +698,7 @@ export const GLTFKHRSpecularExtensionComponent = defineComponent({
     useEffect(() => {
       const material = materialStateComponent.material.value as MeshPhysicalMaterial
       material.setValues({ specularIntensityMap: specularMap })
+      material.needsUpdate = true
     }, [specularMap])
 
     const specularColorMap = GLTFLoaderFunctions.useAssignTexture(options, component.specularColorTexture.value)

@@ -560,7 +560,6 @@ const useLoadMaterial = (
  * @return {Promise<Texture>}
  */
 const useAssignTexture = (options: GLTFParserOptions, mapDef?: GLTF.ITextureInfo) => {
-  const json = options.document
   const result = useHookstate<Texture | null>(null)
 
   const texture = GLTFLoaderFunctions.useLoadTexture(options, mapDef?.index)
@@ -604,7 +603,6 @@ const useAssignTexture = (options: GLTFParserOptions, mapDef?: GLTF.ITextureInfo
  */
 const useLoadTexture = (options: GLTFParserOptions, textureIndex?: number) => {
   const json = options.document
-  const result = useHookstate<Texture | null>(null)
 
   const textureDef = typeof textureIndex === 'number' ? json.textures![textureIndex] : null
   const sourceIndex = textureDef?.source!
@@ -646,11 +644,8 @@ const useLoadTexture = (options: GLTFParserOptions, textureIndex?: number) => {
   }
 
   const texture = GLTFLoaderFunctions.useLoadTextureImage(options, textureIndex, sourceIndex, loader)
-  useEffect(() => {
-    result.set(texture)
-  }, [texture])
 
-  return result.value as Texture | null
+  return texture
 }
 
 const textureCache = {} as any // todo
