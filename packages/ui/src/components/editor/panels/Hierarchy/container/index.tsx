@@ -596,7 +596,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
             size="small"
             variant="transparent"
             className="text-left text-xs"
-            onClick={() => PopoverState.showPopupover(<CreatePrefabPanel node={contextSelectedItem!} />)}
+            onClick={() => PopoverState.showPopupover(<CreatePrefabPanel entity={contextSelectedItem!.entity} />)}
           >
             {t('editor:hierarchy.lbl-createPrefab')}
           </Button>
