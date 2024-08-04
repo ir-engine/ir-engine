@@ -36,7 +36,15 @@ import { NO_PROXY } from '@etherealengine/hyperflux'
 import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { GLTF } from '@gltf-transform/core'
 import { useEffect, useLayoutEffect } from 'react'
-import { Color, LinearSRGBColorSpace, MeshPhysicalMaterial, MeshStandardMaterial, SRGBColorSpace, Vector2 } from 'three'
+import {
+  Color,
+  LinearSRGBColorSpace,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial,
+  SRGBColorSpace,
+  Texture,
+  Vector2
+} from 'three'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 import { getParserOptions } from './GLTFState'
@@ -833,5 +841,96 @@ export const KHRAnisotropyExtensionComponent = defineComponent({
     }, [anisotropyMap])
 
     return null
+  }
+})
+
+/**
+ * Texture Transform Extension
+ *
+ * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_texture_transform
+ */
+export class GLTFTextureTransformExtension {
+  name = EXTENSIONS.KHR_TEXTURE_TRANSFORM
+
+  extendTexture(texture, transform) {
+    if (
+      (transform.texCoord === undefined || transform.texCoord === texture.channel) &&
+      transform.offset === undefined &&
+      transform.rotation === undefined &&
+      transform.scale === undefined
+    ) {
+      // See https://github.com/mrdoob/three.js/issues/21819.
+      return texture
+    }
+
+    texture = texture.clone()
+
+    if (transform.texCoord !== undefined) {
+      texture.channel = transform.texCoord
+    }
+
+    if (transform.offset !== undefined) {
+      texture.offset.fromArray(transform.offset)
+    }
+
+    if (transform.rotation !== undefined) {
+      texture.rotation = transform.rotation
+    }
+
+    if (transform.scale !== undefined) {
+      texture.repeat.fromArray(transform.scale)
+    }
+
+    texture.needsUpdate = true
+
+    return texture
+  }
+}
+
+type GLTFTextureTransformExtensionType = {
+  texCoord?: number
+  offset?: [number, number]
+  rotation?: number
+  scale?: [number, number]
+}
+
+export const KHRTextureTransformExtensionComponent = defineComponent({
+  name: 'KHRTextureTransformExtensionComponent',
+  jsonID: EXTENSIONS.KHR_TEXTURE_TRANSFORM,
+
+  /** static function */
+  extendTexture: (texture: Texture, transform: GLTFTextureTransformExtensionType) => {
+    if (
+      (transform.texCoord === undefined || transform.texCoord === texture.channel) &&
+      transform.offset === undefined &&
+      transform.rotation === undefined &&
+      transform.scale === undefined
+    ) {
+      // See https://github.com/mrdoob/three.js/issues/21819.
+      return texture
+    }
+
+    /** @todo this throws hookstate 109... */
+    // texture = texture.clone()
+
+    if (transform.texCoord !== undefined) {
+      texture.channel = transform.texCoord
+    }
+
+    if (transform.offset !== undefined) {
+      texture.offset.fromArray(transform.offset)
+    }
+
+    if (transform.rotation !== undefined) {
+      texture.rotation = transform.rotation
+    }
+
+    if (transform.scale !== undefined) {
+      texture.repeat.fromArray(transform.scale)
+    }
+
+    texture.needsUpdate = true
+
+    return texture
   }
 })

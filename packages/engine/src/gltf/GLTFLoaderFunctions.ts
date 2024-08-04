@@ -63,7 +63,7 @@ import {
 } from '../assets/loaders/gltf/GLTFConstants'
 import { assignExtrasToUserData, getNormalizedComponentScale } from '../assets/loaders/gltf/GLTFLoaderFunctions'
 import { GLTFParserOptions, GLTFRegistry, getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
-import { MaterialDefinitionComponent } from './MaterialDefinitionComponent'
+import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 
 // todo make this a state
 const cache = new GLTFRegistry()
@@ -194,7 +194,7 @@ const useLoadAccessor = (options: GLTFParserOptions, accessorIndex?: number) => 
     result.set(bufferAttribute)
   }, [bufferView, sparseBufferViewIndices, sparseBufferViewValues])
 
-  return result.value
+  return result.get(NO_PROXY)
 }
 
 const useLoadBufferView = (options: GLTFParserOptions, bufferViewIndex?: number) => {
@@ -213,7 +213,7 @@ const useLoadBufferView = (options: GLTFParserOptions, bufferViewIndex?: number)
     result.set(buffer.slice(byteOffset, byteOffset + byteLength))
   }, [buffer])
 
-  return result.value
+  return result.get(NO_PROXY)
 }
 
 const useLoadBuffer = (options: GLTFParserOptions, bufferIndex?: number) => {
@@ -259,7 +259,7 @@ const useLoadBuffer = (options: GLTFParserOptions, bufferIndex?: number) => {
     )
   }, [bufferDef?.uri])
 
-  return result.value
+  return result.get(NO_PROXY)
 }
 
 export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primitiveDef: GLTF.IMeshPrimitive) {
@@ -524,7 +524,7 @@ const useLoadMaterial = (
     if (material) material.needsUpdate = true
   }, [material, emissiveMap])
 
-  return result.value as MeshStandardMaterial | null
+  return result.get(NO_PROXY) as MeshStandardMaterial | null
 }
 
 /**
@@ -553,21 +553,20 @@ const useAssignTexture = (options: GLTFParserOptions, mapDef?: GLTF.ITextureInfo
       result.set(textureClone)
     }
 
-    result.set(texture)
+    const transform =
+      mapDef.extensions !== undefined ? mapDef.extensions[KHRTextureTransformExtensionComponent.jsonID] : undefined
 
-    // if (GLTFExtensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM]) {
-    //   const transform =
-    //     mapDef.extensions !== undefined ? mapDef.extensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM] : undefined
-
-    //   if (transform) {
-    //     const gltfReference = parser.associations.get(texture)
-    //     texture = parser.extensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM].extendTexture(texture, transform)
-    //     parser.associations.set(texture, gltfReference)
-    //   }
-    // }
+    if (transform) {
+      // const gltfReference = parser.associations.get(texture)
+      const extendedTexture = KHRTextureTransformExtensionComponent.extendTexture(texture, transform)
+      // parser.associations.set(texture, gltfReference)
+      result.set(extendedTexture)
+    } else {
+      result.set(texture)
+    }
   }, [texture, mapDef])
 
-  return result.value as Texture | null
+  return result.get(NO_PROXY) as Texture | null
 }
 
 /**
@@ -671,7 +670,7 @@ const useLoadTextureImage = (
 
   // textureCache[cacheKey] = promise
 
-  return result.value as Texture | null
+  return result.get(NO_PROXY) as Texture | null
 }
 
 // const sourceCache = {} as any // todo
@@ -765,7 +764,7 @@ const useLoadImageSource = (
     // sourceCache[sourceIndex] = promise
   }, [result.value])
 
-  return result.value as Texture | null
+  return result.get(NO_PROXY) as Texture | null
 }
 
 export const GLTFLoaderFunctions = {
