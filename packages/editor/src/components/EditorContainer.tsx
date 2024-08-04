@@ -124,6 +124,13 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
   }
 }
 
+const stripHashFromURL = (url: string) => {
+  const newURL = new URL(url)
+  newURL.hash = ''
+  newURL.search = ''
+  return newURL.href
+}
+
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, uiAddons } = useMutableState(EditorState)
   const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '', type: 'scene' } }).data
@@ -157,7 +164,7 @@ const EditorContainer = () => {
     if (!sceneAssetID.value || !scene || !viewerEntity) return
 
     return setCurrentEditorScene(scene.url, sceneAssetID.value as EntityUUID)
-  }, [viewerEntity, sceneAssetID, sceneQuery[0]?.url])
+  }, [viewerEntity, sceneAssetID, sceneQuery[0]?.url ? stripHashFromURL(sceneQuery[0].url) : null])
 
   useEffect(() => {
     return () => {

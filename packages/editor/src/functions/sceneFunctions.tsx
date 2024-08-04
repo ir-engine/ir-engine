@@ -142,7 +142,7 @@ export const saveSceneGLTF = async (
   if (result.total !== 1) {
     throw new Error(i18n.t('editor:errors.sceneSaveFailed'))
   }
-
+  if (!saveAs) return
   getMutableState(EditorState).merge({
     sceneName,
     scenePath: assetURL,
