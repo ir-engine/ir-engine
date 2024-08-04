@@ -93,6 +93,7 @@ import PrimitiveGeometryNodeEditor from '@etherealengine/ui/src/components/edito
 import GrabbableComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/grab'
 import GroundPlaneNodeEditor from '@etherealengine/ui/src/components/editor/properties/groundPlane'
 import ImageNodeEditor from '@etherealengine/ui/src/components/editor/properties/image'
+import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import InstancingNodeEditor from '@etherealengine/ui/src/components/editor/properties/instance'
 import InteractableComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/interact'
 import AmbientLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/ambient'
@@ -123,7 +124,6 @@ import SpawnPointNodeEditor from '@etherealengine/ui/src/components/editor/prope
 import SplineNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline'
 
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import PlaylistNodeEditor from '@etherealengine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline/track'
 import TextNodeEditor from '@etherealengine/ui/src/components/editor/properties/text'
