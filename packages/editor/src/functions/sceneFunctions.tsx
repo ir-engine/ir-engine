@@ -27,12 +27,7 @@ import i18n from 'i18next'
 
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
-import {
-  StaticResourceData,
-  StaticResourceType,
-  fileBrowserPath,
-  staticResourcePath
-} from '@etherealengine/common/src/schema.type.module'
+import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { cleanString } from '@etherealengine/common/src/utils/cleanString'
 import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -119,38 +114,40 @@ export const saveSceneGLTF = async (
   const blob = [JSON.stringify(encodedGLTF, null, 2)]
   const file = new File(blob, `${sceneName}.gltf`)
 
-  const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file], [currentSceneDirectory]).promises)
+  const currentScene = await Engine.instance.api.service(staticResourcePath).get(sceneAssetID)
+
+  const [[newPath]] = await Promise.all(
+    uploadProjectFiles(
+      projectName,
+      [file],
+      [currentSceneDirectory],
+      [
+        {
+          type: 'scene',
+          contentType: 'model/gltf+json',
+          thumbnailKey: currentScene.thumbnailKey
+        }
+      ]
+    ).promises
+  )
 
   const newURL = new URL(newPath)
   newURL.hash = ''
   newURL.search = ''
   const assetURL = newURL.href.replace(fileServer, '').slice(1) // remove leading slash
+  const result = await Engine.instance.api.service(staticResourcePath).find({
+    query: { key: assetURL, $limit: 1 }
+  })
 
-  if (!saveAs) {
-    if (getState(EditorState).scenePath !== newPath) {
-      const result = await Engine.instance.api
-        .service(staticResourcePath)
-        .patch(sceneAssetID, { key: assetURL, project: projectName })
-    }
-    return
+  if (result.total !== 1) {
+    throw new Error(i18n.t('editor:errors.sceneSaveFailed'))
   }
-
-  const currentScene = await Engine.instance.api.service(staticResourcePath).get(sceneAssetID)
-
-  const newSceneData: StaticResourceData = {
-    key: assetURL,
-    project: projectName,
-    type: 'scene',
-    thumbnailKey: currentScene.thumbnailKey
-  }
-
-  const result = await Engine.instance.api.service(staticResourcePath).create(newSceneData)
 
   getMutableState(EditorState).merge({
     sceneName,
     scenePath: assetURL,
     projectName,
-    sceneAssetID: result.id
+    sceneAssetID: result.data[0].id
   })
 }
 
