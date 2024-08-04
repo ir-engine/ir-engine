@@ -95,7 +95,7 @@ import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
-import { GLTFExtensions } from './GLTFExtensions'
+import { KHR_DRACO_MESH_COMPRESSION } from './GLTFExtensions'
 import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 import { MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 import './MeshExtensionComponents'
@@ -807,7 +807,7 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
 
   const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
 
-  const primitive = mesh.primitives[props.primitiveIndex]
+  const primitive = mesh.primitives[props.primitiveIndex] as GLTF.IMeshPrimitive
 
   const geometry = useHookstate(null as null | BufferGeometry)
 
@@ -815,13 +815,8 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
 
   useEffect(() => {
     if (hasDracoCompression) {
-      /** @todo */
       const options = getParserOptions(props.entity)
-      GLTFExtensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]
-        .decodePrimitive(options, documentState.get(NO_PROXY) as GLTF.IGLTF, primitive as GLTF.IMeshPrimitive)
-        .then((geom) => {
-          geometry.set(geom)
-        })
+      KHR_DRACO_MESH_COMPRESSION.decodePrimitive(options, primitive).then((geom) => geometry.set(geom))
     } else {
       geometry.set(new BufferGeometry())
     }
@@ -859,6 +854,14 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
 
   return (
     <>
+      {typeof primitive.extensions === 'object' && (
+        <PrimitiveExtensionReactor
+          nodeIndex={props.nodeIndex}
+          primitiveIndex={props.primitiveIndex}
+          documentID={props.documentID}
+          entity={props.entity}
+        />
+      )}
       {typeof primitive.material === 'number' && (
         <MaterialInstanceReactor
           nodeIndex={props.nodeIndex}
@@ -890,6 +893,36 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
       )}
     </>
   )
+}
+
+const PrimitiveExtensionReactor = (props: {
+  nodeIndex: number
+  primitiveIndex: number
+  documentID: string
+  entity: Entity
+}) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
+
+  const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
+
+  const primitive = mesh.primitives[props.primitiveIndex]
+
+  const extensions = primitive.extensions
+
+  useEffect(() => {
+    if (!extensions) return
+
+    for (const extension in extensions) {
+      const Component = ComponentJSONIDMap.get(extension)
+      if (!Component) continue
+      setComponent(props.entity, Component, extensions[extension])
+    }
+  }, [extensions])
+
+  return null
 }
 
 const PrimitiveAttributeReactor = (props: {

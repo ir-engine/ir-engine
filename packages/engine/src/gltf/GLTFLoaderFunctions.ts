@@ -60,10 +60,8 @@ import {
   WEBGL_TYPE_SIZES,
   WEBGL_WRAPPINGS
 } from '../assets/loaders/gltf/GLTFConstants'
-import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { assignExtrasToUserData, getNormalizedComponentScale } from '../assets/loaders/gltf/GLTFLoaderFunctions'
 import { GLTFParserOptions, GLTFRegistry, getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
-import { GLTFExtensions } from './GLTFExtensions'
 import { MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 
 // todo make this a state
@@ -237,7 +235,7 @@ const useLoadBuffer = (options: GLTFParserOptions, bufferIndex?: number) => {
       return
     }
 
-    /** @todo use a global file loader */
+    /** @todo use resource hooks */
     const fileLoader = new FileLoader(options.manager)
     fileLoader.setResponseType('arraybuffer')
     if (options.crossOrigin === 'use-credentials') {
@@ -376,33 +374,6 @@ const useLoadMaterial = (
   }, [materialDef.type])
 
   const material = result.get(NO_PROXY) as MeshStandardMaterial | MeshBasicMaterial
-
-  const materialExtensions = materialDef.extensions || {}
-
-  /** @todo expose 'getMaterialType' API */
-
-  // materialType = this._invokeOne(function (ext) {
-  //   return ext.getMaterialType && ext.getMaterialType(materialIndex)
-  // })
-
-  /** @todo expose API */
-  // pending.push(
-  //   Promise.all(
-  //     this._invokeAll(function (ext) {
-  //       return ext.extendMaterialParams && ext.extendMaterialParams(materialIndex, materialParams)
-  //     })
-  //   )
-  // )
-  // }
-
-  // if (!materialExtensions[EXTENSIONS.EE_MATERIAL] && materialExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]) {
-  //   const kmuExtension = GLTFExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]
-  //   materialType = kmuExtension.getMaterialType()
-  //   pending.push(kmuExtension.extendParams(options, materialParams, materialDef))
-  // } else {
-  // Specification:
-  // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#metallic-roughness-material
-
   const map = GLTFLoaderFunctions.useAssignTexture(options, materialDef.pbrMetallicRoughness?.baseColorTexture)
 
   useEffect(() => {
@@ -580,17 +551,16 @@ const useAssignTexture = (options: GLTFParserOptions, mapDef?: GLTF.ITextureInfo
 
     result.set(texture)
 
-    if (GLTFExtensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM]) {
-      const transform =
-        mapDef.extensions !== undefined ? mapDef.extensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM] : undefined
+    // if (GLTFExtensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM]) {
+    //   const transform =
+    //     mapDef.extensions !== undefined ? mapDef.extensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM] : undefined
 
-      if (transform) {
-        /** @todo */
-        // const gltfReference = parser.associations.get(texture)
-        // texture = parser.extensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM].extendTexture(texture, transform)
-        // parser.associations.set(texture, gltfReference)
-      }
-    }
+    //   if (transform) {
+    //     const gltfReference = parser.associations.get(texture)
+    //     texture = parser.extensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM].extendTexture(texture, transform)
+    //     parser.associations.set(texture, gltfReference)
+    //   }
+    // }
   }, [texture, mapDef])
 
   return result.value as Texture | null
@@ -621,7 +591,7 @@ const useLoadTexture = (options: GLTFParserOptions, textureIndex?: number) => {
 
     let textureLoader
 
-    /** @todo make global loader */
+    /** @todo use resource loader hooks */
     if (typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)) {
       textureLoader = new TextureLoader(options.manager)
     } else {
@@ -647,8 +617,6 @@ const useLoadTexture = (options: GLTFParserOptions, textureIndex?: number) => {
 
   return texture
 }
-
-const textureCache = {} as any // todo
 
 const useLoadTextureImage = (
   options: GLTFParserOptions,

@@ -23,25 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
+import { getState, startReactor } from '@etherealengine/hyperflux'
 import { GLTF } from '@gltf-transform/core'
-import {
-  BufferGeometry,
-  Color,
-  LinearSRGBColorSpace,
-  MeshBasicMaterial,
-  NormalBufferAttributes,
-  SRGBColorSpace
-} from 'three'
+import { useEffect } from 'react'
+import { BufferGeometry, NormalBufferAttributes } from 'three'
 import { ATTRIBUTES, WEBGL_COMPONENT_TYPES } from '../assets/loaders/gltf/GLTFConstants'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 
-const KHR_DRACO_MESH_COMPRESSION = {
-  decodePrimitive(options: GLTFParserOptions, json: GLTF.IGLTF, primitive: GLTF.IMeshPrimitive) {
-    const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
+export const KHR_DRACO_MESH_COMPRESSION = {
+  decodePrimitive(options: GLTFParserOptions, primitive: GLTF.IMeshPrimitive) {
+    const json = options.document
     const dracoMeshCompressionExtension = primitive.extensions![EXTENSIONS.KHR_DRACO_MESH_COMPRESSION] as any
     const bufferViewIndex = dracoMeshCompressionExtension.bufferView
     const gltfAttributeMap = dracoMeshCompressionExtension.attributes
@@ -59,8 +53,7 @@ const KHR_DRACO_MESH_COMPRESSION = {
       const threeAttributeName = ATTRIBUTES[attributeName] || attributeName.toLowerCase()
 
       if (gltfAttributeMap[attributeName] !== undefined) {
-        // @ts-ignore -- TODO type extensions
-        const accessorDef = json.accessors[primitive.attributes[attributeName]]
+        const accessorDef = json.accessors![primitive.attributes[attributeName]]
         const componentType = WEBGL_COMPONENT_TYPES[accessorDef.componentType]
 
         attributeTypeMap[threeAttributeName] = componentType.name
@@ -68,68 +61,33 @@ const KHR_DRACO_MESH_COMPRESSION = {
       }
     }
 
-    return GLTFLoaderFunctions.loadBufferView(options, json, bufferViewIndex).then(function (bufferView) {
-      return new Promise<BufferGeometry<NormalBufferAttributes>>(function (resolve) {
-        dracoLoader.preload().decodeDracoFile(
-          bufferView,
-          function (geometry) {
-            for (const attributeName in geometry.attributes) {
-              const attribute = geometry.attributes[attributeName]
-              const normalized = attributeNormalizedMap[attributeName]
-
-              if (normalized !== undefined) attribute.normalized = normalized
-            }
-
-            resolve(geometry)
-          },
-          threeAttributeMap,
-          attributeTypeMap
-        )
+    return new Promise<BufferGeometry<NormalBufferAttributes>>(function (resolve) {
+      /**
+       * Using an inline reactor here allows us to use reference counting & resource caching,
+       * and release the uncompressed buffer as soon as it is no longer required
+       */
+      const reactor = startReactor(() => {
+        const bufferView = GLTFLoaderFunctions.useLoadBufferView(options, bufferViewIndex)
+        useEffect(() => {
+          if (!bufferView) return
+          const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
+          dracoLoader.preload().decodeDracoFile(
+            bufferView,
+            function (geometry) {
+              for (const attributeName in geometry.attributes) {
+                const attribute = geometry.attributes[attributeName]
+                const normalized = attributeNormalizedMap[attributeName]
+                if (normalized !== undefined) attribute.normalized = normalized
+              }
+              resolve(geometry)
+              reactor.stop()
+            },
+            threeAttributeMap,
+            attributeTypeMap
+          )
+        }, [bufferView])
+        return null
       })
     })
   }
-}
-
-const KHR_MATERIALS_UNLIT = {
-  getMaterialType() {
-    return MeshBasicMaterial
-  },
-
-  extendParams(options: GLTFParserOptions, json: GLTF.IGLTF, materialParams, materialDef) {
-    const pending = [] as Promise<any>[]
-
-    materialParams.color = new Color(1.0, 1.0, 1.0)
-    materialParams.opacity = 1.0
-
-    const metallicRoughness = materialDef.pbrMetallicRoughness
-
-    if (metallicRoughness) {
-      if (Array.isArray(metallicRoughness.baseColorFactor)) {
-        const array = metallicRoughness.baseColorFactor
-
-        materialParams.color.setRGB(array[0], array[1], array[2], LinearSRGBColorSpace)
-        materialParams.opacity = array[3]
-      }
-
-      if (metallicRoughness.baseColorTexture !== undefined) {
-        pending.push(
-          GLTFLoaderFunctions.assignTexture(
-            options,
-            json,
-            materialParams,
-            'map',
-            metallicRoughness.baseColorTexture,
-            SRGBColorSpace
-          )
-        )
-      }
-    }
-
-    return Promise.all(pending)
-  }
-}
-
-export const GLTFExtensions = {
-  [EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]: KHR_DRACO_MESH_COMPRESSION,
-  [EXTENSIONS.KHR_MATERIALS_UNLIT]: KHR_MATERIALS_UNLIT
 }
