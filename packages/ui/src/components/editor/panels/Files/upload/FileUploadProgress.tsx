@@ -23,31 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
-import React, { Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { useUploadingFiles } from '@etherealengine/client-core/src/util/upload'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import Progress from '../../../../../primitives/tailwind/Progress'
 
-import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+export const FileUploadProgress = () => {
+  const { t } = useTranslation()
+  const { completed, total, progress } = useUploadingFiles()
 
-import Capture from './capture'
-
-const LocationRoutes = () => {
-  const projectsLoaded = useEngineInjection()
-
-  if (!projectsLoaded)
-    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingProjects')} />
-
-  return (
-    <Suspense
-      fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingLocation')} />}
-    >
-      <Routes>
-        <Route path=":locationName" element={<Capture />} />
-        <Route path="/" element={<Capture />} />
-      </Routes>
-    </Suspense>
-  )
+  return total ? (
+    <div className="flex h-auto w-full justify-center pb-2 pt-2">
+      <div className="flex w-1/2">
+        <span className="inline-block pr-2 text-xs font-normal leading-none text-theme-primary">
+          {t('editor:layout.filebrowser.uploadingFiles', { completed, total })}
+        </span>
+        <div className="basis-1/2">
+          <Progress value={progress} />
+        </div>
+      </div>
+    </div>
+  ) : null
 }
-
-export default LocationRoutes
