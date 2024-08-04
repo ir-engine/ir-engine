@@ -42,6 +42,9 @@ export const FeatureFlags = {
     UI: {
       Hierarchy: {
         ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
+      },
+      TopBar: {
+        PointClickPlacement: 'ir.editor.ui.topBar.pointClickPlacement'
       }
     }
   }

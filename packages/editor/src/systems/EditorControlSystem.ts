@@ -132,6 +132,7 @@ const onKeyW = () => {
 }
 
 const onKeyP = () => {
+  if (!FeatureFlagsState.enabled(FeatureFlags.Studio.UI.TopBar.PointClickPlacement)) return
   const editorHelperState = getMutableState(EditorHelperState)
   if (editorHelperState.placementMode.value === PlacementMode.CLICK) {
     editorHelperState.placementMode.set(PlacementMode.DRAG)

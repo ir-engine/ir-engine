@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { downloadScreenshot } from '@etherealengine/editor/src/functions/takeScreenshot'
 import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
+import { FeatureFlagsState } from '@etherealengine/engine'
 import { useMutableState } from '@etherealengine/hyperflux'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import React from 'react'
@@ -45,22 +47,27 @@ export default function SceneHelpersTool() {
 
   return (
     <div className="flex items-center gap-1">
-      <Tooltip title={t('editor:toolbar.placement.click')}>
-        <Button
-          startIcon={<LuMousePointerClick />}
-          onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
-          variant={editorHelperState.placementMode.value === PlacementMode.CLICK ? 'outline' : 'transparent'}
-          className="px-0"
-        />
-      </Tooltip>
-      <Tooltip title={t('editor:toolbar.placement.drag')}>
-        <Button
-          startIcon={<LuMove3D />}
-          onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
-          variant={editorHelperState.placementMode.value === PlacementMode.DRAG ? 'outline' : 'transparent'}
-          className="px-0"
-        />
-      </Tooltip>
+      {FeatureFlagsState.enabled(FeatureFlags.Studio.UI.TopBar.PointClickPlacement) && (
+        <>
+          <Tooltip title={t('editor:toolbar.placement.click')}>
+            <Button
+              startIcon={<LuMousePointerClick />}
+              onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
+              variant={editorHelperState.placementMode.value === PlacementMode.CLICK ? 'outline' : 'transparent'}
+              className="px-0"
+            />
+          </Tooltip>
+          <Tooltip title={t('editor:toolbar.placement.drag')}>
+            <Button
+              startIcon={<LuMove3D />}
+              onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
+              variant={editorHelperState.placementMode.value === PlacementMode.DRAG ? 'outline' : 'transparent'}
+              className="px-0"
+            />
+          </Tooltip>
+        </>
+      )}
+
       <InfoTooltip
         title={t('editor:toolbar.helpersToggle.lbl-helpers')}
         info={t('editor:toolbar.helpersToggle.info-helpers')}
