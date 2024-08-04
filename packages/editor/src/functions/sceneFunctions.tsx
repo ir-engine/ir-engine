@@ -115,7 +115,6 @@ export const saveSceneGLTF = async (
   const file = new File(blob, `${sceneName}.gltf`)
 
   const currentScene = await Engine.instance.api.service(staticResourcePath).get(sceneAssetID)
-  console.log({ currentScene })
 
   const [[newPath]] = await Promise.all(
     uploadProjectFiles(
@@ -131,18 +130,14 @@ export const saveSceneGLTF = async (
       ]
     ).promises
   )
-  console.log({ newPath })
 
   const newURL = new URL(newPath)
   newURL.hash = ''
   newURL.search = ''
   const assetURL = newURL.href.replace(fileServer, '').slice(1) // remove leading slash
-  console.log({ assetURL })
   const result = await Engine.instance.api.service(staticResourcePath).find({
     query: { key: assetURL, $limit: 1 }
   })
-
-  console.log({ result })
 
   if (result.total !== 1) {
     throw new Error(i18n.t('editor:errors.sceneSaveFailed'))
