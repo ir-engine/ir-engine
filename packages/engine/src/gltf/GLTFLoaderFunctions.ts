@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ComponentType } from '@etherealengine/ecs'
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 import { GLTF } from '@gltf-transform/core'
 import { useEffect } from 'react'
 import {
@@ -41,6 +41,7 @@ import {
   LinearFilter,
   LinearMipmapLinearFilter,
   LinearSRGBColorSpace,
+  Loader,
   LoaderUtils,
   MeshBasicMaterial,
   MeshPhysicalMaterial,
@@ -61,8 +62,11 @@ import {
   WEBGL_TYPE_SIZES,
   WEBGL_WRAPPINGS
 } from '../assets/loaders/gltf/GLTFConstants'
+import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { assignExtrasToUserData, getNormalizedComponentScale } from '../assets/loaders/gltf/GLTFLoaderFunctions'
 import { GLTFParserOptions, GLTFRegistry, getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
+import { KTX2Loader } from '../assets/loaders/gltf/KTX2Loader'
+import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 
 // todo make this a state
@@ -569,6 +573,29 @@ const useAssignTexture = (options: GLTFParserOptions, mapDef?: GLTF.ITextureInfo
   return result.get(NO_PROXY) as Texture | null
 }
 
+let isSafari = false
+let isFirefox = false
+let firefoxVersion = -1 as any // ???
+
+if (typeof navigator !== 'undefined') {
+  isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) === true
+  isFirefox = navigator.userAgent.indexOf('Firefox') > -1
+  firefoxVersion = isFirefox ? navigator.userAgent.match(/Firefox\/([0-9]+)\./)![1] : -1
+}
+
+let textureLoader: TextureLoader | ImageBitmapLoader
+
+/** @todo use resource loader hooks */
+if (typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)) {
+  textureLoader = new TextureLoader()
+} else {
+  textureLoader = new ImageBitmapLoader()
+}
+
+type KHRTextureBasisu = {
+  source: number
+}
+
 /**
  * Specification: https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#textures
  * @param {number} textureIndex
@@ -578,42 +605,22 @@ const useLoadTexture = (options: GLTFParserOptions, textureIndex?: number) => {
   const json = options.document
 
   const textureDef = typeof textureIndex === 'number' ? json.textures![textureIndex] : null
-  const sourceIndex = textureDef?.source!
+
+  const extensions = textureDef?.extensions
+  const basisu = extensions && (extensions[EXTENSIONS.KHR_TEXTURE_BASISU] as KHRTextureBasisu)
+
+  const sourceIndex = basisu ? basisu.source : textureDef?.source!
   const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
 
-  const textureLoader = useHookstate(() => {
-    let isSafari = false
-    let isFirefox = false
-    let firefoxVersion = -1 as any // ???
+  const handler = typeof sourceDef?.uri === 'string' && options.manager.getHandler(sourceDef.uri)
+  let loader: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader<unknown, string>
 
-    if (typeof navigator !== 'undefined') {
-      isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) === true
-      isFirefox = navigator.userAgent.indexOf('Firefox') > -1
-      firefoxVersion = isFirefox ? navigator.userAgent.match(/Firefox\/([0-9]+)\./)![1] : -1
-    }
-
-    let textureLoader
-
-    /** @todo use resource loader hooks */
-    if (typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)) {
-      textureLoader = new TextureLoader(options.manager)
-    } else {
-      textureLoader = new ImageBitmapLoader(options.manager)
-    }
-
-    return textureLoader
-  })
-
-  /** @todo clean all this up */
-
-  textureLoader.value.setCrossOrigin(options.crossOrigin)
-  textureLoader.value.setRequestHeader(options.requestHeader)
-
-  let loader = textureLoader.value
-
-  if (sourceDef?.uri) {
-    const handler = options.manager.getHandler(sourceDef.uri)
-    if (handler !== null) loader = handler
+  if (handler) loader = handler
+  if (basisu) loader = getState(AssetLoaderState).gltfLoader.ktx2Loader!
+  else {
+    loader = textureLoader
+    loader.setCrossOrigin(options.crossOrigin)
+    loader.setRequestHeader(options.requestHeader)
   }
 
   const texture = GLTFLoaderFunctions.useLoadTextureImage(options, textureIndex, sourceIndex, loader)
@@ -625,7 +632,7 @@ const useLoadTextureImage = (
   options: GLTFParserOptions,
   textureIndex?: number,
   sourceIndex?: number,
-  loader?: ImageLoader | ImageBitmapLoader
+  loader?: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader
 ) => {
   const json = options.document
   const result = useHookstate<Texture | null>(null)
@@ -680,7 +687,7 @@ const URL = self.URL || self.webkitURL
 const useLoadImageSource = (
   options: GLTFParserOptions,
   sourceIndex?: number,
-  loader?: ImageLoader | ImageBitmapLoader
+  loader?: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader
 ) => {
   const json = options.document
   const result = useHookstate<Texture | null>(null)
@@ -729,13 +736,13 @@ const useLoadImageSource = (
     if (!sourceURI.value) return
     loader!.load(
       LoaderUtils.resolveURL(sourceURI.value as string, options.path),
-      (imageBitmap) => {
+      (imageBitmap: Texture | ImageBitmap) => {
         if ((loader as ImageBitmapLoader).isImageBitmapLoader === true) {
-          const texture = new Texture(imageBitmap)
+          const texture = new Texture(imageBitmap as ImageBitmap)
           texture.needsUpdate = true
           result.set(texture)
         } else {
-          result.set(imageBitmap)
+          result.set(imageBitmap as Texture)
         }
       },
       undefined,
