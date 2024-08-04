@@ -89,7 +89,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
         scale: new Vector3(1, 1, 1)
       })
       setComponent(entity, EntityTreeComponent, { parentEntity: prefabEntity })
-
+      getMutableState(SelectionState).selectedEntities.set([])
       await exportRelativeGLTF(prefabEntity, srcProject, fileName)
 
       const resources = await Engine.instance.api.service(staticResourcePath).find({
