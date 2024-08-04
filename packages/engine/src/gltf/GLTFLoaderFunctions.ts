@@ -50,6 +50,7 @@ import {
   Sphere,
   Texture,
   TextureLoader,
+  Vector2,
   Vector3
 } from 'three'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
@@ -69,6 +70,7 @@ const cache = new GLTFRegistry()
 
 const useLoadAccessor = (options: GLTFParserOptions, accessorIndex?: number) => {
   const json = options.document
+
   const result = useHookstate<BufferAttribute | null>(null)
 
   const accessorDef = typeof accessorIndex === 'number' ? json.accessors![accessorIndex] : null
@@ -94,10 +96,8 @@ const useLoadAccessor = (options: GLTFParserOptions, accessorIndex?: number) => 
       return
     }
 
-    if (accessorDef.bufferView && !bufferView) return
+    if (typeof accessorDef.bufferView === 'number' && !bufferView) return
     if (accessorDef.sparse && !sparseBufferViewIndices && !sparseBufferViewValues) return
-
-    const bufferViews = accessorDef.bufferView ? [bufferView, null] : [sparseBufferViewIndices, sparseBufferViewValues]
 
     const itemSize = WEBGL_TYPE_SIZES[accessorDef.type]
     const TypedArray = WEBGL_COMPONENT_TYPES[accessorDef.componentType]
@@ -161,11 +161,15 @@ const useLoadAccessor = (options: GLTFParserOptions, accessorIndex?: number) => 
       const byteOffsetValues = accessorDef.sparse.values.byteOffset || 0
 
       const sparseIndices = new TypedArrayIndices(
-        bufferViews[1]!,
+        sparseBufferViewIndices!,
         byteOffsetIndices,
         accessorDef.sparse.count * itemSizeIndices
       )
-      const sparseValues = new TypedArray(bufferViews[2]!, byteOffsetValues, accessorDef.sparse.count * itemSize)
+      const sparseValues = new TypedArray(
+        sparseBufferViewValues!,
+        byteOffsetValues,
+        accessorDef.sparse.count * itemSize
+      )
 
       if (bufferView !== null) {
         // Avoid modifying the original ArrayBuffer, if the bufferView wasn't initialized with zeroes.
@@ -472,15 +476,15 @@ const useLoadMaterial = (
     if (material) material.needsUpdate = true
   }, [material, normalMap])
 
-  // useEffect(() => {
-  // materialParams.normalScale = new Vector2(1, 1)
-
-  // if (materialDef.normalTexture.scale !== undefined) {
-  //   const scale = materialDef.normalTexture.scale
-
-  //   materialParams.normalScale.set(scale, scale)
-  // }
-  // }, [material, ])
+  useEffect(() => {
+    if (materialDef.normalTexture?.scale) {
+      const scale = materialDef.normalTexture.scale
+      result.value?.setValues({ normalScale: new Vector2(scale, scale) })
+    } else {
+      result.value?.setValues({ normalScale: new Vector2(1, 1) })
+    }
+    if (material) material.needsUpdate = true
+  }, [material, materialDef.normalTexture?.scale])
 
   const aoMap = GLTFLoaderFunctions.useAssignTexture(
     options,
