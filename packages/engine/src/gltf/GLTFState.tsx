@@ -81,6 +81,7 @@ import {
   getAncestorWithComponent
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
@@ -696,6 +697,9 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
       {typeof node.mesh.get(NO_PROXY) === 'number' && (
         <MeshReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity} />
       )}
+      {typeof node.camera.get(NO_PROXY) === 'number' && (
+        <CameraReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity} />
+      )}
       {node.extensions.value &&
         Object.keys(node.extensions.get(NO_PROXY)!).map((extension) => (
           <ExtensionReactor
@@ -769,6 +773,30 @@ const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Ent
       ))}
     </>
   )
+}
+
+const CameraReactor = (props: { nodeIndex: number; documentID: string; entity: Entity }) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
+
+  const camera = documentState.cameras.get(NO_PROXY)![node.camera!] as GLTF.ICamera
+
+  useEffect(() => {
+    if (camera.type === 'orthographic' || !camera.perspective)
+      return console.warn('Orthographic cameras not supported yet')
+
+    const perspectiveCamera = camera.perspective
+
+    setComponent(props.entity, CameraComponent, {
+      fov: MathUtils.radToDeg(perspectiveCamera.yfov),
+      aspect: perspectiveCamera.aspectRatio || 1,
+      near: perspectiveCamera.znear || 1,
+      far: perspectiveCamera.zfar || 2e6
+    })
+  }, [camera])
+
+  return null
 }
 
 const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; documentID: string; entity: Entity }) => {
