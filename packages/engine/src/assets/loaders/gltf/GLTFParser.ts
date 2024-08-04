@@ -125,6 +125,7 @@ declare module '@gltf-transform/core/dist/types/gltf.d.ts' {
 
 export type GLTFParserOptions = {
   body: null | ArrayBuffer
+  document: GLTF.IGLTF
   crossOrigin: 'anonymous' | string
   ktx2Loader: KTX2Loader
   manager: LoadingManager

@@ -84,10 +84,7 @@ import {
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
-import {
-  MaterialInstanceComponent,
-  MaterialStateComponent
-} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { ATTRIBUTES } from '../assets/loaders/gltf/GLTFConstants'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { assignExtrasToUserData } from '../assets/loaders/gltf/GLTFLoaderFunctions'
@@ -99,6 +96,7 @@ import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFExtensions } from './GLTFExtensions'
 import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
+import { MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 
 export const GLTFAssetState = defineState({
   name: 'ee.engine.gltf.GLTFAssetState',
@@ -510,18 +508,46 @@ const MaterialStateReactor = (props: { index: number; parentUUID: EntityUUID; do
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
   const entity = props.entity
 
-  const material = GLTFLoaderFunctions.useLoadMaterial(
-    getParserOptions(entity),
-    documentState.get(NO_PROXY) as GLTF.IGLTF,
-    props.index
-  )
+  const materialDefinition = documentState.materials![props.index]!.get(NO_PROXY) as GLTF.IMaterial
 
   useLayoutEffect(() => {
-    if (!entity || !material) return
-    const uuid = getComponent(entity, UUIDComponent)
-    material.uuid = uuid
-    setComponent(entity, MaterialStateComponent, { material })
-  }, [material])
+    if (!materialDefinition) return
+    return () => {
+      removeComponent(entity, MaterialDefinitionComponent)
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    if (!materialDefinition) return
+    setComponent(entity, MaterialDefinitionComponent, materialDefinition)
+  }, [materialDefinition])
+
+  return (
+    <>
+      {materialDefinition.extensions &&
+        Object.entries(materialDefinition.extensions).map(([id, ext]) => {
+          return <MaterialStateExtensionReactor key={id} keyName={id} value={ext} entity={entity} />
+        })}
+    </>
+  )
+}
+
+const MaterialStateExtensionReactor = (props: { keyName: string; value: any; entity: Entity }) => {
+  const entity = props.entity
+
+  useEffect(() => {
+    const Component = ComponentJSONIDMap.get(props.keyName)
+    if (!Component) return console.warn('No component found for extension', props.keyName)
+    return () => {
+      removeComponent(entity, Component)
+    }
+  }, [])
+
+  useEffect(() => {
+    const Component = ComponentJSONIDMap.get(props.keyName)
+    if (!Component) return console.warn('No component found for extension', props.keyName)
+    setComponent(entity, Component, props.value)
+  }, [props.keyName, props.value])
 
   return null
 }
@@ -860,11 +886,7 @@ const PrimitiveAttributeReactor = (props: {
   // Skip attributes already provided by e.g. Draco extension.
   const attribute = attributeAlreadyLoaded ? undefined : primitive.attributes[props.attribute]
 
-  const accessor = GLTFLoaderFunctions.useLoadAccessor(
-    getParserOptions(props.entity),
-    documentState.get(NO_PROXY) as GLTF.IGLTF,
-    attribute
-  )
+  const accessor = GLTFLoaderFunctions.useLoadAccessor(getParserOptions(props.entity), attribute)
 
   useEffect(() => {
     if (!accessor) return
@@ -891,11 +913,7 @@ const PrimitiveIndicesAttributeReactor = (props: {
 
   const primitive = mesh.primitives[props.primitiveIndex]
 
-  const accessor = GLTFLoaderFunctions.useLoadAccessor(
-    getParserOptions(props.entity),
-    documentState.get(NO_PROXY) as GLTF.IGLTF,
-    primitive.indices!
-  )
+  const accessor = GLTFLoaderFunctions.useLoadAccessor(getParserOptions(props.entity), primitive.indices!)
 
   useEffect(() => {
     if (!accessor) return
@@ -938,11 +956,13 @@ const MaterialInstanceReactor = (props: {
  * - we pretty much have to add a new API for each dependency type, like how the GLTFLoader does
  */
 
-const getParserOptions = (entity: Entity) => {
+export const getParserOptions = (entity: Entity) => {
   const gltfEntity = getAncestorWithComponent(entity, GLTFComponent)
+  const document = getState(GLTFDocumentState)[getComponent(gltfEntity, SourceComponent)]
   const gltfComponent = getComponent(gltfEntity, GLTFComponent)
   const gltfLoader = getState(AssetLoaderState).gltfLoader
   return {
+    document,
     url: gltfComponent.src,
     path: LoaderUtils.extractUrlBase(gltfComponent.src),
     body: gltfComponent.body,
