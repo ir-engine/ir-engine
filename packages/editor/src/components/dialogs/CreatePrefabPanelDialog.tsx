@@ -27,10 +27,20 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import config from '@etherealengine/common/src/config'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { Engine, Entity, createEntity, getComponent, removeEntity, setComponent } from '@etherealengine/ecs'
+import {
+  Engine,
+  Entity,
+  createEntity,
+  entityExists,
+  getComponent,
+  removeEntity,
+  setComponent
+} from '@etherealengine/ecs'
+import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -38,17 +48,15 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Quaternion, Scene, Vector3 } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
-import { HierarchyTreeNodeType } from '../hierarchy/HierarchyTreeWalker'
 
-export default function CreatePrefabPanel({ node }: { node?: HierarchyTreeNodeType }) {
-  const entity = node?.entity as Entity
+export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
   const prefabTag = useHookstate<string[]>([])
@@ -95,19 +103,34 @@ export default function CreatePrefabPanel({ node }: { node?: HierarchyTreeNodeTy
       const resource = resources.data[0]
       const tags = [...prefabTag.value]
       await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags })
+
+      removeEntity(prefabEntity)
+      EditorControlFunctions.removeObject([entity])
+      const sceneID = getComponent(parentEntity, SourceComponent)
+      const reactor = startReactor(() => {
+        const documentState = useHookstate(getMutableState(GLTFDocumentState))
+        const nodes = documentState[sceneID].nodes
+        useEffect(() => {
+          if (!entityExists(entity)) {
+            const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
+              [
+                { name: ModelComponent.jsonID, props: { src: fileURL } },
+                { name: TransformComponent.jsonID, props: { position, rotation, scale } }
+              ],
+              parentEntity
+            )
+            getMutableState(SelectionState).selectedEntities.set([entityUUID])
+            reactor.stop()
+          } else {
+            console.log('Entity not removed')
+          }
+        }, [nodes])
+        return null
+      })
       PopoverState.hidePopupover()
       defaultPrefabFolder.set('assets/custom-prefabs')
       prefabName.set('prefab')
       prefabTag.set([])
-      removeEntity(prefabEntity)
-      const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
-        [
-          { name: ModelComponent.jsonID, props: { src: fileURL } },
-          { name: TransformComponent.jsonID, props: { position, rotation, scale } }
-        ],
-        parentEntity
-      )
-      getMutableState(SelectionState).selectedEntities.set([entityUUID])
     } catch (e) {
       console.error(e)
     }
