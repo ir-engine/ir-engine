@@ -97,6 +97,7 @@ import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction
 import { GLTFExtensions } from './GLTFExtensions'
 import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 import { MaterialDefinitionComponent } from './MaterialDefinitionComponent'
+import './MeshExtensionComponents'
 
 export const GLTFAssetState = defineState({
   name: 'ee.engine.gltf.GLTFAssetState',

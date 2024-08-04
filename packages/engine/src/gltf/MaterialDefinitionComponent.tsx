@@ -94,8 +94,8 @@ declare module 'three/src/materials/MeshPhysicalMaterial' {
  *
  * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_unlit
  */
-export const GLTFKHRUnlitExtensionComponent = defineComponent({
-  name: 'GLTFKHRUnlitExtensionComponent',
+export const KHRUnlitExtensionComponent = defineComponent({
+  name: 'KHRUnlitExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_UNLIT,
 
   onInit(entity) {
@@ -122,8 +122,8 @@ export const GLTFKHRUnlitExtensionComponent = defineComponent({
  *
  * Specification: https://github.com/KhronosGroup/glTF/blob/5768b3ce0ef32bc39cdf1bef10b948586635ead3/extensions/2.0/Khronos/KHR_materials_emissive_strength/README.md
  */
-export const GLTFKHREmissiveStrengthExtensionComponent = defineComponent({
-  name: 'GLTFKHREmissiveStrengthExtensionComponent',
+export const KHREmissiveStrengthExtensionComponent = defineComponent({
+  name: 'KHREmissiveStrengthExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_EMISSIVE_STRENGTH,
 
   onInit(entity) {
@@ -145,7 +145,7 @@ export const GLTFKHREmissiveStrengthExtensionComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const component = useComponent(entity, GLTFKHREmissiveStrengthExtensionComponent)
+    const component = useComponent(entity, KHREmissiveStrengthExtensionComponent)
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
@@ -163,8 +163,8 @@ export const GLTFKHREmissiveStrengthExtensionComponent = defineComponent({
  *
  * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_clearcoat
  */
-export const GLTFKHRClearcoatExtensionComponent = defineComponent({
-  name: 'GLTFKHRClearcoatExtensionComponent',
+export const KHRClearcoatExtensionComponent = defineComponent({
+  name: 'KHRClearcoatExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_CLEARCOAT,
 
   onInit(entity) {
@@ -191,7 +191,7 @@ export const GLTFKHRClearcoatExtensionComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const component = useComponent(entity, GLTFKHRClearcoatExtensionComponent)
+    const component = useComponent(entity, KHRClearcoatExtensionComponent)
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
@@ -255,8 +255,8 @@ export const GLTFKHRClearcoatExtensionComponent = defineComponent({
  *
  * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_iridescence
  */
-export const GLTFKHRIridescenceExtensionComponent = defineComponent({
-  name: 'GLTFKHRIridescenceExtensionComponent',
+export const KHRIridescenceExtensionComponent = defineComponent({
+  name: 'KHRIridescenceExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_IRIDESCENCE,
 
   onInit(entity) {
@@ -296,7 +296,7 @@ export const GLTFKHRIridescenceExtensionComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const component = useComponent(entity, GLTFKHRIridescenceExtensionComponent)
+    const component = useComponent(entity, KHRIridescenceExtensionComponent)
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
@@ -357,8 +357,8 @@ export const GLTFKHRIridescenceExtensionComponent = defineComponent({
  *
  * Specification: https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen
  */
-export const GLTFKHRSheenExtensionComponent = defineComponent({
-  name: 'GLTFKHRSheenExtensionComponent',
+export const KHRSheenExtensionComponent = defineComponent({
+  name: 'KHRSheenExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_SHEEN,
 
   onInit(entity) {
@@ -389,7 +389,7 @@ export const GLTFKHRSheenExtensionComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const component = useComponent(entity, GLTFKHRSheenExtensionComponent)
+    const component = useComponent(entity, KHRSheenExtensionComponent)
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
@@ -447,8 +447,8 @@ export const GLTFKHRSheenExtensionComponent = defineComponent({
  * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_transmission
  * Draft: https://github.com/KhronosGroup/glTF/pull/1698
  */
-export const GLTFKHRTransmissionExtensionComponent = defineComponent({
-  name: 'GLTFKHRTransmissionExtensionComponent',
+export const KHRTransmissionExtensionComponent = defineComponent({
+  name: 'KHRTransmissionExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_TRANSMISSION,
 
   onInit(entity) {
@@ -473,7 +473,7 @@ export const GLTFKHRTransmissionExtensionComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const component = useComponent(entity, GLTFKHRTransmissionExtensionComponent)
+    const component = useComponent(entity, KHRTransmissionExtensionComponent)
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
@@ -505,8 +505,8 @@ export const GLTFKHRTransmissionExtensionComponent = defineComponent({
  *
  * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_volume
  */
-export const GLTFKHRVolumeExtensionComponent = defineComponent({
-  name: 'GLTFKHRVolumeExtensionComponent',
+export const KHRVolumeExtensionComponent = defineComponent({
+  name: 'KHRVolumeExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_VOLUME,
 
   onInit(entity) {
@@ -537,7 +537,7 @@ export const GLTFKHRVolumeExtensionComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const component = useComponent(entity, GLTFKHRVolumeExtensionComponent)
+    const component = useComponent(entity, KHRVolumeExtensionComponent)
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
@@ -588,8 +588,8 @@ export const GLTFKHRVolumeExtensionComponent = defineComponent({
  *
  * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_ior
  */
-export const GLTFKHRIorExtensionComponent = defineComponent({
-  name: 'GLTFKHRIorExtensionComponent',
+export const KHRIorExtensionComponent = defineComponent({
+  name: 'KHRIorExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_IOR,
 
   onInit(entity) {
@@ -611,7 +611,7 @@ export const GLTFKHRIorExtensionComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const component = useComponent(entity, GLTFKHRIorExtensionComponent)
+    const component = useComponent(entity, KHRIorExtensionComponent)
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
@@ -633,8 +633,8 @@ export const GLTFKHRIorExtensionComponent = defineComponent({
  *
  * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_specular
  */
-export const GLTFKHRSpecularExtensionComponent = defineComponent({
-  name: 'GLTFKHRSpecularExtensionComponent',
+export const KHRSpecularExtensionComponent = defineComponent({
+  name: 'KHRSpecularExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_SPECULAR,
 
   onInit(entity) {
@@ -665,7 +665,7 @@ export const GLTFKHRSpecularExtensionComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const component = useComponent(entity, GLTFKHRSpecularExtensionComponent)
+    const component = useComponent(entity, KHRSpecularExtensionComponent)
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
@@ -718,8 +718,8 @@ export const GLTFKHRSpecularExtensionComponent = defineComponent({
  *
  * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/EXT_materials_bump
  */
-export const GLTFKHRBumpExtensionComponent = defineComponent({
-  name: 'GLTFKHRBumpExtensionComponent',
+export const EXTBumpExtensionComponent = defineComponent({
+  name: 'EXTBumpExtensionComponent',
   jsonID: EXTENSIONS.EXT_MATERIALS_BUMP,
 
   onInit(entity) {
@@ -744,7 +744,7 @@ export const GLTFKHRBumpExtensionComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const component = useComponent(entity, GLTFKHRBumpExtensionComponent)
+    const component = useComponent(entity, EXTBumpExtensionComponent)
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
@@ -775,8 +775,8 @@ export const GLTFKHRBumpExtensionComponent = defineComponent({
  *
  * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_anisotropy
  */
-export const GLTFKHRAnisotropyExtensionComponent = defineComponent({
-  name: 'GLTFKHRAnisotropyExtensionComponent',
+export const KHRAnisotropyExtensionComponent = defineComponent({
+  name: 'KHRAnisotropyExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_ANISOTROPY,
 
   onInit(entity) {
@@ -804,7 +804,7 @@ export const GLTFKHRAnisotropyExtensionComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const component = useComponent(entity, GLTFKHRAnisotropyExtensionComponent)
+    const component = useComponent(entity, KHRAnisotropyExtensionComponent)
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
