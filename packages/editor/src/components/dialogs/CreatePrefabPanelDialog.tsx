@@ -90,7 +90,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
         scale: new Vector3(1, 1, 1)
       })
       setComponent(entity, EntityTreeComponent, { parentEntity: prefabEntity })
-
+      getMutableState(SelectionState).selectedEntities.set([])
       await exportRelativeGLTF(prefabEntity, srcProject, fileName)
       //await exportRelativeGLTF(entity, srcProject, fileName)
       //pass tags to static resource
