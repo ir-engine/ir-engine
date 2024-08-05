@@ -308,14 +308,19 @@ const AssetCategory = (props: {
     // TODO: add preview functionality
   }
 
-  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
+  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
 
   return (
     <div
       className={twMerge(
-        'min-h-7 rounded-md bg-[#141619]',
-        selectedCategory?.name === category.name && 'text-primary bg-[#191B1F]'
+        'rounded-md bg-[#141619]',
+        selectedCategory?.name === category.name && 'text-primary bg-[#191B1F]',
+        category.depth === 0 ? 'min-h-9' : 'min-h-7'
       )}
+      style={{
+        height: fontSize,
+        fontSize: fontSize
+      }}
     >
       <div
         className={twMerge(
@@ -324,9 +329,7 @@ const AssetCategory = (props: {
           category.depth > 0 && 'h-7'
         )}
         style={{
-          marginLeft: category.depth > 0 ? category.depth * 16 : 0,
-          height: iconSize,
-          fontSize: iconSize
+          marginLeft: category.depth > 0 ? category.depth * 16 : 0
         }}
         onClick={handleSelectCategory}
       >
