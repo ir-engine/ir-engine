@@ -142,6 +142,13 @@ else
   VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED
 fi
 
+if [ -z "$VITE_METABASE_SITE_URL" ]
+then
+  VITE_METABASE_SITE_URL=null
+else
+  VITE_METABASE_SITE_URL=$VITE_METABASE_SITE_URL
+fi
+
 # ./generate-certs.sh
 
 docker start etherealengine_minikube_db
@@ -176,6 +183,7 @@ docker buildx build \
   --build-arg VITE_AVATURN_API=$VITE_AVATURN_API \
   --build-arg VITE_ZENDESK_ENABLED=$VITE_ZENDESK_ENABLED \
   --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY \
-  --build-arg VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED .
+  --build-arg VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED \
+  --build-arg VITE_METABASE_SITE_URL=$VITE_METABASE_SITE_URL .
 
 #DOCKER_BUILDKIT=1 docker build -t etherealengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
