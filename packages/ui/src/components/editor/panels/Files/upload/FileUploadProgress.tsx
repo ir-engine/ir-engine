@@ -23,30 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useUploadingFiles } from '@etherealengine/client-core/src/util/upload'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+import Progress from '../../../../../primitives/tailwind/Progress'
 
-import { HiPause, HiPlay } from 'react-icons/hi2'
-import Progress, { ProgressProps } from '../../../../primitives/tailwind/Progress'
+export const FileUploadProgress = () => {
+  const { t } = useTranslation()
+  const { completed, total, progress } = useUploadingFiles()
 
-export interface ProgressBarProps extends ProgressProps {
-  paused: boolean
-  totalTime: number
-}
-
-export default function ProgressBar({ value, paused, totalTime, ...rest }: ProgressBarProps) {
-  return (
-    <div className="ml-auto mr-6 flex h-10 w-[314px] flex-row place-items-center gap-2 rounded bg-zinc-900 px-2">
-      {paused ? <HiPlay className="text-white" /> : <HiPause className="text-white" />}
-      <Progress value={(value / totalTime) * 100} className="w-[173px]" barClassName="bg-blue-800 " />
-      <div className="w-[85px] truncate text-right text-sm font-normal leading-normal text-neutral-400">
-        {paused
-          ? 'Paused'
-          : `${Math.floor((totalTime * value) / 100 / 60)}:${Math.floor(
-              ((totalTime * value) / 100) % 60
-            )}  / ${Math.floor(totalTime / 60)}:${Math.floor(totalTime % 60)} `}
+  return total ? (
+    <div className="flex h-auto w-full justify-center pb-2 pt-2">
+      <div className="flex w-1/2">
+        <span className="inline-block pr-2 text-xs font-normal leading-none text-theme-primary">
+          {t('editor:layout.filebrowser.uploadingFiles', { completed, total })}
+        </span>
+        <div className="basis-1/2">
+          <Progress value={progress} />
+        </div>
       </div>
     </div>
-  )
+  ) : null
 }
-
-ProgressBar.defaultProps = {}

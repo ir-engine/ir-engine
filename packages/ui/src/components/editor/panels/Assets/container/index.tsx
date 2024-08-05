@@ -46,15 +46,11 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
+import { FiRefreshCcw } from 'react-icons/fi'
 import { HiDotsVertical } from 'react-icons/hi'
-import {
-  HiMagnifyingGlass,
-  HiMiniArrowLeft,
-  HiMiniArrowPath,
-  HiOutlineFolder,
-  HiOutlinePlusCircle
-} from 'react-icons/hi2'
+import { HiMagnifyingGlass, HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi2'
 import { IoIosArrowDown, IoIosArrowForward } from 'react-icons/io'
+import { IoArrowBack } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
@@ -64,6 +60,7 @@ import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import InfiniteScroll from '../../../../tailwind/InfiniteScroll'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
 import { FileIcon } from '../../Files/icon'
+import { FileUploadProgress } from '../../Files/upload/FileUploadProgress'
 import { AssetIconMap } from '../icons'
 
 const ASSETS_PAGE_LIMIT = 10
@@ -352,7 +349,7 @@ export function AssetsBreadcrumb({
   onSelectCategory: (c: Category) => void
 }) {
   return (
-    <div className="flex h-[28px] items-center gap-2 rounded-[4px] border border-theme-input bg-[#141619] px-2 ">
+    <div className="flex h-[28px] w-96 items-center gap-2 rounded-lg border border-theme-input bg-[#141619] px-2 ">
       <HiOutlineFolder className="text-xs text-[#A3A3A3]" />
       {parentCategories.map((category) => (
         <span
@@ -575,40 +572,37 @@ const AssetPanel = () => {
 
   return (
     <>
-      <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
-        <div className="mr-20 flex gap-2">
-          <div className="pointer-events-auto flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
-              <Button variant="transparent" startIcon={<HiMiniArrowLeft />} className="p-0" onClick={handleBack} />
-            </Tooltip>
-          </div>
-
-          <div className="flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.refresh')}>
-              <Button variant="transparent" startIcon={<HiMiniArrowPath />} className="p-0" onClick={handleRefresh} />
-            </Tooltip>
-          </div>
-
-          {/* <div className="flex items-center">
-            <Tooltip title={t('editor:layout.scene-assets.settings')}>
-              <Button
-                variant="transparent"
-                startIcon={<HiOutlineCog6Tooth />}
-                className="p-0"
-                onClick={handleSettings}
-              />
-            </Tooltip>
-          </div> */}
+      <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
+        <div className="ml-2"></div>
+        <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+          <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
+            <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={handleBack} />
+          </Tooltip>
         </div>
 
-        <div className="align-center flex h-7 flex-1 justify-center gap-2 pr-2">
-          <div className="h-full flex-1">
-            <AssetsBreadcrumb
-              parentCategories={parentCategories.get(NO_PROXY) as Category[]}
-              selectedCategory={selectedCategory.value}
-              onSelectCategory={handleSelectCategory}
+        <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+          <Tooltip title={t('editor:layout.filebrowser.refresh')}>
+            <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={handleRefresh} />
+          </Tooltip>
+        </div>
+
+        {/* <div className="flex items-center">
+          <Tooltip title={t('editor:layout.scene-assets.settings')}>
+            <Button
+              variant="transparent"
+              startIcon={<HiOutlineCog6Tooth />}
+              className="p-0"
+              onClick={handleSettings}
             />
-          </div>
+          </Tooltip>
+        </div> */}
+
+        <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
+          <AssetsBreadcrumb
+            parentCategories={parentCategories.get(NO_PROXY) as Category[]}
+            selectedCategory={selectedCategory.value}
+            onSelectCategory={handleSelectCategory}
+          />
           <Input
             placeholder={t('editor:layout.scene-assets.search-placeholder')}
             value={searchText.value}
@@ -616,17 +610,16 @@ const AssetPanel = () => {
               searchText.set(e.target.value)
             }}
             labelClassname="text-sm text-red-500"
-            containerClassname="flex h-full bg-theme-primary rounded w-auto"
-            className="h-7 rounded-[4px] bg-theme-primary py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
+            containerClassname="flex h-full w-auto"
+            className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
           />
         </div>
 
         <Button
           startIcon={<HiOutlinePlusCircle className="text-lg" />}
-          variant="transparent"
           rounded="none"
-          className="h-full whitespace-nowrap bg-[#375DAF] px-2"
+          className="h-full whitespace-nowrap bg-theme-highlight px-2"
           size="small"
           onClick={() =>
             inputFileWithAddToScene({
@@ -642,6 +635,7 @@ const AssetPanel = () => {
           {t('editor:layout.filebrowser.uploadAssets')}
         </Button>
       </div>
+      <FileUploadProgress />
       <div className="flex h-full w-full" onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}>
         <CategoriesList
           categories={categories.value as Category[]}
