@@ -392,7 +392,7 @@ export function useAncestorWithComponent(entity: Entity, component: ComponentTyp
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
       const matchesQuery = !!useOptionalComponent(props.entity, component)?.value
 
-      useImmediateEffect(() => {
+      useLayoutEffect(() => {
         if (!matchesQuery) return
         result.set(props.entity)
         return () => {
