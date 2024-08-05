@@ -83,13 +83,13 @@ export const ColliderComponent = defineComponent({
     const component = useComponent(entity, ColliderComponent)
     const transform = useComponent(entity, TransformComponent)
     const rigidbodyEntity = useAncestorWithComponent(entity, RigidBodyComponent)
+    const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
     const physicsWorld = Physics.useWorld(entity)
     const triggerComponent = useOptionalComponent(entity, TriggerComponent)
     const hasCollider = useState(false)
-    const physicsWorldRigidbody = Physics.useWorld(entity)?.Rigidbodies[entity]
 
     useEffect(() => {
-      if (!rigidbodyEntity || !physicsWorld) return
+      if (!rigidbodyComponent || !physicsWorld) return
 
       const colliderDesc = Physics.createColliderDesc(physicsWorld, entity, rigidbodyEntity)
       if (!colliderDesc) return
@@ -101,7 +101,7 @@ export const ColliderComponent = defineComponent({
         Physics.removeCollider(physicsWorld, entity)
         hasCollider.set(false)
       }
-    }, [physicsWorld, component.shape, rigidbodyEntity, !!physicsWorldRigidbody, transform.scale])
+    }, [physicsWorld, component.shape, rigidbodyEntity, !!rigidbodyComponent, transform.scale])
 
     useLayoutEffect(() => {
       if (!physicsWorld) return
