@@ -179,7 +179,7 @@ const resolveThumbnailURL = async (context: HookContext<StaticResourceService>) 
 
   context.hashedThumbnailResults = {}
 
-  const thumbkeyToIndex = new Map<string, string>()
+  const thumbkeyToIndex = new Map<string, string[]>()
   const storageProvider = getStorageProvider()
 
   for (const resource of dataArr) {
@@ -190,7 +190,10 @@ const resolveThumbnailURL = async (context: HookContext<StaticResourceService>) 
       const thumbnailURLWithHash = thumbnailURL + '?hash=' + resource.hash.slice(0, 6)
       context.hashedThumbnailResults[resource.id] = thumbnailURLWithHash
     } else {
-      if (resource.thumbnailKey) thumbkeyToIndex.set(resource.thumbnailKey, resource.id)
+      if (resource.thumbnailKey) {
+        if (!thumbkeyToIndex.has(resource.thumbnailKey)) thumbkeyToIndex.set(resource.thumbnailKey, [])
+        thumbkeyToIndex.get(resource.thumbnailKey)?.push(resource.id)
+      }
     }
   }
 
@@ -209,10 +212,10 @@ const resolveThumbnailURL = async (context: HookContext<StaticResourceService>) 
   for (const thumbnailResource of thumbnailResources) {
     const thumbnailURL = storageProvider.getCachedURL(thumbnailResource.key, context.params.isInternal)
     const thumbnailURLWithHash = thumbnailURL + '?hash=' + thumbnailResource.hash.slice(0, 6)
-    const id = thumbkeyToIndex.get(thumbnailResource.key)
+    const ids = thumbkeyToIndex.get(thumbnailResource.key)
 
-    if (!id) continue
-    context.hashedThumbnailResults[id] = thumbnailURLWithHash
+    if (!ids) continue
+    for (const id of ids) context.hashedThumbnailResults[id] = thumbnailURLWithHash
   }
 
   return context

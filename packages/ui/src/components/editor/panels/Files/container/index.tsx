@@ -604,7 +604,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                       fileProperties.value.map((file) => file.key)
                     )
                   }
-                  openFileProperties={() => {
+                  openFileProperties={(item) => {
+                    /** If the file is not in the list of files, add it */
+                    if (!(fileProperties.get(NO_PROXY) as FileDataType[]).includes(item)) {
+                      if (fileProperties.value.length > 1) {
+                        fileProperties.merge([item])
+                      } else {
+                        fileProperties.set([item])
+                      }
+                    }
                     PopoverState.showPopupover(
                       <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
                     )
