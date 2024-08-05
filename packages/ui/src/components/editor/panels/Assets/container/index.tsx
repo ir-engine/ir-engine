@@ -38,11 +38,12 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
+import { FilesViewModeSettings } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { NO_PROXY, State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { FiRefreshCcw } from 'react-icons/fi'
@@ -58,6 +59,7 @@ import { TablePagination } from '../../../../../primitives/tailwind/Table'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
+import { ViewModeSettings } from '../../Files/container'
 import { FileIcon } from '../../Files/icon'
 import { FileUploadProgress } from '../../Files/upload/FileUploadProgress'
 import { AssetIconMap } from '../icons'
@@ -306,14 +308,21 @@ const AssetCategory = (props: {
     // TODO: add preview functionality
   }
 
+  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
+
   return (
     <div
       className={twMerge(
-        'flex h-9 cursor-pointer items-center gap-2 text-[#B2B5BD]',
+        'flex min-h-9 cursor-pointer items-center gap-2 text-[#B2B5BD]',
         category.depth === 0 && !category.collapsed && 'mt-0',
         selectedCategory?.name === category.name && 'rounded bg-[#191B1F]'
       )}
-      style={{ marginLeft: category.depth > 1 ? category.depth * 16 : 0 }}
+      style={{
+        marginLeft: category.depth > 1 ? category.depth * 16 : 0,
+        height: iconSize,
+        // width: iconSize,
+        fontSize: iconSize
+      }}
       onClick={handleSelectCategory}
     >
       <Button
@@ -326,7 +335,7 @@ const AssetCategory = (props: {
       <div className="flex w-full items-center gap-1 pr-2">
         <span
           className={twMerge(
-            "flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]",
+            "flex flex-row items-center gap-2 text-nowrap font-['Figtree'] text-[#e7e7e7]",
             selectedCategory?.name === category.name && 'text-[#F5F5F5]'
           )}
         >
@@ -605,6 +614,8 @@ const AssetPanel = () => {
             />
           </Tooltip>
         </div> */}
+
+        <ViewModeSettings />
 
         <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
           <AssetsBreadcrumb
