@@ -418,6 +418,10 @@ const zendesk = {
   kid: process.env.ZENDESK_KID
 }
 
+const metabase = {
+  key: process.env.METABASE_SECRET_KEY
+}
+
 /**
  * Full config
  */
@@ -449,7 +453,8 @@ const config = {
   allowOutOfDateProjects:
     typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true',
   fsProjectSyncEnabled: process.env.FS_PROJECT_SYNC_ENABLED === 'false' ? false : true,
-  zendesk
+  zendesk,
+  metabase
 }
 
 chargebeeInst.configure({
