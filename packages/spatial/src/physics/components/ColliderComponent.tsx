@@ -101,7 +101,7 @@ export const ColliderComponent = defineComponent({
         Physics.removeCollider(physicsWorld, entity)
         hasCollider.set(false)
       }
-    }, [physicsWorld, component.shape, rigidbodyComponent, transform.scale])
+    }, [physicsWorld, component.shape, rigidbodyEntity, !!rigidbodyComponent, transform.scale])
 
     useLayoutEffect(() => {
       if (!physicsWorld) return
