@@ -103,6 +103,10 @@
       "activity": "Activity",
       "users": "Users"
     },
+    "crashReport": {
+      "title": "Crash Report",
+      "loading": "Loading crash report..."
+    },
     "group": {
       "createGroup": "Create Group",
       "name": "Name",
