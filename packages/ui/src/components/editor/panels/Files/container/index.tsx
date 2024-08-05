@@ -295,7 +295,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     fileQuery.setPage(0)
   }
 
-  const onSelect = (params: FileDataType) => {
+  const onSelect = (event, params: FileDataType) => {
     if (params.type !== 'folder') {
       props.onSelectionChanged({
         resourceUrl: params.url,
@@ -306,8 +306,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
       ClickPlacementState.setSelectedAsset(params.url)
     } else {
-      const newPath = `${selectedDirectory.value}${params.name}/`
-      changeDirectoryByPath(newPath)
+      if (event.detail === 2) {
+        const newPath = `${selectedDirectory.value}${params.name}/`
+        changeDirectoryByPath(newPath)
+      }
     }
   }
 
@@ -583,7 +585,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   projectName={projectName}
                   onClick={(event, currentFile) => {
                     handleFileBrowserItemClick(event, currentFile)
-                    onSelect(file)
+                    onSelect(event, file)
                   }}
                   currentContent={currentContentRef}
                   handleDropItemsOnPanel={(data, dropOn) =>
