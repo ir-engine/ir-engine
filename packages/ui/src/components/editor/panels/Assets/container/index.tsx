@@ -599,7 +599,7 @@ const AssetPanel = () => {
 
   return (
     <>
-      <div className="mb-1 flex h-7 items-center bg-theme-surface-main">
+      <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
         <div className="ml-2"></div>
         <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
           <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
