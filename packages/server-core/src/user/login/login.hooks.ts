@@ -38,7 +38,9 @@ const validateRedirectUrl = (context: HookContext) => {
 
     // We only allow redirect to the same origin as of client
     if (origin !== config.client.url) {
-      throw new BadRequest(`Invalid redirect URL: ${context.params.query.redirectUrl}`)
+      throw new BadRequest(
+        `Invalid redirect URL: ${context.params.query.redirectUrl}. Only redirect URLs from the same origin are allowed.`
+      )
     }
   }
 }
