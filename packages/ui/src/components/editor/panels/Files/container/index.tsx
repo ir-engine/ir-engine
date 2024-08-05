@@ -53,18 +53,10 @@ import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { bytesToSize, unique } from '@etherealengine/editor/src/functions/utils'
-import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import {
-  ImmutableArray,
-  NO_PROXY,
-  getMutableState,
-  getState,
-  useHookstate,
-  useMutableState
-} from '@etherealengine/hyperflux'
+import { ImmutableArray, NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import {
   useFind,
   useMutation,
@@ -76,7 +68,7 @@ import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
 import { FiDownload, FiGrid, FiRefreshCcw } from 'react-icons/fi'
-import { HiOutlinePlusCircle } from 'react-icons/hi'
+import { HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { PiFolderPlusBold } from 'react-icons/pi'
@@ -90,7 +82,9 @@ import { Popup } from '../../../../tailwind/Popup'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
+import DeleteFileModal from '../browserGrid/DeleteFileModal'
 import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
+import { FileUploadProgress } from '../upload/FileUploadProgress'
 
 type FileBrowserContentPanelProps = {
   projectName?: string
@@ -309,10 +303,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         contentType: params.type,
         size: params.size
       })
-      const editorHelperState = getState(EditorHelperState)
-      if (editorHelperState.placementMode === PlacementMode.CLICK) {
-        getMutableState(ClickPlacementState).selectedAsset.set(params.url)
-      }
+
+      ClickPlacementState.setSelectedAsset(params.url)
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
       changeDirectoryByPath(newPath)
@@ -352,14 +344,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         await moveContent(data.fullName, newName, data.path, destinationPath, false)
       }
     } else {
-      const folder = destinationPath.substring(0, destinationPath.lastIndexOf('/') + 1)
+      const destinationPathCleaned = removeLeadingTrailingSlash(destinationPath)
+      const folder = destinationPathCleaned //destinationPathCleaned.substring(0, destinationPathCleaned.lastIndexOf('/') + 1)
       const projectName = folder.split('/')[1]
       const relativePath = folder.replace('projects/' + projectName + '/', '')
 
       await Promise.all(
         data.files.map(async (file) => {
-          const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
-          if (!assetType) {
+          const assetType = !file.type || file.type.length === 0 ? AssetLoader.getAssetType(file.name) : file.type
+          if (!assetType || assetType === file.name) {
             // creating directory
             await fileService.create(`${destinationPath}${file.name}`)
           } else {
@@ -369,7 +362,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                 args: [
                   {
                     project: projectName,
-                    path: relativePath + name,
+                    path: relativePath + '/' + name,
                     contentType: file.type
                   }
                 ]
@@ -383,6 +376,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     }
 
     await refreshDirectory()
+  }
+
+  function removeLeadingTrailingSlash(str) {
+    if (str.startsWith('/')) {
+      str = str.substring(1)
+    }
+    if (str.endsWith('/')) {
+      str = str.substring(0, str.length - 1)
+    }
+    return str
   }
 
   const onBackDirectory = () => {
@@ -475,36 +478,28 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
 
     return (
-      <nav
-        className="flex h-full w-full rounded-[4px] border border-theme-primary bg-theme-primary text-xs text-[#A3A3A3]"
-        aria-label="Breadcrumb"
-      >
-        <span className="flex h-full w-full items-center justify-center space-x-2 overflow-x-auto whitespace-nowrap px-4">
-          {breadcrumbDirectoryFiles.map((file, index, arr) => (
-            <Fragment key={index}>
-              {index !== 0 && ( // Add separator for all but the first item
-                <span className="cursor-default align-middle text-xs">{'>'}</span>
-              )}
-              {index === arr.length - 1 || (orgName && index === 0) ? (
-                <span className="overflow-hidden">
-                  <span className="inline-block w-full cursor-default overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
-                    {file}
-                  </span>
+      <div className="flex h-[28px] w-96 items-center gap-1 rounded-lg border border-theme-input bg-[#141619] px-2 ">
+        <HiOutlineFolder className="text-sm text-[#A3A3A3]" />
+        {breadcrumbDirectoryFiles.map((file, index, arr) => (
+          <Fragment key={index}>
+            {index !== 0 && <span className="cursor-default items-center text-sm text-[#A3A3A3]"> {'>'} </span>}
+            {index === arr.length - 1 || (orgName && index === 0) ? (
+              <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline">
+                {file}
+              </span>
+            ) : (
+              <a
+                className="inline-flex cursor-pointer items-center overflow-hidden text-sm text-[#A3A3A3] hover:text-theme-highlight hover:underline focus:text-theme-highlight"
+                onClick={() => handleBreadcrumbDirectoryClick(file)}
+              >
+                <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline">
+                  {file}
                 </span>
-              ) : (
-                <a
-                  className="cursor-pointer overflow-hidden align-middle text-xs text-[#A3A3A3] hover:text-theme-highlight hover:underline focus:text-theme-highlight"
-                  onClick={() => handleBreadcrumbDirectoryClick(file)}
-                >
-                  <span className="inline-block w-full overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
-                    {file}
-                  </span>
-                </a>
-              )}
-            </Fragment>
-          ))}
-        </span>
-      </nav>
+              </a>
+            )}
+          </Fragment>
+        ))}
+      </div>
     )
   }
 
@@ -567,13 +562,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       <div
         ref={fileDropRef}
         className={twMerge(
-          'mb-2 h-auto p-6 px-4 text-gray-400 ',
+          'mb-2 h-auto px-3 pb-6 text-gray-400 ',
           isListView ? '' : 'flex py-8',
           isFileDropOver ? 'border-2 border-gray-300' : ''
         )}
         onClick={(event) => {
           event.stopPropagation()
           fileProperties.set([])
+          ClickPlacementState.resetSelectedAsset()
         }}
       >
         <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
@@ -601,6 +597,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     PopoverState.showPopupover(
                       <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
                     )
+                  }}
+                  openDeleteFileModal={() => {
+                    PopoverState.showPopupover(<DeleteFileModal files={fileProperties.value as FileDataType[]} />)
                   }}
                   openImageCompress={() => {
                     if (filesConsistOfContentType(fileProperties.value, 'image')) {
@@ -657,7 +656,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         position={'bottom left'}
         trigger={
           <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
-            <Button variant="transparent" startIcon={<IoSettingsSharp />} className="p-0" />
+            <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
           </Tooltip>
         }
       >
@@ -708,19 +707,17 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   return (
     <>
-      <div className="mb-1 flex h-8 items-center gap-2 bg-theme-surface-main">
-        <div
-          id="backDir"
-          className={`flex items-center ${
-            showBackButton ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
-          }`}
-        >
-          <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
-            <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={onBackDirectory} />
-          </Tooltip>
-        </div>
+      <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
+        <div className="ml-2"></div>
+        {showBackButton && (
+          <div id="backDir" className={`pointer-events-auto flex h-7 w-7 items-center rounded-lg bg-[#2F3137]`}>
+            <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
+              <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={onBackDirectory} />
+            </Tooltip>
+          </div>
+        )}
 
-        <div id="refreshDir" className="flex items-center">
+        <div id="refreshDir" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
           <Tooltip title={t('editor:layout.filebrowser.refresh')}>
             <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={refreshDirectory} />
           </Tooltip>
@@ -728,7 +725,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
         <ViewModeSettings />
 
-        <div className="w-30 flex h-7 flex-row items-center gap-1 rounded bg-theme-surfaceInput px-2 py-1">
+        <div className="w-30 flex h-7 flex-row items-center gap-1 rounded rounded-lg bg-[#2F3137] px-2 py-1 ">
           {viewModes.map(({ mode, icon }) => (
             <Button
               key={mode}
@@ -741,9 +738,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
 
         <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
-          <div className="hidden h-full lg:block lg:w-1/2 xl:w-[400px]">
-            <BreadcrumbItems />
-          </div>
+          <BreadcrumbItems />
           <Input
             placeholder={t('editor:layout.filebrowser.search-placeholder')}
             value={searchText.value}
@@ -751,13 +746,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               searchText.set(e.target.value)
             }}
             labelClassname="text-sm text-red-500"
-            containerClassname="flex h-full bg-theme-primary rounded-[4px] w-full"
-            className="h-7 w-full rounded-[4px] bg-theme-primary py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
+            containerClassname="flex h-full w-auto"
+            className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
           />
         </div>
 
-        <div id="downloadProject" className="flex items-center">
+        <div id="downloadProject" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
           <Tooltip title={t('editor:layout.filebrowser.downloadProject')}>
             <Button
               variant="transparent"
@@ -769,7 +764,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           </Tooltip>
         </div>
 
-        <div id="newFolder" className="flex items-center">
+        <div id="newFolder" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
           <Tooltip title={t('editor:layout.filebrowser.addNewFolder')}>
             <Button variant="transparent" startIcon={<PiFolderPlusBold />} className="p-0" onClick={createNewFolder} />
           </Tooltip>
@@ -778,7 +773,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <Button
           id="uploadFiles"
           startIcon={<HiOutlinePlusCircle />}
-          variant="transparent"
           disabled={!showUploadButtons}
           rounded="none"
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
@@ -796,7 +790,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <Button
           id="uploadFiles"
           startIcon={<HiOutlinePlusCircle />}
-          variant="transparent"
           disabled={!showUploadButtons}
           rounded="none"
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
@@ -816,7 +809,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           {t('editor:layout.filebrowser.uploadFolder')}
         </Button>
       </div>
-      {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}
+      <FileUploadProgress />
+      {isLoading && (
+        <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} fullSpace className="block h-12 w-12" />
+      )}
       <GeneratingThumbnailsProgress />
       <div id="file-browser-panel" className="h-full overflow-auto">
         <DndWrapper id="file-browser-panel">

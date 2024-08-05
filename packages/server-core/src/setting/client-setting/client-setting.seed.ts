@@ -66,7 +66,7 @@ export const clientSettingSeedData = {
   themeSettings: JSON.stringify(defaultThemeSettings),
   themeModes: JSON.stringify(defaultThemeModes),
   key8thWall: process.env.VITE_8TH_WALL || '',
-  privacyPolicy: 'https://www.etherealengine.com/privacy',
+  privacyPolicy: 'https://www.ir.world/privacy-policy',
   homepageLinkButtonEnabled: false,
   homepageLinkButtonRedirect: '',
   homepageLinkButtonText: '',

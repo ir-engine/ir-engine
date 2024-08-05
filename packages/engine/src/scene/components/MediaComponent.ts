@@ -28,13 +28,12 @@ import { startTransition, useEffect } from 'react'
 import { DoubleSide, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Engine, UndefinedEntity } from '@etherealengine/ecs'
+import { ComponentType, Engine, UndefinedEntity } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -252,7 +251,7 @@ export function MediaReactor() {
   useEffect(() => {
     setComponent(entity, BoundingBoxComponent)
     setComponent(entity, InputComponent, { highlight: false, grow: false })
-    const { renderer } = getComponent(Engine.instance.viewerEntity, RendererComponent)
+    const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const handleAutoplay = () => {
@@ -321,7 +320,6 @@ export function MediaReactor() {
       clearErrors(entity, MediaComponent)
 
       const paths = media.resources.value
-
       for (const path of paths) {
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
         if (path !== '' && assetClass !== 'audio' && assetClass !== 'video') {
@@ -356,25 +354,28 @@ export function MediaReactor() {
 
   useEffect(
     function updateMediaElement() {
-      if (!media.ended.value) {
-        // If current track is not ended, don't change the track
-        return
-      }
+      if (!media.ended.value) return // If current track is not ended, don't change the track
 
       if (!isClient) return
 
-      const track = media.track.value
-      const nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
-
-      if (nextTrack === -1) return
-
-      const path = media.resources[nextTrack].value
-      if (!path) {
-        if (hasComponent(entity, MediaElementComponent)) removeComponent(entity, MediaElementComponent)
-        return
-      }
+      if (media.resources.value.every((resource) => !resource)) return // if all resources are empty, we dont move to next track
 
       const mediaElement = getOptionalComponent(entity, MediaElementComponent)
+      const track = media.track.value
+      let nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
+
+      //check if we haven't set up for single play yet, or if our sources don't match the new resources
+      //** todo  make this more robust in a refactor, feels very error prone with edge cases */
+      if (nextTrack === -1 && mediaElement?.element?.src === media.resources.value[0]) return
+
+      let path = media.resources.value[nextTrack]
+
+      while (!path) {
+        // we already remove the case where we dont have any track
+        // if current path is null, we simply skip over and move to next proper track
+        nextTrack = (nextTrack + 1) % media.resources.length
+        path = media.resources[nextTrack].value
+      }
 
       const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
 
@@ -387,55 +388,7 @@ export function MediaReactor() {
       media.track.set(nextTrack)
 
       if (!mediaElement || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
-        setComponent(entity, MediaElementComponent, {
-          element: document.createElement(assetClass) as HTMLMediaElement
-        })
-        const mediaElementState = getMutableComponent(entity, MediaElementComponent)
-
-        const element = mediaElementState.element.value as HTMLMediaElement
-
-        element.crossOrigin = 'anonymous'
-        element.preload = 'auto'
-        element.muted = false
-        element.setAttribute('playsinline', 'true')
-
-        const signal = mediaElementState.abortController.signal.value
-
-        element.addEventListener(
-          'playing',
-          () => {
-            media.waiting.set(false)
-            clearErrors(entity, MediaElementComponent)
-          },
-          { signal }
-        )
-        element.addEventListener('waiting', () => media.waiting.set(true), { signal })
-        element.addEventListener(
-          'error',
-          (err) => {
-            addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
-            media.ended.set(true)
-            media.waiting.set(false)
-          },
-          { signal }
-        )
-
-        element.addEventListener(
-          'ended',
-          () => {
-            media.ended.set(true)
-            media.waiting.set(false)
-          },
-          { signal }
-        )
-
-        const audioNodes = createAudioNodeGroup(
-          element,
-          audioContext.createMediaElementSource(element),
-          media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
-        )
-
-        audioNodes.gain.gain.setTargetAtTime(media.volume.value, audioContext.currentTime, 0.1)
+        setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
       }
 
       setComponent(entity, MediaElementComponent)
@@ -507,6 +460,70 @@ export function MediaReactor() {
   }, [debugEnabled, audioHelperTexture])
 
   return null
+}
+
+const setUpMediaElement = (
+  entity: Entity,
+  path: string,
+  media: State<ComponentType<typeof MediaComponent>>,
+  audioContext: AudioContext,
+  gainNodeMixBuses: {
+    mediaStreams: GainNode
+    notifications: GainNode
+    music: GainNode
+    soundEffects: GainNode
+  }
+) => {
+  const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+  setComponent(entity, MediaElementComponent, {
+    element: document.createElement(assetClass) as HTMLMediaElement
+  })
+  const mediaElementState = getMutableComponent(entity, MediaElementComponent)
+
+  const element = mediaElementState.element.value as HTMLMediaElement
+
+  element.crossOrigin = 'anonymous'
+  element.preload = 'auto'
+  element.muted = false
+  element.setAttribute('playsinline', 'true')
+
+  const signal = mediaElementState.abortController.signal.value
+
+  element.addEventListener(
+    'playing',
+    () => {
+      media.waiting.set(false)
+      clearErrors(entity, MediaElementComponent)
+    },
+    { signal }
+  )
+  element.addEventListener('waiting', () => media.waiting.set(true), { signal })
+  element.addEventListener(
+    'error',
+    (err) => {
+      addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
+      media.ended.set(true)
+      media.waiting.set(false)
+    },
+    { signal }
+  )
+
+  element.addEventListener(
+    'ended',
+    () => {
+      media.ended.set(true)
+      media.waiting.set(false)
+    },
+    { signal }
+  )
+
+  const audioNodes = createAudioNodeGroup(
+    element,
+    audioContext.createMediaElementSource(element),
+    media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
+  )
+
+  audioNodes.gain.gain.setTargetAtTime(media.volume.value, audioContext.currentTime, 0.1)
 }
 
 export const setupHLS = async (entity: Entity, url: string): Promise<Hls> => {

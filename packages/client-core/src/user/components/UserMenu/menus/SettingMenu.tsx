@@ -50,11 +50,15 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import multiLogger from '@etherealengine/common/src/logger'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { clientContextParams } from '../../../../util/contextParams'
 import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
+
+const logger = multiLogger.child({ component: 'system:settings-menu', modifier: clientContextParams })
 
 export const ShadowMapResolutionOptions: InputMenuItem[] = [
   {
@@ -80,7 +84,7 @@ export const ShadowMapResolutionOptions: InputMenuItem[] = [
 ]
 const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 
-type Props = {
+export type Props = {
   isPopover?: boolean
 }
 
@@ -119,7 +123,12 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     if (!userSettings) return
     const { name, value } = event.target
     const settings: UserSettingPatch = { themeModes: { ...themeModes, [name]: value } }
-    AuthService.updateUserSettings(userSettings.id, settings)
+    AuthService.updateUserSettings(userSettings.id, settings).then(() =>
+      logger.info({
+        event_name: `change_${name}_theme`,
+        event_value: value
+      })
+    )
   }
 
   const handleChangeInvertRotationAndMoveSticks = () => {
@@ -175,26 +184,41 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
 
   const handleQualityLevelChange = (value) => {
     rendererState.qualityLevel.set(value)
+    logger.info({ event_name: `set_quality_preset`, event_value: value })
     rendererState.automatic.set(false)
+    logger.info({ event_name: `automatic_qp`, event_value: false })
   }
 
-  const handlePostProcessingCheckbox = () => {
-    rendererState.usePostProcessing.set(!rendererState.usePostProcessing.value)
+  const handlePostProcessingCheckbox = (value) => {
+    rendererState.usePostProcessing.set(value)
+    logger.info({ event_name: `post_processing`, event_value: value })
     rendererState.automatic.set(false)
+    logger.info({ event_name: `automatic_qp`, event_value: false })
   }
 
-  const handleShadowCheckbox = () => {
-    rendererState.useShadows.set(!rendererState.useShadows.value)
+  const handleShadowCheckbox = (value) => {
+    rendererState.useShadows.set(value)
+    logger.info({ event_name: `shadows`, event_value: value })
     rendererState.automatic.set(false)
+    logger.info({ event_name: `automatic_qp`, event_value: false })
   }
 
-  const handleAutomaticCheckbox = () => {
-    rendererState.automatic.set(!rendererState.automatic.value)
+  const handleAutomaticCheckbox = (value) => {
+    rendererState.automatic.set(value)
+    logger.info({ event_name: `automatic_qp`, event_value: value })
+    if (value) {
+      rendererState.usePostProcessing.set(false)
+      logger.info({ event_name: `post_processing`, event_value: false })
+      rendererState.useShadows.set(false)
+      logger.info({ event_name: `shadows`, event_value: false })
+    }
   }
 
   const handleShadowMapResolutionChange = (value: number) => {
     rendererState.shadowMapResolution.set(value)
+    logger.info({ event_name: `change_shadow_map_resolution`, event_value: value })
     rendererState.automatic.set(false)
+    logger.info({ event_name: `automatic_qp`, event_value: false })
   }
 
   return (
@@ -356,6 +380,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               checked={audioState.positionalMedia.value}
               onChange={(value: boolean) => {
                 getMutableState(AudioState).positionalMedia.set(value)
+                logger.info({ event_name: `spatial_user_av`, event_value: value })
               }}
             />
 
@@ -368,6 +393,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               value={audioState.masterVolume.value}
               onChange={(value: number) => {
                 getMutableState(AudioState).masterVolume.set(value)
+                logger.info({ event_name: `set_total_volume`, event_value: value })
               }}
             />
 
@@ -380,6 +406,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               value={audioState.microphoneGain.value}
               onChange={(value: number) => {
                 getMutableState(AudioState).microphoneGain.set(value)
+                logger.info({ event_name: `set_microphone_volume`, event_value: value })
               }}
             />
 
@@ -404,6 +431,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               value={audioState.mediaStreamVolume.value}
               onChange={(value: number) => {
                 getMutableState(AudioState).mediaStreamVolume.set(value)
+                logger.info({ event_name: `set_user_volume`, event_value: value })
               }}
             />
 
@@ -416,6 +444,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               value={audioState.notificationVolume.value}
               onChange={(value: number) => {
                 getMutableState(AudioState).notificationVolume.set(value)
+                logger.info({ event_name: `set_notification_volume`, event_value: value })
               }}
             />
 
@@ -428,6 +457,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               value={audioState.soundEffectsVolume.value}
               onChange={(value: number) => {
                 getMutableState(AudioState).soundEffectsVolume.set(value)
+                logger.info({ event_name: `set_scene_volume`, event_value: value })
               }}
             />
 
@@ -440,6 +470,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               value={audioState.backgroundMusicVolume.value}
               onChange={(value: number) => {
                 getMutableState(AudioState).backgroundMusicVolume.set(value)
+                logger.info({ event_name: `set_music_volume`, event_value: value })
               }}
             />
             {/* </>

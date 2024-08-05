@@ -23,31 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Mesh, Raycaster, Vector2 } from 'three'
+import { Intersection, Material, Mesh, Raycaster, Vector2 } from 'three'
 
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
 import { UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { addAuthoringHook } from '@etherealengine/engine/src/gltf/AuthoringHookState'
+import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
-import { getState } from '@etherealengine/hyperflux'
+import { getState, startReactor, useImmediateEffect } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { ObjectLayerMasks, ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { assignMaterial, createMaterialEntity } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { EditorControlFunctions } from './EditorControlFunctions'
+import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
 /**
  * Adds media node from passed url. Type of the media will be detected automatically
@@ -73,17 +75,22 @@ export async function addMediaNode(
       const sceneObjects = objectLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
       //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
       const mouse = new Vector2()
-      const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-      const pointerScreenRaycaster = new Raycaster()
-
       const mouseEvent = event as MouseEvent // Type assertion
-      mouse.x = (mouseEvent.clientX / window.innerWidth) * 2 - 1
-      mouse.y = -(mouseEvent.clientY / window.innerHeight) * 2 + 1
-
-      pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
-
-      //change states
-      const intersected = pointerScreenRaycaster.intersectObjects(sceneObjects)[0]
+      const element = mouseEvent.target as HTMLElement
+      let rect = element.getBoundingClientRect()
+      mouse.x = ((mouseEvent.clientX - rect.left) / rect.width) * 2 - 1
+      mouse.y = -((mouseEvent.clientY - rect.top) / rect.height) * 2 + 1
+      const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+      const raycaster = new Raycaster()
+      raycaster.layers.set(ObjectLayerMasks[ObjectLayers.Scene])
+      const intersections = [] as Intersection[]
+      getIntersectingNodeOnScreen(raycaster, mouse, intersections)
+      // debug code for visualizing ray casts:
+      // const rayEntity = createSceneEntity("ray helper", getState(EditorState).rootEntity)
+      // const lineStart = raycaster.ray.origin
+      // const lineEnd = raycaster.ray.origin.clone().add(raycaster.ray.direction.clone().multiplyScalar(1000))
+      // const lineGeometry = new BufferGeometry().setFromPoints([lineStart, lineEnd])
+      // setComponent(rayEntity, LineSegmentComponent, { geometry: lineGeometry })
       const gltfLoader = getState(AssetLoaderState).gltfLoader
       gltfLoader.load(url, (gltf) => {
         const material = iterateObject3D(
@@ -93,10 +100,15 @@ export async function addMediaNode(
         )[0]
         if (!material) return
         const materialEntity = createMaterialEntity(material)
-        iterateObject3D(intersected.object, (mesh: Mesh) => {
-          if (!mesh?.isMesh) return
-          assignMaterial(mesh.entity, materialEntity)
-        })
+        let foundTarget = false
+        for (const intersection of intersections) {
+          iterateObject3D(intersection.object, (mesh: Mesh) => {
+            if (!mesh?.isMesh || !mesh.visible) return
+            assignMaterial(mesh.entity, materialEntity)
+            foundTarget = true
+          })
+          if (foundTarget) break
+        }
       })
     } else if (contentType.startsWith('model/lookdev')) {
       const gltfLoader = getState(AssetLoaderState).gltfLoader
@@ -115,18 +127,26 @@ export async function addMediaNode(
         parent!,
         before
       )
-      addAuthoringHook({
-        entityUUID,
-        sceneID,
-        callback: (entityUUID) => {
-          const entity = UUIDComponent.getEntityByUUID(entityUUID)
-          const modelComponent = getMutableComponent(entity, ModelComponent)
+      const reactor = startReactor(() => {
+        const entity = UUIDComponent.useEntityByUUID(entityUUID)
+        const modelComponent = useOptionalComponent(entity, ModelComponent)
+
+        useImmediateEffect(() => {
+          if (!modelComponent) return
           modelComponent.dereference.set(true)
-        }
+          reactor.stop()
+        }, [modelComponent])
+
+        return null
       })
     } else {
       EditorControlFunctions.createObjectFromSceneElement(
-        [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+        [
+          { name: ModelComponent.jsonID, props: { src: url } },
+          { name: ShadowComponent.jsonID },
+          { name: EnvmapComponent.jsonID },
+          ...extraComponentJson
+        ],
         parent!,
         before
       )

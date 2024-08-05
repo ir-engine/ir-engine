@@ -1,5 +1,6 @@
 {
   "loading": "Loading Project",
+  "loadingNode": "Loading {{name}} Editor...",
   "loadingError": "Error loading project",
   "loadingErrorMsg": "There was an error when loading the project.",
   "selectSceneMsg": "Select a Scene in the Project to Start",
@@ -25,6 +26,7 @@
   "uploadingSceneMsg": "Uploading scene: {{percentage}}%",
   "envMapError": "Error loading cubemap images {{files}}",
   "lbl-return": "Return",
+  "loadingAssets": "Loading Assets",
   "loadingScenes": "Loading Scenes",
   "loadingScenesWithProgress": "Scene Loading... {{progress}}% ({{assetsLeft}} assets left)",
   "help": "Help",
@@ -70,7 +72,7 @@
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Provide a valid scene name"
+    "invalidSceneName": "Invalid input: Only alphanumeric characters, hyphens, and underscores are allowed."
   },
   "viewport": {
     "title": "Viewport",
@@ -109,9 +111,9 @@
     "gizmo": {
       "pointer": "Pointer",
       "description": "Transform Gizmo",
-      "translate": "[T] Translate",
-      "rotate": "[R] Rotate",
-      "scale": "[Y] Scale",
+      "translate": "[W] Translate",
+      "rotate": "[E] Rotate",
+      "scale": "[R] Scale",
       "combined": "[U] Combined Transform"
     },
     "transformSpace": {
@@ -137,7 +139,7 @@
       "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
       "toggleSnapMode": "[C] Toggle Grid Snap",
       "info-translate": "Translate objects by a unit of measurement.",
-      "info-rotate": "Rotate objects by a specific degrees."
+      "info-rotate": "Snap rotation angle"
     },
     "placement": {
       "click": "Point & Click Placement",
@@ -220,10 +222,10 @@
     },
     "envmap": {
       "name": "Environment Map",
-      "description": "environment map properties",
-      "lbl-source": "Envmap Source",
-      "lbl-color": "Envmap Color",
-      "lbl-bake": "Envmap Bake",
+      "description": "Environment Map properties",
+      "lbl-source": "Environment Map Source",
+      "lbl-color": "Environment Map Color",
+      "lbl-bake": "Environment Map Bake",
       "lbl-textureType": "Texture Type",
       "lbl-textureUrl": "Texture URL",
       "lbl-intensity": "Envmap Intensity",
@@ -474,6 +476,7 @@
       "lbl-htmlContent": "Html Content",
       "lbl-interactionText": "Interaction Text",
       "lbl-interactionType": "Interaction Type",
+      "saveChanges": "Save Changes",
       "transform": {
         "lodLevels": "LOD Levels",
         "lodLevelNumber": "LOD Level {{index}}",
@@ -623,7 +626,8 @@
         "cycle": "Burst Cycle",
         "interval": "Burst Interval",
         "probability": "Burst Probability"
-      }
+      },
+      "addBehavior": "Add Behavior"
     },
     "clouds": {
       "name": "Cloud",
@@ -725,11 +729,19 @@
       }
     },
     "cameraSettings": {
-      "name": "Camera",
+      "name": "Camera Settings",
       "description": "Change the camera settings for this scene."
     },
+    "cameraComponent": {
+      "name": "Camera",
+      "description": "Camera Component",
+      "lbl-fov": "FOV",
+      "lbl-aspect": "Aspect",
+      "lbl-near": "Near",
+      "lbl-far": "Far"
+    },
     "postprocessing": {
-      "name": "Post Processing",
+      "name": "Post Processing Effect",
       "enabled": "Enabled",
       "description": "For applying Post Processing effects to you scene."
     },
@@ -813,7 +825,11 @@
       "lbl-loading": "Loading Screen",
       "info-loading": "Change the loading screen",
       "lbl-colors": "Colors",
-      "lbl-killHeight": "Kill Height"
+      "lbl-killHeight": "Kill Height",
+      "lbl-spectate": "Force Spectator",
+      "info-spectate": "Disable avatars and force the user to spectate the scene",
+      "lbl-uuid": "Spectate Entity",
+      "info-uuid": "Optional entity to spectate"
     },
     "scene": {
       "name": "Scene",
@@ -863,6 +879,7 @@
     },
     "transform": {
       "title": "Transform",
+      "description": "Change transform of an entity",
       "lbl-position": "Position",
       "lbl-rotation": "Rotation",
       "lbl-scale": "Scale",
@@ -932,6 +949,7 @@
       "lbl-loop": "Loop"
     },
     "systemnode": {
+      "name": "System Node",
       "description": "Attach script.",
       "lbl-filePath": "Url",
       "lbl-insertUUID": "Reference System",
@@ -1004,11 +1022,10 @@
       "textAlign": "Align",
       "textWrap": "Wrap",
       "textAnchor": "Anchor",
-      "textDepthOffset": "Depth off set",
+      "textDepthOffset": "Depth offset",
       "textCurveRadius": "Curve radius",
       "letterSpacing": "Letter spacing",
-      "lineHeightGroup": "Line height",
-      "lineHeight": "Height",
+      "lineHeight": "Line Height",
       "textDirection": "Direction",
       "fontGroup": "Font",
       "fontFamily": "Family",
@@ -1186,19 +1203,21 @@
       "pasteAsset": "Paste",
       "renameAsset": "Rename",
       "renameFile": "Rename File",
+      "renameFileError": "Not a valid file name",
       "deleteFile": "Delete File",
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
       "back": "Back",
-      "loadingFiles": "Loading files",
-      "loadingProjects": "Loading projects",
+      "loadingFiles": "Loading Files",
+      "loadingProjects": "Loading Projects",
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
       "uploadAssets": "Upload Assets",
       "uploadFiles": "Upload Files",
       "uploadFolder": "Upload Folder",
-      "search-placeholder": "Search folders",
+      "uploadingFiles": "Uploading Files ({{completed}}/{{total}})",
+      "search-placeholder": "Search",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
       "directory": "Directory",
@@ -1247,7 +1266,7 @@
     },
     "scene-assets": {
       "no-category": "No category selected",
-      "search-placeholder": "Search for an asset ...",
+      "search-placeholder": "Search",
       "preview": "Preview",
       "info-drag-drop": "Drag and Drop these items into the scene",
       "settings": "Settings",
@@ -1259,12 +1278,14 @@
     "info": "The scene Hierarchy contains all element currently in your scene (assets, lighting, items from the tool menu, etc).",
     "lbl-rename": "Rename",
     "lbl-renameScene": "Rename Scene",
+    "lbl-edited": "Edited",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
     "lbl-copy": "Copy",
     "lbl-paste": "Paste",
     "lbl-delete": "Delete",
-    "lbl-deleteScene": "Are you sure you want to delete this scene?",
+    "lbl-deleteScene": "Delete Scene",
+    "lbl-deleteSceneDescription": "Are you sure you want to delete '{{sceneName}}' scene?",
     "lbl-expandAll": "Expand All",
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
@@ -1338,7 +1359,8 @@
       "title": "Save",
       "lbl-thumbnail": "Generate thumbnail & envmap",
       "lbl-confirm": "Save Scene",
-      "info-confirm": "Are you sure you want to save the scene?"
+      "info-confirm": "Are you sure you want to save the scene?",
+      "info-question": "Do you want to save the current scene?"
     },
     "saveNewScene": {
       "title": "Save As",
@@ -1354,6 +1376,7 @@
     },
     "delete": {
       "confirm-content": "Do you want to delete {{content}}?",
+      "confirm-multiple": "Do you want to delete {{first}}, and {{count}} others?",
       "not-allowed-local-dev": "To prevent accidental loss of data, projects cannot be deleted from this menu in a local dev environment. Use the file system instead."
     },
     "createScene": {

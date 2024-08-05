@@ -29,6 +29,7 @@ import hark from 'hark'
 import { t } from 'i18next'
 import React, { RefObject, useEffect, useRef } from 'react'
 
+import Text from '@etherealengine/client-core/src/common/components/Text'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
   globalMuteProducer,
@@ -68,6 +69,8 @@ import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 
+import { useTranslation } from 'react-i18next'
+import { useZendesk } from '../../hooks/useZendesk'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -481,6 +484,10 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     rendered
   } = useUserMediaWindowHook({ peerID, type })
 
+  const { t } = useTranslation()
+
+  const { initialized, openChat } = useZendesk()
+
   const peerMediaChannelState = useHookstate(
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
@@ -576,7 +583,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           className={classNames({
             [styles['video-wrapper']]: !isScreen,
             [styles['screen-video-wrapper']]: isScreen,
-            [styles['border-lit']]: soundIndicatorOn && !audioStreamPaused
+            [styles['border-lit']]: soundIndicatorOn && (isSelf ? !audioProducerPaused : !audioStreamPaused)
           })}
         >
           {(videoStream == null ||
@@ -597,6 +604,46 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
         <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
         <div className={styles['user-controls']}>
           <div className={styles['username']}>{username}</div>
+          {initialized && isPiP && !isSelf && (
+            <button
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                position: 'relative',
+                width: '50%',
+                left: '25%',
+                alignItems: 'center',
+                alignContent: 'center',
+                height: '2rem',
+                marginTop: '1rem',
+                marginBottom: '0.5rem',
+                borderRadius: '10px',
+                backgroundColor: 'red'
+              }}
+              onClick={openChat}
+            >
+              <Icon
+                type="Report"
+                style={{
+                  display: 'block',
+                  width: '20px',
+                  height: '20px',
+                  margin: '8px',
+                  color: 'var(--inputBackground)'
+                }}
+              />
+              <Text
+                align="center"
+                sx={{
+                  marginLeft: '8px',
+                  fontSize: '12px',
+                  color: 'var(--inputBackground)'
+                }}
+              >
+                {t('social:user.reportUser')}
+              </Text>
+            </button>
+          )}
           <div className={styles['controls']}>
             <div className={styles['mute-controls']}>
               {videoStream && !videoProducerPaused ? (

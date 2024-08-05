@@ -35,6 +35,7 @@ const logger = multiLogger.child({ component: 'engine:ecs:CustomOAuthParams' })
 export interface CustomOAuthParams extends Params {
   redirect?: string
   access_token?: string
+  refresh_token?: string
 }
 
 export class CustomOAuthStrategy extends OAuthStrategy {

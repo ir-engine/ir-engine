@@ -58,10 +58,10 @@ import { NameComponent } from '../../common/NameComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
@@ -69,7 +69,7 @@ import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComp
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
-import { XRControlsState, XRState } from '../../xr/XRState'
+import { XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
@@ -118,53 +118,54 @@ export function updateGamepadInput(eid: Entity) {
     const xrTransform = getOptionalComponent(eid, TransformComponent)
 
     for (let i = 0; i < gamepadButtons.length; i++) {
-      const button = gamepadButtons[i]
-      if (!buttons[i] && (button.pressed || button.touched)) {
-        buttons[i] = createInitialButtonState(eid, button)
+      const gamepadButton = gamepadButtons[i]
+      if (!buttons[i] && (gamepadButton.pressed || gamepadButton.touched)) {
+        buttons[i] = createInitialButtonState(eid, gamepadButton)
       }
-      if (buttons[i] && (button.pressed || button.touched)) {
-        if (!buttons[i].pressed && button.pressed) {
-          buttons[i].down = true
-          buttons[i].downPosition = new Vector3()
-          buttons[i].downRotation = new Quaternion()
+      const buttonState = buttons[i] as ButtonState
+      if (buttonState && (gamepadButton.pressed || gamepadButton.touched)) {
+        if (!buttonState.pressed && gamepadButton.pressed) {
+          buttonState.down = true
+          buttonState.downPosition = new Vector3()
+          buttonState.downRotation = new Quaternion()
 
           if (pointer) {
-            buttons[i].downPosition.set(pointer.position.x, pointer.position.y, 0)
+            buttonState.downPosition.set(pointer.position.x, pointer.position.y, 0)
             //TODO maybe map pointer rotation/swing/twist to downRotation here once we map the pointer events to that (think Apple pencil)
           } else if (hasComponent(eid, XRSpaceComponent) && xrTransform) {
-            buttons[i].downPosition.copy(xrTransform.position)
-            buttons[i].downRotation.copy(xrTransform.rotation)
+            buttonState.downPosition.copy(xrTransform.position)
+            buttonState.downRotation.copy(xrTransform.rotation)
           }
         }
-        buttons[i].pressed = button.pressed
-        buttons[i].touched = button.touched
-        buttons[i].value = button.value
+        buttonState.pressed = gamepadButton.pressed
+        buttonState.touched = gamepadButton.touched
+        buttonState.value = gamepadButton.value
 
-        if (buttons[i].downPosition) {
+        if (buttonState.downPosition) {
           //if not yet dragging, compare distance to drag threshold and begin if appropriate
-          if (!buttons[i].dragging) {
+          if (!buttonState.dragging) {
             if (pointer) pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
-            const squaredDistance = buttons[i].downPosition.squaredDistance(
+            const squaredDistance = buttonState.downPosition.distanceToSquared(
               pointer ? pointerPositionVector3 : xrTransform?.position ?? Vector3_Zero
             )
 
             if (squaredDistance > DRAGGING_THRESHOLD) {
-              buttons[i].dragging = true
+              buttonState.dragging = true
             }
           }
 
           //if not yet rotating, compare distance to drag threshold and begin if appropriate
-          if (!buttons[i].rotating) {
-            const angleRadians = buttons[i].downRotation.angleTo(
+          if (!buttonState.rotating) {
+            const angleRadians = buttonState.downRotation!.angleTo(
               pointer ? Q_IDENTITY : xrTransform?.rotation ?? Q_IDENTITY
             )
             if (angleRadians > ROTATING_THRESHOLD) {
-              buttons[i].rotating = true
+              buttonState.rotating = true
             }
           }
         }
-      } else if (buttons[i]) {
-        buttons[i].up = true
+      } else if (buttonState) {
+        buttonState.up = true
       }
     }
   }
@@ -184,6 +185,7 @@ const xruiQuery = defineQuery([VisibleComponent, XRUIComponent])
 const boundingBoxesQuery = defineQuery([VisibleComponent, BoundingBoxComponent])
 
 const meshesQuery = defineQuery([VisibleComponent, MeshComponent])
+const sceneQuery = defineQuery([SceneComponent])
 
 /**Editor InputComponent raycast query */
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
@@ -227,7 +229,8 @@ const execute = () => {
   for (const eid of pointers()) {
     const pointer = getComponent(eid, InputPointerComponent)
     const inputSource = getComponent(eid, InputSourceComponent)
-    const camera = getComponent(pointer.cameraEntity, CameraComponent)
+    const camera = getOptionalComponent(pointer.cameraEntity, CameraComponent)
+    if (!camera) continue //when we reparent viewport we lose the camera temporarily
     pointer.movement.copy(pointer.position).sub(pointer.lastPosition)
     pointer.lastPosition.copy(pointer.position)
     inputSource.raycaster.setFromCamera(pointer.position, camera)
@@ -244,8 +247,6 @@ const execute = () => {
 
   // update xr input sources
   const xrFrame = getState(XRState).xrFrame
-  const physicsState = getState(PhysicsState)
-  inputRaycast.excludeRigidBody = physicsState.cameraAttachedRigidbodyEntity
 
   for (const eid of xrSpaces()) {
     const space = getComponent(eid, XRSpaceComponent)
@@ -377,7 +378,7 @@ const CanvasInputReactor = () => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
     const rendererComponent = getComponent(cameraEntity, RendererComponent)
-    const canvas = rendererComponent.canvas
+    const canvas = rendererComponent.canvas!
 
     /** Clear mouse events */
     const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick'] as AnyButton[]
@@ -796,10 +797,11 @@ function applyHeuristicProximity(
   sortedIntersections: IntersectionData[],
   intersectionData: Set<IntersectionData>
 ) {
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
+
   //use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
   const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID) //would prefer a better way to do this
-  const inputSourceEntity =
-    getState(XRControlsState).isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
+  const inputSourceEntity = isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
 
   // Skip Proximity Heuristic when the entity is undefined
   // @note Clause Guard. This entire function was a block nested inside   if (inputSourceEntity !== UndefinedEntity) { ... }
@@ -879,13 +881,15 @@ function applyHeuristicXRUI(intersectionData: Set<IntersectionData>) {
 }
 
 function applyHeuristicPhysicsColliders(intersectionData: Set<IntersectionData>) {
-  const physicsWorld = getState(PhysicsState).physicsWorld
-  if (!physicsWorld) return // @note Clause Guard. The rest of this function was nested inside   if (physicsWorld) { ... }
+  for (const entity of sceneQuery()) {
+    const world = Physics.getWorld(entity)
+    if (!world) continue
 
-  const hits = Physics.castRay(physicsWorld, inputRaycast)
-  for (const hit of hits) {
-    if (!hit.entity) continue
-    intersectionData.add({ entity: hit.entity, distance: hit.distance })
+    const hits = Physics.castRay(world, inputRaycast)
+    for (const hit of hits) {
+      if (!hit.entity) continue
+      intersectionData.add({ entity: hit.entity, distance: hit.distance })
+    }
   }
 }
 

@@ -29,10 +29,10 @@ import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
 import { Camera, MathUtils, Scene } from 'three'
 
-import { defineSystem, ECSState, PresentationSystemGroup } from '@etherealengine/ecs'
+import { ComponentType, defineSystem, ECSState, PresentationSystemGroup } from '@etherealengine/ecs'
 import { profile } from '@etherealengine/ecs/src/Timer'
 import { defineState, getMutableState, getState, State, useMutableState } from '@etherealengine/hyperflux'
-import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
 import { EngineState } from '../EngineState'
 import { RendererState } from './RendererState'
@@ -346,11 +346,16 @@ const timeRenderFrameGPU = (callback: (number) => void = () => {}): (() => void)
  * @param camera Camera
  * @param onFinished Callback with the render time as a parameter
  */
-const timeRender = (renderer: EngineRenderer, scene: Scene, camera: Camera, onFinished: (ms: number) => void) => {
+const timeRender = (
+  renderer: ComponentType<typeof RendererComponent>,
+  scene: Scene,
+  camera: Camera,
+  onFinished: (ms: number) => void
+) => {
   const end = timeRenderFrameGPU((renderTime) => {
     onFinished(renderTime)
   })
-  renderer.renderer.render(scene, camera)
+  renderer.renderer!.render(scene, camera)
   end()
 
   scene.remove(camera)
@@ -419,10 +424,15 @@ const decrementCPUPerformance = () => {
   )
 }
 
-const buildPerformanceState = async (renderer: EngineRenderer, override?: GetGPUTier['override']) => {
+const buildPerformanceState = async (
+  renderer: ComponentType<typeof RendererComponent>,
+  override?: GetGPUTier['override']
+) => {
   const performanceState = getMutableState(PerformanceState)
+  const gl = renderer.renderContext as WebGL2RenderingContext
+
   const gpuTier = await getGPUTier({
-    glContext: renderer.renderContext,
+    glContext: gl,
     desktopTiers: [0, 15, 30, 60, 120, 240],
     //Mobile is harder to determine, most phones lock benchmark rendering at 60fps
     mobileTiers: [0, 15, 30, 45, 60, 75],
@@ -433,7 +443,6 @@ const buildPerformanceState = async (renderer: EngineRenderer, override?: GetGPU
     tier = Math.max(tier - 2, 0)
   }
 
-  const gl = renderer.renderContext as WebGL2RenderingContext
   performanceState.merge({
     initialized: true,
     gpu: gpuTier.device || 'unknown',

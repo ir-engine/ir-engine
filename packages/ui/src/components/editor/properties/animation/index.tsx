@@ -45,7 +45,6 @@ import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
 import InputGroup from '../../input/Group'
 import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
-import ProgressBar from '../../input/Progress'
 import SelectInput from '../../input/Select'
 import NodeEditor from '../nodeEditor'
 
@@ -84,7 +83,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.loopAnimation.description')}
       icon={<LoopAnimationNodeEditor.iconComponent />}
     >
-      <ProgressBar value={5} paused={false} totalTime={100} />
+      {/*<ProgressBar value={5} paused={false} totalTime={100} />*/}
       <InputGroup name="Loop Animation" label={t('editor:properties.loopAnimation.lbl-loopAnimation')}>
         <SelectInput
           key={props.entity}

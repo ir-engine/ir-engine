@@ -119,26 +119,35 @@ export interface InputGroupProps {
   info?: string
   disabled?: boolean
   children: React.ReactNode
-  className?: string
+  containerClassName?: string
   labelClassName?: string
   infoClassName?: string
+  className?: string
 }
 
 /**
  * InputGroup used to render the view of component.
  */
-export function InputGroup({ children, info, label, className, labelClassName, infoClassName }: InputGroupProps) {
+export function InputGroup({
+  children,
+  info,
+  label,
+  containerClassName,
+  labelClassName,
+  infoClassName,
+  className
+}: InputGroupProps) {
   return (
-    <div className={twMerge('my-1 mr-6 flex items-center justify-end', className)}>
-      <div className="flex flex-1">
-        <Label className={twMerge('mr-2.5 text-wrap text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
+    <div className={twMerge('my-1 flex flex-wrap items-center justify-end', containerClassName)}>
+      <div className="mr-2 flex">
+        <Label className={twMerge('mr-2.5 text-wrap text-end text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
         {info && (
           <Tooltip title={info}>
-            <LuInfo className={twMerge('-ml-0.5 mr-2.5 h-5 w-5 text-[#A0A1A2]', infoClassName)} />
+            <LuInfo className={twMerge('h-5 w-5 text-[#A0A1A2]', infoClassName)} />
           </Tooltip>
         )}
       </div>
-      {children}
+      <div className={twMerge('w-60', className)}>{children}</div>
     </div>
   )
 }

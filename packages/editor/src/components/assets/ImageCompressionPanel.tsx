@@ -163,25 +163,25 @@ export default function ImageCompressionPanel({
 
       <div className="mx-auto grid w-1/2 gap-y-2">
         <InputGroup
-          className="w-full justify-start"
-          labelClassName="w-24 text-[#D3D5D9]"
+          containerClassName="w-full justify-start"
+          labelClassName="w-24 text-theme-gray3"
           name="mode"
           label={t('editor:properties.model.transform.dst')}
         >
-          <Input className="border-[#42454D] bg-[#141619] px-2 py-1.5" value={title} disabled />
+          <Input className="border-theme-input bg-[#141619] px-2 py-1.5" value={title} disabled />
         </InputGroup>
         <div className="w-full border border-[#2B2C30]" />
         <InputGroup
-          className="w-full justify-start"
-          labelClassName="w-20 text-[#D3D5D9]"
-          infoClassName="text-[#D3D5D9]"
+          containerClassName="w-full justify-start"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="mode"
           label={t('editor:properties.model.transform.mode')}
           info={t('editor:properties.model.transform.modeTooltip')}
         >
           <Select
             className="w-full"
-            inputClassName="px-2 py-0.5 text-[#9CA0AA] text-sm"
+            inputClassName="px-2 py-0.5 text-theme-input text-sm"
             options={[
               { label: 'ETC1S', value: 'ETC1S' },
               { label: 'UASTC', value: 'UASTC' }
@@ -191,9 +191,9 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
-          labelClassName="w-20 text-[#D3D5D9]"
-          infoClassName="text-[#D3D5D9]"
+          containerClassName="w-full justify-start"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="flipY"
           label={t('editor:properties.model.transform.flipY')}
           info={t('editor:properties.model.transform.flipYTooltip')}
@@ -205,9 +205,9 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
-          labelClassName="w-20 text-[#D3D5D9]"
-          infoClassName="text-[#D3D5D9]"
+          containerClassName="w-full justify-start"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="linear"
           label={t('editor:properties.model.transform.srgb')}
           info={t('editor:properties.model.transform.srgbTooltip')}
@@ -219,9 +219,9 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
-          labelClassName="w-20 text-[#D3D5D9]"
-          infoClassName="text-[#D3D5D9]"
+          containerClassName="w-full justify-start"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="mipmaps"
           label={t('editor:properties.model.transform.mipmaps')}
           info={t('editor:properties.model.transform.mipmapsTooltip')}
@@ -233,9 +233,9 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
-          labelClassName="w-20 text-[#D3D5D9]"
-          infoClassName="text-[#D3D5D9]"
+          containerClassName="w-full justify-start"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="normalMap"
           label={t('editor:properties.model.transform.normalMap')}
           info={t('editor:properties.model.transform.normalMapTooltip')}
@@ -249,15 +249,15 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'ETC1S' && (
           <>
             <InputGroup
-              className="w-full justify-start"
-              labelClassName="w-20 text-[#D3D5D9]"
-              infoClassName="text-[#D3D5D9]"
+              containerClassName="w-full justify-start"
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="quality"
               label={t('editor:properties.model.transform.quality')}
               info={t('editor:properties.model.transform.qualityTooltip')}
             >
               <Slider
-                className="bg-[#191B1F] [&::-moz-range-track]:bg-[#191B1F]"
+                className="bg-theme-studio-surface [&::-moz-range-track]:bg-theme-studio-surface"
                 width={160}
                 value={compressProperties.quality.value}
                 onChange={compressProperties.quality.set}
@@ -268,15 +268,15 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
-              className="w-full justify-start"
-              labelClassName="w-20 text-[#D3D5D9]"
-              infoClassName="text-[#D3D5D9]"
+              containerClassName="w-full justify-start"
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="compressionLevel"
               label={t('editor:properties.model.transform.compressionLevel')}
               info={t('editor:properties.model.transform.compressionLevelTooltip')}
             >
               <Slider
-                className="bg-[#191B1F] [&::-moz-range-track]:bg-[#191B1F]"
+                className="bg-theme-studio-surface [&::-moz-range-track]:bg-theme-studio-surface"
                 width={160}
                 value={compressProperties.compressionLevel.value}
                 onChange={compressProperties.compressionLevel.set}
@@ -291,9 +291,9 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'UASTC' && (
           <>
             <InputGroup
-              className="w-full justify-start"
-              labelClassName="w-20 text-[#D3D5D9]"
-              infoClassName="text-[#D3D5D9]"
+              containerClassName="w-full justify-start"
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="uastcFlags"
               label={t('editor:properties.model.transform.uastcFlags')}
               info={t('editor:properties.model.transform.uastcFlagsTooltip')}
@@ -306,9 +306,9 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
-              className="w-full justify-start"
-              labelClassName="w-20 text-[#D3D5D9]"
-              infoClassName="text-[#D3D5D9]"
+              containerClassName="w-full justify-start"
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="uastcZstandard"
               label={t('editor:properties.model.transform.uastcZstandard')}
               info={t('editor:properties.model.transform.uastcZstandardTooltip')}

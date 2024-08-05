@@ -43,20 +43,20 @@ import SelectInput from '../../../input/Select'
 const renderModes: { name: RenderModesType; icon: JSX.Element }[] = [
   {
     name: 'Unlit',
-    icon: <TbInnerShadowBottomFilled />
+    icon: <TbInnerShadowBottomFilled className="text-theme-input" />
   },
   {
     name: 'Lit',
-    icon: <TbInnerShadowBottom />
+    icon: <TbInnerShadowBottom className="text-theme-input" />
   },
-  { name: 'Normals', icon: <TbBallBowling /> },
+  { name: 'Normals', icon: <TbBallBowling className="text-theme-input" /> },
   {
     name: 'Wireframe',
-    icon: <GiWireframeGlobe />
+    icon: <GiWireframeGlobe className="text-theme-input" />
   },
   {
     name: 'Shadows',
-    icon: <TbShadow />
+    icon: <TbShadow className="text-theme-input" />
   }
 ]
 
@@ -91,11 +91,13 @@ const RenderModeTool = () => {
         </Tooltip>
       ))}
       <Popup trigger={<Button variant="transparent" className="p-2" startIcon={<RiArrowDownSLine />} />}>
-        <div className="w-60 rounded-md bg-theme-primary p-2">
+        <div className="w-52 rounded-md bg-theme-primary p-2">
           <InputGroup
             name="Use Post Processing"
             label={t('editor:toolbar.render-settings.lbl-usePostProcessing')}
             info={t('editor:toolbar.render-settings.info-usePostProcessing')}
+            containerClassName="justify-between"
+            className="w-8"
           >
             <BooleanInput
               className="bg-gray-500 hover:border-0"
@@ -107,8 +109,11 @@ const RenderModeTool = () => {
             name="Shadow Map Resolution"
             label={t('editor:toolbar.render-settings.lbl-shadowMapResolution')}
             info={t('editor:toolbar.render-settings.info-shadowMapResolution')}
+            containerClassName="justify-between gap-2"
           >
             <SelectInput
+              inputClassName="text-theme-gray3"
+              className="border-theme-input text-theme-gray3"
               options={ShadowMapResolutionOptions as { value: string; label: string }[]}
               value={rendererState.shadowMapResolution.value}
               onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}

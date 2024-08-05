@@ -43,7 +43,7 @@ export const BooleanInput = (props: BooleanInputProp) => {
   return (
     <Checkbox
       className={twMerge(
-        'rounded-sm border border-none bg-black px-1 py-1 dark:bg-[#1A1A1A]',
+        'rounded-sm border border-theme-input bg-black dark:bg-[#1A1A1A]',
         'hover:border-blue-800 hover:bg-theme-highlight',
         props.disabled ? 'cursor-[initial] opacity-80 grayscale-[0.8]' : 'cursor-pointer',
         props.className

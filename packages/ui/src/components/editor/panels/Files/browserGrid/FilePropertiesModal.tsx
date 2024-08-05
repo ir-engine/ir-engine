@@ -188,15 +188,15 @@ export default function FilePropertiesModal({
       <div className="flex flex-col items-center gap-2">
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.name')}</Text>
-          <Text className="text-[#9CA0AA]">{filename}</Text>
+          <Text className="text-theme-input">{filename}</Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.type')}</Text>
-          <Text className="text-[#9CA0AA]">{fileDigest.type.toUpperCase()}</Text>
+          <Text className="text-theme-input">{fileDigest.type.toUpperCase()}</Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.size')}</Text>
-          <Text className="text-[#9CA0AA]">
+          <Text className="text-theme-input">
             {files.map((file) => file.size).reduce((total, value) => total + parseInt(value ?? '0'), 0)}
           </Text>
         </div>
@@ -204,7 +204,7 @@ export default function FilePropertiesModal({
           <>
             <div className="grid grid-cols-2 gap-2">
               <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.author')}</Text>
-              <Text className="text-[#9CA0AA]">{author.value?.name}</Text>
+              <Text className="text-theme-input">{author.value?.name}</Text>
             </div>
             <div className="grid grid-cols-2 items-center gap-2">
               <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.attribution')}</Text>
@@ -225,7 +225,7 @@ export default function FilePropertiesModal({
                   </>
                 ) : (
                   <>
-                    <Text className="text-[#9CA0AA]">
+                    <Text className="text-theme-input">
                       {files.length > 1 && !sharedFields.value.includes('attribution')
                         ? t('editor:layout.filebrowser.fileProperties.mixedValues')
                         : resourceDigest.attribution.value || <em>{t('common:components.none')}</em>}
@@ -260,7 +260,7 @@ export default function FilePropertiesModal({
                   </>
                 ) : (
                   <>
-                    <Text className="text-[#9CA0AA]">
+                    <Text className="text-theme-input">
                       {files.length > 1 && !sharedFields.value.includes('licensing')
                         ? t('editor:layout.filebrowser.fileProperties.mixedValues')
                         : resourceDigest.licensing.value || <em>{t('common:components.none')}</em>}
@@ -277,7 +277,7 @@ export default function FilePropertiesModal({
               </span>
             </div>
             <div className="mt-10 flex flex-col gap-2">
-              <Text className="text-[#D3D5D9]" fontSize="sm">
+              <Text className="text-theme-gray3" fontSize="sm">
                 {t('editor:layout.filebrowser.fileProperties.addTag')}
               </Text>
               <div className="flex items-center gap-2">

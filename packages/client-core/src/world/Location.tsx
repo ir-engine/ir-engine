@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
@@ -38,11 +38,15 @@ import './LocationModule'
 
 import { t } from 'i18next'
 
+import multiLogger from '@etherealengine/common/src/logger'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { StyledEngineProvider } from '@mui/material/styles'
-import { LoadingCircle } from '../components/LoadingCircle'
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
 import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
+import { clientContextParams } from '../util/contextParams'
+
+const logger = multiLogger.child({ component: 'system:location', modifier: clientContextParams })
 
 type Props = {
   online?: boolean
@@ -65,11 +69,18 @@ const LocationPage = ({ online }: Props) => {
 
   useLoadEngineWithScene()
 
+  useEffect(() => {
+    if (ready.value) logger.info({ event_name: 'enter_location' })
+    return () => logger.info({ event_name: 'exit_location' })
+  }, [ready.value])
+
   return (
     <>
       <ThemeContextProvider>
         <StyledEngineProvider injectFirst>
-          {!ready.value && <LoadingCircle message={t('common:loader.loadingEngine')} />}
+          {!ready.value && (
+            <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingEngine')} />
+          )}
           <LocationIcons />
         </StyledEngineProvider>
       </ThemeContextProvider>

@@ -129,7 +129,7 @@ const Select = <T extends OptionValueType>({
   }
 
   return (
-    <div className={twMerge('relative', className)} ref={ref}>
+    <div className={twMerge('relative w-full', className)} ref={ref}>
       <Input
         disabled={disabled}
         label={label}
@@ -147,7 +147,7 @@ const Select = <T extends OptionValueType>({
         endComponent={
           <MdOutlineKeyboardArrowDown
             size="1.5em"
-            className={`text-theme-primary transition-transform ${showOptions.value ? 'rotate-180' : ''}`}
+            className={`mr-2 transition-transform ${showOptions.value ? 'rotate-180' : ''}`}
             onClick={toggleDropdown}
           />
         }

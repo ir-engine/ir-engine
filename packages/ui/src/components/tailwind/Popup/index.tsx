@@ -41,6 +41,7 @@ export const Popup = ({
       keepTooltipInside={keepInside}
       arrow={false}
       trigger={<div style={{ all: 'unset' }}>{trigger}</div>}
+      contentStyle={{ overflow: 'visible' }}
       {...props}
     />
   )
