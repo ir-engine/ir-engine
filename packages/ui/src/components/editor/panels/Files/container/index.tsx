@@ -362,10 +362,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         })
       )
 
-      try {
-        await handleUploadFiles(projectName, path, toUpload)
-      } catch (err) {
-        NotificationService.dispatchNotify(err.message, { variant: 'error' })
+      if (toUpload.length) {
+        try {
+          await handleUploadFiles(projectName, path, toUpload)
+        } catch (err) {
+          NotificationService.dispatchNotify(err.message, { variant: 'error' })
+        }
       }
     }
 
