@@ -200,7 +200,7 @@ type FileBrowserItemType = {
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
   openModelCompress: () => void
   openImageCompress: () => void
-  openFileProperties: () => void
+  openFileProperties: (item: FileDataType) => void
   openDeleteFileModal: () => void
   isFilesLoading: boolean
   projectName: string
@@ -418,7 +418,7 @@ export function FileBrowserItem({
             size="small"
             fullWidth
             onClick={() => {
-              openFileProperties()
+              openFileProperties(item)
               handleClose()
             }}
           >
