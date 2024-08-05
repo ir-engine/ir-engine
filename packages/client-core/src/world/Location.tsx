@@ -36,11 +36,11 @@ import '@etherealengine/client-core/src/util/GlobalStyle.css'
 
 import './LocationModule'
 
-import { t } from 'i18next'
-
 import multiLogger from '@etherealengine/common/src/logger'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { StyledEngineProvider } from '@mui/material/styles'
+import { useTranslation } from 'react-i18next'
+import { NotificationService } from '../common/services/NotificationService'
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
 import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
@@ -53,6 +53,7 @@ type Props = {
 }
 
 const LocationPage = ({ online }: Props) => {
+  const { t } = useTranslation()
   const params = useParams()
   const ready = useMutableState(LoadingUISystemState).ready
 
@@ -73,6 +74,16 @@ const LocationPage = ({ online }: Props) => {
     if (ready.value) logger.info({ event_name: 'enter_location' })
     return () => logger.info({ event_name: 'exit_location' })
   }, [ready.value])
+
+  // To show invalid token error
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search)
+    if (queryParams.has('error')) {
+      NotificationService.dispatchNotify(t('common:error.expiredToken'), {
+        variant: 'error'
+      })
+    }
+  }, [location.search])
 
   return (
     <>
