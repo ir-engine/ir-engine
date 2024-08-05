@@ -36,10 +36,15 @@ export const FeatureFlags = {
     }
   },
   Studio: {
+    Model: {
+      Dereference: 'ir.studio.model.dereference',
+      GLTFTransform: 'ir.studio.model.gltfTransform'
+    },
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript'
     },
     UI: {
+      TransformPivot: 'ir.editor.ui.transformPivot',
       Hierarchy: {
         ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
       }
