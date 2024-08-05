@@ -585,6 +585,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     handleFileBrowserItemClick(event, currentFile)
                     onSelect(file)
                   }}
+                  onContextMenu={(event, currentFile) => {
+                    if (!fileProperties.value.length) {
+                      fileProperties.set([file])
+                    }
+                  }}
                   currentContent={currentContentRef}
                   handleDropItemsOnPanel={(data, dropOn) =>
                     dropItemsOnPanel(
