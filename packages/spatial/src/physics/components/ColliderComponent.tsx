@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect, useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
 
 import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@etherealengine/ecs'
 import { useState } from '@etherealengine/hyperflux'
 
+import { useLayoutEffect } from 'react'
 import { useAncestorWithComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
@@ -88,10 +88,11 @@ export const ColliderComponent = defineComponent({
     const triggerComponent = useOptionalComponent(entity, TriggerComponent)
     const hasCollider = useState(false)
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (!rigidbodyComponent || !physicsWorld) return
 
       const colliderDesc = Physics.createColliderDesc(physicsWorld, entity, rigidbodyEntity)
+
       if (!colliderDesc) return
 
       Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
@@ -132,7 +133,7 @@ export const ColliderComponent = defineComponent({
       Physics.setCollisionMask(physicsWorld, entity, component.collisionMask.value)
     }, [physicsWorld, component.collisionMask])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (!physicsWorld || !triggerComponent?.value || !hasCollider.value) return
 
       Physics.setTrigger(physicsWorld, entity, true)
