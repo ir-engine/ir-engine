@@ -33,7 +33,7 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 
-import { useEffect } from 'react'
+import { useImmediateEffect } from '@etherealengine/hyperflux'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
@@ -115,7 +115,7 @@ export const RigidBodyComponent = defineComponent({
     const component = useComponent(entity, RigidBodyComponent)
     const physicsWorld = Physics.useWorld(entity)!
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       if (!physicsWorld) return
       Physics.createRigidBody(physicsWorld, entity)
       return () => {
@@ -123,7 +123,7 @@ export const RigidBodyComponent = defineComponent({
       }
     }, [physicsWorld])
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       if (!physicsWorld) return
       const type = component.type.value
       setComponent(entity, getTagComponentForRigidBody(type))
@@ -133,12 +133,12 @@ export const RigidBodyComponent = defineComponent({
       }
     }, [physicsWorld, component.type])
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       if (!physicsWorld) return
       Physics.enabledCcd(physicsWorld, entity, component.ccd.value)
     }, [physicsWorld, component.ccd])
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       if (!physicsWorld) return
       const value = component.allowRolling.value
       /**
@@ -147,7 +147,7 @@ export const RigidBodyComponent = defineComponent({
       Physics.setEnabledRotations(physicsWorld, entity, [value, value, value])
     }, [component.allowRolling.value])
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       if (!physicsWorld) return
       Physics.setEnabledRotations(physicsWorld, entity, component.enabledRotations.value as [boolean, boolean, boolean])
     }, [component.enabledRotations[0].value, component.enabledRotations[1].value, component.enabledRotations[2].value])

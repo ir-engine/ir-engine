@@ -384,7 +384,7 @@ export function useTreeQuery(entity: Entity) {
  * @returns
  */
 export function useAncestorWithComponent(entity: Entity, component: ComponentType<any>) {
-  const result = useHookstate(UndefinedEntity)
+  const result = useHookstate(getAncestorWithComponent(entity, component))
 
   useImmediateEffect(() => {
     let unmounted = false
@@ -392,7 +392,7 @@ export function useAncestorWithComponent(entity: Entity, component: ComponentTyp
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
       const matchesQuery = !!useOptionalComponent(props.entity, component)?.value
 
-      useLayoutEffect(() => {
+      useImmediateEffect(() => {
         if (!matchesQuery) return
         result.set(props.entity)
         return () => {
