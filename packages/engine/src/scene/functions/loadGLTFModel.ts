@@ -315,6 +315,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     //if this object has a collider component attached to it, set visible to false
     !findColliderData(obj)
   ) {
+    setComponent(objEntity, VisibleComponent, true)
     eJson.components.push({
       name: VisibleComponent.jsonID,
       props: true
