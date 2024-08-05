@@ -136,11 +136,13 @@ const EditorContainer = () => {
 
   /** we don't want to use useFind here, because we don't want all static-resource query refetches to potentially reload the scene */
   useEffect(() => {
+    if (!scenePath.value) return
+
     const abortController = new AbortController()
     Engine.instance.api
       .service(staticResourcePath)
       .find({
-        query: { key: scenePath.value ?? '', type: 'scene', $limit: 1 }
+        query: { key: scenePath.value, type: 'scene', $limit: 1 }
       })
       .then((result) => {
         if (abortController.signal.aborted) return
