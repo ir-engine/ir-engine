@@ -27,6 +27,7 @@ import React, { lazy } from 'react'
 import { HiOutlineCube } from 'react-icons/hi'
 import {
   HiMapPin,
+  HiMiniShieldExclamation,
   HiOutlineCog6Tooth,
   HiOutlineGlobeAlt,
   HiOutlineMegaphone,
@@ -65,6 +66,8 @@ const Routes = lazy(() => import('./components/routes'))
 const Settings = lazy(() => import('./components/settings'))
 
 const Channels = lazy(() => import('./components/channel'))
+
+const CrashReport = lazy(() => import('./components/crash-report'))
 
 export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   settings: {
@@ -150,5 +153,12 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     component: Channels,
     access: false,
     icon: <HiOutlineMegaphone />
+  },
+  crashReport: {
+    name: 'user:dashboard.crashReport',
+    scope: 'crashReport',
+    component: CrashReport,
+    access: false,
+    icon: <HiMiniShieldExclamation />
   }
 }
