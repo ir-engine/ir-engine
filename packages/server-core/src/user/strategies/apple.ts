@@ -61,7 +61,8 @@ export class AppleStrategy extends CustomOAuthStrategy {
       ...baseData,
       accountIdentifier: profile.email ? profile.email : profile.sub,
       type: 'apple',
-      userId
+      userId,
+      email: profile.email
     }
   }
 

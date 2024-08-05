@@ -60,6 +60,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
       ...baseData,
       accountIdentifier: profile.email,
       type: 'google',
+      email: profile.email,
       userId
     }
   }
