@@ -560,6 +560,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       }
     }
 
+    const resetSelection = () => {
+      fileProperties.set([])
+      ClickPlacementState.resetSelectedAsset()
+    }
+
     return (
       <div
         ref={fileDropRef}
@@ -570,8 +575,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         )}
         onClick={(event) => {
           event.stopPropagation()
-          fileProperties.set([])
-          ClickPlacementState.resetSelectedAsset()
+          resetSelection()
         }}
       >
         <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
@@ -587,6 +591,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     handleFileBrowserItemClick(event, currentFile)
                     onSelect(event, file)
                   }}
+                  onContextMenu={(event, currentFile) => {
+                    if (!fileProperties.value.length) {
+                      fileProperties.set([file])
+                    }
+                  }}
                   currentContent={currentContentRef}
                   handleDropItemsOnPanel={(data, dropOn) =>
                     dropItemsOnPanel(
@@ -601,7 +610,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     )
                   }}
                   openDeleteFileModal={() => {
-                    PopoverState.showPopupover(<DeleteFileModal files={fileProperties.value as FileDataType[]} />)
+                    PopoverState.showPopupover(
+                      <DeleteFileModal
+                        files={fileProperties.value as FileDataType[]}
+                        onComplete={(err) => {
+                          resetSelection()
+                        }}
+                      />
+                    )
                   }}
                   openImageCompress={() => {
                     if (filesConsistOfContentType(fileProperties.value, 'image')) {
