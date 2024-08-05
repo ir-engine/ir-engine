@@ -648,63 +648,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     )
   }
 
-  const ViewModeSettings = () => {
-    const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
-    return (
-      <Popup
-        contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
-        position={'bottom left'}
-        trigger={
-          <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
-            <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
-          </Tooltip>
-        }
-      >
-        {filesViewMode.value === 'icons' ? (
-          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
-            <Slider
-              min={10}
-              max={100}
-              step={0.5}
-              value={viewModeSettings.icons.iconSize.value}
-              onChange={viewModeSettings.icons.iconSize.set}
-              onRelease={viewModeSettings.icons.iconSize.set}
-            />
-          </InputGroup>
-        ) : (
-          <>
-            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
-              <Slider
-                min={10}
-                max={100}
-                step={0.5}
-                value={viewModeSettings.list.fontSize.value}
-                onChange={viewModeSettings.list.fontSize.set}
-                onRelease={viewModeSettings.list.fontSize.set}
-              />
-            </InputGroup>
-
-            <div>
-              <div className="mt-1 flex flex-auto text-white">
-                <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-              </div>
-              <div className="flex-col">
-                {availableTableColumns.map((column) => (
-                  <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
-                    <BooleanInput
-                      value={viewModeSettings.list.selectedTableColumns[column].value}
-                      onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                    />
-                  </InputGroup>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-      </Popup>
-    )
-  }
-
   return (
     <>
       <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
@@ -836,5 +779,66 @@ export default function FilesPanelContainer() {
       originalPath={'/projects/' + originalPath + '/assets/'}
       onSelectionChanged={onSelectionChanged}
     />
+  )
+}
+
+export const ViewModeSettings = () => {
+  const { t } = useTranslation()
+
+  const filesViewMode = useMutableState(FilesViewModeState).viewMode
+
+  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+  return (
+    <Popup
+      contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
+      position={'bottom left'}
+      trigger={
+        <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
+          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
+        </Tooltip>
+      }
+    >
+      {filesViewMode.value === 'icons' ? (
+        <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+          <Slider
+            min={10}
+            max={100}
+            step={0.5}
+            value={viewModeSettings.icons.iconSize.value}
+            onChange={viewModeSettings.icons.iconSize.set}
+            onRelease={viewModeSettings.icons.iconSize.set}
+          />
+        </InputGroup>
+      ) : (
+        <>
+          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
+            <Slider
+              min={10}
+              max={100}
+              step={0.5}
+              value={viewModeSettings.list.fontSize.value}
+              onChange={viewModeSettings.list.fontSize.set}
+              onRelease={viewModeSettings.list.fontSize.set}
+            />
+          </InputGroup>
+
+          <div>
+            <div className="mt-1 flex flex-auto text-white">
+              <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
+            </div>
+            <div className="flex-col">
+              {availableTableColumns.map((column) => (
+                <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
+                  <BooleanInput
+                    value={viewModeSettings.list.selectedTableColumns[column].value}
+                    onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
+                  />
+                </InputGroup>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </Popup>
   )
 }
