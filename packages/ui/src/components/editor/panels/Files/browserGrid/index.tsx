@@ -205,6 +205,7 @@ type FileBrowserItemType = {
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
+  onContextMenu: (event: React.MouseEvent, currentFile: FileDataType) => void
   handleDropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   addFolder: () => void
   isListView: boolean
@@ -228,6 +229,7 @@ export function FileBrowserItem({
   currentContent,
   projectName,
   onClick,
+  onContextMenu,
   handleDropItemsOnPanel,
   openModelCompress,
   openImageCompress,
@@ -248,6 +250,7 @@ export function FileBrowserItem({
     event.preventDefault()
     event.stopPropagation()
     setAnchorEvent(event)
+    onContextMenu(event, item)
   }
 
   const handleClose = () => {
@@ -359,7 +362,7 @@ export function FileBrowserItem({
         </div>
       )}
 
-      <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
+      <ContextMenu anchorEvent={anchorEvent} onClose={handleClose}>
         <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           <Button variant="outline" size="small" fullWidth onClick={addFolder}>
             {t('editor:layout.filebrowser.addNewFolder')}
