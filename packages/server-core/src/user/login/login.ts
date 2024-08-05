@@ -43,18 +43,20 @@ async function redirect(ctx, next) {
   try {
     const data = ctx.body
 
+    let redirectQuery = ''
     let redirectPath = ''
     let originPath = config.client.url
 
     if (ctx.query?.redirectUrl) {
-      redirectPath = `&path=${ctx.query.redirectUrl}`
+      redirectQuery = `&path=${ctx.query.redirectUrl}`
+      redirectPath = ctx.query.redirectUrl
       originPath = new URL(ctx.query.redirectUrl).origin
     }
 
     if (data.error) {
-      return ctx.redirect(`${originPath}/?error=${data.error as string}${redirectPath}`)
+      return ctx.redirect(`${redirectPath || originPath}/?error=${data.error as string}`)
     }
-    return ctx.redirect(`${originPath}/auth/magiclink?type=login&token=${data.token as string}${redirectPath}`)
+    return ctx.redirect(`${originPath}/auth/magiclink?type=login&token=${data.token as string}${redirectQuery}`)
   } catch (err) {
     logger.error(err)
     throw err
