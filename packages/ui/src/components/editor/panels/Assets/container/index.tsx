@@ -318,15 +318,14 @@ const AssetCategory = (props: {
         category.depth === 0 ? 'min-h-9' : 'min-h-7'
       )}
       style={{
-        height: fontSize,
-        fontSize: fontSize
+        height: `${fontSize}px`,
+        fontSize: `${fontSize}px`
       }}
     >
       <div
         className={twMerge(
-          'flex h-9 w-full cursor-pointer items-center gap-2 text-[#B2B5BD]',
-          category.depth === 0 && !category.collapsed && 'mt-0',
-          category.depth > 0 && 'h-7'
+          'flex h-full w-full cursor-pointer items-center gap-2 overflow-hidden text-[#B2B5BD]',
+          category.depth === 0 && !category.collapsed && 'mt-0'
         )}
         style={{
           marginLeft: category.depth > 0 ? category.depth * 16 : 0
@@ -341,10 +340,10 @@ const AssetCategory = (props: {
           iconContainerClassName="ml-2"
         />
         <AssetIconMap name={category.name} />
-        <div className="flex w-full items-center gap-1 pr-2">
+        <div className="flex w-full items-center gap-1 text-nowrap pr-2">
           <span
             className={twMerge(
-              "flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]",
+              "flex flex-row items-center gap-2 text-nowrap font-['Figtree'] text-[#e7e7e7]",
               selectedCategory?.name === category.name && 'text-[#F5F5F5]'
             )}
           >
