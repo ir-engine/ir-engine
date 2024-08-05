@@ -23,7 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MetabaseAuthentication from './metabase/metabase'
-import ZendeskAuthentication from './zendesk/zendesk'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
+import { BaseService } from '../../BaseService'
 
-export default [ZendeskAuthentication, MetabaseAuthentication]
+export interface MetabaseAuthenticationParams extends KnexAdapterParams {}
+
+/**
+ * A class for MetaBaseAuthentication service
+ */
+export class MetabaseAuthenticationService<
+  T = string,
+  ServiceParams extends Params = MetabaseAuthenticationParams
+> extends BaseService<string, void, MetabaseAuthenticationParams> {}

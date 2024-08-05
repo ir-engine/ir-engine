@@ -23,7 +23,48 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MetabaseAuthentication from './metabase/metabase'
-import ZendeskAuthentication from './zendesk/zendesk'
+import appConfig from '@etherealengine/server-core/src/appconfig'
+import { Application, HookContext } from '@feathersjs/feathers/lib/declarations'
+import { disallow } from 'feathers-hooks-common'
+import { sign } from 'jsonwebtoken'
 
-export default [ZendeskAuthentication, MetabaseAuthentication]
+const getMetabaseToken = (context: HookContext<Application>) => {
+  const payload = {
+    resource: { dashboard: 64 },
+    params: {},
+    exp: Math.round(Date.now() / 1000) + 10 * 60 // 10 minute expiration
+  }
+
+  context.result = sign(payload, appConfig.metabase.key!)
+  return context
+}
+
+export default {
+  before: {
+    all: [],
+    find: [disallow()],
+    get: [disallow()],
+    create: [getMetabaseToken],
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
+  },
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  }
+} as any

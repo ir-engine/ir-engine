@@ -303,3 +303,5 @@ export const invalidationPath = 'invalidation'
 export const imageConvertPath = 'image-convert'
 
 export const zendeskPath = 'zendesk'
+
+export const metabasePath = 'metabase'

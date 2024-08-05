@@ -23,7 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MetabaseAuthentication from './metabase/metabase'
-import ZendeskAuthentication from './zendesk/zendesk'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default [ZendeskAuthentication, MetabaseAuthentication]
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Metabase Authentication service description',
+    securities: ['all']
+  }
+})

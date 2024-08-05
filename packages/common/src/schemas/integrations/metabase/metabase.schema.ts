@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MetabaseAuthentication from './metabase/metabase'
-import ZendeskAuthentication from './zendesk/zendesk'
+export const metabasePath = 'metabase'
 
-export default [ZendeskAuthentication, MetabaseAuthentication]
+export const metabaseMethods = ['create'] as const
