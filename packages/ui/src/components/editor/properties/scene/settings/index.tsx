@@ -28,6 +28,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
+import { EntityUUID, defineQuery } from '@etherealengine/ecs'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   EditorComponentType,
@@ -45,15 +46,20 @@ import {
   imageDataToBlob
 } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState, useHookstate, useState } from '@etherealengine/hyperflux'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RiLandscapeLine } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import ImagePreviewInput from '../../../input/Image/Preview'
+import NodeInput from '../../../input/Node'
 import NumericInput from '../../../input/Numeric'
 import PropertyGroup from '../../group'
+
+const cameraQuery = defineQuery([CameraComponent])
 
 export const SceneSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -163,12 +169,46 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     image.src = url
   }
 
+  const useSpectatingEntity = useState(sceneSettingsComponent.spectateEntity.value !== null)
+
   return (
     <PropertyGroup
       name={t('editor:properties.sceneSettings.name')}
       description={t('editor:properties.sceneSettings.description')}
       icon={<SceneSettingsEditor.iconComponent />}
     >
+      <InputGroup
+        name="Spectate Entity"
+        label={t('editor:properties.sceneSettings.lbl-spectate')}
+        info={t('editor:properties.sceneSettings.info-spectate')}
+      >
+        <BooleanInput
+          value={useSpectatingEntity.value}
+          onChange={(value) => {
+            useSpectatingEntity.set(value)
+            commitProperty(
+              SceneSettingsComponent,
+              'spectateEntity'
+            )(useSpectatingEntity.value ? ('' as EntityUUID) : null)
+          }}
+        />
+      </InputGroup>
+      {useSpectatingEntity.value ? (
+        <InputGroup
+          name="Entity UUID"
+          label={t('editor:properties.sceneSettings.lbl-uuid')}
+          info={t('editor:properties.sceneSettings.info-uuid')}
+        >
+          <NodeInput
+            value={sceneSettingsComponent.spectateEntity.value ?? ('' as EntityUUID)}
+            onRelease={commitProperty(SceneSettingsComponent, `spectateEntity`)}
+            onChange={commitProperty(SceneSettingsComponent, `spectateEntity`)}
+          />
+        </InputGroup>
+      ) : (
+        <></>
+      )}
+
       <InputGroup
         name="Thumbnail"
         label={t('editor:properties.sceneSettings.lbl-thumbnail')}

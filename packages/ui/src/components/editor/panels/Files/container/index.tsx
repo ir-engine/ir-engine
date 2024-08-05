@@ -84,6 +84,7 @@ import InputGroup from '../../../input/Group'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
 import DeleteFileModal from '../browserGrid/DeleteFileModal'
 import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
+import { FileUploadProgress } from '../upload/FileUploadProgress'
 
 type FileBrowserContentPanelProps = {
   projectName?: string
@@ -343,14 +344,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         await moveContent(data.fullName, newName, data.path, destinationPath, false)
       }
     } else {
-      const folder = destinationPath.substring(0, destinationPath.lastIndexOf('/') + 1)
+      const destinationPathCleaned = removeLeadingTrailingSlash(destinationPath)
+      const folder = destinationPathCleaned //destinationPathCleaned.substring(0, destinationPathCleaned.lastIndexOf('/') + 1)
       const projectName = folder.split('/')[1]
       const relativePath = folder.replace('projects/' + projectName + '/', '')
 
       await Promise.all(
         data.files.map(async (file) => {
-          const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
-          if (!assetType) {
+          const assetType = !file.type || file.type.length === 0 ? AssetLoader.getAssetType(file.name) : file.type
+          if (!assetType || assetType === file.name) {
             // creating directory
             await fileService.create(`${destinationPath}${file.name}`)
           } else {
@@ -360,7 +362,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                 args: [
                   {
                     project: projectName,
-                    path: relativePath + name,
+                    path: relativePath + '/' + name,
                     contentType: file.type
                   }
                 ]
@@ -374,6 +376,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     }
 
     await refreshDirectory()
+  }
+
+  function removeLeadingTrailingSlash(str) {
+    if (str.startsWith('/')) {
+      str = str.substring(1)
+    }
+    if (str.endsWith('/')) {
+      str = str.substring(0, str.length - 1)
+    }
+    return str
   }
 
   const onBackDirectory = () => {
@@ -636,63 +648,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     )
   }
 
-  const ViewModeSettings = () => {
-    const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
-    return (
-      <Popup
-        contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
-        position={'bottom left'}
-        trigger={
-          <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
-            <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
-          </Tooltip>
-        }
-      >
-        {filesViewMode.value === 'icons' ? (
-          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
-            <Slider
-              min={10}
-              max={100}
-              step={0.5}
-              value={viewModeSettings.icons.iconSize.value}
-              onChange={viewModeSettings.icons.iconSize.set}
-              onRelease={viewModeSettings.icons.iconSize.set}
-            />
-          </InputGroup>
-        ) : (
-          <>
-            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
-              <Slider
-                min={10}
-                max={100}
-                step={0.5}
-                value={viewModeSettings.list.fontSize.value}
-                onChange={viewModeSettings.list.fontSize.set}
-                onRelease={viewModeSettings.list.fontSize.set}
-              />
-            </InputGroup>
-
-            <div>
-              <div className="mt-1 flex flex-auto text-white">
-                <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-              </div>
-              <div className="flex-col">
-                {availableTableColumns.map((column) => (
-                  <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
-                    <BooleanInput
-                      value={viewModeSettings.list.selectedTableColumns[column].value}
-                      onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                    />
-                  </InputGroup>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-      </Popup>
-    )
-  }
-
   return (
     <>
       <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
@@ -797,6 +752,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           {t('editor:layout.filebrowser.uploadFolder')}
         </Button>
       </div>
+      <FileUploadProgress />
       {isLoading && (
         <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} fullSpace className="block h-12 w-12" />
       )}
@@ -823,5 +779,66 @@ export default function FilesPanelContainer() {
       originalPath={'/projects/' + originalPath + '/assets/'}
       onSelectionChanged={onSelectionChanged}
     />
+  )
+}
+
+export const ViewModeSettings = () => {
+  const { t } = useTranslation()
+
+  const filesViewMode = useMutableState(FilesViewModeState).viewMode
+
+  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+  return (
+    <Popup
+      contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
+      position={'bottom left'}
+      trigger={
+        <Tooltip title={t('editor:layout.filebrowser.view-mode.settings.name')}>
+          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
+        </Tooltip>
+      }
+    >
+      {filesViewMode.value === 'icons' ? (
+        <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+          <Slider
+            min={10}
+            max={100}
+            step={0.5}
+            value={viewModeSettings.icons.iconSize.value}
+            onChange={viewModeSettings.icons.iconSize.set}
+            onRelease={viewModeSettings.icons.iconSize.set}
+          />
+        </InputGroup>
+      ) : (
+        <>
+          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
+            <Slider
+              min={10}
+              max={100}
+              step={0.5}
+              value={viewModeSettings.list.fontSize.value}
+              onChange={viewModeSettings.list.fontSize.set}
+              onRelease={viewModeSettings.list.fontSize.set}
+            />
+          </InputGroup>
+
+          <div>
+            <div className="mt-1 flex flex-auto text-white">
+              <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
+            </div>
+            <div className="flex-col">
+              {availableTableColumns.map((column) => (
+                <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
+                  <BooleanInput
+                    value={viewModeSettings.list.selectedTableColumns[column].value}
+                    onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
+                  />
+                </InputGroup>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </Popup>
   )
 }

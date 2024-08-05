@@ -23,28 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BsStars } from 'react-icons/bs'
-import { FaRegCircle } from 'react-icons/fa6'
-import { FiSun } from 'react-icons/fi'
-import { LuWaves } from 'react-icons/lu'
-import { PiMountains } from 'react-icons/pi'
-import { RxCube } from 'react-icons/rx'
-import { TbMaximize, TbRoute } from 'react-icons/tb'
-
+import { useUploadingFiles } from '@etherealengine/client-core/src/util/upload'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+import Progress from '../../../../../primitives/tailwind/Progress'
 
-export const iconMap: { [key: string]: React.ReactElement } = {
-  Model: <RxCube />,
-  Material: <FaRegCircle />,
-  Texture: <LuWaves />,
-  Image: <PiMountains />,
-  Lighting: <FiSun />,
-  'Particle system': <BsStars />,
-  'Visual script': <TbRoute />
-}
+export const FileUploadProgress = () => {
+  const { t } = useTranslation()
+  const { completed, total, progress } = useUploadingFiles()
 
-const defaultIcon = <TbMaximize />
-
-export const AssetIconMap = ({ name }): React.ReactElement => {
-  return <div className="flex h-4 w-4 items-center justify-center">{iconMap[name] ?? defaultIcon}</div>
+  return total ? (
+    <div className="flex h-auto w-full justify-center pb-2 pt-2">
+      <div className="flex w-1/2">
+        <span className="inline-block pr-2 text-xs font-normal leading-none text-theme-primary">
+          {t('editor:layout.filebrowser.uploadingFiles', { completed, total })}
+        </span>
+        <div className="basis-1/2">
+          <Progress value={progress} />
+        </div>
+      </div>
+    </div>
+  ) : null
 }
