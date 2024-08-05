@@ -38,12 +38,11 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
-import { FilesViewModeSettings } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { FiRefreshCcw } from 'react-icons/fi'
@@ -306,7 +305,6 @@ const AssetCategory = (props: {
   const handlePreview = () => {
     // TODO: add preview functionality
   }
-  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
 
   return (
     <div
@@ -331,7 +329,6 @@ const AssetCategory = (props: {
             "flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]",
             selectedCategory?.name === category.name && 'text-[#F5F5F5]'
           )}
-          style={{ fontSize: `${fontSize}px` }}
         >
           {category.name}
         </span>
