@@ -362,7 +362,7 @@ export function FileBrowserItem({
         </div>
       )}
 
-      <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
+      <ContextMenu anchorEvent={anchorEvent} onClose={handleClose}>
         <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           <Button variant="outline" size="small" fullWidth onClick={addFolder}>
             {t('editor:layout.filebrowser.addNewFolder')}

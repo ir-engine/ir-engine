@@ -604,7 +604,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     )
                   }}
                   openDeleteFileModal={() => {
-                    PopoverState.showPopupover(<DeleteFileModal files={fileProperties.value as FileDataType[]} />)
+                    PopoverState.showPopupover(
+                      <DeleteFileModal
+                        files={fileProperties.value as FileDataType[]}
+                        onComplete={(err) => {
+                          fileProperties.set([])
+                        }}
+                      />
+                    )
                   }}
                   openImageCompress={() => {
                     if (filesConsistOfContentType(fileProperties.value, 'image')) {
