@@ -295,7 +295,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     fileQuery.setPage(0)
   }
 
-  const onSelect = (params: FileDataType) => {
+  const onSelect = (event, params: FileDataType) => {
     if (params.type !== 'folder') {
       props.onSelectionChanged({
         resourceUrl: params.url,
@@ -306,8 +306,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
       ClickPlacementState.setSelectedAsset(params.url)
     } else {
-      const newPath = `${selectedDirectory.value}${params.name}/`
-      changeDirectoryByPath(newPath)
+      if (event.detail === 2) {
+        const newPath = `${selectedDirectory.value}${params.name}/`
+        changeDirectoryByPath(newPath)
+      }
     }
   }
 
@@ -558,6 +560,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       }
     }
 
+    const resetSelection = () => {
+      fileProperties.set([])
+      ClickPlacementState.resetSelectedAsset()
+    }
+
     return (
       <div
         ref={fileDropRef}
@@ -568,8 +575,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         )}
         onClick={(event) => {
           event.stopPropagation()
-          fileProperties.set([])
-          ClickPlacementState.resetSelectedAsset()
+          resetSelection()
         }}
       >
         <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
@@ -583,7 +589,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   projectName={projectName}
                   onClick={(event, currentFile) => {
                     handleFileBrowserItemClick(event, currentFile)
-                    onSelect(file)
+                    onSelect(event, file)
+                  }}
+                  onContextMenu={(event, currentFile) => {
+                    if (!fileProperties.value.length) {
+                      fileProperties.set([file])
+                    }
                   }}
                   currentContent={currentContentRef}
                   handleDropItemsOnPanel={(data, dropOn) =>
@@ -599,7 +610,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     )
                   }}
                   openDeleteFileModal={() => {
-                    PopoverState.showPopupover(<DeleteFileModal files={fileProperties.value as FileDataType[]} />)
+                    PopoverState.showPopupover(
+                      <DeleteFileModal
+                        files={fileProperties.value as FileDataType[]}
+                        onComplete={(err) => {
+                          resetSelection()
+                        }}
+                      />
+                    )
                   }}
                   openImageCompress={() => {
                     if (filesConsistOfContentType(fileProperties.value, 'image')) {
