@@ -90,22 +90,18 @@ export const inputFileWithAddToScene = ({
     el.click()
   })
 
-export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], onProgress?) => {
+export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], args?: object[]) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
     const fileDirectory = paths[i].replace('projects/' + projectName + '/', '')
     const filePath = fileDirectory ? pathJoin(fileDirectory, file.name) : file.name
+    const fileArgs = args?.[i] ?? {}
     promises.push(
-      uploadToFeathersService(
-        fileBrowserUploadPath,
-        [file],
-        {
-          args: [{ project: projectName, path: filePath, contentType: '' }]
-        },
-        onProgress
-      )
+      uploadToFeathersService(fileBrowserUploadPath, [file], {
+        args: [{ contentType: '', ...fileArgs, project: projectName, path: filePath }]
+      })
     )
   }
 

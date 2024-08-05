@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
 import { FilesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Files'
 import { HierarchyPanelTab } from '@etherealengine/ui/src/components/editor/panels/Hierarchy'
@@ -53,7 +52,7 @@ import DragLayer from './dnd/DragLayer'
 
 import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { EntityUUID } from '@etherealengine/ecs'
+import { Engine, EntityUUID } from '@etherealengine/ecs'
 import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
@@ -126,7 +125,53 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
 
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, uiAddons } = useMutableState(EditorState)
-  const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '', type: 'scene' } }).data
+
+  const currentLoadedSceneURL = useHookstate(null as string | null)
+
+  /**
+   * what is our source of truth for which scene is loaded?
+   *      EditorState.scenePath
+   * because we DO NOT want url hashes to trigger a scene reload
+   */
+
+  /** we don't want to use useFind here, because we don't want all static-resource query refetches to potentially reload the scene */
+  useEffect(() => {
+    const abortController = new AbortController()
+    Engine.instance.api
+      .service(staticResourcePath)
+      .find({
+        query: { key: scenePath.value ?? '', type: 'scene', $limit: 1 }
+      })
+      .then((result) => {
+        if (abortController.signal.aborted) return
+
+        const scene = result.data[0]
+        if (!scene) {
+          console.error('Scene not found')
+          sceneName.set(null)
+          sceneAssetID.set(null)
+          currentLoadedSceneURL.set(null)
+          return
+        }
+
+        projectName.set(scene.project!)
+        sceneName.set(scene.key.split('/').pop() ?? null)
+        sceneAssetID.set(scene.id)
+        currentLoadedSceneURL.set(scene.url)
+      })
+
+    return () => {
+      abortController.abort()
+    }
+  }, [scenePath.value])
+
+  const viewerEntity = useMutableState(EngineState).viewerEntity.value
+
+  useEffect(() => {
+    if (!sceneAssetID.value || !currentLoadedSceneURL.value || !viewerEntity) return
+    return setCurrentEditorScene(currentLoadedSceneURL.value, sceneAssetID.value as EntityUUID)
+  }, [viewerEntity, currentLoadedSceneURL.value])
+
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
   const dockPanelRef = useRef<DockLayout>(null)
@@ -136,28 +181,10 @@ const EditorContainer = () => {
     PopoverState.showPopupover(<SaveSceneDialog />)
   })
 
-  const viewerEntity = useMutableState(EngineState).viewerEntity.value
-
   const { initialized, isWidgetVisible, openChat } = useZendesk()
   const { t } = useTranslation()
 
   const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
-
-  useEffect(() => {
-    const scene = sceneQuery[0]
-    if (!scene) return
-
-    projectName.set(scene.project!)
-    sceneName.set(scene.key.split('/').pop() ?? null)
-    sceneAssetID.set(scene.id)
-  }, [sceneQuery[0]?.key])
-
-  useEffect(() => {
-    const scene = sceneQuery[0]
-    if (!sceneAssetID.value || !scene || !viewerEntity) return
-
-    return setCurrentEditorScene(scene.url, sceneAssetID.value as EntityUUID)
-  }, [viewerEntity, sceneAssetID, sceneQuery[0]?.url])
 
   useEffect(() => {
     return () => {
