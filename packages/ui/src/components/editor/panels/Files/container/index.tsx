@@ -558,6 +558,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       }
     }
 
+    const resetSelection = () => {
+      fileProperties.set([])
+      ClickPlacementState.resetSelectedAsset()
+    }
+
     return (
       <div
         ref={fileDropRef}
@@ -568,8 +573,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         )}
         onClick={(event) => {
           event.stopPropagation()
-          fileProperties.set([])
-          ClickPlacementState.resetSelectedAsset()
+          resetSelection()
         }}
       >
         <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
@@ -608,7 +612,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                       <DeleteFileModal
                         files={fileProperties.value as FileDataType[]}
                         onComplete={(err) => {
-                          fileProperties.set([])
+                          resetSelection()
                         }}
                       />
                     )
