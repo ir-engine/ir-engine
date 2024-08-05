@@ -313,7 +313,7 @@ const AssetCategory = (props: {
   return (
     <div
       className={twMerge(
-        'min-h-9 rounded-md bg-[#141619]',
+        'min-h-7 rounded-md bg-[#141619]',
         selectedCategory?.name === category.name && 'text-primary bg-[#191B1F]'
       )}
     >
@@ -324,7 +324,7 @@ const AssetCategory = (props: {
           category.depth > 0 && 'h-7'
         )}
         style={{
-          marginLeft: category.depth > 1 ? category.depth * 16 : 0,
+          marginLeft: category.depth > 0 ? category.depth * 16 : 0,
           height: iconSize,
           fontSize: iconSize
         }}
@@ -597,7 +597,7 @@ const AssetPanel = () => {
 
   return (
     <>
-      <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
+      <div className="mb-1 flex h-7 items-center bg-theme-surface-main">
         <div className="ml-2"></div>
         <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
           <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
