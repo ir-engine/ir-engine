@@ -173,10 +173,10 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="mb-2 flex cursor-pointer flex-col items-center justify-center align-middle"
+      className="mb-3 flex h-auto w-40 cursor-pointer flex-col items-center text-center"
     >
       <span
-        className={`mb-[5px] h-40 w-40 text-[70px] ${
+        className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
           selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
         }`}
       >
@@ -515,7 +515,7 @@ const AssetPanel = () => {
   const ResourceItems = () => {
     if (loading.value) {
       return (
-        <div className="col-start-2 flex items-center justify-center">
+        <div className="flex h-full w-full items-center justify-center">
           <LoadingView title={t('editor:loadingAssets')} fullSpace className="block h-12 w-12" />
         </div>
       )
@@ -663,14 +663,16 @@ const AssetPanel = () => {
           onSelectCategory={handleSelectCategory}
           style={{ width: width.value }}
         />
-        <div className="flex w-[20px] cursor-pointer resize items-center">
+        <div className="flex w-[20px] cursor-pointer items-center">
           <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
         </div>
         <div className="flex h-full w-full flex-col overflow-auto">
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-2 p-2">
-            <ResourceItems />
+          <div className="flex-grow overflow-y-scroll p-2">
+            <div className="mt-auto flex h-full w-full flex-wrap gap-2">
+              <ResourceItems />
+            </div>
           </div>
-          <div className="mx-auto mb-10">
+          <div className="mx-auto mb-10 mt-auto">
             <TablePagination
               totalPages={staticResourcesPagination.totalPages.value}
               currentPage={staticResourcesPagination.currentPage.value}

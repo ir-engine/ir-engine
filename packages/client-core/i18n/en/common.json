@@ -132,7 +132,8 @@
   "error": {
     "loading-error": "Failed to load user data",
     "validation-error": "Please input valid {{type}}",
-    "login-error": "Failed to login"
+    "login-error": "Failed to login",
+    "expiredToken": "The token has expired."
   },
   "table": {
     "refetching": "Refetching Data...",
