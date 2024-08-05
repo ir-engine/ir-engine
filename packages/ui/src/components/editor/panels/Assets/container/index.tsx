@@ -320,7 +320,6 @@ const AssetCategory = (props: {
       style={{
         marginLeft: category.depth > 1 ? category.depth * 16 : 0,
         height: iconSize,
-        // width: iconSize,
         fontSize: iconSize
       }}
       onClick={handleSelectCategory}
