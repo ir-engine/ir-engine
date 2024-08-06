@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import logger from '@etherealengine/server-core/src/ServerLogger'
 import cli from 'cli'
 import fs from 'fs'
-
-const jwt = require('jsonwebtoken')
+import Jwt from 'jsonwebtoken'
 
 cli.enable('status')
 
@@ -42,23 +41,25 @@ cli.main(async () => {
     if (!creds.secretKeyPath || !creds.keyId || !creds.teamId || !creds.clientId) {
       cli.fatal('Please provide all the required arguments')
     }
-    const privateKey = fs.readFileSync(creds.secretKeyPath)
-    const headers = {
-      kid: creds.keyId,
-      typ: 'JWT'
-    }
+    const privateKey = fs.readFileSync(creds.secretKeyPath, { encoding: 'utf-8' })
+
     const claims = {
       iss: creds.teamId,
       aud: 'https://appleid.apple.com',
       sub: creds.clientId
     }
-    logger.info(
-      await jwt.sign(claims, privateKey, {
-        algorithm: 'ES256',
-        header: headers,
-        expiresIn: '180d' // The token will expire in 180 days. The token can be set to expire in a shorter time but not more than 6 months.
-      })
-    )
+
+    const clientSecret = Jwt.sign(claims, privateKey, {
+      algorithm: 'ES256',
+      header: {
+        alg: 'ES256',
+        kid: creds.keyId,
+        typ: 'JWT'
+      },
+      expiresIn: '180d' // The token will expire in 180 days. The token can be set to expire in a shorter time but not more than 6 months.
+    })
+
+    logger.info(clientSecret)
     process.exit(0)
   } catch (err) {
     console.log('Error while generating client secret for Apple')
