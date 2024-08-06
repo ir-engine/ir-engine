@@ -67,6 +67,8 @@ export const RigidBodyComponent = defineComponent({
       canSleep: true,
       gravityScale: 1,
       // internal
+      /** @deprecated  @todo make the physics api properly reactive to remove this property  */
+      initialized: false,
       previousPosition: proxifyVector3(this.previousPosition, entity),
       previousRotation: proxifyQuaternion(this.previousRotation, entity),
       position: proxifyVector3(this.position, entity),
@@ -118,8 +120,10 @@ export const RigidBodyComponent = defineComponent({
     useEffect(() => {
       if (!physicsWorld) return
       Physics.createRigidBody(physicsWorld, entity)
+      component.initialized.set(true)
       return () => {
         Physics.removeRigidbody(physicsWorld, entity)
+        component.initialized.set(false)
       }
     }, [physicsWorld])
 
