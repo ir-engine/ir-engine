@@ -38,33 +38,31 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
+import { FilesViewModeSettings } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { NO_PROXY, State, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import {
-  HiChevronDown,
-  HiChevronRight,
-  HiEye,
-  HiMagnifyingGlass,
-  HiMiniArrowLeft,
-  HiMiniArrowPath,
-  HiOutlineFolder,
-  HiOutlinePlusCircle
-} from 'react-icons/hi2'
+import { FiRefreshCcw } from 'react-icons/fi'
+import { HiDotsVertical } from 'react-icons/hi'
+import { HiMagnifyingGlass, HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi2'
+import { IoIosArrowDown, IoIosArrowForward } from 'react-icons/io'
+import { IoArrowBack } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import { TablePagination } from '../../../../../primitives/tailwind/Table'
-import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
+import { ViewModeSettings } from '../../Files/container'
 import { FileIcon } from '../../Files/icon'
+import { FileUploadProgress } from '../../Files/upload/FileUploadProgress'
+import { AssetIconMap } from '../icons'
 
 type Category = {
   name: string
@@ -175,16 +173,18 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className={`flex cursor-pointer flex-col items-center justify-center align-middle ${
-        selected ? 'border border-gray-100' : ''
-      }`}
+      className="mb-3 flex h-auto w-40 cursor-pointer flex-col items-center text-center"
     >
-      <span className="mb-[5px] h-[70px] w-[70px] text-[70px]">
+      <span
+        className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
+          selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
+        }`}
+      >
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
 
       <Tooltip title={name}>
-        <span className="line-clamp-1 w-full text-wrap break-all text-sm text-white">{name}</span>
+        <span className="line-clamp-1 w-full text-wrap break-all text-sm text-[#F5F5F5]">{name}</span>
       </Tooltip>
 
       <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)} className="gap-1">
@@ -291,6 +291,7 @@ const AssetCategory = (props: {
     onClick: (category: Category) => void
     selectedCategory: Category | null
     collapsedCategories: State<{ [key: string]: boolean }>
+    category: Category
   }
   index: number
 }) => {
@@ -307,26 +308,39 @@ const AssetCategory = (props: {
     // TODO: add preview functionality
   }
 
+  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
+
   return (
     <div
       className={twMerge(
-        'flex cursor-pointer items-center gap-2',
-        category.depth === 0 && !category.collapsed && 'mt-0'
+        'flex min-h-9 cursor-pointer items-center gap-2 text-[#B2B5BD]',
+        category.depth === 0 && !category.collapsed && 'mt-0',
+        selectedCategory?.name === category.name && 'rounded bg-[#191B1F]'
       )}
-      style={{ marginLeft: category.depth * 16 }}
+      style={{
+        marginLeft: category.depth > 1 ? category.depth * 16 : 0,
+        height: iconSize,
+        fontSize: iconSize
+      }}
       onClick={handleSelectCategory}
     >
       <Button
         variant="transparent"
         className={twMerge('m-0 p-0', category.isLeaf && 'invisible cursor-auto')}
         title={category.collapsed ? 'expand' : 'collapse'}
-        startIcon={category.collapsed ? <HiChevronRight /> : <HiChevronDown />}
+        startIcon={category.collapsed ? <IoIosArrowForward /> : <IoIosArrowDown />}
       />
+      <AssetIconMap name={category.name} />
       <div className="flex w-full items-center gap-1 pr-2">
-        <Text className={twMerge('text-[#B2B5BD]', selectedCategory?.name === category.name && 'font-bold')}>
+        <span
+          className={twMerge(
+            "flex flex-row items-center gap-2 text-nowrap font-['Figtree'] text-[#e7e7e7]",
+            selectedCategory?.name === category.name && 'text-[#F5F5F5]'
+          )}
+        >
           {category.name}
-        </Text>
-        <HiEye className="ml-auto text-[#B2B5BD]" onClick={handlePreview} />
+        </span>
+        {/* <HiEye className="flex flex-row items-center gap-2 ml-auto text-[#e7e7e7] text-sm" onClick={handlePreview} /> */}
       </div>
     </div>
   )
@@ -342,7 +356,7 @@ export function AssetsBreadcrumb({
   onSelectCategory: (c: Category) => void
 }) {
   return (
-    <div className="flex h-[28px] items-center gap-2 rounded-[4px] border border-theme-input bg-[#141619] px-2 ">
+    <div className="flex h-[28px] w-96 items-center gap-2 rounded-lg border border-theme-input bg-[#141619] px-2 ">
       <HiOutlineFolder className="text-xs text-[#A3A3A3]" />
       {parentCategories.map((category) => (
         <span
@@ -364,12 +378,14 @@ const CategoriesList = ({
   categories,
   selectedCategory,
   collapsedCategories,
-  onSelectCategory
+  onSelectCategory,
+  style
 }: {
   categories: Category[]
   selectedCategory: Category | null
   collapsedCategories: State<{ [key: string]: boolean }>
   onSelectCategory: (category: Category) => void
+  style: any
 }) => {
   const savedScrollPosition = useRef<number>(0)
   const listRef = useRef<HTMLDivElement>(null)
@@ -387,17 +403,23 @@ const CategoriesList = ({
   }
 
   return (
-    <div ref={listRef} className="mb-8 h-full w-52 overflow-y-scroll bg-[#0E0F11] pb-8" onScroll={handleScroll}>
+    <div
+      ref={listRef}
+      className="mb-8 h-full overflow-x-hidden overflow-y-scroll bg-[#0E0F11] px-2 pb-8"
+      style={style}
+      onScroll={handleScroll}
+    >
       {categories.map((category, index) => (
         <AssetCategory
-          key={category.name}
+          key={category.name + index}
           data={{
             categories: categories as Category[],
             selectedCategory: selectedCategory,
             onClick: (category: Category) => {
               onSelectCategory(category)
             },
-            collapsedCategories
+            collapsedCategories,
+            category
           }}
           index={index}
         />
@@ -493,7 +515,7 @@ const AssetPanel = () => {
   const ResourceItems = () => {
     if (loading.value) {
       return (
-        <div className="col-start-2 flex items-center justify-center">
+        <div className="flex h-full w-full items-center justify-center">
           <LoadingView title={t('editor:loadingAssets')} fullSpace className="block h-12 w-12" />
         </div>
       )
@@ -547,42 +569,59 @@ const AssetPanel = () => {
     !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }
 
+  const width = useHookstate(300)
+  const mouseDown = useHookstate(false)
+
+  const handleMouseDown = (event) => {
+    event.preventDefault()
+    mouseDown.set(true)
+  }
+
+  const handleMouseUp = () => {
+    mouseDown.set(false)
+  }
+
+  const handleMouseMove = (event) => {
+    if (mouseDown.value) {
+      width.set(event.pageX)
+    }
+  }
+
   return (
     <>
-      <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
-        <div className="mr-20 flex gap-2">
-          <div className="pointer-events-auto flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
-              <Button variant="transparent" startIcon={<HiMiniArrowLeft />} className="p-0" onClick={handleBack} />
-            </Tooltip>
-          </div>
-
-          <div className="flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.refresh')}>
-              <Button variant="transparent" startIcon={<HiMiniArrowPath />} className="p-0" onClick={handleRefresh} />
-            </Tooltip>
-          </div>
-
-          {/* <div className="flex items-center">
-            <Tooltip title={t('editor:layout.scene-assets.settings')}>
-              <Button
-                variant="transparent"
-                startIcon={<HiOutlineCog6Tooth />}
-                className="p-0"
-                onClick={handleSettings}
-              />
-            </Tooltip>
-          </div> */}
+      <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
+        <div className="ml-2"></div>
+        <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+          <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
+            <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={handleBack} />
+          </Tooltip>
         </div>
 
-        <div className="align-center flex h-7 flex-1 justify-center gap-2 pr-2">
-          <div className="h-full flex-1">
-            <AssetsBreadcrumb
-              parentCategories={parentCategories.get(NO_PROXY) as Category[]}
-              selectedCategory={selectedCategory.value}
-              onSelectCategory={handleSelectCategory}
+        <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+          <Tooltip title={t('editor:layout.filebrowser.refresh')}>
+            <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={handleRefresh} />
+          </Tooltip>
+        </div>
+
+        {/* <div className="flex items-center">
+          <Tooltip title={t('editor:layout.scene-assets.settings')}>
+            <Button
+              variant="transparent"
+              startIcon={<HiOutlineCog6Tooth />}
+              className="p-0"
+              onClick={handleSettings}
             />
-          </div>
+          </Tooltip>
+        </div> */}
+
+        <ViewModeSettings />
+
+        <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
+          <AssetsBreadcrumb
+            parentCategories={parentCategories.get(NO_PROXY) as Category[]}
+            selectedCategory={selectedCategory.value}
+            onSelectCategory={handleSelectCategory}
+          />
           <Input
             placeholder={t('editor:layout.scene-assets.search-placeholder')}
             value={searchText.value}
@@ -590,17 +629,16 @@ const AssetPanel = () => {
               searchText.set(e.target.value)
             }}
             labelClassname="text-sm text-red-500"
-            containerClassname="flex h-full bg-theme-primary rounded w-auto"
-            className="h-7 rounded-[4px] bg-theme-primary py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
+            containerClassname="flex h-full w-auto"
+            className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
           />
         </div>
 
         <Button
           startIcon={<HiOutlinePlusCircle className="text-lg" />}
-          variant="transparent"
           rounded="none"
-          className="h-full whitespace-nowrap bg-[#375DAF] px-2"
+          className="h-full whitespace-nowrap bg-theme-highlight px-2"
           size="small"
           onClick={() =>
             inputFileWithAddToScene({
@@ -616,18 +654,25 @@ const AssetPanel = () => {
           {t('editor:layout.filebrowser.uploadAssets')}
         </Button>
       </div>
-      <div id="asset-browser-panel" className="flex h-full">
+      <FileUploadProgress />
+      <div className="flex h-full w-full" onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}>
         <CategoriesList
           categories={categories.value as Category[]}
           selectedCategory={selectedCategory.value}
           collapsedCategories={collapsedCategories}
           onSelectCategory={handleSelectCategory}
+          style={{ width: width.value }}
         />
+        <div className="flex w-[20px] cursor-pointer items-center">
+          <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
+        </div>
         <div className="flex h-full w-full flex-col overflow-auto">
-          <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
-            <ResourceItems />
+          <div className="flex-grow overflow-y-scroll p-2">
+            <div className="mt-auto flex h-full w-full flex-wrap gap-2">
+              <ResourceItems />
+            </div>
           </div>
-          <div className="mx-auto mb-10">
+          <div className="mx-auto mb-10 mt-auto">
             <TablePagination
               totalPages={staticResourcesPagination.totalPages.value}
               currentPage={staticResourcesPagination.currentPage.value}

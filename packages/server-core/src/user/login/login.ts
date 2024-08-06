@@ -42,10 +42,21 @@ declare module '@etherealengine/common/declarations' {
 async function redirect(ctx, next) {
   try {
     const data = ctx.body
-    if (data.error) {
-      return ctx.redirect(`${config.client.url}/?error=${data.error as string}`)
+
+    let redirectQuery = ''
+    let redirectPath = ''
+    let originPath = config.client.url
+
+    if (ctx.query?.redirectUrl) {
+      redirectQuery = `&path=${ctx.query.redirectUrl}`
+      redirectPath = ctx.query.redirectUrl
+      originPath = new URL(ctx.query.redirectUrl).origin
     }
-    return ctx.redirect(`${config.client.url}/auth/magiclink?type=login&token=${data.token as string}`)
+
+    if (data.error) {
+      return ctx.redirect(`${redirectPath || originPath}/?error=${data.error as string}`)
+    }
+    return ctx.redirect(`${originPath}/auth/magiclink?type=login&token=${data.token as string}${redirectQuery}`)
   } catch (err) {
     logger.error(err)
     throw err
