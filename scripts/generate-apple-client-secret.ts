@@ -41,7 +41,7 @@ cli.main(async () => {
     if (!creds.secretKeyPath || !creds.keyId || !creds.teamId || !creds.clientId) {
       cli.fatal('Please provide all the required arguments')
     }
-    const privateKey = fs.readFileSync(creds.secretKeyPath, { encoding: 'utf-8' })
+    const privateKey = fs.readFileSync(creds.secretKeyPath)
 
     const claims = {
       iss: creds.teamId,
