@@ -107,7 +107,10 @@ export const staticResourceDataResolver = resolve<StaticResourceType, HookContex
       return uuidv4()
     },
     createdAt: getDateTimeSql,
-    updatedAt: getDateTimeSql
+    updatedAt: getDateTimeSql,
+    updatedBy: async (_, __, context) => {
+      return context.params?.user?.id || null
+    }
   },
   {
     // Convert the raw data into a new structure before running property resolvers
@@ -124,7 +127,10 @@ export const staticResourceDataResolver = resolve<StaticResourceType, HookContex
 
 export const staticResourcePatchResolver = resolve<StaticResourceType, HookContext>(
   {
-    updatedAt: getDateTimeSql
+    updatedAt: getDateTimeSql,
+    updatedBy: async (_, __, context) => {
+      return context.params?.user?.id || null
+    }
   },
   {
     // Convert the raw data into a new structure before running property resolvers

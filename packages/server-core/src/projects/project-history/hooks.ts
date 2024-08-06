@@ -135,24 +135,6 @@ const updateStaticResourceHistory = async (context: HookContext<StaticResourceSe
       if (context.method === 'create') {
         actionDetail['url'] = item.key
         actionType = 'RESOURCE_CREATED'
-      } else if (context.method === 'update' || context.method === 'patch') {
-        const keyBeforeUpdate = (context?.keyBeforeUpdate?.[item.id] || '') as string
-        if (!keyBeforeUpdate) {
-          actionDetail['url'] = item.key
-          actionType = 'RESOURCE_MODIFIED'
-        } else {
-          const newURL = item.key
-          const oldURL = keyBeforeUpdate
-
-          if (newURL !== oldURL) {
-            actionDetail['oldURL'] = oldURL
-            actionDetail['newURL'] = newURL
-            actionType = 'RESOURCE_RENAMED'
-          } else {
-            actionDetail['url'] = item.key
-            actionType = 'RESOURCE_MODIFIED'
-          }
-        }
       } else {
         actionDetail['url'] = item.key
         actionType = 'RESOURCE_REMOVED'
@@ -227,12 +209,12 @@ const storePermissionType = async (context: HookContext<ProjectPermissionService
   }
 }
 
-staticResourceHooks.before.update.unshift(storeResourceKey)
-staticResourceHooks.before.patch.unshift(storeResourceKey)
+// staticResourceHooks.before.update.unshift(storeResourceKey)
+// staticResourceHooks.before.patch.unshift(storeResourceKey)
 
 staticResourceHooks.after.create.unshift(updateStaticResourceHistory)
-staticResourceHooks.after.update.unshift(updateStaticResourceHistory)
-staticResourceHooks.after.patch.unshift(updateStaticResourceHistory)
+// staticResourceHooks.after.update.unshift(updateStaticResourceHistory)
+// staticResourceHooks.after.patch.unshift(updateStaticResourceHistory)
 staticResourceHooks.after.remove.unshift(updateStaticResourceHistory)
 
 projectHooks.after.create.unshift(updateProjectHistory)
