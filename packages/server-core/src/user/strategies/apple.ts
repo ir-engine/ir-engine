@@ -85,7 +85,8 @@ export class AppleStrategy extends CustomOAuthStrategy {
       })
       entity.userId = newUser.id
       await this.app.service(identityProviderPath).patch(entity.id, {
-        userId: newUser.id
+        userId: newUser.id,
+        email: entity.email
       })
     } else
       await this.app.service(identityProviderPath)._patch(entity.id, {
