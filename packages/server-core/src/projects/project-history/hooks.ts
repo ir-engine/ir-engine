@@ -23,13 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectPath, projectPermissionPath, userPath } from '@etherealengine/common/src/schema.type.module'
+import { projectPermissionPath, userPath } from '@etherealengine/common/src/schema.type.module'
 import { ActionType, projectHistoryPath } from '@etherealengine/common/src/schemas/projects/project-history.schema'
 import { HookContext } from '../../../declarations'
 import { ProjectPermissionService } from '../project-permission/project-permission.class'
 import projectPermissionHooks from '../project-permission/project-permission.hooks'
-import { ProjectService } from '../project/project.class'
-import projectHooks from '../project/project.hooks'
 
 const updateProjectPermissionHistory = async (context: HookContext<ProjectPermissionService>) => {
   const data = context.result
@@ -75,27 +73,6 @@ const updateProjectPermissionHistory = async (context: HookContext<ProjectPermis
   }
 }
 
-const updateProjectHistory = async (context: HookContext<ProjectService>) => {
-  const data = context.result
-  const dataArr = data ? (Array.isArray(data) ? data : 'data' in data ? data.data : [data]) : []
-
-  for (const item of dataArr) {
-    const actionDetail = {
-      projectName: item.name
-    }
-    const actionDetailStr = JSON.stringify(actionDetail)
-
-    await context.app.service(projectHistoryPath).create({
-      projectId: item.id,
-      userId: context.params.user?.id || null,
-      action: 'PROJECT_CREATED',
-      actionIdentifier: item.id,
-      actionIdentifierType: projectPath,
-      actionDetail: actionDetailStr
-    })
-  }
-}
-
 const storePermissionType = async (context: HookContext<ProjectPermissionService>) => {
   context.permissionTypeBeforeUpdate = {} as Record<string, string>
 
@@ -110,8 +87,6 @@ const storePermissionType = async (context: HookContext<ProjectPermissionService
     context['permissionTypeBeforeUpdate'][projectPermission.id] = projectPermission.type
   }
 }
-
-projectHooks.after.create.unshift(updateProjectHistory)
 
 projectPermissionHooks.before.patch.unshift(storePermissionType)
 projectPermissionHooks.after.create.unshift(updateProjectPermissionHistory)

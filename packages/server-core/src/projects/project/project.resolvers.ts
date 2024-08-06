@@ -85,10 +85,16 @@ export const projectDataResolver = resolve<ProjectType, HookContext>({
     return uuidv4()
   },
   createdAt: getDateTimeSql,
+  updatedBy: async (_, __, context) => {
+    return context.params?.user?.id || null
+  },
   updatedAt: getDateTimeSql
 })
 
 export const projectPatchResolver = resolve<ProjectType, HookContext>({
+  updatedBy: async (_, __, context) => {
+    return context.params?.user?.id || null
+  },
   updatedAt: getDateTimeSql
 })
 

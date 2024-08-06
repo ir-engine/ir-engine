@@ -27,8 +27,9 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
 
+import { TypedString } from '../../types/TypeboxUtils'
 import { projectSettingSchema } from '../setting/project-setting.schema'
-import { UserType } from '../user/user.schema'
+import { UserID, UserType } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { projectPermissionSchema } from './project-permission.schema'
 
@@ -65,6 +66,9 @@ export const projectSchema = Type.Object(
     assetsOnly: Type.Boolean(),
     visibility: StringEnum(['private', 'public']),
     settings: Type.Optional(Type.Array(Type.Ref(projectSettingSchema))),
+    updatedBy: TypedString<UserID>({
+      format: 'uuid'
+    }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
