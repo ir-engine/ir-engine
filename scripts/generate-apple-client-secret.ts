@@ -32,8 +32,8 @@ cli.enable('status')
 
 cli.main(async () => {
   try {
-    const privateKey = fs.readFileSync('Path to Apple SSO Secret Key File.p8')
-    const keyId = 'XXXXXXXXXX' // Key ID of the Secret Key generated in Apple Developer Account.
+    const privateKey = fs.readFileSync('Path to Apple SSO secret key.p8')
+    const keyId = 'XXXXXXXXXX' // Key ID of the Secret Key generated in Apple Developer Account. It can be found in the assoisated Key on Apple Developer Account.
     const teamId = 'XXXXXXXXXX' // Team ID of the Apple Developer Account. It can be found in the app ID on the Apple Developer Account.
     const clientId = 'XXXXXXXXXX' // The client ID of the service ID created in the Apple Developer Account.
     const headers = {
