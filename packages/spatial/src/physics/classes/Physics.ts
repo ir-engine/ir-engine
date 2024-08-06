@@ -91,9 +91,9 @@ export type PhysicsWorld = World & {
   id: EntityUUID
   substeps: number
   cameraAttachedRigidbodyEntity: Entity
-  Colliders: Record<Entity, Collider>
-  Rigidbodies: Record<Entity, RigidBody>
-  Controllers: Record<Entity, KinematicCharacterController>
+  Colliders: Map<Entity, Collider>
+  Rigidbodies: Map<Entity, RigidBody>
+  Controllers: Map<Entity, KinematicCharacterController>
   collisionEventQueue: EventQueue
   drainCollisions: ReturnType<typeof Physics.drainCollisionEventQueue>
   drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
@@ -115,9 +115,9 @@ function createWorld(id: EntityUUID, args = { gravity: { x: 0.0, y: -9.81, z: 0.
   world.substeps = args.substeps
   world.cameraAttachedRigidbodyEntity = UndefinedEntity
 
-  const Colliders = {} as Record<Entity, Collider>
-  const Rigidbodies = {} as Record<Entity, RigidBody>
-  const Controllers = {} as Record<Entity, KinematicCharacterController>
+  const Colliders = new Map<Entity, Collider>()
+  const Rigidbodies = new Map<Entity, RigidBody>()
+  const Controllers = new Map<Entity, KinematicCharacterController>()
 
   world.Colliders = Colliders
   world.Rigidbodies = Rigidbodies
@@ -133,13 +133,13 @@ function createWorld(id: EntityUUID, args = { gravity: { x: 0.0, y: -9.81, z: 0.
 }
 
 function destroyWorld(id: EntityUUID) {
-  const world = getMutableState(RapierWorldState)[id]
+  const world = getState(RapierWorldState)[id]
   if (!world) throw new Error('Physics world not found')
-  world.Colliders.set({})
-  world.Rigidbodies.set({})
-  world.Controllers.set({})
   getMutableState(RapierWorldState)[id].set(none)
-  world.value.free()
+  world.Colliders.clear()
+  world.Rigidbodies.clear()
+  world.Controllers.clear()
+  world.free()
 }
 
 function getWorld(entity: Entity) {
@@ -193,7 +193,7 @@ function simulate(simulationTimestep: number, kinematicEntities: Entity[]) {
       // smooth kinematic pose changes
       const substep = (i + 1) / substeps
       for (const entity of kinematicEntities) {
-        if (world.Rigidbodies[entity]) smoothKinematicBody(world, entity, timestep, substep)
+        if (world.Rigidbodies.has(entity)) smoothKinematicBody(world, entity, timestep, substep)
       }
       world.step(collisionEventQueue)
       collisionEventQueue.drainCollisionEvents(drainCollisions)
@@ -259,16 +259,16 @@ function createRigidBody(world: PhysicsWorld, entity: Entity) {
   const rigidBodyUserdata = { entity: entity }
   body.userData = rigidBodyUserdata
 
-  getMutableState(RapierWorldState)[world.id].Rigidbodies[entity].set(body)
+  world.Rigidbodies.set(entity, body)
 }
 
 function isSleeping(world: PhysicsWorld, entity: Entity) {
-  const rigidBody = world.Rigidbodies[entity]
+  const rigidBody = world.Rigidbodies.get(entity)
   return !rigidBody || rigidBody.isSleeping()
 }
 
 const setRigidBodyType = (world: PhysicsWorld, entity: Entity, type: Body) => {
-  const rigidbody = world.Rigidbodies[entity]
+  const rigidbody = world.Rigidbodies.get(entity)
   if (!rigidbody) return
 
   let typeEnum: RigidBodyType = undefined!
@@ -298,7 +298,7 @@ function setRigidbodyPose(
   linearVelocity: Vector3,
   angularVelocity: Vector3
 ) {
-  const rigidBody = world.Rigidbodies[entity]
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.setTranslation(position, false)
   rigidBody.setRotation(rotation, false)
@@ -307,14 +307,14 @@ function setRigidbodyPose(
 }
 
 function setKinematicRigidbodyPose(world: PhysicsWorld, entity: Entity, position: Vector3, rotation: Quaternion) {
-  const rigidBody = world.Rigidbodies[entity]
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.setNextKinematicTranslation(position)
   rigidBody.setNextKinematicRotation(rotation)
 }
 
 function enabledCcd(world: PhysicsWorld, entity: Entity, enabled: boolean) {
-  const rigidBody = world.Rigidbodies[entity]
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.enableCcd(enabled)
 }
@@ -326,7 +326,7 @@ function enabledCcd(world: PhysicsWorld, entity: Entity, enabled: boolean) {
  * https://github.com/dimforge/rapier.js/issues/282#issuecomment-2177426589
  */
 function lockRotations(world: PhysicsWorld, entity: Entity, lock: boolean) {
-  const rigidBody = world.Rigidbodies[entity]
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.lockRotations(lock, false)
 }
@@ -335,7 +335,7 @@ function lockRotations(world: PhysicsWorld, entity: Entity, lock: boolean) {
  * @note `setEnabledRotations(entity, [ true, true, true ])` is the exact same as `lockRotations(entity, true)`
  */
 function setEnabledRotations(world: PhysicsWorld, entity: Entity, enabledRotations: [boolean, boolean, boolean]) {
-  const rigidBody = world.Rigidbodies[entity]
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.setEnabledRotations(enabledRotations[0], enabledRotations[1], enabledRotations[2], false)
 }
@@ -344,7 +344,7 @@ function updatePreviousRigidbodyPose(entities: Entity[]) {
   for (const entity of entities) {
     const world = getWorld(entity)
     if (!world) continue
-    const body = world.Rigidbodies[entity]
+    const body = world.Rigidbodies.get(entity)
     if (!body) continue
     const translation = body.translation() as Vector3
     const rotation = body.rotation() as Quaternion
@@ -362,7 +362,7 @@ function updateRigidbodyPose(entities: Entity[]) {
   for (const entity of entities) {
     const world = getWorld(entity)
     if (!world) continue
-    const body = world.Rigidbodies[entity]
+    const body = world.Rigidbodies.get(entity)
     if (!body) continue
     const translation = body.translation() as Vector3
     const rotation = body.rotation() as Quaternion
@@ -385,21 +385,21 @@ function updateRigidbodyPose(entities: Entity[]) {
 }
 
 function removeRigidbody(world: PhysicsWorld, entity: Entity) {
-  const rigidBody = world.Rigidbodies[entity]
+  const rigidBody = world.Rigidbodies.get(entity)
   if (rigidBody && world.bodies.contains(rigidBody.handle)) {
     world.removeRigidBody(rigidBody)
-    getMutableState(RapierWorldState)[world.id].Rigidbodies[entity].set(none)
+    world.Rigidbodies.delete(entity)
   }
 }
 
 function applyImpulse(world: PhysicsWorld, entity: Entity, impulse: Vector3) {
-  const rigidBody = world.Rigidbodies[entity]
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.applyImpulse(impulse, true)
 }
 
 function createColliderDesc(world: PhysicsWorld, entity: Entity, rootEntity: Entity) {
-  if (!world.Rigidbodies[rootEntity]) return
+  if (!world.Rigidbodies.has(rootEntity)) return
 
   const mesh = getOptionalComponent(entity, MeshComponent)
 
@@ -538,30 +538,30 @@ function attachCollider(
   rigidBodyEntity: Entity,
   colliderEntity: Entity
 ) {
-  if (world.Colliders[colliderEntity]) return
-  const rigidBody = world.Rigidbodies[rigidBodyEntity] // guaranteed will exist
+  if (world.Colliders.has(colliderEntity)) return
+  const rigidBody = world.Rigidbodies.get(rigidBodyEntity) // guaranteed will exist
   if (!rigidBody) return console.error('Rigidbody not found for entity ' + rigidBodyEntity)
   const collider = world.createCollider(colliderDesc, rigidBody)
-  getMutableState(RapierWorldState)[world.id].Colliders[colliderEntity].set(collider)
+  world.Colliders.set(colliderEntity, collider)
   return collider
 }
 
 function setColliderPose(world: PhysicsWorld, entity: Entity, position: Vector3, rotation: Quaternion) {
-  const collider = world.Colliders[entity]
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   collider.setTranslationWrtParent(position)
   collider.setRotationWrtParent(rotation)
 }
 
 function removeCollider(world: PhysicsWorld, entity: Entity) {
-  const collider = world.Colliders[entity]
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   world.removeCollider(collider, false)
-  getMutableState(RapierWorldState)[world.id].Colliders[entity].set(none)
+  world.Colliders.delete(entity)
 }
 
 function setTrigger(world: PhysicsWorld, entity: Entity, isTrigger: boolean) {
-  const collider = world.Colliders[entity]
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   collider.setSensor(isTrigger)
   const colliderComponent = getComponent(entity, ColliderComponent)
@@ -571,32 +571,32 @@ function setTrigger(world: PhysicsWorld, entity: Entity, isTrigger: boolean) {
 }
 
 function setFriction(world: PhysicsWorld, entity: Entity, friction: number) {
-  const collider = world.Colliders[entity]
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   collider.setFriction(friction)
 }
 
 function setRestitution(world: PhysicsWorld, entity: Entity, restitution: number) {
-  const collider = world.Colliders[entity]
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   collider.setRestitution(restitution)
 }
 
 function setMass(world: PhysicsWorld, entity: Entity, mass: number) {
-  const collider = world.Colliders[entity]
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   collider.setMass(mass)
 }
 
 function setMassCenter(world: PhysicsWorld, entity: Entity, massCenter: Vector3) {
-  const collider = world.Colliders[entity]
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   /** @todo */
   // collider.setMassProperties(massCenter, collider.mass())
 }
 
 function setCollisionLayer(world: PhysicsWorld, entity: Entity, collisionLayer: InteractionGroups) {
-  const collider = world.Colliders[entity]
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   const colliderComponent = getComponent(entity, ColliderComponent)
   const _collisionLayer = hasComponent(entity, TriggerComponent)
@@ -606,7 +606,7 @@ function setCollisionLayer(world: PhysicsWorld, entity: Entity, collisionLayer: 
 }
 
 function setCollisionMask(world: PhysicsWorld, entity: Entity, collisionMask: InteractionGroups) {
-  const collider = world.Colliders[entity]
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   const colliderComponent = getComponent(entity, ColliderComponent)
   const collisionLayer = hasComponent(entity, TriggerComponent)
@@ -616,13 +616,13 @@ function setCollisionMask(world: PhysicsWorld, entity: Entity, collisionMask: In
 }
 
 function getShape(world: PhysicsWorld, entity: Entity): Shape | undefined {
-  const collider = world.Colliders[entity]
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   return RapierShapeToString[collider.shape.type]
 }
 
 function removeCollidersFromRigidBody(entity: Entity, world: PhysicsWorld) {
-  const rigidBody = world.Rigidbodies[entity]
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   const numColliders = rigidBody.numColliders()
   for (let index = 0; index < numColliders; index++) {
@@ -648,21 +648,21 @@ function createCharacterController(
   if (autoStep) characterController.enableAutostep(autoStep.maxHeight, autoStep.minWidth, autoStep.stepOverDynamic)
   if (enableSnapToGround) characterController.enableSnapToGround(enableSnapToGround)
   else characterController.disableSnapToGround()
-  getMutableState(RapierWorldState)[world.id].Controllers[entity].set(characterController)
+  world.Controllers.set(entity, characterController)
 }
 
 function removeCharacterController(world: PhysicsWorld, entity: Entity) {
-  const controller = world.Controllers[entity]
+  const controller = world.Controllers.get(entity)
   if (!controller) return
   world.removeCharacterController(controller)
-  getMutableState(RapierWorldState)[world.id].Controllers[entity].set(none)
+  world.Controllers.delete(entity)
 }
 
 /**
  * @deprecated - will be populated on AvatarControllerComponent
  */
 function getControllerOffset(world: PhysicsWorld, entity: Entity) {
-  const controller = world.Controllers[entity]
+  const controller = world.Controllers.get(entity)
   if (!controller) return 0
   return controller.offset()
 }
@@ -677,9 +677,9 @@ function computeColliderMovement(
   filterGroups?: InteractionGroups,
   filterPredicate?: (collider: Collider) => boolean
 ) {
-  const controller = world.Controllers[entity]
+  const controller = world.Controllers.get(entity)
   if (!controller) return
-  const collider = world.Colliders[colliderEntity]
+  const collider = world.Colliders.get(colliderEntity)
   if (!collider) return
   controller.computeColliderMovement(
     collider,
@@ -691,7 +691,7 @@ function computeColliderMovement(
 }
 
 function getComputedMovement(world: PhysicsWorld, entity: Entity, out: Vector3) {
-  const controller = world.Controllers[entity]
+  const controller = world.Controllers.get(entity)
   if (!controller) return out.set(0, 0, 0)
   return out.copy(controller.computedMovement() as Vector3)
 }
@@ -732,8 +732,8 @@ function castRay(world: PhysicsWorld, raycastQuery: RaycastArgs, filterPredicate
   const groups = raycastQuery.groups
   const flags = raycastQuery.flags
 
-  const excludeCollider = raycastQuery.excludeCollider && world.Colliders[raycastQuery.excludeCollider]
-  const excludeRigidBody = raycastQuery.excludeRigidBody && world.Rigidbodies[raycastQuery.excludeRigidBody]
+  const excludeCollider = raycastQuery.excludeCollider && world.Colliders.get(raycastQuery.excludeCollider)
+  const excludeRigidBody = raycastQuery.excludeRigidBody && world.Rigidbodies.get(raycastQuery.excludeRigidBody)
 
   const hits = [] as RaycastHit[]
   const hitWithNormal = world.castRayAndGetNormal(
