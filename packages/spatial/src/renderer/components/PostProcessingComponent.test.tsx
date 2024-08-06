@@ -27,12 +27,12 @@ import assert from 'assert'
 import { MathUtils } from 'three'
 
 import {
-  Entity,
   EntityUUID,
   UUIDComponent,
   UndefinedEntity,
   getComponent,
   getMutableComponent,
+  serializeComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -47,106 +47,33 @@ import { Effect } from 'postprocessing'
 import React from 'react'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
+import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
 import { RendererState } from '../RendererState'
 import { PostProcessingComponent } from './PostProcessingComponent'
 
-describe('PostProcessingComponent : todo.Organize', () => {
-  let rootEntity: Entity
-  let entity: Entity
-
-  beforeEach(() => {
-    createEngine()
-
-    mockSpatialEngine()
-
-    rootEntity = getState(EngineState).viewerEntity
-
-    entity = createEntity()
-    setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-    getMutableState(RendererState).usePostProcessing.set(true)
-    setComponent(entity, SceneComponent)
-    setComponent(entity, PostProcessingComponent, { enabled: true })
-    setComponent(entity, EntityTreeComponent)
-
-    //set data to test
-    setComponent(rootEntity, RendererComponent, { scenes: [entity] })
-  })
-
-  afterEach(() => {
-    return destroyEngine()
-  })
-
-  it('Create default post processing component', () => {
-    const postProcessingComponent = getComponent(entity, PostProcessingComponent)
-    assert(postProcessingComponent, 'post processing component exists')
-  })
-
-  it('Test Effect Composure amd Highlight Effect', async () => {
-    const effectKey = 'OutlineEffect'
-
-    //force nested reactors to run
-    const { rerender, unmount } = render(<></>)
-    await act(() => rerender(<></>))
-
-    const effectComposer = getComponent(rootEntity, RendererComponent).effectComposer
-    console.log(getComponent(rootEntity, RendererComponent))
-
-    //test that the effect composer is setup
-    assert(effectComposer, 'effect composer is setup')
-
-    //test that the effect pass has the the effect set
-    const effects = (effectComposer?.EffectPass as any).effects
-    assert(effects.find((el) => el.name == effectKey))
-
-    unmount()
-  })
-
-  it('Test Effect Add and Remove', async () => {
-    const effectKey = 'NoiseEffect'
-    noiseAddToEffectRegistry()
-
-    const { rerender, unmount } = render(<></>)
-
-    await act(() => rerender(<></>))
-
-    const postProcessingComponent = getMutableComponent(entity, PostProcessingComponent)
-    postProcessingComponent.effects[effectKey].isActive.set(true)
-
-    setComponent(rootEntity, RendererComponent)
-    await act(() => rerender(<></>))
-
-    // @ts-ignore
-    let effects = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
-    console.log(
-      getComponent(rootEntity, RendererComponent).effects,
-      effects.map((el) => el.name)
-    )
-    assert(
-      effects.find((el) => el.name == effectKey),
-      ' Effect turned on'
-    )
-
-    postProcessingComponent.effects[effectKey].isActive.set(false)
-
-    await act(() => rerender(<></>))
-
-    // @ts-ignore
-    effects = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
-    assert(!effects.find((el) => el.name == effectKey), ' Effect turned off')
-
-    removeEntity(entity)
-    unmount()
-  })
-})
+type PostProcessingComponentData = {
+  enabled: boolean
+  effects: Record<string, Effect>
+}
 
 const PostProcessingComponentDefaults = {
   enabled: false,
-  effects: {} as Record<string, Effect> // effect name, parameters
-}
+  effects: {}
+} as PostProcessingComponentData
 
-function assertPostProcessingComponentEq(A, B) {
+const TestShader = 'void main() { gl_FragColor = vec4(1.0,0.0,1.0,1.0); }'
+
+function assertPostProcessingComponentEq(A: PostProcessingComponentData, B: PostProcessingComponentData) {
   assert.equal(A.enabled, B.enabled)
-  /** @todo Check other properties */
+  assert.equal(Object.keys(A.effects).length, Object.keys(B.effects).length)
+
+  for (const id in A.effects) {
+    assert.equal(Object.keys(B.effects).includes(id), true)
+    const a = A.effects[id]
+    const b = B.effects[id]
+    assert.equal(a.name, b.name)
+    assert.equal(a.getFragmentShader(), b.getFragmentShader())
+  }
 }
 
 describe('PostProcessingComponent', () => {
@@ -181,10 +108,215 @@ describe('PostProcessingComponent', () => {
   }) //:: onInit
 
   describe('onSet', () => {
-    // it('should change the values of an initialized PostProcessingComponent', () => {})
-    // it('should not change values of an initialized PostProcessingComponent when the data passed had incorrect types', () => {})
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      initializeSpatialEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, PostProcessingComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      destroySpatialEngine()
+      return destroyEngine()
+    })
+
+    it('should change the values of an initialized PostProcessingComponent', () => {
+      const Expected = {
+        enabled: true,
+        effects: {
+          effect1: new Effect('test.effect1', TestShader),
+          effect2: new Effect('test.effect2', TestShader)
+        }
+      } as PostProcessingComponentData
+      // Sanity check the data
+      assertPostProcessingComponentEq(
+        getComponent(testEntity, PostProcessingComponent),
+        PostProcessingComponentDefaults
+      )
+      // Run and Check the result
+      setComponent(testEntity, PostProcessingComponent, Expected)
+      const result = getComponent(testEntity, PostProcessingComponent)
+      assertPostProcessingComponentEq(result, Expected)
+    })
+
+    it('should not change values of an initialized PostProcessingComponent when the data passed had incorrect types', () => {
+      const Incorrect = {
+        effects: 42,
+        enabled: 46 & 2
+      }
+      // Sanity check the data
+      assertPostProcessingComponentEq(
+        getComponent(testEntity, PostProcessingComponent),
+        PostProcessingComponentDefaults
+      )
+      // Run and Check the result
+      // @ts-ignore Coerce the incorrect data type into the component
+      setComponent(testEntity, PostProcessingComponent, Incorrect)
+      assertPostProcessingComponentEq(
+        getComponent(testEntity, PostProcessingComponent),
+        PostProcessingComponentDefaults
+      )
+    })
   }) //:: onSet
 
-  describe('toJSON', () => {}) //:: toJSON
+  describe('toJSON', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      initializeSpatialEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, PostProcessingComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      destroySpatialEngine()
+      return destroyEngine()
+    })
+
+    it("should serialize the component's data as expected", () => {
+      const Data = {
+        enabled: true,
+        effects: {
+          effect1: new Effect('test.effect1', TestShader),
+          effect2: new Effect('test.effect2', TestShader)
+        }
+      } as PostProcessingComponentData
+
+      const Expected1 = {
+        enabled: false,
+        effects: {}
+      }
+      const Expected2 = {
+        enabled: Data.enabled,
+        effects: {
+          effect1: {
+            name: 'test.effect1',
+            renderer: null,
+            attributes: 0,
+            fragmentShader: 'void main() { gl_FragColor = vec4(1.0,0.0,1.0,1.0); }',
+            vertexShader: null,
+            defines: {},
+            uniforms: {},
+            extensions: null,
+            blendMode: {
+              _blendFunction: 23,
+              opacity: { value: 1 },
+              _listeners: { change: [null] }
+            }, //:: blendMode
+            _inputColorSpace: 'srgb-linear',
+            _outputColorSpace: ''
+          }, //:: effect1
+          effect2: {
+            name: 'test.effect2',
+            renderer: null,
+            attributes: 0,
+            fragmentShader: 'void main() { gl_FragColor = vec4(1.0,0.0,1.0,1.0); }',
+            vertexShader: null,
+            defines: {},
+            uniforms: {},
+            extensions: null,
+            blendMode: {
+              _blendFunction: 23,
+              opacity: { value: 1 },
+              _listeners: { change: [null] }
+            }, //:: blendMode
+            _inputColorSpace: 'srgb-linear',
+            _outputColorSpace: ''
+          } //:: effect2
+        } //:: effects
+      }
+      const result1 = serializeComponent(testEntity, PostProcessingComponent)
+      assert.deepEqual(result1, Expected1)
+      setComponent(testEntity, PostProcessingComponent, Data)
+      const result2 = serializeComponent(testEntity, PostProcessingComponent)
+      assert.deepEqual(result2, Expected2)
+    })
+  }) //:: toJSON
+
+  /**
+  // @todo Write after the reactor has been replaced with spatial queries or distance checks
   describe('reactor', () => {}) //:: reactor
+  */
+
+  describe('General Purpose', () => {
+    let rootEntity = UndefinedEntity
+    let testEntity = UndefinedEntity
+
+    beforeEach(() => {
+      createEngine()
+
+      mockSpatialEngine()
+
+      rootEntity = getState(EngineState).viewerEntity
+
+      testEntity = createEntity()
+      setComponent(testEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+      getMutableState(RendererState).usePostProcessing.set(true)
+      setComponent(testEntity, SceneComponent)
+      setComponent(testEntity, PostProcessingComponent, { enabled: true })
+      setComponent(testEntity, EntityTreeComponent)
+
+      //set data to test
+      setComponent(rootEntity, RendererComponent, { scenes: [testEntity] })
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      removeEntity(rootEntity)
+      return destroyEngine()
+    })
+
+    it('should add the OutlineEffect to the RendererComponent.effectComposer.EffectPass.effects list', async () => {
+      const effectKey = 'OutlineEffect'
+
+      // force nested reactors to run
+      const { rerender, unmount } = render(<></>)
+      await act(() => rerender(<></>))
+
+      // Check that the effect composer is setup
+      const effectComposer = getComponent(rootEntity, RendererComponent).effectComposer
+      assert.notEqual(Boolean(effectComposer), false, 'the effect composer is not setup correctly')
+
+      // Check that the effect pass has the the effect set
+      // @ts-ignore Allow access to the `effects` private field
+      const effects = effectComposer.EffectPass.effects
+      assert.equal(Boolean(effects.find((it) => it.name == effectKey)), true)
+
+      unmount()
+    })
+
+    it('should add and remove effects correctly', async () => {
+      const effectKey = 'NoiseEffect'
+      noiseAddToEffectRegistry()
+
+      const { rerender, unmount } = render(<></>)
+
+      await act(() => rerender(<></>))
+
+      const postProcessingComponent = getMutableComponent(testEntity, PostProcessingComponent)
+      postProcessingComponent.effects[effectKey].isActive.set(true)
+
+      setComponent(rootEntity, RendererComponent)
+      await act(() => rerender(<></>))
+
+      // @ts-ignore Allow access to the EffectPass.effects private field
+      const before = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
+      assert.equal(Boolean(before.find((el) => el.name == effectKey)), true, effectKey + ' should be turned on')
+
+      postProcessingComponent.effects[effectKey].isActive.set(false)
+
+      await act(() => rerender(<></>))
+
+      // @ts-ignore Allow access to the EffectPass.effects private field
+      const after = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
+      assert.equal(Boolean(after.find((el) => el.name == effectKey)), false, effectKey + ' should be turned off')
+
+      unmount()
+    })
+  })
 })
