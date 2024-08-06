@@ -100,7 +100,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
       }
       const resource = resources.data[0]
       const tags = [...prefabTag.value]
-      await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags })
+      await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
 
       removeEntity(prefabEntity)
       EditorControlFunctions.removeObject([entity])
