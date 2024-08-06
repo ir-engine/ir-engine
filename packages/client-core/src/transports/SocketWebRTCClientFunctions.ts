@@ -307,6 +307,7 @@ export async function checkInstanceserverReady(primus: Primus, instanceID: Insta
   logger.info('Checking that instanceserver is ready')
   const { instanceReady } = await new Promise<ReadyTask>((resolve) => {
     const onStatus = (response: ReadyTask) => {
+      // eslint-disable-next-line no-prototype-builtins
       if (response.hasOwnProperty('instanceReady')) {
         clearInterval(interval)
         resolve(response)
