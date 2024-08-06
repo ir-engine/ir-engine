@@ -648,7 +648,7 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   /**
-   * Delete resources in the S3 storage.
+   * Delete resources in the S3 storage. Test
    * @param keys List of keys.
    */
   async deleteResources(keys: string[]) {
