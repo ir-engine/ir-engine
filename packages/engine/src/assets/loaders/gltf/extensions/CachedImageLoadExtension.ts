@@ -35,7 +35,9 @@ class CachedImageLoadExtension extends ImporterExtension implements GLTFLoaderPl
 
   loadTexture(textureIndex) {
     const options = this.parser.options
-    if (!options.url?.endsWith('.gltf')) {
+    const baseURL = new URL(options.url)
+
+    if (!baseURL.pathname.endsWith('.gltf')) {
       return this.parser.loadTexture(textureIndex)
     }
     const json = this.parser.json
