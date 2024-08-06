@@ -23,26 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import * as fs from 'fs'
+import { locationPath } from '@etherealengine/common/src/schema.type.module'
 import type { Knex } from 'knex'
-import * as path from 'path'
 
-const sqlFilePath = path.join(__dirname, './update_static_resource_history_stored_procedure.sql')
-
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
 export async function up(knex: Knex): Promise<void> {
-  const sql = fs.readFileSync(sqlFilePath, 'utf8')
-  await knex.raw(sql)
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const updatedByColumnExists = await knex.schema.hasColumn(locationPath, 'updatedBy')
+  if (!updatedByColumnExists) {
+    await knex.schema.alterTable(locationPath, async (table) => {
+      //@ts-ignore
+      table.uuid('updatedBy', 36).collate('utf8mb4_bin')
+
+      // Foreign keys
+      table.foreign('updatedBy').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
 export async function down(knex: Knex): Promise<void> {
-  await knex.raw('DROP PROCEDURE IF EXISTS update_static_resource_history;')
-  await knex.raw('DROP TRIGGER IF EXISTS after_static_resource_update;')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const updatedByColumnExists = await knex.schema.hasColumn(locationPath, 'updatedBy')
+  if (updatedByColumnExists) {
+    await knex.schema.alterTable(locationPath, async (table) => {
+      table.dropForeign('updatedBy')
+      table.dropColumn('updatedBy')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

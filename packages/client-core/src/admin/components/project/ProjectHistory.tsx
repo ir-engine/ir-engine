@@ -106,6 +106,22 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
           </Text>
         </>
       )
+    } else if (projectHistory.action === 'LOCATION_MODIFIED') {
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        locationName: string
+      }
+
+      return (
+        <>
+          <Text id="blah">modified the location</Text>
+
+          <a href={`/location/${actionDetail.locationName}`}>
+            <Text className="underline-offset-4 hover:underline" fontWeight="semibold">
+              {actionDetail.locationName}
+            </Text>
+          </a>
+        </>
+      )
     } else if (projectHistory.action === 'PERMISSION_CREATED' || projectHistory.action === 'PERMISSION_REMOVED') {
       const actionDetail = JSON.parse(projectHistory.actionDetail) as {
         userName: string

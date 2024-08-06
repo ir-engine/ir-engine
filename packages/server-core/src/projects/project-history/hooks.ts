@@ -23,19 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  locationPath,
-  projectPath,
-  projectPermissionPath,
-  staticResourcePath,
-  userPath
-} from '@etherealengine/common/src/schema.type.module'
+import { projectPath, projectPermissionPath, userPath } from '@etherealengine/common/src/schema.type.module'
 import { ActionType, projectHistoryPath } from '@etherealengine/common/src/schemas/projects/project-history.schema'
 import { HookContext } from '../../../declarations'
-import { StaticResourceService } from '../../media/static-resource/static-resource.class'
-import staticResourceHooks from '../../media/static-resource/static-resource.hooks'
-import { LocationService } from '../../social/location/location.class'
-import locationHooks from '../../social/location/location.hooks'
 import { ProjectPermissionService } from '../project-permission/project-permission.class'
 import projectPermissionHooks from '../project-permission/project-permission.hooks'
 import { ProjectService } from '../project/project.class'
@@ -85,79 +75,6 @@ const updateProjectPermissionHistory = async (context: HookContext<ProjectPermis
   }
 }
 
-const updateLocationHistory = async (context: HookContext<LocationService>) => {
-  const data = context.result
-  const dataArr = data ? (Array.isArray(data) ? data : 'data' in data ? data.data : [data]) : []
-  const action = context.method === 'create' ? 'LOCATION_PUBLISHED' : 'LOCATION_UNPUBLISHED'
-
-  for (const item of dataArr) {
-    // TODO: Try to avoid this API call, because location resolver does the same thing
-    const scene = await context.app.service(staticResourcePath).get(item.sceneId)
-
-    await context.app.service(projectHistoryPath).create({
-      projectId: item.projectId,
-      userId: context.params.user?.id || null,
-      action: action,
-      actionIdentifier: item.id,
-      actionIdentifierType: locationPath,
-      actionDetail: JSON.stringify({
-        locationName: item.slugifiedName,
-        sceneURL: scene.key,
-        sceneId: item.sceneId
-      })
-    })
-  }
-}
-
-const updateStaticResourceHistory = async (context: HookContext<StaticResourceService>) => {
-  const data = context.result
-  const dataArr = data ? (Array.isArray(data) ? data : 'data' in data ? data.data : [data]) : []
-
-  for (const item of dataArr) {
-    if (item.project) {
-      const projectResult = await context.app.service(projectPath).find({
-        query: {
-          name: item.project
-        }
-      })
-
-      if (projectResult.total !== 1) {
-        // Valid project not found. Skip writing into project history
-        continue
-      }
-
-      const project = projectResult.data[0]
-
-      let actionType: ActionType
-
-      const actionDetail = {}
-
-      if (context.method === 'create') {
-        actionDetail['url'] = item.key
-        actionType = 'RESOURCE_CREATED'
-      } else {
-        actionDetail['url'] = item.key
-        actionType = 'RESOURCE_REMOVED'
-      }
-
-      if (item.type === 'scene') {
-        actionType = actionType.replace('RESOURCE', 'SCENE') as ActionType
-      }
-
-      const actionDetailStr = JSON.stringify(actionDetail)
-
-      await context.app.service(projectHistoryPath).create({
-        projectId: project.id,
-        userId: context.params.user?.id || null,
-        action: actionType,
-        actionIdentifier: item.id,
-        actionIdentifierType: staticResourcePath,
-        actionDetail: actionDetailStr
-      })
-    }
-  }
-}
-
 const updateProjectHistory = async (context: HookContext<ProjectService>) => {
   const data = context.result
   const dataArr = data ? (Array.isArray(data) ? data : 'data' in data ? data.data : [data]) : []
@@ -179,21 +96,6 @@ const updateProjectHistory = async (context: HookContext<ProjectService>) => {
   }
 }
 
-const storeResourceKey = async (context: HookContext<StaticResourceService>) => {
-  context.keyBeforeUpdate = {} as Record<string, string>
-
-  const resources = await context.app.service(staticResourcePath).find({
-    query: {
-      id: context.id as string
-    },
-    paginate: false
-  })
-
-  for (const resource of resources) {
-    context['keyBeforeUpdate'][resource.id] = resource.key
-  }
-}
-
 const storePermissionType = async (context: HookContext<ProjectPermissionService>) => {
   context.permissionTypeBeforeUpdate = {} as Record<string, string>
 
@@ -209,17 +111,7 @@ const storePermissionType = async (context: HookContext<ProjectPermissionService
   }
 }
 
-// staticResourceHooks.before.update.unshift(storeResourceKey)
-// staticResourceHooks.before.patch.unshift(storeResourceKey)
-
-staticResourceHooks.after.create.unshift(updateStaticResourceHistory)
-// staticResourceHooks.after.update.unshift(updateStaticResourceHistory)
-// staticResourceHooks.after.patch.unshift(updateStaticResourceHistory)
-staticResourceHooks.after.remove.unshift(updateStaticResourceHistory)
-
 projectHooks.after.create.unshift(updateProjectHistory)
-locationHooks.after.create.unshift(updateLocationHistory)
-locationHooks.after.remove.unshift(updateLocationHistory)
 
 projectPermissionHooks.before.patch.unshift(storePermissionType)
 projectPermissionHooks.after.create.unshift(updateProjectPermissionHistory)
