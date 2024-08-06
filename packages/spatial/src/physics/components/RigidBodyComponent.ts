@@ -28,6 +28,7 @@ import { Types } from 'bitecs'
 import { useEntityContext } from '@etherealengine/ecs'
 import {
   defineComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent
@@ -123,6 +124,7 @@ export const RigidBodyComponent = defineComponent({
       component.initialized.set(true)
       return () => {
         Physics.removeRigidbody(physicsWorld, entity)
+        if (!hasComponent(entity, RigidBodyComponent)) return
         component.initialized.set(false)
       }
     }, [physicsWorld])
