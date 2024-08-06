@@ -91,3 +91,114 @@ export const KHR_DRACO_MESH_COMPRESSION = {
     })
   }
 }
+
+export type KHRMeshOptExtensionType = {
+  buffer: number
+  byteOffset?: number
+  byteLength?: number
+  byteStride?: number
+  count: number
+  mode?: number
+  filter?: number
+}
+
+/**
+ * meshopt BufferView Compression Extension
+ *
+ * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Vendor/EXT_meshopt_compression
+ */
+export const EXT_MESHOPT_COMPRESSION = {
+  loadBuffer: (options: GLTFParserOptions, bufferViewIndex: number) => {
+    const json = options.document
+    const bufferViewDef = json.bufferViews![bufferViewIndex]
+    const extensionDef = bufferViewDef.extensions![EXTENSIONS.EXT_MESHOPT_COMPRESSION] as KHRMeshOptExtensionType
+    return [
+      extensionDef.buffer,
+      (bufferView: ArrayBuffer) =>
+        new Promise<ArrayBuffer | null>((resolve, reject) => {
+          console.log('bufferView', bufferView)
+          const json = options.document
+
+          const byteOffset = extensionDef.byteOffset || 0
+          const byteLength = extensionDef.byteLength || 0
+
+          const count = extensionDef.count
+          const stride = extensionDef.byteStride!
+
+          const source = new Uint8Array(bufferView, byteOffset, byteLength)
+
+          const decoder = getState(AssetLoaderState).gltfLoader.meshoptDecoder
+          if (!decoder || !decoder.supported) {
+            if (json.extensionsRequired && json.extensionsRequired.indexOf(EXTENSIONS.EXT_MESHOPT_COMPRESSION) >= 0) {
+              return reject('THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files')
+            } else {
+              // Assumes that the extension is optional and that fallback buffer data is present
+              return resolve(null)
+            }
+          }
+
+          if (decoder.decodeGltfBufferAsync) {
+            decoder
+              .decodeGltfBufferAsync(count, stride, source, extensionDef.mode!, extensionDef.filter!)
+              .then(function (res) {
+                resolve(res.buffer)
+              })
+          } else {
+            // Support for MeshoptDecoder 0.18 or earlier, without decodeGltfBufferAsync
+            decoder.ready!.then(function () {
+              const result = new ArrayBuffer(count * stride)
+              decoder.decodeGltfBuffer(
+                new Uint8Array(result),
+                count,
+                stride,
+                source,
+                extensionDef.mode!,
+                extensionDef.filter!
+              )
+              resolve(result)
+            })
+          }
+        })
+    ] as [number | null, (bufferView: ArrayBuffer) => Promise<ArrayBuffer | null>]
+  }
+}
+
+type GLTFExtensionType = {
+  decodePrimitive?: (
+    options: GLTFParserOptions,
+    primitive: GLTF.IMeshPrimitive
+  ) => Promise<BufferGeometry<NormalBufferAttributes>>
+  loadBuffer?: (
+    options: GLTFParserOptions,
+    index: number
+  ) => [number | null, (bufferView: ArrayBuffer) => Promise<ArrayBuffer | null>]
+}
+
+export const getBufferIndex = (options: GLTFParserOptions, bufferViewIndex?: number) => {
+  const json = options.document
+  if (typeof bufferViewIndex !== 'number')
+    return [null, async (buffer: ArrayBuffer) => buffer] as [
+      number | null,
+      (bufferView: ArrayBuffer) => Promise<ArrayBuffer | null>
+    ]
+  const bufferViewDef = json.bufferViews![bufferViewIndex]
+  for (const extensionName in bufferViewDef.extensions) {
+    const extension = GLTFExtensions[extensionName]
+    if (extension.loadBuffer) {
+      return extension.loadBuffer(options, bufferViewIndex!)
+    }
+  }
+  return [
+    bufferViewDef.buffer,
+    async (buffer) => {
+      const byteLength = bufferViewDef!.byteLength || 0
+      const byteOffset = bufferViewDef!.byteOffset || 0
+      return buffer.slice(byteOffset, byteOffset + byteLength)
+    }
+  ] as [number | null, (bufferView: ArrayBuffer) => Promise<ArrayBuffer | null>]
+}
+
+export const GLTFExtensions = {
+  [EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]: KHR_DRACO_MESH_COMPRESSION,
+  [EXTENSIONS.EXT_MESHOPT_COMPRESSION]: EXT_MESHOPT_COMPRESSION
+} as Record<string, GLTFExtensionType>

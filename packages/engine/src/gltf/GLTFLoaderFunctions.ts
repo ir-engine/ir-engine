@@ -67,6 +67,7 @@ import { assignExtrasToUserData, getNormalizedComponentScale } from '../assets/l
 import { GLTFParserOptions, GLTFRegistry, getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
 import { KTX2Loader } from '../assets/loaders/gltf/KTX2Loader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
+import { getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 
 // todo make this a state
@@ -202,25 +203,21 @@ const useLoadAccessor = (options: GLTFParserOptions, accessorIndex?: number) => 
 }
 
 const useLoadBufferView = (options: GLTFParserOptions, bufferViewIndex?: number) => {
-  const json = options.document
   const result = useHookstate<ArrayBuffer | null>(null)
 
-  const bufferViewDef = typeof bufferViewIndex === 'number' ? json.bufferViews![bufferViewIndex] : null
-  const buffer = GLTFLoaderFunctions.useLoadBuffer(options, bufferViewDef?.buffer)
+  const [bufferIndex, callback] = getBufferIndex(options, bufferViewIndex)
+
+  const buffer = GLTFLoaderFunctions.useLoadBuffer(options, bufferIndex)
 
   useEffect(() => {
-    if (!bufferViewDef || !buffer) return
-
-    const byteLength = bufferViewDef.byteLength || 0
-    const byteOffset = bufferViewDef.byteOffset || 0
-
-    result.set(buffer.slice(byteOffset, byteOffset + byteLength))
+    if (!buffer) return result.set(null)
+    callback(buffer).then((buffer) => result.set(buffer))
   }, [buffer])
 
-  return result.get(NO_PROXY)
+  return result.get(NO_PROXY) as ArrayBuffer | null
 }
 
-const useLoadBuffer = (options: GLTFParserOptions, bufferIndex?: number) => {
+const useLoadBuffer = (options: GLTFParserOptions, bufferIndex) => {
   const json = options.document
   const result = useHookstate<ArrayBuffer | null>(null)
 
@@ -263,7 +260,7 @@ const useLoadBuffer = (options: GLTFParserOptions, bufferIndex?: number) => {
     )
   }, [bufferDef?.uri])
 
-  return result.get(NO_PROXY)
+  return result.get(NO_PROXY) as ArrayBuffer | null
 }
 
 export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primitiveDef: GLTF.IMeshPrimitive) {
@@ -557,6 +554,7 @@ const useAssignTexture = (options: GLTFParserOptions, mapDef?: GLTF.ITextureInfo
       result.set(textureClone)
     }
 
+    /** @todo properly support extensions */
     const transform =
       mapDef.extensions !== undefined ? mapDef.extensions[KHRTextureTransformExtensionComponent.jsonID] : undefined
 
@@ -606,10 +604,13 @@ const useLoadTexture = (options: GLTFParserOptions, textureIndex?: number) => {
 
   const textureDef = typeof textureIndex === 'number' ? json.textures![textureIndex] : null
 
-  const extensions = textureDef?.extensions
+  const extensions = textureDef?.extensions as Record<string, Record<string, number>> | null
   const basisu = extensions && (extensions[EXTENSIONS.KHR_TEXTURE_BASISU] as KHRTextureBasisu)
 
-  const sourceIndex = basisu ? basisu.source : textureDef?.source!
+  /** @todo properly support texture extensions, this is a hack */
+  const sourceIndex =
+    (extensions && Object.values(extensions).find((ext) => typeof ext.source === 'number')?.source) ||
+    textureDef?.source!
   const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
 
   const handler = typeof sourceDef?.uri === 'string' && options.manager.getHandler(sourceDef.uri)
