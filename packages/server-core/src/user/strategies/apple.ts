@@ -87,7 +87,10 @@ export class AppleStrategy extends CustomOAuthStrategy {
       await this.app.service(identityProviderPath).patch(entity.id, {
         userId: newUser.id
       })
-    }
+    } else
+      await this.app.service(identityProviderPath)._patch(entity.id, {
+        email: entity.email
+      })
     const identityProvider = authResult[identityProviderPath]
     const user = await this.app.service(userPath).get(entity.userId)
     await makeInitialAdmin(this.app, user.id)
