@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
 import {
   FileBrowserContentType,
@@ -33,12 +32,10 @@ import {
   UserID,
   archiverPath,
   fileBrowserPath,
-  fileBrowserUploadPath,
   projectPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { Engine } from '@etherealengine/ecs'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import {
@@ -51,7 +48,11 @@ import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/
 import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
+import {
+  downloadBlobAsZip,
+  handleUploadFiles,
+  inputFileWithAddToScene
+} from '@etherealengine/editor/src/functions/assetFunctions'
 import { bytesToSize, unique } from '@etherealengine/editor/src/functions/utils'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
@@ -346,10 +347,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         await moveContent(data.fullName, newName, data.path, destinationPath, false)
       }
     } else {
-      const destinationPathCleaned = removeLeadingTrailingSlash(destinationPath)
-      const folder = destinationPathCleaned //destinationPathCleaned.substring(0, destinationPathCleaned.lastIndexOf('/') + 1)
-      const projectName = folder.split('/')[1]
-      const relativePath = folder.replace('projects/' + projectName + '/', '')
+      const path = selectedDirectory.get(NO_PROXY).slice(1)
+      const toUpload = [] as File[]
 
       await Promise.all(
         data.files.map(async (file) => {
@@ -358,36 +357,21 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             // creating directory
             await fileService.create(`${destinationPath}${file.name}`)
           } else {
-            try {
-              const name = processFileName(file.name)
-              await uploadToFeathersService(fileBrowserUploadPath, [file], {
-                args: [
-                  {
-                    project: projectName,
-                    path: relativePath + '/' + name,
-                    contentType: file.type
-                  }
-                ]
-              }).promise
-            } catch (err) {
-              NotificationService.dispatchNotify(err.message, { variant: 'error' })
-            }
+            toUpload.push(file)
           }
         })
       )
+
+      if (toUpload.length) {
+        try {
+          await handleUploadFiles(projectName, path, toUpload)
+        } catch (err) {
+          NotificationService.dispatchNotify(err.message, { variant: 'error' })
+        }
+      }
     }
 
     await refreshDirectory()
-  }
-
-  function removeLeadingTrailingSlash(str) {
-    if (str.startsWith('/')) {
-      str = str.substring(1)
-    }
-    if (str.endsWith('/')) {
-      str = str.substring(0, str.length - 1)
-    }
-    return str
   }
 
   const onBackDirectory = () => {
