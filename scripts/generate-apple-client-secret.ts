@@ -32,18 +32,24 @@ cli.enable('status')
 
 cli.main(async () => {
   try {
-    const privateKey = fs.readFileSync('Path to Apple SSO secret key.p8')
-    const keyId = 'XXXXXXXXXX' // Key ID of the Secret Key generated in Apple Developer Account. It can be found in the assoisated Key on Apple Developer Account.
-    const teamId = 'XXXXXXXXXX' // Team ID of the Apple Developer Account. It can be found in the app ID on the Apple Developer Account.
-    const clientId = 'XXXXXXXXXX' // The client ID of the service ID created in the Apple Developer Account.
+    const creds = cli.parse({
+      secretKeyPath: ['', 'Path to Apple SSO secret key.p8', 'string'],
+      keyId: ['', 'Key ID of the Secret Key generated in Apple Developer Account', 'string'],
+      teamId: ['', 'Team ID of the Apple Developer Account', 'string'],
+      clientId: ['', 'The client ID of the service ID created in the Apple Developer Account', 'string']
+    })
+    if (!creds.secretKeyPath || !creds.keyId || !creds.teamId || !creds.clientId) {
+      cli.fatal('Please provide all the required arguments')
+    }
+    const privateKey = fs.readFileSync(creds.secretKeyPath)
     const headers = {
-      kid: keyId,
+      kid: creds.keyId,
       typ: 'JWT'
     }
     const claims = {
-      iss: teamId,
+      iss: creds.teamId,
       aud: 'https://appleid.apple.com',
-      sub: clientId
+      sub: creds.clientId
     }
     logger.info(
       await jwt.sign(claims, privateKey, {
