@@ -26,7 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import logger from '@etherealengine/server-core/src/ServerLogger'
 import cli from 'cli'
 import fs from 'fs'
-import jwt from 'jsonwebtoken'
+
+const jwt = require('jsonwebtoken')
 
 cli.enable('status')
 
