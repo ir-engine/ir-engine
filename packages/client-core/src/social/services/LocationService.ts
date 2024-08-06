@@ -65,6 +65,7 @@ export const LocationSeed: LocationType = {
   },
   locationAuthorizedUsers: [],
   locationBans: [],
+  updatedBy: '' as UserID,
   createdAt: '',
   updatedAt: ''
 }
