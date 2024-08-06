@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
 import {
   FileBrowserContentType,
@@ -33,12 +32,10 @@ import {
   UserID,
   archiverPath,
   fileBrowserPath,
-  fileBrowserUploadPath,
   projectPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { Engine } from '@etherealengine/ecs'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import {
@@ -51,7 +48,11 @@ import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/
 import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
+import {
+  downloadBlobAsZip,
+  handleUploadFiles,
+  inputFileWithAddToScene
+} from '@etherealengine/editor/src/functions/assetFunctions'
 import { bytesToSize, unique } from '@etherealengine/editor/src/functions/utils'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
@@ -295,7 +296,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     fileQuery.setPage(0)
   }
 
-  const onSelect = (params: FileDataType) => {
+  const onSelect = (event, params: FileDataType) => {
     if (params.type !== 'folder') {
       props.onSelectionChanged({
         resourceUrl: params.url,
@@ -306,8 +307,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
       ClickPlacementState.setSelectedAsset(params.url)
     } else {
-      const newPath = `${selectedDirectory.value}${params.name}/`
-      changeDirectoryByPath(newPath)
+      if (event.detail === 2) {
+        const newPath = `${selectedDirectory.value}${params.name}/`
+        changeDirectoryByPath(newPath)
+      }
     }
   }
 
@@ -344,10 +347,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         await moveContent(data.fullName, newName, data.path, destinationPath, false)
       }
     } else {
-      const destinationPathCleaned = removeLeadingTrailingSlash(destinationPath)
-      const folder = destinationPathCleaned //destinationPathCleaned.substring(0, destinationPathCleaned.lastIndexOf('/') + 1)
-      const projectName = folder.split('/')[1]
-      const relativePath = folder.replace('projects/' + projectName + '/', '')
+      const path = selectedDirectory.get(NO_PROXY).slice(1)
+      const toUpload = [] as File[]
 
       await Promise.all(
         data.files.map(async (file) => {
@@ -356,36 +357,21 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             // creating directory
             await fileService.create(`${destinationPath}${file.name}`)
           } else {
-            try {
-              const name = processFileName(file.name)
-              await uploadToFeathersService(fileBrowserUploadPath, [file], {
-                args: [
-                  {
-                    project: projectName,
-                    path: relativePath + '/' + name,
-                    contentType: file.type
-                  }
-                ]
-              }).promise
-            } catch (err) {
-              NotificationService.dispatchNotify(err.message, { variant: 'error' })
-            }
+            toUpload.push(file)
           }
         })
       )
+
+      if (toUpload.length) {
+        try {
+          await handleUploadFiles(projectName, path, toUpload)
+        } catch (err) {
+          NotificationService.dispatchNotify(err.message, { variant: 'error' })
+        }
+      }
     }
 
     await refreshDirectory()
-  }
-
-  function removeLeadingTrailingSlash(str) {
-    if (str.startsWith('/')) {
-      str = str.substring(1)
-    }
-    if (str.endsWith('/')) {
-      str = str.substring(0, str.length - 1)
-    }
-    return str
   }
 
   const onBackDirectory = () => {
@@ -558,6 +544,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       }
     }
 
+    const resetSelection = () => {
+      fileProperties.set([])
+      ClickPlacementState.resetSelectedAsset()
+    }
+
     return (
       <div
         ref={fileDropRef}
@@ -568,8 +559,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         )}
         onClick={(event) => {
           event.stopPropagation()
-          fileProperties.set([])
-          ClickPlacementState.resetSelectedAsset()
+          resetSelection()
         }}
       >
         <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
@@ -583,7 +573,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   projectName={projectName}
                   onClick={(event, currentFile) => {
                     handleFileBrowserItemClick(event, currentFile)
-                    onSelect(file)
+                    onSelect(event, file)
+                  }}
+                  onContextMenu={(event, currentFile) => {
+                    if (!fileProperties.value.length) {
+                      fileProperties.set([file])
+                    }
                   }}
                   currentContent={currentContentRef}
                   handleDropItemsOnPanel={(data, dropOn) =>
@@ -593,13 +588,28 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                       fileProperties.value.map((file) => file.key)
                     )
                   }
-                  openFileProperties={() => {
+                  openFileProperties={(item) => {
+                    /** If the file is not in the list of files, add it */
+                    if (!(fileProperties.get(NO_PROXY) as FileDataType[]).includes(item)) {
+                      if (fileProperties.value.length > 1) {
+                        fileProperties.merge([item])
+                      } else {
+                        fileProperties.set([item])
+                      }
+                    }
                     PopoverState.showPopupover(
                       <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
                     )
                   }}
                   openDeleteFileModal={() => {
-                    PopoverState.showPopupover(<DeleteFileModal files={fileProperties.value as FileDataType[]} />)
+                    PopoverState.showPopupover(
+                      <DeleteFileModal
+                        files={fileProperties.value as FileDataType[]}
+                        onComplete={(err) => {
+                          resetSelection()
+                        }}
+                      />
+                    )
                   }}
                   openImageCompress={() => {
                     if (filesConsistOfContentType(fileProperties.value, 'image')) {
