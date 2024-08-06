@@ -1,0 +1,80 @@
+//- layout.pug
+doctype html
+html
+  head
+    style.
+      body{
+        font-family: Roboto, Arial;
+        height: 100%;
+        width: auto;
+        background: #fff;
+        margin: 0;
+        padding-top: 2.5rem;
+      }
+      .container {
+        width: 75%;
+        max-width: 75%;
+        height: auto;
+        margin: 0 auto;
+        background: #383650;
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        padding: 2rem;
+        padding-bottom: 4rem;
+        border-radius: 10px;
+      }
+      .main {
+        margin: 0 auto;
+        max-width: 90%;
+      }
+      .header {
+        padding-bottom: 2rem;
+      }
+      .logo{
+        display: block; 
+        margin: 0 auto; 
+        heigh: auto;
+        max-width: 3em;
+        max-height: 4em;
+      }
+      .title-container{
+        background: #5045AB;
+        padding: 2rem;
+      }
+      .message-container{
+        background: #fff;
+        padding: 2rem;
+      }
+      h1 {
+        color: #fff;
+        font-size: 1.8rem;
+        text-wrap: wrap;
+        text-overflow: ellipsis;
+      }
+      h2 {
+        color: #918EAD;
+      }
+      p {
+        color: #8f9299;
+        font-weight: bold;
+      }
+      a {
+        word-wrap: break-word;
+      }
+      .link-btn {
+        width: 96%;
+        display: inline-block;
+        background: #5045AB;
+        text-align: center;
+        padding: 0.6rem;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #fff !important;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+body
+    div(class='container')
+      .header
+        img(src=logo, class='logo')
+      .main
+        block content
