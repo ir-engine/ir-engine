@@ -212,6 +212,7 @@ type FileBrowserItemType = {
   staticResourceModifiedDates: Record<string, string>
   isSelected: boolean
   refreshDirectory: () => Promise<void>
+  selectedFileKeys: string[]
 }
 
 function fileConsistsOfContentType(file: FileDataType, contentType: string): boolean {
@@ -240,7 +241,8 @@ export function FileBrowserItem({
   isListView,
   staticResourceModifiedDates,
   isSelected,
-  refreshDirectory
+  refreshDirectory,
+  selectedFileKeys
 }: FileBrowserItemType) {
   const { t } = useTranslation()
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
@@ -322,7 +324,9 @@ export function FileBrowserItem({
         accept: [...SupportedFileTypes],
         drop: (dropItem) => handleDropItemsOnPanel(dropItem, item),
         canDrop: (dropItem: Record<string, unknown>) =>
-          item.isFolder && ('key' in dropItem || canDropItemOverFolder(item.key)),
+          item.isFolder &&
+          ('key' in dropItem || canDropItemOverFolder(item.key)) &&
+          !selectedFileKeys.includes(item.key),
         collect: (monitor) => ({
           isOver: monitor.canDrop() && monitor.isOver()
         })

@@ -630,6 +630,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   staticResourceModifiedDates={staticResourceModifiedDates.value}
                   isSelected={fileProperties.value.some(({ key }) => key === file.key)}
                   refreshDirectory={refreshDirectory}
+                  selectedFileKeys={fileProperties.value.map((file) => file.key)}
                 />
               ))}
             </>
