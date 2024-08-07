@@ -27,7 +27,8 @@ import React from 'react'
 
 import { clamp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 
-import { getStepSize, toPrecision } from '@etherealengine/editor/src/functions/utils'
+import { toPrecision } from '@etherealengine/common/src/utils/miscUtils'
+import { getStepSize } from '@etherealengine/editor/src/functions/utils'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { twMerge } from 'tailwind-merge'
 import Text from '../../../../primitives/tailwind/Text'

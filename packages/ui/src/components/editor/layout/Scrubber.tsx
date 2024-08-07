@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getStepSize, toPrecision } from '@etherealengine/editor/src/functions/utils'
+import { toPrecision } from '@etherealengine/common/src/utils/miscUtils'
+import { getStepSize } from '@etherealengine/editor/src/functions/utils'
 import { useHookstate } from '@etherealengine/hyperflux'
 import React, { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
