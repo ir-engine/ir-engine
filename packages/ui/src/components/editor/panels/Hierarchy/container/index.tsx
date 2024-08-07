@@ -551,7 +551,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
             </Button>
           }
         >
-          <div className="h-[600px] w-96 overflow-y-auto">
+          <div className="h-full w-96 overflow-y-auto">
             <ElementList type="prefabs" onSelect={() => setIsAddEntityMenuOpen(false)} />
           </div>
         </Popup>

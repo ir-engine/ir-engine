@@ -23,8 +23,8 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { clone, debounce, isEmpty } from 'lodash'
-import React, { useEffect, useRef } from 'react'
+import { clone, debounce } from 'lodash'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
@@ -55,12 +55,16 @@ import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
-import { TablePagination } from '../../../../../primitives/tailwind/Table'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
+import InfiniteScroll from '../../../../tailwind/InfiniteScroll'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
+import { ViewModeSettings } from '../../Files/container'
 import { FileIcon } from '../../Files/icon'
+import { FileUploadProgress } from '../../Files/upload/FileUploadProgress'
 import { AssetIconMap } from '../icons'
+
+const ASSETS_PAGE_LIMIT = 10
 
 type Category = {
   name: string
@@ -171,17 +175,17 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="mb-2 flex cursor-pointer flex-col items-center justify-center align-middle"
+      className="mb-3 flex h-auto w-40 cursor-pointer flex-col items-center text-center"
     >
       <span
-        className={`mb-[5px] h-40 w-40 text-[70px] ${
+        className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
           selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
         }`}
       >
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
 
-      <Tooltip title={name}>
+      <Tooltip content={name}>
         <span className="line-clamp-1 w-full text-wrap break-all text-sm text-[#F5F5F5]">{name}</span>
       </Tooltip>
 
@@ -233,10 +237,6 @@ const ResourceFile = (props: {
       </ContextMenu>
     </div>
   )
-}
-
-export const MenuDivider = () => {
-  return <div className="my-2 flex w-full border-b border-theme-primary" />
 }
 
 interface MetadataTableProps {
@@ -305,16 +305,21 @@ const AssetCategory = (props: {
   const handlePreview = () => {
     // TODO: add preview functionality
   }
-  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
+
+  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
 
   return (
     <div
       className={twMerge(
-        'flex h-9 cursor-pointer items-center gap-2 text-[#B2B5BD]',
+        'flex min-h-9 cursor-pointer items-center gap-2 text-[#B2B5BD]',
         category.depth === 0 && !category.collapsed && 'mt-0',
         selectedCategory?.name === category.name && 'rounded bg-[#191B1F]'
       )}
-      style={{ marginLeft: category.depth > 1 ? category.depth * 16 : 0 }}
+      style={{
+        marginLeft: category.depth > 1 ? category.depth * 16 : 0,
+        height: iconSize,
+        fontSize: iconSize
+      }}
       onClick={handleSelectCategory}
     >
       <Button
@@ -327,10 +332,9 @@ const AssetCategory = (props: {
       <div className="flex w-full items-center gap-1 pr-2">
         <span
           className={twMerge(
-            "flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]",
+            "flex flex-row items-center gap-2 text-nowrap font-['Figtree'] text-[#e7e7e7]",
             selectedCategory?.name === category.name && 'text-[#F5F5F5]'
           )}
-          style={{ fontSize: `${fontSize}px` }}
         >
           {category.name}
         </span>
@@ -432,11 +436,13 @@ const AssetPanel = () => {
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
   const searchText = useHookstate('')
   const originalPath = useMutableState(EditorState).projectName.value
-  const staticResourcesPagination = useHookstate({ totalPages: -1, currentPage: 0 })
+  const staticResourcesPagination = useHookstate({ total: 0, skip: 0 })
   const assetsPreviewContext = useHookstate({ selectAssetURL: '' })
   const parentCategories = useHookstate<Category[]>([])
 
-  const mapCategories = () => categories.set(mapCategoriesHelper(collapsedCategories.value))
+  const mapCategories = useCallback(() => {
+    categories.set(mapCategoriesHelper(collapsedCategories.value))
+  }, [categories, collapsedCategories])
   useEffect(mapCategories, [collapsedCategories])
 
   useEffect(() => {
@@ -446,8 +452,8 @@ const AssetPanel = () => {
   }, [categories, selectedCategory])
 
   const staticResourcesFindApi = () => {
-    loading.set(true)
     searchTimeoutCancelRef.current?.()
+    loading.set(true)
 
     const debouncedSearchQuery = debounce(() => {
       const tags = selectedCategory.value
@@ -478,17 +484,20 @@ const AssetPanel = () => {
             }
           : undefined,
         $sort: { mimeType: 1 },
-        $skip: staticResourcesPagination.currentPage.value * 10
+        $limit: ASSETS_PAGE_LIMIT,
+        $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
       } as StaticResourceQuery
 
       Engine.instance.api
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
-          searchedStaticResources.set(resources.data)
-          staticResourcesPagination.merge({ totalPages: Math.ceil(resources.total / 10) })
-        })
-        .then(() => {
+          if (staticResourcesPagination.skip.value > 0) {
+            searchedStaticResources.merge(resources.data)
+          } else {
+            searchedStaticResources.set(resources.data)
+          }
+          staticResourcesPagination.merge({ total: resources.total })
           loading.set(false)
         })
     }, 500)
@@ -497,49 +506,34 @@ const AssetPanel = () => {
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
   }
 
-  //reset pagination when search text changes
-  useEffect(() => {
-    staticResourcesPagination.currentPage.set(0)
-  }, [searchText])
+  useEffect(() => staticResourcesPagination.skip.set(0), [searchText])
+  useEffect(() => staticResourcesFindApi(), [searchText, selectedCategory, staticResourcesPagination.skip])
 
-  useEffect(() => {
-    staticResourcesFindApi()
-  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
-
-  const ResourceItems = () => {
-    if (loading.value) {
-      return (
-        <div className="col-start-2 flex items-center justify-center">
-          <LoadingView title={t('editor:loadingAssets')} fullSpace className="block h-12 w-12" />
+  const ResourceItems = () => (
+    <>
+      {searchedStaticResources.length === 0 && (
+        <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
+          {t('editor:layout.scene-assets.no-search-results')}
         </div>
-      )
-    }
-    return (
-      <>
-        {isEmpty(searchedStaticResources.value) && (
-          <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
-            {t('editor:layout.scene-assets.no-search-results')}
-          </div>
-        )}
-        {!isEmpty(searchedStaticResources.value) && (
-          <>
-            {searchedStaticResources.value.map((resource) => (
-              <ResourceFile
-                key={resource.id}
-                resource={resource as StaticResourceType}
-                selected={resource.url === assetsPreviewContext.selectAssetURL.value}
-                onClick={(props: AssetSelectionChangePropsType) => {
-                  assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
-                  ClickPlacementState.setSelectedAsset(props.resourceUrl)
-                }}
-                onChange={() => staticResourcesFindApi()}
-              />
-            ))}
-          </>
-        )}
-      </>
-    )
-  }
+      )}
+      {searchedStaticResources.length > 0 && (
+        <>
+          {searchedStaticResources.value.map((resource) => (
+            <ResourceFile
+              key={resource.id}
+              resource={resource as StaticResourceType}
+              selected={resource.url === assetsPreviewContext.selectAssetURL.value}
+              onClick={(props: AssetSelectionChangePropsType) => {
+                assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
+                ClickPlacementState.setSelectedAsset(props.resourceUrl)
+              }}
+              onChange={() => staticResourcesFindApi()}
+            />
+          ))}
+        </>
+      )}
+    </>
+  )
 
   const handleBack = () => {
     if (!parentCategories.length) {
@@ -559,7 +553,7 @@ const AssetPanel = () => {
 
   const handleSelectCategory = (category: Category) => {
     selectedCategory.set(clone(category))
-    staticResourcesPagination.currentPage.set(0)
+    staticResourcesPagination.skip.set(0)
     !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }
 
@@ -586,13 +580,13 @@ const AssetPanel = () => {
       <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
         <div className="ml-2"></div>
         <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
-          <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
+          <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
             <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={handleBack} />
           </Tooltip>
         </div>
 
         <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
-          <Tooltip title={t('editor:layout.filebrowser.refresh')}>
+          <Tooltip content={t('editor:layout.filebrowser.refresh')}>
             <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={handleRefresh} />
           </Tooltip>
         </div>
@@ -607,6 +601,8 @@ const AssetPanel = () => {
             />
           </Tooltip>
         </div> */}
+
+        <ViewModeSettings />
 
         <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
           <AssetsBreadcrumb
@@ -646,6 +642,7 @@ const AssetPanel = () => {
           {t('editor:layout.filebrowser.uploadAssets')}
         </Button>
       </div>
+      <FileUploadProgress />
       <div className="flex h-full w-full" onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}>
         <CategoriesList
           categories={categories.value as Category[]}
@@ -654,20 +651,20 @@ const AssetPanel = () => {
           onSelectCategory={handleSelectCategory}
           style={{ width: width.value }}
         />
-        <div className="flex w-[20px] cursor-pointer resize items-center">
+        <div className="flex w-[20px] cursor-pointer items-center">
           <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
         </div>
         <div className="flex h-full w-full flex-col overflow-auto">
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-2 p-2">
-            <ResourceItems />
-          </div>
-          <div className="mx-auto mb-10">
-            <TablePagination
-              totalPages={staticResourcesPagination.totalPages.value}
-              currentPage={staticResourcesPagination.currentPage.value}
-              onPageChange={(newPage) => staticResourcesPagination.merge({ currentPage: newPage })}
-            />
-          </div>
+          <InfiniteScroll
+            disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value}
+            onScrollBottom={() => staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)}
+          >
+            <div className="mt-auto flex h-full w-full flex-wrap gap-2">
+              <ResourceItems />
+            </div>
+            {loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
+          </InfiniteScroll>
+          <div className="mx-auto mb-10" />
         </div>
         {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
       </div>

@@ -53,47 +53,47 @@ export default function AccountIdentifiers({ user }: { user: UserType }) {
   return (
     <div className="flex items-center gap-2">
       {appleIp ? (
-        <Tooltip title={appleIp.accountIdentifier!}>
+        <Tooltip content={appleIp.accountIdentifier!}>
           <RiAppleFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {discordIp ? (
-        <Tooltip title={discordIp.accountIdentifier!}>
+        <Tooltip content={discordIp.accountIdentifier!}>
           <RiDiscordFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {googleIp ? (
-        <Tooltip title={googleIp.accountIdentifier!}>
+        <Tooltip content={googleIp.accountIdentifier!}>
           <RiGoogleFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {facebookIp ? (
-        <Tooltip title={facebookIp.accountIdentifier!}>
+        <Tooltip content={facebookIp.accountIdentifier!}>
           <RiMetaFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {twitterIp ? (
-        <Tooltip title={twitterIp.accountIdentifier!}>
+        <Tooltip content={twitterIp.accountIdentifier!}>
           <RiTwitterXFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {linkedinIp ? (
-        <Tooltip title={linkedinIp.accountIdentifier!}>
+        <Tooltip content={linkedinIp.accountIdentifier!}>
           <RiLinkedinFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {githubIp ? (
-        <Tooltip title={githubIp.accountIdentifier!}>
+        <Tooltip content={githubIp.accountIdentifier!}>
           <RiGithubFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {smsIp ? (
-        <Tooltip title={smsIp.accountIdentifier!}>
+        <Tooltip content={smsIp.accountIdentifier!}>
           <RiMessage2Line className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {emailIp ? (
-        <Tooltip title={emailIp.accountIdentifier!}>
+        <Tooltip content={emailIp.accountIdentifier!}>
           <MdEmail className="h-6 w-6" />
         </Tooltip>
       ) : null}
