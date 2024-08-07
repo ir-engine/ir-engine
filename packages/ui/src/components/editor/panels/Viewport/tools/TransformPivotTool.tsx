@@ -67,7 +67,7 @@ const TransformPivotTool = () => {
 
   return (
     <div id="transform-pivot" className="flex items-center">
-      <Tooltip title={t('editor:toolbar.transformPivot.toggleTransformPivot')}>
+      <Tooltip content={t('editor:toolbar.transformPivot.toggleTransformPivot')}>
         <Button
           startIcon={<FaRegDotCircle className="text-theme-input" />}
           onClick={toggleTransformPivot}
@@ -76,7 +76,7 @@ const TransformPivotTool = () => {
         />
       </Tooltip>
       <Tooltip
-        title={
+        content={
           transformPivotOptions.find((pivot) => pivot.value === editorHelperState.transformPivot.value)?.description
         }
       >
