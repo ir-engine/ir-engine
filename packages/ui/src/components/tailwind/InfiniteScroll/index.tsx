@@ -23,33 +23,51 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { TabData } from 'rc-dock'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import Tooltip from '../../../../primitives/tailwind/Tooltip'
-import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import PropertiesPanelContainer from './container'
+import React, { useEffect, useRef } from 'react'
 
-export const PropertiesPanelTitle = () => {
-  const { t } = useTranslation()
+interface IInfiniteScrollProps {
+  onScrollBottom: () => void
+  children: React.ReactNode
+  disableEvent?: boolean
+  threshold?: number
+  className?: string
+}
+
+export default function InfiniteScroll({
+  onScrollBottom,
+  threshold = 1,
+  disableEvent,
+  children
+}: IInfiniteScrollProps) {
+  const observerRef = useRef<HTMLElement>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval>>()
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !disableEvent) {
+          onScrollBottom()
+          intervalRef.current = setInterval(() => onScrollBottom(), 1000)
+        } else {
+          clearInterval(intervalRef.current)
+        }
+      },
+      { threshold }
+    )
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current)
+    }
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [disableEvent])
 
   return (
-    <div>
-      <PanelDragContainer>
-        <PanelTitle>
-          <Tooltip content={t('editor:properties.info')}>{t('editor:properties.title')}</Tooltip>
-        </PanelTitle>
-      </PanelDragContainer>
+    <div style={{ all: 'unset' }}>
+      {children}
+      <span ref={observerRef} style={{ all: 'unset' }} />
     </div>
   )
 }
-
-export const PropertiesPanelTab: TabData = {
-  id: 'propertiesPanel',
-  closable: true,
-  cached: true,
-  title: <PropertiesPanelTitle />,
-  content: <PropertiesPanelContainer />
-}
-
-export default PropertiesPanelTitle
