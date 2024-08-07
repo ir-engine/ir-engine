@@ -31,6 +31,7 @@ import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDia
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
+import { FaRegCircleCheck, FaRegCircleXmark } from 'react-icons/fa6'
 
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthState } from '../../../user/services/AuthService'
@@ -120,6 +121,11 @@ export default function UserTable({
         name: row.name,
         avatar: <AvatarImage src={row?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
+        acceptedTOS: row.acceptedTOS ? (
+          <FaRegCircleCheck className="h-5 w-5 text-theme-iconGreen" />
+        ) : (
+          <FaRegCircleXmark className="h-5 w-5 text-theme-iconRed" />
+        ),
         isGuest: row.isGuest.toString(),
         action: (
           <div className="flex items-center justify-start gap-3">
