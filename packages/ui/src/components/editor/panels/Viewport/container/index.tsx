@@ -63,6 +63,23 @@ import TransformSpaceTool from '../tools/TransformSpaceTool'
 
 const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
   const projectName = useMutableState(EditorState).projectName
+  const isLoading = useHookstate<boolean>(false)
+  const itemsToLoad = useHookstate<number>(0)
+
+  const incrementItemsToLoad = () => {
+    itemsToLoad.set((prev) => prev + 1)
+    isLoading.set(true)
+  }
+
+  const decrementItemsToLoad = () => {
+    itemsToLoad.set((prev) => {
+      const newCount = prev - 1
+      if (newCount === 0) {
+        isLoading.set(false)
+      }
+      return newCount
+    })
+  }
 
   const [{ isDragging }, dropRef] = useDrop({
     accept: [ItemTypes.Component, ...SupportedFileTypes],
@@ -70,15 +87,24 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
       isDragging: monitor.getItem() !== null && monitor.canDrop() && monitor.isOver()
     }),
     drop(item: SceneElementType | FileType | DnDFileType, monitor) {
+      incrementItemsToLoad()
+
       const vec3 = new Vector3()
       getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
+
       if ('componentJsonID' in item) {
         EditorControlFunctions.createObjectFromSceneElement([
           { name: item.componentJsonID },
           { name: TransformComponent.jsonID, props: { position: vec3 } }
         ])
+        decrementItemsToLoad()
       } else if ('url' in item) {
         addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+          .catch((error) => {
+            console.error('Error adding media node:', error)
+            NotificationService.dispatchNotify('Error adding media node', { variant: 'error' })
+          })
+          .finally(decrementItemsToLoad)
       } else if ('files' in item) {
         const dropDataTransfer: DataTransfer = monitor.getItem()
 
@@ -97,15 +123,31 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
               }).promise as Promise<string>
             } catch (err) {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
+              return null
             }
           })
-        ).then((urls) => {
-          const vec3 = new Vector3()
-          urls.forEach((url) => {
-            if (!url) return
-            addMediaNode(url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+        )
+          .then((urls) => {
+            const vec3 = new Vector3()
+            Promise.all(
+              urls.map((url) => {
+                if (!url) return Promise.resolve()
+                return addMediaNode(url, undefined, undefined, [
+                  { name: TransformComponent.jsonID, props: { position: vec3 } }
+                ])
+              })
+            )
+              .catch((error) => {
+                console.error('Error adding media nodes:', error)
+                NotificationService.dispatchNotify('Error adding media nodes', { variant: 'error' })
+              })
+              .finally(decrementItemsToLoad)
           })
-        })
+          .catch((error) => {
+            console.error('Error uploading files:', error)
+            NotificationService.dispatchNotify('Error uploading files', { variant: 'error' })
+            decrementItemsToLoad()
+          })
       }
     }
   })
@@ -116,6 +158,12 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
       className={twMerge('h-full w-full border border-white', isDragging ? 'border-4' : 'border-none')}
     >
       {children}
+      {isLoading.value && (
+        // immediately dim the viewport, then show LoadingView after delay
+        <div className="absolute inset-0 z-[80] flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300">
+          <LoadingView fullSpace delaySpinner className="block h-12 w-12" />
+        </div>
+      )}
     </div>
   )
 }
