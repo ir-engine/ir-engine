@@ -44,7 +44,7 @@ import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { RendererState } from '../RendererState'
-import { RendererComponent } from '../WebGLRendererSystem'
+import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
 import { HighlightComponent, HighlightSystem } from './HighlightComponent'
 import { PostProcessingComponent } from './PostProcessingComponent'
 import { SceneComponent } from './SceneComponents'
@@ -59,6 +59,24 @@ describe('HighlightComponent', () => {
 
 describe('HighlightSystem', () => {
   describe('IDs', () => {
+    it('should initialize the HighlightSystem.uuid field with the expected value', () => {
+      assert.equal(SystemDefinitions.get(HighlightSystem)!.uuid, 'HighlightSystem')
+    })
+  }) //:: IDs
+
+  describe('insert', () => {
+    it('should be set to run before the WebGLRendererSystem', () => {
+      const insert = SystemDefinitions.get(HighlightSystem)!.insert
+      assert.notEqual(insert, undefined)
+      assert.equal(insert?.before, WebGLRendererSystem)
+      assert.equal(insert?.with, undefined)
+      assert.equal(insert?.after, undefined)
+    })
+  })
+
+  /**
+  // @todo
+  describe('execute', () => {
     beforeEach(async () => {
       createEngine()
     })
@@ -66,14 +84,8 @@ describe('HighlightSystem', () => {
     afterEach(() => {
       return destroyEngine()
     })
-
-    it('should initialize the HighlightSystem.uuid field with the expected value', () => {
-      assert.equal(SystemDefinitions.get(HighlightSystem)!.uuid, 'HighlightSystem')
-    })
-  }) //:: IDs
-
-  describe('insert', () => {})
-  describe('execute', () => {})
+  })
+  */
 
   describe('General Purpose', () => {
     let rootEntity = UndefinedEntity
