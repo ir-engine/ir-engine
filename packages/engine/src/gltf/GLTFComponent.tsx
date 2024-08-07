@@ -48,7 +48,6 @@ import { dispatchAction, getState, NO_PROXY, startReactor, useHookstate } from '
 
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
-import { ModelComponent } from '../scene/components/ModelComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
@@ -92,6 +91,11 @@ export const GLTFComponent = defineComponent({
     if (typeof json?.src === 'string') component.src.set(json.src)
   },
 
+  useDependenciesLoaded(entity: Entity) {
+    const dependencies = useComponent(entity, GLTFComponent).dependencies
+    return !!(dependencies.value && !dependencies.keys?.length)
+  },
+
   reactor: () => {
     const entity = useEntityContext()
     const gltfComponent = useComponent(entity, GLTFComponent)
@@ -105,27 +109,16 @@ export const GLTFComponent = defineComponent({
 })
 
 const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
+  const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(props.entity)
   const resourceQuery = useQuery([SourceComponent, ResourcePendingComponent])
   const sourceEntities = useHookstate(SourceComponent.entitiesBySourceState[props.documentID])
 
   useEffect(() => {
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
     if (!getState(GLTFDocumentState)[props.documentID]) return
-    const document = getState(GLTFDocumentState)[props.documentID]
-    const modelNodes = document.nodes?.filter((node) => !!node.extensions?.[ModelComponent.jsonID])
-    if (modelNodes) {
-      for (const node of modelNodes) {
-        //check if an entity exists for this node, and has a model component
-        const uuid = node.extensions![UUIDComponent.jsonID] as EntityUUID
-        if (!UUIDComponent.entitiesByUUIDState[uuid]) return
-        const entity = UUIDComponent.entitiesByUUIDState[uuid].value
-        const model = getOptionalComponent(entity, ModelComponent)
-        //ensure that model contents have been loaded into the scene
-        if (!model?.scene) return
-      }
-    }
+
     const entities = resourceQuery.filter((e) => getComponent(e, SourceComponent) === props.documentID)
-    if (!entities.length) {
+    if (!entities.length && dependenciesLoaded) {
       getMutableComponent(props.entity, GLTFComponent).progress.set(100)
       return
     }
@@ -149,7 +142,7 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
 
     const percentage = total === 0 ? 100 : (progress / total) * 100
     getMutableComponent(props.entity, GLTFComponent).progress.set(percentage)
-  }, [resourceQuery, sourceEntities])
+  }, [resourceQuery, sourceEntities, dependenciesLoaded])
 
   return null
 }
