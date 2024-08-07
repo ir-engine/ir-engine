@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useRef } from 'react'
 import { HiCheck } from 'react-icons/hi'
 
 import { twMerge } from 'tailwind-merge'
@@ -40,6 +40,8 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
 }
 
 const Checkbox = ({ className, containerClassName, label, value, onChange, disabled }: CheckboxProps) => {
+  const ref = useRef<HTMLDivElement>(null)
+
   return (
     <div
       onClick={() => {
@@ -48,7 +50,26 @@ const Checkbox = ({ className, containerClassName, label, value, onChange, disab
         }
       }}
       className={twMerge('flex cursor-pointer items-end space-x-2', containerClassName)}
+      ref={ref}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter') {
+          if (!disabled) {
+            onChange(!value)
+          }
+        }
+      }}
     >
+      <input
+        type="checkbox"
+        className="scale-x-0 scale-y-0"
+        onFocus={(e) => {
+          ref.current?.focus()
+          ref.current?.classList.add('border-2', 'border-white')
+        }}
+        onBlur={(e) => {
+          ref.current?.classList.remove('border-2', 'border-white')
+        }}
+      />
       <div
         className={twMerge(
           'grid h-4 w-4 place-items-center rounded border border-theme-primary',
