@@ -63,8 +63,8 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
    * @param token generated token
    * @returns {function} sent email
    */
-  async sendEmail(toEmail: string, token: string): Promise<void> {
-    const hashLink = `${config.server.url}/login/${token}`
+  async sendEmail(toEmail: string, token: string, redirectUrl?: string): Promise<void> {
+    const hashLink = `${config.server.url}/login/${token}${redirectUrl ? `?redirectUrl=${redirectUrl}` : ''}`
     let username = '' as UserName
 
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-email.pug')
@@ -95,8 +95,8 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
    * @returns {function}  send sms
    */
 
-  async sendSms(mobile: string, token: string): Promise<void> {
-    const hashLink = `${config.server.url}/login/${token}`
+  async sendSms(mobile: string, token: string, redirectUrl?: string): Promise<void> {
+    const hashLink = `${config.server.url}/login/${token}${redirectUrl ? `?redirectUrl=${redirectUrl}` : ''}`
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-sms.pug')
     const compiledHTML = pug
       .compileFile(templatePath)({
@@ -170,9 +170,9 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
       })
 
       if (data.type === 'email') {
-        await this.sendEmail(data.email, loginToken.token)
+        await this.sendEmail(data.email, loginToken.token, data.redirectUrl)
       } else if (data.type === 'sms') {
-        await this.sendSms(data.mobile, loginToken.token)
+        await this.sendSms(data.mobile, loginToken.token, data.redirectUrl)
       }
     }
     return data

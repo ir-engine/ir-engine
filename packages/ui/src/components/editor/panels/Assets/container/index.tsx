@@ -59,6 +59,7 @@ import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import InfiniteScroll from '../../../../tailwind/InfiniteScroll'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
+import { ViewModeSettings } from '../../Files/container'
 import { FileIcon } from '../../Files/icon'
 import { FileUploadProgress } from '../../Files/upload/FileUploadProgress'
 import { AssetIconMap } from '../icons'
@@ -174,10 +175,10 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="mb-2 flex cursor-pointer flex-col items-center justify-center align-middle"
+      className="mb-3 flex h-auto w-40 cursor-pointer flex-col items-center text-center"
     >
       <span
-        className={`mb-[5px] h-40 w-40 text-[70px] ${
+        className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
           selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
         }`}
       >
@@ -304,16 +305,21 @@ const AssetCategory = (props: {
   const handlePreview = () => {
     // TODO: add preview functionality
   }
-  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
+
+  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
 
   return (
     <div
       className={twMerge(
-        'flex h-9 cursor-pointer items-center gap-2 text-[#B2B5BD]',
+        'flex min-h-9 cursor-pointer items-center gap-2 text-[#B2B5BD]',
         category.depth === 0 && !category.collapsed && 'mt-0',
         selectedCategory?.name === category.name && 'rounded bg-[#191B1F]'
       )}
-      style={{ marginLeft: category.depth > 1 ? category.depth * 16 : 0 }}
+      style={{
+        marginLeft: category.depth > 1 ? category.depth * 16 : 0,
+        height: iconSize,
+        fontSize: iconSize
+      }}
       onClick={handleSelectCategory}
     >
       <Button
@@ -326,10 +332,9 @@ const AssetCategory = (props: {
       <div className="flex w-full items-center gap-1 pr-2">
         <span
           className={twMerge(
-            "flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]",
+            "flex flex-row items-center gap-2 text-nowrap font-['Figtree'] text-[#e7e7e7]",
             selectedCategory?.name === category.name && 'text-[#F5F5F5]'
           )}
-          style={{ fontSize: `${fontSize}px` }}
         >
           {category.name}
         </span>
@@ -597,6 +602,8 @@ const AssetPanel = () => {
           </Tooltip>
         </div> */}
 
+        <ViewModeSettings />
+
         <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
           <AssetsBreadcrumb
             parentCategories={parentCategories.get(NO_PROXY) as Category[]}
@@ -644,7 +651,7 @@ const AssetPanel = () => {
           onSelectCategory={handleSelectCategory}
           style={{ width: width.value }}
         />
-        <div className="flex w-[20px] cursor-pointer resize items-center">
+        <div className="flex w-[20px] cursor-pointer items-center">
           <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
         </div>
         <div className="flex h-full w-full flex-col overflow-auto">
@@ -652,7 +659,7 @@ const AssetPanel = () => {
             disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value}
             onScrollBottom={() => staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)}
           >
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-2 p-2">
+            <div className="mt-auto flex h-full w-full flex-wrap gap-2">
               <ResourceItems />
             </div>
             {loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
