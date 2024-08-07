@@ -29,8 +29,7 @@ import { defineQuery, defineSystem, Entity, getComponent } from '@etherealengine
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
 
-import { Vector3_Zero } from '../../common/constants/MathConstants'
-import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
 import { EntityTreeComponent, getAncestorWithComponent, iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../../transform/systems/TransformSystem'
@@ -38,9 +37,8 @@ import { Physics } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 
-const _vec3 = new Vector3()
-const _quat = new Quaternion()
-
+const localMatrix = new Matrix4()
+const parentMatrixInverse = new Matrix4()
 const position = new Vector3()
 const rotation = new Quaternion()
 const scale = new Vector3()
@@ -80,13 +78,13 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
   const transform = getComponent(entity, TransformComponent)
 
-  const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
-  const sceneTransform = getComponent(sceneEntity, TransformComponent)
-  // if the entity has a parent, we need to use the scene space
-  TransformComponent.getMatrixRelativeToScene(entity, mat4)
-  mat4.decompose(_vec3, _quat, scale)
-  transform.matrix.compose(position, rotation, scale)
-  transform.matrixWorld.multiplyMatrices(sceneTransform.matrixWorld, transform.matrix)
+  const rigidBodyEntity = getAncestorWithComponent(entity, RigidBodyComponent)
+  const rigidBodyTransform = getComponent(rigidBodyEntity, TransformComponent)
+  parentMatrixInverse.copy(rigidBodyTransform.matrixWorld).invert()
+  localMatrix.compose(position, rotation, Vector3_One).premultiply(parentMatrixInverse)
+  localMatrix.decompose(position, rotation, scale)
+  transform.matrix.compose(position, rotation, transform.scale)
+  transform.matrixWorld.multiplyMatrices(rigidBodyTransform.matrixWorld, transform.matrix)
 
   /** set all children dirty deeply, but set this entity to clean */
   iterateEntityNode(entity, setDirty)

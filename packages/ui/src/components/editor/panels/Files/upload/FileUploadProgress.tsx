@@ -23,19 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useUploadingFiles } from '@etherealengine/client-core/src/util/upload'
 import React from 'react'
-import Tooltip, { TooltipProps } from '../../../primitives/tailwind/Tooltip'
+import { useTranslation } from 'react-i18next'
+import Progress from '../../../../../primitives/tailwind/Progress'
 
-export function InfoTooltip({ title, info, ...props }: TooltipProps & { info?: string }) {
-  const tooltipTitle = info ? (
-    <p>
-      {title}
-      <hr className="my-0.5" />
-      {info}
-    </p>
-  ) : (
-    title
-  )
+export const FileUploadProgress = () => {
+  const { t } = useTranslation()
+  const { completed, total, progress } = useUploadingFiles()
 
-  return <Tooltip title={tooltipTitle} {...props} />
+  return total ? (
+    <div className="flex h-auto w-full justify-center pb-2 pt-2">
+      <div className="flex w-1/2">
+        <span className="inline-block pr-2 text-xs font-normal leading-none text-theme-primary">
+          {t('editor:layout.filebrowser.uploadingFiles', { completed, total })}
+        </span>
+        <div className="basis-1/2">
+          <Progress value={progress} />
+        </div>
+      </div>
+    </div>
+  ) : null
 }
