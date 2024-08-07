@@ -79,6 +79,7 @@ import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Slider from '../../../../../primitives/tailwind/Slider'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import { Popup } from '../../../../tailwind/Popup'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
@@ -549,6 +550,27 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       ClickPlacementState.resetSelectedAsset()
     }
 
+    const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
+    const handleClose = () => {
+      setAnchorEvent(undefined)
+    }
+
+    const pasteContent = async () => {
+      console.log(selectedDirectory.value)
+      handleClose()
+      if (isLoading) return
+
+      fileService.update(null, {
+        oldProject: projectName,
+        newProject: projectName,
+        oldName: currentContentRef.current.item.fullName,
+        newName: currentContentRef.current.item.fullName,
+        oldPath: currentContentRef.current.item.path,
+        newPath: currentContentRef.current.item.path,
+        isCopy: currentContentRef.current.isCopy
+      })
+    }
+
     return (
       <div
         ref={fileDropRef}
@@ -560,6 +582,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         onClick={(event) => {
           event.stopPropagation()
           resetSelection()
+        }}
+        onContextMenu={(event) => {
+          event.preventDefault()
+          event.stopPropagation()
+          setAnchorEvent(event)
         }}
       >
         <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
@@ -654,6 +681,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             />
           )}*/}
         </div>
+
+        <ContextMenu anchorEvent={anchorEvent} onClose={handleClose}>
+          <Button variant="outline" size="small" fullWidth onClick={() => createNewFolder()}>
+            {t('editor:layout.filebrowser.addNewFolder')}
+          </Button>
+          <Button variant="outline" size="small" fullWidth disabled={!currentContentRef.current} onClick={pasteContent}>
+            {t('editor:layout.filebrowser.pasteAsset')}
+          </Button>
+        </ContextMenu>
       </div>
     )
   }

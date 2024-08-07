@@ -294,6 +294,7 @@ export function FileBrowserItem({
   }
 
   const pasteContent = async () => {
+    console.log(item.isFolder ? item.path + item.fullName : item.path)
     handleClose()
     if (isFilesLoading) return
 
