@@ -33,7 +33,7 @@ const argTypes: ArgTypes = {}
 const TooltipStory = (title) => {
   return (
     <div className="flex h-screen items-center justify-center">
-      <Tooltip title={title}>
+      <Tooltip content={title}>
         <Button title="Submit" />
       </Tooltip>
     </div>

@@ -35,7 +35,7 @@ import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/
 
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 
-const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList) => {
+export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   return Promise.all(
     Array.from(files).map((file) => {
       const fileDirectory = file.webkitRelativePath || file.name
