@@ -94,7 +94,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
                     contentType: file.type
                   }
                 ]
-              }).promise as Promise<string>
+              }).promise as Promise<string[]>
             } catch (err) {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
             }
@@ -102,8 +102,8 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
         ).then((urls) => {
           const vec3 = new Vector3()
           urls.forEach((url) => {
-            if (!url) return
-            addMediaNode(url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+            if (!url || url.length < 1 || !url[0] || url[0] === '') return
+            addMediaNode(url[0], undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
           })
         })
       }
