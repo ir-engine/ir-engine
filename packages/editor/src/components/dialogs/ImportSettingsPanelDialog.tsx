@@ -78,7 +78,7 @@ const ImageCompressionBox = ({ compressProperties }: { compressProperties: State
           onChange={compressProperties.flipY.set}
           label={t('editor:properties.model.transform.flipY')}
         />
-        <Tooltip title={t('editor:properties.model.transform.flipYTooltip')}>
+        <Tooltip content={t('editor:properties.model.transform.flipYTooltip')}>
           <HiOutlineInformationCircle />
         </Tooltip>
       </div>
@@ -88,7 +88,7 @@ const ImageCompressionBox = ({ compressProperties }: { compressProperties: State
           onChange={compressProperties.srgb.set}
           label={t('editor:properties.model.transform.srgb')}
         />
-        <Tooltip title={t('editor:properties.model.transform.srgbTooltip')}>
+        <Tooltip content={t('editor:properties.model.transform.srgbTooltip')}>
           <HiOutlineInformationCircle />
         </Tooltip>
       </div>
@@ -98,7 +98,7 @@ const ImageCompressionBox = ({ compressProperties }: { compressProperties: State
           onChange={compressProperties.mipmaps.set}
           label={t('editor:properties.model.transform.mipmaps')}
         />
-        <Tooltip title={t('editor:properties.model.transform.mipmapsTooltip')}>
+        <Tooltip content={t('editor:properties.model.transform.mipmapsTooltip')}>
           <HiOutlineInformationCircle />
         </Tooltip>
       </div>
@@ -108,7 +108,7 @@ const ImageCompressionBox = ({ compressProperties }: { compressProperties: State
           onChange={compressProperties.normalMap.set}
           label={t('editor:properties.model.transform.normalMap')}
         />
-        <Tooltip title={t('editor:properties.model.transform.normalMapTooltip')}>
+        <Tooltip content={t('editor:properties.model.transform.normalMapTooltip')}>
           <HiOutlineInformationCircle />
         </Tooltip>
       </div>
