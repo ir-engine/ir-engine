@@ -64,10 +64,10 @@ export const useZendesk = () => {
     script.async = true
     script.src = `https://static.zdassets.com/ekr/snippet.js?key=${config.client.zendesk.key}`
     document.body.appendChild(script)
-    initialized.set(true)
 
     script.addEventListener('load', () => {
       if ('zE' in window) {
+        initialized.set(true)
         hideWidget()
         authenticateUser()
       }

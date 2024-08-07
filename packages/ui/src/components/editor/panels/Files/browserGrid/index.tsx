@@ -117,7 +117,10 @@ export const FileTableListBody = ({
 
   const tableColumns = {
     name: (
-      <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]" style={{ fontSize: `${fontSize}px` }}>
+      <span
+        className="flex h-7 max-h-7 flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]"
+        style={{ fontSize: `${fontSize}px` }}
+      >
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
         <FileIcon isMinified={true} thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
         {file.fullName}
@@ -130,8 +133,7 @@ export const FileTableListBody = ({
   return (
     <tr
       key={file.key}
-      className={`text-[#a3a3a3] hover:bg-theme-surfaceInput`}
-      style={{ height: `${fontSize * 3}px` }}
+      className={`h-9 text-[#a3a3a3] hover:bg-[#191B1F]`}
       onContextMenu={onContextMenu}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
@@ -140,7 +142,7 @@ export const FileTableListBody = ({
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
         .map((header, idx) => (
-          <td key={idx} className="text-base" style={{ fontSize: `${fontSize}px` }}>
+          <td key={idx} style={{ fontSize: `${fontSize}px` }}>
             {tableColumns[header]}
           </td>
         ))}
@@ -164,13 +166,13 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   return (
     <div
       className={`flex h-auto max-h-32 w-28 cursor-pointer flex-col items-center text-center ${
-        props.isSelected ? 'rounded-md bg-blue-700/20' : ''
+        props.isSelected ? 'rounded bg-[#191B1F]' : ''
       }`}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
       onClick={props.onClick}
     >
       <div
-        className="mx-4 mt-2"
+        className="mx-4 mt-2 font-['Figtree']"
         style={{
           height: iconSize,
           width: iconSize,
@@ -185,7 +187,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
         />
       </div>
 
-      <Tooltip title={t(props.item.fullName)}>
+      <Tooltip content={t(props.item.fullName)}>
         <div className="text-secondary line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
       </Tooltip>
     </div>
@@ -198,11 +200,12 @@ type FileBrowserItemType = {
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
   openModelCompress: () => void
   openImageCompress: () => void
-  openFileProperties: () => void
+  openFileProperties: (item: FileDataType) => void
   openDeleteFileModal: () => void
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
+  onContextMenu: (event: React.MouseEvent, currentFile: FileDataType) => void
   handleDropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   addFolder: () => void
   isListView: boolean
@@ -226,6 +229,7 @@ export function FileBrowserItem({
   currentContent,
   projectName,
   onClick,
+  onContextMenu,
   handleDropItemsOnPanel,
   openModelCompress,
   openImageCompress,
@@ -246,6 +250,7 @@ export function FileBrowserItem({
     event.preventDefault()
     event.stopPropagation()
     setAnchorEvent(event)
+    onContextMenu(event, item)
   }
 
   const handleClose = () => {
@@ -357,7 +362,7 @@ export function FileBrowserItem({
         </div>
       )}
 
-      <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
+      <ContextMenu anchorEvent={anchorEvent} onClose={handleClose}>
         <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           <Button variant="outline" size="small" fullWidth onClick={addFolder}>
             {t('editor:layout.filebrowser.addNewFolder')}
@@ -416,7 +421,7 @@ export function FileBrowserItem({
             size="small"
             fullWidth
             onClick={() => {
-              openFileProperties()
+              openFileProperties(item)
               handleClose()
             }}
           >
