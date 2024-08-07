@@ -23,28 +23,51 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BsStars } from 'react-icons/bs'
-import { FaRegCircle } from 'react-icons/fa6'
-import { FiSun } from 'react-icons/fi'
-import { LuWaves } from 'react-icons/lu'
-import { PiMountains } from 'react-icons/pi'
-import { RxCube } from 'react-icons/rx'
-import { TbMaximize, TbRoute } from 'react-icons/tb'
+import React, { useEffect, useRef } from 'react'
 
-import React from 'react'
-
-export const iconMap: { [key: string]: React.ReactElement } = {
-  Model: <RxCube />,
-  Material: <FaRegCircle />,
-  Texture: <LuWaves />,
-  Image: <PiMountains />,
-  Lighting: <FiSun />,
-  'Particle system': <BsStars />,
-  'Visual script': <TbRoute />
+interface IInfiniteScrollProps {
+  onScrollBottom: () => void
+  children: React.ReactNode
+  disableEvent?: boolean
+  threshold?: number
+  className?: string
 }
 
-const defaultIcon = <TbMaximize />
+export default function InfiniteScroll({
+  onScrollBottom,
+  threshold = 1,
+  disableEvent,
+  children
+}: IInfiniteScrollProps) {
+  const observerRef = useRef<HTMLElement>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval>>()
 
-export const AssetIconMap = ({ name }): React.ReactElement => {
-  return <div className="flex h-4 w-4 items-center justify-center">{iconMap[name] ?? defaultIcon}</div>
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !disableEvent) {
+          onScrollBottom()
+          intervalRef.current = setInterval(() => onScrollBottom(), 1000)
+        } else {
+          clearInterval(intervalRef.current)
+        }
+      },
+      { threshold }
+    )
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current)
+    }
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [disableEvent])
+
+  return (
+    <div style={{ all: 'unset' }}>
+      {children}
+      <span ref={observerRef} style={{ all: 'unset' }} />
+    </div>
+  )
 }
