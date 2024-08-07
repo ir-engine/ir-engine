@@ -29,8 +29,8 @@ import React, { useEffect } from 'react'
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import {
   Component,
+  ComponentDependencyMap,
   ComponentJSONIDMap,
-  ComponentResourceMap,
   ComponentType,
   defineComponent,
   Entity,
@@ -65,7 +65,7 @@ const buildComponentDependencies = (json: GLTF.IGLTF) => {
     const uuid = node.extensions[UUIDComponent.jsonID] as ComponentType<typeof UUIDComponent>
     const extensions = Object.keys(node.extensions)
     for (const extension of extensions) {
-      if (ComponentResourceMap.get(extension)) {
+      if (ComponentDependencyMap.get(extension)) {
         if (!dependencies[uuid]) dependencies[uuid] = []
         dependencies[uuid].push(ComponentJSONIDMap.get(extension)!)
       }
