@@ -40,7 +40,7 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
-import { projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
@@ -50,8 +50,8 @@ import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 
 import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
-import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 import DataTable from '../../common/Table'
+import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 import ManageUserPermissionModal from './ManageUserPermissionModal'
@@ -88,6 +88,11 @@ export default function ProjectTable(props: { search: string }) {
 
   const handleEnabledChange = async (project: ProjectType) => {
     await ProjectService.setEnabled(project.id, !project.enabled)
+    projectQuery.refetch()
+  }
+
+  const handleVisibilityChange = async (project: ProjectType) => {
+    await ProjectService.setVisibility(project.id, project.visibility === 'private' ? 'public' : 'private')
     projectQuery.refetch()
   }
 
@@ -216,12 +221,12 @@ export default function ProjectTable(props: { search: string }) {
               {row.name}
             </a>
             {!!row.needsRebuild && (
-              <Tooltip title={t('admin:components.project.outdatedBuild')} position="right center">
+              <Tooltip content={t('admin:components.project.outdatedBuild')} position="right center">
                 <HiOutlineExclamationCircle className="text-orange-400" size={22} />
               </Tooltip>
             )}
             {!!row.hasLocalChanges && (
-              <Tooltip title={t('admin:components.project.hasLocalChanges')} position="right center">
+              <Tooltip content={t('admin:components.project.hasLocalChanges')} position="right center">
                 <HiOutlineExclamationCircle className="text-yellow-400" size={22} />
               </Tooltip>
             )}
@@ -235,9 +240,10 @@ export default function ProjectTable(props: { search: string }) {
             onChange={() => handleEnabledChange(row)}
           />
         ),
+        visibility: <Toggle value={row.visibility === 'public'} onChange={() => handleVisibilityChange(row)} />,
         commitSHA: (
           <span className="flex items-center justify-between">
-            <Tooltip title={row.commitSHA || ''}>
+            <Tooltip content={row.commitSHA || ''}>
               <>{row.commitSHA?.slice(0, 8)}</>
             </Tooltip>{' '}
             <CopyText text={row.commitSHA || ''} className="ml-1" />

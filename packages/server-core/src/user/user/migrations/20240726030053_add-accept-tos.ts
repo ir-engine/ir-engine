@@ -23,19 +23,42 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import Tooltip, { TooltipProps } from '../../../primitives/tailwind/Tooltip'
+import type { Knex } from 'knex'
 
-export function InfoTooltip({ title, info, ...props }: TooltipProps & { info?: string }) {
-  const tooltipTitle = info ? (
-    <p>
-      {title}
-      <hr className="my-0.5" />
-      {info}
-    </p>
-  ) : (
-    title
-  )
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 
-  return <Tooltip title={tooltipTitle} {...props} />
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const acceptedTOSColumnExists = await knex.schema.hasColumn(userPath, 'acceptedTOS')
+
+  if (!acceptedTOSColumnExists) {
+    await knex.schema.alterTable(userPath, async (table) => {
+      table.boolean('acceptedTOS').nullable().defaultTo(false)
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const acceptedTOSColumnExists = await knex.schema.hasColumn(userPath, 'acceptedTOS')
+
+  if (acceptedTOSColumnExists) {
+    await knex.schema.alterTable(userPath, async (table) => {
+      table.dropColumn('acceptedTOS')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

@@ -74,7 +74,11 @@ export default function ({ children }): JSX.Element {
         />
       </MetaTags>
       <BrowserRouter history={history}>
-        <Suspense fallback={<LoadingView title={t('common:loader.loadingClient')} />}>{children}</Suspense>
+        <Suspense
+          fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingClient')} />}
+        >
+          {children}
+        </Suspense>
       </BrowserRouter>
     </>
   )

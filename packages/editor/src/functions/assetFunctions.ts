@@ -35,7 +35,7 @@ import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/
 
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 
-const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList) => {
+export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   return Promise.all(
     Array.from(files).map((file) => {
       const fileDirectory = file.webkitRelativePath || file.name
@@ -44,6 +44,7 @@ const handleUploadFiles = (projectName: string, directoryPath: string, files: Fi
           {
             project: projectName,
             path: directoryPath.replace('projects/' + projectName + '/', '') + fileDirectory,
+            type: 'asset',
             contentType: file.type
           }
         ]
@@ -89,22 +90,18 @@ export const inputFileWithAddToScene = ({
     el.click()
   })
 
-export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], onProgress?) => {
+export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], args?: object[]) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
     const fileDirectory = paths[i].replace('projects/' + projectName + '/', '')
     const filePath = fileDirectory ? pathJoin(fileDirectory, file.name) : file.name
+    const fileArgs = args?.[i] ?? {}
     promises.push(
-      uploadToFeathersService(
-        fileBrowserUploadPath,
-        [file],
-        {
-          args: [{ project: projectName, path: filePath, contentType: '' }]
-        },
-        onProgress
-      )
+      uploadToFeathersService(fileBrowserUploadPath, [file], {
+        args: [{ contentType: '', ...fileArgs, project: projectName, path: filePath }]
+      })
     )
   }
 

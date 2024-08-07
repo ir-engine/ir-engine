@@ -80,8 +80,6 @@ const onClickNewScene = async () => {
     if (!confirm) return
   }
 
-  onNewScene()
-
   const newSceneUIAddons = getState(EditorState).uiAddons.newScene
   if (Object.keys(newSceneUIAddons).length > 0) {
     PopoverState.showPopupover(<CreateSceneDialog />)
@@ -185,7 +183,7 @@ export default function Toolbar() {
             endIcon={<MdOutlineKeyboardArrowDown size="1em" className="-ml-3 text-[#A3A3A3]" />}
             iconContainerClassName="ml-2 mr-1"
             rounded="none"
-            startIcon={<RxHamburgerMenu size={24} className="text-[#9CA0AA]" />}
+            startIcon={<RxHamburgerMenu size={24} className="text-theme-input" />}
             className="-mr-1 border-0 bg-transparent p-0"
             onClick={(event) => {
               anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
@@ -225,7 +223,7 @@ export default function Toolbar() {
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
             <div key={index}>
               <Button
-                className="px-4 py-2.5 text-left font-light text-[#9CA0AA]"
+                className="px-4 py-2.5 text-left font-light text-theme-input"
                 textContainerClassName="text-xs"
                 variant="sidebar"
                 size="small"

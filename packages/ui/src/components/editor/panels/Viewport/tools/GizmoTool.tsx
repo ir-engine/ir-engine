@@ -108,8 +108,8 @@ export default function GizmoTool({
       <div className={`z-[6] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`} onMouseDown={handleMouseDown}>
         <Placer />
       </div>
-      <div className="mt-2 flex flex-col rounded bg-theme-surface-main">
-        <Tooltip title={t('editor:toolbar.gizmo.pointer')} position={'right center'}>
+      <div className="mt-2 flex flex-col rounded">
+        <Tooltip content={t('editor:toolbar.gizmo.pointer')} position={'right center'}>
           <Button
             variant="transparent"
             className={twMerge(
@@ -124,7 +124,7 @@ export default function GizmoTool({
             }}
           />
         </Tooltip>
-        <Tooltip title={t('editor:toolbar.gizmo.translate')} position={'right center'}>
+        <Tooltip content={t('editor:toolbar.gizmo.translate')} position={'right center'}>
           <Button
             variant="transparent"
             className={twMerge(
@@ -139,7 +139,7 @@ export default function GizmoTool({
             }}
           />
         </Tooltip>
-        <Tooltip title={t('editor:toolbar.gizmo.rotate')} position={'right center'}>
+        <Tooltip content={t('editor:toolbar.gizmo.rotate')} position={'right center'}>
           <Button
             variant="transparent"
             className={twMerge(
@@ -154,7 +154,7 @@ export default function GizmoTool({
             }}
           />
         </Tooltip>
-        <Tooltip title={t('editor:toolbar.gizmo.scale')} position={'right center'}>
+        <Tooltip content={t('editor:toolbar.gizmo.scale')} position={'right center'}>
           <Button
             variant="transparent"
             className={twMerge(

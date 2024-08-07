@@ -36,23 +36,24 @@ import '@etherealengine/client-core/src/util/GlobalStyle.css'
 
 import './LocationModule'
 
-import { t } from 'i18next'
-
 import multiLogger from '@etherealengine/common/src/logger'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { StyledEngineProvider } from '@mui/material/styles'
-import { LoadingCircle } from '../components/LoadingCircle'
+import { useTranslation } from 'react-i18next'
+import { NotificationService } from '../common/services/NotificationService'
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
 import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
 import { clientContextParams } from '../util/contextParams'
 
-const logger = multiLogger.child({ component: 'system:location ', modifier: clientContextParams })
+const logger = multiLogger.child({ component: 'system:location', modifier: clientContextParams })
 
 type Props = {
   online?: boolean
 }
 
 const LocationPage = ({ online }: Props) => {
+  const { t } = useTranslation()
   const params = useParams()
   const ready = useMutableState(LoadingUISystemState).ready
 
@@ -70,15 +71,27 @@ const LocationPage = ({ online }: Props) => {
   useLoadEngineWithScene()
 
   useEffect(() => {
-    if (ready.value) logger.info({ event_name: 'enter_location', event_value: '' })
-    return () => logger.info({ event_name: 'exit_location', event_value: '' })
+    if (ready.value) logger.info({ event_name: 'enter_location' })
+    return () => logger.info({ event_name: 'exit_location' })
   }, [ready.value])
+
+  // To show invalid token error
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search)
+    if (queryParams.has('error')) {
+      NotificationService.dispatchNotify(t('common:error.expiredToken'), {
+        variant: 'error'
+      })
+    }
+  }, [location.search])
 
   return (
     <>
       <ThemeContextProvider>
         <StyledEngineProvider injectFirst>
-          {!ready.value && <LoadingCircle message={t('common:loader.loadingEngine')} />}
+          {!ready.value && (
+            <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingEngine')} />
+          )}
           <LocationIcons />
         </StyledEngineProvider>
       </ThemeContextProvider>

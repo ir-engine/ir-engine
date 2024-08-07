@@ -229,7 +229,8 @@ const execute = () => {
   for (const eid of pointers()) {
     const pointer = getComponent(eid, InputPointerComponent)
     const inputSource = getComponent(eid, InputSourceComponent)
-    const camera = getComponent(pointer.cameraEntity, CameraComponent)
+    const camera = getOptionalComponent(pointer.cameraEntity, CameraComponent)
+    if (!camera) continue //when we reparent viewport we lose the camera temporarily
     pointer.movement.copy(pointer.position).sub(pointer.lastPosition)
     pointer.lastPosition.copy(pointer.position)
     inputSource.raycaster.setFromCamera(pointer.position, camera)

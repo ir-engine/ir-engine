@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent, getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -39,12 +39,12 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { Engine, Entity, EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
+import { Engine, Entity, UUIDComponent, entityExists } from '@etherealengine/ecs'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { VALID_HEIRACHY_SEARCH_REGEX } from '@etherealengine/common/src/regex'
+import { VALID_HEIRARCHY_SEARCH_REGEX } from '@etherealengine/common/src/regex'
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
 import CreatePrefabPanel from '@etherealengine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
@@ -101,8 +101,8 @@ const didHierarchyChange = (prev: HierarchyTreeNodeType[], curr: HierarchyTreeNo
 /**
  * HierarchyPanel function component provides view for hierarchy tree.
  */
-function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: EntityUUID; index: number }) {
-  const { sceneURL, rootEntityUUID, index } = props
+function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; index: number }) {
+  const { sceneURL, rootEntity, index } = props
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | Entity>(undefined)
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
@@ -117,10 +117,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const searchHierarchy = useHookstate('')
   const selectionState = useMutableState(SelectionState)
 
-  const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
-  const rootEntitySource = useComponent(rootEntity, SourceComponent)
   const gltfState = useMutableState(GLTFSnapshotState)
-  const gltfSnapshot = gltfState[rootEntitySource.value].snapshots[props.index]
+  const gltfSnapshot = gltfState[sceneURL].snapshots[index]
 
   const [showModelChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
 
@@ -184,7 +182,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const searchedNodes: HierarchyTreeNodeType[] = []
   if (searchHierarchy.value.length > 0) {
     try {
-      const adjustedSearchValue = searchHierarchy.value.replace(VALID_HEIRACHY_SEARCH_REGEX, '\\$&')
+      const adjustedSearchValue = searchHierarchy.value.replace(VALID_HEIRARCHY_SEARCH_REGEX, '\\$&')
       const condition = new RegExp(adjustedSearchValue, 'i') // 'i' flag for case-insensitive search
       entityHierarchy.value.forEach((node) => {
         if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
@@ -501,7 +499,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     <FixedSizeList
       height={height}
       width={width}
-      itemSize={32}
+      itemSize={40}
       itemCount={validNodes.length}
       itemData={{
         renamingNode,
@@ -513,7 +511,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         onToggle,
         onUpload
       }}
-      itemKey={(index) => index}
+      itemKey={(index: number) => index}
       outerRef={treeContainerDropTarget}
       innerElementType="ul"
     >
@@ -553,7 +551,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             </Button>
           }
         >
-          <div className="h-[600px] w-96 overflow-y-auto">
+          <div className="h-full w-96 overflow-y-auto">
             <ElementList type="prefabs" onSelect={() => setIsAddEntityMenuOpen(false)} />
           </div>
         </Popup>
@@ -651,21 +649,18 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   )
 }
 
+const GLTFHierarchySub = (props: { sourceID: string; rootEntity: Entity }) => {
+  const { sourceID, rootEntity } = props
+  const index = GLTFSnapshotState.useSnapshotIndex(sourceID)
+
+  if (index === undefined) return null
+  return <HierarchyPanelContents key={sourceID} sceneURL={sourceID} rootEntity={rootEntity} index={index.value} />
+}
+
 export default function HierarchyPanel() {
-  const sceneID = useHookstate(getMutableState(EditorState).scenePath).value
-  const gltfEntity = useMutableState(EditorState).rootEntity.value
-  if (!sceneID || !gltfEntity) return null
+  const { scenePath, rootEntity } = useMutableState(EditorState).value
+  const sourceID = useOptionalComponent(rootEntity, SourceComponent)?.value
 
-  const GLTFHierarchySub = () => {
-    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
-    const sourceID = getComponent(gltfEntity, SourceComponent)
-    const index = GLTFSnapshotState.useSnapshotIndex(sourceID)
-
-    if (index === undefined) return null
-    return (
-      <HierarchyPanelContents key={sourceID} rootEntityUUID={rootEntityUUID} sceneURL={sourceID} index={index.value} />
-    )
-  }
-
-  return <GLTFHierarchySub />
+  if (!scenePath || !rootEntity || !sourceID) return null
+  return <GLTFHierarchySub sourceID={sourceID} rootEntity={rootEntity} />
 }

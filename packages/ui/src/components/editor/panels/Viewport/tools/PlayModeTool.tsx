@@ -45,7 +45,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
-import { InfoTooltip } from '../../../layout/Tooltip'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 const PlayModeTool = () => {
   const { t } = useTranslation()
@@ -88,22 +88,28 @@ const PlayModeTool = () => {
   }
 
   return (
-    <div id="preview" className="flex items-center bg-theme-surfaceInput">
-      <InfoTooltip
+    <div id="preview" className="flex items-center">
+      <Tooltip
         title={
           isEditing.value ? t('editor:toolbar.command.lbl-playPreview') : t('editor:toolbar.command.lbl-stopPreview')
         }
-        info={
+        content={
           isEditing.value ? t('editor:toolbar.command.info-playPreview') : t('editor:toolbar.command.info-stopPreview')
         }
       >
         <Button
           variant="transparent"
-          startIcon={isEditing.value ? <HiOutlinePlay /> : <HiOutlinePause />}
+          startIcon={
+            isEditing.value ? (
+              <HiOutlinePlay className="text-theme-input" />
+            ) : (
+              <HiOutlinePause className="text-theme-input" />
+            )
+          }
           className="p-0"
           onClick={onTogglePlayMode}
         />
-      </InfoTooltip>
+      </Tooltip>
     </div>
   )
 }
