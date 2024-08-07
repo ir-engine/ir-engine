@@ -50,7 +50,6 @@ const Checkbox = ({ className, containerClassName, label, value, onChange, disab
         }
       }}
       className={twMerge('flex cursor-pointer items-end space-x-2', containerClassName)}
-      ref={ref}
       onKeyDown={(event) => {
         if (event.key === 'Enter') {
           if (!disabled) {
@@ -64,15 +63,19 @@ const Checkbox = ({ className, containerClassName, label, value, onChange, disab
         className="scale-x-0 scale-y-0"
         onFocus={(e) => {
           ref.current?.focus()
-          ref.current?.classList.add('border-2', 'border-white')
+          ref.current?.classList.remove('border', 'border-theme-primary')
+          ref.current?.classList.add('border-2', 'border-theme-focus')
         }}
         onBlur={(e) => {
-          ref.current?.classList.remove('border-2', 'border-white')
+          ref.current?.blur()
+          ref.current?.classList.remove('border-2', 'border-theme-focus')
+          ref.current?.classList.add('border', 'border-theme-primary')
         }}
       />
       <div
+        ref={ref}
         className={twMerge(
-          'grid h-4 w-4 place-items-center rounded border border-theme-primary',
+          'grid h-4 w-4 place-items-center rounded border border-theme-primary ',
           value ? 'bg-blue-primary' : 'bg-theme-surfaceInput',
           disabled ? 'cursor-not-allowed opacity-50' : '',
           className
