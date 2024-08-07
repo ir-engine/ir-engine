@@ -118,8 +118,8 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
     if (!getState(GLTFDocumentState)[props.documentID]) return
 
     const entities = resourceQuery.filter((e) => getComponent(e, SourceComponent) === props.documentID)
-    if (!entities.length && dependenciesLoaded) {
-      getMutableComponent(props.entity, GLTFComponent).progress.set(100)
+    if (!entities.length) {
+      if (dependenciesLoaded) getMutableComponent(props.entity, GLTFComponent).progress.set(100)
       return
     }
 
@@ -139,8 +139,9 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
 
     const progress = resources.reduce((acc, resource) => acc + resource.progress, 0)
     const total = resources.reduce((acc, resource) => acc + resource.total, 0)
+    if (!total) return
 
-    const percentage = total === 0 ? (dependenciesLoaded ? 100 : 99) : (progress / total) * 100
+    const percentage = Math.min((progress / total) * 100, dependenciesLoaded ? 100 : 99)
     getMutableComponent(props.entity, GLTFComponent).progress.set(percentage)
   }, [resourceQuery, sourceEntities, dependenciesLoaded])
 
