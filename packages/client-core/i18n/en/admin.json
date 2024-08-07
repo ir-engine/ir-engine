@@ -623,7 +623,6 @@
         "name": "Name",
         "avatar": "Avatar",
         "accountIdentifier": "Linked Accounts",
-        "lastLogin": "Last Login",
         "acceptedTOS": "TOS Agreed",
         "isGuest": "Is Guest",
         "action": "Action"
