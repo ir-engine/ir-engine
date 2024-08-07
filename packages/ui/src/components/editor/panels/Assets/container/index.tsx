@@ -306,39 +306,49 @@ const AssetCategory = (props: {
     // TODO: add preview functionality
   }
 
-  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
+  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
 
   return (
     <div
       className={twMerge(
-        'flex min-h-9 cursor-pointer items-center gap-2 text-[#B2B5BD]',
-        category.depth === 0 && !category.collapsed && 'mt-0',
-        selectedCategory?.name === category.name && 'rounded bg-[#191B1F]'
+        'rounded-md bg-[#141619]',
+        selectedCategory?.name === category.name && 'text-primary bg-[#191B1F]',
+        category.depth === 0 ? 'min-h-9' : 'min-h-7'
       )}
       style={{
-        marginLeft: category.depth > 1 ? category.depth * 16 : 0,
-        height: iconSize,
-        fontSize: iconSize
+        height: `${fontSize}px`,
+        fontSize: `${fontSize}px`
       }}
-      onClick={handleSelectCategory}
     >
-      <Button
-        variant="transparent"
-        className={twMerge('m-0 p-0', category.isLeaf && 'invisible cursor-auto')}
-        title={category.collapsed ? 'expand' : 'collapse'}
-        startIcon={category.collapsed ? <IoIosArrowForward /> : <IoIosArrowDown />}
-      />
-      <AssetIconMap name={category.name} />
-      <div className="flex w-full items-center gap-1 pr-2">
-        <span
-          className={twMerge(
-            "flex flex-row items-center gap-2 text-nowrap font-['Figtree'] text-[#e7e7e7]",
-            selectedCategory?.name === category.name && 'text-[#F5F5F5]'
-          )}
-        >
-          {category.name}
-        </span>
-        {/* <HiEye className="flex flex-row items-center gap-2 ml-auto text-[#e7e7e7] text-sm" onClick={handlePreview} /> */}
+      <div
+        className={twMerge(
+          'flex h-full w-full cursor-pointer items-center gap-2 overflow-hidden text-[#B2B5BD]',
+          category.depth === 0 && !category.collapsed && 'mt-0'
+        )}
+        style={{
+          marginLeft: category.depth > 0 ? category.depth * 16 : 0
+        }}
+        onClick={handleSelectCategory}
+      >
+        <Button
+          variant="transparent"
+          className={twMerge('m-0 p-0', category.isLeaf && 'invisible cursor-auto')}
+          title={category.collapsed ? 'expand' : 'collapse'}
+          startIcon={category.collapsed ? <IoIosArrowForward /> : <IoIosArrowDown />}
+          iconContainerClassName="ml-2"
+        />
+        <AssetIconMap name={category.name} />
+        <div className="flex w-full items-center gap-1 text-nowrap pr-2">
+          <span
+            className={twMerge(
+              "flex flex-row items-center gap-2 text-nowrap font-['Figtree'] text-[#e7e7e7]",
+              selectedCategory?.name === category.name && 'text-[#F5F5F5]'
+            )}
+          >
+            {category.name}
+          </span>
+          {/* <HiEye className="flex flex-row items-center gap-2 ml-auto text-[#e7e7e7] text-sm" onClick={handlePreview} /> */}
+        </div>
       </div>
     </div>
   )
@@ -403,7 +413,7 @@ const CategoriesList = ({
   return (
     <div
       ref={listRef}
-      className="mb-8 h-full overflow-x-hidden overflow-y-scroll bg-[#0E0F11] px-2 pb-8"
+      className="mb-8 h-full space-y-1 overflow-x-hidden overflow-y-scroll bg-[#0E0F11] pb-8 pl-1 pr-2 pt-2"
       style={style}
       onScroll={handleScroll}
     >
