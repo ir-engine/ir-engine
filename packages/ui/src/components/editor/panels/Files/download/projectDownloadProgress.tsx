@@ -23,15 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export function getOS() {
-  const platform = process.platform
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import Progress from '../../../../../primitives/tailwind/Progress'
 
-  if (platform.includes('darwin')) {
-    return 'macOS'
-  } else if (platform.includes('win32')) {
-    return 'Windows'
-  } else if (platform.includes('linux')) {
-    return 'Linux'
-  }
-  return 'other'
+export const ProjectDownloadProgress = ({ completed, total, progress, isDownloading }) => {
+  const { t } = useTranslation()
+
+  return isDownloading ? (
+    <div className="flex h-auto w-full justify-center pb-2 pt-2">
+      <div className="flex w-1/2">
+        <span className="inline-block pr-2 text-xs font-normal leading-none text-theme-primary">
+          {t('editor:layout.filebrowser.downloadingProject', { completed, total })}
+        </span>
+        <div className="basis-1/2">
+          <Progress value={progress} />
+        </div>
+      </div>
+    </div>
+  ) : null
 }

@@ -36,6 +36,8 @@ import {
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
+import { bytesToSize } from '@etherealengine/common/src/utils/btyesToSize'
+import { unique } from '@etherealengine/common/src/utils/miscUtils'
 import { Engine } from '@etherealengine/ecs'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import {
@@ -53,7 +55,6 @@ import {
   handleUploadFiles,
   inputFileWithAddToScene
 } from '@etherealengine/editor/src/functions/assetFunctions'
-import { bytesToSize, unique } from '@etherealengine/editor/src/functions/utils'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
@@ -85,6 +86,7 @@ import InputGroup from '../../../input/Group'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
 import DeleteFileModal from '../browserGrid/DeleteFileModal'
 import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
+import { ProjectDownloadProgress } from '../download/projectDownloadProgress'
 import { FileUploadProgress } from '../upload/FileUploadProgress'
 
 type FileBrowserContentPanelProps = {
@@ -228,6 +230,66 @@ function GeneratingThumbnailsProgress() {
   )
 }
 
+export const ViewModeSettings = () => {
+  const { t } = useTranslation()
+
+  const filesViewMode = useMutableState(FilesViewModeState).viewMode
+
+  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+  return (
+    <Popup
+      contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
+      position={'bottom left'}
+      trigger={
+        <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
+          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
+        </Tooltip>
+      }
+    >
+      {filesViewMode.value === 'icons' ? (
+        <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+          <Slider
+            min={10}
+            max={100}
+            step={0.5}
+            value={viewModeSettings.icons.iconSize.value}
+            onChange={viewModeSettings.icons.iconSize.set}
+            onRelease={viewModeSettings.icons.iconSize.set}
+          />
+        </InputGroup>
+      ) : (
+        <>
+          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
+            <Slider
+              min={10}
+              max={100}
+              step={0.5}
+              value={viewModeSettings.list.fontSize.value}
+              onChange={viewModeSettings.list.fontSize.set}
+              onRelease={viewModeSettings.list.fontSize.set}
+            />
+          </InputGroup>
+
+          <div>
+            <div className="mt-1 flex flex-auto text-white">
+              <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
+            </div>
+            <div className="flex-col">
+              {availableTableColumns.map((column) => (
+                <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
+                  <BooleanInput
+                    value={viewModeSettings.list.selectedTableColumns[column].value}
+                    onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
+                  />
+                </InputGroup>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </Popup>
+  )
+}
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
  */
@@ -235,6 +297,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const { t } = useTranslation()
 
   const selectedDirectory = useHookstate(props.originalPath)
+
+  const downloadState = useHookstate({
+    total: 0,
+    progress: 0,
+    isDownloading: false
+  })
 
   const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
   const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
@@ -428,7 +496,28 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         return null
       })
     if (!data) return
-    const blob = await (await fetch(`${config.client.fileServer}/${data}`)).blob()
+    downloadState.isDownloading.set(true) // Start Download
+
+    const response = await fetch(`${config.client.fileServer}/${data}`)
+    const totalBytes = parseInt(response.headers.get('Content-Length') || '0', 10)
+    downloadState.total.set(totalBytes) // Set the total bytes
+
+    const reader = response.body?.getReader()
+    const chunks: Uint8Array[] = []
+    let bytesReceived = 0
+
+    while (true) {
+      const { done, value } = await reader!.read()
+      if (done) break
+      chunks.push(value)
+      bytesReceived += value.length
+      downloadState.progress.set(bytesReceived)
+    }
+
+    const blob = new Blob(chunks)
+    downloadState.isDownloading.set(false) // Mark as completed
+    downloadState.progress.set(0)
+    downloadState.total.set(0)
 
     let fileName: string
     if (selectedDirectory.value.at(-1) === '/') {
@@ -820,6 +909,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </Button>
       </div>
       <FileUploadProgress />
+      <ProjectDownloadProgress
+        isDownloading={downloadState.isDownloading.value}
+        completed={bytesToSize(downloadState.progress.value)}
+        total={bytesToSize(downloadState.total.value)}
+        progress={(downloadState.progress.value / downloadState.total.value) * 100}
+      />
       {isLoading && (
         <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} fullSpace className="block h-12 w-12" />
       )}
@@ -846,66 +941,5 @@ export default function FilesPanelContainer() {
       originalPath={'/projects/' + originalPath + '/assets/'}
       onSelectionChanged={onSelectionChanged}
     />
-  )
-}
-
-export const ViewModeSettings = () => {
-  const { t } = useTranslation()
-
-  const filesViewMode = useMutableState(FilesViewModeState).viewMode
-
-  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
-  return (
-    <Popup
-      contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
-      position={'bottom left'}
-      trigger={
-        <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
-        </Tooltip>
-      }
-    >
-      {filesViewMode.value === 'icons' ? (
-        <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
-          <Slider
-            min={10}
-            max={100}
-            step={0.5}
-            value={viewModeSettings.icons.iconSize.value}
-            onChange={viewModeSettings.icons.iconSize.set}
-            onRelease={viewModeSettings.icons.iconSize.set}
-          />
-        </InputGroup>
-      ) : (
-        <>
-          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
-            <Slider
-              min={10}
-              max={100}
-              step={0.5}
-              value={viewModeSettings.list.fontSize.value}
-              onChange={viewModeSettings.list.fontSize.set}
-              onRelease={viewModeSettings.list.fontSize.set}
-            />
-          </InputGroup>
-
-          <div>
-            <div className="mt-1 flex flex-auto text-white">
-              <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-            </div>
-            <div className="flex-col">
-              {availableTableColumns.map((column) => (
-                <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
-                  <BooleanInput
-                    value={viewModeSettings.list.selectedTableColumns[column].value}
-                    onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                  />
-                </InputGroup>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-    </Popup>
   )
 }

@@ -1217,6 +1217,7 @@
       "uploadFiles": "Upload Files",
       "uploadFolder": "Upload Folder",
       "uploadingFiles": "Uploading Files ({{completed}}/{{total}})",
+      "downloadingProject": "Downloading Project ({{completed}}/{{total}})",
       "search-placeholder": "Search",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
