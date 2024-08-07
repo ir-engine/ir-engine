@@ -296,7 +296,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     fileQuery.setPage(0)
   }
 
-  const onSelect = (params: FileDataType) => {
+  const onSelect = (event, params: FileDataType) => {
     if (params.isFolder) {
       if (!fileProperties.value.some((file) => file.key === params.key)) {
         const newPath = `${selectedDirectory.value}${params.name}/`
@@ -532,7 +532,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         ])
       } else {
         if (currentFile.isFolder) {
-          onSelect(currentFile)
+          onSelect(e, currentFile)
         } else {
           fileProperties.set([currentFile])
         }
