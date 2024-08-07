@@ -140,7 +140,7 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
     const progress = resources.reduce((acc, resource) => acc + resource.progress, 0)
     const total = resources.reduce((acc, resource) => acc + resource.total, 0)
 
-    const percentage = total === 0 ? 100 : (progress / total) * 100
+    const percentage = total === 0 ? (dependenciesLoaded ? 100 : 99) : (progress / total) * 100
     getMutableComponent(props.entity, GLTFComponent).progress.set(percentage)
   }, [resourceQuery, sourceEntities, dependenciesLoaded])
 
