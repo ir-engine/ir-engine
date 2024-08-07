@@ -43,8 +43,8 @@ export async function up(knex: Knex): Promise<void> {
       table.uuid('userId').collate('utf8mb4_bin').defaultTo(null).index()
       table.string('userAgent', 255).notNullable()
       table.string('ipAddress', 255).notNullable()
-      table.integer('port').notNullable()
-      table.boolean('secure').notNullable()
+      table.integer('port').nullable()
+      table.boolean('secure').nullable()
       table.dateTime('createdAt').notNullable()
 
       table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
