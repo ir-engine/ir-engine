@@ -556,7 +556,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     }
 
     const pasteContent = async () => {
-      console.log(selectedDirectory.value)
       handleClose()
       if (isLoading) return
 
