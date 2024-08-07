@@ -68,7 +68,7 @@ export const ComponentJSONIDMap = new Map<string, Component<any, any, any>>() //
 export const ComponentDependencyMap = new Map<string, string[] | undefined>()
 globalThis.ComponentMap = ComponentMap
 globalThis.ComponentJSONIDMap = ComponentJSONIDMap
-globalThis.ComponentResourceMap = ComponentDependencyMap
+globalThis.ComponentDependencyMap = ComponentDependencyMap
 
 //::::: Helper and Validation generic types ::::://
 /** @private Type that will become a [Typescript.Partial](https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype) if T is extending an object, but will be just T otherwise. */
