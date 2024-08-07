@@ -32,6 +32,7 @@ import { identityProviderPath } from '@etherealengine/common/src/schemas/user/id
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 
+import { userLoginPath } from '@etherealengine/common/src/schemas/user/user-login.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { RedirectConfig } from '../../types/OauthStrategies'
@@ -112,6 +113,13 @@ export class Googlestrategy extends CustomOAuthStrategy {
       profile.userId = user.id
       const newIP = await super.createEntity(profile, params)
       if (entity.type === 'guest') await this.app.service(identityProviderPath).remove(entity.id)
+
+      await this.app.service(userLoginPath).create({
+        userId: user.id,
+        userAgent: params.headers!['user-agent'],
+        identityProviderId: newIP.id
+      })
+
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) return existingEntity
     else {

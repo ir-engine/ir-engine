@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/typescript.html
-import { HookContext as FeathersHookContext } from '@feathersjs/feathers'
+import { HookContext as FeathersHookContext, Params } from '@feathersjs/feathers'
 import type { Application as KoaFeathers } from '@feathersjs/koa'
 import { ServiceSwaggerOptions } from 'feathers-swagger'
 import Primus from 'primus'
@@ -51,6 +51,10 @@ export type Application = KoaFeathers<ServiceTypes> & {
 declare module '@feathersjs/feathers' {
   interface ServiceOptions {
     docs?: ServiceSwaggerOptions
+  }
+
+  interface CustomerFeathersParams extends Params {
+    id?: string
   }
 }
 

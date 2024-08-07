@@ -45,9 +45,9 @@ export const userLoginSchema = Type.Object(
       format: 'uuid'
     }),
     userAgent: Type.String(),
-    ipAddress: Type.String(),
-    port: Type.Integer(),
-    secure: Type.Boolean(),
+    ipAddress: Type.Optional(Type.String()),
+    port: Type.Optional(Type.Integer()),
+    secure: Type.Optional(Type.Boolean()),
     identityProviderId: Type.String({
       format: 'uuid'
     }),

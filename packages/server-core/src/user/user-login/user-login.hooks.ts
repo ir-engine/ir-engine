@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow } from 'feathers-hooks-common'
-
 import {
   userLoginDataValidator,
   userLoginPatchValidator,
   userLoginQueryValidator
 } from '@etherealengine/common/src/schemas/user/user-login.schema'
+import { HookContext } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { disallow } from 'feathers-hooks-common'
 import {
   userLoginDataResolver,
   userLoginExternalResolver,
@@ -38,6 +38,19 @@ import {
   userLoginQueryResolver,
   userLoginResolver
 } from './user-login.resolvers'
+
+const populateUserLogin = async (context: HookContext) => {
+  const { ip, port, secure } = context.params.forwarded
+
+  context.data = {
+    ...context.data,
+    ipAddress: ip,
+    port: port,
+    secure: secure
+  }
+
+  return context
+}
 
 export default {
   around: {
@@ -48,7 +61,11 @@ export default {
     all: [() => schemaHooks.validateQuery(userLoginQueryValidator), schemaHooks.resolveQuery(userLoginQueryResolver)],
     find: [],
     get: [disallow()],
-    create: [() => schemaHooks.validateData(userLoginDataValidator), schemaHooks.resolveData(userLoginDataResolver)],
+    create: [
+      () => schemaHooks.validateData(userLoginDataValidator),
+      schemaHooks.resolveData(userLoginDataResolver),
+      populateUserLogin
+    ],
     update: [],
     patch: [() => schemaHooks.validateData(userLoginPatchValidator), schemaHooks.resolveData(userLoginPatchResolver)],
     remove: []

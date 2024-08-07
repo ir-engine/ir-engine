@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // Do not delete json and urlencoded, they are used even if some IDEs show them as unused
 
-import { feathers } from '@feathersjs/feathers'
+import { CustomerFeathersParams, feathers } from '@feathersjs/feathers'
 import { bodyParser, errorHandler, koa, rest } from '@feathersjs/koa'
 import * as k8s from '@kubernetes/client-node'
 import { EventEmitter } from 'events'
@@ -227,6 +227,18 @@ export const createFeathersKoaApp = (
       includeUnparsed: true
     })
   )
+
+  app.proxy = true
+  app.use(async (ctx, next) => {
+    const clientIp = ctx.request.ip
+
+    ctx.feathers = {
+      ...ctx.feathers,
+      ip: clientIp
+    } as CustomerFeathersParams
+
+    await next()
+  })
 
   app.configure(rest())
   // app.use(function (req, res, next) {
