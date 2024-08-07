@@ -48,12 +48,8 @@ export default function ScenesPanel() {
   const scenesLoading = scenesQuery.status === 'pending'
 
   const onClickScene = (scene: StaticResourceType) => {
-    const sceneName = scene.key.split('/').pop()
-
     getMutableState(EditorState).merge({
-      sceneName,
-      scenePath: scene.key,
-      sceneAssetID: scene.id
+      scenePath: scene.key
     })
   }
 
@@ -78,7 +74,6 @@ export default function ScenesPanel() {
           startIcon={<HiOutlinePlusCircle />}
           endIcon={isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
           disabled={isCreatingScene.value}
-          variant="transparent"
           rounded="none"
           className="ml-auto bg-theme-highlight px-2"
           size="small"

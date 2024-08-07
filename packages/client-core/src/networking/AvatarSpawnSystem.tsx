@@ -25,15 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import {
   defineSystem,
   Engine,
   Entity,
+  EntityUUID,
   getComponent,
+  getOptionalComponent,
   PresentationSystemGroup,
   useComponent,
+  useQuery,
   UUIDComponent
 } from '@etherealengine/ecs'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
@@ -45,30 +47,32 @@ import { dispatchAction, getMutableState, getState, useHookstate, useMutableStat
 import { NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { SpectateActions } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { SearchParamState } from '../common/services/RouterService'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
+  if (!isClient) return null
   const { sceneEntity } = props
   const gltfLoaded = useComponent(sceneEntity, GLTFComponent).progress.value === 100
   const searchParams = useMutableState(SearchParamState)
 
   const spawnAvatar = useHookstate(false)
-  const spectateEntity = useHookstate(false)
+  const spectateEntity = useHookstate(null as null | EntityUUID)
+  const settingsQuery = useQuery([SceneSettingsComponent])
+  useEffect(() => {
+    const sceneSettingsSpectateEntity = getOptionalComponent(settingsQuery[0], SceneSettingsComponent)?.spectateEntity
+    spectateEntity.set(sceneSettingsSpectateEntity ?? (getSearchParamFromURL('spectate') as EntityUUID))
+  }, [settingsQuery, searchParams])
 
   useEffect(() => {
-    spectateEntity.set(searchParams.spectate.value !== undefined)
-  }, [searchParams])
-
-  useEffect(() => {
-    if (!spectateEntity.value) return
-
-    const spectate = getSearchParamFromURL('spectate')
+    if (spectateEntity.value === null) return
     dispatchAction(
       SpectateActions.spectateEntity({
         spectatorUserID: Engine.instance.userID,
-        spectatingUserID: spectate as UserID
+        spectatingEntity: spectateEntity.value
       })
     )
 
@@ -78,7 +82,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   }, [spectateEntity.value])
 
   useEffect(() => {
-    spawnAvatar.set(gltfLoaded && !spectateEntity.value)
+    spawnAvatar.set(gltfLoaded && spectateEntity.value === null)
   }, [gltfLoaded, spectateEntity.value])
 
   useEffect(() => {
