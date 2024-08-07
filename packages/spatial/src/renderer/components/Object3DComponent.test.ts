@@ -33,15 +33,16 @@ import {
   UndefinedEntity
 } from '@etherealengine/ecs'
 import assert from 'assert'
-import { Object3D } from 'three'
+import { BoxGeometry, Mesh, Object3D } from 'three'
+import { NameComponent } from '../../common/NameComponent'
 import { Object3DComponent } from './Object3DComponent'
 
 const Object3DComponentDefaults = null! as Object3D
 
-function assertObject3DComponentEq(A, B) {
+function assertObject3DComponentEq(A: Object3D, B: Object3D) {
   assert.equal(Boolean(A), Boolean(B))
   assert.equal(A.isObject3D, B.isObject3D)
-  /** @todo Check other properties */
+  assert.equal(A.uuid, B.uuid)
 }
 
 describe('Object3DComponent', () => {
@@ -51,7 +52,7 @@ describe('Object3DComponent', () => {
     })
 
     it('should initialize the Object3DComponent.jsonID field with the expected value', () => {
-      assert.equal(Object3DComponent.jsonID, 'EE_mesh')
+      assert.equal(Object3DComponent.jsonID, 'EE_object3d')
     })
   }) //:: IDs
 
@@ -61,7 +62,6 @@ describe('Object3DComponent', () => {
     beforeEach(async () => {
       createEngine()
       testEntity = createEntity()
-      setComponent(testEntity, Object3DComponent)
     })
 
     afterEach(() => {
@@ -70,15 +70,55 @@ describe('Object3DComponent', () => {
     })
 
     it('should initialize the component with the expected default values', () => {
+      const Expected = new Mesh(new BoxGeometry())
+      setComponent(testEntity, Object3DComponent, Expected)
       const data = getComponent(testEntity, Object3DComponent)
-      assertObject3DComponentEq(data, Object3DComponentDefaults)
+      assertObject3DComponentEq(data, Expected)
     })
   }) //:: onInit
 
   describe('onSet', () => {
-    // it('should change the values of an initialized Object3DComponent', () => {})
-    // it('should not change values of an initialized Object3DComponent when the data passed had incorrect types', () => {})
-    // it('should throw an error if the data assigned does not provide a valid `Object3D` object', () => {})
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should throw an error if the data assigned does not provide a valid `Object3D` object', () => {
+      assert.throws(() => setComponent(testEntity, Object3DComponent))
+    })
+
+    it('should not throw an error if the data assigned provides a valid `Object3D` object', () => {
+      assert.doesNotThrow(() => setComponent(testEntity, Object3DComponent, new Mesh(new BoxGeometry())))
+    })
+
+    it('should change the values of an initialized Object3DComponent', () => {
+      setComponent(testEntity, Object3DComponent, new Mesh(new BoxGeometry()))
+      const before = getComponent(testEntity, Object3DComponent).uuid
+      setComponent(testEntity, Object3DComponent, new Mesh(new BoxGeometry()))
+      const after = getComponent(testEntity, Object3DComponent).uuid
+      assert.notEqual(before, after)
+    })
+
+    it("should set the object3d.name to the value of the entity's NameComponent when the entity has one", () => {
+      const Expected = 'testEntity'
+      setComponent(testEntity, NameComponent, Expected)
+      setComponent(testEntity, Object3DComponent, new Mesh(new BoxGeometry()))
+      assert.equal(getComponent(testEntity, Object3DComponent).name, Expected)
+    })
+
+    it("should not set the object3d.name when the entity doesn't have a NameComponent", () => {
+      setComponent(testEntity, Object3DComponent, new Mesh(new BoxGeometry()))
+      const result = getComponent(testEntity, Object3DComponent).name
+      assert.equal(result, '')
+    })
   }) //:: onSet
+
   /** @todo @maybe Should this component have a reactor that updates the name of the object when a NameComponent is set on the entity after its Object3DComponent is set? */
 })
