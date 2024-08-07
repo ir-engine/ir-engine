@@ -30,18 +30,21 @@ import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parse
 import {
   defineComponent,
   Entity,
+  EntityUUID,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
   useComponent,
   useEntityContext,
-  useQuery
+  useQuery,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
+import { ModelComponent } from '../scene/components/ModelComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
@@ -83,7 +86,19 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
   useEffect(() => {
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
     if (!getState(GLTFDocumentState)[props.documentID]) return
-
+    const document = getState(GLTFDocumentState)[props.documentID]
+    const modelNodes = document.nodes?.filter((node) => !!node.extensions?.[ModelComponent.jsonID])
+    if (modelNodes) {
+      for (const node of modelNodes) {
+        //check if an entity exists for this node, and has a model component
+        const uuid = node.extensions![UUIDComponent.jsonID] as EntityUUID
+        if (!UUIDComponent.entitiesByUUIDState[uuid]) return
+        const entity = UUIDComponent.entitiesByUUIDState[uuid].value
+        const model = getOptionalComponent(entity, ModelComponent)
+        //ensure that model contents have been loaded into the scene
+        if (!model?.scene) return
+      }
+    }
     const entities = resourceQuery.filter((e) => getComponent(e, SourceComponent) === props.documentID)
     if (!entities.length) {
       getMutableComponent(props.entity, GLTFComponent).progress.set(100)
