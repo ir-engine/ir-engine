@@ -87,6 +87,14 @@ const Select = <T extends OptionValueType>({
   useClickOutside(ref, () => showOptions.set(false))
 
   useEffect(() => {
+    const handleResize = () => {
+      calculateAndApplyYOffset(menuRef.current, -50)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
     const labelName = options.find((option) => option.value === currentValue)?.label
     if (labelName) selectLabel.set(labelName || '')
   }, [currentValue, options])
@@ -94,10 +102,6 @@ const Select = <T extends OptionValueType>({
   useEffect(() => {
     filteredOptions.set(JSON.parse(JSON.stringify(options)))
   }, [options])
-
-  useEffect(() => {
-    if (showOptions.value) calculateAndApplyYOffset(menuRef.current)
-  }, [showOptions])
 
   const toggleDropdown = () => {
     if (options.length === 0) return

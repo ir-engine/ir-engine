@@ -32,41 +32,13 @@ export const calculateAndApplyYOffset = (element: HTMLElement | null, additional
   const popupBounds = getBounds(element)
   const viewportBounds = getViewportBounds(new Bounds())
 
-  const overflowTop = viewportBounds.top - (popupBounds?.top ?? 0)
   const overflowBottom =
     (popupBounds?.top ?? 0) + (popupBounds?.height ?? 0) - (viewportBounds.top + viewportBounds.height)
+  let offsetY = 0
 
-  let offsetY = additionalOffset
-
-  if (overflowTop > 0) {
-    // popup is overflowing at the top, move it down
-    offsetY = overflowTop
-  } else if (overflowBottom > 0) {
-    // popup is overflowing at the bottom, move it up
-    offsetY = -overflowBottom
+  if (overflowBottom > 0) {
+    offsetY = -(popupBounds?.height ?? 0) + additionalOffset
   }
 
   element.style.transform = `translateY(${offsetY}px)`
-}
-
-export const calculateAndApplyXOffset = (element: HTMLElement | null, additionalOffset = 0) => {
-  if (!element) {
-    return
-  }
-  const popupBounds = getBounds(element)
-  const viewportBounds = getViewportBounds(new Bounds())
-
-  const overflowLeft = viewportBounds.left - (popupBounds?.left ?? 0)
-  const overflowRight =
-    (popupBounds?.left ?? 0) + (popupBounds?.width ?? 0) - (viewportBounds.left + viewportBounds.width)
-
-  let offsetX = additionalOffset
-
-  if (overflowLeft > 0) {
-    offsetX = overflowLeft
-  } else if (overflowRight > 0) {
-    offsetX = -overflowRight
-  }
-
-  element.style.transform = `translateX(${offsetX}px)`
 }
