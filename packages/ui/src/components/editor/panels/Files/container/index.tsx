@@ -531,9 +531,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           ...newSelectedFiles.filter((newFile) => !prevFileProperties.some((file) => newFile.key === file.key))
         ])
       } else {
-        if (currentFile.isFolder) {
-          onSelect(e, currentFile)
-        } else {
+        if (!currentFile.isFolder) {
           fileProperties.set([currentFile])
         }
       }
@@ -566,8 +564,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   item={file}
                   disableDnD={props.disableDnD}
                   projectName={projectName}
-                  onClick={(event, currentFile) => {
-                    handleFileBrowserItemClick(event, currentFile)
+                  onClick={(event) => {
+                    handleFileBrowserItemClick(event, file)
                     onSelect(event, file)
                   }}
                   onContextMenu={(event, currentFile) => {
