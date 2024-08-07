@@ -419,7 +419,8 @@ const zendesk = {
 }
 
 const metabase = {
-  key: process.env.METABASE_SECRET_KEY
+  key: process.env.METABASE_SECRET_KEY,
+  dashboard: process.env.METABASE_DASHBOARD
 }
 
 /**

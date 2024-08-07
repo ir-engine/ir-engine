@@ -30,7 +30,7 @@ import { sign } from 'jsonwebtoken'
 
 const getMetabaseToken = (context: HookContext<Application>) => {
   const payload = {
-    resource: { dashboard: 64 },
+    resource: { dashboard: appConfig.metabase.dashboard! },
     params: {},
     exp: Math.round(Date.now() / 1000) + 10 * 60 // 10 minute expiration
   }
