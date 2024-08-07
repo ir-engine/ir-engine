@@ -183,7 +183,7 @@ const ResourceFile = (props: {
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
 
-      <Tooltip title={name}>
+      <Tooltip content={name}>
         <span className="line-clamp-1 w-full text-wrap break-all text-sm text-[#F5F5F5]">{name}</span>
       </Tooltip>
 
@@ -592,13 +592,13 @@ const AssetPanel = () => {
       <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
         <div className="ml-2"></div>
         <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
-          <Tooltip title={t('editor:layout.filebrowser.back')} className="left-1">
+          <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
             <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={handleBack} />
           </Tooltip>
         </div>
 
         <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
-          <Tooltip title={t('editor:layout.filebrowser.refresh')}>
+          <Tooltip content={t('editor:layout.filebrowser.refresh')}>
             <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={handleRefresh} />
           </Tooltip>
         </div>
