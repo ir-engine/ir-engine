@@ -59,6 +59,7 @@ export interface CSSClasses {
 
   'border-primary': string
   'border-input': string
+  'border-focus': string
 
   selection: string
 }
@@ -95,6 +96,7 @@ const lightTheme: CSSClasses = {
 
   'border-primary': '#E5E7EB',
   'border-input': '#42454D',
+  'border-focus': '#375DAF',
   selection: '#3166D0'
 }
 
@@ -130,6 +132,7 @@ const darkTheme: CSSClasses = {
 
   'border-primary': '#2B2C30',
   'border-input': '#42454D',
+  'border-focus': '#375DAF',
   selection: '#1E4273'
 }
 
