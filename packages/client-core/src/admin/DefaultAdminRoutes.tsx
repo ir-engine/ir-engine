@@ -156,7 +156,7 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   },
   crashReport: {
     name: 'user:dashboard.crashReport',
-    scope: 'crashReport',
+    scope: 'server',
     component: CrashReport,
     access: false,
     icon: <HiMiniShieldExclamation />
