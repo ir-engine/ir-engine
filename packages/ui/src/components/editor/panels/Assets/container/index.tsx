@@ -23,8 +23,8 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { clone, debounce, isEmpty } from 'lodash'
-import React, { useEffect, useRef } from 'react'
+import { clone, debounce } from 'lodash'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
@@ -55,14 +55,16 @@ import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
-import { TablePagination } from '../../../../../primitives/tailwind/Table'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
+import InfiniteScroll from '../../../../tailwind/InfiniteScroll'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
 import { ViewModeSettings } from '../../Files/container'
 import { FileIcon } from '../../Files/icon'
 import { FileUploadProgress } from '../../Files/upload/FileUploadProgress'
 import { AssetIconMap } from '../icons'
+
+const ASSETS_PAGE_LIMIT = 10
 
 type Category = {
   name: string
@@ -235,10 +237,6 @@ const ResourceFile = (props: {
       </ContextMenu>
     </div>
   )
-}
-
-export const MenuDivider = () => {
-  return <div className="my-2 flex w-full border-b border-theme-primary" />
 }
 
 interface MetadataTableProps {
@@ -438,11 +436,13 @@ const AssetPanel = () => {
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
   const searchText = useHookstate('')
   const originalPath = useMutableState(EditorState).projectName.value
-  const staticResourcesPagination = useHookstate({ totalPages: -1, currentPage: 0 })
+  const staticResourcesPagination = useHookstate({ total: 0, skip: 0 })
   const assetsPreviewContext = useHookstate({ selectAssetURL: '' })
   const parentCategories = useHookstate<Category[]>([])
 
-  const mapCategories = () => categories.set(mapCategoriesHelper(collapsedCategories.value))
+  const mapCategories = useCallback(() => {
+    categories.set(mapCategoriesHelper(collapsedCategories.value))
+  }, [categories, collapsedCategories])
   useEffect(mapCategories, [collapsedCategories])
 
   useEffect(() => {
@@ -452,8 +452,8 @@ const AssetPanel = () => {
   }, [categories, selectedCategory])
 
   const staticResourcesFindApi = () => {
-    loading.set(true)
     searchTimeoutCancelRef.current?.()
+    loading.set(true)
 
     const debouncedSearchQuery = debounce(() => {
       const tags = selectedCategory.value
@@ -484,17 +484,20 @@ const AssetPanel = () => {
             }
           : undefined,
         $sort: { mimeType: 1 },
-        $skip: staticResourcesPagination.currentPage.value * 10
+        $limit: ASSETS_PAGE_LIMIT,
+        $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
       } as StaticResourceQuery
 
       Engine.instance.api
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
-          searchedStaticResources.set(resources.data)
-          staticResourcesPagination.merge({ totalPages: Math.ceil(resources.total / 10) })
-        })
-        .then(() => {
+          if (staticResourcesPagination.skip.value > 0) {
+            searchedStaticResources.merge(resources.data)
+          } else {
+            searchedStaticResources.set(resources.data)
+          }
+          staticResourcesPagination.merge({ total: resources.total })
           loading.set(false)
         })
     }, 500)
@@ -503,49 +506,34 @@ const AssetPanel = () => {
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
   }
 
-  //reset pagination when search text changes
-  useEffect(() => {
-    staticResourcesPagination.currentPage.set(0)
-  }, [searchText])
+  useEffect(() => staticResourcesPagination.skip.set(0), [searchText])
+  useEffect(() => staticResourcesFindApi(), [searchText, selectedCategory, staticResourcesPagination.skip])
 
-  useEffect(() => {
-    staticResourcesFindApi()
-  }, [searchText, selectedCategory, staticResourcesPagination.currentPage])
-
-  const ResourceItems = () => {
-    if (loading.value) {
-      return (
-        <div className="flex h-full w-full items-center justify-center">
-          <LoadingView title={t('editor:loadingAssets')} fullSpace className="block h-12 w-12" />
+  const ResourceItems = () => (
+    <>
+      {searchedStaticResources.length === 0 && (
+        <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
+          {t('editor:layout.scene-assets.no-search-results')}
         </div>
-      )
-    }
-    return (
-      <>
-        {isEmpty(searchedStaticResources.value) && (
-          <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
-            {t('editor:layout.scene-assets.no-search-results')}
-          </div>
-        )}
-        {!isEmpty(searchedStaticResources.value) && (
-          <>
-            {searchedStaticResources.value.map((resource) => (
-              <ResourceFile
-                key={resource.id}
-                resource={resource as StaticResourceType}
-                selected={resource.url === assetsPreviewContext.selectAssetURL.value}
-                onClick={(props: AssetSelectionChangePropsType) => {
-                  assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
-                  ClickPlacementState.setSelectedAsset(props.resourceUrl)
-                }}
-                onChange={() => staticResourcesFindApi()}
-              />
-            ))}
-          </>
-        )}
-      </>
-    )
-  }
+      )}
+      {searchedStaticResources.length > 0 && (
+        <>
+          {searchedStaticResources.value.map((resource) => (
+            <ResourceFile
+              key={resource.id}
+              resource={resource as StaticResourceType}
+              selected={resource.url === assetsPreviewContext.selectAssetURL.value}
+              onClick={(props: AssetSelectionChangePropsType) => {
+                assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
+                ClickPlacementState.setSelectedAsset(props.resourceUrl)
+              }}
+              onChange={() => staticResourcesFindApi()}
+            />
+          ))}
+        </>
+      )}
+    </>
+  )
 
   const handleBack = () => {
     if (!parentCategories.length) {
@@ -565,7 +553,7 @@ const AssetPanel = () => {
 
   const handleSelectCategory = (category: Category) => {
     selectedCategory.set(clone(category))
-    staticResourcesPagination.currentPage.set(0)
+    staticResourcesPagination.skip.set(0)
     !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }
 
@@ -667,18 +655,16 @@ const AssetPanel = () => {
           <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
         </div>
         <div className="flex h-full w-full flex-col overflow-auto">
-          <div className="flex-grow overflow-y-scroll p-2">
+          <InfiniteScroll
+            disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value}
+            onScrollBottom={() => staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)}
+          >
             <div className="mt-auto flex h-full w-full flex-wrap gap-2">
               <ResourceItems />
             </div>
-          </div>
-          <div className="mx-auto mb-10 mt-auto">
-            <TablePagination
-              totalPages={staticResourcesPagination.totalPages.value}
-              currentPage={staticResourcesPagination.currentPage.value}
-              onPageChange={(newPage) => staticResourcesPagination.merge({ currentPage: newPage })}
-            />
-          </div>
+            {loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
+          </InfiniteScroll>
+          <div className="mx-auto mb-10" />
         </div>
         {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
       </div>
