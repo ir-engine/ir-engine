@@ -298,7 +298,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const onSelect = (event, params: FileDataType) => {
     if (params.isFolder) {
-      if (!fileProperties.value.some((file) => file.key === params.key)) {
+      if (event.detail === 2 || !fileProperties.value.some((file) => file.key === params.key)) {
+        // double click or not already selected
         const newPath = `${selectedDirectory.value}${params.name}/`
         changeDirectoryByPath(newPath)
       }
