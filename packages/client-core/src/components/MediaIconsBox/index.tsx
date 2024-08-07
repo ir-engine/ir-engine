@@ -35,7 +35,7 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import logger from '@etherealengine/common/src/logger'
-import { Engine } from '@etherealengine/ecs'
+import { Engine, defineQuery, getOptionalComponent } from '@etherealengine/ecs'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import {
   ECSRecordingActions,
@@ -53,6 +53,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
+import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
@@ -62,6 +63,7 @@ import { MediaStreamService, MediaStreamState } from '../../transports/MediaStre
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
+const sceneSettings = defineQuery([SceneSettingsComponent])
 export const MediaIconsBox = () => {
   const { t } = useTranslation()
   const playbackState = useMutableState(PlaybackState)
@@ -94,7 +96,9 @@ export const MediaIconsBox = () => {
   const isScreenVideoEnabled =
     mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
 
-  const spectating = !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value
+  const spectating =
+    !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value &&
+    getOptionalComponent(sceneSettings()?.[0], SceneSettingsComponent)?.spectateEntity === null
   const xrState = useMutableState(XRState)
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value
