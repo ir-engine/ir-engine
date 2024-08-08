@@ -1,4 +1,3 @@
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 /*
 CPAL-1.0 License
 
@@ -69,7 +68,6 @@ export class CustomOAuthStrategy extends OAuthStrategy {
       logger.info('User login entry created successfully.')
     } catch (error) {
       logger.error('Error creating user login entry:', error)
-      NotificationService.dispatchNotify(error.message, { variant: 'error' })
     }
   }
 }
