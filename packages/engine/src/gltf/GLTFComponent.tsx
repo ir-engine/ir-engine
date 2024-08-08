@@ -30,7 +30,6 @@ import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parse
 import {
   Component,
   ComponentJSONIDMap,
-  ComponentType,
   defineComponent,
   Entity,
   EntityUUID,
@@ -57,14 +56,14 @@ const loadDependencies = {
   ['EE_model']: ['scene']
 } as Record<string, string[]>
 
-type ComponentDependencies = Record<ComponentType<typeof UUIDComponent>, Component[]>
+type ComponentDependencies = Record<EntityUUID, Component[]>
 
 const buildComponentDependencies = (json: GLTF.IGLTF) => {
   const dependencies = {} as ComponentDependencies
   if (!json.nodes) return dependencies
   for (const node of json.nodes) {
     if (!node.extensions || !node.extensions[UUIDComponent.jsonID]) continue
-    const uuid = node.extensions[UUIDComponent.jsonID] as ComponentType<typeof UUIDComponent>
+    const uuid = node.extensions[UUIDComponent.jsonID] as EntityUUID
     const extensions = Object.keys(node.extensions)
     for (const extension of extensions) {
       if (loadDependencies[extension]) {
