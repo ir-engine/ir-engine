@@ -1,1 +1,22 @@
-@import "tailwindcss/components";
+@import 'tailwindcss/components';
+
+@keyframes expandFromCenter {
+  0% {
+    transform: scaleX(0.5) scaleY(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scaleX(1.025) scaleY(1.025);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1) scaleY(1);
+    opacity: 1;
+  }
+}
+
+.popup-content {
+  animation: expandFromCenter 0.3s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards;
+  -webkit-animation: expandFromCenter 0.3s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards;
+  transform-origin: center;
+}
