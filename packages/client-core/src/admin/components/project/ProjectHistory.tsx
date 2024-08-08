@@ -138,7 +138,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
           <Text>access to</Text>
 
-          <Tooltip title={`UserId: ${userId}`}>
+          <Tooltip content={`UserId: ${userId}`}>
             <Text>{actionDetail.userName}</Text>
           </Tooltip>
         </>
@@ -155,7 +155,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
       return (
         <>
           <Text>updated the permission of the user</Text>
-          <Tooltip title={`UserId: ${userId}`}>
+          <Tooltip content={`UserId: ${userId}`}>
             <Text>{actionDetail.userName}</Text>
           </Tooltip>
           <Text>from</Text>
