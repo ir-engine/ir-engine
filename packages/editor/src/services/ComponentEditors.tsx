@@ -37,7 +37,6 @@ import { ImageComponent } from '@etherealengine/engine/src/scene/components/Imag
 import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
-import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/components/NewVolumetricComponent'
@@ -104,7 +103,6 @@ import SpotLightNodeEditor from '@etherealengine/ui/src/components/editor/proper
 import LinkNodeEditor from '@etherealengine/ui/src/components/editor/properties/link'
 import LookAtNodeEditor from '@etherealengine/ui/src/components/editor/properties/lookAt'
 import MediaNodeEditor from '@etherealengine/ui/src/components/editor/properties/media'
-import MediaSettingsEditor from '@etherealengine/ui/src/components/editor/properties/media/settings'
 import MeshNodeEditor from '@etherealengine/ui/src/components/editor/properties/mesh'
 import ModelNodeEditor from '@etherealengine/ui/src/components/editor/properties/model'
 import MountPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/mountPoint'
@@ -141,7 +139,7 @@ export const ComponentEditorsState = defineState({
     return {
       [SceneSettingsComponent.name]: SceneSettingsEditor,
       [PostProcessingComponent.name]: PostProcessingSettingsEditor,
-      [MediaSettingsComponent.name]: MediaSettingsEditor,
+      // [MediaSettingsComponent.name]: MediaSettingsEditor,
       [RenderSettingsComponent.name]: RenderSettingsEditor,
       [FogSettingsComponent.name]: FogSettingsEditor,
       [CameraSettingsComponent.name]: CameraPropertiesNodeEditor,

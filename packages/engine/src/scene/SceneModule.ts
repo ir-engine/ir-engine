@@ -40,7 +40,6 @@ import { HyperspaceTagComponent } from './components/HyperspaceTagComponent'
 import { ImageComponent } from './components/ImageComponent'
 import { LinkComponent } from './components/LinkComponent'
 import { MediaComponent } from './components/MediaComponent'
-import { MediaSettingsComponent } from './components/MediaSettingsComponent'
 import { MountPointComponent } from './components/MountPointComponent'
 import { NewVolumetricComponent } from './components/NewVolumetricComponent'
 import { OldColliderComponent } from './components/OldColliderComponent'
@@ -84,7 +83,7 @@ export const SceneComponents = [
   ImageComponent,
   // InteriorComponent,
   MediaComponent,
-  MediaSettingsComponent,
+  // MediaSettingsComponent,
   MountPointComponent,
   // OceanComponent,
   ParticleSystemComponent,
