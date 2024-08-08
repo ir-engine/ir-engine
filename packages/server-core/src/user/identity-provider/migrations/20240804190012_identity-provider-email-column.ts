@@ -23,32 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+import type { Knex } from 'knex'
 
-const sizes = {
-  small: 'h-1.5',
-  default: 'h-2.5',
-  large: 'h-4',
-  extralarge: 'h-6'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await knex.schema.alterTable(identityProviderPath, (table) => {
+    table.string('email', 255).defaultTo(null)
+  })
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export interface ProgressProps extends React.HTMLAttributes<HTMLProgressElement> {
-  className?: string
-  value: number
-  size?: keyof typeof sizes
-  barClassName?: string
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const emailColumnExists = await knex.schema.hasColumn(identityProviderPath, 'email')
+
+  if (emailColumnExists) {
+    await knex.schema.alterTable(identityProviderPath, async (table) => {
+      table.dropColumn('email')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
-
-const Progress = ({ className, barClassName, value, size = 'default' }: ProgressProps) => {
-  const twClassName = twMerge(sizes[size], 'w-full rounded-full bg-gray-200 dark:bg-gray-700', className)
-  const twBarClassName = twMerge(sizes[size], 'bg-blue-primary rounded-full', barClassName)
-
-  return (
-    <div className={twClassName}>
-      <div className={twBarClassName} style={{ width: `${value}%` }} />
-    </div>
-  )
-}
-
-export default Progress

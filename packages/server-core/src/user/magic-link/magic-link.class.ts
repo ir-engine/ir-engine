@@ -155,7 +155,8 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
           token: token,
           type: data.type,
           accountIdentifier: token,
-          userId: identityProviderGuest.userId
+          userId: identityProviderGuest.userId,
+          email: data.email
         },
         params as any
       )
