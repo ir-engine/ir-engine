@@ -23,28 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { metabaseMethods, metabasePath } from '@etherealengine/common/src/schemas/integrations/metabase/metabase.schema'
+import { metabaseUrlDataSchema } from '@etherealengine/common/src/schemas/integrations/metabase/metabase-url.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { Application } from '../../../declarations'
-import { MetabaseAuthenticationService } from './metabase.class'
-import metabaseAuthenticationDocs from './metabase.docs'
-import hooks from './metabase.hooks'
-
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    [metabasePath]: MetabaseAuthenticationService
+export default createSwaggerServiceOptions({
+  schemas: {
+    metabaseUrlDataSchema
+  },
+  docs: {
+    description: 'Metabase url service description',
+    securities: ['all']
   }
-}
-
-export default (app: Application): void => {
-  app.use(metabasePath, new MetabaseAuthenticationService(), {
-    // A list of all methods this service exposes externally
-    methods: metabaseMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: metabaseAuthenticationDocs
-  })
-
-  const service = app.service(metabasePath)
-  service.hooks(hooks)
-}
+})

@@ -23,8 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MetabaseSetting from './metabase/metabase-setting/metabase-setting'
-import MetabaseUrl from './metabase/metabase-url/metabase-url'
-import ZendeskAuthentication from './zendesk/zendesk'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
-export default [ZendeskAuthentication, MetabaseSetting, MetabaseUrl]
+import { MetabaseUrlData } from '@etherealengine/common/src/schemas/integrations/metabase/metabase-url.schema'
+import { BaseService } from '@etherealengine/server-core/src/BaseService'
+
+export interface MetabaseUrlParams extends KnexAdapterParams {}
+
+export class MetabaseUrlService<
+  T = MetabaseUrlData,
+  ServiceParams extends Params = MetabaseUrlParams
+> extends BaseService<string, MetabaseUrlData, MetabaseUrlParams, void> {}

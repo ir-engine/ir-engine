@@ -23,8 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MetabaseSetting from './metabase/metabase-setting/metabase-setting'
-import MetabaseUrl from './metabase/metabase-url/metabase-url'
-import ZendeskAuthentication from './zendesk/zendesk'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { dataValidator } from '@etherealengine/common/src/schemas/validators'
+import type { Static } from '@feathersjs/typebox'
+import { Type, getValidator } from '@feathersjs/typebox'
 
-export default [ZendeskAuthentication, MetabaseSetting, MetabaseUrl]
+export const metabaseUrlPath = 'metabase-url'
+
+export const metabaseUrlMethods = ['create'] as const
+
+// Main data model schema
+export const metabaseUrlDataSchema = Type.Object({}, { $id: 'MetabaseUrl', additionalProperties: true })
+export interface MetabaseUrlData extends Static<typeof metabaseUrlDataSchema> {}
+
+Type.Object(
+  {
+    action: Type.String()
+  },
+  { additionalProperties: false }
+)
+
+export const metabaseUrlDataValidator = /* @__PURE__ */ getValidator(metabaseUrlDataSchema, dataValidator)

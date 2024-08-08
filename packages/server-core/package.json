@@ -86,6 +86,7 @@
     "fs-blob-store": "6.0.0",
     "internal-ip": "^6.1.0",
     "ipfs-http-client": "^56.0.3",
+    "jsonwebtoken": "^9.0.0",
     "jszip": "^3.10.1",
     "knex": "2.4.2",
     "koa-compress": "^5.1.1",

@@ -563,6 +563,15 @@
       },
 
       "plugins": "Plugins",
+
+      "metabase": {
+        "header": "Metabase",
+        "subtitle": "Edit Metabase Settings",
+        "siteUrl": "Site Url",
+        "secretKey": "Secret Key",
+        "expiration": "Expiration",
+        "crashDashboardId": "Crash Dashboard Id"
+      },
       "zendesk": {
         "header": "Zendesk",
         "subtitle": "Edit Zendesk Settings"

@@ -40,6 +40,8 @@
     "./*.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
-    "../common/src/schemas/setting/account-project.schema.ts"
+    "../common/src/schemas/setting/account-project.schema.ts",
+    "../common/src/schemas/integrations/metabase/metabase-setting.schema.ts",
+    "../common/src/schemas/integrations/metabase/metabase-url.schema.ts"
   ]
 }

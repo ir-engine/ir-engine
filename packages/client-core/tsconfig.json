@@ -26,7 +26,11 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": ["vite/client", "mocha", "@types/offscreencanvas"]
+    "types": [
+      "vite/client",
+      "mocha",
+      "@types/offscreencanvas"
+    ]
   },
   "exclude": [
     "../projects/projects/**",
@@ -36,6 +40,8 @@
     "../../__global.d.ts",
     "../server-core/src/",
     "./**/*.ts",
-    "./**/*.tsx"
+    "./**/*.tsx",
+    "../common/src/schemas/integrations/metabase/metabase-setting.schema.ts",
+    "../common/src/schemas/integrations/metabase/metabase-url.schema.ts"
   ]
 }

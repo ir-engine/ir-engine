@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import config from '@etherealengine/common/src/config'
-import { metabasePath } from '@etherealengine/common/src/schema.type.module'
+import { metabaseUrlPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
@@ -35,15 +34,22 @@ import { useTranslation } from 'react-i18next'
 
 export default function CrashReport() {
   const { t } = useTranslation()
-  const analyticMutation = useMutation(metabasePath)
+  const metabaseMutation = useMutation(metabaseUrlPath)
   const iframeUrl = useHookstate<string>('')
 
   useEffect(() => {
-    analyticMutation.create().then(async (token) => {
-      iframeUrl.set(
-        `${config.client.metabase.siteUrl}/embed/dashboard/${token}#theme=night&bordered=false&titled=false`
+    metabaseMutation
+      .create(
+        {},
+        {
+          query: {
+            action: 'crash'
+          }
+        }
       )
-    })
+      .then(async (url) => {
+        iframeUrl.set(url)
+      })
   }, [])
 
   return (

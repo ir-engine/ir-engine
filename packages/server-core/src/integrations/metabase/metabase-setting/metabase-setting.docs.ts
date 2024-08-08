@@ -23,48 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import appConfig from '@etherealengine/server-core/src/appconfig'
-import { Application, HookContext } from '@feathersjs/feathers/lib/declarations'
-import { disallow } from 'feathers-hooks-common'
-import { sign } from 'jsonwebtoken'
+import {
+  metabaseSettingDataSchema,
+  metabaseSettingPatchSchema,
+  metabaseSettingQuerySchema,
+  metabaseSettingSchema
+} from '@etherealengine/common/src/schemas/integrations/metabase/metabase-setting.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-const getMetabaseToken = (context: HookContext<Application>) => {
-  const payload = {
-    resource: { dashboard: appConfig.metabase.dashboard! },
-    params: {},
-    exp: Math.round(Date.now() / 1000) + 10 * 60 // 10 minute expiration
-  }
-
-  context.result = sign(payload, appConfig.metabase.key!)
-  return context
-}
-
-export default {
-  before: {
-    all: [],
-    find: [disallow()],
-    get: [disallow()],
-    create: [getMetabaseToken],
-    update: [disallow()],
-    patch: [disallow()],
-    remove: [disallow()]
+export default createSwaggerServiceOptions({
+  schemas: {
+    metabaseSettingDataSchema,
+    metabaseSettingPatchSchema,
+    metabaseSettingQuerySchema,
+    metabaseSettingSchema
   },
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+  docs: {
+    description: 'Metabase setting service description',
+    securities: ['all']
   }
-} as any
+})

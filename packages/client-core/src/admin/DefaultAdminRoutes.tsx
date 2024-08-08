@@ -154,7 +154,7 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     access: false,
     icon: <HiOutlineMegaphone />
   },
-  crashReport: {
+  crashes: {
     name: 'user:dashboard.crashReport',
     scope: 'server',
     component: CrashReport,

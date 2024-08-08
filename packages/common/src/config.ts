@@ -94,9 +94,6 @@ const client = {
     enabled: globalThis.process.env.VITE_ZENDESK_ENABLED,
     authenticationEnabled: globalThis.process.env.VITE_ZENDESK_AUTHENTICATION_ENABLED,
     key: globalThis.process.env.VITE_ZENDESK_KEY
-  },
-  metabase: {
-    siteUrl: globalThis.process.env.VITE_METABASE_SITE_URL
   }
 }
 
