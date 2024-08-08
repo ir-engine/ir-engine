@@ -409,9 +409,13 @@ const updateInstance = async ({
   if (isNeedingNewServer && !instanceStarted) {
     instanceStarted = true
     const initialized = await initializeInstance({ app, status, headers, userId })
-    if (initialized) await loadEngine({ app, sceneId, headers })
-    else instanceStarted = false
-    return true
+    if (initialized) {
+      await loadEngine({ app, sceneId, headers })
+      return true
+    } else {
+      instanceStarted = false
+      return false
+    }
   } else {
     try {
       if (!getState(InstanceServerState).ready)

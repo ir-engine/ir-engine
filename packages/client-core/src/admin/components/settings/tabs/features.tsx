@@ -121,7 +121,7 @@ const FeatureItem = ({ feature }: { feature: FeatureFlagSettingType }) => {
       />
       {feature.userId && (
         <Tooltip
-          title={t('admin:components.common.lastUpdatedBy', {
+          content={t('admin:components.common.lastUpdatedBy', {
             userId: feature.userId,
             updatedAt: toDisplayDateTime(feature.updatedAt)
           })}

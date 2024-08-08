@@ -23,36 +23,51 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LoaderUtils, Texture, TextureLoader } from 'three'
+import React, { useEffect, useRef } from 'react'
 
-import { GLTFLoaderPlugin } from '../GLTFLoader'
-import { ImporterExtension } from './ImporterExtension'
-
-class CachedImageLoadExtension extends ImporterExtension implements GLTFLoaderPlugin {
-  name = 'EE_cachedImageLoad'
-
-  static cache = new Map<string, Promise<Texture>>()
-
-  loadTexture(textureIndex) {
-    const options = this.parser.options
-    const baseURL = new URL(options.url)
-
-    if (!baseURL.pathname.endsWith('.gltf')) {
-      return this.parser.loadTexture(textureIndex)
-    }
-    const json = this.parser.json
-    const textureDef = json.textures![textureIndex]
-    const sourceIdx = textureDef.source!
-    const sourceDef = json.images![sourceIdx]
-    const uri = sourceDef.uri ?? ''
-    const url = LoaderUtils.resolveURL(uri, options.path!)
-    if (!CachedImageLoadExtension.cache.has(url))
-      CachedImageLoadExtension.cache.set(
-        url,
-        this.parser.loadTextureImage(textureIndex, sourceIdx, new TextureLoader())
-      )
-    return CachedImageLoadExtension.cache.get(url)!
-  }
+interface IInfiniteScrollProps {
+  onScrollBottom: () => void
+  children: React.ReactNode
+  disableEvent?: boolean
+  threshold?: number
+  className?: string
 }
 
-export { CachedImageLoadExtension }
+export default function InfiniteScroll({
+  onScrollBottom,
+  threshold = 1,
+  disableEvent,
+  children
+}: IInfiniteScrollProps) {
+  const observerRef = useRef<HTMLElement>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval>>()
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !disableEvent) {
+          onScrollBottom()
+          intervalRef.current = setInterval(() => onScrollBottom(), 1000)
+        } else {
+          clearInterval(intervalRef.current)
+        }
+      },
+      { threshold }
+    )
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current)
+    }
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [disableEvent])
+
+  return (
+    <div style={{ all: 'unset' }}>
+      {children}
+      <span ref={observerRef} style={{ all: 'unset' }} />
+    </div>
+  )
+}

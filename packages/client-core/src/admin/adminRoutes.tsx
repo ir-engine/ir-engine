@@ -71,7 +71,7 @@ const AdminTopBar = () => {
             <HiMiniSun className="text-theme-primary" size="1.5rem" />
           )}
         </Button>
-        <Tooltip title={tooltip}>
+        <Tooltip content={tooltip}>
           <Button className="pointer-events-auto" size="small" onClick={() => AuthService.logoutUser()}>
             {t('admin:components.common.logOut')}
           </Button>
