@@ -31,7 +31,7 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   startIcon?: ReactNode
   endIcon?: ReactNode
   children?: ReactNode
-  size?: 'small' | 'medium' | 'large'
+  size?: 'xs' | 'sm' | 'l' | 'xl'
   variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success' | 'transparent' | 'sidebar'
   disabled?: boolean
   fullWidth?: boolean
@@ -48,9 +48,10 @@ const roundedTypes = {
 }
 
 const sizes = {
-  small: 'text-sm px-3 py-2',
-  medium: 'text-base px-4 py-2',
-  large: 'text-lg px-7 py-3'
+  xs: 'h-6',
+  sm: 'h-7',
+  l: 'h-8',
+  xl: 'h-10'
 }
 
 const variants = {
@@ -83,7 +84,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const twClassName = twMerge(
       'flex items-center',
-      'font-medium text-white',
+      'text-sm font-medium leading-4 text-white',
+      'px-4 py-1',
       'transition ease-in-out',
       'disabled:cursor-not-allowed',
       (StartIcon || EndIcon) && 'justify-center',

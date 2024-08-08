@@ -22,20 +22,18 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { ArgTypes } from '@storybook/react'
+import { ArgTypes, StoryObj } from '@storybook/react'
 import React from 'react'
 import { IoAddOutline, IoSend } from 'react-icons/io5'
 
-import Button from './index'
+import Button, { ButtonProps } from './index'
+
+const sizes: ButtonProps['size'][] = ['xs', 'sm', 'l', 'xl']
 
 const argTypes: ArgTypes = {
-  size: {
-    control: 'select',
-    options: ['small', 'medium', 'large']
-  },
   variant: {
     control: 'select',
-    options: ['primary', 'outline', 'danger']
+    options: ['primary', 'secondary', 'outline', 'danger', 'success', 'transparent', 'sidebar']
   }
 }
 
@@ -44,18 +42,31 @@ export default {
   component: Button,
   parameters: {
     componentSubtitle: 'Button',
-    jest: 'Button.test.tsx',
     design: {
       type: 'figma',
-      url: ''
+      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2035-16950'
+    },
+    controls: {
+      include: ['children', 'variant']
     }
   },
   argTypes
 }
 
-export const Default = {
+type Story = StoryObj<typeof Button>
+
+export const Default: Story = {
   args: {
     children: 'Submit'
+  },
+  render: (args) => {
+    return (
+      <div className="flex items-center gap-3">
+        {sizes.map((size) => (
+          <Button key={size} size={size} {...args} />
+        ))}
+      </div>
+    )
   }
 }
 
