@@ -23,8 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VALID_FILENAME_REGEX, WINDOWS_RESERVED_NAME_REGEX } from '@etherealengine/common/src/regex'
+import type { Knex } from 'knex'
 
-export function isValidFileName(fileName: string) {
-  return VALID_FILENAME_REGEX.test(fileName) && !WINDOWS_RESERVED_NAME_REGEX.test(fileName)
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await knex.schema.alterTable(identityProviderPath, (table) => {
+    table.string('email', 255).defaultTo(null)
+  })
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const emailColumnExists = await knex.schema.hasColumn(identityProviderPath, 'email')
+
+  if (emailColumnExists) {
+    await knex.schema.alterTable(identityProviderPath, async (table) => {
+      table.dropColumn('email')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
