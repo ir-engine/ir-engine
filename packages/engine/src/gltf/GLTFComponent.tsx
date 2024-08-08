@@ -96,6 +96,20 @@ export const GLTFComponent = defineComponent({
     return !!(dependencies.value && !dependencies.keys?.length)
   },
 
+  useSceneLoaded(entity: Entity) {
+    const gltfComponent = useComponent(entity, GLTFComponent)
+    const dependencies = gltfComponent.dependencies
+    const progress = gltfComponent.progress.value
+    return !!(dependencies.value && !dependencies.keys?.length) && progress === 100
+  },
+
+  isSceneLoaded(entity: Entity) {
+    const gltfComponent = getComponent(entity, GLTFComponent)
+    const dependencies = gltfComponent.dependencies
+    const progress = gltfComponent.progress
+    return !!(dependencies && !Object.keys(dependencies).length) && progress === 100
+  },
+
   reactor: () => {
     const entity = useEntityContext()
     const gltfComponent = useComponent(entity, GLTFComponent)
@@ -141,7 +155,7 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
     const total = resources.reduce((acc, resource) => acc + resource.total, 0)
     if (!total) return
 
-    const percentage = Math.min((progress / total) * 100, dependenciesLoaded ? 100 : 99)
+    const percentage = Math.floor(Math.min((progress / total) * 100, dependenciesLoaded ? 100 : 99))
     getMutableComponent(props.entity, GLTFComponent).progress.set(percentage)
   }, [resourceQuery, sourceEntities, dependenciesLoaded])
 
