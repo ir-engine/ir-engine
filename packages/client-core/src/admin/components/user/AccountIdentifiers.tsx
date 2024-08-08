@@ -63,47 +63,47 @@ export default function AccountIdentifiers({ user }: { user: UserType }) {
   return (
     <div className="flex items-center gap-2">
       {appleIp ? (
-        <Tooltip title={getAccountIdentifierTitle(appleIp)}>
+        <Tooltip content={getAccountIdentifierTitle(appleIp)}>
           <RiAppleFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {discordIp ? (
-        <Tooltip title={getAccountIdentifierTitle(discordIp)}>
+        <Tooltip content={getAccountIdentifierTitle(discordIp)}>
           <RiDiscordFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {googleIp ? (
-        <Tooltip title={getAccountIdentifierTitle(googleIp)}>
+        <Tooltip content={getAccountIdentifierTitle(googleIp)}>
           <RiGoogleFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {facebookIp ? (
-        <Tooltip title={getAccountIdentifierTitle(facebookIp)}>
+        <Tooltip content={getAccountIdentifierTitle(facebookIp)}>
           <RiMetaFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {twitterIp ? (
-        <Tooltip title={getAccountIdentifierTitle(twitterIp)}>
+        <Tooltip content={getAccountIdentifierTitle(twitterIp)}>
           <RiTwitterXFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {linkedinIp ? (
-        <Tooltip title={getAccountIdentifierTitle(linkedinIp)}>
+        <Tooltip content={getAccountIdentifierTitle(linkedinIp)}>
           <RiLinkedinFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {githubIp ? (
-        <Tooltip title={getAccountIdentifierTitle(githubIp)}>
+        <Tooltip content={getAccountIdentifierTitle(githubIp)}>
           <RiGithubFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {smsIp ? (
-        <Tooltip title={getAccountIdentifierTitle(smsIp)}>
+        <Tooltip content={getAccountIdentifierTitle(smsIp)}>
           <RiMessage2Line className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {emailIp ? (
-        <Tooltip title={getAccountIdentifierTitle(emailIp)}>
+        <Tooltip content={getAccountIdentifierTitle(emailIp)}>
           <MdEmail className="h-6 w-6" />
         </Tooltip>
       ) : null}

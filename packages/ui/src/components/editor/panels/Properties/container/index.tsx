@@ -30,13 +30,13 @@ import { UUIDComponent } from '@etherealengine/ecs'
 import { Component, ComponentJSONIDMap, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { calculateAndApplyYOffset } from '@etherealengine/common/src/utils/offsets'
 import { EntityUUID } from '@etherealengine/ecs'
 import { ComponentEditorsState } from '@etherealengine/editor/src/services/ComponentEditors'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { Bounds, getBounds, getViewportBounds } from '@etherealengine/xrui/core/dom-utils'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
 import Button from '../../../../../primitives/tailwind/Button'
 import { Popup } from '../../../../tailwind/Popup'
@@ -53,29 +53,6 @@ const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
   // and to prevent state from being recycled between editor instances, which
   // can cause hookstate to throw errors.
   return <Editor key={`${entity}-${Editor.name}`} multiEdit={multiEdit} entity={entity} component={component} />
-}
-
-const calculateAndApplyOffset = (popupRef: React.RefObject<HTMLDivElement>) => {
-  if (popupRef.current) {
-    const popupBounds = getBounds(popupRef.current)
-    const viewportBounds = getViewportBounds(new Bounds())
-
-    const overflowTop = viewportBounds.top - (popupBounds?.top ?? 0)
-    const overflowBottom =
-      (popupBounds?.top ?? 0) + (popupBounds?.height ?? 0) - (viewportBounds.top + viewportBounds.height)
-
-    let offsetY = 0
-
-    if (overflowTop > 0) {
-      // popup is overflowing at the top, move it down
-      offsetY = overflowTop
-    } else if (overflowBottom > 0) {
-      // popup is overflowing at the bottom, move it up
-      offsetY = -overflowBottom
-    }
-
-    popupRef.current.style.transform = `translateY(${offsetY}px)`
-  }
 }
 
 const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => {
@@ -96,15 +73,14 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
 
   useEffect(() => {
     const handleResize = () => {
-      calculateAndApplyOffset(popupRef)
+      calculateAndApplyYOffset(popupRef.current)
     }
 
     window.addEventListener('resize', handleResize)
-
     return () => {
       window.removeEventListener('resize', handleResize)
     }
-  }, [popupRef])
+  }, [])
 
   const [isAddComponentMenuOpen, setIsAddComponentMenuOpen] = useState(false)
 
@@ -128,7 +104,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
               {t('editor:properties.lbl-addComponent')}
             </Button>
           }
-          onOpen={() => calculateAndApplyOffset(popupRef)}
+          onOpen={() => calculateAndApplyYOffset(popupRef.current)}
         >
           <div ref={popupRef} className="h-[600px] w-96 overflow-y-auto">
             <ElementList type="components" onSelect={() => setIsAddComponentMenuOpen(false)} />
