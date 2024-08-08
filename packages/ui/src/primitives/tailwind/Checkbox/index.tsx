@@ -59,7 +59,7 @@ const Checkbox = ({ className, containerClassName, label, value, onChange, disab
         }}
         className={twMerge(
           'peer relative appearance-none',
-          'grid h-4 w-4 place-items-center rounded border border-theme-primary focus:border-theme-focus focus:outline-none',
+          'grid h-4 w-4 place-items-center rounded border border-theme-primary focus:border-2 focus:border-theme-focus focus:outline-none',
           value ? 'bg-blue-primary' : 'bg-theme-surfaceInput',
           disabled ? 'cursor-not-allowed opacity-50' : '',
           className
