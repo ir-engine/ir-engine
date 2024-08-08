@@ -52,9 +52,14 @@ const Checkbox = ({ className, containerClassName, label, value, onChange, disab
         type="checkbox"
         checked={value}
         onChange={handleChange}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            handleChange()
+          }
+        }}
         className={twMerge(
           'peer relative appearance-none',
-          'grid h-4 w-4 place-items-center rounded border border-theme-primary',
+          'grid h-4 w-4 place-items-center rounded border border-theme-primary focus:border-theme-focus focus:outline-none',
           value ? 'bg-blue-primary' : 'bg-theme-surfaceInput',
           disabled ? 'cursor-not-allowed opacity-50' : '',
           className
