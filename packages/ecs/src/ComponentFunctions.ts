@@ -124,7 +124,6 @@ export interface ComponentPartial<
   onSet?: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   /** @todo Explain ComponentPartial.onRemove(...) */
   onRemove?: (entity: Entity, component: State<ComponentType>) => void | Promise<void>
-  dependencies?: (keyof ComponentType)[]
   /**
    * @summary Defines the {@link React.FC} async logic of the {@link Component} type.
    * @notes Any side-effects that depend on the component's data should be defined here.
@@ -162,7 +161,6 @@ export interface Component<
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
-  dependencies?: (keyof ComponentType)[]
   reactor?: any
   reactorMap: Map<Entity, ReactorRoot>
   stateMap: Record<Entity, State<ComponentType> | undefined>
@@ -236,7 +234,6 @@ export const defineComponent = <
   Object.assign(Component, def)
   if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
   Component.reactorMap = new Map()
-
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
