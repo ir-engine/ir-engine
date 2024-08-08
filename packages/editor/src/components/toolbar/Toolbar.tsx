@@ -60,25 +60,21 @@ const onImportAsset = async () => {
   }
 }
 
-const onClickNewScene = async () => {
+export const confirmedSaveIfModified = async () => {
   const isModified = EditorState.isModified()
 
   if (isModified) {
-    const confirm = await new Promise((resolve) => {
+    return new Promise((resolve) => {
       PopoverState.showPopupover(
-        <SaveSceneDialog
-          isExiting
-          onConfirm={() => {
-            resolve(true)
-          }}
-          onCancel={() => {
-            resolve(false)
-          }}
-        />
+        <SaveSceneDialog isExiting onConfirm={() => resolve(true)} onCancel={() => resolve(false)} />
       )
     })
-    if (!confirm) return
   }
+  return true
+}
+
+const onClickNewScene = async () => {
+  if (!(await confirmedSaveIfModified())) return
 
   const newSceneUIAddons = getState(EditorState).uiAddons.newScene
   if (Object.keys(newSceneUIAddons).length > 0) {
@@ -89,24 +85,7 @@ const onClickNewScene = async () => {
 }
 
 const onCloseProject = async () => {
-  const isModified = EditorState.isModified()
-
-  if (isModified) {
-    const confirm = await new Promise((resolve) => {
-      PopoverState.showPopupover(
-        <SaveSceneDialog
-          isExiting
-          onConfirm={() => {
-            resolve(true)
-          }}
-          onCancel={() => {
-            resolve(false)
-          }}
-        />
-      )
-    })
-    if (!confirm) return
-  }
+  if (!(await confirmedSaveIfModified())) return
 
   const editorState = getMutableState(EditorState)
   getMutableState(GLTFModifiedState).set({})
