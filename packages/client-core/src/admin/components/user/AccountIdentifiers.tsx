@@ -36,7 +36,7 @@ import {
   RiTwitterXFill
 } from 'react-icons/ri'
 
-import { UserType } from '@etherealengine/common/src/schema.type.module'
+import { IdentityProviderType, UserType } from '@etherealengine/common/src/schema.type.module'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 
@@ -51,7 +51,7 @@ export default function AccountIdentifiers({ user }: { user: UserType }) {
   const emailIp = user.identityProviders.find((ip) => ip.type === 'email')
   const smsIp = user.identityProviders.find((ip) => ip.type === 'sms')
 
-  const getAccountIdentifierTitle = (ip) => {
+  const getAccountIdentifierTitle = (ip: IdentityProviderType) => {
     return (
       <div className="flex flex-col justify-center">
         <Text className="text-center">{ip.accountIdentifier!}</Text>
