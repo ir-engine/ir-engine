@@ -24,6 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  Engine,
+  Entity,
   EntityUUID,
   SystemDefinitions,
   UUIDComponent,
@@ -32,6 +34,9 @@ import {
   createEntity,
   destroyEngine,
   getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  hasComponent,
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
@@ -39,15 +44,19 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
-import { MathUtils } from 'three'
+import { BoxGeometry, MathUtils, Mesh } from 'three'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
+import { destroySpatialEngine } from '../../initializeEngine'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { RendererState } from '../RendererState'
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
+import { GroupComponent } from './GroupComponent'
 import { HighlightComponent, HighlightSystem } from './HighlightComponent'
+import { MeshComponent } from './MeshComponent'
 import { PostProcessingComponent } from './PostProcessingComponent'
 import { SceneComponent } from './SceneComponents'
+import { VisibleComponent } from './VisibleComponent'
 
 describe('HighlightComponent', () => {
   describe('IDs', () => {
@@ -74,18 +83,62 @@ describe('HighlightSystem', () => {
     })
   })
 
-  /**
-  // @todo
   describe('execute', () => {
     beforeEach(async () => {
       createEngine()
     })
 
     afterEach(() => {
+      destroySpatialEngine()
       return destroyEngine()
     })
+
+    function createOutlineEntity(name: string): { id: Entity; name: string } {
+      const result = createEntity()
+      setComponent(result, HighlightComponent)
+      setComponent(result, VisibleComponent)
+      setComponent(result, MeshComponent, new Mesh(new BoxGeometry()))
+      getMutableComponent(result, MeshComponent).name.set(name)
+      setComponent(result, GroupComponent)
+      setComponent(result, EntityTreeComponent)
+      return {
+        id: result,
+        name: name
+      }
+    }
+
+    it('should set the list of objects of every entity that has a MeshComponent, a GroupComponent and a VisibleComponent to the rendererComponent.effectComposer?.OutlineEffect?.selection list', () => {
+      mockSpatialEngine()
+      const entity1 = createOutlineEntity('entity1')
+      const entity2 = createOutlineEntity('entity2')
+      const entity3 = createOutlineEntity('entity3')
+      const Expected = [entity1.name, entity2.name, entity3.name]
+      // Get the system definition
+      const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
+      // Run and Check the result
+      highlightSystemExecute()
+      const result = getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.OutlineEffect
+        .selection
+      const list = [...result!.values()]
+      list.forEach((value, _) => assert.equal(Expected.includes(value.name), true))
+    })
+
+    it('should not do anything if the Engine.instance.viewerEntity does not have a RendererComponent', () => {
+      const entity1 = createOutlineEntity('entity1')
+      const entity2 = createOutlineEntity('entity2')
+      const entity3 = createOutlineEntity('entity3')
+      const Expected = [entity1.name, entity2.name, entity3.name]
+      // Sanity check before running
+      assert.equal(hasComponent(getState(EngineState).viewerEntity, RendererComponent), false)
+      // Get the system definition
+      const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
+      // Run and Check the result
+      highlightSystemExecute()
+      const result = getOptionalComponent(getState(EngineState).viewerEntity, RendererComponent)?.effectComposer
+        ?.OutlineEffect.selection
+      assert.equal(result, undefined)
+    })
   })
-  */
 
   describe('General Purpose', () => {
     let rootEntity = UndefinedEntity
