@@ -23,19 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import Tooltip, { TooltipProps } from '../../../primitives/tailwind/Tooltip'
+import { Bounds, getBounds, getViewportBounds } from '@etherealengine/xrui'
 
-export function InfoTooltip({ title, info, ...props }: TooltipProps & { info?: string }) {
-  const tooltipTitle = info ? (
-    <p>
-      {title}
-      <hr className="my-0.5" />
-      {info}
-    </p>
-  ) : (
-    title
-  )
+export const calculateAndApplyYOffset = (element: HTMLElement | null, additionalOffset = 0) => {
+  if (!element) {
+    return
+  }
+  const popupBounds = getBounds(element)
+  const viewportBounds = getViewportBounds(new Bounds())
 
-  return <Tooltip title={tooltipTitle} {...props} />
+  const overflowBottom =
+    (popupBounds?.top ?? 0) + (popupBounds?.height ?? 0) - (viewportBounds.top + viewportBounds.height)
+  let offsetY = 0
+
+  if (overflowBottom > 0) {
+    offsetY = -(popupBounds?.height ?? 0) + additionalOffset
+  }
+
+  element.style.transform = `translateY(${offsetY}px)`
 }

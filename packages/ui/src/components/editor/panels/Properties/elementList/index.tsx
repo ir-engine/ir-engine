@@ -130,13 +130,15 @@ const SceneElementListItem = ({
   return (
     <button
       className={twMerge(
-        'col-span-1 grid place-items-center gap-1 text-ellipsis rounded-xl border-[1px] border-[#212226] bg-theme-primary px-3 py-2.5 text-sm font-medium',
+        'place-items-center gap-1 rounded-xl border-[1px] border-[#212226] bg-theme-primary px-3 py-2.5 text-sm font-medium',
         selected ? 'text-primary border-[#42454D] bg-[#212226]' : 'text-[#B2B5BD]'
       )}
       onClick={onClick}
     >
-      {icon}
-      {categoryTitle}
+      <div className="flex flex-col items-center justify-center">
+        {icon}
+        <div className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{categoryTitle}</div>
+      </div>
     </button>
   )
 }

@@ -23,33 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { TabData } from 'rc-dock'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import Tooltip from '../../../../primitives/tailwind/Tooltip'
-import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import PropertiesPanelContainer from './container'
+import type { Knex } from 'knex'
 
-export const PropertiesPanelTitle = () => {
-  const { t } = useTranslation()
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 
-  return (
-    <div>
-      <PanelDragContainer>
-        <PanelTitle>
-          <Tooltip content={t('editor:properties.info')}>{t('editor:properties.title')}</Tooltip>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
-  )
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await knex.schema.alterTable(identityProviderPath, (table) => {
+    table.string('email', 255).defaultTo(null)
+  })
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export const PropertiesPanelTab: TabData = {
-  id: 'propertiesPanel',
-  closable: true,
-  cached: true,
-  title: <PropertiesPanelTitle />,
-  content: <PropertiesPanelContainer />
-}
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export default PropertiesPanelTitle
+  const emailColumnExists = await knex.schema.hasColumn(identityProviderPath, 'email')
+
+  if (emailColumnExists) {
+    await knex.schema.alterTable(identityProviderPath, async (table) => {
+      table.dropColumn('email')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}

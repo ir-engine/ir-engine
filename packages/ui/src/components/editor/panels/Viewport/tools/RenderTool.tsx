@@ -43,11 +43,11 @@ import SelectInput from '../../../input/Select'
 const renderModes: { name: RenderModesType; icon: JSX.Element }[] = [
   {
     name: 'Unlit',
-    icon: <TbInnerShadowBottomFilled className="text-theme-input" />
+    icon: <TbInnerShadowBottom className="text-theme-input" />
   },
   {
     name: 'Lit',
-    icon: <TbInnerShadowBottom className="text-theme-input" />
+    icon: <TbInnerShadowBottomFilled className="text-theme-input" />
   },
   { name: 'Normals', icon: <TbBallBowling className="text-theme-input" /> },
   {
@@ -81,7 +81,7 @@ const RenderModeTool = () => {
   return (
     <div className="flex items-center gap-1">
       {renderModes.map((mode) => (
-        <Tooltip key={mode.name} title={mode.name}>
+        <Tooltip key={mode.name} content={mode.name}>
           <Button
             startIcon={mode.icon}
             variant={rendererState.renderMode.value === mode.name ? 'outline' : 'transparent'}

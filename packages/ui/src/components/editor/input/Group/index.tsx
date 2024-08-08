@@ -30,7 +30,6 @@ import { MdOutlineHelpOutline } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Label from '../../../../primitives/tailwind/Label'
 import Tooltip from '../../../../primitives/tailwind/Tooltip'
-import { InfoTooltip } from '../../layout/Tooltip'
 
 /**
  * Used to provide styles for InputGroupContainer div.
@@ -98,21 +97,6 @@ export const InputGroupInfoIcon = ({ onClick = () => {} }) => (
   />
 )
 
-interface InputGroupInfoProp {
-  info: string | JSX.Element
-}
-
-/**
- * Used to render InfoTooltip component.
- */
-export function InputGroupInfo({ info }: InputGroupInfoProp) {
-  return (
-    <InfoTooltip title={info}>
-      <InputGroupInfoIcon />
-    </InfoTooltip>
-  )
-}
-
 export interface InputGroupProps {
   name?: string
   label: string
@@ -142,7 +126,7 @@ export function InputGroup({
       <div className="mr-2 flex">
         <Label className={twMerge('mr-2.5 text-wrap text-end text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
         {info && (
-          <Tooltip title={info}>
+          <Tooltip content={info}>
             <LuInfo className={twMerge('h-5 w-5 text-[#A0A1A2]', infoClassName)} />
           </Tooltip>
         )}
