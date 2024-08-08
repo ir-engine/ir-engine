@@ -44,7 +44,7 @@ import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/compone
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { VALID_HEIRACHY_SEARCH_REGEX } from '@etherealengine/common/src/regex'
+import { VALID_HEIRARCHY_SEARCH_REGEX } from '@etherealengine/common/src/regex'
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
 import CreatePrefabPanel from '@etherealengine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
@@ -182,7 +182,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
   const searchedNodes: HierarchyTreeNodeType[] = []
   if (searchHierarchy.value.length > 0) {
     try {
-      const adjustedSearchValue = searchHierarchy.value.replace(VALID_HEIRACHY_SEARCH_REGEX, '\\$&')
+      const adjustedSearchValue = searchHierarchy.value.replace(VALID_HEIRARCHY_SEARCH_REGEX, '\\$&')
       const condition = new RegExp(adjustedSearchValue, 'i') // 'i' flag for case-insensitive search
       entityHierarchy.value.forEach((node) => {
         if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
@@ -551,7 +551,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
             </Button>
           }
         >
-          <div className="h-[600px] w-96 overflow-y-auto">
+          <div className="h-full w-96 overflow-y-auto">
             <ElementList type="prefabs" onSelect={() => setIsAddEntityMenuOpen(false)} />
           </div>
         </Popup>

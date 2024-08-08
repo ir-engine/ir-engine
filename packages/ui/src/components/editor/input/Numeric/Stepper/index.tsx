@@ -29,7 +29,7 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import { t } from 'i18next'
 import { twMerge } from 'tailwind-merge'
 import NumericInput, { NumericInputProp } from '..'
-import { InfoTooltip } from '../../../layout/Tooltip'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 export function NumericStepperInput({
   style,
@@ -54,23 +54,23 @@ export function NumericStepperInput({
 
   return (
     <div className={twMerge('flex h-6 w-full flex-1', className)}>
-      <InfoTooltip title={decrementTooltip}>
+      <Tooltip content={decrementTooltip}>
         <button
           className={twMerge('m-0 flex w-5 justify-center p-0 align-middle', 'rounded-bl rounded-tl')}
           onClick={onDecrement}
         >
           <FaChevronLeft fontSize="small" />
         </button>
-      </InfoTooltip>
+      </Tooltip>
       <NumericInput {...rest} onChange={onChange} value={value} mediumStep={mediumStep} />
-      <InfoTooltip title={incrementTooltip}>
+      <Tooltip content={incrementTooltip}>
         <button
           className={twMerge('m-0 flex w-5 justify-center p-0 align-middle', 'rounded-br rounded-tr')}
           onClick={onIncrement}
         >
           <FaChevronRight fontSize="small" />
         </button>
-      </InfoTooltip>
+      </Tooltip>
     </div>
   )
 }
