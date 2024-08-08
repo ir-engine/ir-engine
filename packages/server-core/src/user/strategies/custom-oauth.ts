@@ -1,3 +1,4 @@
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 /*
 CPAL-1.0 License
 
@@ -55,10 +56,8 @@ export class CustomOAuthStrategy extends OAuthStrategy {
     }
   }
 
+  // Method to create a user login entry for SSO providers
   async userLoginEntry(entity: any, params: CustomerFeathersParams): Promise<any> {
-    // Run strategy-specific update logic first
-    logger.info('Running common logic in CustomOAuthStrategy')
-
     // Create a user-login entry
     try {
       await this.app.service(userLoginPath).create({
@@ -70,7 +69,7 @@ export class CustomOAuthStrategy extends OAuthStrategy {
       logger.info('User login entry created successfully.')
     } catch (error) {
       logger.error('Error creating user login entry:', error)
-      // Handle or rethrow the error as needed
+      NotificationService.dispatchNotify(error.message, { variant: 'error' })
     }
   }
 }

@@ -106,6 +106,7 @@ export class LoginService implements ServiceInterface {
         isGuest: false
       })
 
+      // Create a user-login record
       await this.app.service(userLoginPath).create({
         userId: identityProvider.userId as UserID,
         userAgent: params!.headers!['user-agent'],

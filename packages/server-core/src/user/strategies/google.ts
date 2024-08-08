@@ -111,7 +111,6 @@ export class Googlestrategy extends CustomOAuthStrategy {
       await this.app.service(identityProviderPath).remove(identityProvider.id)
       await this.app.service(userPath).remove(identityProvider.userId)
       await this.userLoginEntry(entity, params)
-
       return super.updateEntity(entity, profile, params)
     }
     const existingEntity = await super.findEntity(profile, params)
@@ -122,7 +121,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
       await this.userLoginEntry(newIP, params)
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) {
-      await this.userLoginEntry(entity, params)
+      await this.userLoginEntry(existingEntity, params)
       return existingEntity
     } else {
       throw new Error('Another user is linked to this account')
