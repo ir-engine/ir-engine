@@ -36,7 +36,6 @@ import {
   getOptionalComponent,
   removeComponent,
   setComponent,
-  useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
@@ -114,7 +113,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
   const { parentEntity } = props
   const clickState = useState(getMutableState(ClickPlacementState))
   const editorState = useState(getMutableState(EditorHelperState))
-  const gltfComponent = useComponent(parentEntity, GLTFComponent)
+  const sceneLoaded = GLTFComponent.useSceneLoaded(parentEntity)
   const errors = useEntityErrors(clickState.placementEntity.value, ModelComponent)
 
   // const renderers = defineQuery([RendererComponent])
@@ -131,7 +130,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
   // }, [editorState.placementMode])
 
   useEffect(() => {
-    if (gltfComponent.progress.value < 100) return
+    if (!sceneLoaded) return
     if (editorState.placementMode.value === PlacementMode.CLICK) {
       SelectionState.updateSelection([])
       if (clickState.placementEntity.value) return
@@ -145,7 +144,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
       clickState.placementEntity.set(UndefinedEntity)
       SelectionState.updateSelection(selectedEntities)
     }
-  }, [editorState.placementMode, gltfComponent.progress])
+  }, [editorState.placementMode, sceneLoaded])
 
   useEffect(() => {
     if (!clickState.placementEntity.value) return

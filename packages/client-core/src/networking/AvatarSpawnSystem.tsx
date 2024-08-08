@@ -34,7 +34,6 @@ import {
   getComponent,
   getOptionalComponent,
   PresentationSystemGroup,
-  useComponent,
   useQuery,
   UUIDComponent
 } from '@etherealengine/ecs'
@@ -56,7 +55,7 @@ import { AuthState } from '../user/services/AuthService'
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   if (!isClient) return null
   const { sceneEntity } = props
-  const gltfLoaded = useComponent(sceneEntity, GLTFComponent).progress.value === 100
+  const gltfLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
   const searchParams = useMutableState(SearchParamState)
 
   const spawnAvatar = useHookstate(false)
