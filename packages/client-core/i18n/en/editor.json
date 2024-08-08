@@ -72,7 +72,8 @@
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Invalid input: Only alphanumeric characters, hyphens, and underscores are allowed."
+    "invalidSceneName": "Invalid input: Only alphanumeric characters, hyphens, and underscores are allowed.",
+    "invalidSceneNameLength": "Invalid input: Name must be between 4 and 64 characters"
   },
   "viewport": {
     "title": "Viewport",

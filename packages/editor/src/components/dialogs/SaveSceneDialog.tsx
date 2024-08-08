@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import isValidSceneName from '@etherealengine/common/src/utils/validateSceneName'
+import isValidSceneName, { isValidSceneNameLength } from '@etherealengine/common/src/utils/validateSceneName'
 import { getComponent } from '@etherealengine/ecs'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
@@ -98,6 +98,10 @@ export const SaveNewSceneDialog = (props: { onConfirm?: () => void; onCancel?: (
   const inputError = useHookstate('')
 
   const handleSubmit = async () => {
+    if (!isValidSceneNameLength(inputSceneName.value)) {
+      inputError.set(t('editor:errors.invalidSceneNameLength'))
+      return
+    }
     if (!isValidSceneName(inputSceneName.value)) {
       inputError.set(t('editor:errors.invalidSceneName'))
       return

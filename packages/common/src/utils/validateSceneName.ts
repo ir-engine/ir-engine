@@ -28,3 +28,7 @@ import { VALID_SCENE_NAME_REGEX, WINDOWS_RESERVED_NAME_REGEX } from '@etherealen
 export default function isValidSceneName(sceneName: string) {
   return !WINDOWS_RESERVED_NAME_REGEX.test(sceneName) && VALID_SCENE_NAME_REGEX.test(sceneName)
 }
+
+export function isValidSceneNameLength(sceneName: string) {
+  return sceneName.length > 3 && sceneName.length < 65
+}
