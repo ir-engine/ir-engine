@@ -148,6 +148,8 @@ const ResourceFile = (props: {
   const name = splitResourceKey.at(-1)!
   const path = splitResourceKey.slice(0, -1).join('/') + '/'
 
+  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+
   const [_, drag, preview] = useDrag(() => ({
     type: assetType,
     item: {
@@ -175,10 +177,10 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="mb-3 flex h-auto w-40 cursor-pointer flex-col items-center text-center"
+      className="mb-3 flex h-auto min-w-40 cursor-pointer flex-col items-center text-center"
     >
       <span
-        className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
+        className={`mx-4 mb-3 mt-2 min-h-40 min-w-40 font-['Figtree'] ${
           selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
         }`}
       >
@@ -306,7 +308,7 @@ const AssetCategory = (props: {
     // TODO: add preview functionality
   }
 
-  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
+  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
 
   return (
     <div
@@ -316,8 +318,8 @@ const AssetCategory = (props: {
         category.depth === 0 ? 'min-h-9' : 'min-h-7'
       )}
       style={{
-        height: `${fontSize}px`,
-        fontSize: `${fontSize}px`
+        height: `${viewModeSettings.list.fontSize.value}px`,
+        fontSize: `${viewModeSettings.list.fontSize.value}px`
       }}
     >
       <div
