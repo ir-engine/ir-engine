@@ -45,12 +45,12 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(userLoginQueryValidator), schemaHooks.resolveQuery(userLoginQueryResolver)],
-    find: [],
+    find: [disallow()],
     get: [disallow()],
     create: [() => schemaHooks.validateData(userLoginDataValidator), schemaHooks.resolveData(userLoginDataResolver)],
-    update: [],
+    update: [disallow()],
     patch: [() => schemaHooks.validateData(userLoginPatchValidator), schemaHooks.resolveData(userLoginPatchResolver)],
-    remove: []
+    remove: [disallow()]
   },
 
   after: {
