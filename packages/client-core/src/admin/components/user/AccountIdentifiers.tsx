@@ -37,6 +37,7 @@ import {
 } from 'react-icons/ri'
 
 import { UserType } from '@etherealengine/common/src/schema.type.module'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 
 export default function AccountIdentifiers({ user }: { user: UserType }) {
@@ -50,50 +51,59 @@ export default function AccountIdentifiers({ user }: { user: UserType }) {
   const emailIp = user.identityProviders.find((ip) => ip.type === 'email')
   const smsIp = user.identityProviders.find((ip) => ip.type === 'sms')
 
+  const getAccountIdentifierTitle = (ip) => {
+    return (
+      <div className="flex flex-col justify-center">
+        <Text className="text-center">{ip.accountIdentifier!}</Text>
+        {ip.email && <Text>{`(${ip.email})`}</Text>}
+      </div>
+    )
+  }
+
   return (
     <div className="flex items-center gap-2">
       {appleIp ? (
-        <Tooltip title={appleIp.accountIdentifier!}>
+        <Tooltip title={getAccountIdentifierTitle(appleIp)}>
           <RiAppleFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {discordIp ? (
-        <Tooltip title={discordIp.accountIdentifier!}>
+        <Tooltip title={getAccountIdentifierTitle(discordIp)}>
           <RiDiscordFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {googleIp ? (
-        <Tooltip title={googleIp.accountIdentifier!}>
+        <Tooltip title={getAccountIdentifierTitle(googleIp)}>
           <RiGoogleFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {facebookIp ? (
-        <Tooltip title={facebookIp.accountIdentifier!}>
+        <Tooltip title={getAccountIdentifierTitle(facebookIp)}>
           <RiMetaFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {twitterIp ? (
-        <Tooltip title={twitterIp.accountIdentifier!}>
+        <Tooltip title={getAccountIdentifierTitle(twitterIp)}>
           <RiTwitterXFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {linkedinIp ? (
-        <Tooltip title={linkedinIp.accountIdentifier!}>
+        <Tooltip title={getAccountIdentifierTitle(linkedinIp)}>
           <RiLinkedinFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {githubIp ? (
-        <Tooltip title={githubIp.accountIdentifier!}>
+        <Tooltip title={getAccountIdentifierTitle(githubIp)}>
           <RiGithubFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {smsIp ? (
-        <Tooltip title={smsIp.accountIdentifier!}>
+        <Tooltip title={getAccountIdentifierTitle(smsIp)}>
           <RiMessage2Line className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {emailIp ? (
-        <Tooltip title={emailIp.accountIdentifier!}>
+        <Tooltip title={getAccountIdentifierTitle(emailIp)}>
           <MdEmail className="h-6 w-6" />
         </Tooltip>
       ) : null}

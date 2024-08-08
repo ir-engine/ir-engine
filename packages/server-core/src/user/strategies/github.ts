@@ -60,13 +60,13 @@ export class GithubStrategy extends CustomOAuthStrategy {
 
     let email: string
 
-    if (!profile.email) {
+    if (profile.email) {
+      email = profile.email
+    } else {
       const octoKit = new Octokit({ auth: `token ${params.access_token}` })
       const githubEmails = await octoKit.rest.users.listEmailsForAuthenticatedUser()
 
       email = githubEmails.data.filter((githubEmail: any) => githubEmail.primary === true)[0].email
-    } else {
-      email = profile.email
     }
 
     return {
