@@ -65,10 +65,8 @@ bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE) // Send the INITIAL_COMPONENT_SIZE
 
 export const ComponentMap = new Map<string, Component<any, any, any>>()
 export const ComponentJSONIDMap = new Map<string, Component<any, any, any>>() // <jsonID, Component>
-export const ComponentDependencyMap = new Map<string, string[] | undefined>()
 globalThis.ComponentMap = ComponentMap
 globalThis.ComponentJSONIDMap = ComponentJSONIDMap
-globalThis.ComponentDependencyMap = ComponentDependencyMap
 
 //::::: Helper and Validation generic types ::::://
 /** @private Type that will become a [Typescript.Partial](https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype) if T is extending an object, but will be just T otherwise. */
@@ -244,7 +242,6 @@ export const defineComponent = <
   // instance is added/removed, so each component instance has to be isolated from the others.
   Component.stateMap = {}
   if (Component.jsonID) {
-    ComponentDependencyMap.set(Component.jsonID, Component.dependencies as string[])
     ComponentJSONIDMap.set(Component.jsonID, Component)
     console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
   } else if (def.toJSON) {

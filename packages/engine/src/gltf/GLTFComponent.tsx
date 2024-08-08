@@ -29,7 +29,6 @@ import React, { useEffect } from 'react'
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import {
   Component,
-  ComponentDependencyMap,
   ComponentJSONIDMap,
   ComponentType,
   defineComponent,
@@ -54,6 +53,10 @@ import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
 
+const loadDependencies = {
+  ['EE_model']: ['scene']
+} as Record<string, string[]>
+
 type ComponentDependencies = Record<ComponentType<typeof UUIDComponent>, Component[]>
 
 const buildComponentDependencies = (json: GLTF.IGLTF) => {
@@ -64,7 +67,7 @@ const buildComponentDependencies = (json: GLTF.IGLTF) => {
     const uuid = node.extensions[UUIDComponent.jsonID] as ComponentType<typeof UUIDComponent>
     const extensions = Object.keys(node.extensions)
     for (const extension of extensions) {
-      if (ComponentDependencyMap.get(extension)) {
+      if (loadDependencies[extension]) {
         if (!dependencies[uuid]) dependencies[uuid] = []
         dependencies[uuid].push(ComponentJSONIDMap.get(extension)!)
       }
@@ -253,13 +256,13 @@ const useGLTFDocument = (url: string, entity: Entity) => {
     if (!dependencies) return
 
     if (!Object.keys(dependencies).length) {
-      console.log('All GLTF dependencies loaded')
+      // console.log('All GLTF dependencies loaded')
       return
     }
 
     const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; component: Component }) => {
       const { gltfComponentEntity, entity, component } = props
-      const dependencies = component.dependencies!
+      const dependencies = loadDependencies[component.jsonID!]
       const comp = useComponent(entity, component)
 
       useEffect(() => {
@@ -268,7 +271,7 @@ const useGLTFDocument = (url: string, entity: Entity) => {
           if (!compValue[key]) return
         }
 
-        console.log(`All dependencies loaded for entity: ${entity} on component: ${component.jsonID}`)
+        // console.log(`All dependencies loaded for entity: ${entity} on component: ${component.jsonID}`)
 
         const gltfComponent = getMutableComponent(gltfComponentEntity, GLTFComponent)
         const uuid = getComponent(entity, UUIDComponent)

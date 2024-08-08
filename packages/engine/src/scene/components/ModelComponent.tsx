@@ -101,7 +101,6 @@ export const ModelComponent = defineComponent({
     if (typeof json.convertToVRM === 'boolean') component.convertToVRM.set(json.convertToVRM)
   },
 
-  dependencies: ['scene'],
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
   reactor: ModelReactor
