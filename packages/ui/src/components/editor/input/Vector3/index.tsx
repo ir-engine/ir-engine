@@ -46,11 +46,11 @@ export const Vector3Scrubber = ({ axis, onChange, onPointerUp, value, children, 
   const color = (() => {
     switch (axis) {
       case 'x':
-        return 'blue-primary'
+        return 'red-500'
       case 'y':
-        return 'pink-primary'
+        return 'green-400'
       case 'z':
-        return 'purple-primary'
+        return 'blue-400'
       default:
         return 'inherit'
     }

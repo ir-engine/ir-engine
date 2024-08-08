@@ -54,7 +54,7 @@ export const writeBlendWeight = (v: ViewCursor, entity: Entity) => {
 
   const ignoreHasChanged =
     hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag) &&
-    getState(ECSState).simulationTime % getState(ECSState).periodicUpdateFrequency === 0
+    Math.round(getState(ECSState).simulationTime % getState(ECSState).periodicUpdateFrequency) === 0
 
   changeMask |= writePropIfChanged(v, AvatarIKTargetComponent.blendWeight, entity, ignoreHasChanged)
     ? 1 << b++
