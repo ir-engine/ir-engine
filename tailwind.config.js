@@ -33,8 +33,8 @@ module.exports = {
     extend: {
       gradientColorStops: {
         ...Array.from({ length: 101 }, (_, i) => i).reduce((acc, curr) => {
-          acc[curr] = `${curr}%`;
-          return acc;
+          acc[curr] = `${curr}%`
+          return acc
         }, {})
       },
       textColor: {
@@ -43,10 +43,10 @@ module.exports = {
           primary: 'var(--text-primary)',
           secondary: 'var(--text-secondary)',
           highlight: 'var(--text-highlight)',
-          'gray3': 'var(--text-gray3)',
+          gray3: 'var(--text-gray3)',
           iconGreen: 'var(--icon-green)',
           iconRed: 'var(--icon-red)',
-          'menu-default': 'var(--text-menu-default)',
+          'menu-default': 'var(--text-menu-default)'
         }
       },
       backgroundColor: {
@@ -73,18 +73,19 @@ module.exports = {
         theme: {
           primary: 'var(--border-primary)',
           input: 'var(--border-input)',
+          focus: 'var(--border-focus)'
         }
       },
       colors: {
         'blue-primary': '#375DAF',
         'blue-secondary': '#162546',
         'pink-primary': '#A24482',
-        'purple-primary': '#8261D2',
+        'purple-primary': '#8261D2'
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        figtree: ['Figtree', 'sans-serif'],
-      },
+        figtree: ['Figtree', 'sans-serif']
+      }
     }
   },
   safelist: [
