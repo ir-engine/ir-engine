@@ -54,7 +54,11 @@ declare module '@feathersjs/feathers' {
   }
 
   interface CustomerFeathersParams extends Params {
-    id?: string
+    forwarded?: {
+      ip?: string
+      port?: string
+      secure?: boolean
+    }
   }
 }
 

@@ -234,7 +234,9 @@ export const createFeathersKoaApp = (
 
     ctx.feathers = {
       ...ctx.feathers,
-      ip: clientIp
+      forwarded: {
+        ip: clientIp
+      }
     } as CustomerFeathersParams
 
     await next()

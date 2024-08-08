@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userLoginPath } from '@etherealengine/common/src/schemas/user/user-login.schema'
 import type { Knex } from 'knex'
 
@@ -45,9 +46,17 @@ export async function up(knex: Knex): Promise<void> {
       table.string('ipAddress', 255).notNullable()
       table.integer('port').nullable()
       table.boolean('secure').nullable()
+      //@ts-ignore
+      table.uuid('identityProviderId').collate('utf8mb4_bin').index()
       table.dateTime('createdAt').notNullable()
 
       table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
+      table
+        .foreign('identityProviderId')
+        .references('id')
+        .inTable(identityProviderPath)
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE')
     })
   }
 

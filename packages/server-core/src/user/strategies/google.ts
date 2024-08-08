@@ -32,7 +32,6 @@ import { identityProviderPath } from '@etherealengine/common/src/schemas/user/id
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 
-import { userLoginPath } from '@etherealengine/common/src/schemas/user/user-login.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { RedirectConfig } from '../../types/OauthStrategies'
@@ -106,6 +105,8 @@ export class Googlestrategy extends CustomOAuthStrategy {
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
       await this.app.service(identityProviderPath).remove(identityProvider.id)
       await this.app.service(userPath).remove(identityProvider.userId)
+      await this.userLoginEntry(entity, params)
+
       return super.updateEntity(entity, profile, params)
     }
     const existingEntity = await super.findEntity(profile, params)
@@ -113,16 +114,12 @@ export class Googlestrategy extends CustomOAuthStrategy {
       profile.userId = user.id
       const newIP = await super.createEntity(profile, params)
       if (entity.type === 'guest') await this.app.service(identityProviderPath).remove(entity.id)
-
-      await this.app.service(userLoginPath).create({
-        userId: user.id,
-        userAgent: params.headers!['user-agent'],
-        identityProviderId: newIP.id
-      })
-
+      await this.userLoginEntry(newIP, params)
       return newIP
-    } else if (existingEntity.userId === identityProvider.userId) return existingEntity
-    else {
+    } else if (existingEntity.userId === identityProvider.userId) {
+      await this.userLoginEntry(entity, params)
+      return existingEntity
+    } else {
       throw new Error('Another user is linked to this account')
     }
   }
