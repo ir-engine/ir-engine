@@ -75,39 +75,6 @@ const config: StorybookConfig = {
       build: {
         cssMinify: false
       },
-      // server: {
-      //   ...userConfig?.server,
-      //   proxy: {
-      //     ...userConfig?.server?.proxy,
-      //     cors: false,
-      //     '^3030': {
-      //       target: `https://${host}:3030`,
-      //       changeOrigin: true,
-      //       secure: false,
-      //       ws: true
-      //     },
-      //     '^3031': {
-      //       target: `https://${host}:3031`,
-      //       changeOrigin: true,
-      //       secure: false,
-      //       ws: true
-      //     },
-      //     '/sfx': {
-      //       target: `https://${host}:3000`,
-      //       changeOrigin: true,
-      //       secure: false,
-      //       // replace port 6006 with 3000
-      //       pathRewrite: { '^6006': '3000' }
-      //     },
-      //     '/fonts': {
-      //       target: `https://${host}:3000`,
-      //       changeOrigin: true,
-      //       secure: false,
-      //       // replace port 6006 with 3000
-      //       pathRewrite: { '^6006': '3000' }
-      //     }
-      //   }
-      // },
       plugins: []
     })
   },

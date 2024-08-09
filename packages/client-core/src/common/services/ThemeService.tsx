@@ -61,10 +61,18 @@ export interface CSSClasses {
   'border-focus': string
 
   'blue-primary': string
+  'blue-secondary': string
   selection: string
 }
 
+const common: Partial<CSSClasses> = {
+  'blue-primary': '#375DAF',
+  'blue-secondary': '#162546'
+}
+
 const lightTheme: CSSClasses = {
+  ...(common as CSSClasses),
+
   'bg-primary': '#F5F5F5',
   'bg-secondary': '#FFFFFF',
   'bg-highlight': '#D9D9D9',
@@ -97,11 +105,12 @@ const lightTheme: CSSClasses = {
   'border-input': '#42454D',
   'border-focus': '#375DAF',
 
-  'blue-primary': '#375DAF',
   selection: '#3166D0'
 }
 
 const darkTheme: CSSClasses = {
+  ...(common as CSSClasses),
+
   'bg-primary': '#111113',
   'bg-secondary': '#000000',
   'bg-highlight': '#212226',
@@ -134,7 +143,6 @@ const darkTheme: CSSClasses = {
   'border-input': '#42454D',
   'border-focus': '#375DAF',
 
-  'blue-primary': '#375DAF',
   selection: '#1E4273'
 }
 
