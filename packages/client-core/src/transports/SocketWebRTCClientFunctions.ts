@@ -101,10 +101,14 @@ import {
 import { ChannelState } from '../social/services/ChannelService'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
+import { clientContextParams } from '../util/contextParams'
 import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
 
-const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
+const logger = multiLogger.child({
+  component: 'client-core:SocketWebRTCClientFunctions',
+  modifier: clientContextParams
+})
 
 export type WebRTCTransportExtension = Omit<MediaSoupTransport, 'appData'> & { appData: MediaStreamAppData }
 export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
@@ -1098,6 +1102,7 @@ export const toggleMicrophonePaused = async () => {
       const audioPaused = mediaStreamState.audioPaused.value
       if (audioPaused) resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value! as ProducerExtension)
       else pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value! as ProducerExtension)
+      logger.info({ event_name: 'microphone', value: !audioPaused })
       mediaStreamState.audioPaused.set(!audioPaused)
     }
   }
@@ -1110,6 +1115,7 @@ export const toggleWebcamPaused = async () => {
     if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
     else {
       const videoPaused = mediaStreamState.videoPaused.value
+      logger.info({ event_name: 'camera', value: !videoPaused })
       if (videoPaused) resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value! as ProducerExtension)
       else pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value! as ProducerExtension)
       mediaStreamState.videoPaused.set(!videoPaused)
@@ -1173,7 +1179,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork) {
 }
 
 export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
-  logger.info('Start screen share')
+  logger.info({ event_name: 'screen_share', event_value: true })
   const mediaStreamState = getMutableState(MediaStreamState)
 
   // get a screen share track
@@ -1229,7 +1235,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
 }
 
 export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
-  logger.info('Screen share stopped')
+  logger.info({ event_name: 'screen_share', event_value: false })
   const mediaStreamState = getMutableState(MediaStreamState)
 
   console.log(mediaStreamState.screenVideoProducer.value, mediaStreamState.screenShareVideoPaused.value)
