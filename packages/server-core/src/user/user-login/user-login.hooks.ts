@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   userLoginDataValidator,
+  userLoginPatchValidator,
   userLoginQueryValidator
 } from '@etherealengine/common/src/schemas/user/user-login.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
@@ -32,6 +33,7 @@ import { disallow } from 'feathers-hooks-common'
 import {
   userLoginDataResolver,
   userLoginExternalResolver,
+  userLoginPatchResolver,
   userLoginQueryResolver,
   userLoginResolver
 } from './user-login.resolvers'
@@ -51,7 +53,11 @@ export default {
       schemaHooks.resolveData(userLoginDataResolver)
     ],
     update: [disallow()],
-    patch: [disallow()],
+    patch: [
+      disallow(),
+      schemaHooks.validateData(userLoginPatchValidator),
+      schemaHooks.resolveData(userLoginPatchResolver)
+    ],
     remove: [disallow()]
   },
 

@@ -44,4 +44,6 @@ export const userLoginDataResolver = resolve<UserLoginType, HookContext>({
   createdAt: getDateTimeSql
 })
 
+export const userLoginPatchResolver = resolve<UserLoginType, HookContext>({})
+
 export const userLoginQueryResolver = resolve<UserLoginQuery, HookContext>({})

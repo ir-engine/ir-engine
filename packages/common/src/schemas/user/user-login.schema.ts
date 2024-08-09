@@ -65,6 +65,12 @@ export const userLoginDataSchema = Type.Pick(
 )
 export interface UserLoginData extends Static<typeof userLoginDataSchema> {}
 
+// Schema for updating existing entries
+export const userLoginPatchSchema = Type.Partial(userLoginSchema, {
+  $id: 'UserLoginPatch'
+})
+export interface UserLoginPatch extends Static<typeof userLoginPatchSchema> {}
+
 // Schema for allowed query properties
 export const userLoginQueryProperties = Type.Pick(userLoginSchema, [
   'id',
@@ -86,4 +92,5 @@ export interface UserLoginQuery extends Static<typeof userLoginQuerySchema> {}
 
 export const userLoginValidator = /* @__PURE__ */ getValidator(userLoginSchema, dataValidator)
 export const userLoginDataValidator = /* @__PURE__ */ getValidator(userLoginDataSchema, dataValidator)
+export const userLoginPatchValidator = /* @__PURE__ */ getValidator(userLoginPatchSchema, dataValidator)
 export const userLoginQueryValidator = /* @__PURE__ */ getValidator(userLoginQuerySchema, queryValidator)
