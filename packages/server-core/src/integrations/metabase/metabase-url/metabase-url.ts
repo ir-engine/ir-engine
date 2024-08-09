@@ -23,8 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MetabaseSetting from './metabase/metabase-setting/metabase-setting'
-import MetabaseUrl from './metabase/metabase-url/metabase-url'
-import ZendeskAuthentication from './zendesk/zendesk'
+import {
+  metabaseUrlMethods,
+  metabaseUrlPath
+} from '@etherealengine/common/src/schemas/integrations/metabase/metabase-url.schema'
+import { Application } from '@etherealengine/server-core/declarations'
+import { MetabaseUrlService } from './metabase-url.class'
+import metabaseUrlDocs from './metabase-url.docs'
+import hooks from './metabase-url.hooks'
 
-export default [ZendeskAuthentication, MetabaseSetting, MetabaseUrl]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [metabaseUrlPath]: MetabaseUrlService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(metabaseUrlPath, new MetabaseUrlService(), {
+    // A list of all methods this service exposes externally
+    methods: metabaseUrlMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: metabaseUrlDocs
+  })
+
+  const service = app.service(metabaseUrlPath)
+  service.hooks(hooks)
+}
