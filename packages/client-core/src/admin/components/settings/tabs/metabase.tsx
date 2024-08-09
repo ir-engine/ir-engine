@@ -23,11 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { forwardRef, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
-
-import { zendeskSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { metabaseSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import PasswordInput from '@etherealengine/ui/src/components/tailwind/PasswordInput'
@@ -35,42 +31,51 @@ import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import React, { forwardRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
+const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
   const state = useHookstate<{ loading: boolean; errorMessage: string }>({
     loading: false,
     errorMessage: ''
   })
   const id = useHookstate<string | undefined>(undefined)
-  const name = useHookstate<string>('')
-  const secret = useHookstate<string>('')
-  const kid = useHookstate<string>('')
-  const zendeskMutation = useMutation(zendeskSettingPath)
+  const siteUrl = useHookstate('')
+  const secretKey = useHookstate('')
+  const expiration = useHookstate(10)
+  const crashDashboardId = useHookstate('')
+  const metabaseSettingMutation = useMutation(metabaseSettingPath)
 
-  const { data } = useFind(zendeskSettingPath)
+  const { data } = useFind(metabaseSettingPath)
 
   useEffect(() => {
     if (data.length) {
       id.set(data[0].id)
-      name.set(data[0].name)
-      secret.set(data[0].secret)
-      kid.set(data[0].kid)
+      siteUrl.set(data[0].siteUrl)
+      secretKey.set(data[0].secretKey)
+      expiration.set(data[0].expiration)
+      crashDashboardId.set(data[0].crashDashboardId || '')
     }
   }, [data])
 
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    if (!name.value || !secret.value || !kid.value) return
+    if (!siteUrl.value || !secretKey.value) return
 
     state.loading.set(true)
+
     const setting = {
-      name: name.value,
-      secret: secret.value,
-      kid: kid.value
+      siteUrl: siteUrl.value,
+      secretKey: secretKey.value,
+      crashDashboardId: crashDashboardId.value
     }
-    const operation = !id.value ? zendeskMutation.create(setting) : zendeskMutation.patch(id.value, setting)
+
+    const operation = !id.value
+      ? metabaseSettingMutation.create(setting)
+      : metabaseSettingMutation.patch(id.value, setting)
     operation
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
@@ -83,16 +88,17 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
   const handleCancel = () => {
     if (data.length) {
       id.set(data[0].id)
-      name.set(data[0].name)
-      secret.set(data[0].secret)
-      kid.set(data[0].kid)
+      siteUrl.set(data[0].siteUrl)
+      secretKey.set(data[0].secretKey)
+      expiration.set(data[0].expiration)
+      crashDashboardId.set(data[0].crashDashboardId || '')
     }
   }
 
   return (
     <Accordion
-      title={t('admin:components.setting.zendesk.header')}
-      subtitle={t('admin:components.setting.zendesk.subtitle')}
+      title={t('admin:components.setting.metabase.header')}
+      subtitle={t('admin:components.setting.metabase.subtitle')}
       expandIcon={<HiPlusSmall />}
       shrinkIcon={<HiMinus />}
       ref={ref}
@@ -101,23 +107,31 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
       <div className="my-6 grid grid-cols-3 gap-6">
         <Input
           className="col-span-1"
-          label={t('admin:components.setting.keyName')}
-          value={name?.value || ''}
-          onChange={(e) => name.set(e.target.value)}
+          label={t('admin:components.setting.metabase.siteUrl')}
+          value={siteUrl?.value || ''}
+          onChange={(e) => siteUrl.set(e.target.value)}
         />
 
         <PasswordInput
           className="col-span-1"
-          label={t('admin:components.setting.secret')}
-          value={secret?.value || ''}
-          onChange={(e) => secret.set(e.target.value)}
+          label={t('admin:components.setting.metabase.secretKey')}
+          value={secretKey?.value || ''}
+          onChange={(e) => secretKey.set(e.target.value)}
         />
 
         <Input
           className="col-span-1"
-          label={t('admin:components.setting.kid')}
-          value={kid?.value || ''}
-          onChange={(e) => kid.set(e.target.value)}
+          type="number"
+          label={t('admin:components.setting.metabase.expiration')}
+          value={expiration?.value || 10}
+          onChange={(e) => expiration.set(isNaN(parseInt(e.target.value)) ? 10 : parseInt(e.target.value))}
+        />
+
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.metabase.crashDashboardId')}
+          value={crashDashboardId?.value || ''}
+          onChange={(e) => crashDashboardId.set(e.target.value)}
         />
       </div>
 
@@ -140,4 +154,4 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
   )
 })
 
-export default ZendeskTab
+export default MetabaseTab

@@ -23,8 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MetabaseSetting from './metabase/metabase-setting/metabase-setting'
-import MetabaseUrl from './metabase/metabase-url/metabase-url'
-import ZendeskAuthentication from './zendesk/zendesk'
+import {
+  metabaseUrlDataSchema,
+  metabaseUrlQuerySchema
+} from '@etherealengine/common/src/schemas/integrations/metabase/metabase-url.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default [ZendeskAuthentication, MetabaseSetting, MetabaseUrl]
+export default createSwaggerServiceOptions({
+  schemas: {
+    metabaseUrlDataSchema,
+    metabaseUrlQuerySchema
+  },
+  docs: {
+    description: 'Metabase url service description',
+    securities: ['all']
+  }
+})

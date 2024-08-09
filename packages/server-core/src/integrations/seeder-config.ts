@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MetabaseSetting from './metabase/metabase-setting/metabase-setting'
-import MetabaseUrl from './metabase/metabase-url/metabase-url'
-import ZendeskAuthentication from './zendesk/zendesk'
+import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
 
-export default [ZendeskAuthentication, MetabaseSetting, MetabaseUrl]
+import * as metabaseSettingSeed from './metabase/metabase-setting/metabase-setting.seed'
+
+export const integrationsSeeds: Array<KnexSeed> = [metabaseSettingSeed]
