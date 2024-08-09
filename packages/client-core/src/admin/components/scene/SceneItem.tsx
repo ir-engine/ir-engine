@@ -117,7 +117,7 @@ export const SceneItem = ({ scene, updateEditorState, handleOpenScene, refetchPr
           />
           <ul
             className={twMerge(
-              'fixed z-10 block w-max translate-x-5 rounded-lg bg-theme-primary px-4 py-3 pr-10',
+              'fixed z-10 block w-max -translate-y-10 translate-x-5 rounded-lg bg-theme-primary px-4 py-3 pr-10',
               showContentMenu.value ? 'visible' : 'hidden'
             )}
             style={{
