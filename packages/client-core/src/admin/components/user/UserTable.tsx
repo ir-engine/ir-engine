@@ -123,10 +123,18 @@ export default function UserTable({
         avatar: <AvatarImage src={row?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
         lastLogin: row.lastLogin && (
-          <div>
+          <div className="flex">
             {toDisplayDateTime(row.lastLogin.createdAt)}
-            <Tooltip content={`IP Address: ${row.lastLogin.ipAddress}\nUser Agenet: ${row.lastLogin.userAgent}`}>
-              <LuInfo className="h-5 w-5 bg-transparent" />
+            <Tooltip
+              content={
+                <>
+                  <span>IP Address: {row.lastLogin.ipAddress}</span>
+                  <br />
+                  <span>User Agent: {row.lastLogin.userAgent}</span>
+                </>
+              }
+            >
+              <LuInfo className="blue-primary ml-2 h-5 w-5 bg-transparent" />
             </Tooltip>
           </div>
         ),
