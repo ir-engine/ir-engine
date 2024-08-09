@@ -179,7 +179,7 @@ const ResourceFile = (props: {
     >
       <span
         className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
-          selected ? 'border-blue-primary rounded-lg border bg-theme-studio-surface' : ''
+          selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
         }`}
       >
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />

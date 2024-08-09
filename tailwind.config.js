@@ -77,6 +77,7 @@ module.exports = {
         }
       },
       colors: {
+        'blue-primary': 'var(--blue-primary)'
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

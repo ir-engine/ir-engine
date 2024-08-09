@@ -30,8 +30,12 @@ import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/Medi
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
+import multiLogger from '@etherealengine/common/src/logger'
+import { clientContextParams } from '../../util/contextParams'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
+
+const logger = multiLogger.child({ component: 'client-core:FullScreen', modifier: clientContextParams })
 
 export const Fullscreen = () => {
   const { t } = useTranslation()
@@ -42,6 +46,7 @@ export const Fullscreen = () => {
     setFullScreenActive(input)
     if (input) document.body.requestFullscreen()
     else document.exitFullscreen()
+    logger.info({ event_name: 'view_fullscreen', event_value: input })
   }
 
   return (
