@@ -209,7 +209,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
                 }
               >
                 <div
-                  className="cursor-pointer text-blue-primary hover:underline"
+                  className="text-blue-primary cursor-pointer hover:underline"
                   onClick={() => window.open(new URL(location.url))}
                 >
                   {location.url}

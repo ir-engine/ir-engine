@@ -256,8 +256,11 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const handleGuestSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') AuthService.createMagicLink(emailPhone.value, authState?.value, 'email')
-    else if (type === 'sms') AuthService.createMagicLink(emailPhone.value, authState?.value, 'sms')
+
+    // Get the url without query parameters.
+    const redirectUrl = window.location.toString().replace(window.location.search, '')
+    if (type === 'email') AuthService.createMagicLink(emailPhone.value, authState?.value, 'email', redirectUrl)
+    else if (type === 'sms') AuthService.createMagicLink(emailPhone.value, authState?.value, 'sms', redirectUrl)
     return
   }
 

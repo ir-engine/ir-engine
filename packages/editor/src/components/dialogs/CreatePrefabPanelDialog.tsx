@@ -89,7 +89,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
         scale: new Vector3(1, 1, 1)
       })
       setComponent(entity, EntityTreeComponent, { parentEntity: prefabEntity })
-
+      getMutableState(SelectionState).selectedEntities.set([])
       await exportRelativeGLTF(prefabEntity, srcProject, fileName)
 
       const resources = await Engine.instance.api.service(staticResourcePath).find({
@@ -100,7 +100,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
       }
       const resource = resources.data[0]
       const tags = [...prefabTag.value]
-      await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags })
+      await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
 
       removeEntity(prefabEntity)
       EditorControlFunctions.removeObject([entity])

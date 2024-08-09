@@ -29,7 +29,7 @@ import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import { ThemeState } from '@etherealengine/client-core/src/common/services/ThemeService'
 import { getMutableState, getState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
-import { AuthState } from '../user/services/AuthService'
+import { AuthService, AuthState } from '../user/services/AuthService'
 import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'
 import Projects from './components/project'
 
@@ -41,13 +41,19 @@ import { HiMiniMoon, HiMiniSun } from 'react-icons/hi2'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 
+import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 import { RouterState } from '../common/services/RouterService'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
 const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 
 const AdminTopBar = () => {
+  const { t } = useTranslation()
   const theme = useHookstate(getMutableState(ThemeState)).theme
+  const selfUser = getState(AuthState).user
+  const tooltip = `${selfUser.name} (${selfUser.identityProviders
+    .map((item) => `${item.type}: ${item.accountIdentifier}`)
+    .join(', ')}) ${selfUser.id}`
 
   const toggleTheme = () => {
     const currentTheme = getState(ThemeState).theme
@@ -57,7 +63,7 @@ const AdminTopBar = () => {
   return (
     <div className="flex h-16 w-full items-center justify-between bg-theme-surface-main px-8 py-4">
       <img src="static/ir.svg" alt="iR Engine Logo" className={`h-7 w-7${theme.value === 'light' ? ' invert' : ''}`} />
-      <div className="">
+      <div className="flex gap-4">
         <Button onClick={toggleTheme} className="pointer-events-auto bg-transparent p-0">
           {theme.value === 'light' ? (
             <HiMiniMoon className="text-theme-primary" size="1.5rem" />
@@ -65,6 +71,11 @@ const AdminTopBar = () => {
             <HiMiniSun className="text-theme-primary" size="1.5rem" />
           )}
         </Button>
+        <Tooltip content={tooltip}>
+          <Button className="pointer-events-auto" size="small" onClick={() => AuthService.logoutUser()}>
+            {t('admin:components.common.logOut')}
+          </Button>
+        </Tooltip>
       </div>
     </div>
   )

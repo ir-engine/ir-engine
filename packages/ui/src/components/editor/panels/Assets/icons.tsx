@@ -46,5 +46,5 @@ export const iconMap: { [key: string]: React.ReactElement } = {
 const defaultIcon = <TbMaximize />
 
 export const AssetIconMap = ({ name }): React.ReactElement => {
-  return <div className="h-4 w-4">{iconMap[name] ?? defaultIcon}</div>
+  return <div className="flex h-4 w-4 items-center justify-center">{iconMap[name] ?? defaultIcon}</div>
 }
