@@ -261,14 +261,15 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
               selected={selectedCategories.value.includes(index)}
             />
           ))}
-
-          <SceneElementListItem
-            categoryTitle="Empty"
-            onClick={() => {
-              EditorControlFunctions.createObjectFromSceneElement()
-              onSelect()
-            }}
-          />
+          {type !== 'components' && (
+            <SceneElementListItem
+              categoryTitle="Empty"
+              onClick={() => {
+                EditorControlFunctions.createObjectFromSceneElement()
+                onSelect()
+              }}
+            />
+          )}
         </div>
       )}
 

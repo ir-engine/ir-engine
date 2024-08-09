@@ -210,14 +210,15 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
       {selectedTab.value === 'general' && selfUser && (
         <>
           <Text className="mb-5 mt-1">{t('user:usermenu.setting.themes')}</Text>
-          <div className="mb-4 flex justify-between">
+          <div className="mb-4 flex justify-between gap-1">
             {accessibleThemeModes.map((mode, index) => (
               <div className="flex-1" key={index}>
-                <InputGroup name="Type" label="">
+                <InputGroup className="w-full" name="Type" label="">
                   <SelectInput
                     label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
-                    value={themeModes[mode]}
+                    value={mode === 'client' ? 'dark' : themeModes[mode]}
                     className="w-full"
+                    disabled={mode === 'client'}
                     inputClassName="rounded-lg overflow-hidden"
                     onChange={(val) => handleChangeUserThemeMode(mode, val)}
                     options={colorModesMenu}
