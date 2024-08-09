@@ -42,7 +42,7 @@ import {
   useQuery,
   UUIDComponent
 } from '@etherealengine/ecs'
-import { dispatchAction, getState, NO_PROXY, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
@@ -115,12 +115,24 @@ export const GLTFComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const gltfComponent = useComponent(entity, GLTFComponent)
+    const dependencies = gltfComponent.dependencies
 
     useGLTFDocument(gltfComponent.src.value, entity)
 
     const documentID = useComponent(entity, SourceComponent).value
 
-    return <ResourceReactor documentID={documentID} entity={entity} />
+    return (
+      <>
+        <ResourceReactor documentID={documentID} entity={entity} />
+        {dependencies.value && dependencies.keys?.length ? (
+          <DependencyReactor
+            key={entity}
+            gltfComponentEntity={entity}
+            dependencies={dependencies.value as ComponentDependencies}
+          />
+        ) : null}
+      </>
+    )
   }
 })
 
@@ -162,6 +174,74 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
   }, [resourceQuery, sourceEntities, dependenciesLoaded])
 
   return null
+}
+
+const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; component: Component }) => {
+  const { gltfComponentEntity, entity, component } = props
+  const dependencies = loadDependencies[component.jsonID!]
+  const comp = useComponent(entity, component)
+
+  useEffect(() => {
+    const compValue = comp.value
+    for (const key of dependencies) {
+      if (!compValue[key]) return
+    }
+
+    // console.log(`All dependencies loaded for entity: ${entity} on component: ${component.jsonID}`)
+
+    const gltfComponent = getMutableComponent(gltfComponentEntity, GLTFComponent)
+    const uuid = getComponent(entity, UUIDComponent)
+    gltfComponent.dependencies.set((prev) => {
+      const dependencyArr = prev![uuid] as Component[]
+      const index = dependencyArr.findIndex((compItem) => compItem.jsonID === component.jsonID)
+      dependencyArr.splice(index, 1)
+      if (!dependencyArr.length) {
+        delete prev![uuid]
+      }
+      return prev
+    })
+  }, [...dependencies.map((key) => comp[key])])
+
+  return null
+}
+
+const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: string; components: Component[] }) => {
+  const { gltfComponentEntity, uuid, components } = props
+  const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID) as Entity | undefined
+  return entity ? (
+    <>
+      {components.map((component) => {
+        return (
+          <ComponentReactor
+            key={component.jsonID}
+            gltfComponentEntity={gltfComponentEntity}
+            entity={entity}
+            component={component}
+          />
+        )
+      })}
+    </>
+  ) : null
+}
+
+const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: ComponentDependencies }) => {
+  const { gltfComponentEntity, dependencies } = props
+  const entries = Object.entries(dependencies)
+
+  return (
+    <>
+      {entries.map(([uuid, components]) => {
+        return (
+          <DependencyEntryReactor
+            key={uuid}
+            gltfComponentEntity={gltfComponentEntity}
+            uuid={uuid}
+            components={components}
+          />
+        )
+      })}
+    </>
+  )
 }
 
 const onError = (error: ErrorEvent) => {
@@ -249,89 +329,4 @@ const useGLTFDocument = (url: string, entity: Entity) => {
       })
     }
   }, [url])
-
-  useEffect(() => {
-    const dependencies = state.dependencies.get(NO_PROXY) as ComponentDependencies | undefined
-    if (!dependencies) return
-
-    if (!Object.keys(dependencies).length) {
-      // console.log('All GLTF dependencies loaded')
-      return
-    }
-
-    const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; component: Component }) => {
-      const { gltfComponentEntity, entity, component } = props
-      const dependencies = loadDependencies[component.jsonID!]
-      const comp = useComponent(entity, component)
-
-      useEffect(() => {
-        const compValue = comp.value
-        for (const key of dependencies) {
-          if (!compValue[key]) return
-        }
-
-        // console.log(`All dependencies loaded for entity: ${entity} on component: ${component.jsonID}`)
-
-        const gltfComponent = getMutableComponent(gltfComponentEntity, GLTFComponent)
-        const uuid = getComponent(entity, UUIDComponent)
-        gltfComponent.dependencies.set((prev) => {
-          const dependencyArr = prev![uuid] as Component[]
-          const index = dependencyArr.findIndex((compItem) => compItem.jsonID === component.jsonID)
-          dependencyArr.splice(index, 1)
-          if (!dependencyArr.length) {
-            delete prev![uuid]
-          }
-          return prev
-        })
-      }, [...dependencies.map((key) => comp[key])])
-
-      return null
-    }
-
-    const DependencyReactor = (props: { gltfComponentEntity: Entity; uuid: string; components: Component[] }) => {
-      const { gltfComponentEntity, uuid, components } = props
-      const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID) as Entity | undefined
-      return entity ? (
-        <>
-          {components.map((component) => {
-            return (
-              <ComponentReactor
-                key={component.jsonID}
-                gltfComponentEntity={gltfComponentEntity}
-                entity={entity}
-                component={component}
-              />
-            )
-          })}
-        </>
-      ) : null
-    }
-
-    const Reactor = (props: { gltfComponentEntity: Entity; dependencies: ComponentDependencies }) => {
-      const { gltfComponentEntity, dependencies } = props
-      const entries = Object.entries(dependencies)
-
-      return (
-        <>
-          {entries.map(([uuid, components]) => {
-            return (
-              <DependencyReactor
-                key={uuid}
-                gltfComponentEntity={gltfComponentEntity}
-                uuid={uuid}
-                components={components}
-              />
-            )
-          })}
-        </>
-      )
-    }
-
-    const root = startReactor(() => {
-      return <Reactor key={entity} gltfComponentEntity={entity} dependencies={dependencies} />
-    })
-    return () => {
-      root.stop()
-    }
-  }, [state.dependencies])
 }
