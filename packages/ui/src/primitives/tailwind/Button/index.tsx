@@ -55,11 +55,11 @@ const sizes = {
 }
 
 const variants = {
-  primary: 'bg-blue-primary',
-  secondary: 'bg-blue-secondary',
-  outline: 'border border-solid border-theme-primary bg-theme-surface-main dark:bg-theme-highlight text-theme-primary',
-  danger: 'bg-red-500',
-  success: 'bg-teal-700',
+  primary: 'bg-blue-primary hover:bg-[#214AA6] focus:bg-blue-primary disabled:bg-[#5F7DBF]',
+  secondary: 'bg-blue-secondary hover:bg-[#213869] focus:bg-[#213869] disabled:bg-[#375DAF]',
+  outline: 'border border-solid border-[#162546] bg-transparent text-theme-primary',
+  success: 'bg-[#0D9467] hover:bg-[#10B981] focus:bg-[#10B981] disabled:bg-[#0A6F4D]',
+  danger: 'bg-[#F43F5E] hover:bg-[#FB7185] focus:bg-[#F43F5E] disabled:bg-[#C3324B]',
   transparent: 'bg-transparent dark:bg-transparent',
   sidebar: 'bg-[#141619]'
 }
