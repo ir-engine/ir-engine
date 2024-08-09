@@ -284,9 +284,18 @@ const handleUserSearch = async (context: HookContext<UserService>) => {
 
     const searchedIdentityProviders = (await context.app.service(identityProviderPath).find({
       query: {
-        accountIdentifier: {
-          $like: `%${search}%`
-        }
+        $or: [
+          {
+            accountIdentifier: {
+              $like: `%${search}%`
+            }
+          },
+          {
+            email: {
+              $like: `%${search}%`
+            }
+          }
+        ]
       },
       paginate: false
     })) as IdentityProviderType[]
@@ -330,7 +339,6 @@ export default createSkippableHooks(
           handleUserSearch,
           discardQuery('search', '$sort.accountIdentifier') as any
         ),
-        persistQuery,
         discardQuery('skipAvatar')
       ],
       get: [persistQuery, discardQuery('skipAvatar')],
