@@ -26,16 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
 import {
-  BufferGeometry,
-  ColorManagement,
+  Bone,
   Group,
-  LinearSRGBColorSpace,
   LoaderUtils,
   MathUtils,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
   Quaternion,
+  Skeleton,
+  SkinnedMesh,
   Vector3
 } from 'three'
 
@@ -54,6 +54,7 @@ import {
   setComponent,
   UndefinedEntity,
   useComponent,
+  useOptionalComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
 import {
@@ -86,16 +87,14 @@ import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { ATTRIBUTES } from '../assets/loaders/gltf/GLTFConstants'
-import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
-import { assignExtrasToUserData } from '../assets/loaders/gltf/GLTFLoaderFunctions'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
+import { BoneComponent } from '../avatar/components/BoneComponent'
+import { SkinnedMeshComponent } from '../avatar/components/SkinnedMeshComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
-import { KHR_DRACO_MESH_COMPRESSION } from './GLTFExtensions'
 import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 import { MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 import './MeshExtensionComponents'
@@ -567,6 +566,20 @@ const ParentNodeReactor = (props: {
   return <NodeReactor {...props} />
 }
 
+const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
+  (node.extensions?.[UUIDComponent.jsonID] as EntityUUID) ?? (`${documentID}-${nodeIndex}` as EntityUUID)
+
+const isBoneNode = (json: GLTF.IGLTF, nodeIndex: number) => {
+  const skinDefs = json.skins || []
+  for (let skinIndex = 0, skinLength = skinDefs.length; skinIndex < skinLength; skinIndex++) {
+    const joints = skinDefs[skinIndex].joints
+    for (let i = 0, il = joints.length; i < il; i++) {
+      if (joints[i] === nodeIndex) return true
+    }
+  }
+  return false
+}
+
 const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID: EntityUUID; documentID: string }) => {
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
   const nodes = documentState.nodes!
@@ -579,9 +592,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   const entity = entityState.value
 
   useEffect(() => {
-    const uuid =
-      (node.extensions.value?.[UUIDComponent.jsonID] as EntityUUID) ??
-      ((props.documentID + '-' + props.nodeIndex) as EntityUUID)
+    const uuid = getNodeUUID(node.get(NO_PROXY) as GLTF.IGLTF, props.documentID, props.nodeIndex)
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
 
     setComponent(entity, UUIDComponent, uuid)
@@ -614,7 +625,13 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     }
 
     if (!hasComponent(entity, Object3DComponent) && !hasComponent(entity, MeshComponent)) {
-      const obj3d = new Group()
+      let obj3d: Group | Bone
+      if (isBoneNode(documentState.get(NO_PROXY) as GLTF.IGLTF, props.nodeIndex)) {
+        obj3d = new Bone()
+        setComponent(entity, BoneComponent, obj3d)
+      } else {
+        obj3d = new Group()
+      }
       obj3d.entity = entity
       addObjectToGroup(entity, obj3d)
       proxifyParentChildRelationships(obj3d)
@@ -697,6 +714,9 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
       {typeof node.mesh.get(NO_PROXY) === 'number' && (
         <MeshReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity} />
       )}
+      {typeof node.skin.get(NO_PROXY) === 'number' && (
+        <SkinnedMeshReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity} />
+      )}
       {typeof node.camera.get(NO_PROXY) === 'number' && (
         <CameraReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity} />
       )}
@@ -775,6 +795,57 @@ const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Ent
   )
 }
 
+const SkinnedMeshReactor = (props: { nodeIndex: number; documentID: string; entity: Entity }) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
+
+  const skinnedMeshComponent = useOptionalComponent(props.entity, SkinnedMeshComponent)
+
+  const skin = documentState.skins.get(NO_PROXY)![node.skin!]
+
+  const options = getParserOptions(props.entity)
+  const inverseBindMatrices = GLTFLoaderFunctions.useLoadAccessor(options, skin.inverseBindMatrices)
+
+  useEffect(() => {
+    if (!inverseBindMatrices || !skinnedMeshComponent) return
+
+    const jointNodeUUIDs = skin.joints.map((joint) => getNodeUUID(nodes[joint] as GLTF.INode, props.documentID, joint))
+    const jointEntities = jointNodeUUIDs.map((uuid) => UUIDComponent.getEntityByUUID(uuid))
+    if (jointEntities.includes(UndefinedEntity)) return
+
+    const jointBones = jointEntities.map((entity) => getOptionalComponent(entity, BoneComponent))
+
+    if (jointBones.includes(undefined)) return
+
+    const bones = [] as Bone[]
+    const boneInverses = [] as Matrix4[]
+
+    for (let i = 0, il = jointBones.length; i < il; i++) {
+      const jointNode = jointBones[i]
+
+      if (jointNode) {
+        bones.push(jointNode)
+
+        const mat = new Matrix4()
+
+        if (inverseBindMatrices !== null) {
+          mat.fromArray(inverseBindMatrices.array, i * 16)
+        }
+
+        boneInverses.push(mat)
+      } else {
+        // console.warn('THREE.GLTFLoader: Joint "%s" could not be found.', skinDef.joints[i])
+      }
+    }
+
+    const skeleton = new Skeleton(bones, boneInverses)
+    skinnedMeshComponent.skeleton.set(skeleton)
+  }, [inverseBindMatrices, !!skinnedMeshComponent])
+
+  return null
+}
+
 const CameraReactor = (props: { nodeIndex: number; documentID: string; entity: Entity }) => {
   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
   const nodes = documentState.nodes!.get(NO_PROXY)!
@@ -809,48 +880,35 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
 
   const primitive = mesh.primitives[props.primitiveIndex] as GLTF.IMeshPrimitive
 
-  const geometry = useHookstate(null as null | BufferGeometry)
+  const options = getParserOptions(props.entity)
+  const geometry = GLTFLoaderFunctions.useLoadPrimitive(options, props.nodeIndex, props.primitiveIndex)
 
-  const hasDracoCompression = primitive.extensions && primitive.extensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]
+  useLayoutEffect(() => {
+    if (!geometry) return
 
-  useEffect(() => {
-    if (hasDracoCompression) {
-      const options = getParserOptions(props.entity)
-      KHR_DRACO_MESH_COMPRESSION.decodePrimitive(options, primitive).then((geom) => geometry.set(geom))
+    let mesh: Mesh | SkinnedMesh
+    if (typeof node.skin !== 'undefined') {
+      const skinnedMesh = new SkinnedMesh(geometry, new MeshBasicMaterial())
+      mesh = skinnedMesh
+      skinnedMesh.skeleton = new Skeleton()
+      setComponent(props.entity, MeshComponent, skinnedMesh)
+      setComponent(props.entity, SkinnedMeshComponent, skinnedMesh)
     } else {
-      geometry.set(new BufferGeometry())
+      mesh = new Mesh(geometry, new MeshBasicMaterial())
+      setComponent(props.entity, MeshComponent, mesh)
     }
 
-    if (ColorManagement.workingColorSpace !== LinearSRGBColorSpace && 'COLOR_0' in primitive.attributes) {
-      console.warn(
-        `THREE.GLTFLoader: Converting vertex colors from "srgb-linear" to "${ColorManagement.workingColorSpace}" not supported.`
-      )
-    }
-  }, [primitive.extensions])
-
-  useEffect(() => {
-    if (!geometry.value) return
-
-    const mesh = new Mesh(geometry.value as BufferGeometry, new MeshBasicMaterial())
     /** @todo multiple primitive support */
-    setComponent(props.entity, MeshComponent, mesh)
     addObjectToGroup(props.entity, mesh)
 
-    assignExtrasToUserData(geometry, primitive as GLTF.IMeshPrimitive)
-
-    GLTFLoaderFunctions.computeBounds(
-      documentState.get(NO_PROXY) as GLTF.IGLTF,
-      geometry.value as BufferGeometry,
-      primitive as GLTF.IMeshPrimitive
-    )
-
     return () => {
+      removeComponent(props.entity, SkinnedMeshComponent)
       removeComponent(props.entity, MeshComponent)
       removeObjectFromGroup(props.entity, mesh)
     }
-  }, [geometry])
+  }, [node.skin, geometry])
 
-  if (!geometry.value) return null
+  if (!geometry) return null
 
   return (
     <>
@@ -866,27 +924,6 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
         <MaterialInstanceReactor
           nodeIndex={props.nodeIndex}
           primitiveIndex={props.primitiveIndex}
-          documentID={props.documentID}
-          entity={props.entity}
-        />
-      )}
-      {!hasDracoCompression &&
-        Object.keys(primitive.attributes).map((attribute, index) => (
-          <PrimitiveAttributeReactor
-            key={attribute}
-            geometry={geometry.value as BufferGeometry}
-            attribute={attribute}
-            primitiveIndex={props.primitiveIndex}
-            nodeIndex={props.nodeIndex}
-            documentID={props.documentID}
-            entity={props.entity}
-          />
-        ))}
-      {!hasDracoCompression && typeof primitive.indices === 'number' && (
-        <PrimitiveIndicesAttributeReactor
-          geometry={geometry.value as BufferGeometry}
-          primitiveIndex={props.primitiveIndex}
-          nodeIndex={props.nodeIndex}
           documentID={props.documentID}
           entity={props.entity}
         />
@@ -921,66 +958,6 @@ const PrimitiveExtensionReactor = (props: {
       setComponent(props.entity, Component, extensions[extension])
     }
   }, [extensions])
-
-  return null
-}
-
-const PrimitiveAttributeReactor = (props: {
-  geometry: BufferGeometry
-  attribute: string
-  primitiveIndex: number
-  nodeIndex: number
-  documentID: string
-  entity: Entity
-}) => {
-  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-
-  const nodes = documentState.nodes!.get(NO_PROXY)!
-  const node = nodes[props.nodeIndex]!
-
-  const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
-
-  const primitive = mesh.primitives[props.primitiveIndex]
-
-  const threeAttributeName = ATTRIBUTES[props.attribute] || props.attribute.toLowerCase()
-  const attributeAlreadyLoaded = threeAttributeName in props.geometry.attributes
-
-  // Skip attributes already provided by e.g. Draco extension.
-  const attribute = attributeAlreadyLoaded ? undefined : primitive.attributes[props.attribute]
-
-  const accessor = GLTFLoaderFunctions.useLoadAccessor(getParserOptions(props.entity), attribute)
-
-  useEffect(() => {
-    if (!accessor) return
-
-    props.geometry.setAttribute(threeAttributeName, accessor)
-  }, [accessor, props.geometry])
-
-  return null
-}
-
-const PrimitiveIndicesAttributeReactor = (props: {
-  geometry: BufferGeometry
-  primitiveIndex: number
-  nodeIndex: number
-  documentID: string
-  entity: Entity
-}) => {
-  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-
-  const nodes = documentState.nodes!.get(NO_PROXY)!
-  const node = nodes[props.nodeIndex]!
-
-  const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
-
-  const primitive = mesh.primitives[props.primitiveIndex]
-
-  const accessor = GLTFLoaderFunctions.useLoadAccessor(getParserOptions(props.entity), primitive.indices!)
-
-  useEffect(() => {
-    if (!accessor) return
-    props.geometry.setIndex(accessor)
-  }, [accessor, props.geometry])
 
   return null
 }

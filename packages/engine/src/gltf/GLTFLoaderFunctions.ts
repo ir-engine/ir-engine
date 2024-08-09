@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ComponentType } from '@etherealengine/ecs'
-import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import { GLTF } from '@gltf-transform/core'
 import { useEffect } from 'react'
 import {
@@ -32,6 +32,7 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
+  ColorManagement,
   DoubleSide,
   FrontSide,
   ImageBitmapLoader,
@@ -57,6 +58,7 @@ import {
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import {
   ALPHA_MODES,
+  ATTRIBUTES,
   WEBGL_COMPONENT_TYPES,
   WEBGL_FILTERS,
   WEBGL_TYPE_SIZES,
@@ -67,11 +69,90 @@ import { assignExtrasToUserData, getNormalizedComponentScale } from '../assets/l
 import { GLTFParserOptions, GLTFRegistry, getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
 import { KTX2Loader } from '../assets/loaders/gltf/KTX2Loader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
-import { getBufferIndex } from './GLTFExtensions'
+import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 
 // todo make this a state
 const cache = new GLTFRegistry()
+
+const useLoadPrimitive = (options: GLTFParserOptions, nodeIndex: number, primitiveIndex: number) => {
+  const result = useHookstate(null as null | BufferGeometry)
+
+  const json = options.document
+  const node = json.nodes![nodeIndex]!
+  const mesh = json.meshes![node.mesh!]
+
+  const primitive = mesh.primitives[primitiveIndex]
+
+  const hasDracoCompression = primitive.extensions && primitive.extensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]
+
+  useEffect(() => {
+    if (ColorManagement.workingColorSpace !== LinearSRGBColorSpace && 'COLOR_0' in primitive.attributes) {
+      console.warn(
+        `THREE.GLTFLoader: Converting vertex colors from "srgb-linear" to "${ColorManagement.workingColorSpace}" not supported.`
+      )
+    }
+
+    if (hasDracoCompression) {
+      KHR_DRACO_MESH_COMPRESSION.decodePrimitive(options, primitive).then((geom) => {
+        GLTFLoaderFunctions.computeBounds(json, geom, primitive)
+        assignExtrasToUserData(geom, primitive as GLTF.IMeshPrimitive)
+        result.set(geom)
+      })
+    } else {
+      const geometry = new BufferGeometry()
+
+      /** @todo we need to figure out a better way of handling reactivity for both draco and regular buffers */
+      const reactor = startReactor(() => {
+        const attributes = primitive.attributes
+        const resourcesState = useHookstate(
+          () =>
+            ({
+              ...Object.fromEntries(Object.keys(attributes).map((key) => [key, false])),
+              index: false
+            }) as Record<string, boolean>
+        )
+
+        for (const attributeName of Object.keys(attributes)) {
+          const threeAttributeName = ATTRIBUTES[attributeName] || attributeName.toLowerCase()
+          const attribute = primitive.attributes[attributeName]
+          const accessor = GLTFLoaderFunctions.useLoadAccessor(options, attribute)
+          useEffect(() => {
+            if (!accessor) return
+            geometry.setAttribute(threeAttributeName, accessor)
+            resourcesState[attributeName].set(true)
+          }, [accessor])
+        }
+
+        const accessor = GLTFLoaderFunctions.useLoadAccessor(options, primitive.indices!)
+
+        useEffect(() => {
+          if (!accessor) return
+          geometry.setIndex(accessor)
+          resourcesState.index.set(true)
+        }, [accessor])
+
+        useEffect(() => {
+          const attributeCount = Object.keys(attributes).length
+          const resourcesLoaded = Object.values(resourcesState.get(NO_PROXY)).filter(Boolean).length
+          if (resourcesLoaded !== attributeCount + (typeof primitive.indices === 'number' ? 1 : 0)) return
+
+          GLTFLoaderFunctions.computeBounds(json, geometry, primitive)
+          assignExtrasToUserData(geometry, primitive as GLTF.IMeshPrimitive)
+          result.set(geometry)
+          reactor.stop()
+        }, [resourcesState])
+
+        return null
+      })
+      return () => {
+        reactor.stop()
+      }
+    }
+  }, [primitive.extensions])
+
+  return result.get(NO_PROXY) as BufferGeometry | null
+}
 
 const useLoadAccessor = (options: GLTFParserOptions, accessorIndex?: number) => {
   const json = options.document
@@ -777,6 +858,7 @@ const useLoadImageSource = (
 
 export const GLTFLoaderFunctions = {
   computeBounds,
+  useLoadPrimitive,
   useLoadAccessor,
   useLoadBufferView,
   useLoadBuffer,
