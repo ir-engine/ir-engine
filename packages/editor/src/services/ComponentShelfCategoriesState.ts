@@ -37,7 +37,6 @@ import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/Env
 import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
-import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/components/NewVolumetricComponent'
@@ -105,7 +104,12 @@ export const ComponentShelfCategoriesState = defineState({
       ],
       FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
       Scripting: [],
-      Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
+      Settings: [
+        SceneSettingsComponent,
+        RenderSettingsComponent,
+        // MediaSettingsComponent
+        CameraSettingsComponent
+      ],
       Visual: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, TextComponent, LookAtComponent]
     } as Record<string, Component[]>
   },
