@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { dataValidator } from '@etherealengine/common/src/schemas/validators'
+import { dataValidator, queryValidator } from '@etherealengine/common/src/schemas/validators'
 import type { Static } from '@feathersjs/typebox'
 import { Type, getValidator } from '@feathersjs/typebox'
 
@@ -36,11 +36,13 @@ export const metabaseUrlMethods = ['create'] as const
 export const metabaseUrlDataSchema = Type.Object({}, { $id: 'MetabaseUrl', additionalProperties: true })
 export interface MetabaseUrlData extends Static<typeof metabaseUrlDataSchema> {}
 
-Type.Object(
+export const metabaseUrlQuerySchema = Type.Object(
   {
     action: Type.String()
   },
   { additionalProperties: false }
 )
+export interface MetabaseUrlQuery extends Static<typeof metabaseUrlQuerySchema> {}
 
 export const metabaseUrlDataValidator = /* @__PURE__ */ getValidator(metabaseUrlDataSchema, dataValidator)
+export const metabaseSettingQueryValidator = /* @__PURE__ */ getValidator(metabaseUrlQuerySchema, queryValidator)
