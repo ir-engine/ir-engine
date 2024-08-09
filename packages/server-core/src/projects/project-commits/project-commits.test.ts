@@ -31,12 +31,13 @@ import { projectCommitsPath } from '@etherealengine/common/src/schemas/projects/
 import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { Application } from '../../../declarations'
+import { Application, HookContext } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
+import { identityProviderDataResolver } from '../../user/identity-provider/identity-provider.resolvers'
 import { getRepoManifestJson1, getTestRepoCommits, getTestRepoData } from '../../util/mockOctokitResponses'
 
 describe('project-commits.test', () => {
@@ -69,12 +70,15 @@ describe('project-commits.test', () => {
 
     testUserApiKey = await app.service(userApiKeyPath).create({ userId: testUser.id })
 
-    await app.service(identityProviderPath).create(
-      {
-        type: 'github',
-        token: `test-token-${Math.round(Math.random() * 1000)}`,
-        userId: testUser.id
-      },
+    await app.service(identityProviderPath)._create(
+      await identityProviderDataResolver.resolve(
+        {
+          type: 'github',
+          token: `test-token-${Math.round(Math.random() * 1000)}`,
+          userId: testUser.id
+        },
+        {} as HookContext
+      ),
       getParams()
     )
   })
