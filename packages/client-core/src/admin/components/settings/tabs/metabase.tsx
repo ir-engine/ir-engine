@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { metabaseSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import PasswordInput from '@etherealengine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
@@ -111,7 +112,7 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
           onChange={(e) => siteUrl.set(e.target.value)}
         />
 
-        <Input
+        <PasswordInput
           className="col-span-1"
           label={t('admin:components.setting.metabase.secretKey')}
           value={secretKey?.value || ''}
