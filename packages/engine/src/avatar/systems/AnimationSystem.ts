@@ -71,6 +71,6 @@ const execute = () => {
 
 export const AnimationSystem = defineSystem({
   uuid: 'ee.engine.AnimationSystem',
-  insert: { before: TransformSystem },
+  insert: { after: TransformSystem },
   execute
 })
