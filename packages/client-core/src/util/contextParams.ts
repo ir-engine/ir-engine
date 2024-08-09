@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { LogParamsObject } from '@etherealengine/common/src/logger'
 import { getState } from '@etherealengine/hyperflux'
+import { generateUUID } from 'three/src/math/MathUtils'
 import { LocationState } from '../social/services/LocationService'
 
 /**
@@ -34,15 +35,9 @@ import { LocationState } from '../social/services/LocationService'
  */
 export function clientContextParams(params: LogParamsObject) {
   const locationState = getState(LocationState)
-  /*
-  console.log('IR> location state', locationState.currentLocation.location)
-
-  console.log('IR> location_id', locationState.currentLocation.location.id)
-
-  console.log('IR> project_id', locationState.currentLocation.location.projectId)
-*/
   return {
     ...params,
+    event_id: generateUUID(),
     location_id: locationState.currentLocation.location.id,
     project_id: locationState.currentLocation.location.projectId
   }

@@ -111,6 +111,7 @@ export const configurePrimus =
           primus.use((message, socket, next) => {
             ;(message as any).feathers.socketQuery = message.query
             ;(message as any).socketQuery = message.query
+            ;(message as any).feathers.forwarded = message.forwarded
             next()
           })
         }
@@ -224,6 +225,20 @@ export const createFeathersKoaApp = (
       includeUnparsed: true
     })
   )
+
+  app.proxy = true
+  app.use(async (ctx, next) => {
+    const clientIp = ctx.request.ip
+
+    ctx.feathers = {
+      ...ctx.feathers,
+      forwarded: {
+        ip: clientIp
+      }
+    }
+
+    await next()
+  })
 
   app.configure(rest())
   // app.use(function (req, res, next) {
