@@ -37,7 +37,6 @@ export interface CSSClasses {
   'bg-surface-input': string
   'bg-surface-card': string
   'bg-table-secondary': string
-  'bg-blue-primary': string
   'bg-blue-secondary': string
   'bg-studio-surface': string
   'bg-banner-informative': string
@@ -61,6 +60,7 @@ export interface CSSClasses {
   'border-input': string
   'border-focus': string
 
+  'blue-primary': string
   selection: string
 }
 
@@ -74,7 +74,6 @@ const lightTheme: CSSClasses = {
   'bg-surface-input': '#FFFFFF',
   'bg-surface-card': '#FFFFFF',
   'bg-table-secondary': '#F9FAFB',
-  'bg-blue-primary': '#375DAF',
   'bg-blue-secondary': '#D4DFF7',
   'bg-studio-surface': '#F5F5F5',
   'bg-banner-informative': '#FFFBEB',
@@ -97,6 +96,8 @@ const lightTheme: CSSClasses = {
   'border-primary': '#E5E7EB',
   'border-input': '#42454D',
   'border-focus': '#375DAF',
+
+  'blue-primary': '#375DAF',
   selection: '#3166D0'
 }
 
@@ -110,7 +111,6 @@ const darkTheme: CSSClasses = {
   'bg-surface-input': '#141619',
   'bg-surface-card': '#292a2c',
   'bg-table-secondary': '#212226',
-  'bg-blue-primary': '#375DAF',
   'bg-blue-secondary': '#2A3753',
   'bg-studio-surface': '#191B1F',
   'bg-banner-informative': '#D9770633',
@@ -133,6 +133,8 @@ const darkTheme: CSSClasses = {
   'border-primary': '#2B2C30',
   'border-input': '#42454D',
   'border-focus': '#375DAF',
+
+  'blue-primary': '#375DAF',
   selection: '#1E4273'
 }
 
