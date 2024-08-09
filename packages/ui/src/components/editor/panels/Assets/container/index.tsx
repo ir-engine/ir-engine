@@ -179,7 +179,7 @@ const ResourceFile = (props: {
     >
       <span
         className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
-          selected ? 'border-blue-primary rounded-lg border bg-theme-studio-surface' : ''
+          selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
         }`}
       >
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
@@ -306,7 +306,7 @@ const AssetCategory = (props: {
     // TODO: add preview functionality
   }
 
-  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
+  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
 
   return (
     <div
@@ -316,8 +316,8 @@ const AssetCategory = (props: {
         category.depth === 0 ? 'min-h-9' : 'min-h-7'
       )}
       style={{
-        height: `${fontSize}px`,
-        fontSize: `${fontSize}px`
+        height: `${viewModeSettings.list.fontSize.value}px`,
+        fontSize: `${viewModeSettings.list.fontSize.value}px`
       }}
     >
       <div

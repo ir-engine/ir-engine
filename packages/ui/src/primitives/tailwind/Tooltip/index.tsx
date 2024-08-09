@@ -27,6 +27,7 @@ import React, { ReactNode } from 'react'
 import Popup from 'reactjs-popup'
 import { PopupProps } from 'reactjs-popup/dist/types'
 import { twMerge } from 'tailwind-merge'
+import './tooltip.css'
 
 export type TooltipProps = {
   title?: ReactNode
