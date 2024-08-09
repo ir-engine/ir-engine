@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { PromiseQueue } from '@etherealengine/common/src/utils/promiseQueue'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { ImageLoader, LoadingManager, Texture } from 'three'
-import { PromiseQueue } from '../../classes/PromiseQueue'
 import { Loader } from '../base/Loader'
 
 const iOSMaxResolution = 1024
