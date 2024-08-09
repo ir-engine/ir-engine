@@ -28,27 +28,48 @@ import {
   createEntity,
   destroyEngine,
   getComponent,
+  hasComponent,
   removeEntity,
   setComponent,
   UndefinedEntity
 } from '@etherealengine/ecs'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import assert from 'assert'
 import { Color } from 'three'
-import { assertFloatApproxEq } from '../../physics/classes/Physics.test'
-import { InfiniteGridComponent } from './InfiniteGridHelper'
+import { NameComponent } from '../../common/NameComponent'
+import { assertFloatApproxEq, assertFloatApproxNotEq } from '../../physics/classes/Physics.test'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { RendererState } from '../RendererState'
+import { createInfiniteGridHelper, InfiniteGridComponent } from './InfiniteGridHelper'
+import { MeshComponent } from './MeshComponent'
+import { VisibleComponent } from './VisibleComponent'
+
+type InfiniteGridComponentData = {
+  size: number
+  color: Color
+  distance: number
+}
 
 const InfiniteGridComponentDefaults = {
   size: 1,
   color: new Color(0x535353),
   distance: 200
+} as InfiniteGridComponentData
+
+function assertInfiniteGridComponentEq(A: InfiniteGridComponentData, B: InfiniteGridComponentData) {
+  assert.equal(A.size, B.size)
+  assertFloatApproxEq(A.color.r, B.color.r)
+  assertFloatApproxEq(A.color.g, B.color.g)
+  assertFloatApproxEq(A.color.b, B.color.b)
+  assert.equal(A.distance, B.distance)
 }
 
-function assertInfiniteGridComponentEq(A, B) {
-  assert.equal(A.size, B.size)
-  assertFloatApproxEq(A.r, B.r)
-  assertFloatApproxEq(A.g, B.g)
-  assertFloatApproxEq(A.b, B.b)
-  assert.equal(A.distance, B.distance)
+function assertInfiniteGridComponentNotEq(A: InfiniteGridComponentData, B: InfiniteGridComponentData) {
+  assert.notEqual(A.size, B.size)
+  assertFloatApproxNotEq(A.color.r, B.color.r)
+  assertFloatApproxNotEq(A.color.g, B.color.g)
+  assertFloatApproxNotEq(A.color.b, B.color.b)
+  assert.notEqual(A.distance, B.distance)
 }
 
 describe('InfiniteGridComponent', () => {
@@ -79,22 +100,120 @@ describe('InfiniteGridComponent', () => {
   }) //:: onInit
 
   describe('onSet', () => {
-    // it('should change the values of an initialized InfiniteGridComponent', () => {})
-    // it('should not change values of an initialized InfiniteGridComponent when the data passed had incorrect types', () => {})
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, InfiniteGridComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should change the values of an initialized InfiniteGridComponent', () => {
+      const Expected = {
+        size: 42,
+        color: new Color(0x123456),
+        distance: 10_000
+      }
+      const data = getComponent(testEntity, InfiniteGridComponent)
+      assertInfiniteGridComponentEq(data, InfiniteGridComponentDefaults)
+      setComponent(testEntity, InfiniteGridComponent, Expected)
+      assertInfiniteGridComponentNotEq(data, InfiniteGridComponentDefaults)
+      assertInfiniteGridComponentEq(data, Expected)
+    })
+
+    it('should not change values of an initialized InfiniteGridComponent when the data passed had incorrect types', () => {
+      const Incorrect = {
+        size: 'somesize',
+        color: 42,
+        distance: 'somedistance'
+      }
+      const data = getComponent(testEntity, InfiniteGridComponent)
+      assertInfiniteGridComponentEq(data, InfiniteGridComponentDefaults)
+      // @ts-ignore Coerce the data with incorrect types into the setComponent call
+      setComponent(testEntity, InfiniteGridComponent, Incorrect)
+      assertInfiniteGridComponentEq(data, InfiniteGridComponentDefaults)
+    })
   }) //:: onSet
 
   describe('reactor', () => {
-    // it('should trigger when engineRendererSettings.gridHeight changes', () => {})
-    // it('should trigger when component.color changes', () => {})
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, InfiniteGridComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should trigger when engineRendererSettings.gridHeight changes', () => {
+      const Expected = 42
+      const gridHeightBefore = getState(RendererState).gridHeight
+      getMutableState(RendererState).gridHeight.set(Expected)
+      const gridHeightAfter = getState(RendererState).gridHeight
+      assert.notEqual(gridHeightBefore, gridHeightAfter)
+      // Run and Check the result
+      InfiniteGridComponent.reactorMap.get(testEntity)!.run() // Reactor is already running. But force-run it so changes are applied immediately
+      assert.equal(getComponent(testEntity, MeshComponent).position.y, Expected)
+    })
+
+    /**
+    // @todo How to access the Mesh's uniforms without useMeshComponent?
+    it('should trigger when component.color changes', () => {
+      const Expected = new Color(0xFFFFFF)
+      assert.notDeepEqual(getComponent(testEntity, LineSegmentComponent).color, Expected)
+      getMutableComponent(testEntity, LineSegmentComponent).color.set(Expected)
+      assert.deepEqual(getComponent(testEntity, LineSegmentComponent).color, Expected)
+      // Run and Check the result
+      InfiniteGridComponent.reactorMap.get(testEntity)!.run() // Reactor is already running. But force-run it so changes are applied immediately
+      // assert.equal(getComponent(testEntity, MeshComponent).material.uniforms.uColor, Expected)
+    })
     // it('should trigger when component.size changes', () => {})
     // it('should trigger when component.distance changes', () => {})
+    */
   }) //:: reactor
 })
 
 describe('createInfiniteGridHelper', () => {
-  // it("should return a valid entity", () => {})
-  // it("should assign an EntityTreeComponent to the returned entity", () => {})
-  // it("should assign an InfiniteGridComponent to the returned entity", () => {})
-  // it("should assign a NameComponent to the returned entity, with a value of 'Infinite Grid Helper'", () => {})
-  // it("should assign a VisibleComponent to the returned entity, with a value of `true`", () => {})
+  beforeEach(async () => {
+    createEngine()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
+  })
+
+  it('should return a valid entity', () => {
+    const result = createInfiniteGridHelper()
+    assert.notEqual(result, UndefinedEntity)
+  })
+
+  it('should assign an EntityTreeComponent to the returned entity', () => {
+    const result = createInfiniteGridHelper()
+    assert.equal(hasComponent(result, EntityTreeComponent), true)
+  })
+
+  it('should assign an InfiniteGridComponent to the returned entity', () => {
+    const result = createInfiniteGridHelper()
+    assert.equal(hasComponent(result, InfiniteGridComponent), true)
+  })
+
+  it("should assign a NameComponent to the returned entity, with a value of 'Infinite Grid Helper'", () => {
+    const result = createInfiniteGridHelper()
+    assert.equal(hasComponent(result, NameComponent), true)
+    assert.equal(getComponent(result, NameComponent), 'Infinite Grid Helper')
+  })
+
+  it('should assign a VisibleComponent to the returned entity, with a value of `true`', () => {
+    const result = createInfiniteGridHelper()
+    assert.equal(hasComponent(result, VisibleComponent), true)
+  })
 })
