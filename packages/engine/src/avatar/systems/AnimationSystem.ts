@@ -33,8 +33,8 @@ import { getState } from '@etherealengine/hyperflux'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
-import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
 
+import { TransformDirtyUpdateSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
@@ -71,6 +71,6 @@ const execute = () => {
 
 export const AnimationSystem = defineSystem({
   uuid: 'ee.engine.AnimationSystem',
-  insert: { after: TransformSystem },
+  insert: { before: TransformDirtyUpdateSystem },
   execute
 })
