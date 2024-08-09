@@ -134,7 +134,7 @@ export default function UserTable({
                 </>
               }
             >
-              <LuInfo className="blue-primary ml-2 h-5 w-5 bg-transparent" />
+              <LuInfo className="ml-2 h-5 w-5 bg-transparent" />
             </Tooltip>
           </div>
         ),
