@@ -45,4 +45,4 @@ export const metabaseUrlQuerySchema = Type.Object(
 export interface MetabaseUrlQuery extends Static<typeof metabaseUrlQuerySchema> {}
 
 export const metabaseUrlDataValidator = /* @__PURE__ */ getValidator(metabaseUrlDataSchema, dataValidator)
-export const metabaseSettingQueryValidator = /* @__PURE__ */ getValidator(metabaseUrlQuerySchema, queryValidator)
+export const metabaseUrlQueryValidator = /* @__PURE__ */ getValidator(metabaseUrlQuerySchema, queryValidator)
