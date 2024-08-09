@@ -77,10 +77,7 @@ module.exports = {
         }
       },
       colors: {
-        'blue-primary': '#375DAF',
-        'blue-secondary': '#162546',
-        'pink-primary': '#A24482',
-        'purple-primary': '#8261D2'
+        'blue-primary': 'var(--blue-primary)'
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

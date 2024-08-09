@@ -23,8 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MetabaseSetting from './metabase/metabase-setting/metabase-setting'
-import MetabaseUrl from './metabase/metabase-url/metabase-url'
-import ZendeskAuthentication from './zendesk/zendesk'
+import {
+  metabaseSettingMethods,
+  metabaseSettingPath
+} from '@etherealengine/common/src/schemas/integrations/metabase/metabase-setting.schema'
+import { Application } from '@etherealengine/server-core/declarations'
+import { MetabaseSettingService } from './metabase-setting.class'
+import metabaseSettingDocs from './metabase-setting.docs'
+import hooks from './metabase-setting.hooks'
 
-export default [ZendeskAuthentication, MetabaseSetting, MetabaseUrl]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [metabaseSettingPath]: MetabaseSettingService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: metabaseSettingPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(metabaseSettingPath, new MetabaseSettingService(options), {
+    // A list of all methods this service exposes externally
+    methods: metabaseSettingMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: metabaseSettingDocs
+  })
+
+  const service = app.service(metabaseSettingPath)
+  service.hooks(hooks)
+}
