@@ -77,7 +77,7 @@ export default function Invites() {
               <div>
                 <Button
                   variant="danger"
-                  size="small"
+                  size="xs"
                   fullWidth
                   onClick={() => {
                     PopoverState.showPopupover(<RemoveInviteModal invites={selectedInvites.value as InviteType[]} />)
@@ -90,7 +90,7 @@ export default function Invites() {
             <div className="ml-auto">
               <Button
                 startIcon={<HiPlus />}
-                size="small"
+                size="xs"
                 fullWidth
                 onClick={() => {
                   PopoverState.showPopupover(<AddEditInviteModal />)

@@ -171,11 +171,11 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
             menuClassName="max-h-72"
           />
           <div className="flex gap-2">
-            <Button size="small" variant="outline" onClick={() => scopes.set([])}>
+            <Button size="xs" variant="outline" onClick={() => scopes.set([])}>
               {t('admin:components.user.clearAllScopes')}
             </Button>
             <Button
-              size="small"
+              size="xs"
               className="bg-theme-blue-secondary text-blue-700 dark:text-white"
               onClick={() =>
                 scopes.set(scopeTypeOptions.filter((st) => !st.disabled).map((st) => ({ type: st.value as ScopeType })))

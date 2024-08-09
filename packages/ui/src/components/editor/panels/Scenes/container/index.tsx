@@ -76,7 +76,7 @@ export default function ScenesPanel() {
           disabled={isCreatingScene.value}
           rounded="none"
           className="ml-auto bg-theme-highlight px-2"
-          size="small"
+          size="xs"
           onClick={handleCreateScene}
         >
           {t('editor:newScene')}

@@ -190,7 +190,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                   <Button
                     className="text-primary mr-1 rounded py-1"
                     variant={setting.type === 'private' ? 'danger' : 'success'}
-                    size="small"
+                    size="xs"
                     onClick={() => handleSettingsVisibilityChange(setting, index)}
                   >
                     {setting.type}
@@ -220,7 +220,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
               <Button
                 className="text-primary mb-[2px] ml-1 rounded"
                 variant="outline"
-                size="small"
+                size="xs"
                 title={t('admin:components.common.save')}
                 onClick={() => handleSaveSetting(setting)}
               >

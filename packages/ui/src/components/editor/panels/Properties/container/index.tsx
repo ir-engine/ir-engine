@@ -98,7 +98,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
               variant="transparent"
               rounded="none"
               className="ml-auto w-40 bg-[#2F3137] px-2"
-              size="small"
+              size="xs"
               onClick={() => setIsAddComponentMenuOpen(true)}
             >
               {t('editor:properties.lbl-addComponent')}

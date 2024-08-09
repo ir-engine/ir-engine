@@ -43,7 +43,7 @@ export default function CreateSceneDialog() {
     >
       <div className="flex justify-center">
         <Button
-          size="small"
+          size="xs"
           variant="outline"
           className="w-[10vw]"
           onClick={() => {

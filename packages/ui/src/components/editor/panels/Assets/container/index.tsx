@@ -202,7 +202,7 @@ const ResourceFile = (props: {
           {!!userID && userID === resource.userId && (
             <Button
               variant="outline"
-              size="small"
+              size="xs"
               fullWidth
               onClick={() => {
                 PopoverState.showPopupover(
@@ -637,7 +637,7 @@ const AssetPanel = () => {
           startIcon={<HiOutlinePlusCircle className="text-lg" />}
           rounded="none"
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
-          size="small"
+          size="xs"
           onClick={() =>
             inputFileWithAddToScene({
               projectName: originalPath as string,

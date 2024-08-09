@@ -36,10 +36,10 @@ import Button from '../Button'
 export interface CopyTextProps extends React.HTMLAttributes<HTMLTextAreaElement> {
   text: string
   className?: string
-  size?: 'small' | 'medium' | 'large'
+  size?: 'xs' | 'sm' | 'l' | 'xl'
 }
 
-const CopyText = ({ text, className, size = 'small' }: CopyTextProps) => {
+const CopyText = ({ text, className, size = 'xs' }: CopyTextProps) => {
   const { t } = useTranslation()
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const buttonIcon = useHookstate(<HiDocument />)

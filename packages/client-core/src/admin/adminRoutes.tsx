@@ -71,7 +71,7 @@ const AdminTopBar = () => {
           )}
         </Button>
         <Tooltip content={tooltip}>
-          <Button className="pointer-events-auto" size="small" onClick={() => AuthService.logoutUser()}>
+          <Button className="pointer-events-auto" size="sm" onClick={() => AuthService.logoutUser()}>
             {t('admin:components.common.logOut')}
           </Button>
         </Tooltip>

@@ -248,10 +248,10 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
       </div>
 
       <div className="grid grid-cols-8 gap-6">
-        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+        <Button size="xs" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
           {t('admin:components.common.reset')}
         </Button>
-        <Button size="small" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>
+        <Button size="xs" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>
           {t('admin:components.common.save')}
         </Button>
       </div>

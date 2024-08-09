@@ -222,11 +222,11 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         )}
 
         <div className="col-span-1 grid grid-cols-4 gap-6">
-          <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+          <Button size="xs" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
             {t('admin:components.common.reset')}
           </Button>
           <Button
-            size="small"
+            size="xs"
             variant="primary"
             className="col-span-1"
             fullWidth

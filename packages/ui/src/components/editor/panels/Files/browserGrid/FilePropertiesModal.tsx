@@ -219,7 +219,7 @@ export default function FilePropertiesModal({
                     <Button
                       title={t('common:components.save')}
                       variant="transparent"
-                      size="small"
+                      size="xs"
                       startIcon={<RiSave2Line />}
                       onClick={() => editedField.set(null)}
                     />
@@ -234,7 +234,7 @@ export default function FilePropertiesModal({
                     <Button
                       title={t('common:components.edit')}
                       variant="transparent"
-                      size="small"
+                      size="xs"
                       startIcon={<HiPencil />}
                       onClick={() => editedField.set('attribution')}
                     />
@@ -254,7 +254,7 @@ export default function FilePropertiesModal({
                     <Button
                       title={t('common:components.save')}
                       variant="transparent"
-                      size="small"
+                      size="xs"
                       startIcon={<RiSave2Line />}
                       onClick={() => editedField.set(null)}
                     />
@@ -269,7 +269,7 @@ export default function FilePropertiesModal({
                     <Button
                       title={t('common:components.edit')}
                       variant="transparent"
-                      size="small"
+                      size="xs"
                       startIcon={<HiPencil />}
                       onClick={() => editedField.set('licensing')}
                     />

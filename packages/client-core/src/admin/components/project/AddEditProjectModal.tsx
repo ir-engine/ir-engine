@@ -446,7 +446,7 @@ export default function AddEditProjectModal({
                 <Button
                   title={t('admin:components.project.copyDestination')}
                   variant="outline"
-                  size="small"
+                  size="xs"
                   className="p-3 [&>*]:m-0"
                   startIcon={<HiMiniClipboardDocumentList />}
                   onClick={() => {

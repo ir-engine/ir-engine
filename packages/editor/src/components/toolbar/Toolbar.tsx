@@ -226,7 +226,7 @@ export default function Toolbar() {
                 className="px-4 py-2.5 text-left font-light text-theme-input"
                 textContainerClassName="text-xs"
                 variant="sidebar"
-                size="small"
+                size="xs"
                 fullWidth
                 onClick={() => {
                   action()

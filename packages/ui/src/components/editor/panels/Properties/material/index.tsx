@@ -270,7 +270,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         />
         <Button
           variant="outline"
-          size="small"
+          size="xs"
           onClick={() => {
             setComponent(entity, MaterialPlugins[selectedPlugin.value])
           }}
@@ -292,7 +292,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           />
           <Button
             variant="outline"
-            size="small"
+            size="xs"
             onClick={() => {
               removeComponent(entity, MaterialPlugins[selectedPlugin.value])
             }}

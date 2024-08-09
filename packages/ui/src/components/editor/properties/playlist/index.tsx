@@ -221,7 +221,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
               </div>
             </>
           ) : (
-            <Button size="small" variant="outline" className="w-full" onClick={addTrack}>
+            <Button size="xs" variant="outline" className="w-full" onClick={addTrack}>
               Add track
             </Button>
           )}

@@ -71,7 +71,7 @@ export default function Avatars() {
           <div>
             <Button
               startIcon={<HiPlus />}
-              size="small"
+              size="xs"
               fullWidth
               onClick={() => {
                 PopoverState.showPopupover(<AddEditAvatarModal />)

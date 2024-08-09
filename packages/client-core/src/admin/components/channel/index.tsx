@@ -80,7 +80,7 @@ export default function Channels() {
                 <Button
                   startIcon={<HiTrash />}
                   variant="danger"
-                  size="small"
+                  size="xs"
                   fullWidth
                   onClick={() => {
                     PopoverState.showPopupover(
@@ -104,7 +104,7 @@ export default function Channels() {
             <div className="ml-auto">
               <Button
                 startIcon={<HiPlus />}
-                size="small"
+                size="xs"
                 fullWidth
                 onClick={() => {
                   PopoverState.showPopupover(<AddEditChannelModal />)

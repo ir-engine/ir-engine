@@ -70,7 +70,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       startIcon: StartIcon,
       children,
       endIcon: EndIcon,
-      size = 'medium',
+      size = 'xl',
       fullWidth,
       rounded = 'partial',
       variant = 'primary',

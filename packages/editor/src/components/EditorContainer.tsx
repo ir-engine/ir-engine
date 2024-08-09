@@ -230,7 +230,7 @@ const EditorContainer = () => {
       {!isWidgetVisible && initialized && (
         <Button
           rounded="partial"
-          size="small"
+          size="xs"
           className="absolute bottom-5 right-5 z-10"
           startIcon={<IoHelpCircleOutline fontSize={20} />}
           onClick={openChat}
