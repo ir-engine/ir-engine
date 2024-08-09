@@ -65,7 +65,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   const components: Component[] = []
   for (const jsonID of Object.keys(node.extensions.value!)) {
     const component = ComponentJSONIDMap.get(jsonID)!
-    if (!componentEditors[component.name]) continue
+    if (!component || !componentEditors[component.name]) continue
     components.push(component)
   }
 
