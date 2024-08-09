@@ -193,7 +193,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
             {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
             {location && (
               <Button
-                size="medium"
+                size="xl"
                 variant="transparent"
                 className="w-full cursor-default text-left text-xs"
                 endIcon={
