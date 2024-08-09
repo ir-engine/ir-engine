@@ -23,11 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ComponentType } from '@etherealengine/ecs'
+import {
+  ComponentType,
+  EntityUUID,
+  UUIDComponent,
+  getOptionalComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs'
 import { NO_PROXY, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { GLTF } from '@gltf-transform/core'
 import { useEffect } from 'react'
 import {
+  AnimationClip,
+  Bone,
   Box3,
   BufferAttribute,
   BufferGeometry,
@@ -39,36 +48,51 @@ import {
   ImageLoader,
   InterleavedBuffer,
   InterleavedBufferAttribute,
+  InterpolateLinear,
+  KeyframeTrack,
   LinearFilter,
   LinearMipmapLinearFilter,
   LinearSRGBColorSpace,
   Loader,
   LoaderUtils,
+  Mesh,
   MeshBasicMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  NumberKeyframeTrack,
+  QuaternionKeyframeTrack,
   RepeatWrapping,
   SRGBColorSpace,
+  SkinnedMesh,
   Sphere,
   Texture,
   TextureLoader,
   Vector2,
-  Vector3
+  Vector3,
+  VectorKeyframeTrack
 } from 'three'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import {
   ALPHA_MODES,
   ATTRIBUTES,
+  INTERPOLATION,
+  PATH_PROPERTIES,
   WEBGL_COMPONENT_TYPES,
   WEBGL_FILTERS,
   WEBGL_TYPE_SIZES,
   WEBGL_WRAPPINGS
 } from '../assets/loaders/gltf/GLTFConstants'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
-import { assignExtrasToUserData, getNormalizedComponentScale } from '../assets/loaders/gltf/GLTFLoaderFunctions'
+import {
+  GLTFCubicSplineInterpolant,
+  GLTFCubicSplineQuaternionInterpolant,
+  assignExtrasToUserData,
+  getNormalizedComponentScale
+} from '../assets/loaders/gltf/GLTFLoaderFunctions'
 import { GLTFParserOptions, GLTFRegistry, getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
 import { KTX2Loader } from '../assets/loaders/gltf/KTX2Loader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
+import { BoneComponent } from '../avatar/components/BoneComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 
@@ -856,6 +880,240 @@ const useLoadImageSource = (
   return result.get(NO_PROXY) as Texture | null
 }
 
+const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
+  (node.extensions?.[UUIDComponent.jsonID] as EntityUUID) ?? (`${documentID}-${nodeIndex}` as EntityUUID)
+
+const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) => {
+  const result = useHookstate(null as null | AnimationClip)
+
+  const json = options.document
+
+  const animationDef = typeof animationIndex === 'number' ? json.animations![animationIndex] : null
+  const animationName = animationDef ? (animationDef.name ? animationDef.name : 'animation_' + animationIndex) : null
+
+  useEffect(() => {
+    if (!animationDef || !animationName) return
+
+    const channels = animationDef.channels.filter((channel) => channel.target.node !== undefined)
+
+    const reactor = startReactor(() => {
+      const channelData = useHookstate(() =>
+        Object.fromEntries(
+          channels.map((channel, i) => [
+            i,
+            {
+              nodes: null as null | Mesh | Bone,
+              inputAccessors: null as null | BufferAttribute,
+              outputAccessors: null as null | BufferAttribute,
+              samplers: animationDef.samplers[channel.sampler],
+              targets: channel.target
+            }
+          ])
+        )
+      )
+
+      for (let i = 0, il = channels.length; i < il; i++) {
+        const channel = channels[i]
+        const sampler = animationDef.samplers[channel.sampler]
+        const target = channel.target
+        const nodeIndex = target.node!
+        const input = animationDef.parameters !== undefined ? animationDef.parameters[sampler.input] : sampler.input
+        const output = animationDef.parameters !== undefined ? animationDef.parameters[sampler.output] : sampler.output
+
+        const targetNodeUUID = getNodeUUID(json.nodes![nodeIndex], options.documentID, nodeIndex)
+        const targetNodeEntity = UUIDComponent.useEntityByUUID(targetNodeUUID)
+
+        /** @todo we should probably jsut use GroupComponent or something here once we stop creating Object3Ds for all nodes */
+        const meshComponent = useOptionalComponent(targetNodeEntity, MeshComponent)
+        const boneComponent = useOptionalComponent(targetNodeEntity, BoneComponent)
+
+        useEffect(() => {
+          if (!meshComponent && !boneComponent) return
+          channelData[i].nodes.set(
+            getOptionalComponent(targetNodeEntity, MeshComponent) ??
+              getOptionalComponent(targetNodeEntity, BoneComponent)!
+          )
+        }, [meshComponent, boneComponent])
+
+        const inputAccessor = GLTFLoaderFunctions.useLoadAccessor(options, input)
+
+        useEffect(() => {
+          if (!inputAccessor) return
+          channelData[i].inputAccessors.set(inputAccessor)
+        }, [inputAccessor])
+
+        const outputAccessor = GLTFLoaderFunctions.useLoadAccessor(options, output)
+
+        useEffect(() => {
+          if (!outputAccessor) return
+          channelData[i].outputAccessors.set(outputAccessor)
+        }, [outputAccessor])
+      }
+
+      useEffect(() => {
+        if (
+          Object.values(channelData.get(NO_PROXY)).some(
+            (data) => data.nodes === null || data.inputAccessors === null || data.outputAccessors === null
+          )
+        )
+          return
+
+        const values = Object.values(channelData.get(NO_PROXY))
+        const nodes = values.map((data) => data.nodes)
+        const inputAccessors = values.map((data) => data.inputAccessors) as BufferAttribute[]
+        const outputAccessors = values.map((data) => data.outputAccessors) as BufferAttribute[]
+        const samplers = values.map((data) => data.samplers) as GLTF.IAnimationSampler[]
+        const targets = values.map((data) => data.targets) as GLTF.IAnimationChannelTarget[]
+
+        const tracks = [] as any[] // todo
+
+        for (let i = 0, il = nodes.length; i < il; i++) {
+          const node = nodes[i] as Mesh | SkinnedMesh
+          const inputAccessor = inputAccessors[i]
+          const outputAccessor = outputAccessors[i]
+          const sampler = samplers[i]
+          const target = targets[i]
+
+          if (node === undefined) continue
+
+          if (node.updateMatrix) {
+            node.updateMatrix()
+          }
+
+          const createdTracks = _createAnimationTracks(node, inputAccessor, outputAccessor, sampler, target)
+
+          if (createdTracks) {
+            for (let k = 0; k < createdTracks.length; k++) {
+              tracks.push(createdTracks[k])
+            }
+          }
+        }
+
+        result.set(new AnimationClip(animationName, undefined, tracks))
+
+        reactor.stop()
+      }, [channelData])
+
+      return null
+    })
+    return () => {
+      reactor.stop()
+    }
+  }, [animationDef])
+
+  return result.get(NO_PROXY) as AnimationClip | null
+}
+
+const _createAnimationTracks = (
+  node: Mesh | SkinnedMesh,
+  inputAccessor: BufferAttribute,
+  outputAccessor: BufferAttribute,
+  sampler: GLTF.IAnimationSampler,
+  target: GLTF.IAnimationChannelTarget
+) => {
+  const tracks = [] as any[] // todo
+
+  const targetName = node.name ? node.name : node.uuid
+  const targetNames = [] as string[]
+
+  if (PATH_PROPERTIES[target.path] === PATH_PROPERTIES.weights) {
+    node.traverse(function (object: Mesh | SkinnedMesh) {
+      if (object.morphTargetInfluences) {
+        targetNames.push(object.name ? object.name : object.uuid)
+      }
+    })
+  } else {
+    targetNames.push(targetName)
+  }
+
+  let TypedKeyframeTrack
+
+  switch (PATH_PROPERTIES[target.path]) {
+    case PATH_PROPERTIES.weights:
+      TypedKeyframeTrack = NumberKeyframeTrack
+      break
+
+    case PATH_PROPERTIES.rotation:
+      TypedKeyframeTrack = QuaternionKeyframeTrack
+      break
+
+    case PATH_PROPERTIES.position:
+    case PATH_PROPERTIES.scale:
+      TypedKeyframeTrack = VectorKeyframeTrack
+      break
+
+    default:
+      switch (outputAccessor.itemSize) {
+        case 1:
+          TypedKeyframeTrack = NumberKeyframeTrack
+          break
+        case 2:
+        case 3:
+        default:
+          TypedKeyframeTrack = VectorKeyframeTrack
+          break
+      }
+
+      break
+  }
+
+  const interpolation = sampler.interpolation !== undefined ? INTERPOLATION[sampler.interpolation] : InterpolateLinear
+
+  const outputArray = _getArrayFromAccessor(outputAccessor)
+
+  for (let j = 0, jl = targetNames.length; j < jl; j++) {
+    const track = new TypedKeyframeTrack(
+      targetNames[j] + '.' + PATH_PROPERTIES[target.path],
+      inputAccessor.array,
+      outputArray,
+      interpolation
+    )
+
+    // Override interpolation with custom factory method.
+    if (sampler.interpolation === 'CUBICSPLINE') {
+      _createCubicSplineTrackInterpolant(track)
+    }
+
+    tracks.push(track)
+  }
+
+  return tracks
+}
+
+const _getArrayFromAccessor = (accessor: BufferAttribute) => {
+  let outputArray = accessor.array
+
+  if (accessor.normalized) {
+    const scale = getNormalizedComponentScale(outputArray.constructor)
+    const scaled = new Float32Array(outputArray.length)
+
+    for (let j = 0, jl = outputArray.length; j < jl; j++) {
+      scaled[j] = outputArray[j] * scale
+    }
+
+    outputArray = scaled
+  }
+
+  return outputArray
+}
+
+const _createCubicSplineTrackInterpolant = (track: KeyframeTrack) => {
+  // @ts-ignore
+  track.createInterpolant = function InterpolantFactoryMethodGLTFCubicSpline(result) {
+    // A CUBICSPLINE keyframe in glTF has three output values for each input value,
+    // representing inTangent, splineVertex, and outTangent. As a result, track.getValueSize()
+    // must be divided by three to get the interpolant's sampleSize argument.
+
+    const interpolantType =
+      this instanceof QuaternionKeyframeTrack ? GLTFCubicSplineQuaternionInterpolant : GLTFCubicSplineInterpolant
+
+    return new interpolantType(this.times, this.values, this.getValueSize() / 3, result)
+  }
+
+  // @ts-ignore Mark as CUBICSPLINE. `track.getInterpolation()` doesn't support custom interpolants.
+  track.createInterpolant.isInterpolantFactoryMethodGLTFCubicSpline = true
+}
+
 export const GLTFLoaderFunctions = {
   computeBounds,
   useLoadPrimitive,
@@ -866,5 +1124,6 @@ export const GLTFLoaderFunctions = {
   useAssignTexture,
   useLoadTexture,
   useLoadImageSource,
-  useLoadTextureImage
+  useLoadTextureImage,
+  useLoadAnimation
 }

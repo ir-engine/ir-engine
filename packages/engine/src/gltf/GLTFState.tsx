@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
 import {
+  AnimationClip,
+  AnimationMixer,
   Bone,
   Group,
   LoaderUtils,
@@ -89,6 +91,7 @@ import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/
 import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
+import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { BoneComponent } from '../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../avatar/components/SkinnedMeshComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
@@ -413,7 +416,27 @@ const ChildGLTFReactor = (props: { source: string }) => {
 export const DocumentReactor = (props: { documentID: string; parentUUID: EntityUUID }) => {
   const nodeState = useHookstate(getMutableState(GLTFNodeState)[props.documentID])
   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+  const animationState = useHookstate([] as AnimationClip[])
+  const rootEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
+
+  useEffect(() => {
+    if (!documentState.value || !nodeState.value || animationState.length !== documentState.value.animations?.length)
+      return
+
+    const scene = getComponent(rootEntity, Object3DComponent)
+    scene.animations = animationState.get(NO_PROXY) as AnimationClip[]
+    const mixer = new AnimationMixer(scene)
+    setComponent(rootEntity, AnimationComponent, {
+      mixer,
+      animations: scene.animations
+    })
+    return () => {
+      removeComponent(rootEntity, AnimationComponent)
+    }
+  }, [animationState])
+
   if (!documentState.value || !nodeState.value) return null
+
   return (
     <>
       {Object.entries(nodeState.get(NO_PROXY)).map(([uuid, { nodeIndex, childIndex, parentUUID }]) => (
@@ -435,6 +458,17 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
             documentID={props.documentID}
           />
         ))}
+      {documentState.get(NO_PROXY).animations?.map((animation, index) => {
+        return (
+          <AnimationReactor
+            key={'animation-' + index}
+            index={index}
+            documentID={props.documentID}
+            parentUUID={props.parentUUID}
+            animationState={animationState}
+          />
+        )
+      })}
     </>
   )
 }
@@ -807,15 +841,21 @@ const SkinnedMeshReactor = (props: { nodeIndex: number; documentID: string; enti
   const options = getParserOptions(props.entity)
   const inverseBindMatrices = GLTFLoaderFunctions.useLoadAccessor(options, skin.inverseBindMatrices)
 
+  const jointNodeUUIDs = skin.joints.map((joint) =>
+    getNodeUUID(nodes[joint] as GLTF.INode, props.documentID, joint)
+  ) as EntityUUID[]
+  /** @todo make reactive to edits */
+  const jointEntityLoadedState = useHookstate(() =>
+    Object.fromEntries(jointNodeUUIDs.map((uuid) => [uuid, UndefinedEntity]))
+  )
+
   useEffect(() => {
     if (!inverseBindMatrices || !skinnedMeshComponent) return
 
-    const jointNodeUUIDs = skin.joints.map((joint) => getNodeUUID(nodes[joint] as GLTF.INode, props.documentID, joint))
-    const jointEntities = jointNodeUUIDs.map((uuid) => UUIDComponent.getEntityByUUID(uuid))
+    const jointEntities = Object.values(jointEntityLoadedState.value)
     if (jointEntities.includes(UndefinedEntity)) return
 
     const jointBones = jointEntities.map((entity) => getOptionalComponent(entity, BoneComponent))
-
     if (jointBones.includes(undefined)) return
 
     const bones = [] as Bone[]
@@ -841,7 +881,34 @@ const SkinnedMeshReactor = (props: { nodeIndex: number; documentID: string; enti
 
     const skeleton = new Skeleton(bones, boneInverses)
     skinnedMeshComponent.skeleton.set(skeleton)
-  }, [inverseBindMatrices, !!skinnedMeshComponent])
+  }, [jointEntityLoadedState, inverseBindMatrices, !!skinnedMeshComponent])
+
+  return (
+    <>
+      {jointEntityLoadedState.keys.map((entityUUID: EntityUUID) => (
+        <SkeletonNodeDependencyReactor
+          key={entityUUID}
+          entityUUID={entityUUID}
+          jointEntityLoadedState={jointEntityLoadedState}
+        />
+      ))}
+    </>
+  )
+}
+
+/** @todo we can probably simplify this into a nested reactor in a 'useNodesLoaded' entity */
+const SkeletonNodeDependencyReactor = (props: {
+  entityUUID: EntityUUID
+  jointEntityLoadedState: State<Record<EntityUUID, Entity>>
+}) => {
+  const entity = UUIDComponent.useEntityByUUID(props.entityUUID)
+  const jointEntityLoadedState = props.jointEntityLoadedState
+
+  useEffect(() => {
+    if (!entity) return
+    jointEntityLoadedState[props.entityUUID].set(entity)
+    return () => jointEntityLoadedState[props.entityUUID].set(UndefinedEntity)
+  }, [entity])
 
   return null
 }
@@ -990,10 +1057,23 @@ const MaterialInstanceReactor = (props: {
   return null
 }
 
-/**
- * TODO figure out how to support extensions that change the behaviour of these reactors
- * - we pretty much have to add a new API for each dependency type, like how the GLTFLoader does
- */
+export const AnimationReactor = (props: {
+  index: number
+  documentID: string
+  parentUUID: EntityUUID
+  animationState: State<AnimationClip[]>
+}) => {
+  const entity = UUIDComponent.useEntityByUUID(props.parentUUID)
+  const options = getParserOptions(entity)
+  const animationTrack = GLTFLoaderFunctions.useLoadAnimation(options, props.index)
+
+  useEffect(() => {
+    if (!animationTrack) return
+    props.animationState.merge([animationTrack])
+  }, [animationTrack])
+
+  return null
+}
 
 export const getParserOptions = (entity: Entity) => {
   const gltfEntity = getAncestorWithComponent(entity, GLTFComponent)
@@ -1002,6 +1082,7 @@ export const getParserOptions = (entity: Entity) => {
   const gltfLoader = getState(AssetLoaderState).gltfLoader
   return {
     document,
+    documentID: getComponent(gltfEntity, SourceComponent),
     url: gltfComponent.src,
     path: LoaderUtils.extractUrlBase(gltfComponent.src),
     body: gltfComponent.body,
