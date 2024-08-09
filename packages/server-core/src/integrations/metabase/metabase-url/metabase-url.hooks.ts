@@ -56,10 +56,7 @@ export const metabaseCrashDashboard = async (context: HookContext<MetabaseUrlSer
 
   const payload = {
     resource: { dashboard: parseInt(METABASE_CRASH_DASHBOARD_ID) },
-    params: {
-      account_id: null,
-      project_id: [context.data.projectId]
-    },
+    params: {},
     exp: Math.round(Date.now() / 1000) + EXPIRATION * 60
   }
 
