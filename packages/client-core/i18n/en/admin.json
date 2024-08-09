@@ -561,9 +561,7 @@
         "port": "Port",
         "processInterval": "Process Interval"
       },
-
       "plugins": "Plugins",
-
       "metabase": {
         "header": "Metabase",
         "subtitle": "Edit Metabase Settings",
