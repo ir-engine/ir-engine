@@ -55,7 +55,7 @@ export class LoginService implements ServiceInterface {
    * @param params
    * @returns {token}
    */
-  async get(id: Id, params?: any) {
+  async get(id: Id, params?: LoginParams) {
     try {
       if (!id) {
         logger.info('Invalid login token id, cannot be null or undefined')
@@ -109,9 +109,9 @@ export class LoginService implements ServiceInterface {
       // Create a user-login record
       await this.app.service(userLoginPath).create({
         userId: identityProvider.userId as UserID,
-        userAgent: params!.headers!['user-agent'],
+        userAgent: params?.headers!['user-agent'],
         identityProviderId: identityProvider.id,
-        ipAddress: params!.forwarded?.ip!
+        ipAddress: params?.forwarded?.ip || ''
       })
 
       return {

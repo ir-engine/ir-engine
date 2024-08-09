@@ -108,6 +108,14 @@ export const UserSeed: UserType = {
   locationAdmins: [],
   locationBans: [],
   instanceAttendance: [],
+  lastLogin: {
+    id: '',
+    ipAddress: '',
+    userAgent: '',
+    identityProviderId: '',
+    userId: '' as UserID,
+    createdAt: ''
+  },
   createdAt: '',
   updatedAt: ''
 }

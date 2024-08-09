@@ -41,11 +41,9 @@ export async function up(knex: Knex): Promise<void> {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
-      table.uuid('userId').collate('utf8mb4_bin').defaultTo(null).index()
+      table.uuid('userId').collate('utf8mb4_bin').notNullable().index()
       table.string('userAgent', 255).notNullable()
       table.string('ipAddress', 255).notNullable()
-      table.integer('port').nullable()
-      table.boolean('secure').nullable()
       //@ts-ignore
       table.uuid('identityProviderId').collate('utf8mb4_bin').index()
       table.dateTime('createdAt').notNullable()
@@ -55,7 +53,7 @@ export async function up(knex: Knex): Promise<void> {
         .foreign('identityProviderId')
         .references('id')
         .inTable(identityProviderPath)
-        .onDelete('CASCADE')
+        .onDelete('SET NULL')
         .onUpdate('CASCADE')
     })
   }

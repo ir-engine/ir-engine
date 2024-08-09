@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // Do not delete json and urlencoded, they are used even if some IDEs show them as unused
 
-import { CustomerFeathersParams, feathers } from '@feathersjs/feathers'
+import { feathers } from '@feathersjs/feathers'
 import { bodyParser, errorHandler, koa, rest } from '@feathersjs/koa'
 import * as k8s from '@kubernetes/client-node'
 import { EventEmitter } from 'events'
@@ -109,8 +109,6 @@ export const configurePrimus =
         },
         (primus) => {
           primus.use((message, socket, next) => {
-            console.log('message', message)
-            console.log('message headers', message.headers, message.feathers.headers)
             ;(message as any).feathers.socketQuery = message.query
             ;(message as any).socketQuery = message.query
             ;(message as any).feathers.forwarded = message.forwarded
@@ -237,7 +235,7 @@ export const createFeathersKoaApp = (
       forwarded: {
         ip: clientIp
       }
-    } as CustomerFeathersParams
+    }
 
     await next()
   })

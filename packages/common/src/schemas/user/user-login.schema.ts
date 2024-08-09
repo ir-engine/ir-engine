@@ -33,7 +33,7 @@ import { UserID } from './user.schema'
 
 export const userLoginPath = 'user-login'
 
-export const userLoginMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
+export const userLoginMethods = ['find', 'create'] as const
 
 // Main data model schema
 export const userLoginSchema = Type.Object(
@@ -41,13 +41,11 @@ export const userLoginSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
+    userAgent: Type.String(),
+    ipAddress: Type.String(),
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
-    userAgent: Type.String(),
-    ipAddress: Type.String(),
-    port: Type.Optional(Type.Integer()),
-    secure: Type.Optional(Type.Boolean()),
     identityProviderId: Type.String({
       format: 'uuid'
     }),
@@ -60,18 +58,12 @@ export interface UserLoginType extends Static<typeof userLoginSchema> {}
 // Schema for creating new entries
 export const userLoginDataSchema = Type.Pick(
   userLoginSchema,
-  ['userId', 'userAgent', 'ipAddress', 'port', 'secure', 'identityProviderId'],
+  ['userId', 'userAgent', 'ipAddress', 'identityProviderId'],
   {
     $id: 'UserLoginData'
   }
 )
 export interface UserLoginData extends Static<typeof userLoginDataSchema> {}
-
-// Schema for updating existing entries
-export const userLoginPatchSchema = Type.Partial(userLoginSchema, {
-  $id: 'UserLoginPatch'
-})
-export interface UserLoginPatch extends Static<typeof userLoginPatchSchema> {}
 
 // Schema for allowed query properties
 export const userLoginQueryProperties = Type.Pick(userLoginSchema, [
@@ -79,9 +71,8 @@ export const userLoginQueryProperties = Type.Pick(userLoginSchema, [
   'userId',
   'userAgent',
   'ipAddress',
-  'port',
-  'secure',
-  'identityProviderId'
+  'identityProviderId',
+  'createdAt'
 ])
 export const userLoginQuerySchema = Type.Intersect(
   [
@@ -95,5 +86,4 @@ export interface UserLoginQuery extends Static<typeof userLoginQuerySchema> {}
 
 export const userLoginValidator = /* @__PURE__ */ getValidator(userLoginSchema, dataValidator)
 export const userLoginDataValidator = /* @__PURE__ */ getValidator(userLoginDataSchema, dataValidator)
-export const userLoginPatchValidator = /* @__PURE__ */ getValidator(userLoginPatchSchema, dataValidator)
 export const userLoginQueryValidator = /* @__PURE__ */ getValidator(userLoginQuerySchema, queryValidator)

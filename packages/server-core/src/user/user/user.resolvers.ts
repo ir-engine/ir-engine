@@ -49,6 +49,7 @@ import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/util
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { isDev } from '@etherealengine/common/src/config'
+import { userLoginPath } from '@etherealengine/common/src/schemas/user/user-login.schema'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
@@ -101,12 +102,12 @@ export const userResolver = resolve<UserType, HookContext>({
 
     return []
   }),
-  createdAt: virtual(async (user) => fromDateTimeSql(user.createdAt)),
-  updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt)),
   acceptedTOS: virtual(async (user, context) => {
     if (isDev) return true
     return !!user.acceptedTOS
-  })
+  }),
+  createdAt: virtual(async (user) => fromDateTimeSql(user.createdAt)),
+  updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt))
 })
 
 export const userExternalResolver = resolve<UserType, HookContext>({
@@ -167,6 +168,17 @@ export const userExternalResolver = resolve<UserType, HookContext>({
       },
       paginate: false
     })) as LocationBanType[]
+  }),
+  lastLogin: virtual(async (user, context) => {
+    const login = await context.app.service(userLoginPath).find({
+      query: {
+        userId: user.id,
+        $sort: { createdAt: -1 },
+        $limit: 1
+      },
+      paginate: false
+    })
+    return login.length > 0 ? login[0] : undefined
   }),
   // https://stackoverflow.com/a/56523892/2077741
   isGuest: async (value, user) => !!user.isGuest

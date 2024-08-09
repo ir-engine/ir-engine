@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { OAuthStrategy } from '@feathersjs/authentication-oauth'
-import { CustomerFeathersParams, Params } from '@feathersjs/feathers'
+import { Params } from '@feathersjs/feathers'
 
 import multiLogger from '@etherealengine/common/src/logger'
 import { userLoginPath } from '@etherealengine/common/src/schemas/user/user-login.schema'
@@ -43,6 +43,7 @@ export interface CustomOAuthParams extends Params {
 export class CustomOAuthStrategy extends OAuthStrategy {
   // @ts-ignore
   app: Application
+
   async getEntityQuery(profile: any, _params: Params): Promise<any> {
     return {
       token: profile.sub ? `${this.name}:::${profile.sub as string}` : `${this.name}:::${profile.id as string}`
@@ -56,14 +57,14 @@ export class CustomOAuthStrategy extends OAuthStrategy {
   }
 
   // Method to create a user login entry for SSO providers
-  async userLoginEntry(entity: any, params: CustomerFeathersParams): Promise<any> {
+  async userLoginEntry(entity: any, params: Params): Promise<any> {
     // Create a user-login entry
     try {
       await this.app.service(userLoginPath).create({
         userId: entity.userId as UserID,
         userAgent: params.headers!['user-agent'],
         identityProviderId: entity.id,
-        ipAddress: params.forwarded?.ip!
+        ipAddress: params.forwarded?.ip || ''
       })
       logger.info('User login entry created successfully.')
     } catch (error) {
@@ -71,4 +72,5 @@ export class CustomOAuthStrategy extends OAuthStrategy {
     }
   }
 }
+
 export default CustomOAuthStrategy
