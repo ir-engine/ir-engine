@@ -23,42 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Knex } from 'knex'
+import type { Params } from '@feathersjs/feathers'
+import type { KnexAdapterParams } from '@feathersjs/knex'
+import { KnexService } from '@feathersjs/knex'
 
-import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import {
+  UserLoginData,
+  UserLoginPatch,
+  UserLoginQuery,
+  UserLoginType
+} from '@etherealengine/common/src/schemas/user/user-login.schema'
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function up(knex: Knex): Promise<void> {
-  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+export interface UserLoginParams extends KnexAdapterParams<UserLoginQuery> {}
 
-  const lastLoginColumnExists = await knex.schema.hasColumn(userPath, 'lastLogin')
-
-  if (!lastLoginColumnExists) {
-    await knex.schema.alterTable(userPath, async (table) => {
-      table.dateTime('lastLogin').nullable()
-    })
-  }
-
-  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
-}
-
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function down(knex: Knex): Promise<void> {
-  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
-
-  const lastLoginColumnExists = await knex.schema.hasColumn(userPath, 'lastLogin')
-
-  if (lastLoginColumnExists) {
-    await knex.schema.alterTable(userPath, async (table) => {
-      table.dropColumn('lastLogin')
-    })
-  }
-
-  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
-}
+export class UserLoginService<T = UserLoginType, ServiceParams extends Params = UserLoginParams> extends KnexService<
+  UserLoginType,
+  UserLoginData,
+  UserLoginParams,
+  UserLoginPatch
+> {}
