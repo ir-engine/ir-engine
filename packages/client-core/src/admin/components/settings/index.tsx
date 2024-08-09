@@ -37,6 +37,7 @@ import EmailTab from './tabs/email'
 import FeaturesTab from './tabs/features'
 import HelmTab from './tabs/helm'
 import InstanceServerTab from './tabs/instanceServer'
+import MetabaseTab from './tabs/metabase'
 import ProjectTab from './tabs/project'
 import RedisTab from './tabs/redis'
 import ServerTab from './tabs/server'
@@ -89,6 +90,11 @@ export const SettingsTabsData = [
     Component: FeaturesTab
   },
   {
+    label: t('admin:components.setting.metabase.header'),
+    Component: MetabaseTab
+  },
+  {
+    id: 'metabase',
     label: t('admin:components.setting.zendesk.header'),
     Component: ZendeskTab
   }
@@ -107,6 +113,7 @@ export default function Settings() {
   const refs = useRef<React.RefObject<HTMLDivElement>[]>(SettingsTabsData.map(() => React.createRef()))
 
   const tabsData = SettingsTabsData.map((tabData, idx) => ({
+    id: tabData.id,
     title: t('admin:components.setting.settings'),
     tabLabel: tabData.label,
     bottomComponent: <tabData.Component ref={refs.current[idx]} open={openState[idx].value} />,
