@@ -23,12 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { metabaseUrlDataSchema } from '@etherealengine/common/src/schemas/integrations/metabase/metabase-url.schema'
+import {
+  metabaseUrlDataSchema,
+  metabaseUrlQuerySchema
+} from '@etherealengine/common/src/schemas/integrations/metabase/metabase-url.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({
   schemas: {
-    metabaseUrlDataSchema
+    metabaseUrlDataSchema,
+    metabaseUrlQuerySchema
   },
   docs: {
     description: 'Metabase url service description',
