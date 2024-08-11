@@ -50,6 +50,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   removeEntity,
@@ -943,9 +944,9 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
   const nodes = documentState.nodes!.get(NO_PROXY)!
   const node = nodes[props.nodeIndex]!
 
-  const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
+  const meshDef = documentState.meshes.get(NO_PROXY)![node.mesh!]
 
-  const primitive = mesh.primitives[props.primitiveIndex] as GLTF.IMeshPrimitive
+  const primitive = meshDef.primitives[props.primitiveIndex] as GLTF.IMeshPrimitive
 
   const options = getParserOptions(props.entity)
   const geometry = GLTFLoaderFunctions.useLoadPrimitive(options, props.nodeIndex, props.primitiveIndex)
@@ -993,6 +994,16 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
           primitiveIndex={props.primitiveIndex}
           documentID={props.documentID}
           entity={props.entity}
+        />
+      )}
+      {primitive.targets && (
+        <MorphTargetReactor
+          key={'targets'}
+          documentID={props.documentID}
+          entity={props.entity}
+          targets={primitive.targets}
+          nodeIndex={props.nodeIndex}
+          primitiveIndex={props.primitiveIndex}
         />
       )}
     </>
@@ -1053,6 +1064,49 @@ const MaterialInstanceReactor = (props: {
     setComponent(props.entity, MaterialInstanceComponent)
     getMutableComponent(props.entity, MaterialInstanceComponent).uuid.merge([materialUUID])
   }, [materialEntity, primitive.material])
+
+  return null
+}
+
+export const MorphTargetReactor = (props: {
+  documentID: string
+  entity: Entity
+  nodeIndex: number
+  primitiveIndex: number
+  targets: Record<string, number>[]
+}) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
+
+  const meshDef = documentState.meshes.get(NO_PROXY)![node.mesh!]
+
+  const options = getParserOptions(props.entity)
+  const morphTargets = GLTFLoaderFunctions.useLoadMorphTargets(options, props.targets)
+
+  useEffect(() => {
+    if (!morphTargets) return
+
+    const mesh = getOptionalMutableComponent(props.entity, MeshComponent)
+    if (!mesh) return
+
+    if (morphTargets.POSITION) mesh.geometry.morphAttributes.position.set(morphTargets.POSITION)
+    if (morphTargets.NORMAL) mesh.geometry.morphAttributes.normal.set(morphTargets.NORMAL)
+    if (morphTargets.COLOR_0) mesh.geometry.morphAttributes.color.set(morphTargets.COLOR_0)
+
+    mesh.geometry.morphTargetsRelative.set(true)
+
+    mesh.get(NO_PROXY).updateMorphTargets()
+
+    if (meshDef.weights) {
+      for (let i = 0, il = meshDef.weights.length; i < il; i++) {
+        mesh.morphTargetInfluences[i].set(meshDef.weights[i])
+      }
+    }
+
+    console.log('Morph targets loaded', mesh)
+  }, [morphTargets])
 
   return null
 }

@@ -633,6 +633,60 @@ const useLoadMaterial = (
   return result.get(NO_PROXY) as MeshStandardMaterial | null
 }
 
+const useLoadMorphTargets = (options: GLTFParserOptions, targetsList: Record<string, number>[]) => {
+  const result = useHookstate(null as null | Record<string, BufferAttribute[]>)
+
+  useEffect(() => {
+    /** @todo make individual targets individually reactive */
+    const reactor = startReactor(() => {
+      const targetState = useHookstate(
+        () =>
+          targetsList.map((target) => Object.fromEntries(Object.entries(target).map(([key]) => [key, null]))) as Record<
+            string,
+            BufferAttribute | null
+          >[]
+      )
+
+      for (let i = 0, il = targetsList.length; i < il; i++) {
+        const target = targetsList[i]
+        for (const [key, accessorIndex] of Object.entries(target)) {
+          const accessor = GLTFLoaderFunctions.useLoadAccessor(options, accessorIndex)
+          useEffect(() => {
+            if (!accessor) return
+            targetState[i][key].set(accessor)
+          }, [accessor])
+        }
+      }
+
+      useEffect(() => {
+        for (const target of targetState.value) {
+          if (Object.values(target).includes(null)) return
+        }
+        result.set(
+          targetState.get(NO_PROXY).reduce(
+            (acc, target: Record<string, BufferAttribute>) => {
+              for (const [key, value] of Object.entries(target)) {
+                if (!acc[key]) acc[key] = []
+                acc[key].push(value)
+              }
+              return acc
+            },
+            {} as Record<string, BufferAttribute[]>
+          )
+        )
+        reactor.stop()
+      }, [targetState])
+
+      return null
+    })
+    return () => {
+      reactor.stop()
+    }
+  }, [targetsList])
+
+  return result.get(NO_PROXY) as Record<string, BufferAttribute[]> | null
+}
+
 /**
  * Asynchronously assigns a texture to the given material parameters.
  * @param {Object} materialParams
@@ -919,6 +973,9 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
         const nodeIndex = target.node!
         const input = animationDef.parameters !== undefined ? animationDef.parameters[sampler.input] : sampler.input
         const output = animationDef.parameters !== undefined ? animationDef.parameters[sampler.output] : sampler.output
+        const node = json.nodes![nodeIndex]
+        const mesh = typeof node.mesh === 'number' ? json.meshes?.[node.mesh!] : null
+        const meshHasWeights = mesh?.weights !== undefined && mesh.weights.length > 0
 
         const targetNodeUUID = getNodeUUID(json.nodes![nodeIndex], options.documentID, nodeIndex)
         const targetNodeEntity = UUIDComponent.useEntityByUUID(targetNodeUUID)
@@ -928,7 +985,10 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
         const boneComponent = useOptionalComponent(targetNodeEntity, BoneComponent)
 
         useEffect(() => {
-          if (!meshComponent && !boneComponent) return
+          const meshWeightsLoaded = meshHasWeights
+            ? meshComponent?.get(NO_PROXY)?.morphTargetInfluences !== undefined
+            : true
+          if (!meshWeightsLoaded && !boneComponent) return
           channelData[i].nodes.set(
             getOptionalComponent(targetNodeEntity, MeshComponent) ??
               getOptionalComponent(targetNodeEntity, BoneComponent)!
@@ -1121,6 +1181,7 @@ export const GLTFLoaderFunctions = {
   useLoadBufferView,
   useLoadBuffer,
   useLoadMaterial,
+  useLoadMorphTargets,
   useAssignTexture,
   useLoadTexture,
   useLoadImageSource,
