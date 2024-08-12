@@ -104,7 +104,8 @@ export const instanceQueryProperties = Type.Pick(instanceSchema, [
   'ended',
   'assigned',
   'locationId',
-  'assignedAt'
+  'assignedAt',
+  'createdAt'
 ])
 export const instanceQuerySchema = Type.Intersect(
   [
