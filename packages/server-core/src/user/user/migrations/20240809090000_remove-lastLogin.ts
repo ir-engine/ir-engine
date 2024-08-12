@@ -23,34 +23,42 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
+import type { Knex } from 'knex'
 
-import { ITableHeadCell } from '../Table'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 
-type IdType =
-  | 'select'
-  | 'id'
-  | 'name'
-  | 'accountIdentifier'
-  | 'lastLogin'
-  | 'acceptedTOS'
-  | 'isGuest'
-  | 'action'
-  | 'avatar'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export type UserRowType = Record<IdType, string | JSX.Element | undefined>
+  const lastLoginColumnExists = await knex.schema.hasColumn(userPath, 'lastLogin')
 
-interface IUserColumn extends ITableHeadCell {
-  id: IdType
+  if (lastLoginColumnExists === true) {
+    await knex.schema.alterTable(userPath, async (table) => {
+      table.dropColumn('lastLogin')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export const userColumns: IUserColumn[] = [
-  { id: 'id', label: t('admin:components.user.columns.id') },
-  { id: 'name', sortable: true, label: t('admin:components.user.columns.name') },
-  { id: 'avatar', label: t('admin:components.user.columns.avatar') },
-  { id: 'accountIdentifier', label: t('admin:components.user.columns.accountIdentifier') },
-  { id: 'lastLogin', label: t('admin:components.user.columns.lastLogin') },
-  { id: 'acceptedTOS', sortable: true, label: t('admin:components.user.columns.acceptedTOS') },
-  { id: 'isGuest', sortable: true, label: t('admin:components.user.columns.isGuest') },
-  { id: 'action', label: t('admin:components.user.columns.action') }
-]
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const lastLoginColumnExists = await knex.schema.hasColumn(userPath, 'lastLogin')
+
+  if (lastLoginColumnExists === false) {
+    await knex.schema.alterTable(userPath, async (table) => {
+      table.dateTime('lastLogin').nullable()
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
