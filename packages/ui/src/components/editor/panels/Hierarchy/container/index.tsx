@@ -543,7 +543,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
               variant="transparent"
               rounded="none"
               className="ml-auto w-32 text-nowrap bg-theme-highlight px-2 py-3 text-white"
-              size="xs"
+              size="small"
               textContainerClassName="mx-0"
               onClick={() => setIsAddEntityMenuOpen(true)}
             >
@@ -563,7 +563,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
         <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           <Button
             fullWidth
-            size="xs"
+            size="small"
             variant="transparent"
             className="text-left text-xs"
             onClick={() => onRenameNode(contextSelectedItem!)}
@@ -571,7 +571,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
             {t('editor:hierarchy.lbl-rename')}
           </Button>
           <Button
-            size="xs"
+            size="small"
             variant="transparent"
             className="text-left text-xs"
             onClick={() => onDuplicateNode(contextSelectedItem!)}
@@ -580,7 +580,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
             {t('editor:hierarchy.lbl-duplicate')}
           </Button>
           <Button
-            size="xs"
+            size="small"
             variant="transparent"
             className="text-left text-xs"
             onClick={() => onGroupNodes(contextSelectedItem!)}
@@ -589,7 +589,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
             {t('editor:hierarchy.lbl-group')}
           </Button>
           <Button
-            size="xs"
+            size="small"
             variant="transparent"
             className="text-left text-xs"
             onClick={() => onCopyNode(contextSelectedItem!)}
@@ -598,7 +598,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
             {t('editor:hierarchy.lbl-copy')}
           </Button>
           <Button
-            size="xs"
+            size="small"
             variant="transparent"
             className="text-left text-xs"
             onClick={() => onPasteNode(contextSelectedItem!)}
@@ -608,7 +608,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
           </Button>
           <Button
             fullWidth
-            size="xs"
+            size="small"
             variant="transparent"
             className="text-left text-xs"
             onClick={() => onDeleteNode(contextSelectedItem!)}
@@ -617,7 +617,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
           </Button>
           <Button
             fullWidth
-            size="xs"
+            size="small"
             variant="transparent"
             className="text-left text-xs"
             onClick={() => expandChildren(contextSelectedItem!)}
@@ -626,7 +626,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
           </Button>
           <Button
             fullWidth
-            size="xs"
+            size="small"
             variant="transparent"
             className="text-left text-xs"
             onClick={() => collapseChildren(contextSelectedItem!)}
@@ -636,7 +636,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
 
           <Button
             fullWidth
-            size="xs"
+            size="small"
             variant="transparent"
             className="text-left text-xs"
             onClick={() => PopoverState.showPopupover(<CreatePrefabPanel entity={contextSelectedItem!} />)}

@@ -110,7 +110,7 @@ export const SceneItem = ({ scene, updateEditorState, handleOpenScene, refetchPr
         <div className="relative h-6 w-6" ref={threeDotsContainRef}>
           <Button
             variant="transparent"
-            size="xs"
+            size="small"
             className="px-2 py-1.5"
             startIcon={<BsThreeDotsVertical className="text-neutral-100" />}
             onClick={() => showContentMenu.set((v) => !v)}
@@ -128,6 +128,7 @@ export const SceneItem = ({ scene, updateEditorState, handleOpenScene, refetchPr
             <li className="h-8">
               <Button
                 variant="transparent"
+                size="medium"
                 className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
                 startIcon={<MdOutlineEdit />}
                 onClick={() => {
@@ -148,6 +149,7 @@ export const SceneItem = ({ scene, updateEditorState, handleOpenScene, refetchPr
             <li className="h-8">
               <Button
                 variant="transparent"
+                size="medium"
                 className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
                 startIcon={<LuTrash />}
                 onClick={() => {

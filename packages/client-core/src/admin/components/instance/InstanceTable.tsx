@@ -89,7 +89,7 @@ export default function InstanceTable({ search }: { search: string }) {
               PopoverState.showPopupover(<ViewModal instanceId={row.id} />)
             }}
             startIcon={<HiEye className="place-self-center text-blue-700 dark:text-white" />}
-            size="xs"
+            size="small"
           >
             {t('admin:components.instance.actions.view')}
           </Button>

@@ -98,7 +98,7 @@ export default function ServerTable({
       action: (
         <div className="flex items-center gap-5">
           <Button
-            size="xs"
+            size="small"
             variant="primary"
             onClick={() => {
               PopoverState.showPopupover(

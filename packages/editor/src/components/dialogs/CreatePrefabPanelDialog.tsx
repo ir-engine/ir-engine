@@ -148,7 +148,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
       <Input value={prefabName.value} onChange={(event) => prefabName.set(event.target.value)} label="Name" />
 
       <Button
-        size="xs"
+        size="small"
         variant="outline"
         className="text-left text-xs"
         onClick={() => {
@@ -174,7 +174,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
               onClick={() => {
                 prefabTag.set(prefabTag.value.filter((_, i) => i !== index))
               }}
-              size="xs"
+              size="small"
               variant="outline"
               className="text-left text-xs"
             >

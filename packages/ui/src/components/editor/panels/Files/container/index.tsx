@@ -786,7 +786,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           disabled={!showUploadButtons}
           rounded="none"
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
-          size="xs"
+          size="small"
           onClick={() =>
             inputFileWithAddToScene({ projectName, directoryPath: selectedDirectory.get(NO_PROXY).slice(1) })
               .then(refreshDirectory)
@@ -803,7 +803,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           disabled={!showUploadButtons}
           rounded="none"
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
-          size="xs"
+          size="small"
           onClick={() =>
             inputFileWithAddToScene({
               projectName,

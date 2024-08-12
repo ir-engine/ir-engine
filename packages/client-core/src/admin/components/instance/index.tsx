@@ -70,7 +70,7 @@ export default function Instances() {
           />
           <div>
             <Button
-              size="xs"
+              size="small"
               fullWidth
               onClick={() => {
                 PopoverState.showPopupover(<PatchServerModal />)

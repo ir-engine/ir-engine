@@ -51,7 +51,7 @@ export default function ErrorView({ title, description, retryButtonText, onRetry
       {onRetry && (
         <Button
           variant="danger"
-          size="xs"
+          size="small"
           className="border border-red-500 bg-transparent text-red-500"
           onClick={onRetry}
         >

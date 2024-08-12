@@ -94,7 +94,7 @@ export default function ProjectTopMenu() {
       <div className="flex gap-2">
         {githubProvider != null && (
           <Button
-            size="xs"
+            size="small"
             disabled={projectState.refreshingGithubRepoAccess.value}
             onClick={() => refreshGithubRepoAccess()}
             className="[&>*]:m-0"
@@ -112,7 +112,7 @@ export default function ProjectTopMenu() {
 
         <Button
           startIcon={<HiArrowPath />}
-          size="xs"
+          size="small"
           onClick={() => {
             PopoverState.showPopupover(<UpdateEngineModal />)
           }}
@@ -129,7 +129,7 @@ export default function ProjectTopMenu() {
         </Button>
         <Button
           startIcon={<HiPlus />}
-          size="xs"
+          size="small"
           onClick={() => {
             PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleSubmit} update={false} />)
           }}

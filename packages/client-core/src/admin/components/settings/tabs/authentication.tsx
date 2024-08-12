@@ -465,12 +465,12 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
-        <Button size="xs" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
+        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
           {t('admin:components.common.reset')}
         </Button>
 
         <Button
-          size="xs"
+          size="small"
           className="col-span-1"
           variant="primary"
           onClick={handleSubmit}

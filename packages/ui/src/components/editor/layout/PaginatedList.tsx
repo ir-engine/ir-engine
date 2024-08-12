@@ -69,7 +69,7 @@ export default function PaginatedList<T>({
             <div className="col-span-1 flex justify-center">
               <Button
                 variant="outline"
-                size="xs"
+                size="small"
                 className="justify-center"
                 onClick={() =>
                   currentPage.set(Math.min(list.length / countPerPage, Math.max(0, currentPage.value - 1)))
@@ -86,7 +86,7 @@ export default function PaginatedList<T>({
                   <div className="col-span-1 flex justify-center" key={btnKey}>
                     <Button
                       variant="outline"
-                      size="xs"
+                      size="small"
                       className="justify-center"
                       disabled={idx === 0}
                       onClick={() => currentPage.set(currentPage.value + idx)}
@@ -106,7 +106,7 @@ export default function PaginatedList<T>({
             <div className="col-span-1 flex justify-center">
               <Button
                 variant="outline"
-                size="xs"
+                size="small"
                 className="justify-center"
                 onClick={() =>
                   currentPage.set(

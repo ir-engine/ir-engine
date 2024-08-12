@@ -122,11 +122,11 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
       </div>
 
       <div className="grid grid-cols-8 gap-6">
-        <Button size="xs" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
           {t('admin:components.common.reset')}
         </Button>
         <Button
-          size="xs"
+          size="small"
           variant="primary"
           className="col-span-1"
           fullWidth

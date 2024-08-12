@@ -118,7 +118,7 @@ export default function ProjectTable(props: { search: string }) {
       <div className="flex items-center justify-evenly p-1">
         <Button
           startIcon={<HiOutlineArrowPath />}
-          size="xs"
+          size="small"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'default-project'}
           onClick={() =>
@@ -131,7 +131,7 @@ export default function ProjectTable(props: { search: string }) {
         </Button>
         <Button
           startIcon={<GrGithub />}
-          size="xs"
+          size="small"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={!project || !project.repositoryPath || project.name === 'default-project'}
           onClick={() => {
@@ -152,7 +152,7 @@ export default function ProjectTable(props: { search: string }) {
 
         <Button
           startIcon={<HiOutlineUsers />}
-          size="xs"
+          size="small"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
             activeProjectId.set(project.id)
@@ -163,7 +163,7 @@ export default function ProjectTable(props: { search: string }) {
         </Button>
         <Button
           startIcon={<HiOutlineCommandLine />}
-          size="xs"
+          size="small"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={config.client.localBuildOrDev}
           onClick={() => {
@@ -181,14 +181,14 @@ export default function ProjectTable(props: { search: string }) {
         </Button>
         <Button
           startIcon={<HiOutlineFolder />}
-          size="xs"
+          size="small"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
         >
           {t('admin:components.common.view')}
         </Button>
         <Button
           startIcon={<HiOutlineTrash />}
-          size="xs"
+          size="small"
           className="h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'default-project'}
           onClick={() => {

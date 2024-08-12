@@ -57,7 +57,7 @@ export default function BuildStatusTable() {
       dateEnded: getStartOrEndDate(row.dateEnded, true),
       logs: (
         <Button
-          size="xs"
+          size="small"
           disabled={!row.logs || !row.logs.length}
           startIcon={<HiEye />}
           onClick={() => {

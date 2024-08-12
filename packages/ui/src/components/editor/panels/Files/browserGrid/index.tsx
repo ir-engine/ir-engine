@@ -364,39 +364,39 @@ export function FileBrowserItem({
 
       <ContextMenu anchorEvent={anchorEvent} onClose={handleClose}>
         <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
-          <Button variant="outline" size="xs" fullWidth onClick={addFolder}>
+          <Button variant="outline" size="small" fullWidth onClick={addFolder}>
             {t('editor:layout.filebrowser.addNewFolder')}
           </Button>
           {!item.isFolder && (
-            <Button variant="outline" size="xs" fullWidth onClick={placeObject}>
+            <Button variant="outline" size="small" fullWidth onClick={placeObject}>
               {t('editor:layout.assetGrid.placeObject')}
             </Button>
           )}
           {!item.isFolder && (
-            <Button variant="outline" size="xs" fullWidth onClick={placeObjectAtOrigin}>
+            <Button variant="outline" size="small" fullWidth onClick={placeObjectAtOrigin}>
               {t('editor:layout.assetGrid.placeObjectAtOrigin')}
             </Button>
           )}
           {!item.isFolder && (
-            <Button variant="outline" size="xs" fullWidth onClick={openURL}>
+            <Button variant="outline" size="small" fullWidth onClick={openURL}>
               {t('editor:layout.assetGrid.openInNewTab')}
             </Button>
           )}
-          <Button variant="outline" size="xs" fullWidth onClick={copyURL}>
+          <Button variant="outline" size="small" fullWidth onClick={copyURL}>
             {t('editor:layout.assetGrid.copyURL')}
           </Button>
-          <Button variant="outline" size="xs" fullWidth onClick={Cut}>
+          <Button variant="outline" size="small" fullWidth onClick={Cut}>
             {t('editor:layout.filebrowser.cutAsset')}
           </Button>
-          <Button variant="outline" size="xs" fullWidth onClick={Copy}>
+          <Button variant="outline" size="small" fullWidth onClick={Copy}>
             {t('editor:layout.filebrowser.copyAsset')}
           </Button>
-          <Button variant="outline" size="xs" fullWidth disabled={!currentContent.current} onClick={pasteContent}>
+          <Button variant="outline" size="small" fullWidth disabled={!currentContent.current} onClick={pasteContent}>
             {t('editor:layout.filebrowser.pasteAsset')}
           </Button>
           <Button
             variant="outline"
-            size="xs"
+            size="small"
             fullWidth
             onClick={() => {
               PopoverState.showPopupover(<RenameFileModal projectName={projectName} file={item} />)
@@ -407,7 +407,7 @@ export function FileBrowserItem({
           </Button>
           <Button
             variant="outline"
-            size="xs"
+            size="small"
             fullWidth
             onClick={() => {
               openDeleteFileModal()
@@ -418,7 +418,7 @@ export function FileBrowserItem({
           </Button>
           <Button
             variant="outline"
-            size="xs"
+            size="small"
             fullWidth
             onClick={() => {
               openFileProperties(item)
@@ -430,7 +430,7 @@ export function FileBrowserItem({
           {/*
           <Button
             variant="outline"
-            size="xs"
+            size="small"
             fullWidth
             disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')}
             onClick={() => {
@@ -453,7 +453,7 @@ export function FileBrowserItem({
           {fileConsistsOfContentType(item, 'model') && (
             <Button
               variant="outline"
-              size="xs"
+              size="small"
               fullWidth
               // disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')} // TODO: move context menu to its own component, with a State<Filetype[]> -JS
               onClick={() => {
@@ -468,7 +468,7 @@ export function FileBrowserItem({
           {fileConsistsOfContentType(item, 'image') && (
             <Button
               variant="outline"
-              size="xs"
+              size="small"
               fullWidth
               // disabled={!fileConsistsOfContentType(item, 'model') && !fileConsistsOfContentType(item, 'image')} // TODO: move context menu to its own component, with a State<Filetype[]> -JS
               onClick={() => {
@@ -482,7 +482,7 @@ export function FileBrowserItem({
 
           <Button
             variant="outline"
-            size="xs"
+            size="small"
             fullWidth
             onClick={() => {
               PopoverState.showPopupover(<ImageConvertModal file={item} refreshDirectory={refreshDirectory} />)

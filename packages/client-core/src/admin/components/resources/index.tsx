@@ -71,7 +71,7 @@ export default function Resources() {
           <div>
             <Button
               startIcon={<HiPlus />}
-              size="xs"
+              size="small"
               fullWidth
               onClick={() => {
                 PopoverState.showPopupover(<AddEditResourceModal />)

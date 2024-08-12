@@ -107,7 +107,7 @@ export default function InviteTable({
       action: (
         <div className="flex items-center gap-3">
           <Button
-            size="xs"
+            size="small"
             variant="primary"
             onClick={() => PopoverState.showPopupover(<AddEditInviteModal invite={row} />)}
           >

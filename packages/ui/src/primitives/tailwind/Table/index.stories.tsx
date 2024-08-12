@@ -109,25 +109,25 @@ export const TableStory = () => {
             ))}
             <TableCell className="border border-neutral-300 p-3 text-left text-neutral-600">
               <div className="flex justify-evenly">
-                <Button startIcon={<GrUpdate />} size="xs" className="bg-[#61759f]">
+                <Button startIcon={<GrUpdate />} size="small" className="bg-[#61759f]">
                   Update
                 </Button>
-                <Button startIcon={<GrGithub />} size="xs" className="bg-[#61759f]">
+                <Button startIcon={<GrGithub />} size="small" className="bg-[#61759f]">
                   Push
                 </Button>
-                <Button startIcon={<HiLink />} size="xs" className="bg-[#61759f]">
+                <Button startIcon={<HiLink />} size="small" className="bg-[#61759f]">
                   Repo
                 </Button>
-                <Button startIcon={<IoPeopleOutline />} size="xs" className="bg-[#61759f]">
+                <Button startIcon={<IoPeopleOutline />} size="small" className="bg-[#61759f]">
                   Access
                 </Button>
-                <Button startIcon={<IoTerminalOutline />} size="xs" className="bg-[#61759f]">
+                <Button startIcon={<IoTerminalOutline />} size="small" className="bg-[#61759f]">
                   Invalidate Cache
                 </Button>
-                <Button startIcon={<IoFolderOutline />} size="xs" className="bg-[#61759f]">
+                <Button startIcon={<IoFolderOutline />} size="small" className="bg-[#61759f]">
                   View
                 </Button>
-                <Button startIcon={<RiDeleteBinLine />} size="xs" className="bg-[#61759f]">
+                <Button startIcon={<RiDeleteBinLine />} size="small" className="bg-[#61759f]">
                   Remove
                 </Button>
               </div>

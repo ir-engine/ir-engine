@@ -79,7 +79,7 @@ export default function Users() {
           {selectedUsers.length > 0 && (
             <Button
               variant="danger"
-              size="xs"
+              size="small"
               onClick={() => {
                 PopoverState.showPopupover(
                   <ConfirmDialog
