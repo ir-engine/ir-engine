@@ -1452,6 +1452,7 @@ export const updateProject = async (
   try {
     const branchExists = await git.raw(['ls-remote', '--heads', repoPath, `${branchName}`])
     if (data.commitSHA) await git.checkout(data.commitSHA)
+    else if (data.sourceBranch) await git.checkout(data.sourceBranch)
     if (branchExists.length === 0 || data.reset) {
       try {
         await git.deleteLocalBranch(branchName)
