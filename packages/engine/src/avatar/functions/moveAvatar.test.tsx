@@ -30,18 +30,18 @@ import { Quaternion, Vector3 } from 'three'
 
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine, createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@etherealengine/network'
 import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
 import { initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { Physics, PhysicsWorld } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -51,14 +51,17 @@ import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
 describe('moveAvatar function tests', () => {
   let sceneEntity: Entity
+  let physicsWorld: PhysicsWorld
   beforeEach(async () => {
     createEngine()
     initializeSpatialEngine()
     await Physics.load()
-    Engine.instance.store.defaultDispatchDelay = () => 0
-    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.userID = 'userId' as UserID
     sceneEntity = loadEmptyScene()
+    setComponent(sceneEntity, SceneComponent)
+    physicsWorld = Physics.createWorld(getComponent(sceneEntity, UUIDComponent))
+    physicsWorld.timestep = 1 / 60
+
     createMockNetwork()
 
     const eventDispatcher = new EventDispatcher()
@@ -175,7 +178,7 @@ describe('moveAvatar function tests', () => {
     await act(() => rerender(tag))
 
     /* mock */
-    getState(PhysicsState).physicsWorld.timestep = 1 / 2
+    physicsWorld.timestep = 1 / 2
 
     dispatchAction(
       AvatarNetworkAction.spawn({
@@ -241,7 +244,7 @@ describe('moveAvatar function tests', () => {
 
     /* run */
     applyGamepadInput(entity)
-    const physicsWorld = getState(PhysicsState).physicsWorld
+
     physicsWorld.step()
     applyGamepadInput(entity)
     physicsWorld.step()

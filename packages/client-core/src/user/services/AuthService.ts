@@ -65,7 +65,6 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@etherealengine/hyperflux'
-
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -96,6 +95,7 @@ export const UserSeed: UserType = {
     createdAt: '',
     updatedAt: ''
   },
+  acceptedTOS: false,
   userSetting: {
     id: '' as UserSettingID,
     themeModes: {},
@@ -108,9 +108,16 @@ export const UserSeed: UserType = {
   locationAdmins: [],
   locationBans: [],
   instanceAttendance: [],
+  lastLogin: {
+    id: '',
+    ipAddress: '',
+    userAgent: '',
+    identityProviderId: '',
+    userId: '' as UserID,
+    createdAt: ''
+  },
   createdAt: '',
-  updatedAt: '',
-  lastLogin: null
+  updatedAt: ''
 }
 
 const resolveWalletUser = (credentials: any): UserType => {
@@ -144,6 +151,10 @@ export interface EmailLoginForm {
 export interface EmailRegistrationForm {
   email: string
   password: string
+}
+
+export interface AppleLoginForm {
+  email: string
 }
 
 export interface GithubLoginForm {
@@ -247,16 +258,19 @@ export const AuthService = {
       }
       getMutableState(AuthState).merge({ isLoggedIn: true, user })
     } catch (err) {
-      NotificationService.dispatchNotify(i18n.t('common:error.loading-error'), { variant: 'error' })
+      NotificationService.dispatchNotify(i18n.t('common:error.loading-error').toString(), { variant: 'error' })
     }
   },
 
   async loginUserByPassword(form: EmailLoginForm) {
     // check email validation.
     if (!validateEmail(form.email)) {
-      NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email address' }), {
-        variant: 'error'
-      })
+      NotificationService.dispatchNotify(
+        i18n.t('common:error.validation-error', { type: 'email address' }).toString(),
+        {
+          variant: 'error'
+        }
+      )
 
       return
     }
@@ -451,7 +465,7 @@ export const AuthService = {
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     } finally {
       authState.merge({ isProcessing: false, error: '' })
-      AuthService.doLoginAuto(true)
+      window.location.reload()
     }
   },
 
@@ -474,7 +488,12 @@ export const AuthService = {
     }
   },
 
-  async createMagicLink(emailPhone: string, authData: AuthStrategiesType, linkType?: 'email' | 'sms') {
+  async createMagicLink(
+    emailPhone: string,
+    authData: AuthStrategiesType,
+    linkType?: 'email' | 'sms',
+    redirectUrl?: string
+  ) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -495,9 +514,12 @@ export const AuthService = {
       const stripped = emailPhone.replace(/-/g, '')
       if (validatePhoneNumber(stripped)) {
         if (!enableSmsMagicLink) {
-          NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email address' }), {
-            variant: 'error'
-          })
+          NotificationService.dispatchNotify(
+            i18n.t('common:error.validation-error', { type: 'email address' }).toString(),
+            {
+              variant: 'error'
+            }
+          )
           return
         }
         type = 'sms'
@@ -505,16 +527,22 @@ export const AuthService = {
         emailPhone = '+1' + stripped
       } else if (validateEmail(emailPhone)) {
         if (!enableEmailMagicLink) {
-          NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'phone number' }), {
-            variant: 'error'
-          })
+          NotificationService.dispatchNotify(
+            i18n.t('common:error.validation-error', { type: 'phone number' }).toString(),
+            {
+              variant: 'error'
+            }
+          )
           return
         }
         type = 'email'
       } else {
-        NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email or phone number' }), {
-          variant: 'error'
-        })
+        NotificationService.dispatchNotify(
+          i18n.t('common:error.validation-error', { type: 'email or phone number' }).toString(),
+          {
+            variant: 'error'
+          }
+        )
         return
       }
     }
@@ -522,13 +550,13 @@ export const AuthService = {
     try {
       await Engine.instance.api
         .service(magicLinkPath)
-        .create({ type, [paramName]: emailPhone, accessToken: storedToken })
+        .create({ type, [paramName]: emailPhone, accessToken: storedToken, redirectUrl })
       const message = {
         email: 'email-sent-msg',
         sms: 'sms-sent-msg',
         default: 'success-msg'
       }
-      NotificationService.dispatchNotify(i18n.t(`user:auth.magiklink.${message[type ?? 'default']}`), {
+      NotificationService.dispatchNotify(i18n.t(`user:auth.magiklink.${message[type ?? 'default']}`).toString(), {
         variant: 'success'
       })
     } catch (err) {
@@ -568,7 +596,9 @@ export const AuthService = {
         userId
       })) as IdentityProviderType
       if (identityProvider.userId) {
-        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.email-sent-msg'), { variant: 'success' })
+        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.email-sent-msg').toString(), {
+          variant: 'success'
+        })
         return AuthService.loadUserData(identityProvider.userId)
       }
     } catch (err) {
@@ -594,7 +624,7 @@ export const AuthService = {
         userId
       })) as IdentityProviderType
       if (identityProvider.userId) {
-        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.sms-sent-msg'), { variant: 'error' })
+        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.sms-sent-msg').toString(), { variant: 'error' })
         return AuthService.loadUserData(identityProvider.userId)
       }
     } catch (err) {
@@ -605,7 +635,7 @@ export const AuthService = {
   },
 
   async addConnectionByOauth(
-    oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
+    oauth: 'apple' | 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
     userId: UserID
   ) {
     window.open(`https://${config.client.serverHost}/auth/oauth/${oauth}?userId=${userId}`, '_blank')

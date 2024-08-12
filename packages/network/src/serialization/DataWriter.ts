@@ -113,7 +113,7 @@ export const writeCompressedVector3 =
 
     const ignoreHasChanged =
       hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag) &&
-      getState(ECSState).simulationTime % getState(ECSState).periodicUpdateFrequency === 0
+      Math.round(getState(ECSState).simulationTime % getState(ECSState).periodicUpdateFrequency) === 0
 
     changeMask |= writePropIfChanged(v, vector3.x, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
     changeMask |= writePropIfChanged(v, vector3.y, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0

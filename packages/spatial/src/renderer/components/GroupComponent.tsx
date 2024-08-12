@@ -43,7 +43,6 @@ import { none } from '@etherealengine/hyperflux'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Layer } from './ObjectLayerComponent'
-import { RenderOrderComponent } from './RenderOrderComponent'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
@@ -85,15 +84,6 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.layers = new Layer(entity)
 
   obj.frustumCulled = false
-
-  if (!hasComponent(entity, RenderOrderComponent)) {
-    setComponent(entity, RenderOrderComponent)
-    RenderOrderComponent.renderOrder[entity] = obj.renderOrder
-  }
-  Object.defineProperty(obj, 'renderOrder', {
-    get: () => RenderOrderComponent.renderOrder[entity],
-    set: (val: number) => (RenderOrderComponent.renderOrder[entity] = val)
-  })
 
   Object.assign(obj, {
     updateWorldMatrix: () => {}

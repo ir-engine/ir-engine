@@ -35,6 +35,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { startTimer } from '@etherealengine/spatial/src/startTimer'
 
+import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { initializei18n } from './util'
 
@@ -66,8 +67,18 @@ export default function ({ children }): JSX.Element {
 
   return (
     <>
+      <MetaTags>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;600;800&display=swap"
+          rel="stylesheet"
+        />
+      </MetaTags>
       <BrowserRouter history={history}>
-        <Suspense fallback={<LoadingView title={t('common:loader.loadingClient')} />}>{children}</Suspense>
+        <Suspense
+          fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingClient')} />}
+        >
+          {children}
+        </Suspense>
       </BrowserRouter>
     </>
   )

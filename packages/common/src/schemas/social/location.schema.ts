@@ -60,6 +60,7 @@ export const locationSchema = Type.Object(
     isLobby: Type.Boolean(),
     /** @todo review */
     isFeatured: Type.Boolean(),
+    url: Type.String(),
     sceneAsset: Type.Ref(staticResourceSchema),
     maxUsersPerInstance: Type.Number(),
     locationSetting: Type.Ref(locationSettingSchema),
@@ -75,7 +76,7 @@ export interface LocationType extends Static<typeof locationSchema> {}
 
 export const locationDatabaseSchema = Type.Omit(
   locationSchema,
-  ['locationSetting', 'locationAuthorizedUsers', 'locationBans', 'locationAdmin', 'sceneAsset'],
+  ['locationSetting', 'locationAuthorizedUsers', 'locationBans', 'locationAdmin', 'sceneAsset', 'url'],
   {
     $id: 'LocationDatabase'
   }

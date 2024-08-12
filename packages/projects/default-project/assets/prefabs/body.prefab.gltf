@@ -1,0 +1,75 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "body",
+      "extensions": {
+        "EE_uuid": "1e614ec3-201c-4cfd-95da-07b905257315",
+        "EE_visible": true,
+        "EE_text_spatial": {
+          "text": "Body",
+          "textOpacity": 100,
+          "textWidth": null,
+          "textIndent": 0,
+          "textAlign": "justify",
+          "textWrap": true,
+          "textWrapKind": "normal",
+          "textAnchor": {
+            "x": 0,
+            "y": 0
+          },
+          "textDepthOffset": 0,
+          "textCurveRadius": 0,
+          "lineHeight": "normal",
+          "letterSpacing": 0,
+          "textDirection": "auto",
+          "font": null,
+          "fontSize": 0.2,
+          "fontColor": 16777215,
+          "fontMaterial": 0,
+          "outlineOpacity": 0,
+          "outlineWidth": 0,
+          "outlineBlur": 0,
+          "outlineOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "outlineColor": 0,
+          "strokeOpacity": 0,
+          "strokeWidth": 0,
+          "strokeColor": 4473924,
+          "textOrientation": "+x+y",
+          "clipActive": false,
+          "clipRectMin": {
+            "x": -1024,
+            "y": -1024
+          },
+          "clipRectMax": {
+            "x": 1024,
+            "y": 1024
+          },
+          "gpuAccelerated": true,
+          "glyphResolution": 6,
+          "glyphDetail": 1
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_text_spatial",
+    "EE_ecs"
+  ]
+}

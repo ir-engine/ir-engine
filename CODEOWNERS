@@ -1,0 +1,48 @@
+
+* @HexaField
+
+/packages/client/ @barankyle @aditya-mitra
+/packages/client-core/ @aditya-mitra
+/packages/ecs/ @speigg
+/packages/editor/ @dinomut1 @aditya-mitra
+/packages/engine/ @AidanCaruso @MichaelEstes @dinomut1
+/packages/hyperflux/ @speigg
+/packages/matchmaking/ @speigg @hanzlamateen @barankyle
+/packages/network/ @speigg
+/packages/server/ @hanzlamateen @barankyle
+/packages/server-core/ @barankyle @MoizAdnan @hanzlamateen @hurairahmateen @aditya-mitra
+/packages/spatial/ @speigg @AidanCaruso @MichaelEstes @MbfloydIR @SamMazerIR
+/packages/taskserver/ @barankyle @hanzlamateen
+/packages/ui/ @aditya-mitra @SYBIOTE @CITIZENDOT
+/packages/visual-script/ @SYBIOTE
+/packages/xrui/ @speigg
+
+/packages/common/src/interfaces/ @hurairahmateen
+/packages/client-core/src/admin/ @hanzlamateen
+/packages/client-core/src/components/World/ @speigg
+/packages/client-core/src/hooks/ @jose-galvan
+/packages/editor/src/classes/ @SYBIOTE
+/packages/editor/src/functions/ @SYBIOTE
+/packages/engine/src/postprocessing/ @DanielBelmes @MbfloydIR
+/packages/engine/src/mocap/ @AidanCaruso
+/packages/engine/src/avatar/ @AidanCaruso
+/packages/engine/src/assets/ @MichaelEstes @dinomut1 @speigg
+/packages/engine/src/scene/ @dinomut1 @speigg @CITIZENDOT @AidanCaruso
+/packages/engine/src/audio/ @speigg
+/packages/engine/src/interaction/ @SamMazerIR @speigg
+/packages/spatial/src/camera/ @SamMazerIR @DanielBelmes @speigg
+/packages/spatial/src/input/ @SamMazerIR @DanielBelmes @speigg
+/packages/spatial/src/resources/ @MichaelEstes
+/packages/spatial/src/xrui/ @speigg
+/packages/spatial/src/physics/ @heysokam
+/packages/spatial/src/input/ @heysokam @SamMazerIR @speigg
+/packages/spatial/src/transform/ @SamMazerIR
+/packages/spatial/src/camera/ @DanielBelmes @SamMazerIR @speigg
+/packages/spatial/src/renderer/ @AidanCaruso @DanielBelmes @MichaelEstes
+/scripts/ @barankyle @hanzlamateen @DanielBelmes
+/patches/postprocessing+6.34.1.patch @DanielBelmes
+/patches/three+0.158.0.patch @DanielBelmes
+/patches/realism-effects+1.1.2.patch @DanielBelmes
+/dockerfiles/ @barankyle
+/certs/ @DanielBelmes
+/.github/ @DanielBelmes

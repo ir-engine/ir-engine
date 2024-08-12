@@ -60,7 +60,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
       {...props}
     >
       <div className="flex-strech flex w-full flex-row items-center gap-2 px-6 py-1">
-        <div className="flex w-full font-['Figtree'] text-xs font-normal text-neutral-50">
+        <div className="flex w-full text-xs font-normal text-neutral-50">
           {t('editor:properties.spline.lbl-addNode')}
         </div>
         <div className="flex w-full justify-end">
@@ -83,7 +83,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
           <div key={index}>
             <div className="flex-end border-t-2 border-zinc-900 py-2">
               <div className="flex w-full flex-row px-6">
-                <div className="flex w-full justify-start font-['Figtree'] text-xs font-normal text-neutral-50">
+                <div className="flex w-full justify-start text-xs font-normal text-neutral-50">
                   {`Node ${index + 1}`}
                 </div>
                 <div className="flex w-full justify-end">
@@ -96,7 +96,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                   />
                 </div>
               </div>
-              <InputGroup name="Position" label={`${t('editor:properties.transform.lbl-position')}`}>
+              <InputGroup name="Position" label={`${t('editor:properties.transform.lbl-position')}`} className="w-auto">
                 <Vector3Input
                   //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
                   value={elem.position.value}
@@ -111,7 +111,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                   }}
                 />
               </InputGroup>
-              <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')}`}>
+              <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')}`} className="w-auto">
                 <EulerInput
                   //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
                   quaternion={elem.quaternion.value}

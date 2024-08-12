@@ -25,10 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs'
-import { PeerID, Topic } from '@etherealengine/hyperflux'
+import { Action, PeerID, Topic, getState } from '@etherealengine/hyperflux'
 
-import { DataChannelType } from './DataChannelRegistry'
+import { DataChannelRegistryState, DataChannelType } from './DataChannelRegistry'
 import { NetworkPeer } from './NetworkState'
+import { NetworkActionFunctions } from './functions/NetworkActionFunctions'
 
 /**
  * Network topics are classes of networks. Topics are used to disitinguish between multiple networks of the same type.
@@ -52,91 +53,126 @@ export interface JitterBufferEntry {
   read: () => void
 }
 
+export type Network<Ext = unknown> = {
+  /** Connected peers */
+  peers: Record<PeerID, NetworkPeer>
+
+  /** Map of numerical peer index to peer IDs */
+  peerIndexToPeerID: Record<number, PeerID>
+
+  /** Map of peer IDs to numerical peer index */
+  peerIDToPeerIndex: Record<PeerID, number>
+
+  /**
+   * The index to increment when a new peer connects
+   * NOTE: Must only be updated by the host
+   * @todo - make this a function and throw an error if we are not the host
+   */
+  peerIndexCount: number
+
+  /** Connected users */
+  users: Record<UserID, PeerID[]>
+
+  /** Map of numerical user index to user client IDs */
+  userIndexToUserID: Record<number, UserID>
+
+  /** Map of user client IDs to numerical user index */
+  userIDToUserIndex: Record<UserID, number>
+
+  /**
+   * The index to increment when a new user joins
+   * NOTE: Must only be updated by the host
+   * @todo - make this a function and throw an error if we are not the host
+   */
+  userIndexCount: number
+
+  /**
+   * The UserID of the host
+   * - will either be a user's UserID, or an instance server's InstanceId
+   * @todo rename to hostUserID to differentiate better from hostPeerID
+   * @todo change from UserID to PeerID and change "get hostPeerID()" to "get hostUserID()"
+   */
+  hostPeerID: PeerID
+
+  readonly hostUserID: UserID
+
+  /**
+   * The ID of this network, equivalent to the InstanceID of an instance
+   */
+  id: InstanceID
+
+  /**
+   * The network is ready for sending messages and data
+   */
+  ready: boolean
+
+  /**
+   * The transport used by this network.
+   */
+  messageToPeer: (peerId: PeerID, data: any) => void
+  messageToAll: (data: any) => void
+  onMessage: (fromPeerID: PeerID, data: any) => void
+  bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerId: PeerID, data: any) => void
+  bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
+  onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
+
+  readonly isHosting: boolean
+
+  topic: Topic
+} & Ext
+
 /** Interface for the Transport. */
-export const createNetwork = <Ext>(
+export const createNetwork = <Ext = unknown>(
   id: InstanceID,
   hostPeerID: PeerID,
   topic: Topic,
-  transport = {
-    messageToPeer: (peerId: PeerID, data: any) => {},
-    messageToAll: (data: any) => {},
-    onMessage: (fromPeerID: PeerID, data: any) => {},
-    bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerId: PeerID, data: any) => {},
-    bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {},
-    onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {}
-  } as TransportInterface & Ext
-) => {
+  extension?: Ext
+): Network<Ext> => {
   const network = {
-    /** Connected peers */
-    peers: {} as Record<PeerID, NetworkPeer>,
-
-    /** Map of numerical peer index to peer IDs */
-    peerIndexToPeerID: {} as Record<number, PeerID>,
-
-    /** Map of peer IDs to numerical peer index */
-    peerIDToPeerIndex: {} as Record<PeerID, number>,
-
-    /**
-     * The index to increment when a new peer connects
-     * NOTE: Must only be updated by the host
-     * @todo - make this a function and throw an error if we are not the host
-     */
+    messageToPeer: (peerId: PeerID, data: any) => {
+      network.peers[peerId]?.transport?.message?.(data)
+    },
+    messageToAll: (data: any) => {
+      for (const peer of Object.values(network.peers)) network.messageToPeer(peer.peerID, data)
+    },
+    onMessage: (fromPeerID: PeerID, message: any) => {
+      const actions = message as any as Required<Action>[]
+      // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
+      NetworkActionFunctions.receiveIncomingActions(network, fromPeerID, actions)
+    },
+    bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerID: PeerID, data: any) => {
+      network.peers[peerID]?.transport?.buffer?.(dataChannelType, data)
+    },
+    bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
+      for (const peer of Object.values(network.peers))
+        network.bufferToPeer(dataChannelType, fromPeerID, peer.peerID, data)
+    },
+    onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
+      const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannelType]
+      if (dataChannelFunctions) {
+        for (const func of dataChannelFunctions) func(network, dataChannelType, fromPeerID, data)
+      }
+    },
+    ...extension,
+    peers: {},
+    peerIndexToPeerID: {},
+    peerIDToPeerIndex: {},
     peerIndexCount: 0,
-
-    /** Connected users */
-    users: {} as Record<UserID, PeerID[]>,
-
-    /** Map of numerical user index to user client IDs */
-    userIndexToUserID: {} as Record<number, UserID>,
-
-    /** Map of user client IDs to numerical user index */
-    userIDToUserIndex: {} as Record<UserID, number>,
-
-    /**
-     * The index to increment when a new user joins
-     * NOTE: Must only be updated by the host
-     * @todo - make this a function and throw an error if we are not the host
-     */
+    users: {},
+    userIndexToUserID: {},
+    userIDToUserIndex: {},
     userIndexCount: 0,
-
-    /**
-     * The UserID of the host
-     * - will either be a user's UserID, or an instance server's InstanceId
-     * @todo rename to hostUserID to differentiate better from hostPeerID
-     * @todo change from UserID to PeerID and change "get hostPeerID()" to "get hostUserID()"
-     */
     hostPeerID,
-
     get hostUserID() {
       return network.peers[network.hostPeerID]?.userId
     },
-
-    /**
-     * The ID of this network, equivalent to the InstanceID of an instance
-     */
     id,
-
-    /**
-     * The network is ready for sending messages and data
-     */
     ready: false,
-
-    /**
-     * The transport used by this network.
-     */
-    transport,
-
-    /**
-     * Check if this user is hosting the world.
-     */
     get isHosting() {
       return Engine.instance.store.peerID === network.hostPeerID
     },
-
     topic
-  }
+  } as Network<Ext>
 
   return network
 }
-
-export type Network = ReturnType<typeof createNetwork>

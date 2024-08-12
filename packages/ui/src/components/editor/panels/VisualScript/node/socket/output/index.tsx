@@ -58,7 +58,6 @@ export default function OutputSocket({ specGenerator, connected, ...rest }: Outp
   if (offset?.x !== undefined) position['right'] = `${offset.x}%`
   if (offset?.y !== undefined) position['top'] = `${offset.y}%`
 
-  console.log('output', position, offset)
   return (
     <div
       className={twMerge('flex-end relative flex h-4 grow items-center justify-end', collapsed ? 'absolute' : '')}

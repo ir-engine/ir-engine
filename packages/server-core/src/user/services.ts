@@ -39,6 +39,7 @@ import SMS from './sms/sms'
 import UserApiKey from './user-api-key/user-api-key'
 import UserAvatar from './user-avatar/user-avatar'
 import UserKick from './user-kick/user-kick'
+import UserLogin from './user-login/user-login'
 import UserRelationshipType from './user-relationship-type/user-relationship-type'
 import UserRelationship from './user-relationship/user-relationship'
 import UserSettings from './user-setting/user-setting'
@@ -50,6 +51,7 @@ export default [
   UserAvatar,
   UserSettings,
   UserKick,
+  UserLogin,
   IdentityProvider,
   UserRelationshipType,
   UserRelationship,

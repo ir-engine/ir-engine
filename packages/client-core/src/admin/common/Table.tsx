@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactNode, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiArrowSmallDown, HiArrowSmallUp } from 'react-icons/hi2'
+import { HiArrowSmallDown, HiArrowSmallUp, HiArrowsUpDown } from 'react-icons/hi2'
 
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { ImmutableObject, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { FeathersOrder, useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Table, {
@@ -49,20 +49,20 @@ export interface ITableHeadCell {
 
 interface TableHeadProps {
   onRequestSort: (property: string | number, order: FeathersOrder) => void
-  order: FeathersOrder
-  orderBy: string | number
+  order: ImmutableObject<Record<string, FeathersOrder>>
   columns: ITableHeadCell[]
 }
 
-const TableHead = ({ order, orderBy, onRequestSort, columns }: TableHeadProps) => {
+const TableHead = ({ order, onRequestSort, columns }: TableHeadProps) => {
   const SortArrow = ({ columnId }: { columnId: string | number }) => {
-    if (columnId === orderBy) {
-      if (order === 1) {
-        return <HiArrowSmallUp onClick={() => onRequestSort(columnId, -1)} />
-      }
-      return <HiArrowSmallDown onClick={() => onRequestSort(columnId, 1)} />
+    const currentOrder: FeathersOrder = columnId in order && order[columnId] === 1 ? 1 : -1
+    const newOrder: FeathersOrder = currentOrder === 1 ? -1 : 1
+    const Icon = currentOrder === 1 ? HiArrowSmallDown : HiArrowSmallUp
+
+    if (columnId in order && order[columnId] === 1) {
+      return <Icon onClick={() => onRequestSort(columnId, newOrder)} />
     }
-    return <HiArrowSmallUp className={'opacity-0 hover:opacity-50'} />
+    return <HiArrowsUpDown onClick={() => onRequestSort(columnId, newOrder)} />
   }
 
   return (
@@ -93,7 +93,6 @@ interface DataTableProps {
 
 const DataTable = ({ query, columns, rows }: DataTableProps) => {
   const { t } = useTranslation()
-  const [orderBy, order] = (Object.entries(query.sort)[0] as [string | number, FeathersOrder]) ?? ['', 0]
 
   const storedRows = useHookstate<{ fetched: boolean; rows: RowType[] }>({ fetched: false, rows: [] })
 
@@ -122,8 +121,7 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
       )}
       <Table containerClassName={`${query.status === 'pending' && 'opacity-50'} h-[calc(100%_-_160px)]`}>
         <TableHead
-          order={order}
-          orderBy={orderBy}
+          order={query.sort}
           onRequestSort={(property, order) => query.setSort({ [property]: order })}
           columns={columns}
         />
