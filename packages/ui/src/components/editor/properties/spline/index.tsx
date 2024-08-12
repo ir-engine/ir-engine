@@ -96,7 +96,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                   />
                 </div>
               </div>
-              <InputGroup name="Position" label={`${t('editor:properties.transform.lbl-position')}`}>
+              <InputGroup name="Position" label={`${t('editor:properties.transform.lbl-position')}`} className="w-auto">
                 <Vector3Input
                   //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
                   value={elem.position.value}
@@ -111,7 +111,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                   }}
                 />
               </InputGroup>
-              <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')}`}>
+              <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')}`} className="w-auto">
                 <EulerInput
                   //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
                   quaternion={elem.quaternion.value}

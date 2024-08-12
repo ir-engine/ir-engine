@@ -36,9 +36,13 @@ import { AuthService } from '@etherealengine/client-core/src/user/services/AuthS
 import '@etherealengine/engine/src/EngineModule'
 
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
+import { clientContextParams } from '@etherealengine/client-core/src/util/contextParams'
+import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
+
+const logger = multiLogger.child({ component: 'ui:chat:chat', modifier: clientContextParams })
 
 export const initializeEngineForChat = async () => {
   await loadEngineInjection()
@@ -57,6 +61,8 @@ export function ChatPage() {
       instanceID: true,
       roomID: false
     })
+    logger.info({ event_name: 'world_chat_open', event_value: '' })
+    return () => logger.info({ event_name: 'world_chat_close', event_value: '' })
   }, [])
 
   return (

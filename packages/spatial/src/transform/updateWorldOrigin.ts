@@ -27,7 +27,9 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getState } from '@etherealengine/hyperflux'
 
+import { Vector3_One } from '../common/constants/MathConstants'
 import { ReferenceSpace, XRState } from '../xr/XRState'
+import { EntityTreeComponent } from './components/EntityTree'
 import { TransformComponent } from './components/TransformComponent'
 import { computeTransformMatrix } from './systems/TransformSystem'
 
@@ -40,8 +42,12 @@ export const updateWorldOriginFromScenePlacement = () => {
   const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
   originTransform.position.copy(scenePosition)
   originTransform.rotation.copy(sceneRotation)
-  originTransform.scale.setScalar(worldScale)
-  originTransform.matrix.compose(originTransform.position, originTransform.rotation, originTransform.scale).invert()
+  const children = getComponent(Engine.instance.originEntity, EntityTreeComponent).children
+  for (const child of children) {
+    const childTransform = getComponent(child, TransformComponent)
+    childTransform.scale.setScalar(worldScale)
+  }
+  originTransform.matrix.compose(originTransform.position, originTransform.rotation, Vector3_One).invert()
   originTransform.matrixWorld.copy(originTransform.matrix)
   originTransform.matrixWorld.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
   if (ReferenceSpace.localFloor) {
@@ -60,6 +66,5 @@ export const updateWorldOrigin = () => {
 
 export const computeAndUpdateWorldOrigin = () => {
   computeTransformMatrix(Engine.instance.localFloorEntity)
-  TransformComponent.dirtyTransforms[Engine.instance.localFloorEntity] = false
   updateWorldOrigin()
 }

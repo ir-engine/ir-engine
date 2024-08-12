@@ -33,6 +33,8 @@ export type * from './schemas/cluster/build-status.schema'
 export type * from './schemas/cluster/logs-api.schema'
 export type * from './schemas/cluster/migrations-info.schema'
 export type * from './schemas/cluster/pods.schema'
+export type * from './schemas/integrations/metabase/metabase-setting.schema'
+export type * from './schemas/integrations/metabase/metabase-url.schema'
 export type * from './schemas/integrations/zendesk/zendesk.schema'
 export type * from './schemas/matchmaking/match-instance.schema'
 export type * from './schemas/matchmaking/match-user.schema'
@@ -110,11 +112,13 @@ export type * from './schemas/user/sms.schema'
 export type * from './schemas/user/user-api-key.schema'
 export type * from './schemas/user/user-avatar.schema'
 export type * from './schemas/user/user-kick.schema'
+export type * from './schemas/user/user-login.schema'
 export type * from './schemas/user/user-relationship-type.schema'
 export type * from './schemas/user/user-relationship.schema'
 export type * from './schemas/user/user-setting.schema'
 export type * from './schemas/user/user.schema'
 export type * from './schemas/world/spawn-point.schema'
+
 export const locationPath = 'location'
 
 export const userRelationshipPath = 'user-relationship'
@@ -146,6 +150,8 @@ export const avatarPath = 'avatar'
 export const magicLinkPath = 'magic-link'
 
 export const userKickPath = 'user-kick'
+
+export const userLoginPath = 'user-login'
 
 export const userSettingPath = 'user-setting'
 
@@ -303,3 +309,7 @@ export const invalidationPath = 'invalidation'
 export const imageConvertPath = 'image-convert'
 
 export const zendeskPath = 'zendesk'
+
+export const metabaseSettingPath = 'metabase-setting'
+
+export const metabaseUrlPath = 'metabase-url'

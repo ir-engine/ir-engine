@@ -25,11 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { Mesh, Object3D } from 'three'
 
-import { Entity, hasComponent, removeComponent } from '@etherealengine/ecs'
+import { Entity, getComponent, hasComponent, removeComponent } from '@etherealengine/ecs'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { GroundPlaneComponent } from '../../../../scene/components/GroundPlaneComponent'
+import { ImageComponent } from '../../../../scene/components/ImageComponent'
 import { PrimitiveGeometryComponent } from '../../../../scene/components/PrimitiveGeometryComponent'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -46,7 +47,13 @@ export default class IgnoreGeometryExporterExtension extends ExporterExtension i
   beforeParse(input: Object3D | Object3D[]) {
     const root = (Array.isArray(input) ? input[0] : input) as Object3D
     iterateEntityNode(root.entity, (entity) => {
-      const removeMesh = hasComponent(entity, PrimitiveGeometryComponent) || hasComponent(entity, GroundPlaneComponent)
+      if (!hasComponent(entity, MeshComponent)) return
+      const mesh = getComponent(entity, MeshComponent)
+      const removeMesh =
+        hasComponent(entity, PrimitiveGeometryComponent) ||
+        hasComponent(entity, GroundPlaneComponent) ||
+        hasComponent(entity, ImageComponent) ||
+        !!mesh.userData['ignoreOnExport']
       if (!removeMesh) return
       removeComponent(entity, MeshComponent)
     })

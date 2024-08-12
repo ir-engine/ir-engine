@@ -124,7 +124,7 @@ function updateCameraFromXRViewerPose() {
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
   const xrState = getState(XRState)
   const pose = xrState.viewerPose
 
@@ -268,9 +268,10 @@ const execute = () => {
     }
   }
 
-  getMutableState(XRState).viewerPose.set(
-    ReferenceSpace.localFloor && getState(XRState).xrFrame?.getViewerPose(ReferenceSpace.localFloor)
-  )
+  const { xrFrame } = getState(XRState)
+  if (!xrFrame) return
+
+  getMutableState(XRState).viewerPose.set(ReferenceSpace.localFloor && xrFrame.getViewerPose(ReferenceSpace.localFloor))
 }
 
 export const XRCameraInputSystem = defineSystem({

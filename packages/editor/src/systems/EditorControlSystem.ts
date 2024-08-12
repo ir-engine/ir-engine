@@ -70,6 +70,8 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
+import { FeatureFlagsState } from '@etherealengine/engine'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
@@ -245,18 +247,6 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
   }
 }
 
-const findTopLevelParent = (entity: Entity) => {
-  while (
-    getOptionalComponent(
-      getOptionalComponent(entity, EntityTreeComponent)?.parentEntity || UndefinedEntity,
-      EntityTreeComponent
-    )?.parentEntity
-  ) {
-    entity = getComponent(entity, EntityTreeComponent).parentEntity!
-  }
-  return entity
-}
-
 const findNextSelectionEntity = (topLevelParent: Entity, child: Entity): Entity => {
   // Check for adjacent child
   const childTree = getComponent(child, EntityTreeComponent)
@@ -327,10 +317,28 @@ const execute = () => {
         }
       }
 
-      // Get top most parent entity that isn't the scene entity
-      const selectedParentEntity = findTopLevelParent(closestIntersection.entity)
+      // Get top most parent entity from the GLTF document
+      let selectedParentEntity = GLTFSnapshotState.findTopLevelParent(closestIntersection.entity)
+      // If selectedParentEntity has a parent in a different GLTF document use that as top most parent
+      const parent = getOptionalComponent(selectedParentEntity, EntityTreeComponent)?.parentEntity
+      if (parent && getComponent(parent, SourceComponent) !== getComponent(selectedParentEntity, SourceComponent)) {
+        selectedParentEntity = parent
+      }
+
       // If entity is already selected set closest intersection, otherwise set top parent
-      clickStartEntity = selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
+      const selectedEntity =
+        selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
+
+      // If not showing model children in hierarchy don't allow those objects to be selected
+      if (!FeatureFlagsState.enabled(FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren)) {
+        const inAuthoringLayer = GLTFSnapshotState.isInSnapshot(
+          getOptionalComponent(selectedParentEntity, SourceComponent),
+          selectedEntity
+        )
+        clickStartEntity = inAuthoringLayer ? selectedEntity : clickStartEntity
+      } else {
+        clickStartEntity = selectedEntity
+      }
 
       /** @todo decide how we want selection to work with heirarchies */
       // Walks object heirarchy everytime a selected object is clicked again

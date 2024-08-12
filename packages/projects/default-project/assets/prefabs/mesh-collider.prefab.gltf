@@ -5,7 +5,6 @@
   },
   "scenes": [
     {
-      "name": "New Object",
       "nodes": [
         0
       ]
@@ -14,7 +13,7 @@
   "scene": 0,
   "nodes": [
     {
-      "name": "Mesh Collider",
+      "name": "Mesh_Collider",
       "extensions": {
         "EE_uuid": "a5924904-1fec-418f-90f1-821e4b17faa5",
         "EE_visible": true,
@@ -41,7 +40,66 @@
             "a5924904-1fec-418f-90f1-821e4b17faa5"
           ],
           "activationDistance": 2
+        },
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
         }
+      },
+      "extras": {
+        "name": "Mesh Collider",
+        "useVisible": true,
+        "componentJson": [
+          {
+            "name": "EE_uuid",
+            "props": "a5924904-1fec-418f-90f1-821e4b17faa5"
+          },
+          {
+            "name": "EE_visible",
+            "props": true
+          },
+          {
+            "name": "EE_collider",
+            "props": {
+              "shape": "mesh",
+              "mass": 1,
+              "massCenter": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "friction": 0.5,
+              "restitution": 0.5,
+              "collisionLayer": 1,
+              "collisionMask": 7
+            }
+          },
+          {
+            "name": "EE_model",
+            "props": {
+              "src": "",
+              "cameraOcclusion": true,
+              "convertToVRM": false
+            }
+          },
+          {
+            "name": "EE_input",
+            "props": {
+              "inputSinks": [
+                "a5924904-1fec-418f-90f1-821e4b17faa5"
+              ],
+              "activationDistance": 2
+            }
+          }
+        ]
       }
     }
   ],
@@ -51,6 +109,7 @@
     "EE_collider",
     "EE_model",
     "EE_input",
+    "EE_rigidbody",
     "EE_ecs"
   ]
 }

@@ -35,6 +35,7 @@ import { useTranslation } from 'react-i18next'
 import { FaRegDotCircle } from 'react-icons/fa'
 import Button from '../../../../../primitives/tailwind/Button'
 import Select from '../../../../../primitives/tailwind/Select'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 const transformPivotOptions = [
   {
@@ -65,22 +66,29 @@ const TransformPivotTool = () => {
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
 
   return (
-    <div id="transform-pivot" className="flex items-center bg-theme-surfaceInput">
-      <Button
-        startIcon={<FaRegDotCircle />}
-        onClick={toggleTransformPivot}
-        variant="transparent"
-        title={t('editor:toolbar.transformPivot.toggleTransformPivot')}
-        className="px-0"
-      />
-      <Select
-        key={editorHelperState.transformPivot.value}
-        inputClassName="py-1 h-6 rounded-sm text-[#A3A3A3] text-xs"
-        className="m-1 w-28"
-        onChange={setTransformPivot}
-        options={transformPivotOptions}
-        currentValue={editorHelperState.transformPivot.value}
-      />
+    <div id="transform-pivot" className="flex items-center">
+      <Tooltip content={t('editor:toolbar.transformPivot.toggleTransformPivot')}>
+        <Button
+          startIcon={<FaRegDotCircle className="text-theme-input" />}
+          onClick={toggleTransformPivot}
+          variant="transparent"
+          className="px-0"
+        />
+      </Tooltip>
+      <Tooltip
+        content={
+          transformPivotOptions.find((pivot) => pivot.value === editorHelperState.transformPivot.value)?.description
+        }
+      >
+        <Select
+          key={editorHelperState.transformPivot.value}
+          inputClassName="py-1 h-6 rounded-sm text-theme-gray3 text-xs"
+          className="m-1 w-28 border-theme-input text-theme-gray3"
+          onChange={setTransformPivot}
+          options={transformPivotOptions}
+          currentValue={editorHelperState.transformPivot.value}
+        />
+      </Tooltip>
     </div>
   )
 }

@@ -40,6 +40,8 @@ interface Vector2InputProp {
   hideLabels?: boolean
   onChange: (v: Vector2) => void
   onRelease?: (v: Vector2) => void
+  min?: number
+  max?: number
 }
 
 export const Vector2Input = ({
@@ -51,6 +53,8 @@ export const Vector2Input = ({
   hideLabels,
   onChange,
   onRelease,
+  min,
+  max,
   ...rest
 }: Vector2InputProp) => {
   const uniformEnabled = useHookstate(uniformScaling)
@@ -59,7 +63,14 @@ export const Vector2Input = ({
     if (uniformEnabled.value) {
       value.set(fieldValue, fieldValue)
     } else {
-      value[field] = fieldValue
+      let clampedValue = fieldValue
+      if (min !== undefined) {
+        clampedValue = Math.max(min, clampedValue)
+      }
+      if (max !== undefined) {
+        clampedValue = Math.min(max, clampedValue)
+      }
+      value[field] = clampedValue
     }
   }
 

@@ -23,18 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  INVALID_FILENAME_REGEX,
-  VALID_SCENE_NAME_REGEX,
-  WINDOWS_RESERVED_NAME_REGEX
-} from '@etherealengine/common/src/regex'
+import { VALID_SCENE_NAME_REGEX, WINDOWS_RESERVED_NAME_REGEX } from '@etherealengine/common/src/regex'
 
 export default function isValidSceneName(sceneName: string) {
-  return (
-    sceneName.length >= 3 &&
-    sceneName.length <= 64 &&
-    !INVALID_FILENAME_REGEX.test(sceneName) &&
-    !WINDOWS_RESERVED_NAME_REGEX.test(sceneName) &&
-    VALID_SCENE_NAME_REGEX.test(sceneName)
-  )
+  return !WINDOWS_RESERVED_NAME_REGEX.test(sceneName) && VALID_SCENE_NAME_REGEX.test(sceneName)
 }

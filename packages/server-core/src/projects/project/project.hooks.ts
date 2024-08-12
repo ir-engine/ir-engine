@@ -65,7 +65,6 @@ import { checkScope } from '@etherealengine/spatial/src/common/functions/checkSc
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
-import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import { isSignedByAppJWT } from '../../hooks/is-signed-by-app-jwt'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
@@ -73,7 +72,6 @@ import verifyScope from '../../hooks/verify-scope'
 import { createExecutorJob } from '../../k8s-job-helper'
 import logger from '../../ServerLogger'
 import { useGit } from '../../util/gitHelperFunctions'
-import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
   deleteProjectFilesInStorageProvider,
@@ -246,7 +244,7 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
       ? data
       : {
           data: data,
-          total: data.length,
+          total: context.result?.['total'] ?? data.length,
           limit: context.params?.query?.$limit || 1000,
           skip: context.params?.query?.$skip || 0
         }
@@ -363,17 +361,26 @@ const linkGithubToProject = async (context: HookContext) => {
     const split = githubPathRegexExec[1].split('/')
     const org = split[0]
     const repo = split[1]
-    const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken)
+    const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken!, context.app)
     if (!appOrgAccess)
       throw new Forbidden(
         `The organization ${org} needs to install the GitHub ${
           config.authentication.oauth.github.appId != null ? 'App' : 'OAuth app'
         } ${config.authentication.oauth.github.key} in order to push code to its repositories`
       )
-    const repoWriteStatus = await checkUserRepoWriteStatus(org, repo, githubIdentityProvider.data[0].oauthToken)
+    const repoWriteStatus = await checkUserRepoWriteStatus(
+      org,
+      repo,
+      githubIdentityProvider.data[0].oauthToken!,
+      context.app
+    )
     if (repoWriteStatus !== 200) {
       if (repoWriteStatus === 404) {
-        const orgWriteStatus = await checkUserOrgWriteStatus(org, githubIdentityProvider.data[0].oauthToken)
+        const orgWriteStatus = await checkUserOrgWriteStatus(
+          org,
+          githubIdentityProvider.data[0].oauthToken!,
+          context.app
+        )
         if (orgWriteStatus !== 200) throw new Forbidden('You do not have write access to that organization')
       } else {
         throw new Forbidden('You do not have write access to that repo')
@@ -428,15 +435,9 @@ const createProjectPermission = async (context: HookContext<ProjectService>) => 
   const result = (Array.isArray(context.result) ? context.result : [context.result]) as ProjectType[]
 
   if (context.params?.user?.id) {
-    const projectPermissionData = await projectPermissionDataResolver.resolve(
-      {
-        userId: context.params.user.id,
-        projectId: result[0].id,
-        type: 'owner'
-      },
-      context as any
-    )
-    return context.app.service(projectPermissionPath).create(projectPermissionData)
+    return context.app
+      .service(projectPermissionPath)
+      .create({ projectId: result[0].id, userId: context.params.user.id, type: 'owner' })
   }
   return context
 }
@@ -549,6 +550,7 @@ const updateProjectJob = async (context: HookContext) => {
       returnData: '',
       status: 'pending'
     })
+    const projectJobName = data.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
     const jobBody = await getProjectUpdateJobBody(
       data,
       context.app,
@@ -559,7 +561,7 @@ const updateProjectJob = async (context: HookContext) => {
     await context.app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name
     })
-    const jobLabelSelector = `etherealengine/projectField=${data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
+    const jobLabelSelector = `etherealengine/projectField=${projectJobName},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
     const jobFinishedPromise = createExecutorJob(context.app, jobBody, jobLabelSelector, 1000, newJob.id)
     try {
       await jobFinishedPromise
@@ -591,9 +593,8 @@ export default createSkippableHooks(
     },
 
     before: {
-      all: [() => schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
+      all: [schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
       find: [
-        enableClientPagination(),
         iffElse(isAction('admin'), [], filterDisabledProjects),
         discardQuery('action'),
         ensurePushStatus,
@@ -603,7 +604,7 @@ export default createSkippableHooks(
       get: [],
       create: [
         iff(isProvider('external') && !isSignedByAppJWT(), verifyScope('editor', 'write')),
-        () => schemaHooks.validateData(projectDataValidator),
+        schemaHooks.validateData(projectDataValidator),
         schemaHooks.resolveData(projectDataResolver),
         discardQuery('action'),
         checkIfProjectExists,
@@ -625,7 +626,7 @@ export default createSkippableHooks(
           verifyScope('editor', 'write'),
           projectPermissionAuthenticate(false)
         ),
-        () => schemaHooks.validateData(projectPatchValidator),
+        schemaHooks.validateData(projectPatchValidator),
         schemaHooks.resolveData(projectPatchResolver),
         iff(isProvider('external'), iffElse(checkEnabled, [], linkGithubToProject))
       ],

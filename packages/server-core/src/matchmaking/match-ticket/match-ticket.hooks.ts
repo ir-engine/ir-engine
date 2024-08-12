@@ -99,17 +99,14 @@ export default {
   },
 
   before: {
-    all: [
-      () => schemaHooks.validateQuery(matchTicketQueryValidator),
-      schemaHooks.resolveQuery(matchTicketQueryResolver)
-    ],
+    all: [schemaHooks.validateQuery(matchTicketQueryValidator), schemaHooks.resolveQuery(matchTicketQueryResolver)],
     find: [],
     get: [iff(isProvider('external'), setLoggedInUser('userId') as any), disallowNonId, getEmulationTicket],
     create: [
       iff(isProvider('external'), setLoggedInUser('userId') as any),
       matchmakingRestrictMultipleQueueing(),
       // addUUID(),
-      () => schemaHooks.validateData(matchTicketDataValidator),
+      schemaHooks.validateData(matchTicketDataValidator),
       schemaHooks.resolveData(matchTicketDataResolver),
       createInEmulation
     ],

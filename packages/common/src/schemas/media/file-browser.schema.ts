@@ -38,6 +38,7 @@ export const fileBrowserContentSchema = Type.Object(
     type: Type.String(),
     name: Type.String(),
     url: Type.String(),
+    thumbnailURL: Type.Optional(Type.String()),
     size: Type.Optional(Type.Number())
   },
   {

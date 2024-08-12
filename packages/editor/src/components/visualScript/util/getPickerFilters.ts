@@ -25,9 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { Node, OnConnectStartParams } from 'reactflow'
 
-import { NodePickerFilters } from '../components/NodePicker'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType'
+
+type NodePickerFilters = {
+  handleType: 'source' | 'target'
+  valueType: string
+}
 
 export const getNodePickerFilters = (
   nodes: Node[],

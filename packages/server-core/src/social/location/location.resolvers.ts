@@ -41,6 +41,7 @@ import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/util
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { BadRequest } from '@feathersjs/errors'
 import slugify from 'slugify'
+import config from '../../appconfig'
 import { LocationService } from './location.class'
 
 export const locationResolver = resolve<LocationType, HookContext>({
@@ -71,6 +72,9 @@ export const locationResolver = resolve<LocationType, HookContext>({
   }),
   sceneAsset: virtual(async (location, context) => {
     return context.app.service(staticResourcePath).get(location.sceneId)
+  }),
+  url: virtual(async (location, _context) => {
+    return `${config.client.url}/location/${location.slugifiedName}`
   }),
   createdAt: virtual(async (location) => fromDateTimeSql(location.createdAt)),
   updatedAt: virtual(async (location) => fromDateTimeSql(location.updatedAt))

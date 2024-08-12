@@ -51,6 +51,10 @@ export type AuthTask = {
   error?: AuthError
 }
 
+export type ReadyTask = {
+  instanceReady: boolean
+}
+
 export type JoinWorldRequestData = {
   inviteCode?: InviteCode
 }
