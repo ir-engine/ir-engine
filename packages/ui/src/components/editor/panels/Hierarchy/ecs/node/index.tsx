@@ -56,8 +56,8 @@ import { ComponentEditorsState } from '@etherealengine/editor/src/services/Compo
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { twMerge } from 'tailwind-merge'
-import TransformPropertyGroup from '../../../properties/transform'
-import { DnDFileType } from '../../Files/container'
+import TransformPropertyGroup from '../../../../properties/transform'
+import { DnDFileType } from '../../../Files/container'
 
 /**
  * getNodeElId function provides id for node.
