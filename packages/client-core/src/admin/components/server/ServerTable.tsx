@@ -66,7 +66,7 @@ function ServerStatus({ serverPodInfo }: { serverPodInfo: ServerPodInfoType }) {
       )}
       <div className="flex gap-1">
         {serverPodInfo.containers.map((container) => (
-          <Tooltip key={container.name} title={`${t('admin:components.server.name')}: ${container.name}`}>
+          <Tooltip key={container.name} content={`${t('admin:components.server.name')}: ${container.name}`}>
             <div className={`${containerColor[container.status]} h-3.5 w-3.5 rounded-full`} />
           </Tooltip>
         ))}

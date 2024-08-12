@@ -103,7 +103,8 @@ export default function FilePropertiesModal({
           key: resource.key,
           tags: newTags,
           licensing: resourceDigest.licensing.value,
-          attribution: resourceDigest.attribution.value
+          attribution: resourceDigest.attribution.value,
+          project: projectName
         })
       }
       modifiedFields.set([])

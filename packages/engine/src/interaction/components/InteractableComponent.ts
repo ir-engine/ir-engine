@@ -170,7 +170,10 @@ export const updateInteractableUI = (entity: Entity) => {
 
   //highlight if hovering OR if closest, otherwise turn off highlight
   const mutableInteractable = getMutableComponent(entity, InteractableComponent)
-  mutableInteractable.highlighted.set(hovering || entity === getState(InteractableState).available[0])
+  const newHighlight = hovering || entity === getState(InteractableState).available[0]
+  if (mutableInteractable.highlighted.value !== newHighlight) {
+    mutableInteractable.highlighted.set(newHighlight)
+  }
 
   if (transition.state === 'OUT' && activateUI) {
     transition.setState('IN')

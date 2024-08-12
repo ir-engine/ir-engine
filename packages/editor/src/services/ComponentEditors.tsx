@@ -37,7 +37,6 @@ import { ImageComponent } from '@etherealengine/engine/src/scene/components/Imag
 import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
-import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/components/NewVolumetricComponent'
@@ -93,6 +92,7 @@ import PrimitiveGeometryNodeEditor from '@etherealengine/ui/src/components/edito
 import GrabbableComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/grab'
 import GroundPlaneNodeEditor from '@etherealengine/ui/src/components/editor/properties/groundPlane'
 import ImageNodeEditor from '@etherealengine/ui/src/components/editor/properties/image'
+import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import InstancingNodeEditor from '@etherealengine/ui/src/components/editor/properties/instance'
 import InteractableComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/interact'
 import AmbientLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/ambient'
@@ -103,7 +103,6 @@ import SpotLightNodeEditor from '@etherealengine/ui/src/components/editor/proper
 import LinkNodeEditor from '@etherealengine/ui/src/components/editor/properties/link'
 import LookAtNodeEditor from '@etherealengine/ui/src/components/editor/properties/lookAt'
 import MediaNodeEditor from '@etherealengine/ui/src/components/editor/properties/media'
-import MediaSettingsEditor from '@etherealengine/ui/src/components/editor/properties/media/settings'
 import MeshNodeEditor from '@etherealengine/ui/src/components/editor/properties/mesh'
 import ModelNodeEditor from '@etherealengine/ui/src/components/editor/properties/model'
 import MountPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/mountPoint'
@@ -123,7 +122,6 @@ import SpawnPointNodeEditor from '@etherealengine/ui/src/components/editor/prope
 import SplineNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline'
 
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import PlaylistNodeEditor from '@etherealengine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline/track'
 import TextNodeEditor from '@etherealengine/ui/src/components/editor/properties/text'
@@ -141,7 +139,7 @@ export const ComponentEditorsState = defineState({
     return {
       [SceneSettingsComponent.name]: SceneSettingsEditor,
       [PostProcessingComponent.name]: PostProcessingSettingsEditor,
-      [MediaSettingsComponent.name]: MediaSettingsEditor,
+      // [MediaSettingsComponent.name]: MediaSettingsEditor,
       [RenderSettingsComponent.name]: RenderSettingsEditor,
       [FogSettingsComponent.name]: FogSettingsEditor,
       [CameraSettingsComponent.name]: CameraPropertiesNodeEditor,

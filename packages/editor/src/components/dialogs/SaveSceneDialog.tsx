@@ -93,7 +93,7 @@ export const SaveSceneDialog = (props: { isExiting?: boolean; onConfirm?: () => 
 
 export const SaveNewSceneDialog = (props: { onConfirm?: () => void; onCancel?: () => void }) => {
   const { t } = useTranslation()
-  const inputSceneName = useHookstate('New Scene')
+  const inputSceneName = useHookstate('New-Scene')
   const modalProcessing = useHookstate(false)
   const inputError = useHookstate('')
 

@@ -39,10 +39,12 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 export const EditorRouter = () => {
   const ready = useStudioEditor()
 
-  if (!ready) return <LoadingView fullScreen className="h-8 w-8" title={t('common:loader.loadingStudio')} />
+  if (!ready) return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingStudio')} />
 
   return (
-    <Suspense fallback={<LoadingView fullScreen className="h-8 w-8" title={t('common:loader.loadingStudio')} />}>
+    <Suspense
+      fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingStudio')} />}
+    >
       <PopupMenuInline />
       <Routes>
         <Route path="*" element={<EditorPage />} />
@@ -67,7 +69,7 @@ const EditorProtectedRoutes = () => {
     }
   }, [user.scopes])
 
-  if (!isAuthorized.value) return <LoadingView fullScreen className="h-8 w-8" title={t('common:loader.auth')} />
+  if (!isAuthorized.value) return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.auth')} />
 
   return <EditorRouter />
 }

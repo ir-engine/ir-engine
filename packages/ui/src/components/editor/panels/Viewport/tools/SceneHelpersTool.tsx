@@ -33,7 +33,6 @@ import { LuMousePointerClick, LuMove3D } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
-import { InfoTooltip } from '../../../layout/Tooltip'
 import ColliderAtomsSvg from './icons/collider_atoms.svg?react'
 import RulerSvg from './icons/ruler.svg?react'
 import ScreenshotSvg from './icons/screenshot.svg?react'
@@ -45,7 +44,7 @@ export default function SceneHelpersTool() {
 
   return (
     <div className="flex items-center gap-1">
-      <Tooltip title={t('editor:toolbar.placement.click')}>
+      <Tooltip content={t('editor:toolbar.placement.click')}>
         <Button
           startIcon={<LuMousePointerClick className="text-theme-input" />}
           onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
@@ -53,7 +52,7 @@ export default function SceneHelpersTool() {
           className="px-0"
         />
       </Tooltip>
-      <Tooltip title={t('editor:toolbar.placement.drag')}>
+      <Tooltip content={t('editor:toolbar.placement.drag')}>
         <Button
           startIcon={<LuMove3D className="text-theme-input" />}
           onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
@@ -61,42 +60,39 @@ export default function SceneHelpersTool() {
           className="px-0"
         />
       </Tooltip>
-      <InfoTooltip
+      <Tooltip
         title={t('editor:toolbar.helpersToggle.lbl-helpers')}
-        info={t('editor:toolbar.helpersToggle.info-helpers')}
+        content={t('editor:toolbar.helpersToggle.info-helpers')}
       >
         <Button
           startIcon={<RulerSvg className="text-theme-input" />}
           onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
           variant={rendererState.physicsDebug.value ? 'outline' : 'transparent'}
-          title={t('editor:toolbar.helpersToggle.lbl-helpers')}
           className={twMerge('px-0', rendererState.physicsDebug.value && 'border border-solid border-transparent')}
         />
-      </InfoTooltip>
-      <InfoTooltip
+      </Tooltip>
+      <Tooltip
         title={t('editor:toolbar.helpersToggle.lbl-nodeHelpers')}
-        info={t('editor:toolbar.helpersToggle.info-nodeHelpers')}
+        content={t('editor:toolbar.helpersToggle.info-nodeHelpers')}
       >
         <Button
           startIcon={<ColliderAtomsSvg className="text-theme-input" />}
           onClick={() => rendererState.nodeHelperVisibility.set(!rendererState.nodeHelperVisibility.value)}
           variant={rendererState.nodeHelperVisibility.value ? 'outline' : 'transparent'}
-          title={t('editor:toolbar.helpersToggle.lbl-nodeHelpers')}
           className={twMerge(
             'px-0',
             rendererState.nodeHelperVisibility.value && 'border border-solid border-transparent'
           )}
         />
-      </InfoTooltip>
-      <InfoTooltip title={t('editor:toolbar.sceneScreenshot.lbl')} info={t('editor:toolbar.sceneScreenshot.info')}>
+      </Tooltip>
+      <Tooltip title={t('editor:toolbar.sceneScreenshot.lbl')} content={t('editor:toolbar.sceneScreenshot.info')}>
         <Button
           startIcon={<ScreenshotSvg className="text-theme-input" />}
           onClick={() => downloadScreenshot()}
           variant="transparent"
-          title={t('editor:toolbar.sceneScreenshot.lbl')}
           className="border border-solid border-transparent px-0"
         />
-      </InfoTooltip>
+      </Tooltip>
     </div>
   )
 }

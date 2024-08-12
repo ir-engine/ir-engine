@@ -35,7 +35,6 @@ import {
   UndefinedEntity,
   createEntity,
   getComponent,
-  hasComponent,
   removeEntity,
   setComponent,
   useOptionalComponent
@@ -48,7 +47,13 @@ import { NO_PROXY, defineState, getMutableState, useHookstate } from '@ethereale
 import { DirectionalLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { RendererComponent, initializeEngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import {
+  RendererComponent,
+  getNestedVisibleChildren,
+  getSceneParameters,
+  initializeEngineRenderer,
+  render
+} from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
@@ -60,13 +65,13 @@ import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/sy
 import React, { useEffect } from 'react'
 import { Color, Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Sphere, SphereGeometry, Vector3 } from 'three'
 
+import config from '@etherealengine/common/src/config'
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { loadMaterialGLTF } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -106,7 +111,7 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
     .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '')
     .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
-  const pathname = new URL(
+  const thumbnailURL = new URL(
     await uploadToFeathersService(fileBrowserUploadPath, [file], {
       args: [
         {
@@ -120,10 +125,13 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
         }
       ]
     }).promise
-  ).pathname
+  )
+  thumbnailURL.search = ''
+  thumbnailURL.hash = ''
+  const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
   await Engine.instance.api
     .service(staticResourcePath)
-    .patch(staticResourceId, { thumbnailKey: pathname.slice(1), thumbnailMode })
+    .patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode })
 }
 
 const seenResources = new Set<string>()
@@ -212,7 +220,6 @@ const ThumbnailJobReactor = () => {
   const lightComponent = useOptionalComponent(state.lightEntity.value, DirectionalLightComponent)
   const errorComponent = useOptionalComponent(state.modelEntity.value, ErrorComponent)
 
-  const rendering = useHookstate(false)
   const materialLoaded = useHookstate(false)
 
   const tryCatch = (fn: any) => {
@@ -390,12 +397,10 @@ const ThumbnailJobReactor = () => {
   useEffect(() => {
     if (errorComponent?.keys.includes(ModelComponent.name)) {
       console.error('failed to load model for thumbnail', src)
-      rendering.set(false)
       jobState.set(jobState.get(NO_PROXY).slice(1))
       return
     }
     if (src === '') return
-    if (rendering.value) return
     if (
       (fileType !== 'model' && fileType !== 'material') ||
       !state.cameraEntity.value ||
@@ -409,19 +414,15 @@ const ThumbnailJobReactor = () => {
     const modelEntity = state.modelEntity.value
     const lightEntity = state.lightEntity.value
 
-    const sceneIDs = iterateEntityNode(modelEntity, getModelSceneID, (entity) => hasComponent(entity, ModelComponent))
+    const sceneID = getModelSceneID(modelEntity)
+    if (!sceneState.value[sceneID]) return
 
-    for (const sceneID of sceneIDs) {
-      if (!sceneState[sceneID].value) return
-    }
-
-    rendering.set(true)
     try {
       updateBoundingBox(modelEntity)
 
       const bbox = getComponent(modelEntity, BoundingBoxComponent).box
-      const length = bbox.getSize(new Vector3(0, 0, 0)).length()
-      const normalizedSize = new Vector3().setScalar(length / 2)
+      // const length = bbox.getSize(new Vector3(0, 0, 0)).length()
+      // const normalizedSize = new Vector3().setScalar(length / 2)
 
       //const canvas = document.getElementById('preview-canvas') as HTMLCanvasElement
       // Create the camera entity
@@ -429,14 +430,14 @@ const ThumbnailJobReactor = () => {
       setComponent(cameraEntity, NameComponent, 'thumbnail job camera for ' + src)
 
       // Assuming bbox is already defined
-      const size = bbox.getSize(new Vector3())
+      // const size = bbox.getSize(new Vector3())
       const center = bbox.getCenter(new Vector3())
 
       // Calculate the bounding sphere radius
       const boundingSphere = bbox.getBoundingSphere(new Sphere())
       const radius = boundingSphere.radius
 
-      const camera = getComponent(cameraEntity, CameraComponent).cameras[0]
+      const camera = getComponent(cameraEntity, CameraComponent)
       const fov = camera.fov * (Math.PI / 180) // convert vertical fov to radians
 
       // Calculate the camera direction vector with the desired angle offsets
@@ -470,7 +471,7 @@ const ThumbnailJobReactor = () => {
       camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
 
       // Update the view camera matrices
-      const viewCamera = camera
+      const viewCamera = camera.cameras[0]
       viewCamera.matrixWorld.copy(camera.matrixWorld)
       viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
       viewCamera.projectionMatrix.copy(camera.projectionMatrix)
@@ -479,49 +480,29 @@ const ThumbnailJobReactor = () => {
       viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
       setComponent(cameraEntity, RendererComponent, { scenes: [modelEntity, lightEntity] })
 
-      const { scene, canvas } = getComponent(cameraEntity, RendererComponent)
-      scene.children = getComponent(cameraEntity, RendererComponent)
-        .scenes.map((entity) => getComponent(entity, GroupComponent))
-        .flat()
-      const maxTryCount = 10
-      function doRender(tryCount = 0) {
-        requestAnimationFrame(() => {
-          const tmpCanvas = document.createElement('canvas')
-          tmpCanvas.width = 256
-          tmpCanvas.height = 256
-          const ctx = tmpCanvas.getContext('2d')!
-          ctx.drawImage(canvas!, 0, 0, 256, 256)
-          //repeat if image is blank
-          if (ctx.getImageData(0, 0, 256, 256).data.every((v) => v === 0)) {
-            if (tryCount < maxTryCount) {
-              doRender(tryCount + 1)
-              return
-            }
-          }
-          function cleanup() {
-            tmpCanvas.remove()
-            jobState.set(jobState.get(NO_PROXY).slice(1))
-            rendering.set(false)
-            materialLoaded.set(false)
-          }
-
-          tmpCanvas.toBlob((blob: Blob) => {
-            try {
-              uploadThumbnail(src, project, id, blob).then(cleanup)
-            } catch (e) {
-              console.error('failed to upload model thumbnail for', src)
-              console.error(e)
-              cleanup()
-            }
-          })
-        })
+      const renderer = getComponent(cameraEntity, RendererComponent)
+      const { scene, canvas, scenes } = renderer
+      const entitiesToRender = scenes.map(getNestedVisibleChildren).flat()
+      const { children } = getSceneParameters(entitiesToRender)
+      scene.children = children
+      render(renderer, renderer.scene, getComponent(cameraEntity, CameraComponent), 0, false)
+      function cleanup() {
+        jobState.set(jobState.get(NO_PROXY).slice(1))
+        materialLoaded.set(false)
       }
-      doRender()
+      canvas!.toBlob((blob: Blob) => {
+        try {
+          uploadThumbnail(src, project, id, blob).then(cleanup)
+        } catch (e) {
+          console.error('failed to upload model thumbnail for', src)
+          console.error(e)
+          cleanup()
+        }
+      })
     } catch (e) {
       console.error('failed to generate model thumbnail for', src)
       console.error(e)
       jobState.set(jobState.get(NO_PROXY).slice(1))
-      rendering.set(false)
     }
   }, [
     state.cameraEntity,

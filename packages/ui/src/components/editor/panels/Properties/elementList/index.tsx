@@ -130,13 +130,15 @@ const SceneElementListItem = ({
   return (
     <button
       className={twMerge(
-        'col-span-1 grid place-items-center gap-1 text-ellipsis rounded-xl border-[1px] border-[#212226] bg-theme-primary px-3 py-2.5 text-sm font-medium',
+        'place-items-center gap-1 rounded-xl border-[1px] border-[#212226] bg-theme-primary px-3 py-2.5 text-sm font-medium',
         selected ? 'text-primary border-[#42454D] bg-[#212226]' : 'text-[#B2B5BD]'
       )}
       onClick={onClick}
     >
-      {icon}
-      {categoryTitle}
+      <div className="flex flex-col items-center justify-center">
+        {icon}
+        <div className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{categoryTitle}</div>
+      </div>
     </button>
   )
 }
@@ -238,7 +240,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
   }
 
   return (
-    <div className="rounded-xl bg-theme-primary p-4 font-['Figtree']">
+    <div className="rounded-xl bg-theme-primary p-4">
       <div className="h-auto w-full overflow-x-hidden overflow-y-scroll  p-2">
         <Text className="mb-1.5 w-full text-center uppercase text-white">{t(`editor:layout.assetGrid.${type}`)}</Text>
         <StringInput
@@ -259,14 +261,15 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
               selected={selectedCategories.value.includes(index)}
             />
           ))}
-
-          <SceneElementListItem
-            categoryTitle="Empty"
-            onClick={() => {
-              EditorControlFunctions.createObjectFromSceneElement()
-              onSelect()
-            }}
-          />
+          {type !== 'components' && (
+            <SceneElementListItem
+              categoryTitle="Empty"
+              onClick={() => {
+                EditorControlFunctions.createObjectFromSceneElement()
+                onSelect()
+              }}
+            />
+          )}
         </div>
       )}
 

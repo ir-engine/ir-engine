@@ -23,19 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import Tooltip, { TooltipProps } from '../../../primitives/tailwind/Tooltip'
+import {
+  metabaseSettingMethods,
+  metabaseSettingPath
+} from '@etherealengine/common/src/schemas/integrations/metabase/metabase-setting.schema'
+import { Application } from '@etherealengine/server-core/declarations'
+import { MetabaseSettingService } from './metabase-setting.class'
+import metabaseSettingDocs from './metabase-setting.docs'
+import hooks from './metabase-setting.hooks'
 
-export function InfoTooltip({ title, info, ...props }: TooltipProps & { info?: string }) {
-  const tooltipTitle = info ? (
-    <p>
-      {title}
-      <hr className="my-0.5" />
-      {info}
-    </p>
-  ) : (
-    title
-  )
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [metabaseSettingPath]: MetabaseSettingService
+  }
+}
 
-  return <Tooltip title={tooltipTitle} {...props} />
+export default (app: Application): void => {
+  const options = {
+    name: metabaseSettingPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(metabaseSettingPath, new MetabaseSettingService(options), {
+    // A list of all methods this service exposes externally
+    methods: metabaseSettingMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: metabaseSettingDocs
+  })
+
+  const service = app.service(metabaseSettingPath)
+  service.hooks(hooks)
 }

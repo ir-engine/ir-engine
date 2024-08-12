@@ -148,7 +148,9 @@ export default function MaterialLibraryPanel() {
               }
               const resource = resources.data[0]
               const tags = ['Material']
-              await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags })
+              await Engine.instance.api
+                .service(staticResourcePath)
+                .patch(resource.id, { tags: tags, project: projectName })
               console.log('exported material data to ', ...urls)
             }}
           >

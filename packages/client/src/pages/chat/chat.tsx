@@ -32,7 +32,9 @@ import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 export default function Chat() {
   return (
-    <Suspense fallback={<LoadingView title={t('common:loader.loadingLocation')} />}>
+    <Suspense
+      fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingLocation')} />}
+    >
       <Routes>
         <Route path="*" element={<ChatPage />} />
       </Routes>

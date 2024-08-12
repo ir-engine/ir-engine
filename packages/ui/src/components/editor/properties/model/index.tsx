@@ -31,6 +31,7 @@ import { Object3D, Scene } from 'three'
 
 import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import config from '@etherealengine/common/src/config'
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { STATIC_ASSET_REGEX } from '@etherealengine/common/src/regex'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -42,6 +43,7 @@ import { updateModelResource } from '@etherealengine/engine/src/assets/functions
 import { recursiveHipsLookup } from '@etherealengine/engine/src/avatar/AvatarBoneMatching'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { getState, useState } from '@etherealengine/hyperflux'
 import Button from '../../../../primitives/tailwind/Button'
 import BooleanInput from '../../input/Boolean'
@@ -68,6 +70,11 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const projectState = getState(ProjectState)
   const loadedProjects = useState(() => projectState.projects.map((project) => project.name))
   const srcProject = useState(() => STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[1] ?? editorState.projectName!)
+
+  const [dereferenceFeatureFlag, gltfTransformFeatureFlag] = useFeatureFlags([
+    FeatureFlags.Studio.Model.Dereference,
+    FeatureFlags.Studio.Model.GLTFTransform
+  ])
 
   const getRelativePath = useCallback(() => {
     const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[2]
@@ -136,13 +143,15 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         {errors?.LOADING_ERROR ||
           (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
-      <Button
-        className="self-end"
-        onClick={() => modelComponent.dereference.set(true)}
-        disabled={!modelComponent.src.value}
-      >
-        Dereference
-      </Button>
+      {dereferenceFeatureFlag && (
+        <Button
+          className="self-end"
+          onClick={() => modelComponent.dereference.set(true)}
+          disabled={!modelComponent.src.value}
+        >
+          Dereference
+        </Button>
+      )}
       <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>
         <BooleanInput
           value={modelComponent.cameraOcclusion.value}
@@ -198,7 +207,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       )}
       {exporting.value && <p>Exporting...</p>}
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
-      <ModelTransformProperties entity={entity} onChangeModel={commitProperty(ModelComponent, 'src')} />
+      {gltfTransformFeatureFlag && (
+        <ModelTransformProperties entity={entity} onChangeModel={commitProperty(ModelComponent, 'src')} />
+      )}
     </NodeEditor>
   )
 }

@@ -80,8 +80,6 @@ const onClickNewScene = async () => {
     if (!confirm) return
   }
 
-  onNewScene()
-
   const newSceneUIAddons = getState(EditorState).uiAddons.newScene
   if (Object.keys(newSceneUIAddons).length > 0) {
     PopoverState.showPopupover(<CreateSceneDialog />)

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EntityUUID } from '@etherealengine/ecs'
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const DefaultKillHeight = -10
@@ -38,7 +39,8 @@ export const SceneSettingsComponent = defineComponent({
       primaryColor: '#000000',
       backgroundColor: '#FFFFFF',
       alternativeColor: '#000000',
-      sceneKillHeight: DefaultKillHeight
+      sceneKillHeight: DefaultKillHeight,
+      spectateEntity: null as null | EntityUUID
     }
   },
 
@@ -51,6 +53,7 @@ export const SceneSettingsComponent = defineComponent({
     if (typeof json.backgroundColor === 'string') component.backgroundColor.set(json.backgroundColor)
     if (typeof json.alternativeColor === 'string') component.alternativeColor.set(json.alternativeColor)
     if (typeof json.sceneKillHeight === 'number') component.sceneKillHeight.set(json.sceneKillHeight)
+    if (typeof json.spectateEntity === 'string') component.spectateEntity.set(json.spectateEntity)
   },
 
   toJSON: (entity, component) => {
@@ -60,7 +63,8 @@ export const SceneSettingsComponent = defineComponent({
       primaryColor: component.primaryColor.value,
       backgroundColor: component.backgroundColor.value,
       alternativeColor: component.alternativeColor.value,
-      sceneKillHeight: component.sceneKillHeight.value
+      sceneKillHeight: component.sceneKillHeight.value,
+      spectateEntity: component.spectateEntity.value
     }
   }
 })

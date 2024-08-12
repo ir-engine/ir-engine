@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useEngineCanvas'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { clientSettingPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { getComponent, useComponent, useQuery } from '@etherealengine/ecs'
@@ -38,6 +39,7 @@ import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -92,7 +94,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
                     contentType: file.type
                   }
                 ]
-              }).promise as Promise<string>
+              }).promise as Promise<string[]>
             } catch (err) {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
             }
@@ -100,8 +102,8 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
         ).then((urls) => {
           const vec3 = new Vector3()
           urls.forEach((url) => {
-            if (!url) return
-            addMediaNode(url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+            if (!url || url.length < 1 || !url[0] || url[0] === '') return
+            addMediaNode(url[0], undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
           })
         })
       }
@@ -121,6 +123,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
 const SceneLoadingProgress = ({ rootEntity }) => {
   const { t } = useTranslation()
   const progress = useComponent(rootEntity, GLTFComponent).progress.value
+  const loaded = GLTFComponent.useSceneLoaded(rootEntity)
   const resourcePendingQuery = useQuery([ResourcePendingComponent])
   const root = getComponent(rootEntity, SourceComponent)
   const sceneModified = useHookstate(getMutableState(GLTFModifiedState)[root]).value
@@ -140,12 +143,13 @@ const SceneLoadingProgress = ({ rootEntity }) => {
     }
   }, [sceneModified])
 
-  if (progress === 100) return null
+  if (loaded) return null
 
   return (
     <LoadingView
       fullSpace
-      className="mb-2 flex h-1/2 w-1/2 justify-center"
+      className="block h-12 w-12"
+      containerClassname="absolute bg-black bg-opacity-70"
       title={t('editor:loadingScenesWithProgress', { progress, assetsLeft: resourcePendingQuery.length })}
     />
   )
@@ -163,12 +167,14 @@ const ViewPortPanelContainer = () => {
 
   useEngineCanvas(ref)
 
+  const [transformPivotFeatureFlag] = useFeatureFlags([FeatureFlags.Studio.UI.TransformPivot])
+
   return (
     <ViewportDnD>
       <div className="relative z-30 flex h-full w-full flex-col">
         <div ref={toolbarRef} className="z-10 flex gap-1 bg-theme-studio-surface p-1">
           <TransformSpaceTool />
-          <TransformPivotTool />
+          {transformPivotFeatureFlag && <TransformPivotTool />}
           <GridTool />
           <TransformSnapTool />
           <SceneHelpersTool />
@@ -179,8 +185,8 @@ const ViewPortPanelContainer = () => {
         {sceneName.value ? <GizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? (
           <>
-            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
             <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
+            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
           </>
         ) : (
           <div className="flex h-full w-full flex-col justify-center gap-2">

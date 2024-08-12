@@ -23,42 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Knex } from 'knex'
+import { BsStars } from 'react-icons/bs'
+import { FaRegCircle } from 'react-icons/fa6'
+import { FiSun } from 'react-icons/fi'
+import { LuWaves } from 'react-icons/lu'
+import { PiMountains } from 'react-icons/pi'
+import { RxCube } from 'react-icons/rx'
+import { TbMaximize, TbRoute } from 'react-icons/tb'
 
-import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import React from 'react'
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function up(knex: Knex): Promise<void> {
-  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
-
-  const lastLoginColumnExists = await knex.schema.hasColumn(userPath, 'lastLogin')
-
-  if (!lastLoginColumnExists) {
-    await knex.schema.alterTable(userPath, async (table) => {
-      table.dateTime('lastLogin').nullable()
-    })
-  }
-
-  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+export const iconMap: { [key: string]: React.ReactElement } = {
+  Model: <RxCube />,
+  Material: <FaRegCircle />,
+  Texture: <LuWaves />,
+  Image: <PiMountains />,
+  Lighting: <FiSun />,
+  'Particle system': <BsStars />,
+  'Visual script': <TbRoute />
 }
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function down(knex: Knex): Promise<void> {
-  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+const defaultIcon = <TbMaximize />
 
-  const lastLoginColumnExists = await knex.schema.hasColumn(userPath, 'lastLogin')
-
-  if (lastLoginColumnExists) {
-    await knex.schema.alterTable(userPath, async (table) => {
-      table.dropColumn('lastLogin')
-    })
-  }
-
-  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+export const AssetIconMap = ({ name }): React.ReactElement => {
+  return <div className="flex h-4 w-4 items-center justify-center">{iconMap[name] ?? defaultIcon}</div>
 }
