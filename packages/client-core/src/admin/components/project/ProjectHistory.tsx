@@ -32,7 +32,7 @@ import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { TablePagination } from '@etherealengine/ui/src/primitives/tailwind/Table'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
-import React, { useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaSortAmountDown, FaSortAmountUpAlt } from 'react-icons/fa'
 
@@ -278,10 +278,6 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
     }
   })
 
-  useEffect(() => {
-    console.log('projectHistoryQuery: ', projectHistoryQuery.data)
-  }, [projectHistoryQuery.data])
-
   const sortOrder = projectHistoryQuery.sort.createdAt
 
   const toggleSortOrder = () => {
@@ -291,7 +287,7 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
   }
 
   return (
-    <div className="mt-[40px] flex-row justify-between gap-5">
+    <div className="w-full flex-row justify-between gap-5 px-2">
       <Button
         className="mb-4"
         onClick={toggleSortOrder}
