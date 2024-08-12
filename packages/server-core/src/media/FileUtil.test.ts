@@ -157,6 +157,40 @@ describe('FileUtil functions', () => {
       fs.rmdirSync(path.join(STORAGE_PATH, dirName))
       fs.rmdirSync(path.join(STORAGE_PATH, dirName_1))
     })
+
+    it('should handle singular and plural directory names correctly', async () => {
+      const singularDirName = 'testdir'
+      const pluralDirName = 'testdirs'
+
+      // ensure directories don't exist before starting
+      if (fs.existsSync(path.join(STORAGE_PATH, singularDirName))) {
+        fs.rmdirSync(path.join(STORAGE_PATH, singularDirName))
+      }
+      if (fs.existsSync(path.join(STORAGE_PATH, pluralDirName))) {
+        fs.rmdirSync(path.join(STORAGE_PATH, pluralDirName))
+      }
+
+      // create 'testdirs' directory
+      fs.mkdirSync(path.join(STORAGE_PATH, pluralDirName))
+
+      // try to create 'testdir' directory
+      let name = await getIncrementalName(singularDirName, TEST_DIR, store, true)
+      assert.equal(name, singularDirName, "Should return 'testdir' as it doesn't exist")
+
+      // create 'testdir' directory
+      fs.mkdirSync(path.join(STORAGE_PATH, singularDirName))
+
+      // try to create another 'testdir' directory
+      name = await getIncrementalName(singularDirName, TEST_DIR, store, true)
+      assert.equal(name, `${singularDirName}(1)`, "Should return 'testdir(1)' as 'testdir' already exists")
+
+      // try to create 'testdirs' directory
+      name = await getIncrementalName(pluralDirName, TEST_DIR, store, true)
+      assert.equal(name, `${pluralDirName}(1)`, "Should return 'testdirs(1)' as 'testdirs' already exists")
+
+      fs.rmdirSync(path.join(STORAGE_PATH, singularDirName))
+      fs.rmdirSync(path.join(STORAGE_PATH, pluralDirName))
+    })
   })
 
   after(() => {
