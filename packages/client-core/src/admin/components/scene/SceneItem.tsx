@@ -43,11 +43,18 @@ import { twMerge } from 'tailwind-merge'
 type SceneItemProps = {
   scene: StaticResourceType
   updateEditorState?: boolean
+  moveMenuUp?: boolean
   handleOpenScene: () => void
   refetchProjectsData: () => void
 }
 
-export const SceneItem = ({ scene, updateEditorState, handleOpenScene, refetchProjectsData }: SceneItemProps) => {
+export const SceneItem = ({
+  scene,
+  updateEditorState,
+  moveMenuUp,
+  handleOpenScene,
+  refetchProjectsData
+}: SceneItemProps) => {
   const { t } = useTranslation()
   const editorState = useMutableState(EditorState)
 
@@ -117,8 +124,9 @@ export const SceneItem = ({ scene, updateEditorState, handleOpenScene, refetchPr
           />
           <ul
             className={twMerge(
-              'fixed z-10 block w-max -translate-y-10 translate-x-5 rounded-lg bg-theme-primary px-4 py-3 pr-10',
-              showContentMenu.value ? 'visible' : 'hidden'
+              'fixed z-10 block w-max translate-x-5 rounded-lg bg-theme-primary px-4 py-3 pr-10',
+              showContentMenu.value ? 'visible' : 'hidden',
+              moveMenuUp ? '-translate-y-10' : ''
             )}
             style={{
               top: menuPosition.top.value,

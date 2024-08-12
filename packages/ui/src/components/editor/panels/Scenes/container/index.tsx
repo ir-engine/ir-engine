@@ -93,6 +93,7 @@ export default function ScenesPanel() {
                   key={scene.id}
                   scene={scene}
                   updateEditorState
+                  moveMenuUp={true}
                   handleOpenScene={() => onClickScene(scene)}
                   refetchProjectsData={scenesQuery.refetch}
                 />
