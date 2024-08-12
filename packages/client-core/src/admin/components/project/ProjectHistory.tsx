@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { projectHistoryPath } from '@etherealengine/common/src/schema.type.module'
 import { ProjectHistoryType } from '@etherealengine/common/src/schemas/projects/project-history.schema'
-import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
@@ -91,7 +90,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text id="blah">{verb} the location</Text>
+          <Text>{verb} the location</Text>
 
           <a href={`/location/${actionDetail.locationName}`}>
             <Text className="underline-offset-4 hover:underline" fontWeight="semibold">
@@ -113,7 +112,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text id="blah">modified the location</Text>
+          <Text>modified the location</Text>
 
           <a href={`/location/${actionDetail.locationName}`}>
             <Text className="underline-offset-4 hover:underline" fontWeight="semibold">
@@ -269,9 +268,6 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
 export const ProjectHistory = ({ projectId, projectName }: { projectId: string; projectName: string }) => {
   const { t } = useTranslation()
-
-  const dateFormat = useHookstate('timeAgo' as 'timeAgo' | 'exact')
-
   const projectHistoryQuery = useFind(projectHistoryPath, {
     query: {
       projectId: projectId,
@@ -301,7 +297,7 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
         onClick={toggleSortOrder}
         endIcon={sortOrder === -1 ? <FaSortAmountDown /> : <FaSortAmountUpAlt />}
       >
-        {sortOrder === -1 ? t('admin:common.newestFirst') : t('admin:common.oldestFirst')}
+        {sortOrder === -1 ? t('admin:components.common.newestFirst') : t('admin:components.common.oldestFirst')}
       </Button>
 
       {projectHistoryQuery.data &&
