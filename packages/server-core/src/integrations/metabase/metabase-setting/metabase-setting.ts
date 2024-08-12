@@ -23,42 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Knex } from 'knex'
+import {
+  metabaseSettingMethods,
+  metabaseSettingPath
+} from '@etherealengine/common/src/schemas/integrations/metabase/metabase-setting.schema'
+import { Application } from '@etherealengine/server-core/declarations'
+import { MetabaseSettingService } from './metabase-setting.class'
+import metabaseSettingDocs from './metabase-setting.docs'
+import hooks from './metabase-setting.hooks'
 
-import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function up(knex: Knex): Promise<void> {
-  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
-
-  const lastLoginColumnExists = await knex.schema.hasColumn(userPath, 'lastLogin')
-
-  if (!lastLoginColumnExists) {
-    await knex.schema.alterTable(userPath, async (table) => {
-      table.dateTime('lastLogin').nullable()
-    })
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [metabaseSettingPath]: MetabaseSettingService
   }
-
-  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function down(knex: Knex): Promise<void> {
-  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
-
-  const lastLoginColumnExists = await knex.schema.hasColumn(userPath, 'lastLogin')
-
-  if (lastLoginColumnExists) {
-    await knex.schema.alterTable(userPath, async (table) => {
-      table.dropColumn('lastLogin')
-    })
+export default (app: Application): void => {
+  const options = {
+    name: metabaseSettingPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
 
-  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+  app.use(metabaseSettingPath, new MetabaseSettingService(options), {
+    // A list of all methods this service exposes externally
+    methods: metabaseSettingMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: metabaseSettingDocs
+  })
+
+  const service = app.service(metabaseSettingPath)
+  service.hooks(hooks)
 }
