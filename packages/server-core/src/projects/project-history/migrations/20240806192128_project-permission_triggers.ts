@@ -48,7 +48,4 @@ export async function down(knex: Knex): Promise<void> {
 
   await knex.raw('DROP PROCEDURE IF EXISTS update_project_permission_history;')
   await knex.raw('DROP TRIGGER IF EXISTS after_project_permission_update;')
-
-  await knex.raw('DROP PROCEDURE IF EXISTS delete_project_permission_history;')
-  await knex.raw('DROP TRIGGER IF EXISTS after_project_permission_delete;')
 }

@@ -52,7 +52,7 @@ export const ActionTypes = [
 
 export type ActionType = (typeof ActionTypes)[number]
 
-export const ActionIdentifierTypes = ['static-resource', 'project', 'user', 'location', 'project-permission'] as const
+export const ActionIdentifierTypes = ['static-resource', 'project', 'location', 'project-permission'] as const
 
 // Schema for creating new entries
 export const projectHistorySchema = Type.Object(

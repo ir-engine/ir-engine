@@ -48,7 +48,4 @@ export async function down(knex: Knex): Promise<void> {
 
   await knex.raw('DROP PROCEDURE IF EXISTS insert_location_history;')
   await knex.raw('DROP TRIGGER IF EXISTS after_location_insert;')
-
-  await knex.raw('DROP PROCEDURE IF EXISTS delete_location_history;')
-  await knex.raw('DROP TRIGGER IF EXISTS after_location_delete;')
 }
