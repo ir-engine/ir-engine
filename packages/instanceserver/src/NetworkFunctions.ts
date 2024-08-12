@@ -59,6 +59,7 @@ import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/c
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
@@ -79,7 +80,7 @@ export const setupIPs = async () => {
   // Set up our instanceserver according to our current environment
   const announcedIp = config.kubernetes.enabled
     ? instanceServerState.instanceServer.value.status.address
-    : (await getLocalServerIp(instanceServerState.isMediaInstance.value)).ipAddress
+    : await getLocalServerIp()
 
   // @todo put this in hyperflux state
   mediaConfig.mediasoup.webRtcTransport.listenIps = [
@@ -148,7 +149,11 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
  * @param userId
  * @returns
  */
-export const authorizeUserToJoinServer = async (app: Application, instance: InstanceType, userId: UserID) => {
+export const authorizeUserToJoinServer = async (app: Application, instance: InstanceType, user: UserType) => {
+  const userId = user.id
+  // disallow users from joining media servers if they haven't accepted the TOS
+  if (instance.channelId && !user.acceptedTOS) return false
+
   const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
       instanceId: instance.id,
@@ -211,9 +216,27 @@ export const handleConnectingPeer = (
 
   NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex)
 
+  const onMessage = (message: any) => {
+    network.onMessage(peerID, message)
+  }
+
+  spark.on('data', onMessage)
+
+  const message = (data: any) => {
+    spark.write(data)
+  }
+
   const networkState = getMutableState(NetworkState).networks[network.id]
   networkState.peers[peerID].merge({
-    spark,
+    transport: {
+      message,
+      buffer: () => {
+        // Intentional no-op. SocketWebRTCServerFunctions defines an override for network.bufferToPeer and network.bufferToAll
+      },
+      end: () => {
+        spark.end()
+      }
+    },
     media: {},
     lastSeenTs: Date.now()
   })
@@ -232,7 +255,7 @@ export const handleConnectingPeer = (
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
 
   return {
-    routerRtpCapabilities: network.transport.routers[0].rtpCapabilities,
+    routerRtpCapabilities: network.routers[0].rtpCapabilities,
     peerIndex: network.peerIDToPeerIndex[peerID]!,
     cachedActions,
     hostPeerID: network.hostPeerID
@@ -295,7 +318,8 @@ const getUserSpawnFromInvite = async (
         // Translate infront of the inviter
         inviterUserObject3d.translateZ(2)
 
-        const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.position, false)
+        const physicsWorld = Physics.getWorld(inviterUserAvatarEntity)!
+        const validSpawnablePosition = checkPositionIsValid(physicsWorld, inviterUserObject3d.position, false)
 
         if (validSpawnablePosition) {
           const spawnPose = getState(SpawnPoseState)[user.id as any as EntityUUID]

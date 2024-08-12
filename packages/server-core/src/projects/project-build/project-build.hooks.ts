@@ -43,7 +43,7 @@ export default {
     update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('projects', 'write')),
-      () => schemaHooks.validateData(projectBuildPatchValidator),
+      schemaHooks.validateData(projectBuildPatchValidator),
       schemaHooks.resolveData(projectBuildPatchResolver)
     ],
     remove: [disallow()]

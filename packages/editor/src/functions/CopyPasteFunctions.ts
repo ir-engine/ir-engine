@@ -26,8 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import { getAllComponents, serializeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 type ComponentCopyDataType = { name: string; json: Record<string, unknown> }
+
+// fallback to avoid error at readText
+export const CopyState = defineState({
+  name: 'CopyState',
+  initial: ''
+})
 
 export const CopyPasteFunctions = {
   _generateComponentCopyData: (entities: Entity[]) =>
@@ -48,11 +55,18 @@ export const CopyPasteFunctions = {
 
   copyEntities: async (entities: Entity[]) => {
     const copyData = JSON.stringify(CopyPasteFunctions._generateComponentCopyData(entities))
-    return navigator.clipboard.writeText(copyData)
+    await navigator.clipboard.writeText(copyData)
+    getMutableState(CopyState).set(copyData)
   },
 
   getPastedEntities: async () => {
-    const clipboardText = await navigator.clipboard.readText()
+    let clipboardText = ''
+    try {
+      clipboardText = await navigator.clipboard.readText()
+    } catch {
+      clipboardText = getState(CopyState)
+    }
+
     // eslint-disable-next-line no-useless-catch
     try {
       const nodeComponentJSONs = JSON.parse(clipboardText) as ComponentCopyDataType[][]

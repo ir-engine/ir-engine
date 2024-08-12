@@ -55,13 +55,21 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  setComponent
+  setComponent,
+  useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 
+import { UUIDComponent } from '@etherealengine/ecs'
+import { defineState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState } from '@etherealengine/hyperflux/functions/StateFunctions'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
+import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { getAncestorWithComponent, useAncestorWithComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
@@ -79,32 +87,134 @@ import {
   Shapes
 } from '../types/PhysicsTypes'
 
-export type PhysicsWorld = World
-
-const Colliders = new Map<Entity, Collider>()
-const Rigidbodies = new Map<Entity, RigidBody>()
-const Controllers = new Map<Entity, KinematicCharacterController>()
+export type PhysicsWorld = World & {
+  id: EntityUUID
+  substeps: number
+  cameraAttachedRigidbodyEntity: Entity
+  Colliders: Map<Entity, Collider>
+  Rigidbodies: Map<Entity, RigidBody>
+  Controllers: Map<Entity, KinematicCharacterController>
+  collisionEventQueue: EventQueue
+  drainCollisions: ReturnType<typeof Physics.drainCollisionEventQueue>
+  drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
+}
 
 async function load() {
   return RAPIER.init()
 }
 
-function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
-  return new World(gravity)
+export const RapierWorldState = defineState({
+  name: 'ir.spatial.physics.RapierWorldState',
+  initial: {} as Record<EntityUUID, PhysicsWorld>
+})
+
+function createWorld(id: EntityUUID, args = { gravity: { x: 0.0, y: -9.81, z: 0.0 }, substeps: 1 }) {
+  const world = new World(args.gravity) as PhysicsWorld
+
+  world.id = id
+  world.substeps = args.substeps
+  world.cameraAttachedRigidbodyEntity = UndefinedEntity
+
+  const Colliders = new Map<Entity, Collider>()
+  const Rigidbodies = new Map<Entity, RigidBody>()
+  const Controllers = new Map<Entity, KinematicCharacterController>()
+
+  world.Colliders = Colliders
+  world.Rigidbodies = Rigidbodies
+  world.Controllers = Controllers
+
+  world.collisionEventQueue = createCollisionEventQueue()
+  world.drainCollisions = Physics.drainCollisionEventQueue(world)
+  world.drainContacts = Physics.drainContactEventQueue(world)
+
+  getMutableState(RapierWorldState)[id].set(world)
+
+  return world
+}
+
+function destroyWorld(id: EntityUUID) {
+  const world = getState(RapierWorldState)[id]
+  if (!world) throw new Error('Physics world not found')
+  getMutableState(RapierWorldState)[id].set(none)
+  world.Colliders.clear()
+  world.Rigidbodies.clear()
+  world.Controllers.clear()
+  world.free()
+}
+
+function getWorld(entity: Entity) {
+  const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+  if (!sceneEntity) return
+  const sceneUUID = getOptionalComponent(sceneEntity, UUIDComponent)
+  if (!sceneUUID) return
+  return getState(RapierWorldState)[sceneUUID]
+}
+
+function useWorld(entity: Entity) {
+  const sceneEntity = useAncestorWithComponent(entity, SceneComponent)
+  const sceneUUID = useOptionalComponent(sceneEntity, UUIDComponent)?.value
+  const worlds = useHookstate(getMutableState(RapierWorldState))
+  return sceneUUID ? (worlds[sceneUUID].get(NO_PROXY) as PhysicsWorld) : undefined
+}
+
+function smoothKinematicBody(physicsWorld: PhysicsWorld, entity: Entity, dt: number, substep: number) {
+  const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+  if (rigidbodyComponent.targetKinematicLerpMultiplier === 0) {
+    /** deterministic linear interpolation between substeps */
+    rigidbodyComponent.position.lerpVectors(
+      rigidbodyComponent.previousPosition,
+      rigidbodyComponent.targetKinematicPosition,
+      substep
+    )
+    rigidbodyComponent.rotation
+      .copy(rigidbodyComponent.previousRotation)
+      .fastSlerp(rigidbodyComponent.targetKinematicRotation, substep)
+  } else {
+    /** gradual smoothing between substeps */
+    const alpha = smootheLerpAlpha(rigidbodyComponent.targetKinematicLerpMultiplier, dt)
+    rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
+    rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.targetKinematicRotation, alpha)
+  }
+  Physics.setKinematicRigidbodyPose(physicsWorld, entity, rigidbodyComponent.position, rigidbodyComponent.rotation)
+}
+
+function simulate(simulationTimestep: number, kinematicEntities: Entity[]) {
+  const physicsWorlds = Object.values(getState(RapierWorldState))
+
+  for (const world of physicsWorlds) {
+    const { substeps, drainCollisions, drainContacts, collisionEventQueue } = world
+
+    // step physics world
+    const timestep = simulationTimestep / 1000 / substeps
+    world.timestep = timestep
+    // const smoothnessMultiplier = 50
+    // const smoothAlpha = smoothnessMultiplier * timestep
+    for (let i = 0; i < substeps; i++) {
+      // smooth kinematic pose changes
+      const substep = (i + 1) / substeps
+      for (const entity of kinematicEntities) {
+        if (world.Rigidbodies.has(entity)) smoothKinematicBody(world, entity, timestep, substep)
+      }
+      world.step(collisionEventQueue)
+      collisionEventQueue.drainCollisionEvents(drainCollisions)
+      collisionEventQueue.drainContactForceEvents(drainContacts)
+    }
+  }
 }
 
 function createCollisionEventQueue() {
-  const collisionEventQueue = new EventQueue(true)
-  return collisionEventQueue
+  return new EventQueue(true)
 }
 
 const position = new Vector3()
 const rotation = new Quaternion()
 const scale = new Vector3()
+const mat4 = new Matrix4()
 
-function createRigidBody(entity: Entity, world: World) {
-  const transform = getComponent(entity, TransformComponent)
-  transform.matrixWorld.decompose(position, rotation, scale)
+function createRigidBody(world: PhysicsWorld, entity: Entity) {
+  computeTransformMatrix(entity)
+  TransformComponent.getMatrixRelativeToScene(entity, mat4)
+  mat4.decompose(position, rotation, scale)
 
   TransformComponent.dirtyTransforms[entity] = false
 
@@ -149,16 +259,16 @@ function createRigidBody(entity: Entity, world: World) {
   const rigidBodyUserdata = { entity: entity }
   body.userData = rigidBodyUserdata
 
-  Rigidbodies.set(entity, body)
+  world.Rigidbodies.set(entity, body)
 }
 
-function isSleeping(entity: Entity) {
-  const rigidBody = Rigidbodies.get(entity)
+function isSleeping(world: PhysicsWorld, entity: Entity) {
+  const rigidBody = world.Rigidbodies.get(entity)
   return !rigidBody || rigidBody.isSleeping()
 }
 
-const setRigidBodyType = (entity: Entity, type: Body) => {
-  const rigidbody = Rigidbodies.get(entity)
+const setRigidBodyType = (world: PhysicsWorld, entity: Entity, type: Body) => {
+  const rigidbody = world.Rigidbodies.get(entity)
   if (!rigidbody) return
 
   let typeEnum: RigidBodyType = undefined!
@@ -181,13 +291,14 @@ const setRigidBodyType = (entity: Entity, type: Body) => {
 }
 
 function setRigidbodyPose(
+  world: PhysicsWorld,
   entity: Entity,
   position: Vector3,
   rotation: Quaternion,
   linearVelocity: Vector3,
   angularVelocity: Vector3
 ) {
-  const rigidBody = Rigidbodies.get(entity)
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.setTranslation(position, false)
   rigidBody.setRotation(rotation, false)
@@ -195,15 +306,15 @@ function setRigidbodyPose(
   rigidBody.setAngvel(angularVelocity, false)
 }
 
-function setKinematicRigidbodyPose(entity: Entity, position: Vector3, rotation: Quaternion) {
-  const rigidBody = Rigidbodies.get(entity)
+function setKinematicRigidbodyPose(world: PhysicsWorld, entity: Entity, position: Vector3, rotation: Quaternion) {
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.setNextKinematicTranslation(position)
   rigidBody.setNextKinematicRotation(rotation)
 }
 
-function enabledCcd(entity: Entity, enabled: boolean) {
-  const rigidBody = Rigidbodies.get(entity)
+function enabledCcd(world: PhysicsWorld, entity: Entity, enabled: boolean) {
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.enableCcd(enabled)
 }
@@ -214,8 +325,8 @@ function enabledCcd(entity: Entity, enabled: boolean) {
  * Does not unlock in current version (0.11.2). Fixed in 0.12
  * https://github.com/dimforge/rapier.js/issues/282#issuecomment-2177426589
  */
-function lockRotations(entity: Entity, lock: boolean) {
-  const rigidBody = Rigidbodies.get(entity)
+function lockRotations(world: PhysicsWorld, entity: Entity, lock: boolean) {
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.lockRotations(lock, false)
 }
@@ -223,15 +334,17 @@ function lockRotations(entity: Entity, lock: boolean) {
 /**
  * @note `setEnabledRotations(entity, [ true, true, true ])` is the exact same as `lockRotations(entity, true)`
  */
-function setEnabledRotations(entity: Entity, enabledRotations: [boolean, boolean, boolean]) {
-  const rigidBody = Rigidbodies.get(entity)
+function setEnabledRotations(world: PhysicsWorld, entity: Entity, enabledRotations: [boolean, boolean, boolean]) {
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.setEnabledRotations(enabledRotations[0], enabledRotations[1], enabledRotations[2], false)
 }
 
 function updatePreviousRigidbodyPose(entities: Entity[]) {
   for (const entity of entities) {
-    const body = Rigidbodies.get(entity)
+    const world = getWorld(entity)
+    if (!world) continue
+    const body = world.Rigidbodies.get(entity)
     if (!body) continue
     const translation = body.translation() as Vector3
     const rotation = body.rotation() as Quaternion
@@ -247,7 +360,9 @@ function updatePreviousRigidbodyPose(entities: Entity[]) {
 
 function updateRigidbodyPose(entities: Entity[]) {
   for (const entity of entities) {
-    const body = Rigidbodies.get(entity)
+    const world = getWorld(entity)
+    if (!world) continue
+    const body = world.Rigidbodies.get(entity)
     if (!body) continue
     const translation = body.translation() as Vector3
     const rotation = body.rotation() as Quaternion
@@ -269,22 +384,22 @@ function updateRigidbodyPose(entities: Entity[]) {
   }
 }
 
-function removeRigidbody(entity: Entity, world: World) {
-  const rigidBody = Rigidbodies.get(entity)
+function removeRigidbody(world: PhysicsWorld, entity: Entity) {
+  const rigidBody = world.Rigidbodies.get(entity)
   if (rigidBody && world.bodies.contains(rigidBody.handle)) {
     world.removeRigidBody(rigidBody)
-    Rigidbodies.delete(entity)
+    world.Rigidbodies.delete(entity)
   }
 }
 
-function applyImpulse(entity: Entity, impulse: Vector3) {
-  const rigidBody = Rigidbodies.get(entity)
+function applyImpulse(world: PhysicsWorld, entity: Entity, impulse: Vector3) {
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.applyImpulse(impulse, true)
 }
 
-function createColliderDesc(entity: Entity, rootEntity: Entity) {
-  if (!Rigidbodies.has(rootEntity)) return
+function createColliderDesc(world: PhysicsWorld, entity: Entity, rootEntity: Entity) {
+  if (!world.Rigidbodies.has(rootEntity)) return
 
   const mesh = getOptionalComponent(entity, MeshComponent)
 
@@ -316,7 +431,7 @@ function createColliderDesc(entity: Entity, rootEntity: Entity) {
       throw new Error('unrecognized collider shape type: ' + colliderComponent.shape)
   }
 
-  const scale = TransformComponent.getWorldScale(entity, new Vector3())
+  const scale = TransformComponent.getSceneScale(entity, new Vector3())
 
   let colliderDesc: ColliderDesc
 
@@ -388,13 +503,10 @@ function createColliderDesc(entity: Entity, rootEntity: Entity) {
   const positionRelativeToRoot = new Vector3()
   const quaternionRelativeToRoot = new Quaternion()
 
-  const transform = getComponent(entity, TransformComponent)
-  const rootTransform = getComponent(rootEntity, TransformComponent)
-
   // get matrix relative to root
   if (rootEntity !== entity) {
     const matrixRelativeToRoot = new Matrix4()
-    matrixRelativeToRoot.copy(rootTransform.matrixWorld).invert().multiply(transform.matrixWorld)
+    TransformComponent.getMatrixRelativeToEntity(entity, rootEntity, matrixRelativeToRoot)
     matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, new Vector3())
   }
 
@@ -420,35 +532,37 @@ function createColliderDesc(entity: Entity, rootEntity: Entity) {
   return colliderDesc
 }
 
-function attachCollider(world: World, colliderDesc: ColliderDesc, rigidBodyEntity: Entity, colliderEntity: Entity) {
-  if (Colliders.has(colliderEntity)) return
-  const rigidBody = Rigidbodies.get(rigidBodyEntity) // guaranteed will exist
+function attachCollider(
+  world: PhysicsWorld,
+  colliderDesc: ColliderDesc,
+  rigidBodyEntity: Entity,
+  colliderEntity: Entity
+) {
+  if (world.Colliders.has(colliderEntity)) return
+  const rigidBody = world.Rigidbodies.get(rigidBodyEntity) // guaranteed will exist
   if (!rigidBody) return console.error('Rigidbody not found for entity ' + rigidBodyEntity)
   const collider = world.createCollider(colliderDesc, rigidBody)
-  Colliders.set(colliderEntity, collider)
+  world.Colliders.set(colliderEntity, collider)
   return collider
 }
 
-function setColliderPose(entity: Entity, position: Vector3, rotation: Quaternion) {
-  const collider = Colliders.get(entity)
+function setColliderPose(world: PhysicsWorld, entity: Entity, position: Vector3, rotation: Quaternion) {
+  const collider = world.Colliders.get(entity)
   if (!collider) return
-  collider.setTranslation(position)
-  collider.setRotation(rotation)
+  collider.setTranslationWrtParent(position)
+  collider.setRotationWrtParent(rotation)
 }
 
-function removeCollider(world: World, entity: Entity) {
-  const collider = Colliders.get(entity)
+function removeCollider(world: PhysicsWorld, entity: Entity) {
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   world.removeCollider(collider, false)
-  Colliders.delete(entity)
+  world.Colliders.delete(entity)
 }
 
-function setTrigger(entity: Entity, isTrigger: boolean) {
-  const collider = Colliders.get(entity)
-  if (!collider) {
-    console.error("missing collider, can't set Trigger")
-    return
-  }
+function setTrigger(world: PhysicsWorld, entity: Entity, isTrigger: boolean) {
+  const collider = world.Colliders.get(entity)
+  if (!collider) return
   collider.setSensor(isTrigger)
   const colliderComponent = getComponent(entity, ColliderComponent)
   // if we are a trigger, we need to update the interaction bits of the collision groups to include the trigger group
@@ -456,33 +570,33 @@ function setTrigger(entity: Entity, isTrigger: boolean) {
   collider.setCollisionGroups(getInteractionGroups(collisionLayer, colliderComponent.collisionMask))
 }
 
-function setFriction(entity: Entity, friction: number) {
-  const collider = Colliders.get(entity)
+function setFriction(world: PhysicsWorld, entity: Entity, friction: number) {
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   collider.setFriction(friction)
 }
 
-function setRestitution(entity: Entity, restitution: number) {
-  const collider = Colliders.get(entity)
+function setRestitution(world: PhysicsWorld, entity: Entity, restitution: number) {
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   collider.setRestitution(restitution)
 }
 
-function setMass(entity: Entity, mass: number) {
-  const collider = Colliders.get(entity)
+function setMass(world: PhysicsWorld, entity: Entity, mass: number) {
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   collider.setMass(mass)
 }
 
-function setMassCenter(entity: Entity, massCenter: Vector3) {
-  const collider = Colliders.get(entity)
+function setMassCenter(world: PhysicsWorld, entity: Entity, massCenter: Vector3) {
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   /** @todo */
   // collider.setMassProperties(massCenter, collider.mass())
 }
 
-function setCollisionLayer(entity: Entity, collisionLayer: InteractionGroups) {
-  const collider = Colliders.get(entity)
+function setCollisionLayer(world: PhysicsWorld, entity: Entity, collisionLayer: InteractionGroups) {
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   const colliderComponent = getComponent(entity, ColliderComponent)
   const _collisionLayer = hasComponent(entity, TriggerComponent)
@@ -491,8 +605,8 @@ function setCollisionLayer(entity: Entity, collisionLayer: InteractionGroups) {
   collider.setCollisionGroups(getInteractionGroups(_collisionLayer, colliderComponent.collisionMask))
 }
 
-function setCollisionMask(entity: Entity, collisionMask: InteractionGroups) {
-  const collider = Colliders.get(entity)
+function setCollisionMask(world: PhysicsWorld, entity: Entity, collisionMask: InteractionGroups) {
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   const colliderComponent = getComponent(entity, ColliderComponent)
   const collisionLayer = hasComponent(entity, TriggerComponent)
@@ -501,14 +615,14 @@ function setCollisionMask(entity: Entity, collisionMask: InteractionGroups) {
   collider.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
 }
 
-function getShape(entity: Entity): Shape | undefined {
-  const collider = Colliders.get(entity)
+function getShape(world: PhysicsWorld, entity: Entity): Shape | undefined {
+  const collider = world.Colliders.get(entity)
   if (!collider) return
   return RapierShapeToString[collider.shape.type]
 }
 
-function removeCollidersFromRigidBody(entity: Entity, world: World) {
-  const rigidBody = Rigidbodies.get(entity)
+function removeCollidersFromRigidBody(entity: Entity, world: PhysicsWorld) {
+  const rigidBody = world.Rigidbodies.get(entity)
   if (!rigidBody) return
   const numColliders = rigidBody.numColliders()
   for (let index = 0; index < numColliders; index++) {
@@ -518,8 +632,8 @@ function removeCollidersFromRigidBody(entity: Entity, world: World) {
 }
 
 function createCharacterController(
+  world: PhysicsWorld,
   entity: Entity,
-  world: World,
   {
     offset = 0.01,
     maxSlopeClimbAngle = (60 * Math.PI) / 180,
@@ -534,21 +648,21 @@ function createCharacterController(
   if (autoStep) characterController.enableAutostep(autoStep.maxHeight, autoStep.minWidth, autoStep.stepOverDynamic)
   if (enableSnapToGround) characterController.enableSnapToGround(enableSnapToGround)
   else characterController.disableSnapToGround()
-  Controllers.set(entity, characterController)
+  world.Controllers.set(entity, characterController)
 }
 
-function removeCharacterController(entity: Entity, world: World) {
-  const controller = Controllers.get(entity)
+function removeCharacterController(world: PhysicsWorld, entity: Entity) {
+  const controller = world.Controllers.get(entity)
   if (!controller) return
   world.removeCharacterController(controller)
-  Controllers.delete(entity)
+  world.Controllers.delete(entity)
 }
 
 /**
  * @deprecated - will be populated on AvatarControllerComponent
  */
-function getControllerOffset(entity: Entity) {
-  const controller = Controllers.get(entity)
+function getControllerOffset(world: PhysicsWorld, entity: Entity) {
+  const controller = world.Controllers.get(entity)
   if (!controller) return 0
   return controller.offset()
 }
@@ -556,15 +670,16 @@ function getControllerOffset(entity: Entity) {
 const controllerMoveFilterFlags = QueryFilterFlags.EXCLUDE_SENSORS
 
 function computeColliderMovement(
+  world: PhysicsWorld,
   entity: Entity,
   colliderEntity: Entity,
   desiredTranslation: Vector3,
   filterGroups?: InteractionGroups,
   filterPredicate?: (collider: Collider) => boolean
 ) {
-  const controller = Controllers.get(entity)
+  const controller = world.Controllers.get(entity)
   if (!controller) return
-  const collider = Colliders.get(colliderEntity)
+  const collider = world.Colliders.get(colliderEntity)
   if (!collider) return
   controller.computeColliderMovement(
     collider,
@@ -575,8 +690,8 @@ function computeColliderMovement(
   )
 }
 
-function getComputedMovement(entity: Entity, out: Vector3) {
-  const controller = Controllers.get(entity)
+function getComputedMovement(world: PhysicsWorld, entity: Entity, out: Vector3) {
+  const controller = world.Controllers.get(entity)
   if (!controller) return out.set(0, 0, 0)
   return out.copy(controller.computedMovement() as Vector3)
 }
@@ -592,15 +707,33 @@ export type RaycastArgs = {
   excludeRigidBody?: Entity
 }
 
-function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (collider: Collider) => boolean) {
-  const ray = new Ray(raycastQuery.origin, raycastQuery.direction)
+const _worldInverseMatrix = new Matrix4()
+const _origin = new Vector3()
+const _direction = new Vector3()
+const _quaternion = new Quaternion()
+const _vector3 = new Vector3()
+/**
+ * Raycast from a world position and direction
+ */
+function castRay(world: PhysicsWorld, raycastQuery: RaycastArgs, filterPredicate?: (collider: Collider) => boolean) {
+  const worldEntity = UUIDComponent.getEntityByUUID(world.id)
+  const worldTransform = getComponent(worldEntity, TransformComponent)
+  _worldInverseMatrix.copy(worldTransform.matrixWorld).invert()
+
+  const ray = new Ray(
+    _origin.copy(raycastQuery.origin).applyMatrix4(_worldInverseMatrix),
+    _direction
+      .copy(raycastQuery.direction)
+      .applyQuaternion(_quaternion.copy(worldTransform.rotation).invert())
+      .multiply(_vector3.set(1 / worldTransform.scale.x, 1 / worldTransform.scale.y, 1 / worldTransform.scale.z))
+  )
   const maxToi = raycastQuery.maxDistance
   const solid = true // TODO: Add option for this in args
   const groups = raycastQuery.groups
   const flags = raycastQuery.flags
 
-  const excludeCollider = raycastQuery.excludeCollider && Colliders.get(raycastQuery.excludeCollider)
-  const excludeRigidBody = raycastQuery.excludeRigidBody && Rigidbodies.get(raycastQuery.excludeRigidBody)
+  const excludeCollider = raycastQuery.excludeCollider && world.Colliders.get(raycastQuery.excludeCollider)
+  const excludeRigidBody = raycastQuery.excludeRigidBody && world.Rigidbodies.get(raycastQuery.excludeRigidBody)
 
   const hits = [] as RaycastHit[]
   const hitWithNormal = world.castRayAndGetNormal(
@@ -631,21 +764,37 @@ function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (col
   return hits
 }
 
+const _perspectiveCamera = new PerspectiveCamera()
+const _orthographicCamera = new OrthographicCamera()
+
 function castRayFromCamera(
+  world: PhysicsWorld,
   camera: PerspectiveCamera | OrthographicCamera,
   coords: Vector2,
-  world: World,
   raycastQuery: RaycastArgs,
   filterPredicate?: (collider: Collider) => boolean
 ) {
+  const worldEntity = UUIDComponent.getEntityByUUID(world.id)
+  const worldTransform = getComponent(worldEntity, TransformComponent)
+
   if ((camera as PerspectiveCamera).isPerspectiveCamera) {
-    raycastQuery.origin.setFromMatrixPosition(camera.matrixWorld)
-    raycastQuery.direction.set(coords.x, coords.y, 0.5).unproject(camera).sub(raycastQuery.origin).normalize()
+    _perspectiveCamera.copy(camera as PerspectiveCamera)
+    _perspectiveCamera.updateProjectionMatrix()
+    _perspectiveCamera.matrixWorld.copy(worldTransform.matrixWorld).invert().multiply(camera.matrixWorld)
+    raycastQuery.origin.setFromMatrixPosition(_perspectiveCamera.matrixWorld)
+    raycastQuery.direction
+      .set(coords.x, coords.y, 0.5)
+      .unproject(_perspectiveCamera)
+      .sub(raycastQuery.origin)
+      .normalize()
   } else if ((camera as OrthographicCamera).isOrthographicCamera) {
+    _orthographicCamera.copy(camera as OrthographicCamera)
+    _orthographicCamera.updateProjectionMatrix()
+    _orthographicCamera.matrixWorld.copy(worldTransform.matrixWorld).invert().multiply(camera.matrixWorld)
     raycastQuery.origin
       .set(coords.x, coords.y, (camera.near + camera.far) / (camera.near - camera.far))
-      .unproject(camera)
-    raycastQuery.direction.set(0, 0, -1).transformDirection(camera.matrixWorld)
+      .unproject(_orthographicCamera)
+    raycastQuery.direction.set(0, 0, -1).transformDirection(_orthographicCamera.matrixWorld)
   }
   return Physics.castRay(world, raycastQuery, filterPredicate)
 }
@@ -659,7 +808,7 @@ export type ShapecastArgs = {
   collisionGroups: InteractionGroups
 }
 
-function castShape(world: World, shapecastQuery: ShapecastArgs) {
+function castShape(world: PhysicsWorld, shapecastQuery: ShapecastArgs) {
   const maxToi = shapecastQuery.maxDistance
   const groups = shapecastQuery.collisionGroups
   const collider = shapecastQuery.collider
@@ -686,51 +835,52 @@ function castShape(world: World, shapecastQuery: ShapecastArgs) {
   }
 }
 
-const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, handle2: number, started: boolean) => {
-  const collider1 = physicsWorld.getCollider(handle1)
-  const collider2 = physicsWorld.getCollider(handle2)
-  if (!collider1 || !collider2) return
+const drainCollisionEventQueue =
+  (physicsWorld: PhysicsWorld) => (handle1: number, handle2: number, started: boolean) => {
+    const collider1 = physicsWorld.getCollider(handle1)
+    const collider2 = physicsWorld.getCollider(handle2)
+    if (!collider1 || !collider2) return
 
-  const isTriggerEvent = collider1.isSensor() || collider2.isSensor()
-  const rigidBody1 = collider1.parent()
-  const rigidBody2 = collider2.parent()
-  const entity1 = (rigidBody1?.userData as any)['entity']
-  const entity2 = (rigidBody2?.userData as any)['entity']
+    const isTriggerEvent = collider1.isSensor() || collider2.isSensor()
+    const rigidBody1 = collider1.parent()
+    const rigidBody2 = collider2.parent()
+    const entity1 = (rigidBody1?.userData as any)['entity']
+    const entity2 = (rigidBody2?.userData as any)['entity']
 
-  setComponent(entity1, CollisionComponent)
-  setComponent(entity2, CollisionComponent)
+    setComponent(entity1, CollisionComponent)
+    setComponent(entity2, CollisionComponent)
 
-  const collisionComponent1 = getComponent(entity1, CollisionComponent)
-  const collisionComponent2 = getComponent(entity2, CollisionComponent)
+    const collisionComponent1 = getComponent(entity1, CollisionComponent)
+    const collisionComponent2 = getComponent(entity2, CollisionComponent)
 
-  if (started) {
-    const type = isTriggerEvent ? CollisionEvents.TRIGGER_START : CollisionEvents.COLLISION_START
-    collisionComponent1?.set(entity2, {
-      type,
-      bodySelf: rigidBody1 as RigidBody,
-      bodyOther: rigidBody2 as RigidBody,
-      shapeSelf: collider1 as Collider,
-      shapeOther: collider2 as Collider,
-      maxForceDirection: null,
-      totalForce: null
-    })
-    collisionComponent2?.set(entity1, {
-      type,
-      bodySelf: rigidBody2 as RigidBody,
-      bodyOther: rigidBody1 as RigidBody,
-      shapeSelf: collider2 as Collider,
-      shapeOther: collider1 as Collider,
-      maxForceDirection: null,
-      totalForce: null
-    })
-  } else {
-    const type = isTriggerEvent ? CollisionEvents.TRIGGER_END : CollisionEvents.COLLISION_END
-    if (collisionComponent1?.has(entity2)) collisionComponent1.get(entity2)!.type = type
-    if (collisionComponent2?.has(entity1)) collisionComponent2.get(entity1)!.type = type
+    if (started) {
+      const type = isTriggerEvent ? CollisionEvents.TRIGGER_START : CollisionEvents.COLLISION_START
+      collisionComponent1?.set(entity2, {
+        type,
+        bodySelf: rigidBody1 as RigidBody,
+        bodyOther: rigidBody2 as RigidBody,
+        shapeSelf: collider1 as Collider,
+        shapeOther: collider2 as Collider,
+        maxForceDirection: null,
+        totalForce: null
+      })
+      collisionComponent2?.set(entity1, {
+        type,
+        bodySelf: rigidBody2 as RigidBody,
+        bodyOther: rigidBody1 as RigidBody,
+        shapeSelf: collider2 as Collider,
+        shapeOther: collider1 as Collider,
+        maxForceDirection: null,
+        totalForce: null
+      })
+    } else {
+      const type = isTriggerEvent ? CollisionEvents.TRIGGER_END : CollisionEvents.COLLISION_END
+      if (collisionComponent1?.has(entity2)) collisionComponent1.get(entity2)!.type = type
+      if (collisionComponent2?.has(entity1)) collisionComponent2.get(entity1)!.type = type
+    }
   }
-}
 
-const drainContactEventQueue = (physicsWorld: World) => (event: TempContactForceEvent) => {
+const drainContactEventQueue = (physicsWorld: PhysicsWorld) => (event: TempContactForceEvent) => {
   const collider1 = physicsWorld.getCollider(event.collider1())
   const collider2 = physicsWorld.getCollider(event.collider2())
 
@@ -762,7 +912,12 @@ const drainContactEventQueue = (physicsWorld: World) => (event: TempContactForce
 export const Physics = {
   load,
   createWorld,
-  /** Rigidbodies */
+  destroyWorld,
+  getWorld,
+  useWorld,
+  smoothKinematicBody,
+  simulate,
+  /** world.Rigidbodies */
   createRigidBody,
   removeRigidbody,
   isSleeping,
@@ -802,11 +957,7 @@ export const Physics = {
   /** Collisions */
   createCollisionEventQueue,
   drainCollisionEventQueue,
-  drainContactEventQueue,
-  /**Internals */
-  _Colliders: Colliders,
-  _Rigidbodies: Rigidbodies,
-  _Controllers: Controllers
+  drainContactEventQueue
 }
 
 globalThis.Physics = Physics

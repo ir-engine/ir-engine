@@ -131,6 +131,15 @@ export const FileExtToAssetExt = (fileExt: string): AssetExt | undefined => {
   return <AssetExt>fileExt
 }
 
+export const FileToAssetExt = (file: string): AssetExt | undefined => {
+  if (isURL(file)) {
+    const url = new URL(file)
+    file = url.pathname.split('/').pop() as string
+  }
+  const ext = file.split('.').pop()
+  return ext ? FileExtToAssetExt(ext) : undefined
+}
+
 export const FileToAssetType = (fileName: string): AssetType => {
   if (!fileName || fileName === '') {
     return AssetType.Unknown
@@ -157,7 +166,7 @@ export const FileToAssetType = (fileName: string): AssetType => {
   return AssetExtToAssetType(FileExtToAssetExt(ext))
 }
 
-function isURL(path: string) {
+export function isURL(path: string) {
   if (!path || path === '') return false
   return path.startsWith('http://') || path.startsWith('https://') || path.startsWith('file://')
 }

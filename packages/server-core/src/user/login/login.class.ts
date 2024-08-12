@@ -29,8 +29,9 @@ import { KnexAdapterParams } from '@feathersjs/knex'
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { loginTokenPath, LoginTokenType } from '@etherealengine/common/src/schemas/user/login-token.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
-import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { UserID, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 
+import { userLoginPath } from '@etherealengine/common/src/schemas/user/user-login.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import makeInitialAdmin from '../../util/make-initial-admin'
@@ -104,6 +105,15 @@ export class LoginService implements ServiceInterface {
       await this.app.service(userPath).patch(identityProvider.userId, {
         isGuest: false
       })
+
+      // Create a user-login record
+      await this.app.service(userLoginPath).create({
+        userId: identityProvider.userId as UserID,
+        userAgent: params?.headers!['user-agent'],
+        identityProviderId: identityProvider.id,
+        ipAddress: params?.forwarded?.ip || ''
+      })
+
       return {
         token: token
       }

@@ -46,7 +46,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { defineState, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
 import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
@@ -56,8 +56,11 @@ import { InputSourceComponent } from '@etherealengine/spatial/src/input/componen
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { ReferenceSpace, XRAction, XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { ReferenceSpace, XRAction, XRState } from '@etherealengine/spatial/src/xr/XRState'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -149,7 +152,7 @@ let fadeBackInAccumulator = -1
 let visibleSegments = 2
 
 const execute = () => {
-  const { isCameraAttachedToAvatar } = getState(XRControlsState)
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
   if (!isCameraAttachedToAvatar) return
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
 
@@ -220,7 +223,8 @@ const execute = () => {
       currentVertexLocal.toArray(lineGeometryVertices, i * 3)
       positionAtT(nextVertexWorld, ((i + 1) * t) / lineSegments, p, v, gravity)
       const currentVertexDirection = nextVertexWorld.subVectors(nextVertexWorld, currentVertexWorld)
-      const validationData = checkPositionIsValid(currentVertexWorld, false, currentVertexDirection)
+      const physicsWorld = Physics.getWorld(selfAvatarEntity)!
+      const validationData = checkPositionIsValid(physicsWorld, currentVertexWorld, false, currentVertexDirection)
       if (validationData.raycastHit !== null) {
         guidelineBlocked = true
         currentVertexWorld.copy(validationData.raycastHit.position as Vector3)
@@ -258,9 +262,12 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const cameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
+  const cameraAttachedToAvatar = XRState.useCameraAttachedToAvatar()
+
   useEffect(() => {
-    if (!cameraAttachedToAvatar.value) return
+    if (!cameraAttachedToAvatar) return
+
+    const originEntity = getState(EngineState).originEntity
 
     const lineGeometry = new BufferGeometry()
     lineGeometryVertices.fill(0)
@@ -275,6 +282,7 @@ const reactor = () => {
     const guidelineEntity = createEntity()
     addObjectToGroup(guidelineEntity, guideline)
     setComponent(guidelineEntity, NameComponent, 'Teleport Guideline')
+    setComponent(guidelineEntity, EntityTreeComponent, { parentEntity: originEntity })
 
     // The guide cursor at the end of the line
     const guideCursorGeometry = new RingGeometry(0.45, 0.5, 32)
@@ -288,6 +296,7 @@ const reactor = () => {
     const guideCursorEntity = createEntity()
     addObjectToGroup(guideCursorEntity, guideCursor)
     setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
+    setComponent(guideCursorEntity, EntityTreeComponent, { parentEntity: originEntity })
 
     const transition = createTransitionState(0.5)
 

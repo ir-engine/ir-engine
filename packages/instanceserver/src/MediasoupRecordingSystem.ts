@@ -140,12 +140,7 @@ export const startMediaRecordingPair = async (
   const videoPortRtcp = startPort + 3
 
   if (tracks.video) {
-    const transportPromise = createTransport(
-      network.transport.routers[0],
-      videoPort,
-      videoPortRtcp,
-      tracks.video.producerId
-    )
+    const transportPromise = createTransport(network.routers[0], videoPort, videoPortRtcp, tracks.video.producerId)
     promises.push(transportPromise)
     transportPromise.then(({ transport, consumer }) => {
       tracks.videoTransport = transport
@@ -154,12 +149,7 @@ export const startMediaRecordingPair = async (
   }
 
   if (tracks.audio) {
-    const transportPromise = createTransport(
-      network.transport.routers[0],
-      audioPort,
-      audioPortRtcp,
-      tracks.audio.producerId
-    )
+    const transportPromise = createTransport(network.routers[0], audioPort, audioPortRtcp, tracks.audio.producerId)
     promises.push(transportPromise)
     transportPromise.then(({ transport, consumer }) => {
       tracks.audioTransport = transport

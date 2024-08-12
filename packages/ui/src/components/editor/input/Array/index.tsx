@@ -22,9 +22,12 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import React from 'react'
-import { HiPlus } from 'react-icons/hi2'
+import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
+import React, { useCallback, useState } from 'react'
+import { useDrop } from 'react-dnd'
+import { HiPlus } from 'react-icons/hi'
 import { PiTrashSimple } from 'react-icons/pi'
+import { twMerge } from 'tailwind-merge'
 import Input from '../../../../primitives/tailwind/Input'
 import Label from '../../../../primitives/tailwind/Label'
 import Text from '../../../../primitives/tailwind/Text'
@@ -36,51 +39,126 @@ export interface ArrayInputProps {
   values: string[]
   onChange: (values: string[]) => void
   inputLabel?: string
+  dropTypes?: string[]
 }
 
-// TODO: file and drag and drop functionality
+const DiscardableInput = ({
+  value,
+  index,
+  inputLabel,
+  onChange,
+  onRemove,
+  dropTypes
+}: {
+  value: string
+  index: number
+  onChange: (val: string, idx: number) => void
+  onRemove: (idx: number) => void
+} & Pick<ArrayInputProps, 'inputLabel' | 'dropTypes'>) => {
+  const [{ isDroppable }, dropRef] = useDrop(() => ({
+    accept: dropTypes ?? [...SupportedFileTypes],
+    drop: (item: { url: string }) => {
+      onChange(item.url, index)
+    },
+    collect: (monitor) => ({
+      isDroppable: monitor.canDrop() && monitor.isOver()
+    })
+  }))
+
+  return (
+    <div className="flex flex-col px-3">
+      {inputLabel && <Label className="mb-1 text-[#A0A1A2]">{inputLabel + ' ' + (index + 1)}</Label>}
+      <div
+        ref={dropRef}
+        className={twMerge('mb-2 flex items-center', isDroppable && 'outline outline-2 outline-white')}
+      >
+        <Input
+          containerClassname="flex-grow"
+          className="border-none bg-[#242424] text-[#8B8B8D]"
+          value={value}
+          onChange={(event) => onChange(event.target.value, index)}
+        />
+        <PiTrashSimple className="ml-2.5 cursor-pointer text-[#444]" onClick={() => onRemove(index)} />
+      </div>
+    </div>
+  )
+}
 
 export default function ArrayInputGroup({
   name,
   label,
   containerClassName,
-  values,
+  values: initialValues,
   onChange,
-  inputLabel
+  inputLabel,
+  dropTypes
 }: ArrayInputProps) {
-  const handleChange = (value: string, index: number, addRemove?: 'add' | 'remove') => {
-    if (addRemove === 'add') {
-      onChange([...values, value])
-    } else if (addRemove === 'remove') {
-      onChange(values.filter((_, idx) => idx !== index))
-    } else {
-      onChange(values.map((v, idx) => (idx === index ? value : v)))
-    }
-  }
+  const [values, setValues] = useState(initialValues)
+
+  const handleChange = useCallback(
+    (value: string, index: number, addRemove?: 'add' | 'remove') => {
+      setValues((prevValues) => {
+        let newValues
+
+        if (addRemove === 'add') {
+          newValues = [...prevValues, value]
+        } else if (addRemove === 'remove') {
+          newValues = prevValues.filter((_, idx) => idx !== index)
+        } else {
+          newValues = prevValues.map((v, idx) => (idx === index ? value : v))
+        }
+
+        onChange(newValues)
+        return newValues
+      })
+    },
+    [onChange]
+  )
+
+  const [{ isGroupDroppable }, groupDropRef] = useDrop(
+    () => ({
+      accept: dropTypes ?? [...SupportedFileTypes],
+      drop: (item: { url: string }, monitor) => {
+        if (monitor.didDrop()) {
+          return // don't handle the drop if a child component already did
+        }
+        handleChange(item.url, 0, 'add')
+      },
+      collect: (monitor) => ({
+        isGroupDroppable: monitor.canDrop() && monitor.isOver({ shallow: true })
+      })
+    }),
+    [handleChange]
+  )
 
   return (
-    <div aria-label={name} className={containerClassName}>
-      <div className="mb-3 flex items-center justify-between">
-        <Text className="ml-5">{label}</Text>
-        <HiPlus
-          className="mr-5 cursor-pointer rounded-md bg-[#1A1A1A] text-white"
-          size="20px"
-          onClick={() => handleChange('', 0, 'add')}
-        />
-      </div>
-      <div className="flex flex-col space-y-1 bg-[#1A1A1A] py-1.5">
-        {values.map((value, idx) => (
-          <div key={value + idx} className="mr-5 flex items-center justify-end gap-x-2.5">
-            {inputLabel && <Label className="text-[#A0A1A2]">{inputLabel + ' ' + (idx + 1)}</Label>}
-            <Input
-              containerClassname="w-32"
-              className="border-none bg-[#242424] text-[#8B8B8D]"
+    <div ref={groupDropRef} aria-label={name} className={containerClassName}>
+      <div
+        className={`outline outline-2 transition-colors duration-200 ${
+          isGroupDroppable ? 'outline-white' : 'outline-transparent'
+        }`}
+      >
+        <div className="mb-3 flex items-center justify-between">
+          <Text className="ml-5">{label}</Text>
+          <HiPlus
+            className="mr-5 cursor-pointer rounded-md bg-[#1A1A1A] text-white"
+            size="20px"
+            onClick={() => handleChange('', 0, 'add')}
+          />
+        </div>
+        <div className="flex flex-col space-y-1 rounded-md bg-[#1A1A1A] py-1.5">
+          {values.map((value, idx) => (
+            <DiscardableInput
+              key={value + idx}
               value={value}
-              onChange={(event) => handleChange(event.target.value, idx)}
+              index={idx}
+              inputLabel={inputLabel}
+              onChange={handleChange}
+              onRemove={(index) => handleChange('', index, 'remove')}
+              dropTypes={dropTypes}
             />
-            <PiTrashSimple className="cursor-pointer text-[#444]" onClick={() => handleChange('', idx, 'remove')} />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   )

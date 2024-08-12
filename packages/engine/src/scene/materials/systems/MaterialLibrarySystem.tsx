@@ -27,9 +27,13 @@ import React, { ReactElement, useEffect } from 'react'
 
 import {
   EntityUUID,
+  getComponent,
   getOptionalComponent,
   PresentationSystemGroup,
   QueryReactor,
+  removeEntity,
+  setComponent,
+  UndefinedEntity,
   useComponent,
   useEntityContext,
   useOptionalComponent
@@ -40,12 +44,12 @@ import {
   MaterialPrototypeDefinitions
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import {
+  createAndAssignMaterial,
   createMaterialPrototype,
   materialPrototypeMatches,
   setMeshMaterial,
   updateMaterialPrototype
 } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import {
@@ -53,12 +57,17 @@ import {
   MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { isArray } from 'lodash'
-import { Material } from 'three'
-import { createMaterialInstance, removeMaterial } from '../functions/materialSourcingFunctions'
+import { Material, MeshBasicMaterial } from 'three'
+import { SourceComponent } from '../../components/SourceComponent'
 
 const reactor = (): ReactElement => {
   useEffect(() => {
-    MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition) => createMaterialPrototype(prototype))
+    MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition, uuid) =>
+      createMaterialPrototype(prototype)
+    )
+    const fallbackMaterial = new MeshBasicMaterial({ name: 'Fallback Material', color: 0xff69b4 })
+    fallbackMaterial.uuid = MaterialStateComponent.fallbackMaterial
+    createAndAssignMaterial(UndefinedEntity, fallbackMaterial)
   }, [])
 
   return (
@@ -74,11 +83,18 @@ const MeshReactor = () => {
   const entity = useEntityContext()
   const materialComponent = useOptionalComponent(entity, MaterialInstanceComponent)
   const meshComponent = useComponent(entity, MeshComponent)
+
+  const createAndSourceMaterial = (material: Material) => {
+    const materialEntity = createAndAssignMaterial(entity, material)
+    const source = getOptionalComponent(entity, SourceComponent)
+    if (source) setComponent(materialEntity, SourceComponent, source)
+  }
+
   useEffect(() => {
     if (materialComponent) return
     const material = meshComponent.material.value as Material
-    if (!isArray(material)) createMaterialInstance('', entity, material)
-    else for (const mat of material) createMaterialInstance('', entity, mat)
+    if (!isArray(material)) createAndSourceMaterial(material)
+    else for (const mat of material) createAndSourceMaterial(mat)
   }, [])
   return null
 }
@@ -87,13 +103,15 @@ const MaterialEntityReactor = () => {
   const entity = useEntityContext()
   const materialComponent = useComponent(entity, MaterialStateComponent)
   useEffect(() => {
-    if (materialComponent.instances.value)
-      for (const sourceEntity of materialComponent.instances.value) {
-        iterateEntityNode(sourceEntity, (childEntity) => {
-          const uuid = getOptionalComponent(childEntity, MaterialInstanceComponent)?.uuid as EntityUUID[] | undefined
-          if (uuid) setMeshMaterial(childEntity, uuid)
-        })
+    if (!materialComponent.instances.value!) return
+    for (const sourceEntity of materialComponent.instances.value) {
+      const sourceComponent = getComponent(sourceEntity, SourceComponent)
+      if (!SourceComponent.entitiesBySource[sourceComponent]) return
+      for (const entity of SourceComponent.entitiesBySource[getComponent(sourceEntity, SourceComponent)]) {
+        const uuid = getOptionalComponent(entity, MaterialInstanceComponent)?.uuid as EntityUUID[] | undefined
+        if (uuid) setMeshMaterial(entity, uuid)
       }
+    }
   }, [materialComponent.material])
 
   useEffect(() => {
@@ -101,7 +119,7 @@ const MaterialEntityReactor = () => {
   }, [materialComponent.prototypeEntity])
 
   useEffect(() => {
-    if (materialComponent.instances.value?.length === 0) removeMaterial(entity)
+    if (materialComponent.instances.value?.length === 0) removeEntity(entity)
   }, [materialComponent.instances])
 
   return null

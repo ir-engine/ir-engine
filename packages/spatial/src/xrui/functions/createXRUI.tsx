@@ -75,7 +75,7 @@ export function createXRUI<S extends State<any> | null>(
     const viewerEntity = getState(EngineState).viewerEntity
     const renderer = getComponent(viewerEntity, RendererComponent)
     const gltfLoader = getState(AssetLoaderState).gltfLoader
-    WebLayerManager.initialize(renderer.renderer, gltfLoader.ktx2Loader!)
+    WebLayerManager.initialize(renderer.renderer!, gltfLoader.ktx2Loader!)
   }
 
   const container = new WebContainer3D(containerElement, { manager: WebLayerManager.instance })

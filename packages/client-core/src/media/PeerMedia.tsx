@@ -93,7 +93,14 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
     if (!peerMediaChannelState) return
     if (isAudio) peerMediaChannelState.audioStreamPaused.set(!!consumerState.paused.value)
     else peerMediaChannelState.videoStreamPaused.set(!!consumerState.paused.value)
-  }, [consumerState.paused])
+  }, [consumerState.paused?.value])
+
+  useEffect(() => {
+    const peerMediaChannelState = getMutableState(PeerMediaChannelState)[peerID]?.[type]
+    if (!peerMediaChannelState) return
+    if (isAudio) peerMediaChannelState.audioProducerPaused.set(!!consumerState.producerPaused.value)
+    else peerMediaChannelState.videoProducerPaused.set(!!consumerState.producerPaused.value)
+  }, [consumerState.producerPaused?.value])
 
   useEffect(() => {
     const globalMute = !!producerState.globalMute?.value
@@ -109,7 +116,7 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
       peerMediaChannelState.videoProducerPaused.set(paused)
       peerMediaChannelState.videoProducerGlobalMute.set(globalMute)
     }
-  }, [producerState.paused])
+  }, [producerState.paused?.value])
 
   return null
 }
@@ -162,7 +169,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
 
   useEffect(() => {
-    if (!networkState.ready.value) return
+    if (!networkState.ready?.value) return
 
     const peerID = producerState.peerID.value
     // dont need to request our own consumers
@@ -176,13 +183,13 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
       MediasoupMediaConsumerActions.requestConsumer({
         mediaTag,
         peerID,
-        rtpCapabilities: network.transport.mediasoupDevice.rtpCapabilities,
+        rtpCapabilities: network.mediasoupDevice.rtpCapabilities,
         channelID,
         $topic: network.topic,
         $to: network.hostPeerID
       })
     )
-  }, [networkState.ready.value])
+  }, [networkState.ready?.value])
 
   return null
 }

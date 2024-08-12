@@ -34,15 +34,11 @@ const LocationRoutes = () => {
   const projectsLoaded = useEngineInjection()
 
   if (!projectsLoaded)
-    return (
-      <LoadingView className="flex w-[3%] items-center justify-center" title={t('common:loader.loadingProjects')} />
-    )
+    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingProjects')} />
 
   return (
     <Suspense
-      fallback={
-        <LoadingView className="flex w-[3%] items-center justify-center" title={t('common:loader.loadingLocation')} />
-      }
+      fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingLocation')} />}
     >
       <AdminRoutes />
     </Suspense>

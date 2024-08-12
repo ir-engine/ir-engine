@@ -41,11 +41,8 @@ const config: ProjectConfigInterface = {
     '/location': {
       component: () => import('@etherealengine/client/src/pages/location/location')
     },
-    '/studio-old': {
-      component: () => import('@etherealengine/client/src/pages/editor/editor')
-    },
     '/studio': {
-      component: () => import('@etherealengine/client/src/pages/editor2')
+      component: () => import('@etherealengine/client/src/pages/editor')
     },
     '/room': {
       component: () => import('@etherealengine/client/src/pages/room')

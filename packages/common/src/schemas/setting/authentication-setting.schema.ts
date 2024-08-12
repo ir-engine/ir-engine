@@ -36,6 +36,7 @@ export const authenticationSettingMethods = ['find', 'patch'] as const
 export const authStrategiesSchema = Type.Object(
   {
     jwt: Type.Optional(Type.Boolean()),
+    apple: Type.Optional(Type.Boolean()),
     facebook: Type.Optional(Type.Boolean()),
     github: Type.Optional(Type.Boolean()),
     google: Type.Optional(Type.Boolean()),
@@ -68,6 +69,7 @@ export interface AuthBearerTokenType extends Static<typeof authBearerTokenSchema
 export const authCallbackSchema = Type.Object(
   {
     facebook: Type.String(),
+    apple: Type.String(),
     github: Type.String(),
     google: Type.String(),
     linkedin: Type.String(),
@@ -102,6 +104,7 @@ export interface AuthAppCredentialsType extends Static<typeof authAppCredentials
 export const authOauthSchema = Type.Object(
   {
     defaults: Type.Optional(Type.Ref(authDefaultsSchema)),
+    apple: Type.Optional(Type.Ref(authAppCredentialsSchema)),
     facebook: Type.Optional(Type.Ref(authAppCredentialsSchema)),
     github: Type.Optional(Type.Ref(authAppCredentialsSchema)),
     google: Type.Optional(Type.Ref(authAppCredentialsSchema)),

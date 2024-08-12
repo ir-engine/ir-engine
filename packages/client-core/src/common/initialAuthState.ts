@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 export const initialAuthState = {
   jwt: true,
+  apple: false,
   discord: false,
   facebook: false,
   github: false,
@@ -37,6 +38,7 @@ export const initialAuthState = {
 }
 
 export const initialOAuthConnectedState = {
+  apple: false,
   discord: false,
   facebook: false,
   github: false,
