@@ -32,7 +32,6 @@ import { Loader } from '../base/Loader'
 const iOSMaxResolution = 1024
 
 const decodeQueue = new PromiseQueue<[string | undefined, HTMLCanvasElement | undefined]>(4)
-const loadQueue = new PromiseQueue(4)
 
 /** @todo make this accessible for performance scaling */
 const getScaledTextureURI = async (
