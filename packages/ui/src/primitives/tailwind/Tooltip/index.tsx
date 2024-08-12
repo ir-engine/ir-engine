@@ -27,6 +27,7 @@ import React, { ReactNode } from 'react'
 import Popup from 'reactjs-popup'
 import { PopupProps } from 'reactjs-popup/dist/types'
 import { twMerge } from 'tailwind-merge'
+import './tooltip.css'
 
 export type TooltipProps = {
   title?: ReactNode
@@ -56,15 +57,15 @@ const Tooltip = ({ title, titleClassName, content, children, className, ...rest 
             {title}
           </span>
         )}
-        <span
+        <div
           className={twMerge(
-            'bg-[#191B1F] px-3 py-2 text-sm text-[#F5F5F5]',
+            'bg-theme-studio-surface px-3 py-2 text-sm text-[#F5F5F5]',
             title ? 'rounded-b' : 'rounded',
             className
           )}
         >
           {content}
-        </span>
+        </div>
       </div>
     </Popup>
   )

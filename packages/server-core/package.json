@@ -46,7 +46,7 @@
   "dependencies": {
     "@aws-sdk/client-cloudfront": "^3.321.1",
     "@aws-sdk/client-ecr-public": "^3.316.0",
-    "@aws-sdk/client-s3": "3.614.0",
+    "@aws-sdk/client-s3": "^3.316.0",
     "@aws-sdk/client-sns": "^3.316.0",
     "@aws-sdk/credential-providers": "^3.549.0",
     "@aws-sdk/lib-storage": "^3.321.1",
@@ -86,6 +86,7 @@
     "fs-blob-store": "6.0.0",
     "internal-ip": "^6.1.0",
     "ipfs-http-client": "^56.0.3",
+    "jsonwebtoken": "^9.0.0",
     "jszip": "^3.10.1",
     "knex": "2.4.2",
     "koa-compress": "^5.1.1",
