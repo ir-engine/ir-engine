@@ -23,7 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectHistoryPath } from '@etherealengine/common/src/schemas/projects/project-history.schema'
+import {
+  ActionIdentifierTypes,
+  ActionTypes,
+  projectHistoryPath
+} from '@etherealengine/common/src/schemas/projects/project-history.schema'
 import type { Knex } from 'knex'
 
 /**
@@ -46,11 +50,11 @@ export async function up(knex: Knex): Promise<void> {
       //@ts-ignore
       table.uuid('userId', 36).collate('utf8mb4_bin')
 
-      table.string('action').notNullable()
+      table.enum('action', ActionTypes).notNullable()
 
       table.string('actionIdentifier').notNullable()
 
-      table.string('actionIdentifierType').notNullable()
+      table.enum('actionIdentifierType', ActionIdentifierTypes).notNullable()
 
       table.json('actionDetail').nullable()
 
