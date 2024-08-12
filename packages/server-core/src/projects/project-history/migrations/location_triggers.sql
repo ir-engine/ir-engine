@@ -63,11 +63,6 @@ sp: BEGIN
   -- Find the scene name based on the scene ID
   SELECT `key` INTO sceneURL FROM `static-resource` WHERE `id` = sceneId;
 
-    -- If the sceneURL is not found, exit the procedure
-  IF sceneURL IS NULL THEN
-    LEAVE sp;
-  END IF;
-
   -- JSON object with location name, scene URL, and scene ID
   SET actionDetail = JSON_OBJECT(
     "locationName", locationSlugifiedName,
@@ -126,11 +121,6 @@ sp: BEGIN
 
   -- Find the scene name based on the scene ID
   SELECT `key` INTO sceneURL FROM `static-resource` WHERE `id` = sceneId;
-
-    -- If the sceneURL is not found, exit the procedure
-  IF sceneURL IS NULL THEN
-    LEAVE sp;
-  END IF;
 
   -- JSON object with location name, scene URL, and scene ID
   SET actionDetail = JSON_OBJECT(

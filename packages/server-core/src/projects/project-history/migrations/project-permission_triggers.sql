@@ -13,11 +13,6 @@ sp: BEGIN
   -- Find the user name based on the user ID
   SELECT `name` INTO userName FROM `user` WHERE `id` = givenTo;
 
-  -- If the userName is not found, exit the procedure
-  IF userName IS NULL THEN
-    LEAVE sp;
-  END IF;
-
   -- JSON object with userName and permissionType
   SET actionDetail = JSON_OBJECT(
     "userName", userName,
@@ -77,11 +72,6 @@ sp: BEGIN
 
   -- Find the user name based on the user ID
   SELECT `name` INTO userName FROM `user` WHERE `id` = givenTo;
-
-  -- If the userName is not found, exit the procedure
-  IF userName IS NULL THEN
-    LEAVE sp;
-  END IF;
 
   -- JSON object with userName, oldPermissionType and newPermissionType
   SET actionDetail = JSON_OBJECT(
@@ -143,11 +133,6 @@ sp: BEGIN
 
   -- Find the user name based on the user ID
   SELECT `name` INTO userName FROM `user` WHERE `id` = givenTo;
-
-  -- If the userName is not found, exit the procedure
-  IF userName IS NULL THEN
-    LEAVE sp;
-  END IF;
 
   -- JSON object with userName and permissionType
   SET actionDetail = JSON_OBJECT(
