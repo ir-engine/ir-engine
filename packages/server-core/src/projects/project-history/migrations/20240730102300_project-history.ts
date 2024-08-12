@@ -56,7 +56,7 @@ export async function up(knex: Knex): Promise<void> {
 
       table.enum('actionIdentifierType', ActionIdentifierTypes).notNullable()
 
-      table.string('actionDetail').notNullable()
+      table.json('actionDetail').nullable()
 
       table.dateTime('createdAt').notNullable()
 

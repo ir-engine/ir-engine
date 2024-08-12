@@ -27,12 +27,13 @@ import { projectHistoryPath } from '@etherealengine/common/src/schema.type.modul
 import { ProjectHistoryType } from '@etherealengine/common/src/schemas/projects/project-history.schema'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
+import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { TablePagination } from '@etherealengine/ui/src/primitives/tailwind/Table'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaSortAmountDown, FaSortAmountUpAlt } from 'react-icons/fa'
 
@@ -60,21 +61,6 @@ const getResourceURL = (projectName: string, url: string, resourceType: 'resourc
 
 function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHistoryType; projectName: string }) {
   const { t } = useTranslation()
-
-  const dateStr = useMemo(() => {
-    const date = new Date(projectHistory.createdAt)
-    const formattedDate = date
-      .toLocaleDateString('en-GB', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      })
-      .replace(',', ' at')
-    return formattedDate
-  }, [projectHistory.createdAt])
 
   const RenderAction = () => {
     if (projectHistory.action === 'LOCATION_PUBLISHED' || projectHistory.action === 'LOCATION_UNPUBLISHED') {
@@ -124,11 +110,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
     } else if (projectHistory.action === 'PERMISSION_CREATED' || projectHistory.action === 'PERMISSION_REMOVED') {
       const actionDetail = JSON.parse(projectHistory.actionDetail) as {
         userName: string
+        userId: string
         permissionType: string
       }
 
       const verb = projectHistory.action === 'PERMISSION_CREATED' ? 'added' : 'removed'
-      const userId = projectHistory.actionIdentifier
 
       return (
         <>
@@ -137,7 +123,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
           <Text>access to</Text>
 
-          <Tooltip content={`UserId: ${userId}`}>
+          <Tooltip content={`UserId: ${actionDetail.userId}`}>
             <Text>{actionDetail.userName}</Text>
           </Tooltip>
         </>
@@ -145,16 +131,15 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
     } else if (projectHistory.action === 'PERMISSION_MODIFIED') {
       const actionDetail = JSON.parse(projectHistory.actionDetail) as {
         userName: string
+        userId: string
         oldPermissionType: string
         newPermissionType: string
       }
 
-      const userId = projectHistory.actionIdentifier
-
       return (
         <>
           <Text>updated the permission of the user</Text>
-          <Tooltip content={`UserId: ${userId}`}>
+          <Tooltip content={`UserId: ${actionDetail.userId}`}>
             <Text>{actionDetail.userName}</Text>
           </Tooltip>
           <Text>from</Text>
@@ -261,7 +246,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         <RenderAction />
       </div>
 
-      <Text className="text-nowrap">{dateStr}</Text>
+      <Text className="text-nowrap">{toDisplayDateTime(projectHistory.createdAt)}</Text>
     </div>
   )
 }
