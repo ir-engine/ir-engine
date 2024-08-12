@@ -27,7 +27,6 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getComponent, getMutableComponent, hasComponent, useComponent, UUIDComponent } from '@etherealengine/ecs'
-import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import {
   commitProperty,
   EditorComponentType,
@@ -36,8 +35,10 @@ import {
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 import { LuUsers2 } from 'react-icons/lu'
 import { Vector3 } from 'three'
+import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
 import NodeEditor from '../nodeEditor'
@@ -85,7 +86,7 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Dismount Offset" label={t('editor:properties.mountPoint.lbl-dismount')}>
         <Vector3Input
-          value={mountComponent.dismountOffset.value}
+          value={mountComponent.dismountOffset.get(NO_PROXY)}
           onChange={updateProperty(MountPointComponent, 'dismountOffset')}
           onRelease={commitProperty(MountPointComponent, 'dismountOffset')}
         />

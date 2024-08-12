@@ -180,7 +180,7 @@ export default function ValueGenerator({
   }
 
   return (
-    <div>
+    <>
       <InputGroup name="type" label="Type">
         <SelectInput
           value={value.type}
@@ -190,9 +190,10 @@ export default function ValueGenerator({
             { label: 'Bezier', value: 'PiecewiseBezier' }
           ]}
           onChange={onChangeType()}
+          className="w-full"
         />
       </InputGroup>
       {valueInputs[value.type]()}
-    </div>
+    </>
   )
 }

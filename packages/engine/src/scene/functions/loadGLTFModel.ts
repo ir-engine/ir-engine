@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isArray } from 'lodash'
 import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -45,7 +44,7 @@ import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/M
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
@@ -57,7 +56,6 @@ import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SourceComponent } from '../components/SourceComponent'
-import { createMaterialInstance } from '../materials/functions/materialSourcingFunctions'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
@@ -188,7 +186,7 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     },
     parent: {
       get() {
-        if (EngineRenderer.activeRender) return null // hack to check if renderer is rendering
+        if (RendererComponent.activeRender) return null // hack to check if renderer is rendering
         if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
           const result = getOptionalComponent(
             getComponent(objEntity, EntityTreeComponent).parentEntity!,
@@ -205,7 +203,7 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     },
     children: {
       get() {
-        if (EngineRenderer.activeRender) return [] // hack to check if renderer is rendering
+        if (RendererComponent.activeRender) return [] // hack to check if renderer is rendering
         if (hasComponent(objEntity, EntityTreeComponent)) {
           const childEntities = getComponent(objEntity, EntityTreeComponent).children
           const result: Object3D[] = []
@@ -300,14 +298,15 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
       )
     ) {
       return true
-    } else if (obj.parent) {
-      return (
-        hasComponent(obj.parent.entity, ColliderComponent) ||
-        Object.keys(obj.parent.userData).some(
-          (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
-        )
-      )
     }
+    // else if (obj.parent) {
+    //   return (
+    //     hasComponent(obj.parent.entity, ColliderComponent) ||
+    //     Object.keys(obj.parent.userData).some(
+    //       (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+    //     )
+    //   )
+    // }
     return false
   }
   //if we're not using visible component, set visible by default
@@ -316,6 +315,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     //if this object has a collider component attached to it, set visible to false
     !findColliderData(obj)
   ) {
+    setComponent(objEntity, VisibleComponent, true)
     eJson.components.push({
       name: VisibleComponent.jsonID,
       props: true
@@ -345,19 +345,12 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     }
   }
 
-  const material = mesh.material
-  if (!material) return eJson
-
-  const materials = Array.isArray(material) ? material : [material]
-  materials.map((material) => {
-    const path = getOptionalComponent(rootEntity, ModelComponent)?.src ?? ''
-    createMaterialInstance(path, objEntity, material)
-  })
-  mesh.material = isArray(mesh.material) ? materials : materials[0]
-
   if (!hasComponent(objEntity, MeshComponent)) {
     setComponent(objEntity, Object3DComponent, obj)
   }
+
+  const material = mesh.material
+  if (!material) return eJson
 
   delete mesh.userData['componentJson']
   delete mesh.userData['gltfExtensions']

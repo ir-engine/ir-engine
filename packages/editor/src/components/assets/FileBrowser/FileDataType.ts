@@ -29,6 +29,7 @@ export type FileDataType = {
   name: string
   fullName: string
   size?: string
+  thumbnailURL?: string
   url: string
   type: string
   isFolder: boolean

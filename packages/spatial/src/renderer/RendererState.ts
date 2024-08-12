@@ -49,8 +49,7 @@ export const RendererState = defineState({
     gridHeight: 0,
     forceBasicMaterials: false,
     shadowMapResolution: isIPhone ? 256 : 2048,
-    infiniteGridHelperEntity: null as Entity | null,
-    physicsDebugEntity: null as Entity | null
+    infiniteGridHelperEntity: null as Entity | null
   }),
   extension: syncStateWithLocalStorage([
     'qualityLevel',

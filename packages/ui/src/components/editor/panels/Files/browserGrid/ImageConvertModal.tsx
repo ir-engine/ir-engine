@@ -82,7 +82,7 @@ export default function ImageConvertModal({
         <div className="flex items-center gap-2">
           <Label className="w-16">{t('editor:layout.filebrowser.image-convert.format')}</Label>
           <Select
-            inputClassName="px-2 py-0.5 text-[#9CA0AA] text-sm"
+            inputClassName="px-2 py-0.5 text-theme-input text-sm"
             options={[
               { label: 'PNG', value: 'png' },
               { label: 'JPG', value: 'jpg' },

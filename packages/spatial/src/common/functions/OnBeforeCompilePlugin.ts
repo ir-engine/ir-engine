@@ -137,7 +137,7 @@ const onBeforeCompile = {
       this.plugins.sort(sortPluginsByPriority)
 
       this.customProgramCacheKey = () => {
-        let result = ''
+        let result = this.shader ? this.shader.fragmentShader + this.shader.vertexShader : ''
         for (let i = 0; i < this.plugins!.length; i++) {
           const plugin = this.plugins![i]
           const pluginObj = plugin as PluginObjectType

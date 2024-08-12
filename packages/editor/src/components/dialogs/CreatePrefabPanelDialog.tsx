@@ -27,27 +27,35 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import config from '@etherealengine/common/src/config'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { Engine, Entity, createEntity, getComponent, removeEntity, setComponent } from '@etherealengine/ecs'
+import {
+  Engine,
+  Entity,
+  createEntity,
+  entityExists,
+  getComponent,
+  removeEntity,
+  setComponent
+} from '@etherealengine/ecs'
+import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Scene } from 'three'
+import { Quaternion, Scene, Vector3 } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
-import { HeirarchyTreeNodeType } from '../hierarchy/HeirarchyTreeWalker'
-
-export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeType }) {
-  const entity = node?.entity as Entity
+export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
   const prefabTag = useHookstate<string[]>([])
@@ -66,11 +74,24 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
       proxifyParentChildRelationships(obj)
       setComponent(prefabEntity, EntityTreeComponent, { parentEntity })
       setComponent(prefabEntity, NameComponent, prefabName.value)
+      const entityTransform = getComponent(entity, TransformComponent)
+      const position = entityTransform.position.clone()
+      const rotation = entityTransform.rotation.clone()
+      const scale = entityTransform.scale.clone()
+      setComponent(prefabEntity, TransformComponent, {
+        position,
+        rotation,
+        scale
+      })
+      setComponent(entity, TransformComponent, {
+        position: new Vector3(0, 0, 0),
+        rotation: new Quaternion().identity(),
+        scale: new Vector3(1, 1, 1)
+      })
       setComponent(entity, EntityTreeComponent, { parentEntity: prefabEntity })
-
+      getMutableState(SelectionState).selectedEntities.set([])
       await exportRelativeGLTF(prefabEntity, srcProject, fileName)
-      //await exportRelativeGLTF(entity, srcProject, fileName)
-      //pass tags to static resource
+
       const resources = await Engine.instance.api.service(staticResourcePath).find({
         query: { key: 'projects/' + srcProject + '/' + fileName }
       })
@@ -79,17 +100,35 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
       }
       const resource = resources.data[0]
       const tags = [...prefabTag.value]
-      await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags })
+      await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
+
+      removeEntity(prefabEntity)
+      EditorControlFunctions.removeObject([entity])
+      const sceneID = getComponent(parentEntity, SourceComponent)
+      const reactor = startReactor(() => {
+        const documentState = useHookstate(getMutableState(GLTFDocumentState))
+        const nodes = documentState[sceneID].nodes
+        useEffect(() => {
+          if (!entityExists(entity)) {
+            const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
+              [
+                { name: ModelComponent.jsonID, props: { src: fileURL } },
+                { name: TransformComponent.jsonID, props: { position, rotation, scale } }
+              ],
+              parentEntity
+            )
+            getMutableState(SelectionState).selectedEntities.set([entityUUID])
+            reactor.stop()
+          } else {
+            console.log('Entity not removed')
+          }
+        }, [nodes])
+        return null
+      })
       PopoverState.hidePopupover()
       defaultPrefabFolder.set('assets/custom-prefabs')
       prefabName.set('prefab')
       prefabTag.set([])
-      removeEntity(prefabEntity)
-      const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
-        [{ name: ModelComponent.jsonID, props: { src: fileURL } }],
-        parentEntity
-      )
-      getMutableState(SelectionState).selectedEntities.set([entityUUID])
     } catch (e) {
       console.error(e)
     }

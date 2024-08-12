@@ -27,12 +27,12 @@ import { describe, expect, it } from '@jest/globals'
 import { shallow } from 'enzyme'
 import React from 'react'
 
-import LoadingCircle from './index'
+import LoadingView from './index'
 import { Default as story } from './index.stories'
 
-describe('LoadingCircle', () => {
+describe('LoadingView', () => {
   it('- should render', () => {
-    const wrapper = shallow(<LoadingCircle {...story?.args} />)
+    const wrapper = shallow(<LoadingView {...story?.args} />)
     expect(wrapper).toMatchSnapshot()
   })
 })

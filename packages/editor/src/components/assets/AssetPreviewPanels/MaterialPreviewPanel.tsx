@@ -62,7 +62,7 @@ export const MaterialPreviewCanvas = () => {
   ])
   return (
     <>
-      <div id="materialPreview" style={{ minHeight: '250px', width: '100%', height: '100%' }}>
+      <div id="materialPreview" style={{ minHeight: '200px', width: '100%', height: '100%' }}>
         <canvas ref={panelRef} style={{ pointerEvents: 'all' }} />
       </div>
     </>

@@ -68,7 +68,7 @@ export const MaterialPreviewCanvas = () => {
       new Float32Array(sphereMesh.geometry.attributes.position.count * 3).fill(1),
       3
     )
-    sphereMesh.geometry.attributes['uv1'] = sphereMesh.geometry.attributes['uv'].clone()
+    sphereMesh.geometry.attributes['uv1'] = sphereMesh.geometry.attributes['uv']
     addObjectToGroup(sceneEntity, sphereMesh)
     setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 })
     const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)
@@ -94,7 +94,7 @@ export const MaterialPreviewCanvas = () => {
 
   return (
     <>
-      <div id="materialPreview" className="aspect-square h-full min-h-[100px] w-full">
+      <div id="materialPreview" className="aspect-square h-full max-h-[200px] min-h-[100px] w-full">
         <canvas ref={panelRef} className="pointer-events-auto" />
       </div>
     </>

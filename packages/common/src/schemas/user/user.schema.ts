@@ -39,6 +39,7 @@ import { dataValidator, queryValidator } from '../validators'
 import { avatarDataSchema, AvatarID } from './avatar.schema'
 import { identityProviderSchema } from './identity-provider.schema'
 import { userApiKeySchema } from './user-api-key.schema'
+import { userLoginSchema } from './user-login.schema'
 
 export const userPath = 'user'
 
@@ -62,6 +63,7 @@ export const userSchema = Type.Object(
       format: 'uuid'
     }),
     name: TypedString<UserName>(),
+    acceptedTOS: Type.Boolean(),
     isGuest: Type.Boolean(),
     inviteCode: Type.Optional(TypedString<InviteCode>()),
     avatarId: TypedString<AvatarID>({
@@ -75,7 +77,7 @@ export const userSchema = Type.Object(
     locationBans: Type.Array(Type.Ref(locationBanSchema)),
     scopes: Type.Array(Type.Ref(userScopeSchema)),
     instanceAttendance: Type.Array(Type.Ref(instanceAttendanceSchema)),
-    lastLogin: Type.Union([Type.Null(), Type.String({ format: 'date-time' })]),
+    lastLogin: Type.Optional(Type.Ref(userLoginSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
