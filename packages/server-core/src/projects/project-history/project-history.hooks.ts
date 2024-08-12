@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import {
   projectHistoryDataValidator,
@@ -47,6 +47,8 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
+import checkScope from '../../hooks/check-scope'
+import verifyProjectPermission from '../../hooks/verify-project-permission'
 import { ProjectHistoryService } from './project-history.class'
 
 const populateUsernameAndAvatar = async (context: HookContext<ProjectHistoryService>) => {
@@ -125,7 +127,12 @@ export default {
       schemaHooks.validateQuery(projectHistoryQueryValidator),
       schemaHooks.resolveQuery(projectHistoryQueryResolver)
     ],
-    find: [iff(isProvider('external'))],
+    find: [
+      iff(
+        isProvider('external'),
+        iffElse(checkScope('projects', 'read'), [], verifyProjectPermission(['owner', 'editor', 'reviewer']))
+      )
+    ],
     get: [disallow('external')],
     create: [
       disallow('external'),
