@@ -312,7 +312,8 @@
     "setting": "Settings",
     "server": "Server",
     "recordings": "Recordings",
-    "channels": "Channels"
+    "channels": "Channels",
+    "crashReport": "Crash Report"
   },
   "resource": {
     "createResource": "Create Resource"
