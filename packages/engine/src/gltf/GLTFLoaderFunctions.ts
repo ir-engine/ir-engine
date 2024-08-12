@@ -708,9 +708,7 @@ const useAssignTexture = (options: GLTFParserOptions, mapDef?: GLTF.ITextureInfo
     if (!mapDef) return
 
     if (mapDef.texCoord !== undefined && mapDef.texCoord > 0) {
-      const textureClone = texture.clone()
-      textureClone.channel = mapDef.texCoord
-      result.set(textureClone)
+      texture.channel = mapDef.texCoord
     }
 
     /** @todo properly support extensions */
