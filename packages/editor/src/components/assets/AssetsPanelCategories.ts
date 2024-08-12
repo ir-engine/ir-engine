@@ -29,26 +29,27 @@ export const AssetsPanelCategories = defineState({
   name: 'AssetsPanelCategories',
   initial: {
     'Default Prefab': {},
-    Template: {
-      Backdrop: {},
-      Stage: {}
-    },
+
     Model: {
-      NPC: {},
-      Avatar: {},
-      Animal: {},
+      // NPC: {},
+      // Avatar: {},
+      // Animal: {},
+      Template: {
+        // Backdrop: {},
+        // Stage: {}
+      },
       Architectural: {
         Floor: {},
         Ceiling: {},
         Wall: {}
       },
-      'Basic Shape': {
-        Artistic: {},
-        Primitive: {
-          'Platonic Solid': {},
-          Fractal: {}
-        }
-      },
+      // 'Basic Shape': {
+      //   Artistic: {},
+      //   Primitive: {
+      //     'Platonic Solid': {},
+      //     Fractal: {}
+      //   }
+      // },
       Kit: {
         Gothic: {},
         Cottage: {},
@@ -58,109 +59,109 @@ export const AssetsPanelCategories = defineState({
         Ecommerce: {}
       },
       Prop: {
-        Furniture: {
-          Chairs: {},
-          Showcase: {},
-          Displays: {}
-        }
-      },
-      Terrain: {}
+        // Furniture: {
+        //   Chairs: {},
+        //   Showcase: {},
+        //   Displays: {}
+        // }
+      }
+      // Terrain: {}
     },
     Material: {
-      Standard: {
-        Plastic: {},
-        Glass: {},
-        'Rough glass': {},
-        Metal: {},
-        Glow: {},
-        Rubber: {},
-        Water: {},
-        Bubble: {},
-        Diamond: {},
-        Clay: {},
-        'Car Paint': {},
-        Wood: {},
-        Stone: {},
-        Dirt: {},
-        Grass: {},
-        Cloth: {},
-        Bark: {},
-        Snow: {}
-      },
-      Advanced: {
-        Static: {},
-        Animated: {}
-      }
+      // Standard: {
+      //   Plastic: {},
+      //   Glass: {},
+      //   'Rough glass': {},
+      //   Metal: {},
+      //   Glow: {},
+      //   Rubber: {},
+      //   Water: {},
+      //   Bubble: {},
+      //   Diamond: {},
+      //   Clay: {},
+      //   'Car Paint': {},
+      //   Wood: {},
+      //   Stone: {},
+      //   Dirt: {},
+      //   Grass: {},
+      //   Cloth: {},
+      //   Bark: {},
+      //   Snow: {}
+      // },
+      // Advanced: {
+      //   Static: {},
+      //   Animated: {}
+      // }
     },
     Image: {
-      Background: {},
-      Texture: {
-        Diffuse: {},
-        'Normal Maps': {},
-        Occlusion: {},
-        Metalness: {},
-        Roughness: {}
-      },
-      Tiling: {
-        Diffuse: {},
-        'Normal Map': {},
-        Occlusion: {},
-        Metalness: {},
-        Roughness: {}
-      },
-      Sprite: {}
+      // Background: {},
+      // Texture: {
+      //   Diffuse: {},
+      //   'Normal Maps': {},
+      //   Occlusion: {},
+      //   Metalness: {},
+      //   Roughness: {}
+      // },
+      // Tiling: {
+      //   Diffuse: {},
+      //   'Normal Map': {},
+      //   Occlusion: {},
+      //   Metalness: {},
+      //   Roughness: {}
+      // },
+      // Sprite: {}
     },
-    Light: {},
+    // Light: {},
     Video: {},
     Audio: {
-      Music: {},
-      'Sound FX': {}
+      // Music: {},
+      // 'Sound FX': {}
     },
     Particle: {
-      Smoke: {},
-      Fire: {},
-      Lightning: {},
-      Portal: {},
-      Sparkle: {}
+      // Smoke: {},
+      // Fire: {},
+      // Lightning: {},
+      // Portal: {},
+      // Sparkle: {}
     },
-    Skyboxes: {
-      'Time of Day': {
-        Morning: {},
-        Noon: {},
-        Evening: {},
-        Night: {}
-      },
-      Abstract: {},
-      'Low Contrast': {},
-      'High Contrast': {}
+    Skybox: {
+      // 'Time of Day': {
+      //   Morning: {},
+      //   Noon: {},
+      //   Evening: {},
+      //   Night: {}
+      // },
+      // Abstract: {},
+      // 'Low Contrast': {},
+      // 'High Contrast': {}
     },
     'Post Processing': {
-      Fog: {},
-      Cinematic: {}
-    },
-    Agent: {},
-    Genre: {
-      Office: {},
-      Gothic: {},
-      Scifi: {},
-      Cottage: {},
-      Modern: {},
-      Luxury: {},
-      Noir: {},
-      Nature: {
-        Jungle: {},
-        Arctic: {},
-        Boreal: {},
-        Desert: {}
-      },
-      Holiday: {
-        Passover: {},
-        'St Patrick’s Day': {},
-        'Yam Kippur': {},
-        'Veteran’s Day': {}
-      },
-      Abstract: {},
-      Fantasy: {}
+      // Fog: {},
+      // Cinematic: {}
     }
+    // Agent: {},
+    // Genre: {
+    //   Office: {},
+    //   Gothic: {},
+    //   Scifi: {},
+    //   Cottage: {},
+    //   Modern: {},
+    //   Luxury: {},
+    //   Noir: {},
+    //   Nature: {
+    //     Jungle: {},
+    //     Arctic: {},
+    //     Boreal: {},
+    //     Desert: {}
+    //   },
+    //   Holiday: {
+    //     Passover: {},
+    //     'St Patrick’s Day': {},
+    //     'Yam Kippur': {},
+    //     'Veteran’s Day': {}
+    //   },
+    //   Abstract: {},
+    //   Fantasy: {}
+    // }
   } as object
 })

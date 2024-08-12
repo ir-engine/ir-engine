@@ -164,6 +164,26 @@ export const MediasoupDataProducerConsumerState = defineState({
     return getState(MediasoupDataProducersConsumersObjectsState).producers[producer.producerID]
   },
 
+  getConsumerByPeer: (networkID: InstanceID, peerID: string) => {
+    const state = getState(MediasoupDataProducerConsumerState)[networkID]
+    if (!state) return
+
+    const consumer = Object.values(state.consumers).find((c) => c.appData.peerID === peerID)
+    if (!consumer) return
+
+    return getState(MediasoupDataProducersConsumersObjectsState).consumers[consumer.consumerID]
+  },
+
+  getConsumerByDataChannel: (networkID: InstanceID, dataChannel: DataChannelType) => {
+    const state = getState(MediasoupDataProducerConsumerState)[networkID]
+    if (!state) return
+
+    const consumer = Object.values(state.consumers).find((c) => c.dataChannel === dataChannel)
+    if (!consumer) return
+
+    return getState(MediasoupDataProducersConsumersObjectsState).consumers[consumer.consumerID]
+  },
+
   receptors: {
     onProducerCreate: MediasoupDataProducerActions.producerCreated.receive((action) => {
       const state = getMutableState(MediasoupDataProducerConsumerState)

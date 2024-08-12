@@ -55,15 +55,15 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { smootheLerpAlpha } from '../common/functions/MathLerpFunctions'
 
 import React from 'react'
-import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
-import { Vector3_Up } from '../common/constants/MathConstants'
-import { NameComponent } from '../common/NameComponent'
 import { EngineState } from '../EngineState'
+import { NameComponent } from '../common/NameComponent'
+import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
+import { Vector3_One, Vector3_Up } from '../common/constants/MathConstants'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { InputState } from '../input/state/InputState'
 import { addObjectToGroup } from '../renderer/components/GroupComponent'
-import { setVisibleComponent, VisibleComponent } from '../renderer/components/VisibleComponent'
+import { VisibleComponent, setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
 import { XRCameraUpdateSystem } from './XRCameraSystem'
@@ -175,7 +175,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   const targetScale = xrState.sceneScaleTarget
   if (targetScale !== xrState.sceneScale) {
     const newScale = MathUtils.lerp(xrState.sceneScale, targetScale, lerpAlpha)
-    getMutableState(XRState).sceneScale.set(newScale > 0.9 ? 1 : newScale)
+    getMutableState(XRState).sceneScale.set(newScale > 0.99 ? 1 : newScale)
   }
 
   xrState.scenePosition.copy(transform.position)
@@ -205,7 +205,6 @@ const execute = () => {
 
   for (const action of xrSessionChangedQueue()) {
     if (!action.active) {
-      setComponent(Engine.instance.localFloorEntity, TransformComponent) // reset world origin
       getMutableState(XRState).scenePlacementMode.set('unplaced')
       for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
       for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)
@@ -221,8 +220,7 @@ const execute = () => {
     updateScenePlacement(scenePlacementEntity)
     updateWorldOriginFromScenePlacement()
 
-    const inverseWorldScale = 1 / XRState.worldScale
-    getComponent(originAnchorEntity, TransformComponent).scale.setScalar(inverseWorldScale)
+    getComponent(originAnchorEntity, TransformComponent).scale.copy(Vector3_One)
   }
 }
 
@@ -254,6 +252,7 @@ const Reactor = () => {
     const originAnchorEntity = createEntity()
     setComponent(originAnchorEntity, NameComponent, 'xr-world-anchor')
     addObjectToGroup(originAnchorEntity, originAnchorMesh)
+    setComponent(originAnchorEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
     getMutableState(XRAnchorSystemState).set({ scenePlacementEntity, originAnchorEntity })
   }, [])

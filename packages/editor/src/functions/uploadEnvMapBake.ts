@@ -89,7 +89,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const bakeComponent = getComponent(entity, EnvMapBakeComponent)
   const position = getScenePositionForBake(isSceneEntity ? undefined : entity)
 
-  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
 
   const scene = new Scene()
 
@@ -130,7 +130,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 /** @todo replace resolution with LODs */
 export const generateEnvmapBake = (resolution = 2048) => {
   const position = getScenePositionForBake()
-  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
 
   const rootEntity = getState(EditorState).rootEntity
   const entitiesToRender = getNestedVisibleChildren(rootEntity)
@@ -168,7 +168,7 @@ const resolution = 1024
  * @returns
  */
 export const bakeEnvmapTexture = async (position: Vector3) => {
-  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
   const previewCubemapCapturer = new CubemapCapturer(renderer, new Scene(), resolution)
   const renderTarget = previewCubemapCapturer.update(position)
   const bake = (await convertCubemapToEquiImageData(

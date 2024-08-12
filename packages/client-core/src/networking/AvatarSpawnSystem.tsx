@@ -25,15 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import {
   defineSystem,
   Engine,
   Entity,
+  EntityUUID,
   getComponent,
+  getOptionalComponent,
   PresentationSystemGroup,
   useComponent,
+  useQuery,
   UUIDComponent
 } from '@etherealengine/ecs'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
@@ -41,31 +43,50 @@ import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState, WorldNetworkAction } from '@etherealengine/network'
-import { SpectateActions, SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
+import { SpectateActions } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
+import { SearchParamState } from '../common/services/RouterService'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
+  if (!isClient) return null
   const { sceneEntity } = props
   const gltfLoaded = useComponent(sceneEntity, GLTFComponent).progress.value === 100
-  const isSpectating = !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value
+  const searchParams = useMutableState(SearchParamState)
+
+  const spawnAvatar = useHookstate(false)
+  const spectateEntity = useHookstate(null as null | EntityUUID)
+  const settingsQuery = useQuery([SceneSettingsComponent])
+  useEffect(() => {
+    const sceneSettingsSpectateEntity = getOptionalComponent(settingsQuery[0], SceneSettingsComponent)?.spectateEntity
+    spectateEntity.set(sceneSettingsSpectateEntity ?? (getSearchParamFromURL('spectate') as EntityUUID))
+  }, [settingsQuery, searchParams])
 
   useEffect(() => {
-    if (!gltfLoaded) return
+    if (spectateEntity.value === null) return
+    dispatchAction(
+      SpectateActions.spectateEntity({
+        spectatorUserID: Engine.instance.userID,
+        spectatingEntity: spectateEntity.value
+      })
+    )
 
-    const spectate = getSearchParamFromURL('spectate')
-    if (typeof spectate === 'string') {
-      dispatchAction(
-        SpectateActions.spectateEntity({
-          spectatorUserID: Engine.instance.userID,
-          spectatingUserID: spectate as UserID
-        })
-      )
-      return
+    return () => {
+      dispatchAction(SpectateActions.exitSpectate({ spectatorUserID: Engine.instance.userID }))
     }
+  }, [spectateEntity.value])
+
+  useEffect(() => {
+    spawnAvatar.set(gltfLoaded && spectateEntity.value === null)
+  }, [gltfLoaded, spectateEntity.value])
+
+  useEffect(() => {
+    if (!spawnAvatar.value) return
 
     const rootUUID = getComponent(sceneEntity, UUIDComponent)
     const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
@@ -90,7 +111,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
         dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(selfAvatarEntity, UUIDComponent) }))
       }
     }
-  }, [gltfLoaded, isSpectating])
+  }, [spawnAvatar.value])
 
   return null
 }

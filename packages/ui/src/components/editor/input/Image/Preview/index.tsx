@@ -42,10 +42,8 @@ export default function ImagePreviewInput({
 }: StringInputProps & { label?: string; previewOnly?: boolean }) {
   return (
     <ImageContainer>
-      {label && (
-        <div className="self-stretch font-['Figtree'] text-[8px] font-normal leading-3 text-neutral-200">{label}</div>
-      )}
-      <div className="flex flex-col items-start justify-start gap-0 gap-1 rounded-t-md bg-[#1A1A1A] p-1">
+      {label && <div className="self-stretch text-[8px] font-normal leading-3 text-neutral-200">{label}</div>}
+      <div className="flex flex-col items-start justify-start gap-1 rounded-t-md bg-[#1A1A1A] p-1">
         <div className="h-[274px] w-[305px]">
           <div className="flex h-[274px] w-[305px] justify-center rounded-t-md">
             <div className="h-auto w-auto rounded">

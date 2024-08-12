@@ -55,7 +55,7 @@ export const projectSchema = Type.Object(
     hasLocalChanges: Type.Boolean(),
     sourceRepo: Type.Optional(Type.String()),
     sourceBranch: Type.Optional(Type.String()),
-    updateType: StringEnum(projectUpdateTypes),
+    updateType: Type.Optional(StringEnum(projectUpdateTypes)),
     updateSchedule: Type.Optional(Type.String()),
     updateUserId: Type.Optional(Type.String()),
     hasWriteAccess: Type.Optional(Type.Boolean()),
@@ -63,6 +63,7 @@ export const projectSchema = Type.Object(
     commitSHA: Type.Optional(Type.String()),
     commitDate: Type.Optional(Type.String({ format: 'date-time' })),
     assetsOnly: Type.Boolean(),
+    visibility: StringEnum(['private', 'public']),
     settings: Type.Optional(Type.Array(Type.Ref(projectSettingSchema))),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -103,6 +104,7 @@ export const projectQueryProperties = Type.Pick(projectSchema, [
   'updateSchedule',
   'updateUserId',
   'hasWriteAccess',
+  'visibility',
   'commitSHA',
   'commitDate'
 ])
@@ -116,7 +118,7 @@ export const projectQuerySchema = Type.Intersect(
     // Add additional query properties here
     Type.Object(
       {
-        paginate: Type.Optional(Type.Boolean()),
+        assetsOnly: Type.Optional(Type.Boolean()),
         action: Type.Optional(Type.String()),
         sourceURL: Type.Optional(Type.String()),
         destinationURL: Type.Optional(Type.String()),

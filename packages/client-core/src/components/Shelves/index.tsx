@@ -31,8 +31,12 @@ import { useMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
+import multiLogger from '@etherealengine/common/src/logger'
 import { AppState } from '../../common/services/AppService'
+import { clientContextParams } from '../../util/contextParams'
 import styles from './index.module.scss'
+
+const logger = multiLogger.child({ component: 'system:Shelves ', modifier: clientContextParams })
 
 export const Shelves = () => {
   const { t } = useTranslation()
@@ -42,11 +46,17 @@ export const Shelves = () => {
   const showBottomShelf = appState.showBottomShelf.value
 
   const handleShowMediaIcons = () => {
-    appState.showTopShelf.set((prevValue) => !prevValue)
+    appState.showTopShelf.set((prevValue) => {
+      logger.info({ event_name: 'header_show', event_value: !prevValue })
+      return !prevValue
+    })
   }
 
   const handleShowBottomIcons = () => {
-    appState.showBottomShelf.set((prevValue) => !prevValue)
+    appState.showBottomShelf.set((prevValue) => {
+      logger.info({ event_name: 'footer_show', event_value: !prevValue })
+      return !prevValue
+    })
   }
 
   return (

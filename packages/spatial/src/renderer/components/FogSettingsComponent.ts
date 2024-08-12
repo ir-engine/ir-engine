@@ -132,12 +132,12 @@ export const FogSettingsComponent = defineComponent({
 
     useEffect(() => {
       const fogComponent = getOptionalComponent(entity, FogComponent)
-      if (fogComponent && fog.type.value !== FogType.Linear) (fogComponent as Fog).near = fog.near.value
+      if (fogComponent) (fogComponent as Fog).near = fog.near.value
     }, [fog.near])
 
     useEffect(() => {
       const fogComponent = getOptionalComponent(entity, FogComponent)
-      if (fogComponent && fog.type.value !== FogType.Linear) (fogComponent as Fog).far = fog.far.value
+      if (fogComponent) (fogComponent as Fog).far = fog.far.value
     }, [fog.far])
 
     useEffect(() => {

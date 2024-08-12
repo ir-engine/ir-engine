@@ -67,7 +67,7 @@ const PaddingNumericInput = ({
         value={value.toFixed(2)}
         onChange={(event) => onChange(parseFloat(event.target.value))}
       />
-      <Text fontSize="xs" fontFamily="Figtree" className="text-right text-[#444444]">
+      <Text fontSize="xs" className="text-right text-[#444444]">
         {'rem'}
       </Text>
     </div>
@@ -99,13 +99,17 @@ export const TextBoxEditor: EditorComponentType = (props) => {
       <InputGroup name="Size" label={t('editor:properties.textBox.lbl-size')}>
         <NumericInput value={0.2} displayPrecision={2} onChange={() => {}} unit="em" />
       </InputGroup>
-      <InputGroup className="mt-5" name="Font Stroke" label={t('editor:properties.textBox.lbl-fontStroke')}>
+      <InputGroup containerClassName="mt-5" name="Font Stroke" label={t('editor:properties.textBox.lbl-fontStroke')}>
         <NumericInput value={5.2} displayPrecision={2} onChange={() => {}} unit="px" />
       </InputGroup>
       <InputGroup name="Font Color" label={t('editor:properties.textBox.lbl-fontColor')}>
         <ColorInput />
       </InputGroup>
-      <InputGroup className="mt-5" name="Corner Radius" label={t('editor:properties.textBox.lbl-cornerRadius')}>
+      <InputGroup
+        containerClassName="mt-5"
+        name="Corner Radius"
+        label={t('editor:properties.textBox.lbl-cornerRadius')}
+      >
         <NumericInput value={5.2} displayPrecision={2} onChange={() => {}} unit="rem" />
       </InputGroup>
       <InputGroup name="Background Color" label={t('editor:properties.textBox.lbl-backgroundColor')}>

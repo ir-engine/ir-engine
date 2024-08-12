@@ -154,7 +154,7 @@ const TablePagination = ({
   }
 
   return (
-    <div className="flex-column mb-2 flex flex-wrap items-center justify-between pt-4 md:flex-row">
+    <div className="flex-column mb-2 flex flex-wrap items-center justify-center pt-4 md:flex-row">
       <ul className="inline-flex h-8 -space-x-px text-sm rtl:space-x-reverse">
         <li>
           <button

@@ -40,9 +40,9 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
-import { projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import CopyText from '@etherealengine/ui/src/primitives/tailwind/CopyText'
@@ -50,21 +50,21 @@ import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 
 import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
-import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 import DataTable from '../../common/Table'
+import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 import ManageUserPermissionModal from './ManageUserPermissionModal'
 
 const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 
-export default function ProjectTable() {
+export default function ProjectTable(props: { search: string }) {
   const { t } = useTranslation()
   const activeProjectId = useHookstate<string | null>(null)
   const projectQuery = useFind(projectPath, {
     query: {
       allowed: true,
-      $limit: 100,
+      $limit: 20,
       action: 'admin',
       $sort: {
         name: 1
@@ -72,8 +72,27 @@ export default function ProjectTable() {
     }
   })
 
+  useSearch(
+    projectQuery,
+    {
+      $or: [
+        {
+          name: {
+            $like: `%${props.search}%`
+          }
+        }
+      ]
+    },
+    props.search
+  )
+
   const handleEnabledChange = async (project: ProjectType) => {
     await ProjectService.setEnabled(project.id, !project.enabled)
+    projectQuery.refetch()
+  }
+
+  const handleVisibilityChange = async (project: ProjectType) => {
+    await ProjectService.setVisibility(project.id, project.visibility === 'private' ? 'public' : 'private')
     projectQuery.refetch()
   }
 
@@ -194,16 +213,20 @@ export default function ProjectTable() {
       return {
         name: (
           <div className="flex items-center gap-2">
-            <a href={`/studio/${row.name}`} className={row.needsRebuild ? 'text-blue-400' : 'text-theme-primary'}>
+            <a
+              target="_blank"
+              href={`/studio?project=${row.name}`}
+              className={row.needsRebuild ? 'text-blue-400' : 'text-theme-primary'}
+            >
               {row.name}
             </a>
             {!!row.needsRebuild && (
-              <Tooltip title={t('admin:components.project.outdatedBuild')} direction="right">
+              <Tooltip content={t('admin:components.project.outdatedBuild')} position="right center">
                 <HiOutlineExclamationCircle className="text-orange-400" size={22} />
               </Tooltip>
             )}
             {!!row.hasLocalChanges && (
-              <Tooltip title={t('admin:components.project.hasLocalChanges')} direction="right">
+              <Tooltip content={t('admin:components.project.hasLocalChanges')} position="right center">
                 <HiOutlineExclamationCircle className="text-yellow-400" size={22} />
               </Tooltip>
             )}
@@ -217,9 +240,10 @@ export default function ProjectTable() {
             onChange={() => handleEnabledChange(row)}
           />
         ),
+        visibility: <Toggle value={row.visibility === 'public'} onChange={() => handleVisibilityChange(row)} />,
         commitSHA: (
           <span className="flex items-center justify-between">
-            <Tooltip title={row.commitSHA || ''}>
+            <Tooltip content={row.commitSHA || ''}>
               <>{row.commitSHA?.slice(0, 8)}</>
             </Tooltip>{' '}
             <CopyText text={row.commitSHA || ''} className="ml-1" />

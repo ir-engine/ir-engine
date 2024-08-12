@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
-import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 
 import { DepthDataTexture } from './DepthDataTexture'
 
@@ -66,6 +65,7 @@ export const XRState = defineState({
         'immersive-ar': false,
         'immersive-vr': false
       },
+      avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
       unassingedInputSources: [] as XRInputSource[],
       session: null as XRSession | null,
       sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
@@ -91,6 +91,48 @@ export const XRState = defineState({
     return sceneScale * userHeightRatio
   },
 
+  /**
+   * Specifies that the user has movement controls if:
+   * - in an immersive session
+   * - or in an immersive session with a world-space interaction mode
+   * - or in an immersive-ar and dollhouse mode
+   */
+  get isMovementControlsEnabled(): boolean {
+    const { sessionActive, sessionMode, sceneScale } = getState(XRState)
+    if (!sessionActive) return true
+    const isMiniatureScale = sceneScale !== 1
+    return sessionMode === 'immersive-ar' ? isMiniatureScale : true
+  },
+
+  useMovementControlsEnabled: () => {
+    const { sessionActive, sessionMode, sceneScale } = useMutableState(XRState).value
+    if (!sessionActive) return true
+    const isMiniatureScale = sceneScale !== 1
+    return sessionMode === 'immersive-ar' ? isMiniatureScale : true
+  },
+
+  /**
+   * Specifies that the camera is attached to the avatar if:
+   * - in an immersion session and not in placement mode or miniature mode
+   */
+  get isCameraAttachedToAvatar(): boolean {
+    const { session, sceneScale, scenePlacementMode, avatarCameraMode } = getState(XRState)
+    if (!session || scenePlacementMode === 'placing') return false
+    if (avatarCameraMode === 'auto') {
+      return sceneScale === 1
+    }
+    return avatarCameraMode === 'attached'
+  },
+
+  useCameraAttachedToAvatar: () => {
+    const { session, sceneScale, scenePlacementMode, avatarCameraMode } = useMutableState(XRState).value
+    if (!session || scenePlacementMode === 'placing') return false
+    if (avatarCameraMode === 'auto') {
+      return sceneScale === 1
+    }
+    return avatarCameraMode === 'attached'
+  },
+
   setTrackingSpace: () => {
     const { xrFrame, userEyeHeight } = getState(XRState)
 
@@ -109,60 +151,6 @@ export const XRState = defineState({
     getMutableState(XRState).userHeightRatio.set(viewerPose.transform.position.y / userEyeHeight)
   }
 })
-
-export const XRControlsState = defineState({
-  name: 'XRControlsState',
-  initial: () => ({
-    /**
-     * Specifies that the user has movement controls if:
-     * - in an immersive session
-     * - or in an immersive session with a world-space interaction mode
-     * - or in an immersive-ar and dollhouse mode
-     */
-    isMovementControlsEnabled: true,
-    /**
-     * Specifies that the camera is attached to the avatar if:
-     * - in an immersion session and not in placement mode or miniature mode
-     */
-    isCameraAttachedToAvatar: true,
-
-    avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached'
-  })
-})
-
-export const useXRMovement = () => {
-  const xrMovementState = getMutableState(XRControlsState)
-  const avatarCameraMode = useHookstate(xrMovementState.avatarCameraMode)
-
-  const xrState = getMutableState(XRState)
-  const sceneScale = useHookstate(xrState.sceneScale)
-  const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
-  const session = useHookstate(xrState.session)
-  const sessionMode = useHookstate(xrState.sessionMode)
-  const sessionActive = useHookstate(xrState.sessionActive)
-
-  const getAvatarCameraMode = () => {
-    if (!session.value || scenePlacementMode.value === 'placing') return false
-    if (avatarCameraMode.value === 'auto') {
-      return sceneScale.value === 1
-    }
-    return avatarCameraMode.value === 'attached'
-  }
-
-  useEffect(() => {
-    xrMovementState.isCameraAttachedToAvatar.set(getAvatarCameraMode())
-  }, [avatarCameraMode, sceneScale, scenePlacementMode, session])
-
-  const getMovementControlsEnabled = () => {
-    if (!sessionActive.value) return true
-    const isMiniatureScale = sceneScale.value !== 1
-    return sessionMode.value === 'immersive-ar' ? isMiniatureScale : true
-  }
-
-  useEffect(() => {
-    xrMovementState.isMovementControlsEnabled.set(getMovementControlsEnabled())
-  }, [sceneScale, sessionActive, sessionMode])
-}
 
 export const ReferenceSpace = {
   /**
