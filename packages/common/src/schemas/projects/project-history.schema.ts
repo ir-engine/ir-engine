@@ -52,20 +52,6 @@ export const ActionTypes = [
 
 export type ActionType = (typeof ActionTypes)[number]
 
-export const ResourceActionTypes: ActionType[] = [
-  'SCENE_CREATED',
-  'SCENE_RENAMED',
-  'SCENE_MODIFIED',
-  'SCENE_REMOVED',
-  'RESOURCE_CREATED',
-  'RESOURCE_RENAMED',
-  'RESOURCE_MODIFIED',
-  'RESOURCE_REMOVED'
-]
-export const ProjectActionTypes: ActionType[] = ['PROJECT_CREATED']
-export const PermissionActionTypes: ActionType[] = ['PERMISSION_CREATED', 'PERMISSION_MODIFIED', 'PERMISSION_REMOVED']
-export const LocationActionTypes: ActionType[] = ['LOCATION_PUBLISHED', 'LOCATION_UNPUBLISHED']
-
 export const ActionIdentifierTypes = ['static-resource', 'project', 'user', 'location', 'project-permission'] as const
 
 // Schema for creating new entries
