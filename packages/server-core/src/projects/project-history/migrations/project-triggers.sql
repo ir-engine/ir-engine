@@ -8,7 +8,7 @@ sp: BEGIN
   DECLARE actionDetail VARCHAR(600);
 
   -- JSON object with project name, scene URL, and scene ID
-  SET actionDetail = CONCAT('{"projectName":"', projectName, '"}');
+  SET actionDetail = JSON_OBJECT("projectName", projectName);
 
   -- Insert the action into the project-history table
   INSERT INTO `project-history` (

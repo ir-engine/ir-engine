@@ -9,7 +9,7 @@ sp: BEGIN
   DECLARE actionDetail VARCHAR(600);
 
   -- JSON object with location name
-  SET actionDetail = CONCAT('{"locationName":"', locationSlugifiedName, '"}');
+  SET actionDetail = JSON_OBJECT("locationName", locationSlugifiedName);
 
   -- Insert the action into the project-history table
   INSERT INTO `project-history` (
@@ -69,7 +69,11 @@ sp: BEGIN
   END IF;
 
   -- JSON object with location name, scene URL, and scene ID
-  SET actionDetail = CONCAT('{"locationName":"', locationSlugifiedName, '","sceneURL":"', sceneURL, '","sceneId":"', sceneId, '"}');  
+  SET actionDetail = JSON_OBJECT(
+    "locationName", locationSlugifiedName,
+    "sceneURL", sceneURL,
+    "sceneId", sceneId
+  );
 
   -- Insert the action into the project-history table
   INSERT INTO `project-history` (
@@ -129,7 +133,11 @@ sp: BEGIN
   END IF;
 
   -- JSON object with location name, scene URL, and scene ID
-  SET actionDetail = CONCAT('{"locationName":"', locationSlugifiedName, '","sceneURL":"', sceneURL, '","sceneId":"', sceneId, '"}');
+  SET actionDetail = JSON_OBJECT(
+    "locationName", locationSlugifiedName,
+    "sceneURL", sceneURL,
+    "sceneId", sceneId
+  );
 
   -- Insert the action into the project-history table
   INSERT INTO `project-history` (

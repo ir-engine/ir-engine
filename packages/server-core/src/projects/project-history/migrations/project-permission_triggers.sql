@@ -19,7 +19,11 @@ sp: BEGIN
   END IF;
 
   -- JSON object with userName and permissionType
-  SET actionDetail = CONCAT('{"userName":"', userName, '","userId":"', givenTo, '","permissionType":"', permissionType, '"}');
+  SET actionDetail = JSON_OBJECT(
+    "userName", userName,
+    "userId", givenTo,
+    "permissionType", permissionType
+  );
 
   -- Insert the action into the project-history table
   INSERT INTO `project-history` (
@@ -80,16 +84,11 @@ sp: BEGIN
   END IF;
 
   -- JSON object with userName, oldPermissionType and newPermissionType
-  SET actionDetail = CONCAT(
-    '{"userName":"',
-    userName,
-    '","userId": "',
-    givenTo,
-    '","oldPermissionType": "',
-    oldPermissionType,
-    '","newPermissionType":"',
-    newPermissionType,
-    '"}'
+  SET actionDetail = JSON_OBJECT(
+    "userName", userName,
+    "userId", givenTo,
+    "oldPermissionType", oldPermissionType,
+    "newPermissionType", newPermissionType
   );
 
   -- Insert the action into the project-history table
@@ -151,7 +150,11 @@ sp: BEGIN
   END IF;
 
   -- JSON object with userName and permissionType
-  SET actionDetail = CONCAT('{"userName":"', userName, '","userId":"', givenTo, '","permissionType":"', permissionType, '"}');
+  SET actionDetail = JSON_OBJECT(
+    "userName", userName,
+    "userId", givenTo,
+    "permissionType", permissionType
+  );
 
   -- Insert the action into the project-history table
   INSERT INTO `project-history` (

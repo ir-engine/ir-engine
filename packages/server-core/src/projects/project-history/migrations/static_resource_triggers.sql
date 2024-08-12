@@ -15,12 +15,6 @@ sp: BEGIN
   -- Find the project ID based on the project name
   SELECT `id` INTO projectId FROM `project` WHERE `name` = projectName;
 
-  -- If the project ID is not found, exit the procedure
-  IF projectId IS NULL THEN
-    LEAVE sp;
-  END IF;
-
-
   -- Determine the action type based on static-resource type, oldURL and newURL 
   IF oldURL <> newURL THEN
     IF staticResourceType = 'scene' THEN
@@ -30,7 +24,10 @@ sp: BEGIN
     END IF;
 
     -- JSON object with old and new URL
-    SET actionDetail = CONCAT('{"oldURL":"', oldURL, '","newURL":"', newURL, '"}'); 
+    SET actionDetail = JSON_OBJECT(
+      "oldURL", oldURL,
+      "newURL", newURL
+    );
 
   ELSE
     IF staticResourceType = 'scene' THEN
@@ -39,7 +36,7 @@ sp: BEGIN
       SET actionType = 'RESOURCE_MODIFIED';
     END IF;
 
-    SET actionDetail = CONCAT('{"url":"', newURL, '"}');
+    SET actionDetail = JSON_OBJECT("url", newURL);
   END IF;
 
   -- Insert the action into the project-history table
@@ -97,11 +94,6 @@ sp: BEGIN
   -- Find the project ID based on the project name
   SELECT `id` INTO projectId FROM `project` WHERE `name` = projectName;
 
-  -- If the project ID is not found, exit the procedure
-  IF projectId IS NULL THEN
-    LEAVE sp;
-  END IF;
-
   -- Determine the action type based on static-resource type
   IF staticResourceType = 'scene' THEN
     SET actionType = 'SCENE_CREATED';
@@ -110,7 +102,7 @@ sp: BEGIN
   END IF;
 
   -- JSON object with URL
-  SET actionDetail = CONCAT('{"url":"', url, '"}');
+  SET actionDetail = JSON_OBJECT("url", url);
 
   -- Insert the action into the project-history table
   INSERT INTO `project-history` (
@@ -165,11 +157,6 @@ sp: BEGIN
   -- Find the project ID based on the project name
   SELECT `id` INTO projectId FROM `project` WHERE `name` = projectName;
 
-  -- If the project ID is not found, exit the procedure
-  IF projectId IS NULL THEN
-    LEAVE sp;
-  END IF;
-
   -- Determine the action type based on static-resource type
   IF staticResourceType = 'scene' THEN
     SET actionType = 'SCENE_REMOVED';
@@ -178,7 +165,7 @@ sp: BEGIN
   END IF;
 
   -- JSON object with URL
-  SET actionDetail = CONCAT('{"url":"', url, '"}');
+  SET actionDetail = JSON_OBJECT("url", url);
 
   -- Insert the action into the project-history table
   INSERT INTO `project-history` (
