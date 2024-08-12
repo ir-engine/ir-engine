@@ -5,7 +5,6 @@
   },
   "scenes": [
     {
-      "name": "New Object",
       "nodes": [
         0
       ]
@@ -14,7 +13,7 @@
   "scene": 0,
   "nodes": [
     {
-      "name": "Sphere Collider",
+      "name": "Sphere_Collider",
       "extensions": {
         "EE_uuid": "5e0d2a3a-1ed0-4076-83e6-ceea0f15cdfd",
         "EE_visible": true,
@@ -30,7 +29,49 @@
           "restitution": 0.5,
           "collisionLayer": 1,
           "collisionMask": 7
+        },
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
         }
+      },
+      "extras": {
+        "name": "Sphere Collider",
+        "useVisible": true,
+        "componentJson": [
+          {
+            "name": "EE_uuid",
+            "props": "5e0d2a3a-1ed0-4076-83e6-ceea0f15cdfd"
+          },
+          {
+            "name": "EE_visible",
+            "props": true
+          },
+          {
+            "name": "EE_collider",
+            "props": {
+              "shape": "sphere",
+              "mass": 1,
+              "massCenter": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "friction": 0.5,
+              "restitution": 0.5,
+              "collisionLayer": 1,
+              "collisionMask": 7
+            }
+          }
+        ]
       }
     }
   ],
@@ -38,6 +79,7 @@
     "EE_uuid",
     "EE_visible",
     "EE_collider",
+    "EE_rigidbody",
     "EE_ecs"
   ]
 }

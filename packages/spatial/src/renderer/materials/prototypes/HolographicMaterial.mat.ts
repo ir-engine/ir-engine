@@ -27,7 +27,6 @@ import { Color, Material, MeshStandardMaterial, MeshStandardMaterialParameters, 
 
 import { createEntity, setComponent } from '@etherealengine/ecs'
 import { UpdatableCallback, UpdatableComponent } from '@etherealengine/engine/src/scene/components/UpdatableComponent'
-import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { MaterialPrototypeDefinition } from '../MaterialComponent'
@@ -275,6 +274,5 @@ export const HolographicMaterialPrototype: MaterialPrototypeDefinition = {
   prototypeId: 'HolographicMaterial',
   // @ts-ignore
   baseMaterial: HolographicMaterial as MeshStandardMaterial,
-  arguments: DefaultArgs,
-  src: { type: SourceType.PROJECT, path: 'eepro-advanced-materials' }
+  arguments: DefaultArgs
 }

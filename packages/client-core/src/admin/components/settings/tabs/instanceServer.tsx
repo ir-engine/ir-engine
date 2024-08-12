@@ -23,21 +23,82 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-import { instanceServerSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { instanceServerSettingPath, InstanceServerSettingType } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs'
+import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import PasswordInput from '@etherealengine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 
 const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
-  const instanceServerSettings = useFind(instanceServerSettingPath).data
+
+  const state = useHookstate({
+    loading: false,
+    errorMessage: ''
+  })
+
+  const instanceServerSettingQuery = useFind(instanceServerSettingPath)
+  const instanceServerSettings = instanceServerSettingQuery.data[0] ?? null
+  const id = instanceServerSettings?.id
   const local = useHookstate(true)
+
+  const settingsState = useHookstate(null as null | InstanceServerSettingType)
+  const stringifiedIceServers = useHookstate('')
+
+  useEffect(() => {
+    if (instanceServerSettings) {
+      settingsState.set(instanceServerSettings)
+      stringifiedIceServers.set(JSON.stringify(instanceServerSettings.webRTCSettings.iceServers))
+      state.set({ loading: false, errorMessage: '' })
+    }
+  }, [instanceServerSettings])
+
+  const handleSubmit = (event) => {
+    state.loading.set(true)
+    event.preventDefault()
+    const newSettings = {
+      ...settingsState.get(NO_PROXY),
+      createdAt: undefined!,
+      updatedAt: undefined!
+    } as any as InstanceServerSettingType
+    try {
+      if (stringifiedIceServers.value.length === 0) stringifiedIceServers.set('[]')
+      newSettings.webRTCSettings.iceServers = JSON.parse(stringifiedIceServers.value)
+    } catch (err) {
+      //
+    }
+
+    Engine.instance.api
+      .service(instanceServerSettingPath)
+      .patch(id, newSettings)
+      .then(() => {
+        state.set({ loading: false, errorMessage: '' })
+        instanceServerSettingQuery.refetch()
+      })
+      .catch((e) => {
+        state.set({ loading: false, errorMessage: e.message })
+      })
+  }
+
+  const handleCancel = () => {
+    settingsState.set(instanceServerSettings)
+  }
+
+  if (!settingsState.value)
+    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loading')} />
+
+  const settings = settingsState as State<InstanceServerSettingType>
 
   return (
     <Accordion
@@ -48,77 +109,144 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       ref={ref}
       open={open}
     >
-      {instanceServerSettings.map((el) => (
-        <div className="mt-6 grid grid-cols-2 gap-6">
-          <Input
-            className="col-span-1"
-            label={t('admin:components.setting.clientHost')}
-            value={el?.clientHost || ''}
-            disabled
-          />
+      <div className="mt-6 grid grid-cols-2 gap-6">
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.clientHost')}
+          value={settings?.clientHost.value || ''}
+          disabled
+        />
 
-          <Input
-            className="col-span-1"
-            label={t('admin:components.setting.domain')}
-            value={el?.domain || ''}
-            disabled
-          />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.domain')}
+          value={settings?.domain.value || ''}
+          disabled
+        />
 
-          <Input
-            className="col-span-1"
-            label={t('admin:components.setting.rtcStartPort')}
-            value={el?.rtcStartPort || ''}
-            disabled
-          />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.rtcStartPort')}
+          value={settings?.rtcStartPort.value || ''}
+          disabled
+        />
 
-          <Input
-            className="col-span-1"
-            label={t('admin:components.setting.releaseName')}
-            value={el?.releaseName || ''}
-            disabled
-          />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.releaseName')}
+          value={settings?.releaseName.value || ''}
+          disabled
+        />
 
-          <Input
-            className="col-span-1"
-            label={t('admin:components.setting.rtcEndPort')}
-            value={el?.rtcEndPort || ''}
-            disabled
-          />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.rtcEndPort')}
+          value={settings?.rtcEndPort.value || ''}
+          disabled
+        />
 
-          <Input className="col-span-1" label={t('admin:components.setting.port')} value={el?.port || ''} disabled />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.port')}
+          value={settings?.port.value || ''}
+          disabled
+        />
 
-          <Input
-            className="col-span-1"
-            label={t('admin:components.setting.rtcPortBlockSize')}
-            value={el?.rtcPortBlockSize || ''}
-            disabled
-          />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.rtcPortBlockSize')}
+          value={settings?.rtcPortBlockSize.value || ''}
+          disabled
+        />
 
-          <Input className="col-span-1" label={t('admin:components.setting.mode')} value={el?.mode || ''} disabled />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.mode')}
+          value={settings?.mode.value || ''}
+          disabled
+        />
 
-          <Input
-            className="col-span-1"
-            label={t('admin:components.setting.identifierDigits')}
-            value={el?.identifierDigits || ''}
-            disabled
-          />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.identifierDigits')}
+          value={settings?.identifierDigits.value || ''}
+          disabled
+        />
 
-          <Input
-            className="col-span-1"
-            label={t('admin:components.setting.locationName')}
-            value={el?.locationName || ''}
-            disabled
-          />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.locationName')}
+          value={settings?.locationName.value || ''}
+          disabled
+        />
 
-          <Toggle
-            containerClassName="justify-start"
-            label={t('admin:components.setting.local')}
-            value={local.value}
-            disabled
-            onChange={(value) => local.set(value)}
-          />
-        </div>
-      ))}
+        <Toggle
+          containerClassName="justify-start"
+          label={t('admin:components.setting.local')}
+          value={local.value}
+          disabled
+          onChange={(value) => local.set(value)}
+        />
+
+        <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full mb-4">
+          {t('admin:components.setting.webRTCSettings.main')}
+        </Text>
+
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.webRTCSettings.iceServers')}
+          value={stringifiedIceServers.value || '[]'}
+          onChange={(e) => {
+            stringifiedIceServers.set(e.target.value)
+          }}
+        />
+
+        <PasswordInput
+          className="col-span-1"
+          label={t('admin:components.setting.webRTCSettings.webRTCStaticAuthSecretKey')}
+          value={settings.webRTCSettings.webRTCStaticAuthSecretKey.value || ''}
+          onChange={(e) => {
+            settings.webRTCSettings.webRTCStaticAuthSecretKey.set(e.target.value)
+          }}
+        />
+
+        <Checkbox
+          className="col-span-1"
+          label={t('admin:components.setting.webRTCSettings.useCustomICEServers')}
+          value={settings.webRTCSettings.useCustomICEServers.value || false}
+          onChange={(value) => settings.webRTCSettings.useCustomICEServers.set(value)}
+        />
+
+        <Checkbox
+          className="col-span-1"
+          label={t('admin:components.setting.webRTCSettings.useTimeLimitedCredentials')}
+          value={settings.webRTCSettings.useTimeLimitedCredentials.value || false}
+          onChange={(value) => settings.webRTCSettings.useTimeLimitedCredentials.set(value)}
+        />
+
+        <Checkbox
+          className="col-span-1"
+          label={t('admin:components.setting.webRTCSettings.usePrivateInstanceserverIP')}
+          value={settings.webRTCSettings.usePrivateInstanceserverIP.value || false}
+          onChange={(value) => settings.webRTCSettings.usePrivateInstanceserverIP.set(value)}
+        />
+      </div>
+
+      <div className="mt-6 grid grid-cols-8 gap-6">
+        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+          {t('admin:components.common.reset')}
+        </Button>
+        <Button
+          size="small"
+          variant="primary"
+          className="col-span-1"
+          fullWidth
+          onClick={handleSubmit}
+          startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
+        >
+          {t('admin:components.common.save')}
+        </Button>
+      </div>
     </Accordion>
   )
 })

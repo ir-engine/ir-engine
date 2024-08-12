@@ -57,7 +57,11 @@ import {
  */
 const mapSettingsAdmin = async (context: HookContext<AuthenticationSettingService>) => {
   const loggedInUser = context.params!.user!
-  if (context.result && (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))) {
+  if (
+    context.result &&
+    !context.params!.isInternal &&
+    (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
+  ) {
     const auth: AuthenticationSettingType[] = context.result['data'] ? context.result['data'] : context.result
     const data = auth.map((el) => {
       return {
@@ -99,9 +103,12 @@ const ensureOAuth = async (context: HookContext<AuthenticationSettingService>) =
   data.callback = authSettings.callback
 
   for (const key of Object.keys(newOAuth)) {
-    if (config.authentication.oauth[key]?.scope) newOAuth[key].scope = config.authentication.oauth[key].scope
-    if (config.authentication.oauth[key]?.custom_data)
-      newOAuth[key].custom_data = config.authentication.oauth[key].custom_data
+    if (config.authentication.oauth[key]) {
+      newOAuth[key] = {
+        ...config.authentication.oauth[key],
+        ...newOAuth[key]
+      }
+    }
     if (key !== 'defaults' && data.callback && !data.callback[key])
       data.callback[key] = `${config.client.url}/auth/oauth/${key}`
   }

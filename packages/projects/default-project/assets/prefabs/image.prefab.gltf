@@ -1,0 +1,36 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "New Object",
+      "extensions": {
+        "EE_uuid": "0db4cf3f-8adb-42eb-8efa-3102182e61fc",
+        "EE_visible": true,
+        "EE_image": {
+          "source": "__$project$__/default-project/assets/sample_etc1s.ktx2",
+          "alphaMode": "Opaque",
+          "alphaCutoff": 0.5,
+          "projection": "Flat",
+          "side": 2
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_image",
+    "EE_ecs"
+  ]
+}

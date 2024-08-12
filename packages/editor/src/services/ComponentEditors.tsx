@@ -37,7 +37,6 @@ import { ImageComponent } from '@etherealengine/engine/src/scene/components/Imag
 import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
-import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/components/NewVolumetricComponent'
@@ -56,7 +55,6 @@ import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/Sky
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
-import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
@@ -84,7 +82,8 @@ import PersistentAnchorNodeEditor from '@etherealengine/ui/src/components/editor
 import LoopAnimationNodeEditor from '@etherealengine/ui/src/components/editor/properties/animation'
 import AudioAnalysisEditor from '@etherealengine/ui/src/components/editor/properties/audio/analysis'
 import PositionalAudioNodeEditor from '@etherealengine/ui/src/components/editor/properties/audio/positional'
-import CameraPropertiesNodeEditor from '@etherealengine/ui/src/components/editor/properties/camera'
+import CameraNodeEditor from '@etherealengine/ui/src/components/editor/properties/camera'
+import CameraPropertiesNodeEditor from '@etherealengine/ui/src/components/editor/properties/cameraProperties'
 import ColliderComponentEditor from '@etherealengine/ui/src/components/editor/properties/collider'
 import EnvMapBakeNodeEditor from '@etherealengine/ui/src/components/editor/properties/envMapBake'
 import EnvMapEditor from '@etherealengine/ui/src/components/editor/properties/envmap'
@@ -93,6 +92,7 @@ import PrimitiveGeometryNodeEditor from '@etherealengine/ui/src/components/edito
 import GrabbableComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/grab'
 import GroundPlaneNodeEditor from '@etherealengine/ui/src/components/editor/properties/groundPlane'
 import ImageNodeEditor from '@etherealengine/ui/src/components/editor/properties/image'
+import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import InstancingNodeEditor from '@etherealengine/ui/src/components/editor/properties/instance'
 import InteractableComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/interact'
 import AmbientLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/ambient'
@@ -103,7 +103,6 @@ import SpotLightNodeEditor from '@etherealengine/ui/src/components/editor/proper
 import LinkNodeEditor from '@etherealengine/ui/src/components/editor/properties/link'
 import LookAtNodeEditor from '@etherealengine/ui/src/components/editor/properties/lookAt'
 import MediaNodeEditor from '@etherealengine/ui/src/components/editor/properties/media'
-import MediaSettingsEditor from '@etherealengine/ui/src/components/editor/properties/media/settings'
 import MeshNodeEditor from '@etherealengine/ui/src/components/editor/properties/mesh'
 import ModelNodeEditor from '@etherealengine/ui/src/components/editor/properties/model'
 import MountPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/mountPoint'
@@ -122,10 +121,9 @@ import SkyboxNodeEditor from '@etherealengine/ui/src/components/editor/propertie
 import SpawnPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline'
 
-import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import PlaylistNodeEditor from '@etherealengine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline/track'
-import SystemNodeEditor from '@etherealengine/ui/src/components/editor/properties/system'
 import TextNodeEditor from '@etherealengine/ui/src/components/editor/properties/text'
 import TriggerComponentEditor from '@etherealengine/ui/src/components/editor/properties/trigger'
 import VariantNodeEditor from '@etherealengine/ui/src/components/editor/properties/variant'
@@ -141,10 +139,11 @@ export const ComponentEditorsState = defineState({
     return {
       [SceneSettingsComponent.name]: SceneSettingsEditor,
       [PostProcessingComponent.name]: PostProcessingSettingsEditor,
-      [MediaSettingsComponent.name]: MediaSettingsEditor,
+      // [MediaSettingsComponent.name]: MediaSettingsEditor,
       [RenderSettingsComponent.name]: RenderSettingsEditor,
       [FogSettingsComponent.name]: FogSettingsEditor,
       [CameraSettingsComponent.name]: CameraPropertiesNodeEditor,
+      [CameraComponent.name]: CameraNodeEditor,
       [DirectionalLightComponent.name]: DirectionalLightNodeEditor,
       [HemisphereLightComponent.name]: HemisphereLightNodeEditor,
       [AmbientLightComponent.name]: AmbientLightNodeEditor,
@@ -174,7 +173,6 @@ export const ComponentEditorsState = defineState({
       [VolumetricComponent.name]: VolumetricNodeEditor,
       [NewVolumetricComponent.name]: NewVolumetricNodeEditor,
       [PlaylistComponent.name]: PlaylistNodeEditor,
-      [SystemComponent.name]: SystemNodeEditor,
       [EnvmapComponent.name]: EnvMapEditor,
       [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,
       [InstancingComponent.name]: InstancingNodeEditor,

@@ -31,7 +31,7 @@ import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu'
@@ -40,6 +40,7 @@ import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
 import EmoteMenu from './components/UserMenu/menus/EmoteMenu'
 import ProfileMenu from './components/UserMenu/menus/ProfileMenu'
 import SettingMenu from './components/UserMenu/menus/SettingMenu'
+import SettingMenu2 from './components/UserMenu/menus/SettingMenu2'
 import ShareMenu from './components/UserMenu/menus/ShareMenu'
 
 export const EmoteIcon = () => (
@@ -58,6 +59,7 @@ export const EmoteIcon = () => (
 export const UserMenus = {
   Profile: 'user.Profile',
   Settings: 'user.Settings',
+  Settings2: 'user.Settings2',
   ReadyPlayer: 'user.ReadyPlayer',
   Avaturn: 'user.Avaturn',
   AvatarSelect: 'user.AvatarSelect',
@@ -70,9 +72,11 @@ const reactor = () => {
   const { t } = useTranslation()
   InviteService.useAPIListeners()
 
-  const emotesEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.Emote)
-  const avaturnEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.Avaturn)
-  const rpmEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.ReadyPlayerMe)
+  const [emotesEnabled, avaturnEnabled, rpmEnabled] = useFeatureFlags([
+    FeatureFlags.Client.Menu.Emote,
+    FeatureFlags.Client.Menu.Avaturn,
+    FeatureFlags.Client.Menu.ReadyPlayerMe
+  ])
 
   useEffect(() => {
     const FaceRetouchingNatural = lazy(() => import('@mui/icons-material/FaceRetouchingNatural'))
@@ -82,6 +86,7 @@ const reactor = () => {
     popupMenuState.menus.merge({
       [UserMenus.Profile]: ProfileMenu,
       [UserMenus.Settings]: SettingMenu,
+      [UserMenus.Settings2]: SettingMenu2,
       [UserMenus.AvatarSelect]: AvatarSelectMenu,
       [UserMenus.AvatarModify]: AvatarModifyMenu,
       [UserMenus.Share]: ShareMenu
@@ -96,6 +101,7 @@ const reactor = () => {
       popupMenuState.menus.merge({
         [UserMenus.Profile]: none,
         [UserMenus.Settings]: none,
+        [UserMenus.Settings2]: none,
         [UserMenus.AvatarSelect]: none,
         [UserMenus.AvatarModify]: none,
         [UserMenus.Share]: none

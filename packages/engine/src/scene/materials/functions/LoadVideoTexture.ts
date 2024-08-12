@@ -65,7 +65,7 @@ export default function loadVideoTexture(src, onLoad = (result) => {}) {
       el.play()
       onLoad(texture)
       /*
-      const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas
+      const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas!
       
       function handleInput() {
         canvas.removeEventListener('keypress', this)

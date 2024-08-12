@@ -37,7 +37,6 @@ import {
   Vector3
 } from 'three'
 import {
-  BatchedParticleRenderer,
   BatchedRenderer,
   Behavior,
   BehaviorFromJSON,
@@ -47,7 +46,7 @@ import {
 } from 'three.quarks'
 import matches from 'ts-matches'
 
-import { Engine, UUIDComponent } from '@etherealengine/ecs'
+import { Entity, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -55,7 +54,12 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { createEntity, generateEntityUUID, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import {
+  createEntity,
+  generateEntityUUID,
+  removeEntity,
+  useEntityContext
+} from '@etherealengine/ecs/src/EntityFunctions'
 import {
   NO_PROXY,
   defineState,
@@ -81,29 +85,61 @@ import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import getFirstMesh from '../util/meshUtils'
 import { SourceComponent } from './SourceComponent'
 
-export const ParticleState = defineState({
-  name: 'ParticleState',
-  initial: () => {
-    const batchRenderer = new BatchedParticleRenderer()
-    const batchRendererEntity = createEntity()
-    setComponent(batchRendererEntity, UUIDComponent, generateEntityUUID())
-    setComponent(batchRendererEntity, VisibleComponent)
-    setComponent(batchRendererEntity, NameComponent, 'Particle Batched Renderer')
-    setComponent(batchRendererEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-    addObjectToGroup(batchRendererEntity, batchRenderer)
-    // Three.quarks checks if the top level parent is not scene to tell if an emitter is ready for disposal
-    // Mocking parent so the batchRenderer doesn't dispose emitters, emitters are already being disposed of reactively in ParticleSystemComponent
-    batchRenderer.parent = {
+export type ParticleSystemRendererInstance = {
+  renderer: BatchedRenderer
+  rendererEntity: Entity
+  instanceCount: number
+}
+
+const createBatchedRenderer: (sceneID: string) => ParticleSystemRendererInstance = (sceneID) => {
+  const particleState = getMutableState(ParticleState)
+  if (particleState.renderers[sceneID].value) {
+    const instance = particleState.renderers[sceneID].get(NO_PROXY) as ParticleSystemRendererInstance
+    instance.instanceCount++
+    return instance
+  } else {
+    const renderer = new BatchedRenderer()
+    const rendererEntity = createEntity()
+    setComponent(rendererEntity, UUIDComponent, generateEntityUUID())
+    setComponent(rendererEntity, VisibleComponent)
+    setComponent(rendererEntity, NameComponent, 'Particle Renderer')
+    const sourceState = getState(GLTFSourceState)
+    setComponent(rendererEntity, EntityTreeComponent, { parentEntity: sourceState[sceneID] })
+    addObjectToGroup(rendererEntity, renderer)
+    renderer.parent = {
       type: 'Scene',
       remove: () => {},
       removeFromParent: () => {}
     } as Object3D
+    const instance: ParticleSystemRendererInstance = { renderer, rendererEntity, instanceCount: 1 }
+    particleState.renderers[sceneID].set(instance)
+    return instance
+  }
+}
 
-    return {
-      batchRenderer,
-      batchRendererEntity
+const removeBatchedRenderer: (sceneID: string) => void = (sceneID) => {
+  const particleState = getMutableState(ParticleState)
+  if (particleState.renderers[sceneID].value) {
+    const instance = particleState.renderers[sceneID].get(NO_PROXY) as ParticleSystemRendererInstance
+    if (instance.instanceCount <= 1) {
+      removeObjectFromGroup(instance.rendererEntity, instance.renderer)
+      for (const batch of instance.renderer.batches) {
+        batch.geometry.dispose()
+        batch.dispose()
+      }
+      removeEntity(instance.rendererEntity)
+      particleState.renderers[sceneID].set(none)
+    } else {
+      instance.instanceCount--
     }
   }
+}
+
+export const ParticleState = defineState({
+  name: 'ParticleState',
+  initial: () => ({
+    renderers: {} as Record<string, ParticleSystemRendererInstance>
+  })
 })
 
 /*
@@ -829,7 +865,6 @@ export const ParticleSystemComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
-    const batchRenderer = useHookstate(getMutableState(ParticleState).batchRenderer)
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
     const sceneID = useOptionalComponent(entity, SourceComponent)?.value
     const rootEntity = useHookstate(getMutableState(GLTFSourceState))[sceneID ?? ''].value
@@ -899,7 +934,8 @@ export const ParticleSystemComponent = defineComponent({
       if (!componentState._loadIndex.value) return
 
       const component = componentState.get(NO_PROXY)
-      const renderer = batchRenderer.get(NO_PROXY) as BatchedRenderer
+      const rendererInstance = createBatchedRenderer(sceneID!)
+      const renderer = rendererInstance.renderer
 
       const systemParameters = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
       const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata.value as ParticleSystemMetadata, {})
@@ -914,7 +950,7 @@ export const ParticleSystemComponent = defineComponent({
       const emitterAsObj3D = nuSystem.emitter
       emitterAsObj3D.userData['_refresh'] = component._refresh
       addObjectToGroup(entity, emitterAsObj3D)
-      emitterAsObj3D.parent = getState(ParticleState).batchRenderer
+      emitterAsObj3D.parent = renderer
       const transformComponent = getComponent(entity, TransformComponent)
       emitterAsObj3D.matrix = transformComponent.matrix
       componentState.system.set(nuSystem)
@@ -933,10 +969,10 @@ export const ParticleSystemComponent = defineComponent({
             }
           }
         }
-
         removeObjectFromGroup(entity, emitterAsObj3D)
         nuSystem.dispose()
         emitterAsObj3D.dispose()
+        removeBatchedRenderer(sceneID!)
       }
     }, [componentState._loadIndex])
 

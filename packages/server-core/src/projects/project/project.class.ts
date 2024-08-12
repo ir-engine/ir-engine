@@ -92,7 +92,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
   async _seedProject(projectName: string): Promise<any> {
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
-    const projectConfig = getProjectConfig(projectName) ?? {}
+    const projectConfig = getProjectConfig(projectName)
     const enabled = getProjectEnabled(projectName)
 
     // if no manifest.json exists, add one
@@ -140,7 +140,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     await uploadLocalProjectToProvider(this.app, projectName)
 
     // run project install script
-    if (projectConfig.onEvent) {
+    if (projectConfig?.onEvent) {
       return onProjectEvent(this.app, project, projectConfig.onEvent, 'onInstall')
     }
 
@@ -164,11 +164,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
   /**
    * On dev, sync the db with any projects installed locally
    */
-  async _fetchDevLocalProjects() {
-    return this._syncDevLocalProjects(true)
-  }
-
-  async _syncDevLocalProjects(removeProjects) {
+  async _syncDevLocalProjects() {
     if (getState(ServerState).serverMode !== ServerMode.API) return
 
     const data = (await super._find({ paginate: false })) as ProjectType[]
@@ -213,7 +209,8 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     await Promise.all(promises)
 
-    if (removeProjects)
+    /** if a project was removed locally, remove it from the db */
+    if (config.fsProjectSyncEnabled)
       for (const { name, id } of data) {
         if (!locallyInstalledProjects.includes(name)) {
           await deleteProjectFilesInStorageProvider(this.app, name)

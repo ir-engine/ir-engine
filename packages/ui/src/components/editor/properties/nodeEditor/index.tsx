@@ -25,11 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { PropsWithChildren, Suspense } from 'react'
 
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { EditorPropType } from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { useTranslation } from 'react-i18next'
+import LoadingView from '../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../primitives/tailwind/Text'
 import PropertyGroup from '../group'
 
@@ -86,6 +87,8 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
   component,
   icon
 }) => {
+  const { t } = useTranslation()
+
   return (
     <PropertyGroup
       name={name}
@@ -100,7 +103,11 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
           : undefined
       }
     >
-      <Suspense fallback={<LoadingCircle message={`Loading ${name} Editor...`} />}>
+      <Suspense
+        fallback={
+          <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingApp', { name })} />
+        }
+      >
         <NodeEditorErrorBoundary name={name}>{children}</NodeEditorErrorBoundary>
       </Suspense>
     </PropertyGroup>

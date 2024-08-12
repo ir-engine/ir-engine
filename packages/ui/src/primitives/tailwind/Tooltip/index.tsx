@@ -24,36 +24,50 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
+import Popup from 'reactjs-popup'
+import { PopupProps } from 'reactjs-popup/dist/types'
 import { twMerge } from 'tailwind-merge'
+import './tooltip.css'
 
-interface TooltipProps {
-  title: ReactNode
-  direction?: 'top' | 'bottom' | 'left' | 'right'
+export type TooltipProps = {
+  title?: ReactNode
+  titleClassName?: string
+  content: ReactNode
   children: React.ReactElement
-  className?: string
-}
+} & PopupProps
 
-const TooltipDirectionClass = {
-  top: 'bottom-5',
-  bottom: 'top-5',
-  left: 'right-5',
-  right: 'left-5'
-}
-
-const Tooltip = ({ title, direction = 'top', children, className }: TooltipProps) => {
+const Tooltip = ({ title, titleClassName, content, children, className, ...rest }: TooltipProps) => {
   return (
-    <div className="group relative flex items-center justify-center text-center">
-      {children}
-      <span
-        className={twMerge(
-          'absolute z-10 scale-0 text-wrap rounded bg-gray-800 p-2 text-xs text-white transition-all group-hover:scale-100',
-          TooltipDirectionClass[direction],
-          className
+    <Popup
+      trigger={<div style={{ all: 'unset' }}>{children}</div>}
+      on="hover"
+      keepTooltipInside
+      repositionOnResize
+      arrow={false}
+      {...rest}
+    >
+      <div className="-mt-1 grid text-wrap shadow-lg transition-all">
+        {title && (
+          <span
+            className={twMerge(
+              'block rounded-t border-b border-b-[#212226] bg-[#141619] px-3 py-1.5 text-sm text-[#F5F5F5]',
+              titleClassName
+            )}
+          >
+            {title}
+          </span>
         )}
-      >
-        {title}
-      </span>
-    </div>
+        <div
+          className={twMerge(
+            'bg-theme-studio-surface px-3 py-2 text-sm text-[#F5F5F5]',
+            title ? 'rounded-b' : 'rounded',
+            className
+          )}
+        >
+          {content}
+        </div>
+      </div>
+    </Popup>
   )
 }
 
