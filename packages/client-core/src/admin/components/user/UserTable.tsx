@@ -18,27 +18,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, NullableId } from '@feathersjs/feathers'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiPencil, HiTrash } from 'react-icons/hi2'
-
-import { userPath, UserType } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
+import { UserType, userPath } from '@etherealengine/common/src/schema.type.module'
+import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
+import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { UserParams } from '@etherealengine/server-core/src/user/user/user.class'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
+import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
+import { Id, NullableId } from '@feathersjs/feathers'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { FaRegCircleCheck, FaRegCircleXmark } from 'react-icons/fa6'
-
-import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
+import { HiPencil, HiTrash } from 'react-icons/hi2'
+import { LuInfo } from 'react-icons/lu'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthState } from '../../../user/services/AuthService'
 import { userHasAccess } from '../../../user/userHasAccess'
-import { userColumns, UserRowType } from '../../common/constants/user'
 import DataTable from '../../common/Table'
+import { UserRowType, userColumns } from '../../common/constants/user'
 import AccountIdentifiers from './AccountIdentifiers'
 import AddEditUserModal from './AddEditUserModal'
 
@@ -122,7 +122,22 @@ export default function UserTable({
         name: row.name,
         avatar: <AvatarImage src={row?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
-        lastLogin: toDisplayDateTime(row.lastLogin),
+        lastLogin: row.lastLogin && (
+          <div className="flex">
+            {toDisplayDateTime(row.lastLogin.createdAt)}
+            <Tooltip
+              content={
+                <>
+                  <span>IP Address: {row.lastLogin.ipAddress}</span>
+                  <br />
+                  <span>User Agent: {row.lastLogin.userAgent}</span>
+                </>
+              }
+            >
+              <LuInfo className="ml-2 h-5 w-5 bg-transparent" />
+            </Tooltip>
+          </div>
+        ),
         acceptedTOS: row.acceptedTOS ? (
           <FaRegCircleCheck className="h-5 w-5 text-theme-iconGreen" />
         ) : (
