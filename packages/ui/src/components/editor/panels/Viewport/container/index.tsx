@@ -36,14 +36,13 @@ import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
-import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -125,22 +124,6 @@ const SceneLoadingProgress = ({ rootEntity }) => {
   const progress = useComponent(rootEntity, GLTFComponent).progress.value
   const resourcePendingQuery = useQuery([ResourcePendingComponent])
   const root = getComponent(rootEntity, SourceComponent)
-  const sceneModified = useHookstate(getMutableState(GLTFModifiedState)[root]).value
-
-  useEffect(() => {
-    if (!sceneModified) return
-    const onBeforeUnload = (e: BeforeUnloadEvent) => {
-      alert('You have unsaved changes. Please save before leaving.')
-      e.preventDefault()
-      e.returnValue = ''
-    }
-
-    window.addEventListener('beforeunload', onBeforeUnload)
-
-    return () => {
-      window.removeEventListener('beforeunload', onBeforeUnload)
-    }
-  }, [sceneModified])
 
   if (progress === 100) return null
 
