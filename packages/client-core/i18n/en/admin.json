@@ -86,7 +86,9 @@
       "lastUpdatedBy": "Last updated by user id: {{userId}} on {{updatedAt}}",
       "fillRequiredFields": "Please fill all required field",
       "fixErrorFields": "Please fix all errors",
-      "logOut": "Log Out"
+      "logOut": "Log Out",
+      "newestFirst": "Newest First",
+      "oldestFirst": "Oldest First"
     },
     "analytics": {
       "loading": "Loading analytics...",

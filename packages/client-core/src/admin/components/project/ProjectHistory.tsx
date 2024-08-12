@@ -301,7 +301,7 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
         onClick={toggleSortOrder}
         endIcon={sortOrder === -1 ? <FaSortAmountDown /> : <FaSortAmountUpAlt />}
       >
-        {sortOrder === -1 ? t('multitenancy:common.newestFirst') : t('multitenancy:common.oldestFirst')}
+        {sortOrder === -1 ? t('admin:common.newestFirst') : t('admin:common.oldestFirst')}
       </Button>
 
       {projectHistoryQuery.data &&
