@@ -1,0 +1,35 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "Camera",
+      "extensions": {
+        "EE_uuid": "84e2c62f-0b85-4d4f-9c2e-c974dfa9d347",
+        "EE_visible": true,
+        "EE_camera": {
+          "fov": 1000,
+          "aspect": 1,
+          "near": 0.1,
+          "far": 1000
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_camera",
+    "EE_ecs"
+  ]
+}

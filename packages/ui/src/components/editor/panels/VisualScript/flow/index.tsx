@@ -187,7 +187,6 @@ export const Flow: React.FC<FlowProps> = ({
 
       {nodePickerVisibility && (
         <NodePicker
-          flowRef={flowRef}
           position={nodePickerVisibility}
           filters={nodePickFilters}
           onPickNode={handleAddNode}

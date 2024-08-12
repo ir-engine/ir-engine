@@ -23,26 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import { Component, ComponentJSONIDMap, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { calculateAndApplyYOffset } from '@etherealengine/common/src/utils/offsets'
 import { EntityUUID } from '@etherealengine/ecs'
 import { ComponentEditorsState } from '@etherealengine/editor/src/services/ComponentEditors'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { PopoverPosition } from '@mui/material'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
-import { PropertiesPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
-import Popover from '../../../layout/Popover'
+import { Popup } from '../../../../tailwind/Popup'
 import TransformPropertyGroup from '../../../properties/transform'
-import { PopoverContext } from '../../../util/PopoverContext'
 import ElementList from '../elementList'
 import MaterialEditor from '../material'
 
@@ -60,8 +58,6 @@ const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
 const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => {
   const { t } = useTranslation()
   const { entityUUID, multiEdit } = props
-  const anchorEl = useHookstate<HTMLButtonElement | null>(null)
-  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
 
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
   const componentEditors = useHookstate(getMutableState(ComponentEditorsState)).get(NO_PROXY)
@@ -69,51 +65,54 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   const components: Component[] = []
   for (const jsonID of Object.keys(node.extensions.value!)) {
     const component = ComponentJSONIDMap.get(jsonID)!
-    if (!componentEditors[component.name]) continue
+    if (!componentEditors[component?.name]) continue
     components.push(component)
   }
 
-  const open = !!anchorEl.value
-  const panel = document.getElementById('propertiesPanel')
+  const popupRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleResize = () => {
+      calculateAndApplyYOffset(popupRef.current)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  const [isAddComponentMenuOpen, setIsAddComponentMenuOpen] = useState(false)
 
   return (
-    <PopoverContext.Provider
-      value={{
-        handlePopoverClose: () => {
-          anchorEl.set(null)
-        }
-      }}
-    >
-      <div className="ml-auto mt-4 flex h-8 bg-zinc-900" id="add-component-popover">
-        <Button
-          startIcon={<HiOutlinePlusCircle />}
-          variant="transparent"
-          rounded="none"
-          className="ml-auto w-40 bg-theme-highlight px-2"
-          size="small"
-          onClick={(event) => {
-            setAnchorPosition({ top: event.clientY - 10, left: panel?.getBoundingClientRect().left! + 10 })
-            anchorEl.set(event.currentTarget)
-          }}
+    <>
+      <div className="flex w-full justify-end bg-theme-highlight" id="add-component-popover">
+        <Popup
+          keepInside
+          position={'left center'}
+          open={isAddComponentMenuOpen}
+          onClose={() => setIsAddComponentMenuOpen(false)}
+          trigger={
+            <Button
+              startIcon={<HiOutlinePlusCircle />}
+              variant="transparent"
+              rounded="none"
+              className="ml-auto w-40 bg-[#2F3137] px-2"
+              size="small"
+              onClick={() => setIsAddComponentMenuOpen(true)}
+            >
+              {t('editor:properties.lbl-addComponent')}
+            </Button>
+          }
+          onOpen={() => calculateAndApplyYOffset(popupRef.current)}
         >
-          {t('editor:properties.lbl-addComponent')}
-        </Button>
+          <div ref={popupRef} className="h-[600px] w-96 overflow-y-auto">
+            <ElementList type="components" onSelect={() => setIsAddComponentMenuOpen(false)} />
+          </div>
+        </Popup>
       </div>
-      <Popover
-        open={open}
-        anchorEl={anchorEl.value as any}
-        onClose={() => {
-          anchorEl.set(null)
-          setAnchorPosition(undefined)
-        }}
-        panelId={PropertiesPanelTab.id!}
-        anchorPosition={anchorPosition}
-        className="h-[60%] w-full min-w-[300px] overflow-y-auto"
-      >
-        <ElementList type="components" />
-      </Popover>
       <TransformPropertyGroup entity={entity} />
-      {components.map((c, i) => (
+      {components.map((c) => (
         <EntityComponentEditor
           key={`${entityUUID + entity}-${c.name}`}
           multiEdit={multiEdit}
@@ -121,7 +120,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
           component={c}
         />
       ))}
-    </PopoverContext.Provider>
+    </>
   )
 }
 
@@ -144,7 +143,7 @@ export const PropertiesPanelContainer = () => {
   const materialUUID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
 
   return (
-    <div className="flex h-full flex-col gap-2 overflow-y-auto rounded-[5px] bg-neutral-900 px-1">
+    <div className="flex h-full flex-col gap-0.5 overflow-y-auto rounded-[5px] bg-neutral-900 px-1">
       {materialUUID ? (
         <MaterialEditor materialUUID={materialUUID} />
       ) : uuid ? (

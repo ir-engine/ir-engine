@@ -40,7 +40,6 @@ import { entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFuncti
 import { NO_PROXY, none, startReactor, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 
-import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from './TransformComponent'
 
 type EntityTreeSetType = {
@@ -364,16 +363,6 @@ export function useTreeQuery(entity: Entity) {
     }
 
     const root = startReactor(function useQueryReactor() {
-      const sceneComponent = useOptionalComponent(entity, SceneComponent)
-      if (sceneComponent) {
-        return (
-          <>
-            {sceneComponent.children.value.map((e) => (
-              <TreeSubReactor key={e} entity={e} />
-            ))}
-          </>
-        )
-      }
       return <TreeSubReactor entity={entity} />
     })
     return () => {
@@ -395,7 +384,7 @@ export function useTreeQuery(entity: Entity) {
  * @returns
  */
 export function useAncestorWithComponent(entity: Entity, component: ComponentType<any>) {
-  const result = useHookstate(UndefinedEntity)
+  const result = useHookstate(() => getAncestorWithComponent(entity, component))
 
   useImmediateEffect(() => {
     let unmounted = false
@@ -465,16 +454,6 @@ export function useChildWithComponent(rootEntity: Entity, component: ComponentTy
     }
 
     const root = startReactor(function useQueryReactor() {
-      const isScene = useOptionalComponent(rootEntity, SceneComponent)
-      if (isScene) {
-        return (
-          <>
-            {isScene.children.value.map((entity) => (
-              <ChildSubReactor entity={entity} key={entity} />
-            ))}
-          </>
-        )
-      }
       return <ChildSubReactor entity={rootEntity} key={rootEntity} />
     })
     return () => {

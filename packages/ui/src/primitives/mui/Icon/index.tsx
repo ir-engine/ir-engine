@@ -30,6 +30,7 @@ import Add from '@mui/icons-material/Add'
 import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings'
 import AllOutIcon from '@mui/icons-material/AllOut'
 import Anchor from '@mui/icons-material/Anchor'
+import Apple from '@mui/icons-material/Apple'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import ArrowBackIos from '@mui/icons-material/ArrowBackIos'
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown'
@@ -174,6 +175,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
     default:
       console.log(`----------------Icon type not found: ${type}`)
       return <CrisisAlert {...props} />
+    case 'Apple':
+      return <Apple {...props} />
     case 'AccessibilityNew':
       return <AccessibilityNew {...props} />
     case 'default':

@@ -29,6 +29,7 @@ import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
 import { HookContext } from '../../../declarations'
+import allowNullQuery from '../../hooks/allow-null-query'
 import checkScope from '../../hooks/check-scope'
 import collectAnalytics from '../../hooks/collect-analytics'
 import enableClientPagination from '../../hooks/enable-client-pagination'
@@ -171,6 +172,55 @@ const isKeyPublic = (context: HookContext<StaticResourceService>) => {
   return context
 }
 
+const resolveThumbnailURL = async (context: HookContext<StaticResourceService>) => {
+  if (!context.result) return context
+  const data = context.result
+  const dataArr = data ? (Array.isArray(data) ? data : 'data' in data ? data.data : [data]) : []
+
+  context.hashedThumbnailResults = {}
+
+  const thumbkeyToIndex = new Map<string, string[]>()
+  const storageProvider = getStorageProvider()
+
+  for (const resource of dataArr) {
+    /** Thumbnail resources should resolve themselves for their thumbnail fields */
+    if (resource.type === 'thumbnail') {
+      resource.thumbnailKey = resource.key
+      const thumbnailURL = storageProvider.getCachedURL(resource.key, context.params.isInternal)
+      const thumbnailURLWithHash = thumbnailURL + '?hash=' + resource.hash.slice(0, 6)
+      context.hashedThumbnailResults[resource.id] = thumbnailURLWithHash
+    } else {
+      if (resource.thumbnailKey) {
+        if (!thumbkeyToIndex.has(resource.thumbnailKey)) thumbkeyToIndex.set(resource.thumbnailKey, [])
+        thumbkeyToIndex.get(resource.thumbnailKey)?.push(resource.id)
+      }
+    }
+  }
+
+  if (!thumbkeyToIndex.size) return context
+
+  const thumbnailResources = await context.app.service(staticResourcePath).find({
+    query: {
+      type: 'thumbnail',
+      key: {
+        $in: [...thumbkeyToIndex.keys()]
+      }
+    },
+    paginate: false
+  })
+
+  for (const thumbnailResource of thumbnailResources) {
+    const thumbnailURL = storageProvider.getCachedURL(thumbnailResource.key, context.params.isInternal)
+    const thumbnailURLWithHash = thumbnailURL + '?hash=' + thumbnailResource.hash.slice(0, 6)
+    const ids = thumbkeyToIndex.get(thumbnailResource.key)
+
+    if (!ids) continue
+    for (const id of ids) context.hashedThumbnailResults[id] = thumbnailURLWithHash
+  }
+
+  return context
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveResult(staticResourceResolver)]
@@ -195,6 +245,7 @@ export default {
         )
       ),
       enableClientPagination() /** @todo we should either constrain this only for when type='scene' or remove it in favour of comprehensive front end pagination */,
+      allowNullQuery('thumbnailKey'),
       discardQuery('action', 'projectId'),
       collectAnalytics()
     ],
@@ -265,8 +316,9 @@ export default {
 
   after: {
     all: [],
-    find: [],
+    find: [resolveThumbnailURL],
     get: [
+      resolveThumbnailURL,
       iff(
         isProvider('external'),
         iffElse(

@@ -52,6 +52,15 @@ declare module '@feathersjs/feathers' {
   interface ServiceOptions {
     docs?: ServiceSwaggerOptions
   }
+  interface Params {
+    user?: UserType
+    isInternal?: boolean
+    forwarded?: {
+      ip: string
+      port?: number
+      secure?: boolean
+    }
+  }
 }
 
 /**
@@ -61,6 +70,11 @@ declare module '@feathersjs/knex' {
   interface KnexAdapterParams {
     user?: UserType
     isInternal?: boolean
+    forwarded?: {
+      ip: string
+      port?: number
+      secure?: boolean
+    }
   }
 }
 

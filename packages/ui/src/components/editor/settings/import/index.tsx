@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { ImportSettingsState } from '@etherealengine/editor/src/components/assets/ImportSettingsPanel'
 import { LODList, LODVariantDescriptor } from '@etherealengine/editor/src/constants/GLTFPresets'
+import { ImportSettingsState } from '@etherealengine/editor/src/services/ImportSettingsState'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import { t } from 'i18next'
@@ -104,6 +104,7 @@ const ImageCompressionBox = ({ compressProperties }) => {
             name="quality"
             label={t('editor:properties.model.transform.quality')}
             info={t('editor:properties.model.transform.qualityTooltip')}
+            className="w-auto"
           >
             <Slider
               value={compressProperties.quality.value}
@@ -118,6 +119,7 @@ const ImageCompressionBox = ({ compressProperties }) => {
             name="compressionLevel"
             label={t('editor:properties.model.transform.compressionLevel')}
             info={t('editor:properties.model.transform.compressionLevelTooltip')}
+            className="w-auto"
           >
             <Slider
               value={compressProperties.compressionLevel.value}

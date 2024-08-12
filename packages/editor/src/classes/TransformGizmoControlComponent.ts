@@ -45,17 +45,25 @@ import {
   TransformSpace,
   TransformSpaceType
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getState, matches, useMutableState } from '@etherealengine/hyperflux'
+import { getState, matches, useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
 import { InputComponent, InputExecutionOrder } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { gizmoPlane } from '../constants/GizmoPresets'
-import { onPointerDown, onPointerHover, onPointerLost, onPointerMove, onPointerUp } from '../functions/gizmoHelper'
+import {
+  onGizmoCommit,
+  onPointerDown,
+  onPointerHover,
+  onPointerLost,
+  onPointerMove,
+  onPointerUp
+} from '../functions/gizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 
@@ -122,10 +130,26 @@ export const TransformGizmoControlComponent = defineComponent({
   reactor: function (props) {
     const gizmoControlEntity = useEntityContext()
     const gizmoControlComponent = useComponent(gizmoControlEntity, TransformGizmoControlComponent)
-
-    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
-
+    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
     const editorHelperState = useMutableState(EditorHelperState)
+    const inputPointerEntities = InputPointerComponent.usePointersForCamera(Engine.instance.viewerEntity)
+
+    // Commit transform changes if the pointer entities are lost (ie. pointer dragged outside of the canvas)
+    useImmediateEffect(() => {
+      const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
+      if (
+        !gizmoControlComponent.enabled ||
+        !gizmoControlComponent.visualEntity ||
+        !gizmoControlComponent.planeEntity ||
+        !gizmoControlComponent.dragging ||
+        inputPointerEntities.length
+      )
+        return
+
+      onGizmoCommit(gizmoControlEntity)
+      removeComponent(gizmoControlComponent.planeEntity, VisibleComponent)
+    }, [inputPointerEntities])
+
     InputComponent.useExecuteWithInput(
       () => {
         const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
@@ -156,7 +180,6 @@ export const TransformGizmoControlComponent = defineComponent({
 
           if (planeButtons?.PrimaryClick?.up || pickerButtons?.PrimaryClick?.up) {
             onPointerUp(gizmoControlEntity)
-            onPointerLost(gizmoControlEntity)
             onPointerLost(gizmoControlEntity)
             removeComponent(gizmoControlComponent.planeEntity, VisibleComponent)
           }

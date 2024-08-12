@@ -34,44 +34,36 @@ import {
   setComponent
 } from '@etherealengine/ecs'
 import { createEngine } from '@etherealengine/ecs/src/Engine'
+import { getState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { Fog, FogExp2, MathUtils, ShaderChunk } from 'three'
-import { CameraComponent } from '../../camera/components/CameraComponent'
+import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
+import { EngineState } from '../../EngineState'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { RendererComponent } from '../WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './FogSettingsComponent'
 import { FogShaders } from './FogShaders'
-import { FogComponent, SceneComponent } from './SceneComponents'
+import { FogComponent } from './SceneComponents'
 
 describe('FogSettingsComponent', () => {
   let rootEntity: Entity
   let entity: Entity
 
-  const mockCanvas = () => {
-    return {
-      getDrawingBufferSize: () => 0
-    } as any as HTMLCanvasElement
-  }
-
   beforeEach(() => {
     createEngine()
 
-    rootEntity = createEntity()
-    setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-    setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, CameraComponent)
-    setComponent(rootEntity, SceneComponent)
-    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas() })
+    mockSpatialEngine()
+
+    rootEntity = getState(EngineState).viewerEntity
 
     entity = createEntity()
     setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(entity, FogSettingsComponent)
     setComponent(entity, EntityTreeComponent)
 
-    //set data to test
-    setComponent(rootEntity, SceneComponent, { children: [entity] })
+    setComponent(rootEntity, RendererComponent, { scenes: [entity] })
   })
 
   afterEach(() => {

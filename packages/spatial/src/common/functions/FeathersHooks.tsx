@@ -139,7 +139,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       status: 'pending',
       error: ''
     })
-    service[method](...args)
+    return service[method](...args)
       .then((res) => {
         state[serviceName][queryId].merge({
           response: res,

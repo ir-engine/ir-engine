@@ -161,21 +161,21 @@ export const EnvMapBakeNodeEditor = (props) => {
     <NodeEditor
       style={envMapBakeNodeEditorStyle}
       {...props}
-      name="EnvMap Bake"
+      name={t('editor:properties.envmap.lbl-bake')}
       description="For Adding EnvMap bake in your scene"
       icon={<EnvMapBakeNodeEditor.iconComponent />}
     >
-      <Button className="my-1 ml-auto mr-6 px-10" onClick={() => uploadBPCEMBakeToServer(props.entity)}>
+      <Button className="my-1 ml-auto px-10" onClick={() => uploadBPCEMBakeToServer(props.entity)}>
         {t(`editor.projects.bake`)}
       </Button>
-      <InputGroup name="Position" label="Position Offset">
+      <InputGroup name="Position" label="Position Offset" className="w-auto">
         <Vector3Input
           value={bakeComponent.bakePositionOffset.value}
           onChange={updateProperty(EnvMapBakeComponent, 'bakePositionOffset')}
           onRelease={commitProperty(EnvMapBakeComponent, 'bakePositionOffset')}
         />
       </InputGroup>
-      <InputGroup name="Scale" label="Scale">
+      <InputGroup name="Scale" label="Scale" className="w-auto">
         <Vector3Input
           value={bakeComponent.bakeScale.value}
           onChange={updateProperty(EnvMapBakeComponent, 'bakeScale')}

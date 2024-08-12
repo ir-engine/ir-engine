@@ -23,15 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
-
 import {
   featureFlagSettingDataValidator,
   featureFlagSettingPatchValidator,
   featureFlagSettingQueryValidator
 } from '@etherealengine/common/src/schemas/setting/feature-flag-setting.schema'
+import setLoggedInUserInData from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { iff, isProvider } from 'feathers-hooks-common'
 
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
 import {
   featureFlagSettingDataResolver,
@@ -54,15 +55,17 @@ export default {
       () => schemaHooks.validateQuery(featureFlagSettingQueryValidator),
       schemaHooks.resolveQuery(featureFlagSettingQueryResolver)
     ],
-    find: [],
+    find: [iff(isProvider('external'), enableClientPagination())],
     get: [],
     create: [
+      setLoggedInUserInData('userId'),
       iff(isProvider('external'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(featureFlagSettingDataValidator),
       schemaHooks.resolveData(featureFlagSettingDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('settings', 'write'))],
+    update: [setLoggedInUserInData('userId'), iff(isProvider('external'), verifyScope('settings', 'write'))],
     patch: [
+      setLoggedInUserInData('userId'),
       iff(isProvider('external'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(featureFlagSettingPatchValidator),
       schemaHooks.resolveData(featureFlagSettingPatchResolver)

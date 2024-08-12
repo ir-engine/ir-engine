@@ -26,9 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import Tooltip from '../../../../primitives/tailwind/Tooltip'
 import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import { InfoTooltip } from '../../layout/Tooltip'
-//import styles from '../styles.module.scss'
 import PropertiesPanelContainer from './container'
 
 export const PropertiesPanelTitle = () => {
@@ -38,9 +37,7 @@ export const PropertiesPanelTitle = () => {
     <div>
       <PanelDragContainer>
         <PanelTitle>
-          <InfoTooltip title={t('editor:properties.info')}>
-            <span>{t('editor:properties.title')}</span>
-          </InfoTooltip>
+          <Tooltip content={t('editor:properties.info')}>{t('editor:properties.title')}</Tooltip>
         </PanelTitle>
       </PanelDragContainer>
     </div>

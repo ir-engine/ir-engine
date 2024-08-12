@@ -32,6 +32,7 @@ const argTypes = {
   type: {
     control: { type: 'select' },
     options: [
+      'Apple',
       'Accessibility',
       'AccountCircle',
       'Add',

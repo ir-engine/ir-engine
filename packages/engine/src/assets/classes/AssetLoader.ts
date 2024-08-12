@@ -29,7 +29,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 
-import { AssetExt, AssetType, FileExtToAssetExt, FileToAssetType } from '@etherealengine/common/src/constants/AssetType'
+import { AssetExt, AssetType, FileToAssetExt, FileToAssetType } from '@etherealengine/common/src/constants/AssetType'
 import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { FileLoader } from '../loaders/base/FileLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
@@ -45,9 +45,7 @@ import { AssetLoaderState } from '../state/AssetLoaderState'
  * @returns Asset type of the file.
  */
 const getAssetType = (assetFileName: string): AssetExt => {
-  const ext = assetFileName.split('.').pop()
-  if (!ext) return undefined!
-  return FileExtToAssetExt(ext)!
+  return FileToAssetExt(assetFileName)!
 }
 
 /**
@@ -109,7 +107,7 @@ const loadAsset = async <T>(
   url = getAbsolutePath(url)
 
   if (!loader) {
-    const assetExt = AssetLoader.getAssetType(url)
+    const assetExt = getAssetType(url)
     loader = getLoader(assetExt)
   }
 

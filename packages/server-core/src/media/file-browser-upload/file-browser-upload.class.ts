@@ -56,7 +56,7 @@ export class FileBrowserUploadService implements ServiceInterface<string[], any,
             project: args.project,
             path: args.path,
             body: file.buffer as Buffer,
-            contentType: file.mimetype
+            contentType: args.contentType || file.mimetype
           })
         })
       )

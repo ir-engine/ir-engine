@@ -115,8 +115,9 @@ export async function previewScreenshot(
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
   let blob: Blob | null = null
-  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
-  renderer.renderer.outputColorSpace = SRGBColorSpace
+  const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  const renderer = rendererComponent.renderer!
+  renderer.outputColorSpace = SRGBColorSpace
   const renderTarget = new WebGLRenderTarget(width, height, {
     minFilter: LinearFilter,
     magFilter: LinearFilter,
@@ -127,12 +128,12 @@ export async function previewScreenshot(
     type: UnsignedByteType
   })
 
-  renderer.renderer.setRenderTarget(renderTarget)
+  renderer.setRenderTarget(renderTarget)
 
-  render(renderer, scene, new ArrayCamera([scenePreviewCamera]), 0, false)
+  render(rendererComponent, scene, new ArrayCamera([scenePreviewCamera]), 0, false)
 
   const pixels = new Uint8Array(4 * width * height)
-  renderer.renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
+  renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
   const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
   const flippedData = new Uint8ClampedArray(imageData.data.length)
   for (let y = 0; y < height; y++) {
@@ -148,7 +149,7 @@ export async function previewScreenshot(
   }
   const flippedImageData = new ImageData(flippedData, width, height)
 
-  renderer.renderer.setRenderTarget(null) // pass `null` to set canvas as render target
+  renderer.setRenderTarget(null) // pass `null` to set canvas as render target
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
   canvas.width = width
@@ -192,14 +193,17 @@ export async function takeScreenshot(
   }
 
   const prevAspect = scenePreviewCamera.aspect
-
+  const prevLayersMask = scenePreviewCamera.layers.mask
   // Setting up scene preview camera
   scenePreviewCamera.aspect = width / height
   scenePreviewCamera.updateProjectionMatrix()
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
-  const { renderer, effectComposer, renderContext } = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  const renderer = rendererComponent.renderer!
+  const renderContext = rendererComponent.renderContext!
+  const effectComposer = rendererComponent.effectComposer!
 
   if (hideHelpers) {
     effectComposer.OutlineEffect?.clearSelection()
@@ -237,20 +241,22 @@ export async function takeScreenshot(
 
   const canvas = getResizedCanvas(renderer.domElement, width, height)
 
-  const imageBlob = await getCanvasBlob(
-    canvas,
-    format === 'jpeg' ? 'image/jpeg' : 'image/png',
-    format === 'jpeg' ? 0.9 : 1
-  )
-
   // restore
-  effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  camera.layers.mask = prevLayersMask
+  effectComposer.setMainCamera(camera)
   renderer.setPixelRatio(pixelRatio)
   effectComposer.setSize(originalSize.width, originalSize.height, false)
 
   // Restoring previous state
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
+
+  const imageBlob = await getCanvasBlob(
+    canvas,
+    format === 'jpeg' ? 'image/jpeg' : 'image/png',
+    format === 'jpeg' ? 0.9 : 1
+  )
 
   return imageBlob
 }

@@ -48,16 +48,16 @@ export const Vector3Scrubber = ({ axis, onChange, onPointerUp, value, children, 
       case 'x':
         return 'red-500'
       case 'y':
-        return 'green-400' // must be fushsia-400 , but these colors doesnt show up
+        return 'green-400'
       case 'z':
-        return 'blue-400' //must be teal-400 , but this color doesnt show up
+        return 'blue-400'
       default:
         return 'inherit'
     }
   })()
 
-  props.className = twMerge(`text-${color}`)
-  const content = children ?? axis?.toUpperCase()
+  props.className = twMerge(`w-full text-${color}`)
+  const content = children ?? `${axis?.toUpperCase()} - `
   return (
     <Scrubber onChange={onChange} onRelease={onPointerUp} value={value} {...props}>
       {content}
@@ -124,7 +124,7 @@ export const Vector3Input = ({
   const vz = value.z
 
   return (
-    <div className="flex flex-row flex-wrap justify-start gap-1.5">
+    <div className="flex flex-row flex-wrap justify-end gap-1.5">
       {uniformScaling && (
         <Button
           variant="transparent"

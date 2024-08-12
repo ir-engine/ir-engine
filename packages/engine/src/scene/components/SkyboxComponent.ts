@@ -163,7 +163,7 @@ export const SkyboxComponent = defineComponent({
 
       const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
 
-      const texture = sky.generateSkyboxTextureCube(renderer.renderer)
+      const texture = sky.generateSkyboxTextureCube(renderer.renderer!)
       texture.mapping = CubeReflectionMapping
 
       setComponent(entity, BackgroundComponent, texture)
