@@ -32,28 +32,6 @@ import { Static, StringEnum, Type, getValidator, querySyntax } from '@feathersjs
 export const projectHistoryPath = 'project-history'
 export const projectHistoryMethods = ['create', 'find', 'remove'] as const
 
-export const ActionTypes = [
-  'SCENE_CREATED',
-  'SCENE_RENAMED',
-  'SCENE_MODIFIED',
-  'SCENE_REMOVED',
-  'RESOURCE_CREATED',
-  'RESOURCE_RENAMED',
-  'RESOURCE_MODIFIED',
-  'RESOURCE_REMOVED',
-  'PROJECT_CREATED',
-  'PERMISSION_CREATED',
-  'PERMISSION_MODIFIED',
-  'PERMISSION_REMOVED',
-  'LOCATION_PUBLISHED',
-  'LOCATION_MODIFIED',
-  'LOCATION_UNPUBLISHED'
-] as const
-
-export type ActionType = (typeof ActionTypes)[number]
-
-export const ActionIdentifierTypes = ['static-resource', 'project', 'user', 'location', 'project-permission'] as const
-
 // Schema for creating new entries
 export const projectHistorySchema = Type.Object(
   {
@@ -72,13 +50,25 @@ export const projectHistorySchema = Type.Object(
 
     userName: Type.String(),
     userAvatarURL: Type.String({ format: 'uri' }),
-
-    // @ts-ignore
-    action: StringEnum(ActionTypes),
+    action: StringEnum([
+      'SCENE_CREATED',
+      'SCENE_RENAMED',
+      'SCENE_MODIFIED',
+      'SCENE_REMOVED',
+      'RESOURCE_CREATED',
+      'RESOURCE_RENAMED',
+      'RESOURCE_MODIFIED',
+      'RESOURCE_REMOVED',
+      'PROJECT_CREATED',
+      'PERMISSION_CREATED',
+      'PERMISSION_MODIFIED',
+      'PERMISSION_REMOVED',
+      'LOCATION_PUBLISHED',
+      'LOCATION_MODIFIED',
+      'LOCATION_UNPUBLISHED'
+    ]),
     actionIdentifier: Type.String(),
-
-    // @ts-ignore
-    actionIdentifierType: StringEnum(ActionIdentifierTypes),
+    actionIdentifierType: StringEnum(['static-resource', 'project', 'user', 'location', 'project-permission']),
     actionDetail: Type.String(),
 
     createdAt: Type.String({ format: 'date-time' })
