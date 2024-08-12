@@ -112,7 +112,12 @@ export const instanceQuerySchema = Type.Intersect(
     querySyntax(instanceQueryProperties, {
       ipAddress: {
         $like: Type.String()
-      }
+      },
+      id: {
+        $like: Type.String()
+      },
+      locationId: { $like: Type.String() },
+      channelId: { $like: Type.String() }
     }),
     // Add additional query properties here
     Type.Object(
