@@ -98,7 +98,7 @@ import {
 } from './GLTFLoaderFunctions'
 import { KTX2Loader } from './KTX2Loader'
 
-function getImageURIMimeType(uri) {
+export function getImageURIMimeType(uri) {
   if (uri.search(/\.jpe?g($|\?)/i) > 0 || uri.search(/^data\:image\/jpeg/) === 0) return 'image/jpeg'
   if (uri.search(/\.webp($|\?)/i) > 0 || uri.search(/^data\:image\/webp/) === 0) return 'image/webp'
 
@@ -123,10 +123,13 @@ declare module '@gltf-transform/core/dist/types/gltf.d.ts' {
   }
 }
 
-type GLTFParserOptions = {
+export type GLTFParserOptions = {
+  body: null | ArrayBuffer
+  documentID: string
+  document: GLTF.IGLTF
   crossOrigin: 'anonymous' | string
   ktx2Loader: KTX2Loader
-  manager: LoadingManager | any
+  manager: LoadingManager
   meshoptDecoder: any
   path: string
   requestHeader: Record<string, any>
@@ -688,7 +691,7 @@ export class GLTFParser {
 
     if (sourceDef.uri) {
       const handler = options.manager.getHandler(sourceDef.uri)
-      if (handler !== null) loader = handler
+      if (handler !== null) loader = handler as any
     }
 
     return this.loadTextureImage(textureIndex, sourceIndex, loader)
@@ -1767,7 +1770,7 @@ export class GLTFParser {
 
 /* GLTFREGISTRY */
 
-class GLTFRegistry {
+export class GLTFRegistry {
   objects = {}
 
   get(key) {

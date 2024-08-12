@@ -25,7 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
-import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import {
+  AnimationClip,
+  AnimationMixer,
+  Bone,
+  Group,
+  LoaderUtils,
+  MathUtils,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  Quaternion,
+  Skeleton,
+  SkinnedMesh,
+  Vector3
+} from 'three'
 
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import {
@@ -34,13 +48,16 @@ import {
   Entity,
   EntityUUID,
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
   useComponent,
+  useOptionalComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
 import {
@@ -59,19 +76,32 @@ import {
 import { TransformComponent } from '@etherealengine/spatial'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  getAncestorWithComponent
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
+import { AssetLoaderState } from '../assets/state/AssetLoaderState'
+import { AnimationComponent } from '../avatar/components/AnimationComponent'
+import { BoneComponent } from '../avatar/components/BoneComponent'
+import { SkinnedMeshComponent } from '../avatar/components/SkinnedMeshComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
+import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
+import { MaterialDefinitionComponent } from './MaterialDefinitionComponent'
+import './MeshExtensionComponents'
 
 export const GLTFAssetState = defineState({
   name: 'ee.engine.gltf.GLTFAssetState',
@@ -358,12 +388,8 @@ const ChildGLTFReactor = (props: { source: string }) => {
 
   const index = useHookstate(getMutableState(GLTFSnapshotState)[source].index).value
 
-  useLayoutEffect(() => {
-    return () => {
-      getMutableState(GLTFDocumentState)[source].set(none)
-      getMutableState(GLTFNodeState)[source].set(none)
-    }
-  }, [])
+  const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
+  const parentUUID = useComponent(entity, UUIDComponent).value
 
   useLayoutEffect(() => {
     // update the modified state
@@ -374,19 +400,44 @@ const ChildGLTFReactor = (props: { source: string }) => {
     getMutableState(GLTFDocumentState)[source].set(data)
 
     // update the nodes dictionary
-    const nodesDictionary = GLTFNodeState.convertGltfToNodeDictionary(data)
+    const nodesDictionary = GLTFNodeState.convertGltfToNodeDictionary(data, source)
     getMutableState(GLTFNodeState)[source].set(nodesDictionary)
   }, [index])
 
-  const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
-  const parentUUID = useComponent(entity, UUIDComponent).value
+  useLayoutEffect(() => {
+    return () => {
+      getMutableState(GLTFDocumentState)[source].set(none)
+      getMutableState(GLTFNodeState)[source].set(none)
+    }
+  }, [])
 
   return <DocumentReactor documentID={source} parentUUID={parentUUID} />
 }
 
 export const DocumentReactor = (props: { documentID: string; parentUUID: EntityUUID }) => {
   const nodeState = useHookstate(getMutableState(GLTFNodeState)[props.documentID])
-  if (!nodeState.value) return null
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+  const animationState = useHookstate([] as AnimationClip[])
+  const rootEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
+
+  useEffect(() => {
+    if (!documentState.value || !nodeState.value || animationState.length !== documentState.value.animations?.length)
+      return
+
+    const scene = getComponent(rootEntity, Object3DComponent)
+    scene.animations = animationState.get(NO_PROXY) as AnimationClip[]
+    const mixer = new AnimationMixer(scene)
+    setComponent(rootEntity, AnimationComponent, {
+      mixer,
+      animations: scene.animations
+    })
+    return () => {
+      removeComponent(rootEntity, AnimationComponent)
+    }
+  }, [animationState])
+
+  if (!documentState.value || !nodeState.value) return null
+
   return (
     <>
       {Object.entries(nodeState.get(NO_PROXY)).map(([uuid, { nodeIndex, childIndex, parentUUID }]) => (
@@ -398,8 +449,143 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
           documentID={props.documentID}
         />
       ))}
+      {documentState
+        .get(NO_PROXY)
+        .materials?.map((material, index) => (
+          <MaterialEntityReactor
+            key={'material-' + index}
+            index={index}
+            parentUUID={props.parentUUID}
+            documentID={props.documentID}
+          />
+        ))}
+      {documentState.get(NO_PROXY).animations?.map((animation, index) => {
+        return (
+          <AnimationReactor
+            key={'animation-' + index}
+            index={index}
+            documentID={props.documentID}
+            parentUUID={props.parentUUID}
+            animationState={animationState}
+          />
+        )
+      })}
     </>
   )
+}
+
+const MaterialEntityReactor = (props: { index: number; parentUUID: EntityUUID; documentID: string }) => {
+  const documentState = useMutableState(GLTFDocumentState)[props.documentID]
+  const materials = documentState.materials!
+
+  const materialDef = materials[props.index]!.get(NO_PROXY) as GLTF.IMaterial
+
+  const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
+
+  const entityState = useHookstate(UndefinedEntity)
+  const entity = entityState.value
+
+  useEffect(() => {
+    const uuid = (props.documentID + '-material-' + props.index) as EntityUUID
+    const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
+
+    setComponent(entity, UUIDComponent, uuid)
+    setComponent(entity, SourceComponent, props.documentID)
+
+    /** Ensure all base components are added for synchronous mount */
+    setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.index })
+    setComponent(entity, NameComponent, materialDef.name ?? 'Material-' + props.index)
+
+    entityState.set(entity)
+
+    return () => {
+      //check if entity is in some other document
+      if (hasComponent(entity, UUIDComponent)) {
+        const uuid = getComponent(entity, UUIDComponent)
+        const documents = getState(GLTFDocumentState)
+        for (const documentID in documents) {
+          const document = documents[documentID]
+          if (!document?.materials) continue
+          for (const material of document.materials) {
+            if (material.extensions?.[UUIDComponent.jsonID] === uuid) return
+          }
+        }
+      }
+      removeEntity(entity)
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    if (!entity) return
+
+    setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.index })
+  }, [entity, parentEntity, props.index])
+
+  useLayoutEffect(() => {
+    if (!entity) return
+
+    setComponent(entity, NameComponent, materialDef.name ?? 'Material-' + props.index)
+  }, [entity, materialDef.name])
+
+  if (!entity) return null
+  return (
+    <>
+      <MaterialStateReactor
+        index={props.index}
+        parentUUID={props.parentUUID}
+        documentID={props.documentID}
+        entity={entity}
+      />
+    </>
+  )
+}
+
+const MaterialStateReactor = (props: { index: number; parentUUID: EntityUUID; documentID: string; entity: Entity }) => {
+  const documentState = useMutableState(GLTFDocumentState)[props.documentID]
+  const entity = props.entity
+
+  const materialDefinition = documentState.materials![props.index]!.get(NO_PROXY) as GLTF.IMaterial
+
+  useLayoutEffect(() => {
+    if (!materialDefinition) return
+    return () => {
+      removeComponent(entity, MaterialDefinitionComponent)
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    if (!materialDefinition) return
+    setComponent(entity, MaterialDefinitionComponent, materialDefinition)
+  }, [materialDefinition])
+
+  return (
+    <>
+      {materialDefinition.extensions &&
+        Object.entries(materialDefinition.extensions).map(([id, ext]) => {
+          return <MaterialStateExtensionReactor key={id} keyName={id} value={ext} entity={entity} />
+        })}
+    </>
+  )
+}
+
+const MaterialStateExtensionReactor = (props: { keyName: string; value: any; entity: Entity }) => {
+  const entity = props.entity
+
+  useEffect(() => {
+    const Component = ComponentJSONIDMap.get(props.keyName)
+    if (!Component) return console.warn('No component found for extension', props.keyName)
+    return () => {
+      removeComponent(entity, Component)
+    }
+  }, [])
+
+  useEffect(() => {
+    const Component = ComponentJSONIDMap.get(props.keyName)
+    if (!Component) return console.warn('No component found for extension', props.keyName)
+    setComponent(entity, Component, props.value)
+  }, [props.keyName, props.value])
+
+  return null
 }
 
 const ParentNodeReactor = (props: {
@@ -415,16 +601,33 @@ const ParentNodeReactor = (props: {
   return <NodeReactor {...props} />
 }
 
+const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
+  (node.extensions?.[UUIDComponent.jsonID] as EntityUUID) ?? (`${documentID}-${nodeIndex}` as EntityUUID)
+
+const isBoneNode = (json: GLTF.IGLTF, nodeIndex: number) => {
+  const skinDefs = json.skins || []
+  for (let skinIndex = 0, skinLength = skinDefs.length; skinIndex < skinLength; skinIndex++) {
+    const joints = skinDefs[skinIndex].joints
+    for (let i = 0, il = joints.length; i < il; i++) {
+      if (joints[i] === nodeIndex) return true
+    }
+  }
+  return false
+}
+
 const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID: EntityUUID; documentID: string }) => {
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
-  const nodes = documentState.nodes! // as State<GLTF.INode[]>
+  const nodes = documentState.nodes!
 
   const node = nodes[props.nodeIndex]! as State<GLTF.INode>
 
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
-  const entity = useHookstate(() => {
-    const uuid = node.extensions.value?.[UUIDComponent.jsonID] as EntityUUID
+  const entityState = useHookstate(UndefinedEntity)
+  const entity = entityState.value
+
+  useEffect(() => {
+    const uuid = getNodeUUID(node.get(NO_PROXY) as GLTF.IGLTF, props.documentID, props.nodeIndex)
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
 
     setComponent(entity, UUIDComponent, uuid)
@@ -444,6 +647,9 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
       setComponent(entity, TransformComponent, { position, rotation, scale })
     }
 
+    /** Always set visible extension if this is not an ECS node */
+    if (!node.extensions.value?.[UUIDComponent.jsonID]) setComponent(entity, VisibleComponent)
+
     // add all extensions for synchronous mount
     if (node.extensions.value) {
       for (const extension in node.extensions.value) {
@@ -454,17 +660,21 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     }
 
     if (!hasComponent(entity, Object3DComponent) && !hasComponent(entity, MeshComponent)) {
-      const obj3d = new Group()
+      let obj3d: Group | Bone
+      if (isBoneNode(documentState.get(NO_PROXY) as GLTF.IGLTF, props.nodeIndex)) {
+        obj3d = new Bone()
+        setComponent(entity, BoneComponent, obj3d)
+      } else {
+        obj3d = new Group()
+      }
       obj3d.entity = entity
       addObjectToGroup(entity, obj3d)
       proxifyParentChildRelationships(obj3d)
       setComponent(entity, Object3DComponent, obj3d)
     }
 
-    return entity
-  }).value
+    entityState.set(entity)
 
-  useEffect(() => {
     return () => {
       //check if entity is in some other document
       if (hasComponent(entity, UUIDComponent)) {
@@ -508,13 +718,43 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     setComponent(entity, TransformComponent, { position, rotation, scale })
   }, [entity, node.matrix])
 
+  useLayoutEffect(() => {
+    if (!entity) return
+
+    if (!node.translation.value) return
+    const position = new Vector3().fromArray(node.translation.value)
+    setComponent(entity, TransformComponent, { position })
+  }, [entity, node.translation])
+
+  useLayoutEffect(() => {
+    if (!entity) return
+
+    if (!node.rotation.value) return
+    const rotation = new Quaternion().fromArray(node.rotation.value)
+    setComponent(entity, TransformComponent, { rotation })
+  }, [entity, node.rotation])
+
+  useLayoutEffect(() => {
+    if (!entity) return
+
+    if (!node.scale.value) return
+    const scale = new Vector3().fromArray(node.scale.value)
+    setComponent(entity, TransformComponent, { scale })
+  }, [entity, node.scale])
+
   if (!entity) return null
 
   return (
     <>
-      {/* {node.mesh.value && (
+      {typeof node.mesh.get(NO_PROXY) === 'number' && (
         <MeshReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity} />
-      )} */}
+      )}
+      {typeof node.skin.get(NO_PROXY) === 'number' && (
+        <SkinnedMeshReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity} />
+      )}
+      {typeof node.camera.get(NO_PROXY) === 'number' && (
+        <CameraReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity} />
+      )}
       {node.extensions.value &&
         Object.keys(node.extensions.get(NO_PROXY)!).map((extension) => (
           <ExtensionReactor
@@ -531,7 +771,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
 const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex: number; documentID: string }) => {
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
-  const nodes = documentState.nodes! // as State<GLTF.INode[]>
+  const nodes = documentState.nodes!.get(NO_PROXY)!
   const node = nodes[props.nodeIndex]!
   const extension = node.extensions![props.extension]
 
@@ -558,49 +798,352 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
   useLayoutEffect(() => {
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return console.warn('no component found for extension', props.extension)
-    setComponent(props.entity, Component, extension.get(NO_PROXY_STEALTH))
+    setComponent(props.entity, Component, extension)
   }, [extension])
 
   return null
 }
 
-// const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Entity }) => {
-//   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-//   const nodes = documentState.nodes! as State<GLTF.INode[]>
-//   const node = nodes[props.nodeIndex]!
+const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Entity }) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
 
-//   const mesh = documentState.meshes![node.mesh.value!] as State<GLTF.IMesh>
+  const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
 
-//   return (
-//     <>
-//       {mesh.primitives.value.map((primitive, index) => (
-//         <PrimitiveReactor
-//           key={index}
-//           primitiveIndex={index}
-//           nodeIndex={props.nodeIndex}
-//           documentID={props.documentID}
-//           entity={props.entity}
-//         />
-//       ))}
-//     </>
-//   )
-// }
+  useEffect(() => {
+    setComponent(props.entity, VisibleComponent)
+  }, [])
 
-// const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; documentID: string; entity: Entity }) => {
-//   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-//   const nodes = documentState.nodes! as State<GLTF.INode[]>
-//   const node = nodes[props.nodeIndex]!
+  return (
+    <>
+      {mesh.primitives.map((primitive, index) => (
+        <PrimitiveReactor
+          key={index}
+          primitiveIndex={index}
+          nodeIndex={props.nodeIndex}
+          documentID={props.documentID}
+          entity={props.entity}
+        />
+      ))}
+    </>
+  )
+}
 
-//   const primitive = documentState.meshes![node.mesh.value!].primitives[props.primitiveIndex]
+const SkinnedMeshReactor = (props: { nodeIndex: number; documentID: string; entity: Entity }) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
 
-//   useEffect(() => {
-//     /** TODO implement all mesh types */
-//   }, [primitive])
+  const skinnedMeshComponent = useOptionalComponent(props.entity, SkinnedMeshComponent)
 
-//   return null
-// }
+  const skin = documentState.skins.get(NO_PROXY)![node.skin!]
 
-/**
- * TODO figure out how to support extensions that change the behaviour of these reactors
- * - we pretty much have to add a new API for each dependency type, like how the GLTFLoader does
- */
+  const options = getParserOptions(props.entity)
+  const inverseBindMatrices = GLTFLoaderFunctions.useLoadAccessor(options, skin.inverseBindMatrices)
+
+  const jointNodeUUIDs = skin.joints.map((joint) =>
+    getNodeUUID(nodes[joint] as GLTF.INode, props.documentID, joint)
+  ) as EntityUUID[]
+  /** @todo make reactive to edits */
+  const jointEntityLoadedState = useHookstate(() =>
+    Object.fromEntries(jointNodeUUIDs.map((uuid) => [uuid, UndefinedEntity]))
+  )
+
+  useEffect(() => {
+    if (!inverseBindMatrices || !skinnedMeshComponent) return
+
+    const jointEntities = Object.values(jointEntityLoadedState.value)
+    if (jointEntities.includes(UndefinedEntity)) return
+
+    const jointBones = jointEntities.map((entity) => getOptionalComponent(entity, BoneComponent))
+    if (jointBones.includes(undefined)) return
+
+    const bones = [] as Bone[]
+    const boneInverses = [] as Matrix4[]
+
+    for (let i = 0, il = jointBones.length; i < il; i++) {
+      const jointNode = jointBones[i]
+
+      if (jointNode) {
+        bones.push(jointNode)
+
+        const mat = new Matrix4()
+
+        if (inverseBindMatrices !== null) {
+          mat.fromArray(inverseBindMatrices.array, i * 16)
+        }
+
+        boneInverses.push(mat)
+      } else {
+        // console.warn('THREE.GLTFLoader: Joint "%s" could not be found.', skinDef.joints[i])
+      }
+    }
+
+    const skeleton = new Skeleton(bones, boneInverses)
+    skinnedMeshComponent.skeleton.set(skeleton)
+  }, [jointEntityLoadedState, inverseBindMatrices, !!skinnedMeshComponent])
+
+  return (
+    <>
+      {jointEntityLoadedState.keys.map((entityUUID: EntityUUID) => (
+        <SkeletonNodeDependencyReactor
+          key={entityUUID}
+          entityUUID={entityUUID}
+          jointEntityLoadedState={jointEntityLoadedState}
+        />
+      ))}
+    </>
+  )
+}
+
+/** @todo we can probably simplify this into a nested reactor in a 'useNodesLoaded' entity */
+const SkeletonNodeDependencyReactor = (props: {
+  entityUUID: EntityUUID
+  jointEntityLoadedState: State<Record<EntityUUID, Entity>>
+}) => {
+  const entity = UUIDComponent.useEntityByUUID(props.entityUUID)
+  const jointEntityLoadedState = props.jointEntityLoadedState
+
+  useEffect(() => {
+    if (!entity) return
+    jointEntityLoadedState[props.entityUUID].set(entity)
+    return () => jointEntityLoadedState[props.entityUUID].set(UndefinedEntity)
+  }, [entity])
+
+  return null
+}
+
+const CameraReactor = (props: { nodeIndex: number; documentID: string; entity: Entity }) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
+
+  const camera = documentState.cameras.get(NO_PROXY)![node.camera!] as GLTF.ICamera
+
+  useEffect(() => {
+    if (camera.type === 'orthographic' || !camera.perspective)
+      return console.warn('Orthographic cameras not supported yet')
+
+    const perspectiveCamera = camera.perspective
+
+    setComponent(props.entity, CameraComponent, {
+      fov: MathUtils.radToDeg(perspectiveCamera.yfov),
+      aspect: perspectiveCamera.aspectRatio || 1,
+      near: perspectiveCamera.znear || 1,
+      far: perspectiveCamera.zfar || 2e6
+    })
+  }, [camera])
+
+  return null
+}
+
+const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; documentID: string; entity: Entity }) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
+
+  const meshDef = documentState.meshes.get(NO_PROXY)![node.mesh!]
+
+  const primitive = meshDef.primitives[props.primitiveIndex] as GLTF.IMeshPrimitive
+
+  const options = getParserOptions(props.entity)
+  const geometry = GLTFLoaderFunctions.useLoadPrimitive(options, props.nodeIndex, props.primitiveIndex)
+
+  useLayoutEffect(() => {
+    if (!geometry) return
+
+    let mesh: Mesh | SkinnedMesh
+    if (typeof node.skin !== 'undefined') {
+      const skinnedMesh = new SkinnedMesh(geometry, new MeshBasicMaterial())
+      mesh = skinnedMesh
+      skinnedMesh.skeleton = new Skeleton()
+      setComponent(props.entity, MeshComponent, skinnedMesh)
+      setComponent(props.entity, SkinnedMeshComponent, skinnedMesh)
+    } else {
+      mesh = new Mesh(geometry, new MeshBasicMaterial())
+      setComponent(props.entity, MeshComponent, mesh)
+    }
+
+    /** @todo multiple primitive support */
+    addObjectToGroup(props.entity, mesh)
+
+    return () => {
+      removeComponent(props.entity, SkinnedMeshComponent)
+      removeComponent(props.entity, MeshComponent)
+      removeObjectFromGroup(props.entity, mesh)
+    }
+  }, [node.skin, geometry])
+
+  if (!geometry) return null
+
+  return (
+    <>
+      {typeof primitive.extensions === 'object' && (
+        <PrimitiveExtensionReactor
+          nodeIndex={props.nodeIndex}
+          primitiveIndex={props.primitiveIndex}
+          documentID={props.documentID}
+          entity={props.entity}
+        />
+      )}
+      {typeof primitive.material === 'number' && (
+        <MaterialInstanceReactor
+          nodeIndex={props.nodeIndex}
+          primitiveIndex={props.primitiveIndex}
+          documentID={props.documentID}
+          entity={props.entity}
+        />
+      )}
+      {primitive.targets && (
+        <MorphTargetReactor
+          key={'targets'}
+          documentID={props.documentID}
+          entity={props.entity}
+          targets={primitive.targets}
+          nodeIndex={props.nodeIndex}
+          primitiveIndex={props.primitiveIndex}
+        />
+      )}
+    </>
+  )
+}
+
+const PrimitiveExtensionReactor = (props: {
+  nodeIndex: number
+  primitiveIndex: number
+  documentID: string
+  entity: Entity
+}) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
+
+  const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
+
+  const primitive = mesh.primitives[props.primitiveIndex]
+
+  const extensions = primitive.extensions
+
+  useEffect(() => {
+    if (!extensions) return
+
+    for (const extension in extensions) {
+      const Component = ComponentJSONIDMap.get(extension)
+      if (!Component) continue
+      setComponent(props.entity, Component, extensions[extension])
+    }
+  }, [extensions])
+
+  return null
+}
+
+const MaterialInstanceReactor = (props: {
+  nodeIndex: number
+  documentID: string
+  primitiveIndex: number
+  entity: Entity
+}) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
+
+  const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
+
+  const primitive = mesh.primitives[props.primitiveIndex]
+
+  const materialUUID = (props.documentID + '-material-' + primitive.material!) as EntityUUID
+  const materialEntity = UUIDComponent.useEntityByUUID(materialUUID)
+
+  useEffect(() => {
+    if (typeof primitive.material !== 'number' || !materialEntity) return
+
+    setComponent(props.entity, MaterialInstanceComponent)
+    getMutableComponent(props.entity, MaterialInstanceComponent).uuid.merge([materialUUID])
+  }, [materialEntity, primitive.material])
+
+  return null
+}
+
+export const MorphTargetReactor = (props: {
+  documentID: string
+  entity: Entity
+  nodeIndex: number
+  primitiveIndex: number
+  targets: Record<string, number>[]
+}) => {
+  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+
+  const nodes = documentState.nodes!.get(NO_PROXY)!
+  const node = nodes[props.nodeIndex]!
+
+  const meshDef = documentState.meshes.get(NO_PROXY)![node.mesh!]
+
+  const options = getParserOptions(props.entity)
+  const morphTargets = GLTFLoaderFunctions.useLoadMorphTargets(options, props.targets)
+
+  useEffect(() => {
+    if (!morphTargets) return
+
+    const mesh = getOptionalMutableComponent(props.entity, MeshComponent)
+    if (!mesh) return
+
+    if (morphTargets.POSITION) mesh.geometry.morphAttributes.position.set(morphTargets.POSITION)
+    if (morphTargets.NORMAL) mesh.geometry.morphAttributes.normal.set(morphTargets.NORMAL)
+    if (morphTargets.COLOR_0) mesh.geometry.morphAttributes.color.set(morphTargets.COLOR_0)
+
+    mesh.geometry.morphTargetsRelative.set(true)
+
+    mesh.get(NO_PROXY).updateMorphTargets()
+
+    if (meshDef.weights) {
+      for (let i = 0, il = meshDef.weights.length; i < il; i++) {
+        mesh.morphTargetInfluences[i].set(meshDef.weights[i])
+      }
+    }
+
+    console.log('Morph targets loaded', mesh)
+  }, [morphTargets])
+
+  return null
+}
+
+export const AnimationReactor = (props: {
+  index: number
+  documentID: string
+  parentUUID: EntityUUID
+  animationState: State<AnimationClip[]>
+}) => {
+  const entity = UUIDComponent.useEntityByUUID(props.parentUUID)
+  const options = getParserOptions(entity)
+  const animationTrack = GLTFLoaderFunctions.useLoadAnimation(options, props.index)
+
+  useEffect(() => {
+    if (!animationTrack) return
+    props.animationState.merge([animationTrack])
+  }, [animationTrack])
+
+  return null
+}
+
+export const getParserOptions = (entity: Entity) => {
+  const gltfEntity = getAncestorWithComponent(entity, GLTFComponent)
+  const document = getState(GLTFDocumentState)[getComponent(gltfEntity, SourceComponent)]
+  const gltfComponent = getComponent(gltfEntity, GLTFComponent)
+  const gltfLoader = getState(AssetLoaderState).gltfLoader
+  return {
+    document,
+    documentID: getComponent(gltfEntity, SourceComponent),
+    url: gltfComponent.src,
+    path: LoaderUtils.extractUrlBase(gltfComponent.src),
+    body: gltfComponent.body,
+    crossOrigin: gltfLoader.crossOrigin,
+    requestHeader: gltfLoader.requestHeader,
+    manager: gltfLoader.manager,
+    ktx2Loader: gltfLoader.ktx2Loader,
+    meshoptDecoder: gltfLoader.meshoptDecoder
+  } as GLTFParserOptions
+}
