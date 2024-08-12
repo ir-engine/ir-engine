@@ -115,26 +115,20 @@ class TextureLoader extends Loader<Texture> {
       return
     }
 
-    loadQueue.enqueuePromise(() => {
-      return new Promise((resolve) => {
-        const loader = new ImageLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
-        loader.load(
-          url,
-          (image) => {
-            texture.image = image
-            texture.needsUpdate = true
-            if (canvas) canvas.remove()
-            onLoad(texture)
-            resolve(texture)
-          },
-          onProgress,
-          (err) => {
-            onError?.(err)
-            resolve(err)
-          }
-        )
-      })
-    })
+    const loader = new ImageLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
+    loader.load(
+      url,
+      (image) => {
+        texture.image = image
+        texture.needsUpdate = true
+        if (canvas) canvas.remove()
+        onLoad(texture)
+      },
+      onProgress,
+      (err) => {
+        onError?.(err)
+      }
+    )
   }
 }
 
