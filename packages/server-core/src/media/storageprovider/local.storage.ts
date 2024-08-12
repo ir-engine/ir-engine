@@ -39,7 +39,6 @@ import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
 import { getContentType } from '../../util/fileUtils'
-import { copyRecursiveSync } from '../FileUtil'
 import {
   BlobStore,
   PutObjectParams,
@@ -423,7 +422,15 @@ export class LocalStorage implements StorageProviderInterface {
     if (!fs.existsSync(path.dirname(newFilePath))) fs.mkdirSync(path.dirname(newFilePath), { recursive: true })
 
     try {
-      isCopy ? copyRecursiveSync(oldFilePath, newFilePath) : fs.renameSync(oldFilePath, newFilePath)
+      if (isCopy) {
+        if (fs.lstatSync(oldFilePath).isDirectory()) {
+          fs.mkdirSync(newFilePath)
+        } else {
+          fs.copyFileSync(oldFilePath, newFilePath)
+        }
+      } else {
+        fs.renameSync(oldFilePath, newFilePath)
+      }
     } catch (err) {
       return false
     }
