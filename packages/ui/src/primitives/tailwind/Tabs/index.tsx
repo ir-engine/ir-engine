@@ -35,6 +35,7 @@ import Text from '../Text'
 
 export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
   tabsData: {
+    id?: string
     tabLabel: string | ReactNode
     title?: string
     bottomComponent?: ReactNode
@@ -137,7 +138,7 @@ const Tabs = ({
               key={index}
               className={twMerge(
                 twTabClassName,
-                currentTab.value === index ? 'border-b-blue-primary border-b font-semibold text-theme-primary' : '',
+                currentTab.value === index ? 'border-b border-b-blue-primary font-semibold text-theme-primary' : '',
                 tab.disabled ? 'border-none' : ''
               )}
               disabled={tab.disabled}
