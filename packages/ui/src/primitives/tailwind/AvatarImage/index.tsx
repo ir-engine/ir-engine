@@ -58,7 +58,7 @@ const AvatarImage = ({ src, size = 'medium', className, name }: AvatarImageProps
     ? name
         .split(' ')
         .map((s) => s[0])
-        .join()
+        .join('')
         .slice(0, 2)
         .toUpperCase()
     : 'U'
