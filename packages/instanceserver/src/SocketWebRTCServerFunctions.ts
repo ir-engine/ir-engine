@@ -31,7 +31,6 @@ import { getState, PeerID } from '@etherealengine/hyperflux'
 import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import {
   createNetwork,
-  DataChannelRegistryState,
   DataChannelType,
   MediaStreamAppData,
   NetworkActionFunctions,
@@ -59,16 +58,7 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostPe
 
   logger.info('Server transport initialized.')
 
-  const transport = {
-    messageToPeer: (peerId: PeerID, data: any) => {
-      const spark = network.peers[peerId]?.spark
-      if (spark) spark.write(data)
-    },
-
-    messageToAll: (data: any) => {
-      for (const peer of Object.values(network.peers)) peer.spark?.write(data)
-    },
-
+  const extension = {
     onMessage: (fromPeerID: PeerID, message: any) => {
       const networkPeer = network.peers[fromPeerID]
       if (!networkPeer) return
@@ -83,24 +73,16 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostPe
       NetworkActionFunctions.receiveIncomingActions(network, fromPeerID, actions)
     },
 
-    bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, toPeerID: PeerID, data: any) => {
-      /** @todo - for now just send to everyone */
-      network.transport.bufferToAll(dataChannelType, fromPeerID, data)
+    bufferToPeer: (dataChannelType: DataChannelType, toPeerID: PeerID, data: any) => {
+      /** @todo - server not yet able to send buffers to individual peers */
     },
 
     bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, message: any) => {
-      const dataProducer = network.transport.outgoingDataProducers[dataChannelType]
+      const dataProducer = network.outgoingDataProducers[dataChannelType]
       if (!dataProducer) return
       const fromPeerIndex = network.peerIDToPeerIndex[fromPeerID]
       if (typeof fromPeerIndex === 'undefined') return
       dataProducer.send(Buffer.from(new Uint8Array(encode([fromPeerIndex, message]))))
-    },
-
-    onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
-      const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannelType]
-      if (dataChannelFunctions) {
-        for (const func of dataChannelFunctions) func(network, dataChannelType, fromPeerID, data)
-      }
     },
 
     workers,
@@ -109,7 +91,7 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostPe
     outgoingDataProducers: {} as Record<DataChannelType, DataProducer>
   }
 
-  const network = createNetwork(id, hostPeerID, topic, transport)
+  const network = createNetwork(id, hostPeerID, topic, extension)
 
   return network
 }

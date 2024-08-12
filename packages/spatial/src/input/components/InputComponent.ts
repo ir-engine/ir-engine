@@ -88,7 +88,7 @@ export const InputComponent = defineComponent({
     return {
       inputSinks: ['Self'] as EntityUUID[],
       activationDistance: 2,
-      highlight: true,
+      highlight: false,
       grow: false,
 
       //internal

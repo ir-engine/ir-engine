@@ -35,15 +35,12 @@ import {
   setComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
 import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '@etherealengine/network'
 import { setTargetCameraRotation } from '@etherealengine/spatial/src/camera/functions/CameraFunctions'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -161,6 +158,5 @@ export const createAvatarController = (entity: Entity) => {
   if (orientation > 0) targetTheta = 2 * Math.PI - targetTheta
   setTargetCameraRotation(Engine.instance.cameraEntity, 0, targetTheta, 0.01)
 
-  Physics.createCharacterController(entity, getState(PhysicsState).physicsWorld, {})
   setComponent(entity, AvatarControllerComponent)
 }

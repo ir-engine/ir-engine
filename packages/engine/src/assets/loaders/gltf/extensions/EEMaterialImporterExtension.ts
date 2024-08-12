@@ -37,7 +37,7 @@ import {
   getPrototypeEntityFromName,
   injectMaterialDefaults,
   PrototypeNotFoundError
-} from '../../../../scene/materials/functions/materialSourcingFunctions'
+} from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
   EEMaterialExtensionType,
   isOldEEMaterial,
@@ -157,7 +157,7 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
             }
             break
           case 'color':
-            if (v.contents !== null && !(v.contents as Color).isColor) {
+            if (v.contents !== null && !(v.contents as Color)?.isColor) {
               parseTarget[k] = new Color(v.contents)
             } else {
               parseTarget[k] = v.contents

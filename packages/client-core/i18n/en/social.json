@@ -185,12 +185,16 @@
   "video": {
     "back": "Back"
   },
+  "user": {
+    "reportUser": "Report User"
+  },
   "terms": {
     "confirmTerms": "I agree to Terms of Service",
     "confirmPolicy": "I agree to Privacy Policy"
   },
   "registration": {
     "ph-phoneEmail": "Use phone / email",
+    "apple": "Continue with Apple",
     "facebook": "Continue with Meta",
     "google": "Continue with Google",
     "linkedin": "Continue with Linkedin",

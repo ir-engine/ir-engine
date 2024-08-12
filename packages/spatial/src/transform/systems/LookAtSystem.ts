@@ -27,7 +27,7 @@ import { Engine, Entity, UUIDComponent, defineQuery, defineSystem, getComponent 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { LookAtComponent } from '../components/LookAtComponent'
 import { TransformComponent } from '../components/TransformComponent'
-import { TransformSystem } from './TransformSystem'
+import { TransformDirtyUpdateSystem } from './TransformSystem'
 
 const facerQuery = defineQuery([LookAtComponent, TransformComponent])
 const srcPosition = new Vector3()
@@ -40,7 +40,7 @@ const lookRotation = new Quaternion()
 
 export const LookAtSystem = defineSystem({
   uuid: 'ir.spatial.LookAtSystem',
-  insert: { before: TransformSystem },
+  insert: { before: TransformDirtyUpdateSystem },
   execute: () => {
     const viewerEntity = Engine.instance.viewerEntity
     if (!viewerEntity) return

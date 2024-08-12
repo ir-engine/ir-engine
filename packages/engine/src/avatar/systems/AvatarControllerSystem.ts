@@ -36,14 +36,12 @@ import {
   setComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction } from '@etherealengine/hyperflux'
 import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { TransformComponent, TransformSystem } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { DistanceFromLocalClientComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { getDistanceSquaredFromTarget } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -55,31 +53,16 @@ const controllerQuery = defineQuery([AvatarControllerComponent, NetworkObjectAut
 const execute = () => {
   const controlledEntities = controllerQuery()
 
-  for (const avatarEntity of controllerQuery.enter()) {
-    const controller = getComponent(avatarEntity, AvatarControllerComponent)
-
-    const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
-    setComponent(controller.cameraEntity, FollowCameraComponent, {
-      targetEntity: avatarEntity,
-      phi: targetCameraRotation.phi,
-      theta: targetCameraRotation.theta
-    })
-  }
-
   /** @todo non-immersive camera should utilize isCameraAttachedToAvatar */
-  if (!getState(XRControlsState).isCameraAttachedToAvatar)
-    for (const entity of controlledEntities) {
-      const controller = getComponent(entity, AvatarControllerComponent)
-      const followCamera = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
-      if (followCamera) {
-        // todo calculate head size and use that as the bound #7263
-        if (followCamera.distance < 0.3) setComponent(entity, AvatarHeadDecapComponent, true)
-        else removeComponent(entity, AvatarHeadDecapComponent)
-      }
-    }
-
   for (const entity of controlledEntities) {
     const controller = getComponent(entity, AvatarControllerComponent)
+
+    const followCamera = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
+    if (followCamera) {
+      // todo calculate head size and use that as the bound #7263
+      if (followCamera.distance < 0.3) setComponent(entity, AvatarHeadDecapComponent, true)
+      else removeComponent(entity, AvatarHeadDecapComponent)
+    }
 
     if (!controller.movementCaptured.length) {
       if (

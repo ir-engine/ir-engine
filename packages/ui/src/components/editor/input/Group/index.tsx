@@ -30,7 +30,6 @@ import { MdOutlineHelpOutline } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Label from '../../../../primitives/tailwind/Label'
 import Tooltip from '../../../../primitives/tailwind/Tooltip'
-import { InfoTooltip } from '../../layout/Tooltip'
 
 /**
  * Used to provide styles for InputGroupContainer div.
@@ -54,7 +53,7 @@ export const InputGroupContent = ({ extraClassName = '', children }) => (
     className={twMerge(
       'ml-4 flex justify-between',
       '[&>label]:block [&>label]:w-[35%] [&>label]:pb-0.5 [&>label]:pt-1 [&>label]:text-neutral-400',
-      "font-['Figtree'] text-xs font-normal text-neutral-400",
+      'text-xs font-normal text-neutral-400',
       '[&>*:first-child]:max-w-[calc(100%_-_2px)]',
       extraClassName
     )}
@@ -98,47 +97,41 @@ export const InputGroupInfoIcon = ({ onClick = () => {} }) => (
   />
 )
 
-interface InputGroupInfoProp {
-  info: string | JSX.Element
-}
-
-/**
- * Used to render InfoTooltip component.
- */
-export function InputGroupInfo({ info }: InputGroupInfoProp) {
-  return (
-    <InfoTooltip title={info}>
-      <InputGroupInfoIcon />
-    </InfoTooltip>
-  )
-}
-
 export interface InputGroupProps {
   name?: string
   label: string
   info?: string
   disabled?: boolean
   children: React.ReactNode
-  className?: string
+  containerClassName?: string
   labelClassName?: string
   infoClassName?: string
+  className?: string
 }
 
 /**
  * InputGroup used to render the view of component.
  */
-export function InputGroup({ children, info, label, className, labelClassName, infoClassName }: InputGroupProps) {
+export function InputGroup({
+  children,
+  info,
+  label,
+  containerClassName,
+  labelClassName,
+  infoClassName,
+  className
+}: InputGroupProps) {
   return (
-    <div className={twMerge('my-1 mr-6 flex items-center justify-end', className)}>
-      <div className="flex">
-        <Label className={twMerge('mr-2.5 text-wrap text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
+    <div className={twMerge('my-1 flex flex-wrap items-center justify-end', containerClassName)}>
+      <div className="mr-2 flex">
+        <Label className={twMerge('mr-2.5 text-wrap text-end text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
         {info && (
-          <Tooltip title={info}>
-            <LuInfo className={twMerge('-ml-0.5 mr-2.5 h-5 w-5 text-[#A0A1A2]', infoClassName)} />
+          <Tooltip content={info}>
+            <LuInfo className={twMerge('h-5 w-5 text-[#A0A1A2]', infoClassName)} />
           </Tooltip>
         )}
       </div>
-      {children}
+      <div className={twMerge('w-60', className)}>{children}</div>
     </div>
   )
 }

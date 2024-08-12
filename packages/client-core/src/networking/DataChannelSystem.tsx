@@ -127,7 +127,7 @@ export const consumerData = async (action: typeof MediasoupDataConsumerActions.c
     const [fromPeerIndex, data] = decode(message)
     const fromPeerID = network.peerIndexToPeerID[fromPeerIndex]
     const dataBuffer = new Uint8Array(data).buffer
-    network.transport.onBuffer(dataConsumer.label as DataChannelType, fromPeerID, dataBuffer)
+    network.onBuffer(dataConsumer.label as DataChannelType, fromPeerID, dataBuffer)
   }) // Handle message received
 
   dataConsumer.on('transportclose', () => {
@@ -159,7 +159,7 @@ export const DataChannel = (props: { networkID: InstanceID; dataChannelType: Dat
   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
 
   useEffect(() => {
-    if (!networkState.ready.value) return
+    if (!networkState.ready?.value) return
 
     const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
     createDataProducer(network, { label: dataChannelType })
@@ -168,7 +168,7 @@ export const DataChannel = (props: { networkID: InstanceID; dataChannelType: Dat
     return () => {
       // todo - cleanup
     }
-  }, [networkState.ready.value])
+  }, [networkState.ready?.value])
 
   return null
 }

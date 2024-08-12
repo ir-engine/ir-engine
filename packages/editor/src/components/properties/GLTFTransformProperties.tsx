@@ -74,7 +74,7 @@ function TextParam({
 
       <div className="col-span-2 col-start-3">
         <Input
-          className="py-0 text-xs text-[#9CA0AA]"
+          className="py-0 text-xs text-theme-input"
           value={state.value}
           onChange={(e) => {
             state.set(parseFunction(e.target.value))
@@ -86,55 +86,78 @@ function TextParam({
 }
 
 export default function GLTFTransformProperties({
-  transformParms
+  transformParms,
+  itemCount = 1
 }: {
   transformParms: State<ModelTransformParameters>
+  itemCount: number
 }) {
   const { t } = useTranslation()
 
   return (
     transformParms && (
       <>
-        <div className="mb-6 grid grid-cols-4 gap-2 border-b border-theme-primary pb-6">
-          <div className="col-span-1 flex flex-col justify-around gap-y-2">
-            <Text
-              fontSize="xs"
-              fontWeight="medium"
-              className="block px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
-              style={{
-                textWrap: 'nowrap' // tailwind class is not working
-              }}
-            >
-              {t('editor:properties.model.transform.dst')}
-            </Text>
-            <Text
-              fontSize="xs"
-              fontWeight="medium"
-              className="px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
-              style={{
-                textWrap: 'nowrap' // tailwind class is not working
-              }}
-            >
-              {t('editor:properties.model.transform.resourceUri')}
-            </Text>
+        {itemCount === 1 && (
+          <div className="mb-6 grid grid-cols-4 gap-2 border-b border-theme-primary pb-6">
+            <div className="col-span-1 flex flex-col justify-around gap-y-2">
+              <Text
+                fontSize="xs"
+                fontWeight="medium"
+                className="block px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
+                style={{
+                  textWrap: 'nowrap' // tailwind class is not working
+                }}
+              >
+                {t('editor:properties.model.transform.dst')}
+              </Text>
+              <Text
+                fontSize="xs"
+                fontWeight="medium"
+                className="px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
+                style={{
+                  textWrap: 'nowrap' // tailwind class is not working
+                }}
+              >
+                {t('editor:properties.model.transform.resourceUri')}
+              </Text>
+            </div>
+            <div className="col-span-3 flex flex-col justify-around gap-y-2">
+              <Input
+                value={transformParms.dst.value}
+                onChange={(e) => {
+                  transformParms.dst.set(e.target.value)
+                }}
+                className="px-2 py-0.5 text-sm text-theme-input"
+              />
+              <Input
+                value={transformParms.resourceUri.value}
+                onChange={(e) => {
+                  transformParms.resourceUri.set(e.target.value)
+                }}
+                className="px-2 py-0.5 text-sm text-theme-input"
+              />
+            </div>
           </div>
-          <div className="col-span-3 flex flex-col justify-around gap-y-2">
-            <Input
-              value={transformParms.dst.value}
-              onChange={(e) => {
-                transformParms.dst.set(e.target.value)
-              }}
-              className="px-2 py-0.5 font-['Figtree'] text-sm text-[#9CA0AA]"
-            />
-            <Input
-              value={transformParms.resourceUri.value}
-              onChange={(e) => {
-                transformParms.resourceUri.set(e.target.value)
-              }}
-              className="px-2 py-0.5 font-['Figtree'] text-sm text-[#9CA0AA]"
-            />
+        )}
+        {itemCount > 1 && (
+          <div className="mb-6 grid grid-cols-4 gap-2 border-b border-theme-primary pb-6">
+            <div className="col-span-1 flex flex-col justify-around gap-y-2">
+              <Text
+                fontSize="xs"
+                fontWeight="medium"
+                className="block px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
+                style={{
+                  textWrap: 'nowrap' // tailwind class is not working
+                }}
+              >
+                {t('editor:properties.model.transform.dst')}
+              </Text>
+            </div>
+            <div className="col-span-3 flex flex-col justify-around gap-y-2">
+              <Input value={`${itemCount} Items`} disabled={true} className="px-2 py-0.5 text-sm text-theme-input" />
+            </div>
           </div>
-        </div>
+        )}
 
         <Accordion
           title="Materials"
@@ -152,7 +175,7 @@ export default function GLTFTransformProperties({
 
             <div className="col-span-2 col-start-3">
               <Select
-                inputClassName="text-[#9CA0AA] text-xs py-0"
+                inputClassName="text-theme-input text-xs py-0"
                 options={[
                   { label: 'Default', value: 'default' },
                   { label: 'JPG', value: 'jpg' },
@@ -196,7 +219,7 @@ export default function GLTFTransformProperties({
 
             <div className="col-span-2 col-start-3">
               <Select
-                inputClassName="text-[#9CA0AA] text-xs py-0"
+                inputClassName="text-theme-input text-xs py-0"
                 options={[
                   { label: 'UASTC', value: 'uastc' },
                   { label: 'ETC1', value: 'etc1' }
