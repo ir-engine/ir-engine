@@ -101,12 +101,9 @@ export const SceneItem = ({ scene, updateEditorState, handleOpenScene, refetchPr
         <div className="inline-flex w-full flex-col items-start justify-start">
           <div className="space-between flex w-full flex-row">
             <Text component="h3" fontWeight="light" className="leading-6 text-neutral-100">
-              {sceneName.length > 20 && (
-                <Tooltip title={sceneName}>
-                  <div>{sceneName.substring(0, 20)} ...</div>
-                </Tooltip>
-              )}
-              {sceneName.length <= 20 && <div>{sceneName}</div>}
+              <Tooltip title={sceneName}>
+                <div className="min-w-52 max-w-52 truncate">{sceneName}</div>
+              </Tooltip>
             </Text>
           </div>
           <Text component="h3" fontSize="xs" fontWeight="light" className="h-3.5 w-40 leading-5 text-neutral-100">
