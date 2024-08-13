@@ -25,12 +25,10 @@ Ethereal Engine. All Rights Reserved.
 import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import config from '@etherealengine/common/src/config'
 import {
   FileBrowserContentType,
   StaticResourceType,
   UserID,
-  archiverPath,
   fileBrowserPath,
   projectPath,
   staticResourcePath
@@ -38,7 +36,6 @@ import {
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { bytesToSize } from '@etherealengine/common/src/utils/btyesToSize'
 import { unique } from '@etherealengine/common/src/utils/miscUtils'
-import { Engine } from '@etherealengine/ecs'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import {
   FilesViewModeSettings,
@@ -50,11 +47,7 @@ import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/
 import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import {
-  downloadBlobAsZip,
-  handleUploadFiles,
-  inputFileWithAddToScene
-} from '@etherealengine/editor/src/functions/assetFunctions'
+import { handleUploadFiles, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
@@ -87,7 +80,7 @@ import InputGroup from '../../../input/Group'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
 import DeleteFileModal from '../browserGrid/DeleteFileModal'
 import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
-import { ProjectDownloadProgress } from '../download/projectDownloadProgress'
+import { ProjectDownloadProgress, handleDownloadProject } from '../download/projectDownload'
 import { FileUploadProgress } from '../upload/FileUploadProgress'
 
 type FileBrowserContentPanelProps = {
@@ -482,48 +475,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     selectedDirectory.value.startsWith('/projects/' + projectName + '/assets/')
   const showBackButton = selectedDirectory.value.split('/').length > props.originalPath.split('/').length
 
-  const handleDownloadProject = async () => {
-    const data = await Engine.instance.api
-      .service(archiverPath)
-      .get(null, { query: { project: projectName } })
-      .catch((err: Error) => {
-        NotificationService.dispatchNotify(err.message, { variant: 'warning' })
-        return null
-      })
-    if (!data) return
-    downloadState.isDownloading.set(true) // Start Download
-
-    const response = await fetch(`${config.client.fileServer}/${data}`)
-    const totalBytes = parseInt(response.headers.get('Content-Length') || '0', 10)
-    downloadState.total.set(totalBytes) // Set the total bytes
-
-    const reader = response.body?.getReader()
-    const chunks: Uint8Array[] = []
-    let bytesReceived = 0
-
-    while (true) {
-      const { done, value } = await reader!.read()
-      if (done) break
-      chunks.push(value)
-      bytesReceived += value.length
-      downloadState.progress.set(bytesReceived)
-    }
-
-    const blob = new Blob(chunks)
-    downloadState.isDownloading.set(false) // Mark as completed
-    downloadState.progress.set(0)
-    downloadState.total.set(0)
-
-    let fileName: string
-    if (selectedDirectory.value.at(-1) === '/') {
-      fileName = selectedDirectory.value.split('/').at(-2) as string
-    } else {
-      fileName = selectedDirectory.value.split('/').at(-1) as string
-    }
-
-    downloadBlobAsZip(blob, fileName)
-  }
-
   const BreadcrumbItems = () => {
     const handleBreadcrumbDirectoryClick = (targetFolder: string) => {
       if (orgName && targetFolder === 'projects') return
@@ -897,7 +848,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               variant="transparent"
               startIcon={<FiDownload />}
               className="p-0"
-              onClick={handleDownloadProject}
+              onClick={() => handleDownloadProject(projectName, selectedDirectory.value)}
               disabled={!showDownloadButtons}
             />
           </Tooltip>
@@ -949,12 +900,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </Button>
       </div>
       <FileUploadProgress />
-      <ProjectDownloadProgress
-        isDownloading={downloadState.isDownloading.value}
-        completed={bytesToSize(downloadState.progress.value)}
-        total={bytesToSize(downloadState.total.value)}
-        progress={(downloadState.progress.value / downloadState.total.value) * 100}
-      />
+      <ProjectDownloadProgress />
       {isLoading && (
         <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} fullSpace className="block h-12 w-12" />
       )}
