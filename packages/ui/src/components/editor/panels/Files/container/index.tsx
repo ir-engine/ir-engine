@@ -298,7 +298,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const onSelect = (event, params: FileDataType) => {
-    if (params.type !== 'folder') {
+    if (params.isFolder && event.detail === 2) {
+      const newPath = `${selectedDirectory.value}${params.name}/`
+      changeDirectoryByPath(newPath)
+    } else {
       props.onSelectionChanged({
         resourceUrl: params.url,
         name: params.name,
@@ -307,11 +310,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       })
 
       ClickPlacementState.setSelectedAsset(params.url)
-    } else {
-      if (event.detail === 2) {
-        const newPath = `${selectedDirectory.value}${params.name}/`
-        changeDirectoryByPath(newPath)
-      }
     }
   }
 
@@ -325,7 +323,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     selectedFileKeys?: string[]
   ) => {
     if (isLoading) return
-
     const destinationPath = dropOn?.isFolder ? `${dropOn.key}/` : selectedDirectory.value
 
     if (selectedFileKeys && selectedFileKeys.length > 0) {
@@ -333,18 +330,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         selectedFileKeys.map(async (fileKey) => {
           const file = files.find((f) => f.key === fileKey)
           if (file) {
-            if (file.isFolder) {
-              await fileService.create(`${destinationPath}${file.name}`)
-            } else {
-              const newName = `${file.name}${file.type ? '.' + file.type : ''}`
-              await moveContent(file.fullName, newName, file.path, destinationPath, false)
-            }
+            const newName = file.isFolder ? file.name : `${file.name}${file.type ? '.' + file.type : ''}`
+            await moveContent(file.fullName, newName, file.path, destinationPath, false)
           }
         })
       )
     } else if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
-        const newName = `${data.name}${data.type ? '.' + data.type : ''}`
+        const newName = data.isFolder ? data.name : `${data.name}${data.type ? '.' + data.type : ''}`
         await moveContent(data.fullName, newName, data.path, destinationPath, false)
       }
     } else {
@@ -572,8 +565,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   item={file}
                   disableDnD={props.disableDnD}
                   projectName={projectName}
-                  onClick={(event, currentFile) => {
-                    handleFileBrowserItemClick(event, currentFile)
+                  onClick={(event) => {
+                    handleFileBrowserItemClick(event, file)
                     onSelect(event, file)
                   }}
                   onContextMenu={(event, currentFile) => {
@@ -638,6 +631,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   staticResourceModifiedDates={staticResourceModifiedDates.value}
                   isSelected={fileProperties.value.some(({ key }) => key === file.key)}
                   refreshDirectory={refreshDirectory}
+                  selectedFileKeys={fileProperties.value.map((file) => file.key)}
                 />
               ))}
             </>
