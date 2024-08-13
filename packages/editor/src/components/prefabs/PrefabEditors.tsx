@@ -99,12 +99,6 @@ export const PrefabShelfState = defineState({
         detail: 'Simple cylinder collider'
       },
       {
-        name: 'Mesh Collider',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/mesh-collider.prefab.gltf`,
-        category: 'Collider',
-        detail: 'Simple mesh collider, drag and drop your mesh'
-      },
-      {
         name: 'Text',
         url: `${config.client.fileServer}/projects/default-project/assets/prefabs/text.prefab.gltf`,
         category: 'Text'
