@@ -23,36 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { cloneDeep, merge } from 'lodash'
+/**
+ * Converts bytes to a human-readable size
+ * @param bytes The number of bytes
+ * @param decimals The number of decimal places to include
+ * @returns The human-readable size
+ */
 
-export const mapToObject = <K extends string | number, V>(map: Map<K, V>): Record<K, V> =>
-  Array.from(map.entries()).reduce((obj, [key, value]) => {
-    return merge({ [key]: value }, obj)
-  }, {}) as any
+export function bytesToSize(bytes: number, decimals = 2) {
+  if (bytes === 0) return '0 Bytes'
 
-export const iterativeMapToObject = (root: Record<any, any>) => {
-  const seen = new Set()
-  const iterate = (obj) => {
-    if (typeof obj !== 'object' || obj === null) return obj
-    const output = {}
-    for (const [key, value] of Object.entries(obj)) {
-      if (seen.has(value)) continue
-      if (typeof value === 'object') seen.add(value)
-      if (!value) {
-        output[key] = value
-      } else if (value instanceof Map && value) {
-        output[key] = mapToObject(value)
-      } else if (Array.isArray(value)) {
-        output[key] = [...value.map((val) => iterate(val))]
-      } else {
-        output[key] = iterate(value)
-      }
-    }
-    return output
-  }
-  return cloneDeep(iterate(root))
-}
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
 
-export function objectToMap(object: object) {
-  return new Map(Object.entries(object))
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }
