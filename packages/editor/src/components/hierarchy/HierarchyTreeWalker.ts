@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ComponentType, getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getState } from '@etherealengine/hyperflux'
@@ -68,7 +68,7 @@ function buildHierarchyTree(
   sceneID: string,
   showModelChildren: boolean
 ) {
-  const uuid = node.extensions && (node.extensions[UUIDComponent.jsonID] as ComponentType<typeof UUIDComponent>)
+  const uuid = node.extensions && (node.extensions[UUIDComponent.jsonID] as EntityUUID)
   const entity = UUIDComponent.getEntityByUUID(uuid!)
   if (!entity || !entityExists(entity)) return
 

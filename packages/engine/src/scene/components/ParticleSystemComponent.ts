@@ -868,7 +868,7 @@ export const ParticleSystemComponent = defineComponent({
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
     const sceneID = useOptionalComponent(entity, SourceComponent)?.value
     const rootEntity = useHookstate(getMutableState(GLTFSourceState))[sceneID ?? ''].value
-    const rootGLTF = useOptionalComponent(rootEntity, GLTFComponent)
+    const sceneLoaded = GLTFComponent.useSceneLoaded(rootEntity)
     const refreshed = useHookstate(false)
 
     const [geoDependency] = useGLTF(componentState.value.systemParameters.instancingGeometry!, entity, (url) => {
@@ -890,7 +890,7 @@ export const ParticleSystemComponent = defineComponent({
     })
     //@todo: this is a hack to make trail rendering mode work correctly. We need to find out why an additional snapshot is needed
     useEffect(() => {
-      if (rootGLTF?.value?.progress !== 100) return
+      if (!sceneLoaded) return
       if (refreshed.value) return
 
       //if (componentState.systemParameters.renderMode.value === RenderMode.Trail) {
@@ -898,7 +898,7 @@ export const ParticleSystemComponent = defineComponent({
       dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
       //}
       refreshed.set(true)
-    }, [rootGLTF?.value?.progress])
+    }, [sceneLoaded])
 
     useEffect(() => {
       //add dud material

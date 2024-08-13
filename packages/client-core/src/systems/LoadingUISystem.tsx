@@ -64,7 +64,7 @@ import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRen
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 import { EntityTreeComponent, useChildWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { TransformDirtyUpdateSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import type { WebLayer3D } from '@etherealengine/xrui'
@@ -140,9 +140,9 @@ export const LoadingUISystemState = defineState({
 
 const LoadingReactor = (props: { sceneEntity: Entity }) => {
   const { sceneEntity } = props
-  const gltfComponent = useComponent(props.sceneEntity, GLTFComponent)
+  const gltfComponent = useComponent(sceneEntity, GLTFComponent)
   const loadingProgress = gltfComponent.progress.value
-  const sceneLoaded = loadingProgress === 100
+  const sceneLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
   const locationState = useMutableState(LocationState)
   const state = useMutableState(LoadingUISystemState)
 
@@ -363,7 +363,7 @@ const Reactor = () => {
 
 export const LoadingUISystem = defineSystem({
   uuid: 'ee.client.LoadingUISystem',
-  insert: { before: TransformSystem },
+  insert: { before: TransformDirtyUpdateSystem },
   execute,
   reactor: () => {
     if (!useMutableState(EngineState).viewerEntity.value) return null

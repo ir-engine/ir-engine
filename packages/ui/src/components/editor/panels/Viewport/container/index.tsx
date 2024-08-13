@@ -94,7 +94,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
                     contentType: file.type
                   }
                 ]
-              }).promise as Promise<string>
+              }).promise as Promise<string[]>
             } catch (err) {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
             }
@@ -102,8 +102,8 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
         ).then((urls) => {
           const vec3 = new Vector3()
           urls.forEach((url) => {
-            if (!url) return
-            addMediaNode(url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+            if (!url || url.length < 1 || !url[0] || url[0] === '') return
+            addMediaNode(url[0], undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
           })
         })
       }
@@ -123,6 +123,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
 const SceneLoadingProgress = ({ rootEntity }) => {
   const { t } = useTranslation()
   const progress = useComponent(rootEntity, GLTFComponent).progress.value
+  const loaded = GLTFComponent.useSceneLoaded(rootEntity)
   const resourcePendingQuery = useQuery([ResourcePendingComponent])
   const root = getComponent(rootEntity, SourceComponent)
   const sceneModified = useHookstate(getMutableState(GLTFModifiedState)[root]).value
@@ -142,12 +143,13 @@ const SceneLoadingProgress = ({ rootEntity }) => {
     }
   }, [sceneModified])
 
-  if (progress === 100) return null
+  if (loaded) return null
 
   return (
     <LoadingView
       fullSpace
       className="block h-12 w-12"
+      containerClassname="absolute bg-black bg-opacity-70"
       title={t('editor:loadingScenesWithProgress', { progress, assetsLeft: resourcePendingQuery.length })}
     />
   )
@@ -183,8 +185,8 @@ const ViewPortPanelContainer = () => {
         {sceneName.value ? <GizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? (
           <>
-            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
             <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
+            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
           </>
         ) : (
           <div className="flex h-full w-full flex-col justify-center gap-2">

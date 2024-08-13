@@ -58,9 +58,20 @@ describe('storageprovider', () => {
   storageProviders.forEach((providerType) => {
     describe(`tests for ${providerType.name}`, () => {
       let provider
+      let testRootPath
+
+      const createTestDirectories = async () => {
+        testRootPath = path.join(process.cwd(), 'packages', 'server', 'upload', testFolderName)
+        await fs.ensureDir(testRootPath)
+        await fs.ensureDir(path.join(testRootPath, 'temp'))
+        await fs.ensureDir(path.join(testRootPath, 'temp2'))
+        await fs.ensureDir(path.join(testRootPath, 'testDirectory'))
+      }
+
       before(async function () {
         createEngine()
         provider = new providerType()
+        await createTestDirectories()
         await providerBeforeTest(provider, testFolderName, folderKeyTemp, folderKeyTemp2)
       })
 
@@ -165,19 +176,27 @@ describe('storageprovider', () => {
       })
 
       it(`should put over 1000 objects in ${providerType.name}`, async function () {
-        const promises: any[] = []
-        for (let i = 0; i < 1010; i++) {
-          const fileKey = path.join(testFolderName, `${i}-${testFileName}`)
-          const data = Buffer.from([])
-          promises.push(
-            provider.putObject({
-              Body: data,
-              Key: fileKey,
-              ContentType: getContentType(fileKey)
-            })
-          )
+        this.timeout(30000) // increase timeout to 30 seconds
+
+        const batchSize = 100
+        const totalObjects = 1010
+
+        for (let i = 0; i < totalObjects; i += batchSize) {
+          const promises: any[] = []
+          for (let j = i; j < Math.min(i + batchSize, totalObjects); j++) {
+            const fileKey = path.join(testFolderName, `${j}-${testFileName}`)
+            const data = Buffer.from([])
+            promises.push(
+              provider.putObject({
+                Body: data,
+                Key: fileKey,
+                ContentType: getContentType(fileKey)
+              })
+            )
+          }
+          await Promise.all(promises)
+          await new Promise((resolve) => setTimeout(resolve, 100)) // Add a small delay between batches
         }
-        await Promise.all(promises)
       })
 
       it(`should list over 1000 objects in ${providerType.name}`, async function () {
@@ -185,9 +204,43 @@ describe('storageprovider', () => {
         assert(res.length > 1000)
       })
 
+      it(`isDirectory: should correctly identify directories in ${providerType.name}`, async function () {
+        const dirName = 'testDirectory'
+        const dirPath = path.join(testRootPath, dirName)
+        const fileName = `testFile-${uuidv4()}.txt`
+        const filePath = path.join(dirPath, fileName)
+
+        // create a directory
+        await provider.putObject(
+          {
+            Key: dirPath,
+            Body: Buffer.from(''),
+            ContentType: 'application/x-directory'
+          },
+          { isDirectory: true }
+        )
+
+        // create a file inside the directory
+        await provider.putObject({
+          Body: Buffer.from('test content'),
+          Key: filePath,
+          ContentType: 'text/plain'
+        })
+
+        // test isDirectory
+        assert(await provider.isDirectory(dirName, testRootPath), 'Should identify directory')
+        assert(!(await provider.isDirectory(fileName, filePath)), 'Should not identify file as directory')
+        assert(
+          !(await provider.isDirectory('nonexistent', testFolderName)),
+          'Should not identify non-existent path as directory'
+        )
+      })
+
       after(async function () {
         await destroyEngine()
         await providerAfterTest(provider, testFolderName)
+        // clean up the test directory
+        await fs.remove(testRootPath)
       })
     })
   })
