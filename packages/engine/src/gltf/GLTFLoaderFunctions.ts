@@ -27,11 +27,14 @@ import {
   ComponentType,
   EntityUUID,
   UUIDComponent,
+  getComponent,
   getOptionalComponent,
   useOptionalComponent
 } from '@etherealengine/ecs'
 import { NO_PROXY, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { MaterialPrototypeComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { GLTF } from '@gltf-transform/core'
 import { useEffect } from 'react'
 import {
@@ -57,7 +60,6 @@ import {
   LoaderUtils,
   Mesh,
   MeshBasicMaterial,
-  MeshPhysicalMaterial,
   MeshStandardMaterial,
   NumberKeyframeTrack,
   QuaternionKeyframeTrack,
@@ -450,12 +452,6 @@ export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primit
   geometry.boundingSphere = sphere
 }
 
-const Prototypes = {
-  basic: MeshBasicMaterial,
-  standard: MeshStandardMaterial,
-  physical: MeshPhysicalMaterial
-}
-
 /**
  * Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#materials
  * @param {number} materialIndex
@@ -468,8 +464,15 @@ const useLoadMaterial = (
   const result = useHookstate(null as null | MeshStandardMaterial | MeshBasicMaterial)
 
   useEffect(() => {
-    const materialTypeValue = Prototypes[materialDef.type]
-    const material = new materialTypeValue()
+    /** @todo refactor this into a proper registry, rather than prototype definition entities */
+    const materialPrototypeEntity = NameComponent.entitiesByName[materialDef.type]?.[0]
+    const materialPrototype = materialPrototypeEntity
+      ? (getComponent(materialPrototypeEntity, MaterialPrototypeComponent).prototypeConstructor as any)[
+          materialDef.type
+        ]
+      : null
+    const materialConstructor = materialPrototype ?? MeshStandardMaterial
+    const material = new materialConstructor()
 
     result.set(material)
 

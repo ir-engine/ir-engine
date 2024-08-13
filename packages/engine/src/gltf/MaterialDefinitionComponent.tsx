@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   ComponentType,
+  EntityUUID,
   UUIDComponent,
   defineComponent,
   getComponent,
@@ -32,7 +33,7 @@ import {
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
-import { NO_PROXY, useImmediateEffect } from '@etherealengine/hyperflux'
+import { NO_PROXY, startReactor, useImmediateEffect } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { GLTF } from '@gltf-transform/core'
@@ -41,6 +42,7 @@ import {
   CanvasTexture,
   Color,
   LinearSRGBColorSpace,
+  Material,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   SRGBColorSpace,
@@ -55,9 +57,9 @@ export const MaterialDefinitionComponent = defineComponent({
   name: 'MaterialDefinitionComponent',
   onInit: (entity) => {
     return {
-      type: 'standard'
+      type: 'MeshStandardMaterial'
     } as GLTF.IMaterial & {
-      type: 'standard' | 'basic' | 'physical'
+      type: 'MeshStandardMaterial' | 'MeshPhysicalMaterial' | 'MeshBasicMaterial' | (string & {})
     }
   },
 
@@ -120,7 +122,7 @@ export const KHRUnlitExtensionComponent = defineComponent({
     const entity = useEntityContext()
 
     useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'basic' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshBasicMaterial' })
     }, [])
 
     return null
@@ -205,7 +207,7 @@ export const KHRClearcoatExtensionComponent = defineComponent({
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'physical' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
     }, [])
 
     useEffect(() => {
@@ -310,7 +312,7 @@ export const KHRIridescenceExtensionComponent = defineComponent({
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'physical' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
     }, [])
 
     useEffect(() => {
@@ -407,7 +409,7 @@ export const KHRSheenExtensionComponent = defineComponent({
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'physical' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
       const material = materialStateComponent.material.value as MeshPhysicalMaterial
       material.setValues({ sheen: 1 })
     }, [])
@@ -491,7 +493,7 @@ export const KHRTransmissionExtensionComponent = defineComponent({
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'physical' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
     }, [])
 
     useEffect(() => {
@@ -555,7 +557,7 @@ export const KHRVolumeExtensionComponent = defineComponent({
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'physical' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
     }, [])
 
     useEffect(() => {
@@ -629,7 +631,7 @@ export const KHRIorExtensionComponent = defineComponent({
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'physical' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
     }, [])
 
     useEffect(() => {
@@ -683,7 +685,7 @@ export const KHRSpecularExtensionComponent = defineComponent({
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useImmediateEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'physical' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
     }, [])
 
     useEffect(() => {
@@ -762,7 +764,7 @@ export const EXTBumpExtensionComponent = defineComponent({
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'physical' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
     }, [])
 
     useEffect(() => {
@@ -822,7 +824,7 @@ export const KHRAnisotropyExtensionComponent = defineComponent({
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'physical' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
     }, [])
 
     useEffect(() => {
@@ -1043,7 +1045,7 @@ export const KHRMaterialsPBRSpecularGlossinessComponent = defineComponent({
     const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
     useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'standard' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshStandardMaterial' })
       console.warn(
         'KHR_materials_pbrSpecularGlossiness is deprecated. Use KHR_materials_ior and KHR_materials_specular instead.'
       )
@@ -1113,3 +1115,108 @@ const invertGlossinessMap = async (glossinessMap: Texture) => {
   const invertedTexture = new CanvasTexture(canvas)
   return invertedTexture
 }
+
+export type MaterialExtensionPluginType = { id: string; uniforms: { [key: string]: any } }
+
+export const EEMaterialComponent = defineComponent({
+  name: 'EEMaterialComponent',
+  jsonID: 'EE_material',
+
+  onInit(entity) {
+    return {} as {
+      uuid: EntityUUID
+      name: string
+      prototype: string
+      args: {
+        [field: string]: {
+          type: string
+          contents: any
+        }
+      }
+      plugins: MaterialExtensionPluginType[]
+    }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+    if (typeof json.uuid === 'string') component.uuid.set(json.uuid)
+    if (typeof json.name === 'string') component.name.set(json.name)
+    if (typeof json.prototype === 'string') component.prototype.set(json.prototype)
+    if (typeof json.args === 'object') component.args.set(json.args)
+    if (Array.isArray(json.plugins)) component.plugins.set(json.plugins)
+  },
+
+  toJSON(entity, component) {
+    return {
+      uuid: component.uuid.value,
+      name: component.name.value,
+      prototype: component.prototype.value,
+      args: component.args.value,
+      plugins: component.plugins.value
+    }
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const component = useComponent(entity, EEMaterialComponent)
+    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+
+    useEffect(() => {
+      setComponent(entity, MaterialDefinitionComponent, { type: component.prototype.value })
+    }, [component.prototype.value])
+
+    useEffect(() => {
+      const options = getParserOptions(entity)
+      const resultProperties = {} as Record<string, any>
+      const texturePromises = Object.fromEntries(
+        Object.entries(component.args.value).filter(([k, v]) => v.type === 'texture' && v.contents)
+      )
+
+      const reactor = startReactor(() => {
+        for (const [k, v] of Object.entries(component.args.value)) {
+          if (v.type === 'texture') {
+            if (v.contents) {
+              const texture = GLTFLoaderFunctions.useAssignTexture(options, v.contents)
+              useEffect(() => {
+                if (!texture) return
+                if (k === 'map') texture.colorSpace = SRGBColorSpace
+                resultProperties[k] = texture
+                delete texturePromises[k]
+                if (Object.keys(texturePromises).length === 0) {
+                  const material = materialStateComponent.material.value as Material
+                  material.setValues(resultProperties)
+                  material.needsUpdate = true
+                  reactor.stop()
+                }
+              }, [texture])
+            } else {
+              useEffect(() => {
+                resultProperties[k] = null
+              }, [])
+            }
+          } else if (v.type === 'color') {
+            useEffect(() => {
+              if (v.contents !== null && !(v.contents as Color)?.isColor) {
+                resultProperties[k] = new Color(v.contents)
+              } else {
+                resultProperties[k] = v.contents
+              }
+            }, [])
+          } else {
+            useEffect(() => {
+              resultProperties[k] = v.contents
+            }, [])
+          }
+        }
+
+        return null
+      })
+
+      return () => {
+        reactor.stop()
+      }
+    }, [materialStateComponent.material.type.value, component.args.value])
+
+    return null
+  }
+})
