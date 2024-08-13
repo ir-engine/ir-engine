@@ -116,7 +116,6 @@ export const EXT_MESHOPT_COMPRESSION = {
       extensionDef.buffer,
       (bufferView: ArrayBuffer) =>
         new Promise<ArrayBuffer | null>((resolve, reject) => {
-          console.log('bufferView', bufferView)
           const json = options.document
 
           const byteOffset = extensionDef.byteOffset || 0

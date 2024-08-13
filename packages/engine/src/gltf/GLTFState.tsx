@@ -1104,8 +1104,6 @@ export const MorphTargetReactor = (props: {
         mesh.morphTargetInfluences[i].set(meshDef.weights[i])
       }
     }
-
-    console.log('Morph targets loaded', mesh)
   }, [morphTargets])
 
   return null
