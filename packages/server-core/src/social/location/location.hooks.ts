@@ -42,6 +42,7 @@ import {
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
+import { projectHistoryPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import checkScope from '../../hooks/check-scope'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -189,6 +190,27 @@ const removeLocationAdmin = async (context: HookContext<LocationService>) => {
   }
 }
 
+const addDeleteLog = async (context: HookContext<LocationService>) => {
+  try {
+    const resource = context.result as LocationType
+    const scene = await context.app.service(staticResourcePath).get(resource.sceneId)
+    await context.app.service(projectHistoryPath).create({
+      projectId: resource.projectId,
+      userId: context.params.user?.id || null,
+      action: 'LOCATION_UNPUBLISHED',
+      actionIdentifier: resource.id,
+      actionIdentifierType: 'location',
+      actionDetail: JSON.stringify({
+        locationName: resource.slugifiedName,
+        sceneURL: scene.key,
+        sceneId: resource.sceneId
+      })
+    })
+  } catch (error) {
+    console.error('Error in adding delete log: ', error)
+  }
+}
+
 /* ERROR HOOKS */
 
 const duplicateNameError = async (context: HookContext<LocationService>) => {
@@ -263,7 +285,7 @@ export default {
     create: [makeLobbies, createLocationSetting, createAuthorizedLocation],
     update: [],
     patch: [makeLobbies, patchLocationSetting],
-    remove: []
+    remove: [addDeleteLog]
   },
 
   error: {

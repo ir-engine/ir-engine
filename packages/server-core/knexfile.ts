@@ -68,7 +68,15 @@ if (projectsExists) {
 
 const config: Knex.Config = {
   client: 'mysql',
-  connection: appConfig.db.url,
+  connection: {
+    user: appConfig.db.username,
+    password: appConfig.db.password,
+    host: appConfig.db.host,
+    port: parseInt(appConfig.db.port),
+    database: appConfig.db.database,
+    charset: 'utf8mb4',
+    multipleStatements: true
+  },
   migrations: {
     directory: migrationsDirectories,
     tableName: 'knex_migrations',
