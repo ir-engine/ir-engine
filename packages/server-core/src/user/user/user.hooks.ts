@@ -284,6 +284,7 @@ const handleUserSearch = async (context: HookContext<UserService>) => {
 
     const searchedIdentityProviders = (await context.app.service(identityProviderPath).find({
       query: {
+        $select: ['id', 'userId'],
         $or: [
           {
             accountIdentifier: {
