@@ -60,7 +60,7 @@ const onImportAsset = async () => {
   }
 }
 
-export const confirmedSaveIfModified = async () => {
+export const confirmSceneSaveIfModified = async () => {
   const isModified = EditorState.isModified()
 
   if (isModified) {
@@ -74,7 +74,7 @@ export const confirmedSaveIfModified = async () => {
 }
 
 const onClickNewScene = async () => {
-  if (!(await confirmedSaveIfModified())) return
+  if (!(await confirmSceneSaveIfModified())) return
 
   const newSceneUIAddons = getState(EditorState).uiAddons.newScene
   if (Object.keys(newSceneUIAddons).length > 0) {
@@ -85,7 +85,7 @@ const onClickNewScene = async () => {
 }
 
 const onCloseProject = async () => {
-  if (!(await confirmedSaveIfModified())) return
+  if (!(await confirmSceneSaveIfModified())) return
 
   const editorState = getMutableState(EditorState)
   getMutableState(GLTFModifiedState).set({})

@@ -27,7 +27,7 @@ import { SceneItem } from '@etherealengine/client-core/src/admin/components/scen
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import CreateSceneDialog from '@etherealengine/editor/src/components/dialogs/CreateScenePanelDialog'
-import { confirmedSaveIfModified } from '@etherealengine/editor/src/components/toolbar/Toolbar'
+import { confirmSceneSaveIfModified } from '@etherealengine/editor/src/components/toolbar/Toolbar'
 import { onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
@@ -49,7 +49,7 @@ export default function ScenesPanel() {
   const scenesLoading = scenesQuery.status === 'pending'
 
   const onClickScene = async (scene: StaticResourceType) => {
-    if (!(await confirmedSaveIfModified())) return
+    if (!(await confirmSceneSaveIfModified())) return
 
     getMutableState(EditorState).merge({
       scenePath: scene.key

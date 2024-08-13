@@ -41,7 +41,7 @@ import { t } from 'i18next'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
-import Toolbar, { confirmedSaveIfModified } from '../components/toolbar/Toolbar'
+import Toolbar, { confirmSceneSaveIfModified } from '../components/toolbar/Toolbar'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
@@ -202,7 +202,7 @@ const EditorContainer = () => {
 
   useEffect(() => {
     const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
-      if (!(await confirmedSaveIfModified())) {
+      if (!(await confirmSceneSaveIfModified())) {
         event.preventDefault()
         event.returnValue = ''
       }
