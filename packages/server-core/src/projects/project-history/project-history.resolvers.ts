@@ -25,42 +25,57 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
+import { v4 } from 'uuid'
 
 import {
-  ProjectPermissionQuery,
-  ProjectPermissionType
-} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+  ProjectHistoryQuery,
+  ProjectHistoryType
+} from '@etherealengine/common/src/schemas/projects/project-history.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export const projectPermissionResolver = resolve<ProjectPermissionType, HookContext>({
-  user: virtual(async (projectPermission, context) => {
-    if (projectPermission.userId) return await context.app.service(userPath).get(projectPermission.userId)
-  }),
-  createdAt: virtual(async (projectPermission) => fromDateTimeSql(projectPermission.createdAt)),
-  updatedAt: virtual(async (projectPermission) => fromDateTimeSql(projectPermission.updatedAt))
+export const projectHistoryResolver = resolve<ProjectHistoryType, HookContext>({
+  createdAt: virtual(async (projectHistory) => fromDateTimeSql(projectHistory.createdAt))
 })
 
-export const projectPermissionExternalResolver = resolve<ProjectPermissionType, HookContext>({})
-
-export const projectPermissionDataResolver = resolve<ProjectPermissionType, HookContext>({
+export const projectHistoryDataResolver = resolve<ProjectHistoryType, HookContext>({
   id: async () => {
-    return uuidv4()
+    return v4()
   },
-  createdAt: getDateTimeSql,
-  updatedBy: async (_, __, context) => {
-    return context.params?.user?.id || null
-  },
-  updatedAt: getDateTimeSql
+  createdAt: getDateTimeSql
 })
 
-export const projectPermissionPatchResolver = resolve<ProjectPermissionType, HookContext>({
-  updatedBy: async (_, __, context) => {
-    return context.params?.user?.id || null
-  },
-  updatedAt: getDateTimeSql
+const getUserNameAndAvatarURL = (projectHistory: ProjectHistoryType, context: HookContext) => {
+  if (context.method !== 'find') {
+    return {
+      userName: '',
+      userAvatarURL: ''
+    }
+  }
+
+  if (!projectHistory.userId) {
+    return {
+      userName: 'Admin',
+      userAvatarURL: ''
+    }
+  }
+
+  const userInfo = context.userInfo[projectHistory.userId] as {
+    userName: string
+    userAvatarURL: string
+  }
+
+  return userInfo
+}
+
+export const projectHistoryExternalResolver = resolve<ProjectHistoryType, HookContext>({
+  userName: virtual(async (projectHistory, context) => {
+    return getUserNameAndAvatarURL(projectHistory, context).userName
+  }),
+
+  userAvatarURL: virtual(async (projectHistory, context) => {
+    return getUserNameAndAvatarURL(projectHistory, context).userAvatarURL
+  })
 })
 
-export const projectPermissionQueryResolver = resolve<ProjectPermissionQuery, HookContext>({})
+export const projectHistoryQueryResolver = resolve<ProjectHistoryQuery, HookContext>({})
