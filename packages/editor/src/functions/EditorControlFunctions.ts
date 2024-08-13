@@ -40,7 +40,6 @@ import {
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { GLTFDocumentState, GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
@@ -224,8 +223,7 @@ const overwriteLookdevObject = (
         SkyboxComponent,
         HemisphereLightComponent,
         DirectionalLightComponent,
-        PostProcessingComponent,
-        PrimitiveGeometryComponent //this component is for test will remove later
+        PostProcessingComponent
       ]
       let overwrited = false
       for (const comp of lookDevComponent) {
