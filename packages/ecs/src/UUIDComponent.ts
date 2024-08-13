@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { MathUtils } from 'three'
 
-import { defineState, getState, State, useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
+import { defineState, getState, useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
 
 import { defineComponent, setComponent, useComponent } from './ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
@@ -45,7 +45,6 @@ export const UUIDComponent = defineComponent({
   onSet: (entity, component, uuid: EntityUUID) => {
     if (!uuid) throw new Error('UUID cannot be empty')
     if (component.value === uuid) return
-
     component.set(uuid)
   },
 
@@ -78,8 +77,6 @@ export const UUIDComponent = defineComponent({
 
     return null
   },
-
-  entitiesByUUIDState: {} as Record<EntityUUID, State<Entity>>,
 
   useEntityByUUID(uuid: EntityUUID) {
     return useMutableState(UUIDState)[uuid].value || UndefinedEntity
