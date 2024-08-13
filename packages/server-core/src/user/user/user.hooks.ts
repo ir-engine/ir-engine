@@ -339,6 +339,7 @@ export default createSkippableHooks(
           handleUserSearch,
           discardQuery('search', '$sort.accountIdentifier') as any
         ),
+        persistQuery,
         discardQuery('skipAvatar')
       ],
       get: [persistQuery, discardQuery('skipAvatar')],
