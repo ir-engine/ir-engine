@@ -450,6 +450,8 @@ const AssetPanel = () => {
   const assetsPreviewContext = useHookstate({ selectAssetURL: '' })
   const parentCategories = useHookstate<Category[]>([])
 
+  const requestCounter = useRef(0)
+
   const mapCategories = useCallback(() => {
     categories.set(mapCategoriesHelper(collapsedCategories.value))
   }, [categories, collapsedCategories])
@@ -464,6 +466,8 @@ const AssetPanel = () => {
   const staticResourcesFindApi = () => {
     searchTimeoutCancelRef.current?.()
     loading.set(true)
+
+    const currentRequestId = ++requestCounter.current
 
     const debouncedSearchQuery = debounce(() => {
       const tags = selectedCategory.value
@@ -502,6 +506,7 @@ const AssetPanel = () => {
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
+          if (requestCounter.current !== currentRequestId) return
           if (staticResourcesPagination.skip.value > 0) {
             searchedStaticResources.merge(resources.data)
           } else {
