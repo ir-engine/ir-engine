@@ -157,7 +157,9 @@ const Select = <T extends OptionValueType>({
         endComponent={
           <MdOutlineKeyboardArrowDown
             size="1.5em"
-            className={`mr-2 transition-transform ${showOptions.value ? 'rotate-180' : ''}`}
+            className={`mr-2 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
+              disabled ? 'opacity-50' : ''
+            }`}
             onClick={() => {
               if (!disabled) {
                 toggleDropdown()
