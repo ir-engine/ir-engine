@@ -140,6 +140,7 @@ export const createStaticResourceDigest = (staticResources: ImmutableArray<Stati
     // stats: '',
     thumbnailKey: '',
     thumbnailMode: '',
+    updatedBy: '' as UserID,
     createdAt: '',
     updatedAt: '',
 

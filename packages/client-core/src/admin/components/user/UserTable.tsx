@@ -87,18 +87,7 @@ export default function UserTable({
   useSearch(
     adminUserQuery,
     {
-      $or: [
-        {
-          id: {
-            $like: `%${search}%`
-          }
-        },
-        {
-          name: {
-            $like: `%${search}%`
-          }
-        }
-      ]
+      search
     },
     search
   )

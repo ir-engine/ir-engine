@@ -106,6 +106,9 @@ export const identityProviderQuerySchema = Type.Intersect(
     querySyntax(identityProviderQueryProperties, {
       accountIdentifier: {
         $like: Type.String()
+      },
+      email: {
+        $like: Type.String()
       }
     }),
     // Add additional query properties here
