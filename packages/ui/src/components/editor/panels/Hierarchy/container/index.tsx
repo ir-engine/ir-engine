@@ -23,7 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent, getMutableComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -276,9 +281,11 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
         }
         setPrevClickedNode(entity)
       } else if (e.detail === 2) {
-        const editorCameraState = getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
-        editorCameraState.focusedEntities.set([entity])
-        editorCameraState.refocus.set(true)
+        if (entity && getOptionalComponent(entity, CameraOrbitComponent)) {
+          const editorCameraState = getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
+          editorCameraState.focusedEntities.set([entity])
+          editorCameraState.refocus.set(true)
+        }
       }
     },
     [prevClickedNode, entityHierarchy]
