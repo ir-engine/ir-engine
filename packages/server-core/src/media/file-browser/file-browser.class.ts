@@ -244,14 +244,37 @@ export class FileBrowserService
     const results = [] as StaticResourceType[]
     for (const resource of staticResources) {
       const newKey = resource.key.replace(path.join(oldDirectory, oldName), path.join(newDirectory, fileName))
-      const result = await this.app.service(staticResourcePath).patch(
-        resource.id,
-        {
-          key: newKey
-        },
-        { isInternal: true }
-      )
-      results.push(result)
+
+      if (data.isCopy) {
+        const result = await this.app.service(staticResourcePath).create(
+          {
+            key: newKey,
+            hash: resource.hash,
+            mimeType: resource.mimeType,
+            project: data.newProject,
+            stats: resource.stats,
+            type: resource.type,
+            tags: resource.tags,
+            dependencies: resource.dependencies,
+            licensing: resource.licensing,
+            description: resource.description,
+            attribution: resource.attribution,
+            thumbnailKey: resource.thumbnailKey,
+            thumbnailMode: resource.thumbnailMode
+          },
+          { isInternal: true }
+        )
+        results.push(result)
+      } else {
+        const result = await this.app.service(staticResourcePath).patch(
+          resource.id,
+          {
+            key: newKey
+          },
+          { isInternal: true }
+        )
+        results.push(result)
+      }
     }
 
     if (config.fsProjectSyncEnabled) {
