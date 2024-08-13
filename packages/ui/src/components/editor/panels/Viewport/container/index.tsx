@@ -29,21 +29,19 @@ import { uploadToFeathersService } from '@etherealengine/client-core/src/util/up
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { clientSettingPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { getComponent, useComponent, useQuery } from '@etherealengine/ecs'
+import { useComponent, useQuery } from '@etherealengine/ecs'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
-import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -123,31 +121,16 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
 const SceneLoadingProgress = ({ rootEntity }) => {
   const { t } = useTranslation()
   const progress = useComponent(rootEntity, GLTFComponent).progress.value
+  const loaded = GLTFComponent.useSceneLoaded(rootEntity)
   const resourcePendingQuery = useQuery([ResourcePendingComponent])
-  const root = getComponent(rootEntity, SourceComponent)
-  const sceneModified = useHookstate(getMutableState(GLTFModifiedState)[root]).value
 
-  useEffect(() => {
-    if (!sceneModified) return
-    const onBeforeUnload = (e: BeforeUnloadEvent) => {
-      alert('You have unsaved changes. Please save before leaving.')
-      e.preventDefault()
-      e.returnValue = ''
-    }
-
-    window.addEventListener('beforeunload', onBeforeUnload)
-
-    return () => {
-      window.removeEventListener('beforeunload', onBeforeUnload)
-    }
-  }, [sceneModified])
-
-  if (progress === 100) return null
+  if (loaded) return null
 
   return (
     <LoadingView
       fullSpace
       className="block h-12 w-12"
+      containerClassname="absolute bg-black bg-opacity-70"
       title={t('editor:loadingScenesWithProgress', { progress, assetsLeft: resourcePendingQuery.length })}
     />
   )
@@ -183,8 +166,8 @@ const ViewPortPanelContainer = () => {
         {sceneName.value ? <GizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? (
           <>
-            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
             <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
+            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
           </>
         ) : (
           <div className="flex h-full w-full flex-col justify-center gap-2">
