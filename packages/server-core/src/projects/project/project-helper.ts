@@ -1768,9 +1768,15 @@ export const uploadLocalProjectToProvider = async (
       const stats = await getStats(fileResult, contentType)
       const resourceInfo = resourcesJson?.[filePathRelative]
       const type = isScene ? 'scene' : getResourceType(filePathRelative, resourceInfo!)
-      const thumbnailKey =
-        resourceInfo?.thumbnailKey ?? (isScene ? key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg' : undefined)
-
+      let thumbnailKey = resourceInfo?.thumbnailKey
+      if (!thumbnailKey) {
+        if (isScene) {
+          thumbnailKey = key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg'
+        } else if (type === 'thumbnail') {
+          //since thumbnails are not in resource json, we need to redefine their thumbnail keys here
+          thumbnailKey = key
+        }
+      }
       if (existingKeySet.has(key)) {
         const id = existingKeySet.get(key)!
         existingKeySet.delete(key)
