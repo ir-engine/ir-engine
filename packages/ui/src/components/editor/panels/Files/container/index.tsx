@@ -79,6 +79,7 @@ import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Slider from '../../../../../primitives/tailwind/Slider'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import { Popup } from '../../../../tailwind/Popup'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
@@ -140,6 +141,7 @@ export const createStaticResourceDigest = (staticResources: ImmutableArray<Stati
     // stats: '',
     thumbnailKey: '',
     thumbnailMode: '',
+    updatedBy: '' as UserID,
     createdAt: '',
     updatedAt: '',
 
@@ -542,111 +544,155 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       ClickPlacementState.resetSelectedAsset()
     }
 
+    const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
+    const handleClose = () => {
+      setAnchorEvent(undefined)
+    }
+
+    const pasteContent = async () => {
+      handleClose()
+      if (isLoading) return
+
+      fileService.update(null, {
+        oldProject: projectName,
+        newProject: projectName,
+        oldName: currentContentRef.current.item.fullName,
+        newName: currentContentRef.current.item.fullName,
+        oldPath: currentContentRef.current.item.path,
+        newPath: currentContentRef.current.item.path,
+        isCopy: currentContentRef.current.isCopy
+      })
+    }
+
     return (
       <div
-        ref={fileDropRef}
-        className={twMerge(
-          'mb-2 h-auto px-3 pb-6 text-gray-400 ',
-          isListView ? '' : 'flex py-8',
-          isFileDropOver ? 'border-2 border-gray-300' : ''
-        )}
-        onClick={(event) => {
+        className="h-full"
+        onContextMenu={(event) => {
+          event.preventDefault()
           event.stopPropagation()
-          resetSelection()
+          setAnchorEvent(event)
         }}
       >
-        <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
-          <FileTableWrapper wrap={isListView}>
-            <>
-              {unique(files, (file) => file.key).map((file) => (
-                <FileBrowserItem
-                  key={file.key}
-                  item={file}
-                  disableDnD={props.disableDnD}
-                  projectName={projectName}
-                  onClick={(event) => {
-                    handleFileBrowserItemClick(event, file)
-                    onSelect(event, file)
-                  }}
-                  onContextMenu={(event, currentFile) => {
-                    if (!fileProperties.value.length) {
-                      fileProperties.set([file])
-                    }
-                  }}
-                  currentContent={currentContentRef}
-                  handleDropItemsOnPanel={(data, dropOn) =>
-                    dropItemsOnPanel(
-                      data,
-                      dropOn,
-                      fileProperties.value.map((file) => file.key)
-                    )
-                  }
-                  openFileProperties={(item) => {
-                    /** If the file is not in the list of files, add it */
-                    if (!(fileProperties.get(NO_PROXY) as FileDataType[]).includes(item)) {
-                      if (fileProperties.value.length > 1) {
-                        fileProperties.merge([item])
-                      } else {
-                        fileProperties.set([item])
+        <div
+          ref={fileDropRef}
+          className={twMerge(
+            'mb-2 h-auto px-3 pb-6 text-gray-400 ',
+            isListView ? '' : 'flex py-8',
+            isFileDropOver ? 'border-2 border-gray-300' : ''
+          )}
+          onClick={(event) => {
+            event.stopPropagation()
+            resetSelection()
+          }}
+        >
+          <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
+            <FileTableWrapper wrap={isListView}>
+              <>
+                {unique(files, (file) => file.key).map((file) => (
+                  <FileBrowserItem
+                    key={file.key}
+                    item={file}
+                    disableDnD={props.disableDnD}
+                    projectName={projectName}
+                    onClick={(event) => {
+                      handleFileBrowserItemClick(event, file)
+                      onSelect(event, file)
+                    }}
+                    onContextMenu={(event, currentFile) => {
+                      if (!fileProperties.value.length) {
+                        fileProperties.set([file])
                       }
-                    }
-                    PopoverState.showPopupover(
-                      <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
-                    )
-                  }}
-                  openDeleteFileModal={() => {
-                    PopoverState.showPopupover(
-                      <DeleteFileModal
-                        files={fileProperties.value as FileDataType[]}
-                        onComplete={(err) => {
-                          resetSelection()
-                        }}
-                      />
-                    )
-                  }}
-                  openImageCompress={() => {
-                    if (filesConsistOfContentType(fileProperties.value, 'image')) {
-                      PopoverState.showPopupover(
-                        <ImageCompressionPanel
-                          selectedFiles={fileProperties.value}
-                          refreshDirectory={refreshDirectory}
-                        />
+                    }}
+                    currentContent={currentContentRef}
+                    handleDropItemsOnPanel={(data, dropOn) =>
+                      dropItemsOnPanel(
+                        data,
+                        dropOn,
+                        fileProperties.value.map((file) => file.key)
                       )
                     }
-                  }}
-                  openModelCompress={() => {
-                    if (filesConsistOfContentType(fileProperties.value, 'model')) {
+                    openFileProperties={(item) => {
+                      /** If the file is not in the list of files, add it */
+                      if (!(fileProperties.get(NO_PROXY) as FileDataType[]).includes(item)) {
+                        if (fileProperties.value.length > 1) {
+                          fileProperties.merge([item])
+                        } else {
+                          fileProperties.set([item])
+                        }
+                      }
                       PopoverState.showPopupover(
-                        <ModelCompressionPanel
-                          selectedFiles={fileProperties.value}
-                          refreshDirectory={refreshDirectory}
+                        <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
+                      )
+                    }}
+                    openDeleteFileModal={() => {
+                      PopoverState.showPopupover(
+                        <DeleteFileModal
+                          files={fileProperties.value as FileDataType[]}
+                          onComplete={(err) => {
+                            resetSelection()
+                          }}
                         />
                       )
-                    }
-                  }}
-                  isFilesLoading={isLoading}
-                  addFolder={createNewFolder}
-                  isListView={isListView}
-                  staticResourceModifiedDates={staticResourceModifiedDates.value}
-                  isSelected={fileProperties.value.some(({ key }) => key === file.key)}
-                  refreshDirectory={refreshDirectory}
-                  selectedFileKeys={fileProperties.value.map((file) => file.key)}
-                />
-              ))}
-            </>
-          </FileTableWrapper>
-          {/*   
-            {total > 0 && validFiles.value.length < total && (
-            <TablePagination
-              className={styles.pagination}
-              component="div"
-              count={total}
-              page={page}
-              rowsPerPage={FILES_PAGE_LIMIT}
-              rowsPerPageOptions={[]}
-              onPageChange={handlePageChange}
-            />
-          )}*/}
+                    }}
+                    openImageCompress={() => {
+                      if (filesConsistOfContentType(fileProperties.value, 'image')) {
+                        PopoverState.showPopupover(
+                          <ImageCompressionPanel
+                            selectedFiles={fileProperties.value}
+                            refreshDirectory={refreshDirectory}
+                          />
+                        )
+                      }
+                    }}
+                    openModelCompress={() => {
+                      if (filesConsistOfContentType(fileProperties.value, 'model')) {
+                        PopoverState.showPopupover(
+                          <ModelCompressionPanel
+                            selectedFiles={fileProperties.value}
+                            refreshDirectory={refreshDirectory}
+                          />
+                        )
+                      }
+                    }}
+                    isFilesLoading={isLoading}
+                    addFolder={createNewFolder}
+                    isListView={isListView}
+                    staticResourceModifiedDates={staticResourceModifiedDates.value}
+                    isSelected={fileProperties.value.some(({ key }) => key === file.key)}
+                    refreshDirectory={refreshDirectory}
+                    selectedFileKeys={fileProperties.value.map((file) => file.key)}
+                  />
+                ))}
+              </>
+            </FileTableWrapper>
+            {/*   
+              {total > 0 && validFiles.value.length < total && (
+              <TablePagination
+                className={styles.pagination}
+                component="div"
+                count={total}
+                page={page}
+                rowsPerPage={FILES_PAGE_LIMIT}
+                rowsPerPageOptions={[]}
+                onPageChange={handlePageChange}
+              />
+            )}*/}
+          </div>
+
+          <ContextMenu anchorEvent={anchorEvent} onClose={handleClose}>
+            <Button variant="outline" size="small" fullWidth onClick={() => createNewFolder()}>
+              {t('editor:layout.filebrowser.addNewFolder')}
+            </Button>
+            <Button
+              variant="outline"
+              size="small"
+              fullWidth
+              disabled={!currentContentRef.current}
+              onClick={pasteContent}
+            >
+              {t('editor:layout.filebrowser.pasteAsset')}
+            </Button>
+          </ContextMenu>
         </div>
       </div>
     )

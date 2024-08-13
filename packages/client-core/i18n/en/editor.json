@@ -568,7 +568,7 @@
     },
     "hemisphere": {
       "name": "Hemisphere Light",
-      "description": "A light which illuminates the scene from directly overhead.",
+      "description": "A light which illuminates the scene with a sky color from above and a ground color from below.",
       "lbl-skyColor": "Sky Color",
       "lbl-groundColor": "Ground Color",
       "lbl-intensity": "Intensity"
@@ -1177,7 +1177,7 @@
         "point-light": "A light which emits in all directions from a single point.",
         "spot-light": "Creates a light that shines in a specific direction.",
         "directional-light": "Creates a light that emits evenly in a single direction.",
-        "hemisphere-light": "A light which illuminates the scene from directly overhead.",
+        "hemisphere-light": "A light which illuminates the scene with a sky color from above and a ground color from below.",
         "particle-system": "Creates a particle emitter.",
         "system": "Inserts code into the scene by creating a new Entity Component System based on the provided .ts file",
         "visual-script": "Customizes state and behavior of entities through a visual node connections.",
@@ -1360,7 +1360,10 @@
       "lbl-thumbnail": "Generate thumbnail & envmap",
       "lbl-confirm": "Save Scene",
       "info-confirm": "Are you sure you want to save the scene?",
-      "info-question": "Do you want to save the current scene?"
+      "info-question": "Do you want to save the current scene?",
+      "unsavedChanges": {
+        "title": "Unsaved Changes"
+      }
     },
     "saveNewScene": {
       "title": "Save As",
