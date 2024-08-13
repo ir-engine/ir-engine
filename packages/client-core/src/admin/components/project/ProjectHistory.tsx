@@ -78,11 +78,17 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         <>
           <Text>{verb} the location</Text>
 
-          <a href={`/location/${actionDetail.locationName}`}>
+          {verb === 'published' ? (
+            <a href={`/location/${actionDetail.locationName}`}>
+              <Text className="underline-offset-4 hover:underline" fontWeight="semibold">
+                {actionDetail.locationName}
+              </Text>
+            </a>
+          ) : (
             <Text className="underline-offset-4 hover:underline" fontWeight="semibold">
               {actionDetail.locationName}
             </Text>
-          </a>
+          )}
 
           <Text>from the scene</Text>
 

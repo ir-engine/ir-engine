@@ -235,7 +235,7 @@ const addDeleteLog = async (context: HookContext<StaticResourceService>) => {
 
     const projectId = project.data[0].id
 
-    const action = resource.key === 'scene' ? 'SCENE_REMOVED' : 'RESOURCE_REMOVED'
+    const action = resource.type === 'scene' ? 'SCENE_REMOVED' : 'RESOURCE_REMOVED'
 
     await context.app.service(projectHistoryPath).create({
       projectId: projectId,
