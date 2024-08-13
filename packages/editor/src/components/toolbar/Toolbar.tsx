@@ -34,6 +34,7 @@ import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentS
 import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { ContextMenu } from '@etherealengine/ui/src/components/tailwind/ContextMenu'
+import { SidebarButton } from '@etherealengine/ui/src/components/tailwind/SidebarButton/SidebarButton'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { t } from 'i18next'
 import React from 'react'
@@ -201,10 +202,9 @@ export default function Toolbar() {
         <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
             <div key={index}>
-              <Button
+              <SidebarButton
                 className="px-4 py-2.5 text-left font-light text-theme-input"
                 textContainerClassName="text-xs"
-                variant="sidebar"
                 size="small"
                 fullWidth
                 onClick={() => {
@@ -214,7 +214,7 @@ export default function Toolbar() {
                 endIcon={hotkey}
               >
                 {name}
-              </Button>
+              </SidebarButton>
             </div>
           ))}
         </div>

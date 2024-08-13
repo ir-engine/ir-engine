@@ -32,7 +32,7 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   endIcon?: ReactNode
   children?: ReactNode
   size?: 'small' | 'medium' | 'large'
-  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success' | 'transparent' | 'sidebar'
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success' | 'transparent'
   disabled?: boolean
   fullWidth?: boolean
   rounded?: 'partial' | 'full' | 'none'
@@ -59,8 +59,7 @@ const variants = {
   outline: 'border border-solid border-theme-primary bg-theme-surface-main dark:bg-theme-highlight text-theme-primary',
   danger: 'bg-red-500',
   success: 'bg-teal-700',
-  transparent: 'bg-transparent dark:bg-transparent',
-  sidebar: 'bg-[#141619]'
+  transparent: 'bg-transparent dark:bg-transparent'
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
