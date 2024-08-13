@@ -50,6 +50,9 @@ export const projectPermissionSchema = Type.Object(
     }),
     type: Type.String(),
     user: Type.Ref(userSchema),
+    updatedBy: TypedString<UserID>({
+      format: 'uuid'
+    }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
