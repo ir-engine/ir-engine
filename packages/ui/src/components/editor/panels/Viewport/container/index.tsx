@@ -29,7 +29,7 @@ import { uploadToFeathersService } from '@etherealengine/client-core/src/util/up
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { clientSettingPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { getComponent, useComponent, useQuery } from '@etherealengine/ecs'
+import { useComponent, useQuery } from '@etherealengine/ecs'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
@@ -37,7 +37,6 @@ import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/scr
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
@@ -124,7 +123,6 @@ const SceneLoadingProgress = ({ rootEntity }) => {
   const progress = useComponent(rootEntity, GLTFComponent).progress.value
   const loaded = GLTFComponent.useSceneLoaded(rootEntity)
   const resourcePendingQuery = useQuery([ResourcePendingComponent])
-  const root = getComponent(rootEntity, SourceComponent)
 
   if (loaded) return null
 
