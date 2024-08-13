@@ -52,3 +52,7 @@ export const iterativeMapToObject = (root: Record<any, any>) => {
   }
   return cloneDeep(iterate(root))
 }
+
+export function objectToMap(object: object) {
+  return new Map(Object.entries(object))
+}

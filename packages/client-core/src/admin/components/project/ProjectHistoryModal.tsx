@@ -23,15 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export function getOS() {
-  const platform = process.platform
+import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { PopoverState } from '../../../common/services/PopoverState'
+import { ProjectHistory } from './ProjectHistory'
 
-  if (platform.includes('darwin')) {
-    return 'macOS'
-  } else if (platform.includes('win32')) {
-    return 'Windows'
-  } else if (platform.includes('linux')) {
-    return 'Linux'
-  }
-  return 'other'
+export const ProjectHistoryModal = ({ projectId, projectName }: { projectId: string; projectName: string }) => {
+  const { t } = useTranslation()
+  return (
+    <Modal
+      className="relative max-h-full w-[75vw] p-4"
+      title={t('admin:components.project.projectHistory')}
+      onClose={() => {
+        PopoverState.hidePopupover()
+      }}
+    >
+      <ProjectHistory projectId={projectId} projectName={projectName} />
+    </Modal>
+  )
 }
