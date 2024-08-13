@@ -26,14 +26,22 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
-import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  hasComponent,
+  removeComponent,
+  serializeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 
 import { UndefinedEntity } from '@etherealengine/ecs'
 import { createEngine } from '@etherealengine/ecs/src/Engine'
 import { addObjectToGroup } from './GroupComponent'
-import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
+import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent, ObjectLayerMaskDefault } from './ObjectLayerComponent'
+
+const maxBitWidth = 32
 
 describe('ObjectLayerComponent : todo.Organize', () => {
   beforeEach(async () => {
@@ -198,9 +206,9 @@ describe('ObjectLayerComponent : todo.Organize', () => {
   })
 })
 
-const ObjectLayerMaskComponentDefaults = 1 << 0 // enable layer 0
+type ObjectLayerMaskComponentData = any
 
-function assertObjectLayerMaskComponentEq(A, B) {
+function assertObjectLayerMaskComponentEq(A: ObjectLayerMaskComponentData, B: ObjectLayerMaskComponentData) {
   assert.equal(Boolean(A), Boolean(B))
   assert.equal(A.isObjectLayerMask, B.isObjectLayerMask)
 }
@@ -212,7 +220,16 @@ describe('ObjectLayerMaskComponent', () => {
     })
   }) //:: IDs
 
-  describe('schema', () => {})
+  describe('schema', () => {
+    it('should initialize the schema with the expected values', () => {
+      assert.notEqual(ObjectLayerMaskComponent.schema, undefined)
+      const KeysSchema = Object.keys(ObjectLayerMaskComponent.schema)
+      assert.equal(KeysSchema.length, 1)
+      assert.equal(KeysSchema.includes('mask'), true)
+      assert.notEqual(ObjectLayerMaskComponent.schema.mask, undefined)
+      assert.equal(ObjectLayerMaskComponent.schema.mask, 'i32')
+    })
+  })
 
   describe('onInit', () => {
     let testEntity = UndefinedEntity
@@ -230,14 +247,113 @@ describe('ObjectLayerMaskComponent', () => {
 
     it('should initialize the component with the expected default values', () => {
       const data = getComponent(testEntity, ObjectLayerMaskComponent)
-      assertObjectLayerMaskComponentEq(data, ObjectLayerMaskComponentDefaults)
+      assertObjectLayerMaskComponentEq(data, ObjectLayerMaskDefault)
     })
   }) //:: onInit
 
-  describe('onSet', () => {}) //:: onSet
-  describe('onRemove', () => {}) //:: onRemove
-  describe('toJSON', () => {}) //:: toJSON
+  describe('onSet', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should set the value of the component to `@param mask`', () => {
+      const Expected = 42
+      setComponent(testEntity, ObjectLayerMaskComponent, Expected)
+      const result = getComponent(testEntity, ObjectLayerMaskComponent)
+      assert.equal(result, Expected)
+    })
+
+    it('should set the mask value for the entity to `@param mask`', () => {
+      const Expected = 42
+      setComponent(testEntity, ObjectLayerMaskComponent, Expected)
+      const result = ObjectLayerMaskComponent.mask[testEntity]
+      assert.equal(result, Expected)
+    })
+
+    it('should set an ObjectLayerComponent for every bit of the `@param mask` that is set', () => {
+      const ActiveBits = [8, 4, 2]
+      const Mask = (1 << 8) | (1 << 4) | (1 << 2)
+      for (const id in ActiveBits) assert.equal(hasComponent(testEntity, ObjectLayerComponents[ActiveBits[id]]), false)
+      setComponent(testEntity, ObjectLayerMaskComponent, Mask)
+      for (const id in ActiveBits) assert.equal(hasComponent(testEntity, ObjectLayerComponents[ActiveBits[id]]), true)
+    })
+
+    it('should remove any ObjectLayerComponent for the bits of `@param mask` that are not set', () => {
+      const InitialBits = [12, 21]
+      const Initial = (1 << 12) | (1 << 21)
+      const ActiveBits = [8, 4, 2]
+      const Mask = (1 << 8) | (1 << 4) | (1 << 2)
+      for (const id in InitialBits)
+        assert.equal(hasComponent(testEntity, ObjectLayerComponents[InitialBits[id]]), false)
+      setComponent(testEntity, ObjectLayerMaskComponent, Initial)
+      for (const id in InitialBits) assert.equal(hasComponent(testEntity, ObjectLayerComponents[InitialBits[id]]), true)
+      for (const id in ActiveBits) assert.equal(hasComponent(testEntity, ObjectLayerComponents[ActiveBits[id]]), false)
+      setComponent(testEntity, ObjectLayerMaskComponent, Mask)
+      for (const id in InitialBits)
+        assert.equal(hasComponent(testEntity, ObjectLayerComponents[InitialBits[id]]), false)
+      for (const id in ActiveBits) assert.equal(hasComponent(testEntity, ObjectLayerComponents[ActiveBits[id]]), true)
+    })
+  }) //:: onSet
+
+  describe('onRemove', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, ObjectLayerMaskComponent, 42)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should remove all ObjectLayerComponent for the entity', () => {
+      removeComponent(testEntity, ObjectLayerMaskComponent)
+      for (let id = 0; id < maxBitWidth; ++id) {
+        assert.equal(hasComponent(testEntity, ObjectLayerComponents[id]), false)
+      }
+    })
+
+    it("should set component's value to 0", () => {
+      assert.equal(getComponent(testEntity, ObjectLayerMaskComponent), 42)
+      removeComponent(testEntity, ObjectLayerMaskComponent)
+      assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), false)
+    })
+  }) //:: onRemove
+
+  describe('toJSON', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, ObjectLayerMaskComponent, 42)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should return the serialized data correctly', () => {
+      const result = serializeComponent(testEntity, ObjectLayerMaskComponent)
+      assert.equal(typeof result, 'number')
+      assert.equal(result, 42)
+    })
+  }) //:: toJSON
+
   describe('setLayer', () => {}) //:: setLayer
+
   describe('enableLayer', () => {}) //:: enableLayer
   describe('enableLayers', () => {}) //:: enableLayers
   describe('disableLayer', () => {}) //:: disableLayer
@@ -245,8 +361,6 @@ describe('ObjectLayerMaskComponent', () => {
   describe('toggleLayer', () => {}) //:: toggleLayer
   describe('setMask', () => {}) //:: setMask
 })
-
-const maxBitWidth = 32
 
 describe('ObjectLayerComponents', () => {
   describe('IDs', () => {
