@@ -1757,7 +1757,10 @@ export const uploadLocalProjectToProvider = async (
         },
         { isDirectory: false }
       )
-      if (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) {
+      if (
+        (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) ||
+        filePathRelative.includes('.ds_store')
+      ) {
         existingKeySet.delete(key)
         continue
       }
