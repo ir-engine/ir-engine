@@ -22,20 +22,23 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { ArgTypes } from '@storybook/react'
+import { ArgTypes, StoryObj } from '@storybook/react'
 import React from 'react'
-import { IoAddOutline, IoSend } from 'react-icons/io5'
 
-import Button from './index'
+import { HiMail } from 'react-icons/hi'
+import Button, { ButtonProps } from './index'
+
+const sizes: ButtonProps['size'][] = ['xs', 'sm', 'l', 'xl']
 
 const argTypes: ArgTypes = {
-  size: {
-    control: 'select',
-    options: ['small', 'medium', 'large']
+  startIcon: {
+    control: 'boolean'
   },
-  variant: {
-    control: 'select',
-    options: ['primary', 'outline', 'danger']
+  endIcon: {
+    control: 'boolean'
+  },
+  disabled: {
+    control: 'boolean'
   }
 }
 
@@ -44,31 +47,82 @@ export default {
   component: Button,
   parameters: {
     componentSubtitle: 'Button',
-    jest: 'Button.test.tsx',
     design: {
       type: 'figma',
-      url: ''
+      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2035-16950'
+    },
+    controls: {
+      include: ['children', ...Object.keys(argTypes)]
     }
   },
   argTypes
 }
 
-export const Default = {
-  args: {
-    children: 'Submit'
+type Story = StoryObj<typeof Button>
+
+const ButtonRenderer = (args: ButtonProps) => {
+  if (args.startIcon) {
+    args.startIcon = <HiMail />
   }
+  if (args.endIcon) {
+    args.endIcon = <HiMail />
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      {sizes.map((size) => (
+        <Button key={size} size={size} {...args} />
+      ))}
+    </div>
+  )
 }
 
-export const WithStartIcon = {
+export const Default: Story = {
+  name: 'Primary',
   args: {
     children: 'Submit',
-    startIcon: <IoAddOutline />
-  }
+    variant: 'primary'
+  },
+  render: ButtonRenderer
 }
 
-export const WithEndIcon = {
+export const Secondary: Story = {
   args: {
-    children: 'Send',
-    endIcon: <IoSend />
-  }
+    children: 'Click',
+    variant: 'secondary'
+  },
+  render: ButtonRenderer
+}
+
+export const Tertiary: Story = {
+  name: 'Outline',
+  args: {
+    children: 'Open',
+    variant: 'outline'
+  },
+  render: ButtonRenderer
+}
+
+export const Success: Story = {
+  args: {
+    children: 'Finish',
+    variant: 'success'
+  },
+  render: ButtonRenderer
+}
+
+export const Danger: Story = {
+  args: {
+    children: 'Cancel',
+    variant: 'danger'
+  },
+  render: ButtonRenderer
+}
+
+export const Transparent: Story = {
+  args: {
+    children: 'Try',
+    variant: 'transparent'
+  },
+  render: ButtonRenderer
 }
