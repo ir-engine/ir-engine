@@ -1678,6 +1678,19 @@ const staticResourceClasses = [
   AssetType.Prefab
 ]
 
+const ignoreFiles = ['.ds_store']
+
+/**
+ * Checks whether a file is to be ignored in resources.json and static-resources
+ * @param key
+ */
+export const isIgnoredFile = (key: string) => {
+  for (const ignoreFile of ignoreFiles) {
+    if (key.includes(ignoreFile)) return true
+  }
+  return false
+}
+
 /**
  * Updates the local storage provider with the project's current files
  * @param app Application object
@@ -1759,7 +1772,7 @@ export const uploadLocalProjectToProvider = async (
       )
       if (
         (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) ||
-        filePathRelative.includes('.ds_store')
+        isIgnoredFile(filePathRelative)
       ) {
         existingKeySet.delete(key)
         continue
