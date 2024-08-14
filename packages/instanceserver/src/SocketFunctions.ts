@@ -41,6 +41,8 @@ import { getServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:spark' })
 
+const NON_READY_INTERVALS = 100 //100 tenths of a second, i.e. 10 seconds
+
 export const setupSocketFunctions = async (app: Application, spark: any) => {
   let authTask: AuthTask | undefined
 
@@ -50,15 +52,27 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
    *
    * Authorize user and make sure everything is valid before allowing them to join the world
    **/
-  await new Promise<void>((resolve) => {
+  const ready = await new Promise<boolean>((resolve) => {
+    let counter = 0
     const interval = setInterval(() => {
+      counter++
       if (getState(InstanceServerState).ready) {
         clearInterval(interval)
-        resolve()
+        resolve(true)
+      }
+      if (counter > NON_READY_INTERVALS) {
+        clearInterval(interval)
+        resolve(false)
       }
     }, 100)
   })
 
+  if (!ready) {
+    app.primus.write({ instanceReady: false })
+    return
+  }
+
+  app.primus.write({ instanceReady: true })
   const network = getServerNetwork(app)
 
   const onAuthenticationRequest = async (data) => {
@@ -104,7 +118,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
 
       // Check that this use is allowed on this instance
       const instance = await app.service(instancePath).get(getState(InstanceServerState).instance.id)
-      if (!(await authorizeUserToJoinServer(app, instance, userId))) {
+      if (!(await authorizeUserToJoinServer(app, instance, user))) {
         authTask.status = 'fail'
         authTask.error = AuthError.USER_NOT_AUTHORIZED
         logger.error('[MessageTypes.Authorization]: user %s not authorized over peer %s %o', userId, peerID, authTask)

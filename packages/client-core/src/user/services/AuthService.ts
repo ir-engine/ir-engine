@@ -95,6 +95,7 @@ export const UserSeed: UserType = {
     createdAt: '',
     updatedAt: ''
   },
+  acceptedTOS: false,
   userSetting: {
     id: '' as UserSettingID,
     themeModes: {},
@@ -107,9 +108,16 @@ export const UserSeed: UserType = {
   locationAdmins: [],
   locationBans: [],
   instanceAttendance: [],
+  lastLogin: {
+    id: '',
+    ipAddress: '',
+    userAgent: '',
+    identityProviderId: '',
+    userId: '' as UserID,
+    createdAt: ''
+  },
   createdAt: '',
-  updatedAt: '',
-  lastLogin: null
+  updatedAt: ''
 }
 
 const resolveWalletUser = (credentials: any): UserType => {
@@ -457,7 +465,7 @@ export const AuthService = {
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     } finally {
       authState.merge({ isProcessing: false, error: '' })
-      AuthService.doLoginAuto(true)
+      window.location.reload()
     }
   },
 
@@ -480,7 +488,12 @@ export const AuthService = {
     }
   },
 
-  async createMagicLink(emailPhone: string, authData: AuthStrategiesType, linkType?: 'email' | 'sms') {
+  async createMagicLink(
+    emailPhone: string,
+    authData: AuthStrategiesType,
+    linkType?: 'email' | 'sms',
+    redirectUrl?: string
+  ) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -537,7 +550,7 @@ export const AuthService = {
     try {
       await Engine.instance.api
         .service(magicLinkPath)
-        .create({ type, [paramName]: emailPhone, accessToken: storedToken })
+        .create({ type, [paramName]: emailPhone, accessToken: storedToken, redirectUrl })
       const message = {
         email: 'email-sent-msg',
         sms: 'sms-sent-msg',

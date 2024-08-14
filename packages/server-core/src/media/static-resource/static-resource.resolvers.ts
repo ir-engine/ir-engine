@@ -63,6 +63,16 @@ export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): S
   }
 }
 
+const getThumbnailURL = (staticResource: StaticResourceType, context: HookContext) => {
+  if (context.method !== 'find' && context.method !== 'get') {
+    return ''
+  }
+
+  const values = context.hashedThumbnailResults
+
+  return values[staticResource.id]
+}
+
 /**
  * the first few characters of resources hashes are appended as a version identifier to allow for cache busting
  */
@@ -80,21 +90,7 @@ export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
       )
     }),
     thumbnailURL: virtual(async (staticResource, context) => {
-      if (!staticResource.thumbnailKey) return
-      const storageProvider = getStorageProvider()
-      /** @todo optimize this */
-      const thumbnailStaticResource = await context.app.service('static-resource').find({
-        query: {
-          type: 'thumbnail',
-          key: staticResource.thumbnailKey
-        }
-      })
-      if (!thumbnailStaticResource.data.length) return
-      return (
-        storageProvider.getCachedURL(staticResource.thumbnailKey, context.params.isInternal) +
-        '?hash=' +
-        thumbnailStaticResource.data[0].hash.slice(0, 6)
-      )
+      return getThumbnailURL(staticResource, context)
     })
   },
   {
@@ -111,7 +107,10 @@ export const staticResourceDataResolver = resolve<StaticResourceType, HookContex
       return uuidv4()
     },
     createdAt: getDateTimeSql,
-    updatedAt: getDateTimeSql
+    updatedAt: getDateTimeSql,
+    updatedBy: async (_, __, context) => {
+      return context.params?.user?.id || null
+    }
   },
   {
     // Convert the raw data into a new structure before running property resolvers
@@ -128,7 +127,10 @@ export const staticResourceDataResolver = resolve<StaticResourceType, HookContex
 
 export const staticResourcePatchResolver = resolve<StaticResourceType, HookContext>(
   {
-    updatedAt: getDateTimeSql
+    updatedAt: getDateTimeSql,
+    updatedBy: async (_, __, context) => {
+      return context.params?.user?.id || null
+    }
   },
   {
     // Convert the raw data into a new structure before running property resolvers

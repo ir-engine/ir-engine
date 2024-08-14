@@ -30,7 +30,6 @@ import { MdDeblur } from 'react-icons/md'
 import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
 import { getOptionalMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import Center from '@etherealengine/editor/src/components/layout/Center'
 import {
   EditorComponentType,
   commitProperties,
@@ -292,10 +291,14 @@ export const BudgetVariantNodeEditor = (props: {
   return (
     <>
       {level.metadata['maxTextureSize'].value !== undefined && (
-        <Center>{`${t('editor:properties.variant.textureSize')} ${level.metadata['maxTextureSize'].value}`}</Center>
+        <div className="flex flex-col items-center">{`${t('editor:properties.variant.textureSize')} ${
+          level.metadata['maxTextureSize'].value
+        }`}</div>
       )}
       {level.metadata['vertexCount'].value !== undefined && (
-        <Center>{`${t('editor:properties.variant.vertexCount')} ${level.metadata['vertexCount'].value}`}</Center>
+        <div className="flex flex-col items-center">{`${t('editor:properties.variant.vertexCount')} ${
+          level.metadata['vertexCount'].value
+        }`}</div>
       )}
 
       <InputGroup name="Cast Shadow" label={t('editor:properties.variant.preview')}>

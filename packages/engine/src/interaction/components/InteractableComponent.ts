@@ -29,7 +29,6 @@ import matches from 'ts-matches'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   ECSState,
-  Engine,
   Entity,
   EntityUUID,
   getComponent,
@@ -70,10 +69,12 @@ import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { useXRUIState } from '@etherealengine/spatial/src/xrui/functions/useXRUIState'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
 import { inFrustum, InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
+import { InteractiveModalState } from '../ui/InteractiveModalView'
 
 /**
  * Visibility override for XRUI, none is default behavior, on or off forces that state
@@ -131,7 +132,7 @@ export const updateInteractableUI = (entity: Entity) => {
     xruiTransform.position.z = center.z
     xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, center.y + 0.7 * size.y, alpha)
 
-    const cameraTransform = getComponent(Engine.instance.viewerEntity, TransformComponent)
+    const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
     xruiTransform.rotation.copy(cameraTransform.rotation)
   }
 
@@ -145,7 +146,7 @@ export const updateInteractableUI = (entity: Entity) => {
   const transition = InteractableTransitions.get(entity)!
   let activateUI = false
 
-  const inCameraFrustum = inFrustum(entity)
+  const inCameraFrustum = inFrustum(interactable.uiEntity)
   let hovering = false
 
   if (inCameraFrustum) {
@@ -170,7 +171,10 @@ export const updateInteractableUI = (entity: Entity) => {
 
   //highlight if hovering OR if closest, otherwise turn off highlight
   const mutableInteractable = getMutableComponent(entity, InteractableComponent)
-  mutableInteractable.highlighted.set(hovering || entity === getState(InteractableState).available[0])
+  const newHighlight = hovering || entity === getState(InteractableState).available[0]
+  if (mutableInteractable.highlighted.value !== newHighlight) {
+    mutableInteractable.highlighted.set(newHighlight)
+  }
 
   if (transition.state === 'OUT' && activateUI) {
     transition.setState('IN')
@@ -201,9 +205,9 @@ const addInteractableUI = (entity: Entity) => {
 
   const uiEntity = createUI(entity, interactable.label, interactable.uiInteractable).entity
   getMutableComponent(entity, InteractableComponent).uiEntity.set(uiEntity)
-  setComponent(uiEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+  setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
   setComponent(uiEntity, ComputedTransformComponent, {
-    referenceEntities: [entity, Engine.instance.viewerEntity],
+    referenceEntities: [entity, getState(EngineState).viewerEntity],
     computeFunction: () => updateInteractableUI(entity)
   })
 
@@ -294,28 +298,18 @@ export const InteractableComponent = defineComponent({
     const entity = useEntityContext()
     const interactableComponent = useComponent(entity, InteractableComponent)
     const isEditing = useMutableState(EngineState).isEditing
+    const modalState = useXRUIState<InteractiveModalState>()
 
     useImmediateEffect(() => {
       setComponent(entity, DistanceFromCameraComponent)
       setComponent(entity, DistanceFromLocalClientComponent)
-
+      setComponent(entity, BoundingBoxComponent)
       return () => {
         removeComponent(entity, DistanceFromCameraComponent)
         removeComponent(entity, DistanceFromLocalClientComponent)
+        removeComponent(entity, BoundingBoxComponent)
       }
     }, [])
-
-    useImmediateEffect(() => {
-      if (
-        interactableComponent.uiActivationType.value === XRUIActivationType.hover ||
-        interactableComponent.clickInteract.value
-      ) {
-        setComponent(entity, BoundingBoxComponent)
-        return () => {
-          removeComponent(entity, BoundingBoxComponent)
-        }
-      }
-    }, [interactableComponent.uiActivationType, interactableComponent.clickInteract])
 
     InputComponent.useExecuteWithInput(
       () => {
@@ -345,6 +339,12 @@ export const InteractableComponent = defineComponent({
         }
       }
     }, [isEditing.value])
+
+    useEffect(() => {
+      //const xrUI = getMutableComponent(interactableComponent.uiEntity, XRUIComponent)
+      const msg = interactableComponent.label?.value ?? ''
+      modalState.interactMessage?.set(msg)
+    }, [interactableComponent.label]) //TODO just nuke the whole XRUI and recreate....
     return null
   }
 })

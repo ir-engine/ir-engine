@@ -26,16 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+import { HiMinus, HiPlusSmall, HiUser } from 'react-icons/hi2'
 
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
 import { FeatureFlagSettingType, featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
 import { getAllStringValueNodes } from '@etherealengine/common/src/utils/getAllStringValueNodes'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
+import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 import { useHookstate } from '@hookstate/core'
 
-const defaultProps = ['id', 'flagName', 'flagValue', 'createdAt', 'updatedAt']
+const defaultProps = ['id', 'flagName', 'flagValue', 'userId', 'createdAt', 'updatedAt']
 
 const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
@@ -93,6 +95,8 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
 })
 
 const FeatureItem = ({ feature }: { feature: FeatureFlagSettingType }) => {
+  const { t } = useTranslation()
+
   const featureFlagSettingMutation = useMutation(featureFlagSettingPath)
   const additionalProps = Object.keys(feature).filter((key) => !defaultProps.includes(key))
 
@@ -115,6 +119,16 @@ const FeatureItem = ({ feature }: { feature: FeatureFlagSettingType }) => {
         value={feature.flagValue}
         onChange={(value) => createOrUpdateFeatureFlag(feature, value)}
       />
+      {feature.userId && (
+        <Tooltip
+          content={t('admin:components.common.lastUpdatedBy', {
+            userId: feature.userId,
+            updatedAt: toDisplayDateTime(feature.updatedAt)
+          })}
+        >
+          <HiUser className="mx-2" />
+        </Tooltip>
+      )}
       {additionalProps
         .filter((key) => feature[key])
         .map((key) => (

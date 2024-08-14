@@ -533,7 +533,9 @@ function pointerDown(gizmoEntity) {
     const planeIntersect = intersectObjectWithRay(plane, _raycaster, true)
     if (planeIntersect) {
       const currenttransform = getComponent(targetEntity, TransformComponent)
-      currenttransform.matrix.decompose(_positionStart, _quaternionStart, _scaleStart)
+      _positionStart.copy(currenttransform.position)
+      _quaternionStart.copy(currenttransform.rotation)
+      _scaleStart.copy(currenttransform.scale)
       gizmoControlComponent.worldPositionStart.set(_positionStart)
       gizmoControlComponent.worldQuaternionStart.set(_quaternionStart)
 

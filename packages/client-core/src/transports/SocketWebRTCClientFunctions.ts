@@ -54,7 +54,7 @@ import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearc
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
+import { AuthTask, ReadyTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { Identifiable, PeerID, State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import {
   Action,
@@ -98,11 +98,17 @@ import {
   stopFaceTracking,
   stopLipsyncTracking
 } from '../media/webcam/WebcamInput'
+import { ChannelState } from '../social/services/ChannelService'
+import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
+import { clientContextParams } from '../util/contextParams'
 import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
 
-const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
+const logger = multiLogger.child({
+  component: 'client-core:SocketWebRTCClientFunctions',
+  modifier: clientContextParams
+})
 
 export type WebRTCTransportExtension = Omit<MediaSoupTransport, 'appData'> & { appData: MediaStreamAppData }
 export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
@@ -221,7 +227,7 @@ export const connectToInstance = (
       if (instanceStillProvisioned(instanceID, locationID, channelID)) _connect()
     }, 3000)
 
-    const onConnect = () => {
+    const onConnect = async () => {
       if (aborted || !primus) return
       connecting = false
       primus.off('incoming::open', onConnect)
@@ -230,31 +236,49 @@ export const connectToInstance = (
       clearTimeout(connectionFailTimeout)
 
       const topic = locationID ? NetworkTopics.world : NetworkTopics.media
-      authenticatePrimus(primus, instanceID, topic)
+      const instanceserverReady = await checkInstanceserverReady(primus, instanceID, topic)
+      if (instanceserverReady) {
+        await authenticatePrimus(primus, instanceID, topic)
 
-      /** Server closed the connection. */
-      const onDisconnect = () => {
-        if (aborted) return
-        if (primus) {
-          primus.off('incoming::end', onDisconnect)
-          primus.off('end', onDisconnect)
+        /** Server closed the connection. */
+        const onDisconnect = () => {
+          if (aborted) return
+          if (primus) {
+            primus.off('incoming::end', onDisconnect)
+            primus.off('end', onDisconnect)
+          }
+          const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
+          if (!network) return logger.error('Disconnected from unconnected instance ' + instanceID)
+
+          logger.info('Disconnected from network %o', { topic: network.topic, id: network.id })
+          /**
+           * If we are disconnected (server closes our socket) rather than leave the network,
+           * we just need to destroy and recreate the transport
+           */
+          closeNetwork(network)
+          /** If we still have the instance provisioned, we should try again */
+          if (instanceStillProvisioned(instanceID, locationID, channelID)) _connect()
         }
-        const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
-        if (!network) return logger.error('Disconnected from unconnected instance ' + instanceID)
-
-        logger.info('Disonnected from network %o', { topic: network.topic, id: network.id })
-        /**
-         * If we are disconnected (server closes our socket) rather than leave the network,
-         * we just need to destroy and recreate the transport
-         */
-        closeNetwork(network)
-        /** If we still have the instance provisioned, we should try again */
-        if (instanceStillProvisioned(instanceID, locationID, channelID)) _connect()
+        // incoming::end is emitted when the server closes the connection
+        primus.on('incoming::end', onDisconnect)
+        // end is emitted when the client closes the connection
+        primus.on('end', onDisconnect)
+      } else {
+        if (locationID) {
+          const currentLocation = getMutableState(LocationState).currentLocation.location
+          const currentLocationId = currentLocation.id.value
+          currentLocation.id.set(undefined as unknown as LocationID)
+          currentLocation.id.set(currentLocationId)
+        } else {
+          const channelState = getMutableState(ChannelState)
+          const targetChannelId = channelState.targetChannelId.value
+          channelState.targetChannelId.set(undefined as unknown as ChannelID)
+          channelState.targetChannelId.set(targetChannelId)
+        }
+        primus.removeAllListeners()
+        primus.end()
+        console.log('PRIMUS GONE')
       }
-      // incoming::end is emitted when the server closes the connection
-      primus.on('incoming::end', onDisconnect)
-      // end is emitted when the client closes the connection
-      primus.on('end', onDisconnect)
     }
     primus!.on('incoming::open', onConnect)
   }
@@ -281,6 +305,45 @@ export const getChannelIdFromTransport = (network: SocketWebRTCClientNetwork) =>
   const currentChannelInstanceConnection = mediaNetwork && channelConnectionState.instances[mediaNetwork.id]
   const isWorldConnection = network.topic === NetworkTopics.world
   return isWorldConnection ? null : currentChannelInstanceConnection?.channelId
+}
+
+export async function checkInstanceserverReady(primus: Primus, instanceID: InstanceID, topic: Topic) {
+  logger.info('Checking that instanceserver is ready')
+  const { instanceReady } = await new Promise<ReadyTask>((resolve) => {
+    const onStatus = (response: ReadyTask) => {
+      // eslint-disable-next-line no-prototype-builtins
+      if (response.hasOwnProperty('instanceReady')) {
+        clearInterval(interval)
+        resolve(response)
+        primus.off('data', onStatus)
+        primus.removeListener('incoming::end', onDisconnect)
+      }
+    }
+
+    primus.on('data', onStatus)
+
+    let disconnected = false
+    const interval = setInterval(() => {
+      if (disconnected) {
+        clearInterval(interval)
+        resolve({ instanceReady: false })
+        primus.removeAllListeners()
+        primus.end()
+        return
+      }
+    }, 100)
+
+    const onDisconnect = () => {
+      disconnected = true
+    }
+    primus.addListener('incoming::end', onDisconnect)
+  })
+
+  if (!instanceReady) {
+    unprovisionInstance(topic, instanceID)
+  }
+
+  return instanceReady
 }
 
 export async function authenticatePrimus(primus: Primus, instanceID: InstanceID, topic: Topic) {
@@ -325,10 +388,10 @@ export async function authenticatePrimus(primus: Primus, instanceID: InstanceID,
     /** We failed to connect to be authenticated, we do not want to try again */
     // TODO: do we want to unprovision here?
     unprovisionInstance(topic, instanceID)
-    return logger.error(new Error('Unable to connect with credentials' + error))
+    return logger.error(new Error('Unable to connect with credentials ' + error))
   }
 
-  connectToNetwork(primus, instanceID, topic, hostPeerID!, routerRtpCapabilities!, cachedActions!)
+  await connectToNetwork(primus, instanceID, topic, hostPeerID!, routerRtpCapabilities!, cachedActions!)
 }
 
 export const connectToNetwork = async (
@@ -1039,6 +1102,7 @@ export const toggleMicrophonePaused = async () => {
       const audioPaused = mediaStreamState.audioPaused.value
       if (audioPaused) resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value! as ProducerExtension)
       else pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value! as ProducerExtension)
+      logger.info({ event_name: 'microphone', value: !audioPaused })
       mediaStreamState.audioPaused.set(!audioPaused)
     }
   }
@@ -1051,6 +1115,7 @@ export const toggleWebcamPaused = async () => {
     if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
     else {
       const videoPaused = mediaStreamState.videoPaused.value
+      logger.info({ event_name: 'camera', value: !videoPaused })
       if (videoPaused) resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value! as ProducerExtension)
       else pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value! as ProducerExtension)
       mediaStreamState.videoPaused.set(!videoPaused)
@@ -1114,7 +1179,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork) {
 }
 
 export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
-  logger.info('Start screen share')
+  logger.info({ event_name: 'screen_share', event_value: true })
   const mediaStreamState = getMutableState(MediaStreamState)
 
   // get a screen share track
@@ -1170,7 +1235,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
 }
 
 export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
-  logger.info('Screen share stopped')
+  logger.info({ event_name: 'screen_share', event_value: false })
   const mediaStreamState = getMutableState(MediaStreamState)
 
   console.log(mediaStreamState.screenVideoProducer.value, mediaStreamState.screenShareVideoPaused.value)

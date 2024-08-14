@@ -779,6 +779,76 @@ describe('EditorControlFunctions', () => {
       assert.equal(newSnapshot.nodes![0].children![0], 1)
       assert.equal(newSnapshot.nodes![0].children![1], 2)
     })
+
+    it('should reparent inside root node', () => {
+      const node1UUID = MathUtils.generateUUID() as EntityUUID
+      const node2UUID = MathUtils.generateUUID() as EntityUUID
+      const node3UUID = MathUtils.generateUUID() as EntityUUID
+      const node4UUID = MathUtils.generateUUID() as EntityUUID
+
+      const gltf: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0, 1, 2, 3] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node1',
+            extensions: {
+              [UUIDComponent.jsonID]: node1UUID
+            }
+          },
+          {
+            name: 'node2',
+            extensions: {
+              [UUIDComponent.jsonID]: node2UUID
+            }
+          },
+          {
+            name: 'node3',
+            extensions: {
+              [UUIDComponent.jsonID]: node3UUID
+            }
+          },
+          {
+            name: 'node4',
+            extensions: {
+              [UUIDComponent.jsonID]: node4UUID
+            }
+          }
+        ]
+      }
+
+      Cache.add('/test.gltf', gltf)
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      getMutableState(EditorState).rootEntity.set(rootEntity)
+      applyIncomingActions()
+
+      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID)
+      const node4Entity = UUIDComponent.getEntityByUUID(node4UUID)
+
+      const sourceID = getComponent(rootEntity, SourceComponent)
+
+      const currentSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[0]
+      assert.equal(currentSnapshot.nodes?.length, 4)
+      assert.equal(currentSnapshot.nodes?.[3].name, gltf.nodes![3].name)
+
+      const targetNodeIndex = currentSnapshot.nodes!.findIndex(
+        (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(node4Entity, UUIDComponent)
+      )
+      const targetNodeName = currentSnapshot.nodes![targetNodeIndex].name
+      const beforeNodeIndex = currentSnapshot.nodes!.findIndex(
+        (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(node2Entity, UUIDComponent)
+      )
+
+      EditorControlFunctions.reparentObject([node4Entity], node2Entity, rootEntity)
+      applyIncomingActions()
+
+      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
+      assert.equal(newSnapshot.nodes?.length, 4)
+      assert.equal(newSnapshot.nodes?.[beforeNodeIndex].name, targetNodeName)
+    })
   })
 
   describe('groupObjects', () => {

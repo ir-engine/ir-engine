@@ -23,7 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserType, projectPath, projectPermissionPath } from '@etherealengine/common/src/schema.type.module'
+import {
+  ProjectType,
+  UserType,
+  projectPath,
+  projectPermissionPath
+} from '@etherealengine/common/src/schema.type.module'
 import { Forbidden } from '@feathersjs/errors'
 import { Application, HookContext } from '../../declarations'
 /**
@@ -43,17 +48,20 @@ export default () => {
         paginate: false
       })
 
-      if (data.length === 0) {
+      const allowedProjects = (await context.app.service(projectPath).find({
+        query: {
+          $or: [{ visibility: 'public' }, { id: { $in: data.map((projectPermission) => projectPermission.projectId) } }]
+        },
+        paginate: false
+      })) as any as ProjectType[]
+
+      if (allowedProjects.length === 0) {
         console.error(`No Project permissions found. UserId: ${loggedInUser.id}`)
         throw new Forbidden(`Project permissions not found`)
       }
 
-      context.params.query.project = { $in: [] }
+      context.params.query.project = { $in: allowedProjects.map((project) => project.name) }
 
-      for (const projP of data) {
-        const project = await context.app.service(projectPath).get(projP.projectId)
-        if (project !== undefined) context.params.query.project.$in.push(project.name)
-      }
       return context
     }
     return context

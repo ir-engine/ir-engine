@@ -298,14 +298,15 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
       )
     ) {
       return true
-    } else if (obj.parent) {
-      return (
-        hasComponent(obj.parent.entity, ColliderComponent) ||
-        Object.keys(obj.parent.userData).some(
-          (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
-        )
-      )
     }
+    // else if (obj.parent) {
+    //   return (
+    //     hasComponent(obj.parent.entity, ColliderComponent) ||
+    //     Object.keys(obj.parent.userData).some(
+    //       (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+    //     )
+    //   )
+    // }
     return false
   }
   //if we're not using visible component, set visible by default
@@ -314,6 +315,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     //if this object has a collider component attached to it, set visible to false
     !findColliderData(obj)
   ) {
+    setComponent(objEntity, VisibleComponent, true)
     eJson.components.push({
       name: VisibleComponent.jsonID,
       props: true

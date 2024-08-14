@@ -36,13 +36,6 @@ import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boo
 import InputGroup from '../../input/Group'
 import { NodeEditor } from '../nodeEditor'
 
-/**
- *
- * AmbientLightNodeEditor component used to customize the ambient light element on the scene
- * ambient light is basically used to illuminates all the objects present inside the scene.
- *
- * @type {[component class]}
- */
 export const VisualScriptNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 

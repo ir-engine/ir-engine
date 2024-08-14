@@ -33,6 +33,7 @@ import { identityProviderPath } from '@etherealengine/common/src/schemas/user/id
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 
+import { Octokit } from 'octokit'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { RedirectConfig } from '../../types/OauthStrategies'
@@ -57,10 +58,23 @@ export class GithubStrategy extends CustomOAuthStrategy {
     const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
 
+    let email: string
+
+    if (profile.email) {
+      email = profile.email
+    } else {
+      const octoKit = new Octokit({ auth: `token ${params.access_token}` })
+      const githubEmails = await octoKit.rest.users.listEmailsForAuthenticatedUser()
+
+      email = githubEmails.data.filter((githubEmail: any) => githubEmail.primary === true)[0].email
+    }
+
     return {
       ...baseData,
       accountIdentifier: profile.login,
       oauthToken: params.access_token,
+      oauthRefreshToken: params.refresh_token,
+      email,
       type: 'github',
       userId
     }
@@ -86,11 +100,15 @@ export class GithubStrategy extends CustomOAuthStrategy {
       entity.userId = newUser.id
       await this.app.service(identityProviderPath)._patch(entity.id, {
         userId: newUser.id,
-        oauthToken: params.access_token
+        oauthToken: params.access_token,
+        oauthRefreshToken: params.refresh_token,
+        email: entity.email
       })
     } else
       await this.app.service(identityProviderPath)._patch(entity.id, {
-        oauthToken: params.access_token
+        oauthToken: params.access_token,
+        oauthRefreshToken: params.refresh_token,
+        email: entity.email
       })
     const identityProvider = authResult[identityProviderPath]
     const user = await this.app.service(userPath).get(entity.userId)
@@ -112,18 +130,23 @@ export class GithubStrategy extends CustomOAuthStrategy {
       await this.app.service(identityProviderPath)._remove(identityProvider.id)
       await this.app.service(userPath).remove(identityProvider.userId)
       await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
+      await this.userLoginEntry(entity, params)
+
       return super.updateEntity(entity, profile, params)
     }
     const existingEntity = await super.findEntity(profile, params)
     if (!existingEntity) {
       profile.userId = user.id
       profile.oauthToken = params.access_token
+      profile.oauthRefreshToken = params.refresh_token
       const newIP = await super.createEntity(profile, params)
       if (entity.type === 'guest') await this.app.service(identityProviderPath)._remove(entity.id)
       await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
+      await this.userLoginEntry(newIP, params)
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) {
       await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
+      await this.userLoginEntry(existingEntity, params)
       return existingEntity
     } else {
       throw new Error('Another user is linked to this account')
@@ -165,6 +188,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
       else throw new Error('There was a problem with the GitHub OAuth login flow: ' + authentication.error_description)
     }
     originalParams.access_token = authentication.access_token
+    originalParams.refresh_token = authentication.refresh_token
     return super.authenticate(authentication, originalParams)
   }
 }
