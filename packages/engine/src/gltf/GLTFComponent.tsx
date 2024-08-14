@@ -30,7 +30,6 @@ import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parse
 import {
   defineComponent,
   Entity,
-  EntityUUID,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -40,7 +39,14 @@ import {
   useQuery,
   UUIDComponent
 } from '@etherealengine/ecs'
-import { dispatchAction, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import {
+  dispatchAction,
+  getMutableState,
+  getState,
+  none,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import {
@@ -48,15 +54,16 @@ import {
   BINARY_EXTENSION_HEADER_LENGTH,
   BINARY_EXTENSION_HEADER_MAGIC
 } from '../assets/loaders/gltf/GLTFExtensions'
-import { ModelComponent } from '../scene/components/ModelComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
+import { GLTFSourceState } from './GLTFState'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
 
 export const GLTFComponent = defineComponent({
   name: 'GLTFComponent',
+  jsonID: 'EE_model',
 
   onInit(entity) {
     return {
@@ -77,9 +84,20 @@ export const GLTFComponent = defineComponent({
 
     useGLTFDocument(gltfComponent.src.value, entity)
 
-    const documentID = useComponent(entity, SourceComponent).value
+    const sourceID = GLTFComponent.getInstanceID(entity)
 
-    return <ResourceReactor documentID={documentID} entity={entity} />
+    useEffect(() => {
+      getMutableState(GLTFSourceState)[sourceID].set(entity)
+      return () => {
+        getMutableState(GLTFSourceState)[sourceID].set(none)
+      }
+    }, [])
+
+    return <ResourceReactor documentID={sourceID} entity={entity} />
+  },
+
+  getInstanceID: (entity) => {
+    return `${getComponent(entity, UUIDComponent)}-${getComponent(entity, GLTFComponent).src}`
   }
 })
 
@@ -91,19 +109,19 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
   useEffect(() => {
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
     if (!getState(GLTFDocumentState)[props.documentID]) return
-    const document = getState(GLTFDocumentState)[props.documentID]
-    const modelNodes = document.nodes?.filter((node) => !!node.extensions?.[ModelComponent.jsonID])
-    if (modelNodes) {
-      for (const node of modelNodes) {
-        //check if an entity exists for this node, and has a model component
-        const uuid = node.extensions![UUIDComponent.jsonID] as EntityUUID
-        if (!UUIDComponent.entitiesByUUIDState[uuid]) return
-        const entity = UUIDComponent.entitiesByUUIDState[uuid].value
-        const model = getOptionalComponent(entity, ModelComponent)
-        //ensure that model contents have been loaded into the scene
-        if (!model?.scene) return
-      }
-    }
+    // const document = getState(GLTFDocumentState)[props.documentID]
+    // const modelNodes = document.nodes?.filter((node) => !!node.extensions?.[ModelComponent.jsonID])
+    // if (modelNodes) {
+    //   for (const node of modelNodes) {
+    //     //check if an entity exists for this node, and has a model component
+    //     const uuid = node.extensions![UUIDComponent.jsonID] as EntityUUID
+    //     if (!UUIDComponent.entitiesByUUIDState[uuid]) return
+    //     const entity = UUIDComponent.entitiesByUUIDState[uuid].value
+    //     const model = getOptionalComponent(entity, ModelComponent)
+    //     //ensure that model contents have been loaded into the scene
+    //     if (!model?.scene) return
+    //   }
+    // }
     const entities = resourceQuery.filter((e) => getComponent(e, SourceComponent) === props.documentID)
     if (!entities.length) {
       getMutableComponent(props.entity, GLTFComponent).progress.set(100)
@@ -144,10 +162,9 @@ const onProgress: (event: ProgressEvent) => void = (event) => {
 
 const useGLTFDocument = (url: string, entity: Entity) => {
   const state = useComponent(entity, GLTFComponent)
-  const sourceComponent = useComponent(entity, SourceComponent)
+  const source = GLTFComponent.getInstanceID(entity)
 
   useEffect(() => {
-    const source = sourceComponent.value
     return () => {
       dispatchAction(GLTFSnapshotAction.unload({ source }))
     }
@@ -193,7 +210,7 @@ const useGLTFDocument = (url: string, entity: Entity) => {
 
       dispatchAction(
         GLTFSnapshotAction.createSnapshot({
-          source: getComponent(entity, SourceComponent),
+          source,
           data: parseStorageProviderURLs(JSON.parse(JSON.stringify(json)))
         })
       )

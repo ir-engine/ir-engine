@@ -29,8 +29,8 @@ import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { cleanString } from '@etherealengine/common/src/utils/cleanString'
-import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { EntityUUID, UndefinedEntity } from '@etherealengine/ecs'
+import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
@@ -93,7 +93,7 @@ export const saveSceneGLTF = async (
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
   const { rootEntity } = getState(EditorState)
-  const sourceID = `${getComponent(rootEntity, UUIDComponent)}-${getComponent(rootEntity, GLTFComponent).src}`
+  const sourceID = GLTFComponent.getInstanceID(rootEntity)
 
   const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')

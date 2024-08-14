@@ -529,7 +529,7 @@ const useLoadMaterial = (
 
   const metalnessMap = GLTFLoaderFunctions.useAssignTexture(
     options,
-    materialDef.type === 'basic' ? undefined : materialDef.pbrMetallicRoughness?.metallicRoughnessTexture
+    materialDef.type === 'MeshBasicMaterial' ? undefined : materialDef.pbrMetallicRoughness?.metallicRoughnessTexture
   )
 
   useEffect(() => {
@@ -540,7 +540,7 @@ const useLoadMaterial = (
 
   const roughnessMap = GLTFLoaderFunctions.useAssignTexture(
     options,
-    materialDef.type === 'basic' ? undefined : materialDef.pbrMetallicRoughness?.metallicRoughnessTexture
+    materialDef.type === 'MeshBasicMaterial' ? undefined : materialDef.pbrMetallicRoughness?.metallicRoughnessTexture
   )
 
   useEffect(() => {
@@ -576,7 +576,7 @@ const useLoadMaterial = (
 
   const normalMap = GLTFLoaderFunctions.useAssignTexture(
     options,
-    materialDef.type === 'basic' ? undefined : materialDef.normalTexture
+    materialDef.type === 'MeshBasicMaterial' ? undefined : materialDef.normalTexture
   )
 
   useEffect(() => {
@@ -597,7 +597,7 @@ const useLoadMaterial = (
 
   const aoMap = GLTFLoaderFunctions.useAssignTexture(
     options,
-    materialDef.type === 'basic' ? undefined : materialDef.occlusionTexture
+    materialDef.type === 'MeshBasicMaterial' ? undefined : materialDef.occlusionTexture
   )
 
   useEffect(() => {
@@ -623,7 +623,7 @@ const useLoadMaterial = (
 
   const emissiveMap = GLTFLoaderFunctions.useAssignTexture(
     options,
-    materialDef.type === 'basic' ? undefined : materialDef.emissiveTexture
+    materialDef.type === 'MeshBasicMaterial' ? undefined : materialDef.emissiveTexture
   )
 
   useEffect(() => {
@@ -769,7 +769,7 @@ const useLoadTexture = (options: GLTFParserOptions, textureIndex?: number) => {
 
   /** @todo properly support texture extensions, this is a hack */
   const sourceIndex =
-    (extensions && Object.values(extensions).find((ext) => typeof ext.source === 'number')?.source) ||
+    (extensions && Object.values(extensions).find((ext) => typeof ext.source === 'number')?.source) ??
     textureDef?.source!
   const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
 

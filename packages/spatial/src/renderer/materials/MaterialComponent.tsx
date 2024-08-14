@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Mesh, Shader, WebGLRenderer } from 'three'
+import { Material, Shader, WebGLRenderer } from 'three'
 
 import {
   Component,
@@ -155,19 +155,21 @@ export const MaterialInstanceComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const materialComponent = useComponent(entity, MaterialInstanceComponent)
-    const meshComponent = useComponent(entity, MeshComponent)
 
-    if (Array.isArray(meshComponent.material.value))
+    if (materialComponent.uuid.value.length === 0) return null
+
+    if (materialComponent.uuid.value.length > 1)
       return (
         <>
           {materialComponent.uuid.value.map((uuid, index) => (
-            <MaterialInstanceSubReactor key={uuid} index={index} uuid={uuid} entity={entity} />
+            <MaterialInstanceSubReactor array={true} key={uuid} index={index} uuid={uuid} entity={entity} />
           ))}
         </>
       )
 
     return (
       <MaterialInstanceSubReactor
+        array={false}
         key={materialComponent.uuid.value[0]}
         index={0}
         uuid={materialComponent.uuid.value[0]}
@@ -177,17 +179,20 @@ export const MaterialInstanceComponent = defineComponent({
   }
 })
 
-const MaterialInstanceSubReactor = (props: { uuid: EntityUUID; entity: Entity; index: number }) => {
+const MaterialInstanceSubReactor = (props: { array: boolean; uuid: EntityUUID; entity: Entity; index: number }) => {
   const { uuid, entity, index } = props
   const materialStateEntity = UUIDComponent.useEntityByUUID(uuid)
   const materialStateComponent = useComponent(materialStateEntity, MaterialStateComponent)
   const meshComponent = useComponent(entity, MeshComponent)
 
   useEffect(() => {
-    const mesh = meshComponent.value as Mesh
-    const material = materialStateComponent.material.value as Material
-    if (Array.isArray(mesh.material)) mesh.material[index] = material
-    else mesh.material = material
+    const material = getComponent(materialStateEntity, MaterialStateComponent).material
+    if (props.array) {
+      if (!Array.isArray(meshComponent.material.value)) meshComponent.material.set([])
+      meshComponent.material[index].set(material)
+    } else {
+      meshComponent.material.set(material)
+    }
   }, [materialStateComponent.material])
 
   return null

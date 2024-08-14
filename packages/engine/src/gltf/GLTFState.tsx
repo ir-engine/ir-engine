@@ -150,13 +150,10 @@ export const GLTFSourceState = defineState({
     setComponent(entity, Object3DComponent, obj3d)
     addObjectToGroup(entity, obj3d)
     proxifyParentChildRelationships(obj3d)
-    getMutableState(GLTFSourceState)[sourceID].set(entity)
     return entity
   },
 
   unload: (entity: Entity) => {
-    const sourceID = `${getComponent(entity, UUIDComponent)}-${getComponent(entity, GLTFComponent).src}`
-    getMutableState(GLTFSourceState)[sourceID].set(none)
     removeEntity(entity)
   }
 })
@@ -387,11 +384,18 @@ const ChildGLTFReactor = (props: { source: string }) => {
   const source = props.source
 
   const index = useHookstate(getMutableState(GLTFSnapshotState)[source].index).value
-
   const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
   const parentUUID = useComponent(entity, UUIDComponent).value
 
   useLayoutEffect(() => {
+    return () => {
+      getMutableState(GLTFDocumentState)[source].set(none)
+      getMutableState(GLTFNodeState)[source].set(none)
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    const index = getState(GLTFSnapshotState)[source].index
     // update the modified state
     if (index > 0) getMutableState(GLTFModifiedState)[source].set(true)
 
@@ -404,25 +408,23 @@ const ChildGLTFReactor = (props: { source: string }) => {
     getMutableState(GLTFNodeState)[source].set(nodesDictionary)
   }, [index])
 
-  useLayoutEffect(() => {
-    return () => {
-      getMutableState(GLTFDocumentState)[source].set(none)
-      getMutableState(GLTFNodeState)[source].set(none)
-    }
-  }, [])
+  const nodeState = useHookstate(getMutableState(GLTFNodeState))[source]
+  const documentState = useMutableState(GLTFDocumentState)[source]
+  const physicsWorld = Physics.useWorld(entity)
+
+  if (!physicsWorld || !documentState.value || !nodeState.value) return null
 
   return <DocumentReactor documentID={source} parentUUID={parentUUID} />
 }
 
 export const DocumentReactor = (props: { documentID: string; parentUUID: EntityUUID }) => {
-  const nodeState = useHookstate(getMutableState(GLTFNodeState)[props.documentID])
-  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+  const nodeState = useHookstate(getMutableState(GLTFNodeState))[props.documentID]
+  const documentState = useMutableState(GLTFDocumentState)[props.documentID]
   const animationState = useHookstate([] as AnimationClip[])
   const rootEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
   useEffect(() => {
-    if (!documentState.value || !nodeState.value || animationState.length !== documentState.value.animations?.length)
-      return
+    if (animationState.length !== documentState.value.animations?.length) return
 
     const scene = getComponent(rootEntity, Object3DComponent)
     scene.animations = animationState.get(NO_PROXY) as AnimationClip[]
@@ -435,8 +437,6 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
       removeComponent(rootEntity, AnimationComponent)
     }
   }, [animationState])
-
-  if (!documentState.value || !nodeState.value) return null
 
   return (
     <>
@@ -595,8 +595,7 @@ const ParentNodeReactor = (props: {
   documentID: string
 }) => {
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
-  const physicsWorld = Physics.useWorld(parentEntity)
-  if (!parentEntity || !physicsWorld) return null
+  if (!parentEntity) return null
 
   return <NodeReactor {...props} />
 }
@@ -805,7 +804,7 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
 }
 
 const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Entity }) => {
-  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+  const documentState = useMutableState(GLTFDocumentState)[props.documentID]
   const nodes = documentState.nodes!.get(NO_PROXY)!
   const node = nodes[props.nodeIndex]!
 
@@ -815,11 +814,14 @@ const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Ent
     setComponent(props.entity, VisibleComponent)
   }, [])
 
+  const isSinglePrimitive = mesh.primitives.length === 1
+
   return (
     <>
       {mesh.primitives.map((primitive, index) => (
         <PrimitiveReactor
-          key={index}
+          isSinglePrimitive={isSinglePrimitive}
+          key={`${isSinglePrimitive}-${index}`}
           primitiveIndex={index}
           nodeIndex={props.nodeIndex}
           documentID={props.documentID}
@@ -938,11 +940,17 @@ const CameraReactor = (props: { nodeIndex: number; documentID: string; entity: E
   return null
 }
 
-const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; documentID: string; entity: Entity }) => {
+const PrimitiveReactor = (props: {
+  isSinglePrimitive: boolean
+  primitiveIndex: number
+  nodeIndex: number
+  documentID: string
+  entity: Entity
+}) => {
   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
 
   const nodes = documentState.nodes!.get(NO_PROXY)!
-  const node = nodes[props.nodeIndex]!
+  const node = nodes[props.nodeIndex]! as GLTF.INode
 
   const meshDef = documentState.meshes.get(NO_PROXY)![node.mesh!]
 
@@ -950,6 +958,33 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
 
   const options = getParserOptions(props.entity)
   const geometry = GLTFLoaderFunctions.useLoadPrimitive(options, props.nodeIndex, props.primitiveIndex)
+
+  /** @todo until we have multiple geometry to a single mesh entity support, we have to make children */
+  const entity = useHookstate(() => {
+    if (props.isSinglePrimitive) return props.entity
+
+    const uuid = (getNodeUUID(node, props.documentID, props.nodeIndex) +
+      '-primitive-' +
+      props.primitiveIndex) as EntityUUID
+    const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
+
+    setComponent(entity, UUIDComponent, uuid)
+    setComponent(entity, SourceComponent, props.documentID)
+
+    /** Ensure all base components are added for synchronous mount */
+    setComponent(entity, EntityTreeComponent, { parentEntity: props.entity, childIndex: props.primitiveIndex })
+    setComponent(entity, NameComponent, (node.name ?? 'Node-' + props.nodeIndex) + '_' + props.primitiveIndex)
+    setComponent(entity, TransformComponent)
+    setComponent(entity, VisibleComponent)
+
+    return entity
+  }).value
+
+  useEffect(() => {
+    return () => {
+      if (!props.isSinglePrimitive) removeEntity(entity)
+    }
+  }, [])
 
   useLayoutEffect(() => {
     if (!geometry) return
@@ -959,20 +994,20 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
       const skinnedMesh = new SkinnedMesh(geometry, new MeshBasicMaterial())
       mesh = skinnedMesh
       skinnedMesh.skeleton = new Skeleton()
-      setComponent(props.entity, MeshComponent, skinnedMesh)
-      setComponent(props.entity, SkinnedMeshComponent, skinnedMesh)
+      setComponent(entity, MeshComponent, skinnedMesh)
+      setComponent(entity, SkinnedMeshComponent, skinnedMesh)
     } else {
       mesh = new Mesh(geometry, new MeshBasicMaterial())
-      setComponent(props.entity, MeshComponent, mesh)
+      setComponent(entity, MeshComponent, mesh)
     }
 
     /** @todo multiple primitive support */
-    addObjectToGroup(props.entity, mesh)
+    addObjectToGroup(entity, mesh)
 
     return () => {
-      removeComponent(props.entity, SkinnedMeshComponent)
-      removeComponent(props.entity, MeshComponent)
-      removeObjectFromGroup(props.entity, mesh)
+      removeComponent(entity, SkinnedMeshComponent)
+      removeComponent(entity, MeshComponent)
+      removeObjectFromGroup(entity, mesh)
     }
   }, [node.skin, geometry])
 
@@ -985,7 +1020,7 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
           nodeIndex={props.nodeIndex}
           primitiveIndex={props.primitiveIndex}
           documentID={props.documentID}
-          entity={props.entity}
+          entity={entity}
         />
       )}
       {typeof primitive.material === 'number' && (
@@ -993,14 +1028,14 @@ const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; do
           nodeIndex={props.nodeIndex}
           primitiveIndex={props.primitiveIndex}
           documentID={props.documentID}
-          entity={props.entity}
+          entity={entity}
         />
       )}
       {primitive.targets && (
         <MorphTargetReactor
           key={'targets'}
           documentID={props.documentID}
-          entity={props.entity}
+          entity={entity}
           targets={primitive.targets}
           nodeIndex={props.nodeIndex}
           primitiveIndex={props.primitiveIndex}
@@ -1129,12 +1164,13 @@ export const AnimationReactor = (props: {
 
 export const getParserOptions = (entity: Entity) => {
   const gltfEntity = getAncestorWithComponent(entity, GLTFComponent)
-  const document = getState(GLTFDocumentState)[getComponent(gltfEntity, SourceComponent)]
+  const documentID = GLTFComponent.getInstanceID(gltfEntity)
   const gltfComponent = getComponent(gltfEntity, GLTFComponent)
+  const document = getState(GLTFDocumentState)[documentID]
   const gltfLoader = getState(AssetLoaderState).gltfLoader
   return {
     document,
-    documentID: getComponent(gltfEntity, SourceComponent),
+    documentID,
     url: gltfComponent.src,
     path: LoaderUtils.extractUrlBase(gltfComponent.src),
     body: gltfComponent.body,
