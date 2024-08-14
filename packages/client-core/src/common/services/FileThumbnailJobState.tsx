@@ -66,7 +66,6 @@ import React, { useEffect } from 'react'
 import { Color, Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Sphere, SphereGeometry, Vector3 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { ThumbnailLightTagComponent } from '@etherealengine/engine/src/camera/components/ThumbnailLightTagComponent'
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -366,7 +365,6 @@ const ThumbnailJobReactor = () => {
     setComponent(lightEntity, NameComponent, 'thumbnail job light for ' + src)
     setComponent(lightEntity, VisibleComponent)
     setComponent(lightEntity, DirectionalLightComponent, { intensity: 1, color: new Color(0xffffff) })
-    setComponent(lightEntity, ThumbnailLightTagComponent)
 
     if (!state.cameraEntity.value) {
       let canvasContainer = document.getElementById('thumbnail-camera-container')
