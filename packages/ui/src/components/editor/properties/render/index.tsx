@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, useQuery } from '@etherealengine/ecs'
+import { EntityUUID, Not, UUIDComponent, useQuery } from '@etherealengine/ecs'
 import { ComponentType, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   EditorComponentType,
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
+import { ThumbnailLightTagComponent } from '@etherealengine/engine/src/camera/components/ThumbnailLightTagComponent'
 import { GLTFNodeState, GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
@@ -119,7 +120,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
       value: '' as EntityUUID
     }
   ].concat(
-    useQuery([DirectionalLightComponent]).map((entity) => {
+    useQuery([DirectionalLightComponent, Not(ThumbnailLightTagComponent)]).map((entity) => {
       return {
         label: getComponent(entity, NameComponent),
         value: getComponent(entity, UUIDComponent)
