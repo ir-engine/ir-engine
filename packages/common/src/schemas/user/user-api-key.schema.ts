@@ -41,9 +41,7 @@ export const userApiKeySchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    token: Type.String({
-      format: 'uuid'
-    }),
+    token: Type.String(),
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
