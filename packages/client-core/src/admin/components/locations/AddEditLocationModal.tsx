@@ -61,7 +61,13 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
 
   const locationID = useHookstate(props.location?.id || null)
 
-  const locationQuery = useFind(locationPath, { query: { id: locationID.value } })
+  const params = {
+    query: {
+      id: locationID.value
+    }
+  }
+
+  const locationQuery = useFind(locationPath, locationID.value ? params : undefined)
   const location = locationID.value ? locationQuery.data[0] : undefined
 
   const locationMutation = useMutation(locationPath)
