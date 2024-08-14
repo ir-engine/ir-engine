@@ -192,7 +192,7 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
     ;(context.actualData as IdentityProviderData).type = 'guest' //Non-password/magiclink create requests must always be for guests
   }
 
-  if ((context.data as IdentityProviderData).type === 'guest') {
+  if ((context.data as IdentityProviderData).type === 'guest' && (context.actualData as IdentityProviderData).userId) {
     const existingUser = await context.app.service(userPath).find({
       query: {
         id: (context.actualData as IdentityProviderData).userId
