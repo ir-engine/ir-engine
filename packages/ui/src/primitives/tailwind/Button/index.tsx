@@ -55,7 +55,7 @@ const sizes = {
 
 const variants = {
   primary: 'bg-blue-primary',
-  secondary: 'bg-blue-secondary',
+  secondary: 'bg-theme-blue-secondary',
   outline: 'border border-solid border-theme-primary bg-theme-surface-main dark:bg-theme-highlight text-theme-primary',
   danger: 'bg-red-500',
   success: 'bg-teal-700',
@@ -89,8 +89,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       sizes[size],
       fullWidth ? 'w-full' : 'w-fit',
       roundedTypes[rounded],
-      disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#5F7DBF] dark:text-[#FFFFFF]' : '',
       variants[variant],
+      disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#5F7DBF] dark:text-[#FFFFFF]' : '',
       className
     )
 
