@@ -48,6 +48,7 @@ export const LocationSeed: LocationType = {
   maxUsersPerInstance: 10,
   sceneId: '',
   projectId: '',
+  url: '',
   sceneAsset: {} as any,
   isLobby: false,
   isFeatured: false,
@@ -64,6 +65,7 @@ export const LocationSeed: LocationType = {
   },
   locationAuthorizedUsers: [],
   locationBans: [],
+  updatedBy: '' as UserID,
   createdAt: '',
   updatedAt: ''
 }

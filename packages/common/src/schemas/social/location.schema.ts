@@ -29,6 +29,7 @@ import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
+import { UserID } from '../../schema.type.module'
 import { TypedString } from '../../types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
 import { dataValidator, queryValidator } from '../validators'
@@ -60,12 +61,16 @@ export const locationSchema = Type.Object(
     isLobby: Type.Boolean(),
     /** @todo review */
     isFeatured: Type.Boolean(),
+    url: Type.String(),
     sceneAsset: Type.Ref(staticResourceSchema),
     maxUsersPerInstance: Type.Number(),
     locationSetting: Type.Ref(locationSettingSchema),
     locationAdmin: Type.Optional(Type.Ref(locationAdminSchema)),
     locationAuthorizedUsers: Type.Array(Type.Ref(locationAuthorizedUserSchema)),
     locationBans: Type.Array(Type.Ref(locationBanSchema)),
+    updatedBy: TypedString<UserID>({
+      format: 'uuid'
+    }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -74,7 +79,7 @@ export const locationSchema = Type.Object(
 export interface LocationType extends Static<typeof locationSchema> {}
 
 export interface LocationDatabaseType
-  extends Omit<LocationType, 'locationSetting' | 'locationAuthorizedUsers' | 'locationBans'> {}
+  extends Omit<LocationType, 'locationSetting' | 'locationAuthorizedUsers' | 'locationBans' | 'url'> {}
 
 // Schema for creating new entries
 export const locationDataSchema = Type.Pick(

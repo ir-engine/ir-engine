@@ -44,14 +44,15 @@ export const projectPermissionSchema = Type.Object(
     projectId: Type.String({
       format: 'uuid'
     }),
-    userId: TypedString<UserID>({
-      format: 'uuid'
-    }),
+    userId: TypedString<UserID>(),
     createdBy: TypedString<UserID>({
       format: 'uuid'
     }),
     type: Type.String(),
     user: Type.Ref(userSchema),
+    updatedBy: TypedString<UserID>({
+      format: 'uuid'
+    }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -98,7 +99,8 @@ export const projectPermissionQuerySchema = Type.Intersect(
     // Add additional query properties here
     Type.Object(
       {
-        project: Type.Optional(Type.String())
+        project: Type.Optional(Type.String()),
+        paginate: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
     )

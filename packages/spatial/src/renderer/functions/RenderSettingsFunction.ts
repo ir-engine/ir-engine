@@ -26,26 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { iOS } from '../../common/functions/isMobile'
-import { EngineState } from '../../EngineState'
 import { RendererState } from '../../renderer/RendererState'
 import { isMobileXRHeadset } from '../../xr/XRState'
-import { RenderModes } from '../constants/RenderModes'
 
 export const getShadowsEnabled = () => {
   const rendererState = getState(RendererState)
-  const isEditor = getState(EngineState).isEditor
-  return (
-    !isMobileXRHeadset &&
-    !iOS &&
-    rendererState.useShadows &&
-    (isEditor ? rendererState.renderMode === RenderModes.SHADOW : true)
-  )
+  return !isMobileXRHeadset && !iOS && rendererState.useShadows
 }
 
 export const useShadowsEnabled = () => {
   const rendererState = getMutableState(RendererState)
   const useShadows = useHookstate(rendererState.useShadows).value
-  const renderMode = useHookstate(rendererState.renderMode).value
-  const isEditor = useHookstate(getMutableState(EngineState).isEditor).value
-  return !isMobileXRHeadset && !iOS && useShadows && (isEditor ? renderMode === RenderModes.SHADOW : true)
+  return !isMobileXRHeadset && !iOS && useShadows
 }

@@ -27,8 +27,9 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
 
+import { TypedString } from '../../types/TypeboxUtils'
 import { projectSettingSchema } from '../setting/project-setting.schema'
-import { UserType } from '../user/user.schema'
+import { UserID, UserType } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { projectPermissionSchema } from './project-permission.schema'
 
@@ -55,7 +56,7 @@ export const projectSchema = Type.Object(
     hasLocalChanges: Type.Boolean(),
     sourceRepo: Type.Optional(Type.String()),
     sourceBranch: Type.Optional(Type.String()),
-    updateType: StringEnum(projectUpdateTypes),
+    updateType: Type.Optional(StringEnum(projectUpdateTypes)),
     updateSchedule: Type.Optional(Type.String()),
     updateUserId: Type.Optional(Type.String()),
     hasWriteAccess: Type.Optional(Type.Boolean()),
@@ -63,7 +64,11 @@ export const projectSchema = Type.Object(
     commitSHA: Type.Optional(Type.String()),
     commitDate: Type.Optional(Type.String({ format: 'date-time' })),
     assetsOnly: Type.Boolean(),
+    visibility: StringEnum(['private', 'public']),
     settings: Type.Optional(Type.Array(Type.Ref(projectSettingSchema))),
+    updatedBy: TypedString<UserID>({
+      format: 'uuid'
+    }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -103,6 +108,7 @@ export const projectQueryProperties = Type.Pick(projectSchema, [
   'updateSchedule',
   'updateUserId',
   'hasWriteAccess',
+  'visibility',
   'commitSHA',
   'commitDate'
 ])
@@ -116,7 +122,7 @@ export const projectQuerySchema = Type.Intersect(
     // Add additional query properties here
     Type.Object(
       {
-        paginate: Type.Optional(Type.Boolean()),
+        assetsOnly: Type.Optional(Type.Boolean()),
         action: Type.Optional(Type.String()),
         sourceURL: Type.Optional(Type.String()),
         destinationURL: Type.Optional(Type.String()),

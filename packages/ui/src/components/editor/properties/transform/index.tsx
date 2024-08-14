@@ -111,11 +111,20 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   return (
     <PropertyGroup
       name={t('editor:properties.transform.title')}
-      description="change transform of an entity"
+      description={t('editor:properties.transform.description')}
       icon={<TransformPropertyGroup.iconComponent />}
     >
-      <InputGroup name="Dynamically Load Children" label={t('editor:properties.lbl-dynamicLoad')}>
-        <BooleanInput value={hasComponent(props.entity, SceneDynamicLoadTagComponent)} onChange={onChangeDynamicLoad} />
+      <InputGroup
+        name="Dynamically Load Children"
+        label={t('editor:properties.lbl-dynamicLoad')}
+        labelClassName="font-normal text-[#6B6D78]"
+        className="w-auto"
+      >
+        <BooleanInput
+          value={hasComponent(props.entity, SceneDynamicLoadTagComponent)}
+          onChange={onChangeDynamicLoad}
+          className="mr-2"
+        />
         {hasComponent(props.entity, SceneDynamicLoadTagComponent) && (
           <NumericInput
             min={1}
@@ -126,7 +135,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           />
         )}
       </InputGroup>
-      <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')}>
+      <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')} className="w-auto">
         <Vector3Input
           smallStep={0.01}
           mediumStep={0.1}
@@ -136,10 +145,10 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           onRelease={onRelease}
         />
       </InputGroup>
-      <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')}>
+      <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')} className="w-auto">
         <EulerInput quaternion={rotation} onChange={onChangeRotation} unit="°" onRelease={onRelease} />
       </InputGroup>
-      <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')}>
+      <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')} className="w-auto">
         <Vector3Input
           uniformScaling
           smallStep={0.01}

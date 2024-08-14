@@ -3,17 +3,27 @@
     "compounds": [
         {
             "name": "Dev Mode",
-            "configurations": ["dev-agones", "dev-api-server", "dev-instanceserver", "dev-instanceserver-dev-channel", "dev-client", "dev-taskserver", "Chrome",]
+            "configurations": [
+                "dev-agones",
+                "dev-api-server",
+                "dev-instanceserver",
+                "dev-instanceserver-dev-channel",
+                "dev-client",
+                "dev-taskserver",
+                "Chrome",
+            ]
             // npm:dev-agones-silent npm:dev-server npm:dev-client npm:dev-taskserver
         },
         {
             "name": "Dev UI",
-            "configurations": ["ui-jest", "ui-storybook"]
+            "configurations": [
+                "ui-jest",
+                "ui-storybook"
+            ]
             // npm:dev-agones-silent npm:dev-server npm:dev-client npm:dev-taskserver
         }
     ],
     "configurations": [
-    
         {
             "command": "cd packages/ui && npm run test:watch",
             "name": "ui-jest",
@@ -110,6 +120,12 @@
             "type": "node-terminal",
         },
         {
+            "command": "cd packages/common && npm run test",
+            "name": "npm run test - common",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
             "command": "npm run dev",
             "name": "npm run dev",
             "request": "launch",
@@ -136,6 +152,12 @@
         {
             "command": "npm run dev-reinit",
             "name": "npm run dev-reinit",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "npm run migrate",
+            "name": "npm run migrate",
             "request": "launch",
             "type": "node-terminal",
         },

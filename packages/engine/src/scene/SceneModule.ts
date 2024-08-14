@@ -40,7 +40,6 @@ import { HyperspaceTagComponent } from './components/HyperspaceTagComponent'
 import { ImageComponent } from './components/ImageComponent'
 import { LinkComponent } from './components/LinkComponent'
 import { MediaComponent } from './components/MediaComponent'
-import { MediaSettingsComponent } from './components/MediaSettingsComponent'
 import { MountPointComponent } from './components/MountPointComponent'
 import { NewVolumetricComponent } from './components/NewVolumetricComponent'
 import { OldColliderComponent } from './components/OldColliderComponent'
@@ -56,7 +55,6 @@ import { SkyboxComponent } from './components/SkyboxComponent'
 import { SpawnPointComponent } from './components/SpawnPointComponent'
 import { SplineComponent } from './components/SplineComponent'
 import { SplineTrackComponent } from './components/SplineTrackComponent'
-import { SystemComponent } from './components/SystemComponent'
 import { TextComponent } from './components/TextComponent'
 import { VariantComponent } from './components/VariantComponent'
 import { VideoComponent } from './components/VideoComponent'
@@ -68,7 +66,7 @@ import { PortalSystem } from './systems/PortalSystem'
 import { SceneKillHeightSystem } from './systems/SceneKillHeightSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
-import { ShadowSystem } from './systems/ShadowSystem'
+import { DropShadowSystem, ShadowSystem } from './systems/ShadowSystem'
 import { VariantSystem } from './systems/VariantSystem'
 
 /** This const MUST be kept here, to ensure all components definitions are loaded by the time the scene loading occurs */
@@ -85,7 +83,7 @@ export const SceneComponents = [
   ImageComponent,
   // InteriorComponent,
   MediaComponent,
-  MediaSettingsComponent,
+  // MediaSettingsComponent,
   MountPointComponent,
   // OceanComponent,
   ParticleSystemComponent,
@@ -101,8 +99,6 @@ export const SceneComponents = [
   SpawnPointComponent,
   SplineComponent,
   SplineTrackComponent,
-  SystemComponent,
-  SystemComponent,
   VariantComponent,
   VideoComponent,
   VolumetricComponent,
@@ -114,6 +110,7 @@ export const SceneComponents = [
 ]
 
 export {
+  DropShadowSystem,
   EnvironmentSystem,
   FogSystem,
   MaterialLibrarySystem,

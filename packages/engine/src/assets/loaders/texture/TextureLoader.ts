@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { ImageLoader, LoadingManager, Texture } from 'three'
 import { Loader } from '../base/Loader'
@@ -92,6 +93,11 @@ class TextureLoader extends Loader<Texture> {
     }
 
     const texture = new Texture()
+    if (!isClient) {
+      onLoad(texture)
+      return
+    }
+
     const loader = new ImageLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
     loader.load(
       url,

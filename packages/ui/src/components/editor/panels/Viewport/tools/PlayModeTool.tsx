@@ -88,18 +88,24 @@ const PlayModeTool = () => {
   }
 
   return (
-    <div id="preview" className="flex items-center bg-theme-surfaceInput">
+    <div id="preview" className="flex items-center">
       <Tooltip
         title={
-          isEditing.value
-            ? `${t('editor:toolbar.command.lbl-playPreview')} (${t('editor:toolbar.command.info-playPreview')})`
-            : `${t('editor:toolbar.command.lbl-stopPreview')} (${t('editor:toolbar.command.info-stopPreview')})`
+          isEditing.value ? t('editor:toolbar.command.lbl-playPreview') : t('editor:toolbar.command.lbl-stopPreview')
         }
-        direction="bottom"
+        content={
+          isEditing.value ? t('editor:toolbar.command.info-playPreview') : t('editor:toolbar.command.info-stopPreview')
+        }
       >
         <Button
           variant="transparent"
-          startIcon={isEditing.value ? <HiOutlinePlay /> : <HiOutlinePause />}
+          startIcon={
+            isEditing.value ? (
+              <HiOutlinePlay className="text-theme-input" />
+            ) : (
+              <HiOutlinePause className="text-theme-input" />
+            )
+          }
           className="p-0"
           onClick={onTogglePlayMode}
         />

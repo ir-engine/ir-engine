@@ -51,7 +51,7 @@ import config from '../../appconfig'
 import { getContentType } from '../../util/fileUtils'
 import { getIncrementalName } from '../FileUtil'
 import { getStorageProvider } from '../storageprovider/storageprovider'
-import { StorageObjectInterface } from '../storageprovider/storageprovider.interface'
+import { StorageObjectInterface, StorageProviderInterface } from '../storageprovider/storageprovider.interface'
 import { uploadStaticResource } from './file-helper'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
@@ -124,9 +124,6 @@ export class FileBrowserService
     let total = result.length
 
     result = result.slice(skip, skip + limit)
-    result.forEach((file) => {
-      file.url = storageProvider.getCachedURL(file.key, params && params.provider == null)
-    })
 
     if (params.provider && !isAdmin) {
       const knexClient: Knex = this.app.get('knexClient')
@@ -148,6 +145,24 @@ export class FileBrowserService
           allowedProjectNames.some((project) => item.key.startsWith(`projects/${project}`)) || item.name === 'projects'
         )
       })
+    }
+
+    const resourceQuery = (await this.app.service(staticResourcePath).find({
+      query: {
+        key: { $in: result.map((file) => file.key) }
+      },
+      paginate: false
+    })) as unknown as StaticResourceType[]
+    const resourceMap: Record<string, StaticResourceType> = {}
+    for (const resource of resourceQuery) {
+      resourceMap[resource.key] = resource
+    }
+    for (const file of result) {
+      const resource = resourceMap[file.key]
+      if (resource) {
+        file.url = resource.url
+        file.thumbnailURL = resource.thumbnailURL
+      }
     }
 
     return {
@@ -206,14 +221,23 @@ export class FileBrowserService
 
     const isDirectory = await storageProvider.isDirectory(oldName, oldDirectory)
     const fileName = await getIncrementalName(newName, newDirectory, storageProvider, isDirectory)
-    await storageProvider.moveObject(oldName, fileName, oldDirectory, newDirectory, data.isCopy)
+
+    if (isDirectory) {
+      await this.moveFolderRecursively(
+        storageProvider,
+        path.join(oldDirectory, oldName),
+        path.join(newDirectory, fileName)
+      )
+    } else {
+      await storageProvider.moveObject(oldName, fileName, oldDirectory, newDirectory, data.isCopy)
+    }
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
-        key: { $like: `%${path.join(oldDirectory, oldName)}%` }
-      },
-      paginate: false
-    })) as StaticResourceType[]
+        key: { $like: `%${path.join(oldDirectory, oldName)}%` },
+        paginate: false
+      } as any
+    })) as unknown as StaticResourceType[]
 
     if (!staticResources?.length) throw new Error('Static resources not found')
 
@@ -248,6 +272,30 @@ export class FileBrowserService
     }
 
     return results
+  }
+
+  private async moveFolderRecursively(storageProvider: StorageProviderInterface, oldPath: string, newPath: string) {
+    const items = await storageProvider.listFolderContent(oldPath + '/')
+
+    for (const item of items) {
+      const oldItemPath = path.join(oldPath, item.name)
+      const newItemPath = path.join(newPath, item.name)
+
+      if (item.type === 'directory') {
+        await this.moveFolderRecursively(storageProvider, oldItemPath, newItemPath)
+      } else {
+        await storageProvider.moveObject(item.name, item.name, oldPath, newPath, false)
+      }
+    }
+
+    // move the folder itself
+    await storageProvider.moveObject(
+      path.basename(oldPath),
+      path.basename(newPath),
+      path.dirname(oldPath),
+      path.dirname(newPath),
+      false
+    )
   }
 
   /**

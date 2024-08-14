@@ -41,10 +41,17 @@ import {
   identityProviderQueryValidator,
   IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { UserID, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 
-import { projectPath, projectPermissionPath, UserType } from '@etherealengine/common/src/schema.type.module'
+import {
+  projectPath,
+  projectPermissionPath,
+  userApiKeyPath,
+  UserApiKeyType,
+  UserType
+} from '@etherealengine/common/src/schema.type.module'
+import { Paginated } from '@feathersjs/feathers'
 import { HookContext } from '../../../declarations'
 import appConfig from '../../appconfig'
 import persistData from '../../hooks/persist-data'
@@ -58,6 +65,31 @@ import {
   identityProviderResolver
 } from './identity-provider.resolvers'
 
+async function checkTokenAuth(context: HookContext<IdentityProviderService>, userId: UserID): Promise<boolean> {
+  const authHeader = context.params.headers?.authorization
+  if (authHeader) {
+    let authSplit
+    if (authHeader) {
+      authSplit = authHeader.split(' ')
+    }
+
+    if (authSplit && authSplit.length > 1 && authSplit[1]) {
+      const key = (await context.app.service(userApiKeyPath).find({
+        query: {
+          token: authSplit[1]
+        }
+      })) as Paginated<UserApiKeyType>
+
+      if (key.data.length > 0) {
+        const user = await context.app.service(userPath).get(key.data[0].userId)
+        if (userId !== user.id) throw new BadRequest('Cannot make identity-providers on other users')
+        else return true
+      }
+    }
+  }
+  return false
+}
+
 /**
  * If trying to CRUD multiple identity-providers (e.g. patch all IP's belonging to a user),
  * make `params.query.userId` the ID of the calling user, so no one can alter anyone else's IPs.
@@ -70,10 +102,24 @@ async function checkIdentityProvider(context: HookContext<IdentityProviderServic
       !thisIdentityProvider ||
       (context.params.user && thisIdentityProvider && context.params.user.id !== thisIdentityProvider.userId)
     )
-      throw new MethodNotAllowed('authenticated user is not owner of this identity provider')
+      throw new Forbidden('Authenticated user is not owner of this identity provider')
   } else {
     const userId = context.params[identityProviderPath]?.userId
-    if (!userId) throw new NotFound()
+    if (!userId) {
+      let isAuthenticated = await checkTokenAuth(context, userId)
+      if (!isAuthenticated) {
+        if (context.params.authentication) {
+          try {
+            await context.app.service('authentication').strategies.jwt.authenticate!(
+              { accessToken: context.params.authentication.accessToken },
+              {}
+            )
+          } catch (err) {
+            throw new NotFound()
+          }
+        } else throw new NotFound()
+      }
+    }
     if (!context.params.query) context.params.query = {}
     context.params.query.userId = userId
   }
@@ -108,27 +154,31 @@ async function checkOnlyIdentityProvider(context: HookContext<IdentityProviderSe
 
 async function validateAuthParams(context: HookContext<IdentityProviderService>) {
   let userId = (context.actualData as IdentityProviderData).userId
-
-  if (context.params.authentication) {
-    const authResult = await context.app.service('authentication').strategies.jwt.authenticate!(
-      { accessToken: context.params.authentication.accessToken },
-      {}
-    )
-    userId = userId || authResult[appConfig.authentication.entity]?.userId
-  }
-
-  if (!userId) {
-    if ((context.actualData as IdentityProviderData).type === 'guest') {
-      return
-    }
-    throw new BadRequest('userId not found')
-  }
+  let existingUser
 
   try {
-    context.existingUser = await context.app.service(userPath).get(userId)
+    if (userId) existingUser = await context.app.service(userPath).get(userId)
   } catch (err) {
     //
   }
+
+  let isAuthenticated = await checkTokenAuth(context, userId)
+
+  if (!isAuthenticated) {
+    if (context.params.authentication) {
+      const authResult = await context.app.service('authentication').strategies.jwt.authenticate!(
+        { accessToken: context.params.authentication.accessToken },
+        {}
+      )
+      if (userId !== authResult[appConfig.authentication.entity]?.userId)
+        throw new BadRequest('Cannot make identity-providers on other users')
+    } else {
+      if (userId && existingUser)
+        throw new BadRequest('Cannot make identity-providers on existing users with no authentication')
+    }
+  }
+
+  context.existingUser = existingUser
 }
 
 async function addIdentityProviderType(context: HookContext<IdentityProviderService>) {
@@ -138,9 +188,20 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
     context.params!.provider &&
     !['password', 'email', 'sms'].includes((context!.actualData as IdentityProviderData).type)
   ) {
+    ;(context.data as IdentityProviderData).type = 'guest'
     ;(context.actualData as IdentityProviderData).type = 'guest' //Non-password/magiclink create requests must always be for guests
   }
 
+  if ((context.data as IdentityProviderData).type === 'guest') {
+    const existingUser = await context.app.service(userPath).find({
+      query: {
+        id: (context.actualData as IdentityProviderData).userId
+      }
+    })
+    if (existingUser.data.length > 0) {
+      throw new BadRequest('Cannot create a guest identity-provider on an existing user')
+    }
+  }
   const adminScopes = await context.app.service(scopePath).find({
     query: {
       type: 'admin:admin' as ScopeType

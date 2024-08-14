@@ -43,6 +43,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 
+import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
@@ -51,6 +52,7 @@ import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { RendererState } from '../RendererState'
 import Frustum from './Frustum'
 import Shader from './Shader'
 
@@ -319,7 +321,8 @@ export class CSM {
     if (this.sourceLight) this.lightDirection.subVectors(this.sourceLight.target.position, this.sourceLight.position)
     if (this.needsUpdate) {
       this.injectInclude()
-      this.updateFrustums()
+      // Only update uniforms if WebGLRendererSystem isn't already updating them every frame
+      this.updateFrustums(!getState(RendererState).updateCSMFrustums)
       for (const light of this.lights) {
         light.shadow.map?.dispose()
         light.shadow.map = null as any
@@ -439,7 +442,8 @@ export class CSM {
   updateUniforms(): void {
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const far = Math.min(camera.far, this.maxFar)
-    this.shaders.forEach(function (shader: ShaderType, material: Material) {
+
+    for (const [material, shader] of this.shaders.entries()) {
       const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 
       if (shader !== null) {
@@ -456,7 +460,7 @@ export class CSM {
         material.defines!.CSM_FADE = ''
         material.needsUpdate = true
       }
-    }, this)
+    }
   }
 
   getExtendedBreaks(target: Vector2[]): void {
@@ -474,11 +478,11 @@ export class CSM {
     }
   }
 
-  updateFrustums(): void {
+  updateFrustums(updateUniforms = true): void {
     this.getBreaks()
     this.initCascades()
     this.updateShadowBounds()
-    this.updateUniforms()
+    if (updateUniforms) this.updateUniforms()
   }
 
   remove(): void {

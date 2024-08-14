@@ -32,7 +32,7 @@ const PanelIcon = ({ as: IconComponent, size = 12 }) => {
 
 export const PanelTitle = ({ children }) => {
   return (
-    <Text fontSize="sm" fontFamily="Figtree" className="leading-none">
+    <Text fontSize="sm" className="leading-none">
       {children}
     </Text>
   )

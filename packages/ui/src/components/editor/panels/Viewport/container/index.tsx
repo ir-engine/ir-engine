@@ -23,23 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useEngineCanvas'
-import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { getComponent, useComponent, useQuery } from '@etherealengine/ecs'
-import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
+import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
+import { clientSettingPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { useComponent, useQuery } from '@etherealengine/ecs'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
-import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -47,6 +49,7 @@ import { Vector2, Vector3 } from 'three'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
 import { DnDFileType, FileType } from '../../Files/container'
+import { SceneElementType } from '../../Properties/elementList'
 import GizmoTool from '../tools/GizmoTool'
 import GridTool from '../tools/GridTool'
 import PlayModeTool from '../tools/PlayModeTool'
@@ -56,7 +59,9 @@ import TransformPivotTool from '../tools/TransformPivotTool'
 import TransformSnapTool from '../tools/TransformSnapTool'
 import TransformSpaceTool from '../tools/TransformSpaceTool'
 
-const ViewportDnD = () => {
+const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
+  const projectName = useMutableState(EditorState).projectName
+
   const [{ isDragging }, dropRef] = useDrop({
     accept: [ItemTypes.Component, ...SupportedFileTypes],
     collect: (monitor) => ({
@@ -72,50 +77,60 @@ const ViewportDnD = () => {
         ])
       } else if ('url' in item) {
         addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+      } else if ('files' in item) {
+        const dropDataTransfer: DataTransfer = monitor.getItem()
+
+        Promise.all(
+          Array.from(dropDataTransfer.files).map(async (file) => {
+            try {
+              const name = processFileName(file.name)
+              return uploadToFeathersService(fileBrowserUploadPath, [file], {
+                args: [
+                  {
+                    project: projectName.value,
+                    path: `assets/` + name,
+                    contentType: file.type
+                  }
+                ]
+              }).promise as Promise<string[]>
+            } catch (err) {
+              NotificationService.dispatchNotify(err.message, { variant: 'error' })
+            }
+          })
+        ).then((urls) => {
+          const vec3 = new Vector3()
+          urls.forEach((url) => {
+            if (!url || url.length < 1 || !url[0] || url[0] === '') return
+            addMediaNode(url[0], undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+          })
+        })
       }
     }
   })
 
   return (
     <div
-      id="viewport-panel"
       ref={dropRef}
-      className={twMerge(
-        'h-full w-full border border-white',
-        isDragging ? 'pointer-events-auto border-4' : 'pointer-events-none border-none'
-      )}
-    />
+      className={twMerge('h-full w-full border border-white', isDragging ? 'border-4' : 'border-none')}
+    >
+      {children}
+    </div>
   )
 }
 
 const SceneLoadingProgress = ({ rootEntity }) => {
   const { t } = useTranslation()
   const progress = useComponent(rootEntity, GLTFComponent).progress.value
+  const loaded = GLTFComponent.useSceneLoaded(rootEntity)
   const resourcePendingQuery = useQuery([ResourcePendingComponent])
-  const root = getComponent(rootEntity, SourceComponent)
-  const sceneModified = useHookstate(getMutableState(GLTFModifiedState)[root]).value
 
-  useEffect(() => {
-    if (!sceneModified) return
-    const onBeforeUnload = (e: BeforeUnloadEvent) => {
-      alert('You have unsaved changes. Please save before leaving.')
-      e.preventDefault()
-      e.returnValue = ''
-    }
-
-    window.addEventListener('beforeunload', onBeforeUnload)
-
-    return () => {
-      window.removeEventListener('beforeunload', onBeforeUnload)
-    }
-  }, [sceneModified])
-
-  if (progress === 100) return null
+  if (loaded) return null
 
   return (
     <LoadingView
       fullSpace
-      className="mb-2 flex h-1/2 w-1/2 justify-center"
+      className="block h-12 w-12"
+      containerClassname="absolute bg-black bg-opacity-70"
       title={t('editor:loadingScenesWithProgress', { progress, assetsLeft: resourcePendingQuery.length })}
     />
   )
@@ -129,35 +144,39 @@ const ViewPortPanelContainer = () => {
   const clientSettings = clientSettingQuery.data[0]
 
   const ref = React.useRef<HTMLDivElement>(null)
+  const toolbarRef = React.useRef<HTMLDivElement>(null)
 
   useEngineCanvas(ref)
 
+  const [transformPivotFeatureFlag] = useFeatureFlags([FeatureFlags.Studio.UI.TransformPivot])
+
   return (
-    <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
-      <div className="z-10 flex gap-1 bg-theme-primary p-1">
-        <TransformSpaceTool />
-        <TransformPivotTool />
-        <GridTool />
-        <TransformSnapTool />
-        <SceneHelpersTool />
-        <div className="flex-1" />
-        <RenderModeTool />
-        <PlayModeTool />
-      </div>
-      {sceneName.value ? <GizmoTool /> : null}
-      {sceneName.value ? (
-        <>
-          {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
-          <ViewportDnD />
-        </>
-      ) : (
-        <div className="flex h-full w-full flex-col justify-center gap-2">
-          <img src={clientSettings?.appTitle} className="block scale-[.8]" />
-          <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
+    <ViewportDnD>
+      <div className="relative z-30 flex h-full w-full flex-col">
+        <div ref={toolbarRef} className="z-10 flex gap-1 bg-theme-studio-surface p-1">
+          <TransformSpaceTool />
+          {transformPivotFeatureFlag && <TransformPivotTool />}
+          <GridTool />
+          <TransformSnapTool />
+          <SceneHelpersTool />
+          <div className="flex-1" />
+          <RenderModeTool />
+          <PlayModeTool />
         </div>
-      )}
-      <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
-    </div>
+        {sceneName.value ? <GizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
+        {sceneName.value ? (
+          <>
+            <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
+            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
+          </>
+        ) : (
+          <div className="flex h-full w-full flex-col justify-center gap-2">
+            <img src={clientSettings?.appTitle} className="block scale-[.8]" />
+            <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
+          </div>
+        )}
+      </div>
+    </ViewportDnD>
   )
 }
 

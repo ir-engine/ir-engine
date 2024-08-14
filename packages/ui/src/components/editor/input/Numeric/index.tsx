@@ -27,7 +27,8 @@ import React from 'react'
 
 import { clamp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 
-import { getStepSize, toPrecision } from '@etherealengine/editor/src/functions/utils'
+import { toPrecision } from '@etherealengine/common/src/utils/miscUtils'
+import { getStepSize } from '@etherealengine/editor/src/functions/utils'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { twMerge } from 'tailwind-merge'
 import Text from '../../../../primitives/tailwind/Text'
@@ -161,7 +162,7 @@ const NumericInput = ({
   return (
     <div
       className={twMerge(
-        prefix ? 'w-24 px-2 py-2' : 'w-1/2 px-5 py-2',
+        prefix ? 'w-24 px-2 py-2' : 'w-full px-5 py-2',
         'flex h-10 items-center justify-between rounded-lg bg-[#1A1A1A]',
         className
       )}
@@ -181,7 +182,7 @@ const NumericInput = ({
         {...rest}
       />
       {unit && (
-        <Text fontSize="xs" fontFamily="Figtree" className="text-right text-[#8B8B8D]">
+        <Text fontSize="xs" className="text-right text-[#8B8B8D]">
           {unit}
         </Text>
       )}

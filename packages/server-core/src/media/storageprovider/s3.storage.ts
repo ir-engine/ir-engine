@@ -96,11 +96,12 @@ function handler(event) {
     var recordingsRegex = new RegExp(recordingsRegexRoot)
     var publicRegexRoot = __$publicRegex$__
     var publicRegex = new RegExp(publicRegexRoot)
+    var tempRegex = new RegExp('/temp/')
     
     if (publicRegex.test(request.uri)) {
         request.uri = '/client' + request.uri
-    } else if (projectsRegex.test(request.uri) || recordingsRegex.test(request.uri)) {
-        // Projects and recordings paths should be passed as-is
+    } else if (projectsRegex.test(request.uri) || recordingsRegex.test(request.uri) || tempRegex.test(request.uri)) {
+        // Projects, temp files, and recordings paths should be passed as-is
     } else {
       // Anything that is not a static/public file, or a project or recording file, is assumed to be some sort
       // of engine route and passed to index.html to be handled by the router
@@ -259,12 +260,12 @@ export class S3Provider implements StorageProviderInterface {
     // https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-folders.htmlhow to
     const command = new ListObjectsV2Command({
       Bucket: this.bucket,
-      Prefix: path.join(directoryPath, fileName),
+      Prefix: path.join(directoryPath, fileName, '/'),
       MaxKeys: 1
     })
     try {
       const response = await this.provider.send(command)
-      return response?.Contents?.[0]?.Key?.endsWith('/') || false
+      return (response.Contents && response.Contents.length > 0) || false
     } catch {
       return false
     }
@@ -739,13 +740,16 @@ export class S3Provider implements StorageProviderInterface {
    * @param isCopy If true it will create a copy of object.
    */
   async moveObject(oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) {
+    const isDirectory = await this.isDirectory(oldName, oldPath)
     const oldFilePath = path.join(oldPath, oldName)
     const newFilePath = path.join(newPath, newName)
-    const listResponse = await this.listObjects(oldFilePath, true)
+    const listResponse = await this.listObjects(oldFilePath + (isDirectory ? '/' : ''), false)
 
     const result = await Promise.all([
       ...listResponse.Contents.map(async (file) => {
-        const key = path.join(newFilePath, file.Key.replace(oldFilePath, ''))
+        const relativePath = file.Key.replace(oldFilePath, '')
+        const key = newFilePath + relativePath
+
         const input = {
           Bucket: this.bucket,
           CopySource: `/${this.bucket}/${file.Key}`,

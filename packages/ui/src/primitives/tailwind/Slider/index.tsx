@@ -70,7 +70,7 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
         value={value}
         onChange={handleInputChange}
         onBlur={() => onRelease && onRelease(value)}
-        className="h-8 w-14 rounded bg-neutral-900 text-center font-['Figtree'] text-sm font-normal leading-[21px] text-neutral-400"
+        className="h-8 w-14 rounded bg-neutral-900 text-center text-sm font-normal leading-[21px] text-neutral-400"
       />
       <input
         id="slider"

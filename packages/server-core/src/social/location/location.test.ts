@@ -114,6 +114,7 @@ describe('location.test', () => {
     delete locationData.createdAt
     delete locationData.updatedAt
     delete locationData.sceneAsset
+    delete locationData.url
 
     const item = (await app
       .service(locationPath)
