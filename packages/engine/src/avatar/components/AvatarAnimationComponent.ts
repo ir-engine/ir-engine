@@ -261,7 +261,7 @@ export default function createVRM(rootEntity: Entity) {
     const humanoid = new VRMHumanoid(bones)
     console.log({ humanoid })
     const scene = getComponent(rootEntity, Object3DComponent) as any as Group
-    scene.rotation.y = Math.PI
+    scene.rotation.y = vrmExtensionDefinition.meta?.version === '0' ? Math.PI : 0
 
     const meta = vrmExtensionDefinition.meta! as any
 
