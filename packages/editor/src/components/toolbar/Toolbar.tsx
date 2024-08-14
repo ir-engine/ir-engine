@@ -34,7 +34,7 @@ import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentS
 import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { ContextMenu } from '@etherealengine/ui/src/components/tailwind/ContextMenu'
-import { SidebarButton } from '@etherealengine/ui/src/components/tailwind/SidebarButton/SidebarButton'
+import { SidebarButton } from '@etherealengine/ui/src/components/tailwind/SidebarButton'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { t } from 'i18next'
 import React from 'react'
