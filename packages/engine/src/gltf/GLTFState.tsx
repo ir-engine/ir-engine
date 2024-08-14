@@ -625,7 +625,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   const entityState = useHookstate(UndefinedEntity)
   const entity = entityState.value
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const uuid = getNodeUUID(node.get(NO_PROXY) as GLTF.IGLTF, props.documentID, props.nodeIndex)
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
 
@@ -1003,6 +1003,7 @@ const PrimitiveReactor = (props: {
 
     /** @todo multiple primitive support */
     addObjectToGroup(entity, mesh)
+    proxifyParentChildRelationships(mesh)
 
     return () => {
       removeComponent(entity, SkinnedMeshComponent)

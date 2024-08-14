@@ -23,21 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
+import {
+  VRM,
+  VRM1Meta,
+  VRMHumanBone,
+  VRMHumanBoneName,
+  VRMHumanBones,
+  VRMHumanoid,
+  VRMParameters
+} from '@pixiv/three-vrm'
+import type * as V0VRM from '@pixiv/types-vrm-0.0'
+
 import { useEffect } from 'react'
-import { AnimationAction, Group, Matrix4, SkeletonHelper, Vector3 } from 'three'
+import { AnimationAction, Euler, Group, Matrix4, SkeletonHelper, Vector3 } from 'three'
 
 import {
   defineComponent,
   getComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, matches, none, useHookstate } from '@etherealengine/hyperflux'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { getMutableState, getState, matches, none, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -46,9 +57,16 @@ import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/Obj
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 
-import { ModelComponent } from '../../scene/components/ModelComponent'
+import { UUIDComponent } from '@etherealengine/ecs'
+import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
+import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { GLTF } from '@gltf-transform/core'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
+import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
 import { preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
+import { mixamoVRMRigMap } from '../AvatarBoneMatching'
 import {
   retargetAvatarAnimations,
   setAvatarSpeedFromRootMotion,
@@ -58,6 +76,7 @@ import {
 import { AvatarState } from '../state/AvatarNetworkState'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
+import { BoneComponent } from './BoneComponent'
 
 export const AvatarAnimationComponent = defineComponent({
   name: 'AvatarAnimationComponent',
@@ -91,6 +110,7 @@ export const AvatarAnimationComponent = defineComponent({
 })
 
 export type Matrices = { local: Matrix4; world: Matrix4 }
+
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
 
@@ -128,7 +148,7 @@ export const AvatarRigComponent = defineComponent({
     const rigComponent = useComponent(entity, AvatarRigComponent)
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
     const visible = useOptionalComponent(entity, VisibleComponent)
-    const modelComponent = useOptionalComponent(entity, ModelComponent)
+    const gltfComponent = useOptionalComponent(entity, GLTFComponent)
     const locomotionAnimationState = useHookstate(
       getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
     )
@@ -162,22 +182,26 @@ export const AvatarRigComponent = defineComponent({
       }
     }, [visible, debugEnabled, pending, rigComponent.normalizedRig])
 
+    /** @todo move asset loading to a new VRMComponent */
     useEffect(() => {
-      if (!modelComponent?.asset?.value) return
-      const model = getComponent(entity, ModelComponent)
-      setupAvatarProportions(entity, model.asset as VRM)
-      setComponent(entity, AvatarRigComponent, {
-        vrm: model.asset as VRM,
-        avatarURL: model.src
-      })
+      if (!rigComponent?.avatarURL?.value) return
+      setComponent(entity, GLTFComponent, { src: rigComponent.avatarURL.value })
       return () => {
-        if (!entityExists(entity)) return
-        setComponent(entity, AvatarRigComponent, {
-          vrm: null!,
-          avatarURL: null
-        })
+        removeComponent(entity, GLTFComponent)
       }
-    }, [modelComponent?.asset])
+    }, [rigComponent?.avatarURL?.value])
+
+    useEffect(() => {
+      if (gltfComponent?.progress?.value !== 100) return
+      const vrm = createVRM(entity)
+      rigComponent.vrm.set(vrm)
+    }, [gltfComponent?.progress?.value])
+
+    useEffect(() => {
+      if (!rigComponent?.vrm?.value) return
+      const rig = getComponent(entity, AvatarRigComponent)
+      setupAvatarProportions(entity, rig.vrm as VRM)
+    }, [rigComponent?.vrm?.value])
 
     useEffect(() => {
       if (
@@ -205,3 +229,152 @@ export const AvatarRigComponent = defineComponent({
     return null
   }
 })
+
+const _rightHandPos = new Vector3(),
+  _rightUpperArmPos = new Vector3()
+
+export default function createVRM(rootEntity: Entity) {
+  const documentID = GLTFComponent.getInstanceID(rootEntity)
+  const gltf = getState(GLTFDocumentState)[documentID]
+
+  if (!hasComponent(rootEntity, Object3DComponent)) {
+    const obj3d = new Group()
+    setComponent(rootEntity, Object3DComponent, obj3d)
+    addObjectToGroup(rootEntity, obj3d)
+    proxifyParentChildRelationships(obj3d)
+  }
+
+  console.log(gltf)
+
+  if (gltf.extensions?.VRM) {
+    const vrmExtensionDefinition = gltf.extensions!.VRM as V0VRM.VRM
+    const bones = vrmExtensionDefinition.humanoid!.humanBones!.reduce((bones, bone) => {
+      const nodeID = `${documentID}-${bone.node}` as EntityUUID
+      const entity = UUIDComponent.getEntityByUUID(nodeID)
+      bones[bone.bone!] = { node: getComponent(entity, BoneComponent) }
+      return bones
+    }, {} as VRMHumanBones)
+    console.log({ bones })
+
+    bones.hips.node.rotateY(Math.PI)
+
+    const humanoid = new VRMHumanoid(bones)
+    console.log({ humanoid })
+    const scene = getComponent(rootEntity, Object3DComponent) as any as Group
+
+    const meta = vrmExtensionDefinition.meta! as any
+
+    const vrm = new VRM({
+      scene,
+      humanoid,
+      meta
+      // expressionManager: gltf.userData.vrmExpressionManager,
+      // firstPerson: gltf.userData.vrmFirstPerson,
+      // lookAt: gltf.userData.vrmLookAt,
+      // materials: gltf.userData.vrmMToonMaterials,
+      // springBoneManager: gltf.userData.vrmSpringBoneManager,
+      // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
+    })
+
+    vrm.humanoid.normalizedHumanBonesRoot.removeFromParent()
+    console.log(vrm)
+
+    return vrm
+  }
+
+  return createVRMFromGLTF(rootEntity, gltf)
+}
+
+const hipsRegex = /hip|pelvis/i
+export const recursiveHipsLookup = (entity: Entity): Entity | undefined => {
+  const name = getComponent(entity, NameComponent).toLowerCase()
+  if (hipsRegex.test(name)) {
+    return entity
+  }
+  const children = getComponent(entity, EntityTreeComponent).children
+  for (const child of children) {
+    const e = recursiveHipsLookup(child)
+    if (e) return e
+  }
+}
+
+const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
+  const hipsEntity = recursiveHipsLookup(rootEntity)!
+
+  const hipsName = getComponent(hipsEntity, NameComponent)
+
+  const bones = {} as VRMHumanBones
+
+  /**
+   * some mixamo rigs do not use the mixamo prefix, if so we add
+   * a prefix to the rig names for matching to keys in the mixamoVRMRigMap
+   */
+  const mixamoPrefix = hipsName.includes('mixamorig') ? '' : 'mixamorig'
+  /**
+   * some mixamo rigs have an identifier or suffix after the mixamo prefix
+   * that must be removed for matching to keys in the mixamoVRMRigMap
+   */
+  const removeSuffix = mixamoPrefix ? false : !/[hp]/i.test(hipsName.charAt(9))
+  console.log({ removeSuffix, mixamoPrefix })
+
+  iterateEntityNode(hipsEntity, (entity) => {
+    // if (!getComponent(entity, BoneComponent)) return
+
+    const name = getComponent(entity, NameComponent)
+    /**match the keys to create a humanoid bones object */
+    let boneName = mixamoPrefix + name
+    if (removeSuffix) boneName = boneName.slice(0, 9) + name.slice(10)
+    const bone = mixamoVRMRigMap[boneName] as string
+    console.log({ name, boneName, removeSuffix, bone, mixamoVRMRigMap })
+    if (bone) {
+      bones[bone] = { node: getComponent(entity, BoneComponent) } as VRMHumanBone
+    }
+  })
+
+  console.log(bones)
+  const humanoid = enforceTPose(new VRMHumanoid(bones))
+  const scene = getComponent(rootEntity, Object3DComponent)
+  const children = getComponent(rootEntity, EntityTreeComponent).children
+  const childName = getComponent(children[0], NameComponent)
+
+  const vrm = new VRM({
+    humanoid,
+    scene: scene,
+    meta: { name: childName } as VRM1Meta
+    // expressionManager: gltf.userData.vrmExpressionManager,
+    // firstPerson: gltf.userData.vrmFirstPerson,
+    // lookAt: gltf.userData.vrmLookAt,
+    // materials: gltf.userData.vrmMToonMaterials,
+    // springBoneManager: gltf.userData.vrmSpringBoneManager,
+    // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
+  } as VRMParameters)
+
+  if (!vrm.userData) vrm.userData = {}
+  humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
+  humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
+  return vrm
+}
+
+const legAngle = new Euler(0, 0, Math.PI)
+const rightShoulderAngle = new Euler(Math.PI / 2, 0, Math.PI / 2)
+const leftShoulderAngle = new Euler(Math.PI / 2, 0, -Math.PI / 2)
+export const enforceTPose = (humanoid: VRMHumanoid) => {
+  const bones = humanoid.humanBones
+  console.log('enforcing T pose', humanoid, bones)
+
+  bones.rightShoulder!.node.quaternion.setFromEuler(rightShoulderAngle)
+  bones.rightUpperArm.node.quaternion.set(0, 0, 0, 1)
+  bones.rightLowerArm.node.quaternion.set(0, 0, 0, 1)
+
+  bones.leftShoulder!.node.quaternion.setFromEuler(leftShoulderAngle)
+  bones.leftUpperArm.node.quaternion.set(0, 0, 0, 1)
+  bones.leftLowerArm.node.quaternion.set(0, 0, 0, 1)
+
+  bones.rightUpperLeg.node.quaternion.setFromEuler(legAngle)
+  bones.rightLowerLeg.node.quaternion.set(0, 0, 0, 1)
+
+  bones.leftUpperLeg.node.quaternion.setFromEuler(legAngle)
+  bones.leftLowerLeg.node.quaternion.set(0, 0, 0, 1)
+
+  return new VRMHumanoid(bones)
+}

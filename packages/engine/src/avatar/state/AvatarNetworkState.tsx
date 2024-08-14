@@ -42,8 +42,8 @@ import {
 import { WorldNetworkAction } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 
+import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarColliderComponent } from '../components/AvatarControllerComponent'
-import { loadAvatarModelAsset, unloadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from './AvatarNetworkActions'
 
@@ -142,11 +142,11 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
     if (!isClient) return
     if (!entity || !userAvatarDetails.value) return
 
-    loadAvatarModelAsset(entity, userAvatarDetails.value)
+    setComponent(entity, AvatarRigComponent, { avatarURL: userAvatarDetails.value })
 
     return () => {
       if (!entityExists(entity)) return
-      unloadAvatarForUser(entity)
+      setComponent(entity, AvatarRigComponent, { avatarURL: '' })
     }
   }, [userAvatarDetails, entity])
 
