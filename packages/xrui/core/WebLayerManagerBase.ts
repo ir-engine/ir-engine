@@ -23,21 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Dexie, { Table } from 'dexie'
 import { compress, decompress } from 'fflate'
 import { Packr, Unpackr } from 'msgpackr'
 import { Matrix4 } from 'three'
 
-import {
-  Bounds,
-  downloadBlob,
-  Edges,
-  getBorder,
-  getBounds,
-  getMargin,
-  getPadding,
-  parseCSSTransform
-} from './dom-utils'
+import { getBorder, getBounds, getMargin, getPadding, parseCSSTransform } from './dom-utils'
 import { bufferToHex } from './hex-utils'
 import { getParentsHTML, serializeToString } from './serialization-utils'
 import { getAllEmbeddedStyles } from './serialization/getAllEmbeddedStyles'
@@ -45,77 +35,12 @@ import { KTX2Encoder, UASTCFlags } from './textures/KTX2Encoder'
 import { WebLayer } from './WebLayer'
 import { WebRenderer } from './WebRenderer'
 
+import { StateHash, TextureHash, XRUILayerState } from './XRUILayerState'
+
 const scratchMatrix = new Matrix4()
 
 // import * as zip from '@zip.js/zip.js'
 // const zipBaseURI = 'https://unpkg.com/@zip.js/zip.js@2.4.4/dist/'
-
-export type StateHash = string
-export type SVGUrl = string
-export type TextureHash = string
-
-// interface LayerState {
-//   opacity: number,
-//   layout: Layout<[number,number,number]>,
-//   uvLayout: Layout<[number,number]>
-// }
-// interface Layout<N extends number[]> {
-//   position: N,
-//   size: N,
-//   rotation: N,
-//   originPoint: N,
-//   alignPoint: N
-//   mountPoint: N,
-// }
-export interface StateData {
-  cssTransform: Matrix4 | undefined
-  bounds: Bounds
-  margin: Edges
-  padding: Edges
-  border: Edges
-  fullWidth: number
-  fullHeight: number
-  pixelRatio: number
-  textureWidth: number
-  textureHeight: number
-  renderAttempts: number
-  texture?: TextureData
-  pseudo: {
-    hover: boolean
-    active: boolean
-    focus: boolean
-    target: boolean
-  }
-}
-
-export interface TextureData {
-  hash: TextureHash
-  canvas?: HTMLCanvasElement
-  ktx2Url?: string
-}
-
-export interface StateStoreData {
-  hash: StateHash
-  textureHash?: TextureHash
-}
-export interface TextureStoreData {
-  hash: TextureHash
-  timestamp: number
-  texture?: Uint8Array
-}
-
-export class LayerStore extends Dexie {
-  states!: Table<StateStoreData>
-  textures!: Table<TextureStoreData>
-
-  constructor(name: string) {
-    super(name)
-    this.version(3).stores({
-      states: '&hash',
-      textures: '&hash, timestamp'
-    })
-  }
-}
 
 function nearestPowerOf2(n: number) {
   return 1 << (31 - Math.clz32(n))
@@ -150,8 +75,6 @@ export class WebLayerManagerBase {
     return this.pixelsPerMeter
   }
 
-  store: LayerStore
-
   serializeQueue = [] as {
     layer: WebLayer
     // element?: HTMLElement;
@@ -169,27 +92,6 @@ export class WebLayerManagerBase {
   optimizeQueue = [] as { textureHash: TextureHash; resolve: (val: any) => void; promise: any }[]
 
   ktx2Encoder = new KTX2Encoder()
-
-  private _unsavedTextureData = new Map<TextureHash, TextureStoreData>()
-  private _stateData = new Map<StateHash | HTMLMediaElement, StateData>()
-  private _textureData = new Map<TextureHash, TextureData>()
-  private _imagePool = [] as Array<HTMLImageElement>
-
-  constructor(name = 'ethereal-web-store') {
-    this.store = new LayerStore(name)
-  }
-
-  saveStore() {
-    const stateData = Array.from(this._stateData.entries())
-      .filter(([k, v]) => typeof k === 'string')
-      .map(([k, v]) => ({ hash: k as string, textureHash: v.texture?.hash }))
-    const textureData = Array.from(this._unsavedTextureData.values())
-    this._unsavedTextureData.clear()
-    return this.loadIntoStore({
-      stateData,
-      textureData
-    })
-  }
 
   private _packr = new Packr({ structuredClone: true })
   private _unpackr = new Unpackr({ structuredClone: true })
@@ -246,39 +148,6 @@ export class WebLayerManagerBase {
         resolve(new Blob([data.buffer]))
       })
     })
-  }
-
-  /**
-   * Export the cache data for this
-   */
-  async downloadCache() {
-    await this.saveStore()
-    const blob = await this.exportCache()
-    const path = location.pathname.split('/').filter((x) => x)
-    downloadBlob(blob, 'web.' + location.host + '.' + (path[path.length - 1] ?? '') + '.cache')
-  }
-
-  async loadIntoStore(data: { stateData: StateStoreData[]; textureData: TextureStoreData[] }) {
-    // load into this._textureData
-    for (const t of data.textureData) {
-      const texture = this._textureData.get(t.hash) || {
-        hash: t.hash,
-        canvas: undefined,
-        ktx2Url: undefined
-      }
-      if (!texture.ktx2Url && t.texture)
-        texture.ktx2Url = URL.createObjectURL(new Blob([t.texture], { type: 'image/ktx2' }))
-    }
-    // load into this._stateData
-    for (const s of data.stateData) {
-      const state = this.getLayerState(s.hash)
-      if (!state.texture && s.textureHash) {
-        const textureData = this._textureData.get(s.textureHash)
-        state.texture = textureData
-      }
-    }
-    // load into db
-    return Promise.all([this.store.states.bulkPut(data.stateData), this.store.textures.bulkPut(data.textureData)])
   }
 
   getLayerState(hash: StateHash | HTMLMediaElement) {
@@ -428,7 +297,7 @@ export class WebLayerManagerBase {
         if (this._autosaveTimer) clearTimeout(this._autosaveTimer)
         if (this.autosave && this._unsavedTextureData.size)
           this._autosaveTimer = setTimeout(() => {
-            this.saveStore()
+            XRUILayerState.saveStore()
           }, this.autosaveDelay / this._unsavedTextureData.size)
       })
     }

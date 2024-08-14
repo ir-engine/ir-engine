@@ -100,34 +100,6 @@ export function addCSSRule(sheet: any, selector: string, rules: string, index: n
   }
 }
 
-export class Bounds {
-  left = 0
-  top = 0
-  width = 0
-  height = 0
-  copy(rect: Bounds) {
-    this.top = rect.top
-    this.left = rect.left
-    this.width = rect.width
-    this.height = rect.height
-    return this
-  }
-}
-
-export class Edges {
-  left = 0
-  top = 0
-  right = 0
-  bottom = 0
-  copy(rect: Edges) {
-    this.top = rect.top
-    this.left = rect.left
-    this.right = rect.right
-    this.bottom = rect.bottom
-    return this
-  }
-}
-
 export function getBounds(element: Element, bounds: Bounds = new Bounds(), referenceElement?: Element) {
   const doc = element.ownerDocument!
   const docEl = doc.documentElement
