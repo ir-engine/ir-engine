@@ -80,7 +80,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
     return () => {
       window.removeEventListener('resize', handleResize)
     }
-  }, [popupRef])
+  }, [])
 
   const [isAddComponentMenuOpen, setIsAddComponentMenuOpen] = useState(false)
 
