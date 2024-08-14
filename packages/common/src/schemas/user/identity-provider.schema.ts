@@ -47,7 +47,8 @@ export const identityProviderTypes = [
   'twitter',
   'linkedin',
   'auth0',
-  'guest'
+  'guest',
+  'admin'
 ]
 
 // Main data model schema
