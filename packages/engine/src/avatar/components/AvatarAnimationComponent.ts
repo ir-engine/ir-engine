@@ -244,20 +244,27 @@ export default function createVRM(rootEntity: Entity) {
     proxifyParentChildRelationships(obj3d)
   }
 
-  console.log(gltf)
-
   if (gltf.extensions?.VRM) {
     const vrmExtensionDefinition = gltf.extensions!.VRM as V0VRM.VRM
+    const flip = new Matrix4().makeRotationFromEuler(new Euler(0, Math.PI, 0))
     const bones = vrmExtensionDefinition.humanoid!.humanBones!.reduce((bones, bone) => {
       const nodeID = `${documentID}-${bone.node}` as EntityUUID
       const entity = UUIDComponent.getEntityByUUID(nodeID)
       bones[bone.bone!] = { node: getComponent(entity, BoneComponent) }
+      console.log(bones[bone.bone!].node)
       return bones
     }, {} as VRMHumanBones)
-    console.log({ bones })
-    if (vrmExtensionDefinition.meta?.version === '0') bones.hips.node.rotateY(Math.PI)
+
+    /**hacky, @todo test with vrm1 */
+    iterateEntityNode(bones.hips.node.parent!.entity, (entity) => {
+      const bone = getComponent(entity, BoneComponent)
+      bone.matrixWorld.identity()
+      if (bone.entity != bones.hips.node.parent!.entity) bone.matrixWorld.multiply(flip)
+    })
+    bones.hips.node.rotateY(Math.PI)
+
     const humanoid = new VRMHumanoid(bones)
-    console.log({ humanoid })
+    humanoid.normalizedHumanBonesRoot.removeFromParent()
 
     const scene = getComponent(rootEntity, Object3DComponent) as any as Group
 
@@ -275,7 +282,6 @@ export default function createVRM(rootEntity: Entity) {
       // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
     })
 
-    vrm.humanoid.normalizedHumanBonesRoot.removeFromParent()
     console.log(vrm)
 
     return vrm
