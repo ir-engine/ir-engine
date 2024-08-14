@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PanelDragContainer, PanelTitle } from '@etherealengine/ui/src/components/editor/layout/Panel'
-import FilesPanelContainer from '@etherealengine/ui/src/components/editor/panels/Files/container'
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import FileBrowser from './filebrowser'
 
 const FilesPanelTitle = () => {
   const { t } = useTranslation()
@@ -38,11 +38,9 @@ const FilesPanelTitle = () => {
   )
 }
 
-export default FilesPanelTitle
-
 export const FilesPanelTab: TabData = {
   id: 'filesPanel',
   closable: true,
   title: <FilesPanelTitle />,
-  content: <FilesPanelContainer />
+  content: <FileBrowser />
 }
