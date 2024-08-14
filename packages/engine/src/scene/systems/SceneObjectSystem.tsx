@@ -37,7 +37,7 @@ import {
   Texture
 } from 'three'
 
-import { useEntityContext, UUIDComponent } from '@etherealengine/ecs'
+import { entityExists, useEntityContext, UUIDComponent } from '@etherealengine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -52,7 +52,7 @@ import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -166,6 +166,13 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
 
   const renderState = getMutableState(RendererState)
   const forceBasicMaterials = useHookstate(renderState.forceBasicMaterials)
+
+  useImmediateEffect(() => {
+    setComponent(entity, DistanceFromCameraComponent)
+    return () => {
+      if (entityExists(entity)) removeComponent(entity, DistanceFromCameraComponent)
+    }
+  }, [])
 
   useEffect(() => {
     const source = hasComponent(entity, ModelComponent)

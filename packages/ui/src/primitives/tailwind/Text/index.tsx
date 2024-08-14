@@ -34,15 +34,17 @@ const componentTypes = {
   h5: (props: React.HTMLAttributes<any>) => <h5 {...props} />,
   h6: (props: React.HTMLAttributes<any>) => <h6 {...props} />,
   p: (props: React.HTMLAttributes<any>) => <p {...props} />,
-  span: (props: React.HTMLAttributes<any>) => <span {...props} />
+  span: (props: React.HTMLAttributes<any>) => <span {...props} />,
+  a: (props: React.HTMLAttributes<any>) => <a {...props} />
 }
 
 export interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
   fontSize?: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl'
   fontWeight?: 'light' | 'normal' | 'semibold' | 'medium' | 'bold'
-  component?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span'
+  component?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'a'
   className?: string
   theme?: 'primary' | 'secondary'
+  href?: string
 }
 
 const Text = ({

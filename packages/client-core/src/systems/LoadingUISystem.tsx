@@ -140,9 +140,9 @@ export const LoadingUISystemState = defineState({
 
 const LoadingReactor = (props: { sceneEntity: Entity }) => {
   const { sceneEntity } = props
-  const gltfComponent = useComponent(props.sceneEntity, GLTFComponent)
+  const gltfComponent = useComponent(sceneEntity, GLTFComponent)
   const loadingProgress = gltfComponent.progress.value
-  const sceneLoaded = loadingProgress === 100
+  const sceneLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
   const locationState = useMutableState(LocationState)
   const state = useMutableState(LoadingUISystemState)
 

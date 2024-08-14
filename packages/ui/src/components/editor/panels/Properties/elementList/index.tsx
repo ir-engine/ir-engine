@@ -78,10 +78,10 @@ const ComponentListItem = ({ item, onSelect }: { item: Component; onSelect: () =
       startIcon={<Icon className="h-4 w-4 text-[#B2B5BD]" />}
     >
       <div className="ml-4 w-full">
-        <Text className="mb-1 block text-center text-sm text-[#B2B5BD]">
+        <Text className="mb-1 block text-left text-sm text-[#B2B5BD]">
           {startCase(jsonName.replace('-', ' ').toLowerCase())}
         </Text>
-        <Text component="p" className="block text-center text-xs text-theme-secondary">
+        <Text component="p" className="block text-left text-xs text-theme-secondary">
           {t(`editor:layout.assetGrid.component-detail.${jsonName}`, '')}
         </Text>
       </div>
@@ -107,8 +107,8 @@ const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: (
       startIcon={<IoMdAddCircle className="h-4 w-4 text-[#B2B5BD]" />}
     >
       <div className="ml-4 w-full">
-        <Text className="mb-1 block text-center text-sm text-[#B2B5BD]">{item.name}</Text>
-        <Text component="p" className="block text-center text-xs text-theme-secondary">
+        <Text className="mb-1 block text-left text-sm text-[#B2B5BD]">{item.name}</Text>
+        <Text component="p" className="block text-left text-xs text-theme-secondary">
           {item.detail}
         </Text>
       </div>

@@ -200,6 +200,16 @@ const EditorContainer = () => {
     }
   }, [errorState])
 
+  useEffect(() => {
+    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
+      if (EditorState.isModified()) {
+        event.preventDefault()
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [])
+
   return (
     <main className="pointer-events-auto">
       <div
