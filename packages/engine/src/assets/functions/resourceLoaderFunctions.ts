@@ -160,13 +160,13 @@ export const loadResource = <T extends ResourceAssetType>(
 
 /**
  *
- * Updates a model's resource without the url changing
+ * Updates a resource without the url changing
  * Removes the model from the resource state and reloads
  *
  * @param url the url of the asset to update
  * @returns
  */
-export const updateModelResource = (url: string) => {
+const updateResource = (url: string) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   const resource = resources[url]
@@ -198,3 +198,5 @@ export const updateModelResource = (url: string) => {
     )
   }
 }
+
+export const ResourceLoaderManager = { updateResource }
