@@ -52,7 +52,7 @@ import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/s
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
-import { TransformComponent } from '../RendererModule'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { BoneComponent } from './BoneComponent'
 import { setObjectLayers } from './ObjectLayerComponent'

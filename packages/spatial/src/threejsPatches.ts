@@ -24,13 +24,29 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as THREE from 'three'
-import { Euler, Matrix4, Object3D, Quaternion, Scene, SkinnedMesh, Vector2, Vector3, Vector4 } from 'three'
+import {
+  Euler,
+  Matrix4,
+  Object3D,
+  PropertyBinding,
+  Quaternion,
+  Scene,
+  SkinnedMesh,
+  Vector2,
+  Vector3,
+  Vector4
+} from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
-import { Entity } from '@etherealengine/ecs'
+import { Entity, getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs'
 
 import { overrideOnBeforeCompile } from './common/functions/OnBeforeCompilePlugin'
+import { BoneComponent } from './renderer/components/BoneComponent'
+import { MeshComponent } from './renderer/components/MeshComponent'
+import { Object3DComponent } from './renderer/components/Object3DComponent'
+import { SkinnedMeshComponent } from './renderer/components/SkinnedMeshComponent'
+import { EntityTreeComponent } from './transform/components/EntityTree'
 
 //@ts-ignore
 Vector3.prototype.toJSON = function () {
@@ -212,6 +228,63 @@ SkinnedMesh.prototype.applyBoneTransform = function (index, vector) {
   }
 
   return vector.applyMatrix4(this.bindMatrixInverse)
+}
+
+PropertyBinding.findNode = function (root: SkinnedMesh, nodeName: string | number) {
+  if (
+    nodeName === undefined ||
+    nodeName === '' ||
+    nodeName === '.' ||
+    nodeName === -1 ||
+    nodeName === root.name ||
+    nodeName === root.uuid
+  ) {
+    return root
+  }
+
+  // search into skeleton bones.
+  if (root.skeleton) {
+    const bone = root.skeleton.getBoneByName(nodeName as string)
+
+    if (bone !== undefined) {
+      return bone
+    }
+  }
+
+  const entity = root.entity
+  if (!hasComponent(entity, EntityTreeComponent)) return null
+
+  const children = getComponent(entity, EntityTreeComponent).children
+
+  // search into node subtree.
+  const searchNodeSubtree = function (children: Entity[]) {
+    for (let i = 0; i < children.length; i++) {
+      const entity = children[i]
+      const childNode =
+        getOptionalComponent(entity, BoneComponent) ??
+        getOptionalComponent(entity, MeshComponent) ??
+        getOptionalComponent(entity, SkinnedMeshComponent) ??
+        getOptionalComponent(entity, Object3DComponent)!
+
+      if (childNode && (childNode.name === nodeName || childNode.uuid === nodeName)) {
+        return childNode
+      }
+
+      const result = searchNodeSubtree(getComponent(entity, EntityTreeComponent).children)
+
+      if (result) return result
+    }
+
+    return null
+  }
+
+  const subTreeNode = searchNodeSubtree(children)
+
+  if (subTreeNode) {
+    return subTreeNode
+  }
+
+  return null
 }
 
 overrideOnBeforeCompile()

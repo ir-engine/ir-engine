@@ -50,8 +50,8 @@ import {
   ditherCalculationType
 } from '@etherealengine/spatial/src/renderer/materials/constants/plugins/TransparencyDitheringComponent'
 import React, { useEffect } from 'react'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { SourceComponent } from '../../scene/components/SourceComponent'
-import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import { AvatarComponent } from '../components/AvatarComponent'
 
 const headDithering = 0
@@ -115,7 +115,7 @@ export const AvatarTransparencySystem = defineSystem({
 
 const AvatarReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const sceneInstanceID = useModelSceneID(entity)
+  const sceneInstanceID = GLTFComponent.useInstanceID(entity)
   const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
   return (
     <>

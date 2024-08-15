@@ -47,7 +47,6 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { entityJSONToGLTFNode } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { createSceneEntity } from '@etherealengine/engine/src/scene/functions/createSceneEntity'
-import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { toEntityJson } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import {
   NO_PROXY,
@@ -173,7 +172,7 @@ const PlacementModelReactor = (props: { placementEntity: Entity }) => {
 
   useEffect(() => {
     if (!placementModel) return
-    const sceneID = getModelSceneID(props.placementEntity)
+    const sceneID = GLTFComponent.getInstanceID(props.placementEntity)
     if (!sceneState.scenes[sceneID]) return
     iterateEntityNode(props.placementEntity, (entity) => {
       const mesh = getOptionalComponent(entity, MeshComponent)

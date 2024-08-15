@@ -31,9 +31,9 @@ import { getState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { UUIDComponent } from '@etherealengine/ecs'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { GLTF } from '@gltf-transform/core'
 import { EditorState } from '../../services/EditorServices'
 
@@ -84,7 +84,7 @@ function buildHierarchyTree(
   array.push(item)
 
   if (hasComponent(entity, ModelComponent) && showModelChildren) {
-    const modelSceneID = getModelSceneID(entity)
+    const modelSceneID = GLTFComponent.getInstanceID(entity)
     const snapshotState = getState(GLTFSnapshotState)
     const snapshots = snapshotState[modelSceneID]
     if (snapshots) {

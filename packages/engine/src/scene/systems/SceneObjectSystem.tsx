@@ -73,12 +73,11 @@ import {
   MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { createAndAssignMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { EnvmapComponent } from '../components/EnvmapComponent'
-import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
-import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
 
 const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {
@@ -168,8 +167,8 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
   const forceBasicMaterials = useHookstate(renderState.forceBasicMaterials)
 
   useEffect(() => {
-    const source = hasComponent(entity, ModelComponent)
-      ? getModelSceneID(entity)
+    const source = hasComponent(entity, GLTFComponent)
+      ? GLTFComponent.getInstanceID(entity)
       : getOptionalComponent(entity, SourceComponent)
     return () => {
       ResourceManager.unloadObj(obj, source)
@@ -210,8 +209,8 @@ const execute = () => {
 
 const ModelEntityReactor = () => {
   const entity = useEntityContext()
-  const modelSceneID = useModelSceneID(entity)
-  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[modelSceneID])
+  const modelInstanceID = GLTFComponent.useInstanceID(entity)
+  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[modelInstanceID])
 
   return (
     <>
@@ -275,7 +274,7 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
 const reactor = () => {
   return (
     <>
-      <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelEntityReactor} />
+      <QueryReactor Components={[GLTFComponent]} ChildEntityReactor={ModelEntityReactor} />
       <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
     </>
   )

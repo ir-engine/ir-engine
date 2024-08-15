@@ -291,6 +291,34 @@ export function getAncestorWithComponent(
   return result
 }
 
+const inlineMatchesQuery = (entity: Entity, components: ComponentType<any>[]) =>
+  components.map((c) => hasComponent(entity, c)).filter((c) => !!c).length === components.length
+
+/**
+ * Returns the closest ancestor of an entity that has the given component by walking up the entity tree
+ * @param entity Entity to start from
+ * @param component Component to search for
+ * @param closest (default true) - whether to return the closest ancestor or the furthest ancestor
+ * @param includeSelf (default true) - whether to include the entity itself in the search
+ * @returns
+ */
+export function getAncestorWithComponents(
+  entity: Entity,
+  components: ComponentType<any>,
+  closest = true,
+  includeSelf = true
+): Entity {
+  let result = UndefinedEntity
+  if (includeSelf && closest && inlineMatchesQuery(entity, components)) return entity
+  traverseEntityNodeParent(entity, (parent) => {
+    if (closest && result) return
+    if (inlineMatchesQuery(parent, components)) {
+      result = parent
+    }
+  })
+  return result
+}
+
 /**
  * Finds the index of an entity tree node using entity.
  * This function is useful for node which is not contained in array but can have same entity as one of array elements
@@ -376,6 +404,7 @@ export function useTreeQuery(entity: Entity) {
 
 /**
  * Returns the closest ancestor of an entity that has a component
+ * @deprecated use useAncestorWithComponents instead
  * @todo maybe extend this to be a list of components?
  * @todo maybe extend this or write an alternative to get the furthest ancestor with component?
  * @param entity
@@ -415,6 +444,52 @@ export function useAncestorWithComponent(entity: Entity, component: ComponentTyp
       root.stop()
     }
   }, [entity, component])
+
+  return result.value
+}
+
+/**
+ * Returns the closest ancestor of an entity that has a component
+ * @todo maybe extend this to be a list of components?
+ * @todo maybe extend this or write an alternative to get the furthest ancestor with component?
+ * @param entity
+ * @param component
+ * @param closest
+ * @returns
+ */
+export function useAncestorWithComponents(entity: Entity, components: ComponentType<any>[]) {
+  const result = useHookstate(() => getAncestorWithComponents(entity, components))
+
+  useImmediateEffect(() => {
+    let unmounted = false
+    const ParentSubReactor = (props: { entity: Entity }) => {
+      const tree = useOptionalComponent(props.entity, EntityTreeComponent)
+      const matchesQuery =
+        components.map((c) => useOptionalComponent(props.entity, c)).filter((c) => !!c).length === components.length
+
+      useLayoutEffect(() => {
+        if (!matchesQuery) return
+        result.set(props.entity)
+        return () => {
+          if (!unmounted) result.set(UndefinedEntity)
+        }
+      }, [tree?.parentEntity?.value, matchesQuery])
+
+      if (matchesQuery) return null
+
+      if (!tree?.parentEntity?.value) return null
+
+      return <ParentSubReactor key={tree.parentEntity.value} entity={tree.parentEntity.value} />
+    }
+
+    const root = startReactor(function useQueryReactor() {
+      return <ParentSubReactor entity={entity} key={entity} />
+    })
+    return () => {
+      unmounted = true
+      root.stop()
+    }
+  }, [entity, components.map((c) => c.name).join(',')])
 
   return result.value
 }

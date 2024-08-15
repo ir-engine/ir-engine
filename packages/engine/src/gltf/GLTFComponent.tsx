@@ -36,6 +36,7 @@ import {
   hasComponent,
   useComponent,
   useEntityContext,
+  useOptionalComponent,
   useQuery,
   UUIDComponent
 } from '@etherealengine/ecs'
@@ -48,6 +49,11 @@ import {
   useMutableState
 } from '@etherealengine/hyperflux'
 
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { useAncestorWithComponents } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import {
   BINARY_EXTENSION_CHUNK_TYPES,
@@ -68,6 +74,8 @@ export const GLTFComponent = defineComponent({
   onInit(entity) {
     return {
       src: '',
+      /** @todo move this to it's own component */
+      cameraOcclusion: false,
       // internals
       body: null as null | ArrayBuffer,
       progress: 0
@@ -76,11 +84,18 @@ export const GLTFComponent = defineComponent({
 
   onSet(entity, component, json) {
     if (typeof json?.src === 'string') component.src.set(json.src)
+    if (typeof json?.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
   },
 
   reactor: () => {
     const entity = useEntityContext()
     const gltfComponent = useComponent(entity, GLTFComponent)
+
+    useEffect(() => {
+      const occlusion = gltfComponent.cameraOcclusion.value
+      if (!occlusion) ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
+      else ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
+    }, [gltfComponent.cameraOcclusion])
 
     useGLTFDocument(gltfComponent.src.value, entity)
 
@@ -98,6 +113,13 @@ export const GLTFComponent = defineComponent({
 
   getInstanceID: (entity) => {
     return `${getComponent(entity, UUIDComponent)}-${getComponent(entity, GLTFComponent).src}`
+  },
+
+  useInstanceID: (entity) => {
+    const uuid = useComponent(entity, UUIDComponent)?.value
+    const src = useComponent(entity, GLTFComponent)?.src.value
+    if (!uuid || !src) return ''
+    return `${uuid}-${src}`
   }
 })
 
@@ -280,4 +302,16 @@ export const parseBinaryData = (data) => {
   }
 
   return { json: JSON.parse(content), body }
+}
+
+/**
+ * Returns true if the entity is part of a model or a mesh component that is not a child of model
+ * @param entity
+ * @returns {boolean}
+ */
+export const useHasModelOrIndependentMesh = (entity: Entity) => {
+  const hasModel = !!useOptionalComponent(entity, GLTFComponent)
+  const isChildOfModel = !!useAncestorWithComponents(entity, [GLTFComponent, SceneComponent])
+  const hasMesh = !!useOptionalComponent(entity, MeshComponent)
+  return hasModel || (hasMesh && !isChildOfModel)
 }

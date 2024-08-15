@@ -42,7 +42,6 @@ import {
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { NO_PROXY, defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
@@ -66,6 +65,7 @@ import React, { useEffect } from 'react'
 import { Color, Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Sphere, SphereGeometry, Vector3 } from 'three'
 
 import config from '@etherealengine/common/src/config'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -414,7 +414,7 @@ const ThumbnailJobReactor = () => {
     const modelEntity = state.modelEntity.value
     const lightEntity = state.lightEntity.value
 
-    const sceneID = getModelSceneID(modelEntity)
+    const sceneID = GLTFComponent.getInstanceID(modelEntity)
     if (!sceneState.value[sceneID]) return
 
     try {

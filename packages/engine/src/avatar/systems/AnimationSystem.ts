@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM } from '@pixiv/three-vrm'
-
 import { getComponent, getOptionalMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -35,14 +33,14 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
 
 import { TransformDirtyUpdateSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
+import { VRMComponent } from '../components/VRMComponent'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
-const loopAnimationQuery = defineQuery([AnimationComponent, LoopAnimationComponent, ModelComponent, TransformComponent])
+const loopAnimationQuery = defineQuery([AnimationComponent, LoopAnimationComponent, VRMComponent, TransformComponent])
 
 const execute = () => {
   const { deltaSeconds } = getState(ECSState)
@@ -62,10 +60,7 @@ const execute = () => {
   }
 
   for (const entity of loopAnimationQuery()) {
-    const model = getComponent(entity, ModelComponent)
-    if (model.asset instanceof VRM) {
-      updateVRMRetargeting(model.asset, entity)
-    }
+    updateVRMRetargeting(getComponent(entity, VRMComponent), entity)
   }
 }
 

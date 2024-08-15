@@ -72,6 +72,7 @@ import {
 } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
 import { AvatarComponent } from './AvatarComponent'
+import { VRMComponent } from './VRMComponent'
 
 export const AvatarAnimationComponent = defineComponent({
   name: 'AvatarAnimationComponent',
@@ -163,7 +164,11 @@ export const AvatarRigComponent = defineComponent({
     useEffect(() => {
       if (!rigComponent?.vrm?.value) return
       const rig = getComponent(entity, AvatarRigComponent)
-      setupAvatarProportions(entity, rig.vrm as VRM)
+      setComponent(entity, VRMComponent, rig.vrm)
+      setupAvatarProportions(entity, rig.vrm)
+      return () => {
+        removeComponent(entity, VRMComponent)
+      }
     }, [rigComponent?.vrm?.value])
 
     useEffect(() => {

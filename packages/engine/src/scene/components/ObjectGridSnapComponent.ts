@@ -47,7 +47,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
 import { Box3, BufferGeometry, ColorRepresentation, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
-import { ModelComponent } from './ModelComponent'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 
 function createBBoxGridGeometry(matrixWorld: Matrix4, bbox: Box3, density: number): BufferGeometry {
   const lineSegmentList: Vector3[] = []
@@ -183,11 +183,12 @@ export const ObjectGridSnapComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const engineState = useState(getMutableState(EngineState))
-    const modelComponent = useComponent(entity, ModelComponent)
+    const modelComponent = useComponent(entity, GLTFComponent)
+    const modelLoaded = modelComponent.progress.value === 100
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
 
     useEffect(() => {
-      if (!modelComponent.scene.value) return
+      if (!modelLoaded) return
       const originalPosition = new Vector3()
       const originalRotation = new Quaternion()
       const originalScale = new Vector3()
@@ -227,7 +228,7 @@ export const ObjectGridSnapComponent = defineComponent({
       iterateEntityNode(entity, computeTransformMatrix, (childEntity) => hasComponent(childEntity, TransformComponent))
       //set bounding box in component
       snapComponent.bbox.set(bbox)
-    }, [modelComponent.scene])
+    }, [modelLoaded])
 
     useEffect(() => {
       if (!engineState.isEditing.value) return

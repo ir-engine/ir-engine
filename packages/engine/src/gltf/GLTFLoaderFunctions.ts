@@ -35,6 +35,7 @@ import { NO_PROXY, getState, startReactor, useHookstate } from '@etherealengine/
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@etherealengine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { MaterialPrototypeComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { GLTF } from '@gltf-transform/core'
 import { useEffect } from 'react'
@@ -63,6 +64,7 @@ import {
   MeshBasicMaterial,
   MeshStandardMaterial,
   NumberKeyframeTrack,
+  Object3D,
   QuaternionKeyframeTrack,
   RepeatWrapping,
   SRGBColorSpace,
@@ -957,7 +959,7 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
           channels.map((channel, i) => [
             i,
             {
-              nodes: null as null | Mesh | Bone,
+              nodes: null as null | Mesh | Bone | Object3D,
               inputAccessors: null as null | BufferAttribute,
               outputAccessors: null as null | BufferAttribute,
               samplers: animationDef.samplers[channel.sampler],
@@ -984,15 +986,17 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
         /** @todo we should probably jsut use GroupComponent or something here once we stop creating Object3Ds for all nodes */
         const meshComponent = useOptionalComponent(targetNodeEntity, MeshComponent)
         const boneComponent = useOptionalComponent(targetNodeEntity, BoneComponent)
+        const obj3dComponent = useOptionalComponent(targetNodeEntity, Object3DComponent)
 
         useEffect(() => {
           const meshWeightsLoaded = meshHasWeights
             ? meshComponent?.get(NO_PROXY)?.morphTargetInfluences !== undefined
             : true
-          if (!meshWeightsLoaded && !boneComponent) return
+          if (!meshWeightsLoaded && !boneComponent && !obj3dComponent) return
           channelData[i].nodes.set(
             getOptionalComponent(targetNodeEntity, MeshComponent) ??
-              getOptionalComponent(targetNodeEntity, BoneComponent)!
+              getOptionalComponent(targetNodeEntity, BoneComponent) ??
+              getOptionalComponent(targetNodeEntity, Object3DComponent)!
           )
         }, [meshComponent, boneComponent])
 
@@ -1014,7 +1018,7 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
       useEffect(() => {
         if (
           Object.values(channelData.get(NO_PROXY)).some(
-            (data) => data.nodes === null || data.inputAccessors === null || data.outputAccessors === null
+            (data) => !data.nodes || !data.inputAccessors || !data.outputAccessors
           )
         )
           return
@@ -1074,13 +1078,15 @@ const _createAnimationTracks = (
 ) => {
   const tracks = [] as any[] // todo
 
-  const targetName = node.name ? node.name : node.uuid
+  const targetName = node.name
+  if (!targetName) throw new Error('THREE.GLTFLoader: Node has no name.')
   const targetNames = [] as string[]
 
   if (PATH_PROPERTIES[target.path] === PATH_PROPERTIES.weights) {
     node.traverse(function (object: Mesh | SkinnedMesh) {
       if (object.morphTargetInfluences) {
-        targetNames.push(object.name ? object.name : object.uuid)
+        if (!object.name) throw new Error('THREE.GLTFLoader: Node has no name.')
+        targetNames.push(object.name)
       }
     })
   } else {

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import {
   AnimationAction,
@@ -47,9 +46,10 @@ import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { CallbackComponent, StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
-import { ModelComponent } from '../../scene/components/ModelComponent'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
+import { VRMComponent } from './VRMComponent'
 
 export const LoopAnimationComponent = defineComponent({
   name: 'LoopAnimationComponent',
@@ -116,7 +116,8 @@ export const LoopAnimationComponent = defineComponent({
     const entity = useEntityContext()
 
     const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
-    const modelComponent = useOptionalComponent(entity, ModelComponent)
+    const vrmComponent = useOptionalComponent(entity, VRMComponent)
+    const gltfComponent = useOptionalComponent(entity, GLTFComponent)
     const animComponent = useOptionalComponent(entity, AnimationComponent)
     const animationAction = loopAnimationComponent._action.value as AnimationAction
 
@@ -124,16 +125,14 @@ export const LoopAnimationComponent = defineComponent({
     useEffect(() => {
       if (!animComponent?.animations?.value) return
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value] as AnimationClip
-      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
-      if (!modelComponent || !asset?.scene || !clip) {
+      if (!clip) {
         loopAnimationComponent._action.set(null)
         return
       }
       animComponent.mixer.time.set(0)
-      const assetObject = modelComponent.asset.get(NO_PROXY)
       try {
         const action = animComponent.mixer.value.clipAction(
-          assetObject instanceof VRM ? bindAnimationClipFromMixamo(clip, assetObject) : clip
+          vrmComponent ? bindAnimationClipFromMixamo(clip, getComponent(entity, VRMComponent)) : clip
         )
         loopAnimationComponent._action.set(action)
         return () => {
@@ -142,7 +141,7 @@ export const LoopAnimationComponent = defineComponent({
       } catch (e) {
         console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
       }
-    }, [loopAnimationComponent.activeClipIndex, modelComponent?.asset, animComponent?.animations])
+    }, [loopAnimationComponent.activeClipIndex, vrmComponent, animComponent?.animations])
 
     useEffect(() => {
       if (animationAction?.isRunning()) {
@@ -197,23 +196,13 @@ export const LoopAnimationComponent = defineComponent({
       setCallback(entity, StandardCallbacks.PAUSE, pause)
     }, [])
 
-    /**
-     * A model is required for LoopAnimationComponent.
-     */
-    useEffect(() => {
-      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
-      if (!asset?.scene) return
-      const model = getComponent(entity, ModelComponent)
-    }, [modelComponent?.asset])
-
     const [gltf] = useGLTF(loopAnimationComponent.animationPack.value, entity)
 
     useEffect(() => {
-      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
       if (
         !gltf ||
         !animComponent ||
-        !asset?.scene ||
+        gltfComponent?.progress.value !== 100 ||
         !loopAnimationComponent.animationPack.value ||
         lastAnimationPack.value === loopAnimationComponent.animationPack.value
       )
@@ -225,7 +214,7 @@ export const LoopAnimationComponent = defineComponent({
       for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], gltf.scene)
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
       animComponent.animations.set(animations)
-    }, [gltf, animComponent, modelComponent?.asset])
+    }, [gltf, animComponent, gltfComponent?.progress])
 
     return null
   }

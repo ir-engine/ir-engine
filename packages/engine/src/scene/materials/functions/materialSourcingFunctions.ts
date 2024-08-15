@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { Entity, EntityUUID, getComponent, hasComponent } from '@etherealengine/ecs'
 import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
+import { GLTFComponent } from '../../../gltf/GLTFComponent'
 import { SourceComponent } from '../../components/SourceComponent'
-import { getModelSceneID } from '../../functions/loaders/ModelFunctions'
 
 /**Gets all materials used by child and self entity */
 export const getMaterialsFromScene = (source: Entity) => {
-  const sceneInstanceID = getModelSceneID(source)
+  const sceneInstanceID = GLTFComponent.getInstanceID(source)
   const childEntities = SourceComponent.entitiesBySource[sceneInstanceID] ?? ([] as Entity[])
   childEntities.push(source)
   const materials = {} as Record<EntityUUID, Entity>

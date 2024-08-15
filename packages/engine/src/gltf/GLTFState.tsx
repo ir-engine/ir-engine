@@ -424,7 +424,16 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
   const rootEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
   useEffect(() => {
-    if (animationState.length !== documentState.value.animations?.length) return
+    if (animationState.length !== documentState.value?.animations?.length) return
+
+    const hasObject3d = hasComponent(rootEntity, Object3DComponent)
+    if (!hasObject3d) {
+      /** @todo this is a temporary hack */
+      const obj3d = new Group()
+      setComponent(rootEntity, Object3DComponent, obj3d)
+      addObjectToGroup(rootEntity, obj3d)
+      proxifyParentChildRelationships(obj3d)
+    }
 
     const scene = getComponent(rootEntity, Object3DComponent)
     scene.animations = animationState.get(NO_PROXY) as AnimationClip[]
@@ -435,6 +444,10 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
     })
     return () => {
       removeComponent(rootEntity, AnimationComponent)
+      if (!hasObject3d) {
+        removeObjectFromGroup(rootEntity, getComponent(rootEntity, Object3DComponent))
+        removeComponent(rootEntity, Object3DComponent)
+      }
     }
   }, [animationState])
 
@@ -661,6 +674,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     if (!hasComponent(entity, Object3DComponent) && !hasComponent(entity, MeshComponent)) {
       if (isBoneNode(documentState.get(NO_PROXY) as GLTF.IGLTF, props.nodeIndex)) {
         const bone = new Bone()
+        bone.name = node.name.value ?? 'Bone-' + props.nodeIndex
         setComponent(entity, BoneComponent, bone)
         addObjectToGroup(entity, bone)
         proxifyParentChildRelationships(bone)
@@ -996,6 +1010,8 @@ const PrimitiveReactor = (props: {
       mesh = new Mesh(geometry, new MeshBasicMaterial())
       setComponent(entity, MeshComponent, mesh)
     }
+
+    mesh.name = node.name ?? 'Node-' + props.nodeIndex
 
     /** @todo multiple primitive support */
     addObjectToGroup(entity, mesh)

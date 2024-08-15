@@ -23,35 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { QueryReactor, UUIDComponent } from '@etherealengine/ecs'
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
+import { EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NO_PROXY, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import {
   EntityTreeComponent,
   iterateEntityNode,
-  removeEntityNodeRecursively,
-  useAncestorWithComponent
+  removeEntityNodeRecursively
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
-import { Not } from 'bitecs'
-import React, { FC, useEffect } from 'react'
+import { useEffect } from 'react'
 import { AnimationMixer, Group, Scene } from 'three'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
@@ -62,7 +58,7 @@ import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToGLTF'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
-import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
+import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { SourceComponent } from './SourceComponent'
 
 /**
@@ -244,44 +240,4 @@ function ModelReactor() {
   }, [modelComponent.dereference, gltfDocumentState[modelSceneID]])
 
   return null
-}
-
-/**
- * Returns true if the entity has a model component or a mesh component that is not a child of model
- * @param entity
- * @returns {boolean}
- */
-export const useHasModelOrIndependentMesh = (entity: Entity) => {
-  const hasModel = !!useOptionalComponent(entity, ModelComponent)
-  const isChildOfModel = !!useAncestorWithComponent(entity, ModelComponent)
-  const hasMesh = !!useOptionalComponent(entity, MeshComponent)
-
-  return hasModel || (hasMesh && !isChildOfModel)
-}
-
-export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {
-  const ModelReactor = () => {
-    const entity = useEntityContext()
-    const sceneInstanceID = useModelSceneID(entity)
-    const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
-    return (
-      <>
-        {childEntities.value?.map((childEntity) => (
-          <props.ChildReactor entity={childEntity} rootEntity={entity} key={childEntity} />
-        ))}
-      </>
-    )
-  }
-
-  const MeshReactor = () => {
-    const entity = useEntityContext()
-    return <props.ChildReactor entity={entity} rootEntity={entity} key={entity} />
-  }
-
-  return (
-    <>
-      <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelReactor} />
-      <QueryReactor Components={[Not(SourceComponent), MeshComponent]} ChildEntityReactor={MeshReactor} />
-    </>
-  )
 }
