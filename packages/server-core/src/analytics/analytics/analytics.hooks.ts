@@ -117,7 +117,7 @@ export default {
   before: {
     all: [
       iff(isProvider('external'), verifyScope('admin', 'admin')),
-      () => schemaHooks.validateQuery(analyticsQueryValidator),
+      schemaHooks.validateQuery(analyticsQueryValidator),
       schemaHooks.resolveQuery(analyticsQueryResolver)
     ],
     find: [
@@ -126,9 +126,9 @@ export default {
       discardQuery('action')
     ],
     get: [],
-    create: [() => schemaHooks.validateData(analyticsDataValidator), schemaHooks.resolveData(analyticsDataResolver)],
+    create: [schemaHooks.validateData(analyticsDataValidator), schemaHooks.resolveData(analyticsDataResolver)],
     update: [],
-    patch: [() => schemaHooks.validateData(analyticsPatchValidator), schemaHooks.resolveData(analyticsPatchResolver)],
+    patch: [schemaHooks.validateData(analyticsPatchValidator), schemaHooks.resolveData(analyticsPatchResolver)],
     remove: []
   },
 

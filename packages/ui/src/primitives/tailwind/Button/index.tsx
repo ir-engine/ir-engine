@@ -90,8 +90,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       sizes[size],
       fullWidth ? 'w-full' : 'w-fit',
       roundedTypes[rounded],
-      variants[variant],
       disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#5F7DBF] dark:text-[#FFFFFF]' : '',
+      variants[variant],
       className
     )
 
