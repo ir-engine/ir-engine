@@ -180,11 +180,10 @@ export const updateModelResource = (url: string) => {
     return
   }
 
-  const onLoadArr = Object.values(onLoads)
   ResourceState.debugLog('resourceLoaderFunctions:updateResource Updating asset for url: ' + url)
   const resourceType = resource.type.value
   ResourceManager.__unsafeRemoveResource(url)
-  for (const loadObj of onLoadArr) {
+  for (const [uuid, loadObj] of Object.entries(onLoads)) {
     loadResource(
       url,
       resourceType,
@@ -194,7 +193,8 @@ export const updateModelResource = (url: string) => {
       (error) => {
         console.error('resourceLoaderFunctions:updateResource error updating resource for url: ' + url, error)
       },
-      new AbortController().signal
+      new AbortController().signal,
+      uuid
     )
   }
 }
