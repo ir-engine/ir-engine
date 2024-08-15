@@ -48,8 +48,11 @@ export const identityProviderTypes = [
   'linkedin',
   'auth0',
   'guest',
-  'admin'
+  'admin',
+  'didWallet'
 ] as const
+
+export type ProviderType = (typeof identityProviderTypes)[number]
 
 // Main data model schema
 export const identityProviderSchema = Type.Object(

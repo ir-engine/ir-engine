@@ -37,6 +37,7 @@ import {
   AvatarID,
   IdentityProviderType,
   InstanceID,
+  ProviderType,
   UserApiKeyType,
   UserAvatarPatch,
   UserID,
@@ -332,7 +333,7 @@ export const AuthService = {
         identityProvider: {
           id: '',
           token: '',
-          type: 'didWallet',
+          type: 'didWallet' as ProviderType,
           userId: walletUser.id,
           createdAt: '',
           updatedAt: ''

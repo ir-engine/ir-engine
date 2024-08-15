@@ -58,6 +58,8 @@ export const inviteSchema = Type.Object(
       format: 'uuid'
     }),
     token: Type.Optional(Type.String()),
+
+    // @ts-ignore
     identityProviderType: Type.Optional(StringEnum(identityProviderTypes)),
     passcode: Type.Optional(Type.String()),
     targetObjectId: Type.Optional(Type.String()),
