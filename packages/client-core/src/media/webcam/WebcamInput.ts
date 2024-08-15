@@ -8,12 +8,12 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { SkinnedMeshComponent } from '@etherealengine/engine/src/avatar/components/SkinnedMeshComponent'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { SkinnedMeshComponent } from '@etherealengine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { WebcamInputComponent } from './WebcamInputComponent'
 

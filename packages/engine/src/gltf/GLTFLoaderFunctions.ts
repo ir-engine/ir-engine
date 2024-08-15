@@ -33,6 +33,7 @@ import {
 } from '@etherealengine/ecs'
 import { NO_PROXY, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { BoneComponent } from '@etherealengine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { MaterialPrototypeComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { GLTF } from '@gltf-transform/core'
@@ -94,7 +95,6 @@ import {
 import { GLTFParserOptions, GLTFRegistry, getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
 import { KTX2Loader } from '../assets/loaders/gltf/KTX2Loader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
-import { BoneComponent } from '../avatar/components/BoneComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 

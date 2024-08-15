@@ -35,7 +35,7 @@ import {
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
 import { useEffect } from 'react'
-import { AnimationAction, Euler, Group, Matrix4, SkeletonHelper, Vector3 } from 'three'
+import { AnimationAction, Euler, Group, Matrix4, Vector3 } from 'three'
 
 import {
   defineComponent,
@@ -47,26 +47,23 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, getState, matches, none, useHookstate } from '@etherealengine/hyperflux'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { getMutableState, getState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 
 import { UUIDComponent } from '@etherealengine/ecs'
+import { BoneComponent } from '@etherealengine/spatial/src/renderer/components/BoneComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
-import { preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
+import { preloadedAnimations } from '../animation/Util'
 import {
   retargetAvatarAnimations,
   setAvatarSpeedFromRootMotion,
@@ -75,8 +72,6 @@ import {
 } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
 import { AvatarComponent } from './AvatarComponent'
-import { AvatarPendingComponent } from './AvatarPendingComponent'
-import { BoneComponent } from './BoneComponent'
 
 export const AvatarAnimationComponent = defineComponent({
   name: 'AvatarAnimationComponent',
@@ -144,43 +139,11 @@ export const AvatarRigComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
     const rigComponent = useComponent(entity, AvatarRigComponent)
-    const pending = useOptionalComponent(entity, AvatarPendingComponent)
-    const visible = useOptionalComponent(entity, VisibleComponent)
     const gltfComponent = useOptionalComponent(entity, GLTFComponent)
     const locomotionAnimationState = useHookstate(
       getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
     )
-
-    useEffect(() => {
-      if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
-        return
-
-      const helper = new SkeletonHelper(rigComponent.value.vrm.scene as Group)
-      helper.frustumCulled = false
-      helper.name = `target-rig-helper-${entity}`
-
-      const helperEntity = createEntity()
-      setVisibleComponent(helperEntity, true)
-      addObjectToGroup(helperEntity, helper)
-      rigComponent.helperEntity.set(helperEntity)
-      setComponent(helperEntity, NameComponent, helper.name)
-      setObjectLayers(helper, ObjectLayers.AvatarHelper)
-
-      setComponent(helperEntity, ComputedTransformComponent, {
-        referenceEntities: [entity],
-        computeFunction: () => {
-          // this updates the bone helper lines
-          helper.updateMatrixWorld(true)
-        }
-      })
-
-      return () => {
-        removeEntity(helperEntity)
-        rigComponent.helperEntity.set(none)
-      }
-    }, [visible, debugEnabled, pending, rigComponent.normalizedRig])
 
     /** @todo move asset loading to a new VRMComponent */
     useEffect(() => {
@@ -251,7 +214,6 @@ export default function createVRM(rootEntity: Entity) {
       const nodeID = `${documentID}-${bone.node}` as EntityUUID
       const entity = UUIDComponent.getEntityByUUID(nodeID)
       bones[bone.bone!] = { node: getComponent(entity, BoneComponent) }
-      console.log(bones[bone.bone!].node)
       return bones
     }, {} as VRMHumanBones)
 
@@ -264,7 +226,6 @@ export default function createVRM(rootEntity: Entity) {
     bones.hips.node.rotateY(Math.PI)
 
     const humanoid = new VRMHumanoid(bones)
-    humanoid.normalizedHumanBonesRoot.removeFromParent()
 
     const scene = getComponent(rootEntity, Object3DComponent) as any as Group
 

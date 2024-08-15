@@ -88,13 +88,13 @@ import {
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { BoneComponent } from '@etherealengine/spatial/src/renderer/components/BoneComponent'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { SkinnedMeshComponent } from '@etherealengine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
-import { BoneComponent } from '../avatar/components/BoneComponent'
-import { SkinnedMeshComponent } from '../avatar/components/SkinnedMeshComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
@@ -659,17 +659,13 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     }
 
     if (!hasComponent(entity, Object3DComponent) && !hasComponent(entity, MeshComponent)) {
-      let obj3d: Group | Bone
       if (isBoneNode(documentState.get(NO_PROXY) as GLTF.IGLTF, props.nodeIndex)) {
-        obj3d = new Bone()
-        setComponent(entity, BoneComponent, obj3d)
-      } else {
-        obj3d = new Group()
+        const bone = new Bone()
+        setComponent(entity, BoneComponent, bone)
+        addObjectToGroup(entity, bone)
+        proxifyParentChildRelationships(bone)
+        setComponent(entity, Object3DComponent, bone)
       }
-      obj3d.entity = entity
-      addObjectToGroup(entity, obj3d)
-      proxifyParentChildRelationships(obj3d)
-      setComponent(entity, Object3DComponent, obj3d)
     }
 
     entityState.set(entity)

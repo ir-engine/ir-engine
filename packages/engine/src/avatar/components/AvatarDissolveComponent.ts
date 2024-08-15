@@ -48,7 +48,7 @@ import { matches } from '@etherealengine/hyperflux'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { SkinnedMeshComponent } from './SkinnedMeshComponent'
+import { SkinnedMeshComponent } from '@etherealengine/spatial/src/renderer/components/SkinnedMeshComponent'
 
 export type MaterialMap = {
   entity: Entity

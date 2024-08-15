@@ -50,8 +50,8 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { BoneComponent } from '../../avatar/components/BoneComponent'
-import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
+import { BoneComponent } from '@etherealengine/spatial/src/renderer/components/BoneComponent'
+import { SkinnedMeshComponent } from '@etherealengine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'

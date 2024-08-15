@@ -31,8 +31,8 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { BoneComponent } from '@etherealengine/spatial/src/renderer/components/BoneComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { BoneComponent } from '../components/BoneComponent'
 
 export const updateVRMRetargeting = (vrm: VRM, avatarEntity: Entity) => {
   const humanoidRig = (vrm.humanoid as any)._normalizedHumanBones // as VRMHumanoidRig
