@@ -87,66 +87,66 @@ export function updateGamepadInput(eid: Entity) {
 
   if (!gamepad) return
   const gamepadButtons = gamepad.buttons
-  if (!gamepadButtons.length) return // @note Clause Guard. The rest of this function was nested inside `if (gamepadButtons.length) { ... }`
+  if (!gamepadButtons.length) return
 
   const pointer = getOptionalComponent(eid, InputPointerComponent)
   const xrTransform = getOptionalComponent(eid, TransformComponent)
 
   for (let i = 0; i < gamepadButtons.length; i++) {
-    const button = gamepadButtons[i]
-    if (!buttons[i] && (button.pressed || button.touched)) {
-      buttons[i] = createInitialButtonState(eid, button)
+    const gamepadButton = gamepadButtons[i]
+    if (!buttons[i] && (gamepadButton.pressed || gamepadButton.touched)) {
+      buttons[i] = createInitialButtonState(eid, gamepadButton)
     }
-    if (buttons[i] && (button.pressed || button.touched)) {
-      if (!buttons[i].pressed && button.pressed) {
-        buttons[i].down = true
-        buttons[i].downPosition = new Vector3()
-        buttons[i].downRotation = new Quaternion()
+    const buttonState = buttons[i] as ButtonState
+    if (buttonState && (gamepadButton.pressed || gamepadButton.touched)) {
+      if (!buttonState.pressed && gamepadButton.pressed) {
+        buttonState.down = true
+        buttonState.downPosition = new Vector3()
+        buttonState.downRotation = new Quaternion()
 
         if (pointer) {
-          buttons[i].downPosition.set(pointer.position.x, pointer.position.y, 0)
+          buttonState.downPosition.set(pointer.position.x, pointer.position.y, 0)
           //TODO maybe map pointer rotation/swing/twist to downRotation here once we map the pointer events to that (think Apple pencil)
         } else if (hasComponent(eid, XRSpaceComponent) && xrTransform) {
-          buttons[i].downPosition.copy(xrTransform.position)
-          buttons[i].downRotation.copy(xrTransform.rotation)
+          buttonState.downPosition.copy(xrTransform.position)
+          buttonState.downRotation.copy(xrTransform.rotation)
         }
       }
-      buttons[i].pressed = button.pressed
-      buttons[i].touched = button.touched
-      buttons[i].value = button.value
+      buttonState.pressed = gamepadButton.pressed
+      buttonState.touched = gamepadButton.touched
+      buttonState.value = gamepadButton.value
 
-      if (buttons[i].downPosition) {
+      if (buttonState.downPosition) {
         //if not yet dragging, compare distance to drag threshold and begin if appropriate
-        if (!buttons[i].dragging) {
+        if (!buttonState.dragging) {
           if (pointer) _pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
-          const squaredDistance = buttons[i].downPosition.squaredDistance(
+          const squaredDistance = buttonState.downPosition.distanceToSquared(
             pointer ? _pointerPositionVector3 : xrTransform?.position ?? Vector3_Zero
           )
 
           if (squaredDistance > DRAGGING_THRESHOLD) {
-            buttons[i].dragging = true
+            buttonState.dragging = true
           }
         }
 
         //if not yet rotating, compare distance to drag threshold and begin if appropriate
-        if (!buttons[i].rotating) {
-          const angleRadians = buttons[i].downRotation.angleTo(
+        if (!buttonState.rotating) {
+          const angleRadians = buttonState.downRotation!.angleTo(
             pointer ? Q_IDENTITY : xrTransform?.rotation ?? Q_IDENTITY
           )
           if (angleRadians > ROTATING_THRESHOLD) {
-            buttons[i].rotating = true
+            buttonState.rotating = true
           }
         }
       }
-    } else if (buttons[i]) {
-      buttons[i].up = true
+    } else if (buttonState) {
+      buttonState.up = true
     }
   }
 }
-
 export const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
   const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
-  if (!inputEntity) return // @note Clause Guard. The rest of this function was nested inside   if (inputEntity) { ... }
+  if (!inputEntity) return
   const inputComponent = getComponent(inputEntity, InputComponent)
 
   for (const sinkEntityUUID of inputComponent.inputSinks) {
@@ -228,7 +228,6 @@ export function assignInputSources(
 
   const intersectionData = new Set([] as IntersectionData[])
 
-  // @note This function was a ~100 sloc block nested inside this if block
   if (isSpatialInput) heuristic.raycastedInput(sourceEid, intersectionData, data, heuristic)
 
   const sortedIntersections = Array.from(intersectionData).sort((a, b) => {
@@ -249,7 +248,6 @@ export function assignInputSources(
     sortedIntersections.length === 0 &&
     !hasComponent(sourceEid, InputPointerComponent)
   ) {
-    // @note This function was a ~50sloc block nested inside this if block
     heuristic.proximity(isSpatialInput, sourceEid, sortedIntersections, intersectionData)
   }
 

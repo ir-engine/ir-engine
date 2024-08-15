@@ -30,6 +30,7 @@ import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
 import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { analyticsSeeds } from './analytics/seeder-config'
+import { integrationsSeeds } from './integrations/seeder-config'
 import { mediaSeeds } from './media/seeder-config'
 import { networkingSeeds } from './networking/seeder-config'
 import { projectSeeds } from './projects/seeder-config'
@@ -68,5 +69,6 @@ export const knexSeeds: Array<KnexSeed> = [
   ...projectSeeds,
   ...mediaSeeds,
   ...networkingSeeds,
+  ...integrationsSeeds,
   ...installedProjects
 ]

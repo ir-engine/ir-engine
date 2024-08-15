@@ -44,6 +44,8 @@ export type NotificationOptions = {
   variant: VariantType // 'default' | 'error' | 'success' | 'warning' | 'info'
   actionType?: keyof typeof NotificationActions
   persist?: boolean
+  style?: CSSProperties
+  hideIconVariant?: boolean
 }
 
 export const defaultAction = (key: SnackbarKey, content?: React.ReactNode) => {
@@ -69,7 +71,9 @@ export const NotificationService = {
     return state.snackbar?.enqueueSnackbar(message, {
       variant: options.variant,
       action: NotificationActions[options.actionType ?? 'default'],
-      persist: options.persist
+      persist: options.persist,
+      style: options.style,
+      hideIconVariant: options.hideIconVariant
     })
   },
   closeNotification(key: SnackbarKey) {

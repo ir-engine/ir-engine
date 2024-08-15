@@ -43,7 +43,7 @@ import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
 
-import { AssetType } from '@etherealengine/common/src/constants/AssetType'
+import { AssetType, FileToAssetType } from '@etherealengine/common/src/constants/AssetType'
 import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/regex'
 
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
@@ -606,7 +606,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
     }
 
   try {
-    const [authUser, repos] = await Promise.all([octoKit.rest.users.getAuthenticated(), getUserRepos(token)])
+    const [authUser, repos] = await Promise.all([octoKit.rest.users.getAuthenticated(), getUserRepos(token!, app)])
     const matchingRepo = repos.find(
       (repo) =>
         repo.html_url.toLowerCase() === url.toLowerCase() ||
@@ -1415,7 +1415,14 @@ export const updateProject = async (
     })
     signingToken = installationAccessToken.data.token
     usesInstallationToken = true
-    repoPath = await getAuthenticatedRepo(signingToken, data.sourceURL, usesInstallationToken)
+    const { authenticatedRepo, token } = await getAuthenticatedRepo(
+      signingToken,
+      data.sourceURL,
+      usesInstallationToken,
+      app
+    )
+    repoPath = authenticatedRepo
+    signingToken = token
     params.provider = 'server'
   } else {
     userId = params!.user?.id || project?.updateUserId
@@ -1432,7 +1439,9 @@ export const updateProject = async (
     if (githubIdentityProvider.data.length === 0) throw new Forbidden('You are not authorized to access this project')
 
     signingToken = githubIdentityProvider.data[0].oauthToken
-    repoPath = await getAuthenticatedRepo(signingToken, data.sourceURL)
+    const { authenticatedRepo, token } = await getAuthenticatedRepo(signingToken, data.sourceURL, false, app)
+    repoPath = authenticatedRepo
+    signingToken = token
     if (!repoPath) repoPath = data.sourceURL //public repo
   }
 
@@ -1443,6 +1452,7 @@ export const updateProject = async (
   try {
     const branchExists = await git.raw(['ls-remote', '--heads', repoPath, `${branchName}`])
     if (data.commitSHA) await git.checkout(data.commitSHA)
+    else if (data.sourceBranch) await git.checkout(data.sourceBranch)
     if (branchExists.length === 0 || data.reset) {
       try {
         await git.deleteLocalBranch(branchName)
@@ -1532,9 +1542,14 @@ export const updateProject = async (
     })
 
   if (data.reset) {
-    let repoPath = await getAuthenticatedRepo(signingToken, data.destinationURL, usesInstallationToken)
-    if (!repoPath) repoPath = data.destinationURL //public repo
-    await git.addRemote('destination', repoPath)
+    let { authenticatedRepo } = await getAuthenticatedRepo(
+      signingToken,
+      data.destinationURL,
+      usesInstallationToken,
+      app
+    )
+    if (!authenticatedRepo) authenticatedRepo = data.destinationURL //public repo
+    await git.addRemote('destination', authenticatedRepo)
     await git.raw(['lfs', 'fetch', '--all'])
     await git.push('destination', branchName, ['-f', '--tags'])
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
@@ -1644,7 +1659,9 @@ const migrateResourcesJson = (projectName: string, resourceJsonPath: string) => 
 const getResourceType = (key: string, resource?: ResourceType) => {
   // TODO: figure out a better way of handling thumbnails rather than by convention
   if (key.startsWith('public/thumbnails') || key.endsWith('.thumbnail.jpg')) return 'thumbnail'
+  if (key.startsWith('public/scenes') && key.endsWith('.gltf')) return 'scene'
   if (!resource) return 'file'
+  if (staticResourceClasses.includes(FileToAssetType(key))) return 'asset'
   if (resource.type) return resource.type
   if (resource.tags) return 'asset'
   return 'file'
@@ -1656,9 +1673,23 @@ const staticResourceClasses = [
   AssetType.Model,
   AssetType.Video,
   AssetType.Volumetric,
+  AssetType.Lookdev,
   AssetType.Material,
   AssetType.Prefab
 ]
+
+const ignoreFiles = ['.ds_store']
+
+/**
+ * Checks whether a file is to be ignored in resources.json and static-resources
+ * @param key
+ */
+export const isIgnoredFile = (key: string) => {
+  for (const ignoreFile of ignoreFiles) {
+    if (key.includes(ignoreFile)) return true
+  }
+  return false
+}
 
 /**
  * Updates the local storage provider with the project's current files
@@ -1739,7 +1770,10 @@ export const uploadLocalProjectToProvider = async (
         },
         { isDirectory: false }
       )
-      if (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) {
+      if (
+        (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) ||
+        isIgnoredFile(filePathRelative)
+      ) {
         existingKeySet.delete(key)
         continue
       }

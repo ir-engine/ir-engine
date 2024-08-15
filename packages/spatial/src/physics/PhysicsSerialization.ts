@@ -71,7 +71,10 @@ export const readRigidBody = (v: ViewCursor, entity: Entity) => {
     changed = true
   }
   if (dynamic && rigidBody && changed) {
+    const world = Physics.getWorld(entity)
+    if (!world) return
     Physics.setRigidbodyPose(
+      world,
       entity,
       rigidBody.position,
       rigidBody.rotation,
@@ -107,7 +110,7 @@ export const writeRigidBody = (v: ViewCursor, entity: Entity) => {
 
   const ignoreHasChanged =
     hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag) &&
-    getState(ECSState).simulationTime % getState(ECSState).periodicUpdateFrequency === 0
+    Math.round(getState(ECSState).simulationTime % getState(ECSState).periodicUpdateFrequency) === 0
 
   changeMask |= writeBodyPosition(v, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
   changeMask |= writeBodyRotation(v, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0

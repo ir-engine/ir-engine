@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 
-import { RigidBodyType, World } from '@dimforge/rapier3d-compat'
+import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import {
   SystemDefinitions,
+  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -39,18 +41,19 @@ import {
   serializeComponent,
   setComponent
 } from '@etherealengine/ecs'
-import { getMutableState } from '@etherealengine/hyperflux'
+import React from 'react'
 import { Vector3 } from 'three'
 import { PhysicsSystem, TransformComponent } from '../../SpatialModule'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
-import { Physics } from '../classes/Physics'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { Physics, PhysicsWorld } from '../classes/Physics'
 import {
   assertFloatApproxEq,
   assertFloatApproxNotEq,
   assertVecAllApproxNotEq,
   assertVecApproxEq
 } from '../classes/Physics.test'
-import { PhysicsState } from '../state/PhysicsState'
 import { BodyTypes } from '../types/PhysicsTypes'
 import { ColliderComponent } from './ColliderComponent'
 import {
@@ -237,60 +240,73 @@ describe('RigidBodyComponent', () => {
 
   describe('reactor', () => {
     let testEntity = UndefinedEntity
-    let physicsWorld: World | undefined = undefined
+    let physicsWorld: PhysicsWorld
+    let newPhysicsWorld: PhysicsWorld
+    let physicsWorldEntity = UndefinedEntity
 
     beforeEach(async () => {
       createEngine()
       await Physics.load()
-      physicsWorld = Physics.createWorld()
+      physicsWorldEntity = createEntity()
+      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(physicsWorldEntity, SceneComponent)
+      setComponent(physicsWorldEntity, TransformComponent)
+      setComponent(physicsWorldEntity, EntityTreeComponent)
+      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
       physicsWorld!.timestep = 1 / 60
-      const physicsState = getMutableState(PhysicsState)
-      physicsState.physicsWorld!.set(physicsWorld!)
-      physicsState.physicsCollisionEventQueue.set(Physics.createCollisionEventQueue())
-      /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
-      physicsState.drainCollisions.set((val) => Physics.drainCollisionEventQueue(physicsWorld!))
-      /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
-      physicsState.drainContacts.set((val) => Physics.drainContactEventQueue(physicsWorld!))
 
       testEntity = createEntity()
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, RigidBodyComponent)
       setComponent(testEntity, ColliderComponent)
     })
 
     afterEach(() => {
+      Physics.destroyWorld(physicsWorld.id)
+      // if (newPhysicsWorld) Physics.destroyWorld(newPhysicsWorld.id)
       removeEntity(testEntity)
-      physicsWorld = undefined
       return destroyEngine()
     })
 
     const physicsSystemExecute = SystemDefinitions.get(PhysicsSystem)!.execute
 
-    it('should create a RigidBody for the entity in the new PhysicsState.physicsWorld when the world is changed', () => {
+    it('should create a RigidBody for the entity in the new physicsWorld when the world is changed', async () => {
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
-      const before = Physics._Rigidbodies.get(testEntity)!.handle
+      const before = physicsWorld.Rigidbodies.get(testEntity)!.handle
       assert.ok(physicsWorld!.bodies.contains(before))
 
+      const newPhysicsEntity = createEntity()
+      setComponent(newPhysicsEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(newPhysicsEntity, SceneComponent)
+      setComponent(newPhysicsEntity, TransformComponent)
+      setComponent(newPhysicsEntity, EntityTreeComponent)
+      newPhysicsWorld = Physics.createWorld(getComponent(newPhysicsEntity, UUIDComponent))
+      newPhysicsWorld!.timestep = 1 / 60
+
       // Change the world
-      const newWorld = Physics.createWorld()
-      newWorld!.timestep = 1 / 60
-      getMutableState(PhysicsState).physicsWorld!.set(newWorld!)
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: newPhysicsEntity })
+
+      // Force react lifecycle to update Physics.useWorld
+      const { rerender, unmount } = render(<></>)
+      await act(() => rerender(<></>))
+
       // Check the changes
       RigidBodyComponent.reactorMap.get(testEntity)!.run() // Reactor is already running. But force-run it so changes are applied immediately
-      const after = Physics._Rigidbodies.get(testEntity)!.handle
-      assert.ok(newWorld!.bodies.contains(after))
+      const after = newPhysicsWorld.Rigidbodies.get(testEntity)!.handle
+      assert.ok(newPhysicsWorld!.bodies.contains(after))
     })
 
     it('should set the correct RigidBody type on the API data when component.type changes', () => {
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
       setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-      const one = Physics._Rigidbodies.get(testEntity)!.bodyType()
+      const one = physicsWorld.Rigidbodies.get(testEntity)!.bodyType()
       assert.equal(one, RigidBodyType.Dynamic)
       setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Fixed })
-      const two = Physics._Rigidbodies.get(testEntity)!.bodyType()
+      const two = physicsWorld.Rigidbodies.get(testEntity)!.bodyType()
       assert.equal(two, RigidBodyType.Fixed)
       setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Kinematic })
-      const three = Physics._Rigidbodies.get(testEntity)!.bodyType()
+      const three = physicsWorld.Rigidbodies.get(testEntity)!.bodyType()
       assert.equal(three, RigidBodyType.KinematicPositionBased)
     })
 
@@ -330,7 +346,7 @@ describe('RigidBodyComponent', () => {
     it('should enable CCD for the RigidBody on the API data when component.ccd changes', () => {
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
       const Expected = !RigidBodyComponentDefaults.ccd
-      const beforeBody = Physics._Rigidbodies.get(testEntity)!
+      const beforeBody = physicsWorld.Rigidbodies.get(testEntity)!
       assert.ok(beforeBody)
       const beforeAPI = beforeBody.isCcdEnabled()
       assert.equal(beforeAPI, RigidBodyComponentDefaults.ccd)
@@ -338,7 +354,7 @@ describe('RigidBodyComponent', () => {
       assert.equal(beforeECS, RigidBodyComponentDefaults.ccd)
 
       setComponent(testEntity, RigidBodyComponent, { ccd: Expected })
-      const afterBody = Physics._Rigidbodies.get(testEntity)!
+      const afterBody = physicsWorld.Rigidbodies.get(testEntity)!
       assert.ok(afterBody)
       const afterAPI = afterBody.isCcdEnabled()
       assert.equal(afterAPI, Expected)
@@ -351,7 +367,7 @@ describe('RigidBodyComponent', () => {
 
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
       const TorqueImpulse = new Vector3(10, 20, 30)
-      const body = Physics._Rigidbodies.get(testEntity)!
+      const body = physicsWorld.Rigidbodies.get(testEntity)!
 
       // Defaults
       const one = getComponent(testEntity, RigidBodyComponent).angularVelocity
@@ -385,7 +401,7 @@ describe('RigidBodyComponent', () => {
       const reactor = RigidBodyComponent.reactorMap.get(testEntity)!
       assert.ok(reactor.isRunning)
       const TorqueImpulse = new Vector3(10, 20, 30)
-      const body = Physics._Rigidbodies.get(testEntity)!
+      const body = physicsWorld.Rigidbodies.get(testEntity)!
 
       // Defaults
       const one = getComponent(testEntity, RigidBodyComponent).angularVelocity.clone()

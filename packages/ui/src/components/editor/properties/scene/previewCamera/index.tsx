@@ -38,8 +38,11 @@ import { previewScreenshot } from '@etherealengine/editor/src/functions/takeScre
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { getNestedVisibleChildren, getSceneParameters } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import {
+  RendererComponent,
+  getNestedVisibleChildren,
+  getSceneParameters
+} from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { Scene } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -69,7 +72,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
 
   const updateScenePreview = async () => {
     const rootEntity = getState(EngineState).viewerEntity
-    const entitiesToRender = getComponent(rootEntity, SceneComponent).children.map(getNestedVisibleChildren).flat()
+    const entitiesToRender = getComponent(rootEntity, RendererComponent).scenes.map(getNestedVisibleChildren).flat()
     const { background, environment, fog, children } = getSceneParameters(entitiesToRender)
 
     scene.children = children

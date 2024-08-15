@@ -361,17 +361,26 @@ const linkGithubToProject = async (context: HookContext) => {
     const split = githubPathRegexExec[1].split('/')
     const org = split[0]
     const repo = split[1]
-    const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken)
+    const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken!, context.app)
     if (!appOrgAccess)
       throw new Forbidden(
         `The organization ${org} needs to install the GitHub ${
           config.authentication.oauth.github.appId != null ? 'App' : 'OAuth app'
         } ${config.authentication.oauth.github.key} in order to push code to its repositories`
       )
-    const repoWriteStatus = await checkUserRepoWriteStatus(org, repo, githubIdentityProvider.data[0].oauthToken)
+    const repoWriteStatus = await checkUserRepoWriteStatus(
+      org,
+      repo,
+      githubIdentityProvider.data[0].oauthToken!,
+      context.app
+    )
     if (repoWriteStatus !== 200) {
       if (repoWriteStatus === 404) {
-        const orgWriteStatus = await checkUserOrgWriteStatus(org, githubIdentityProvider.data[0].oauthToken)
+        const orgWriteStatus = await checkUserOrgWriteStatus(
+          org,
+          githubIdentityProvider.data[0].oauthToken!,
+          context.app
+        )
         if (orgWriteStatus !== 200) throw new Forbidden('You do not have write access to that organization')
       } else {
         throw new Forbidden('You do not have write access to that repo')

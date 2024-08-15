@@ -29,6 +29,7 @@ import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
+import { UserID } from '../../schema.type.module'
 import { TypedString } from '../../types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
 import { dataValidator, queryValidator } from '../validators'
@@ -67,6 +68,9 @@ export const locationSchema = Type.Object(
     locationAdmin: Type.Optional(Type.Ref(locationAdminSchema)),
     locationAuthorizedUsers: Type.Array(Type.Ref(locationAuthorizedUserSchema)),
     locationBans: Type.Array(Type.Ref(locationBanSchema)),
+    updatedBy: TypedString<UserID>({
+      format: 'uuid'
+    }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },

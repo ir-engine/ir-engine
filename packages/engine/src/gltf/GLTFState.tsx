@@ -27,16 +27,13 @@ import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
-import config from '@etherealengine/common/src/config'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
   createEntity,
-  Engine,
   Entity,
   EntityUUID,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -65,10 +62,12 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
@@ -86,9 +85,9 @@ export const GLTFAssetState = defineState({
   },
 
   loadScene: (sceneURL: string, uuid: string) => {
-    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID)
-    getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, getState(EngineState).originEntity)
     getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
+    setComponent(gltfEntity, SceneComponent)
 
     return () => {
       GLTFSourceState.unload(gltfEntity)
@@ -96,8 +95,6 @@ export const GLTFAssetState = defineState({
     }
   }
 })
-
-const fileServer = config.client.fileServer
 
 export const GLTFSourceState = defineState({
   name: 'ee.engine.gltf.GLTFSourceState',
@@ -219,6 +216,44 @@ export const GLTFSnapshotState = defineState({
     }
 
     return false
+  },
+
+  findTopLevelParent: (entity: Entity): Entity => {
+    const source = getOptionalComponent(entity, SourceComponent)
+    const uuid = getOptionalComponent(entity, UUIDComponent)
+    if (!source || !uuid) return UndefinedEntity
+
+    const gltf = getState(GLTFSnapshotState)[source]
+    if (!gltf) return UndefinedEntity
+
+    const snapshot = gltf.snapshots[gltf.index]
+    if (!snapshot.nodes) return UndefinedEntity
+
+    let parentUUID: EntityUUID | undefined = uuid
+    let currentUUID: EntityUUID = uuid
+
+    const findParent = (uuid: EntityUUID): EntityUUID | undefined => {
+      for (let i = 0; i < snapshot.nodes!.length; i++) {
+        const node = snapshot.nodes![i]
+        if (node.children && node.children.length) {
+          for (const child of node.children) {
+            const childNode = snapshot.nodes![child]
+            const childUUID = childNode.extensions?.[UUIDComponent.jsonID]
+            if (childUUID === uuid) {
+              return node.extensions?.[UUIDComponent.jsonID] as EntityUUID
+            }
+          }
+        }
+      }
+
+      return undefined
+    }
+
+    while ((parentUUID = findParent(parentUUID)) && parentUUID) {
+      currentUUID = parentUUID
+    }
+
+    return UUIDComponent.getEntityByUUID(currentUUID)
   },
 
   cloneCurrentSnapshot: (source: string) => {
@@ -374,7 +409,8 @@ const ParentNodeReactor = (props: {
   documentID: string
 }) => {
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
-  if (!parentEntity) return null
+  const physicsWorld = Physics.useWorld(parentEntity)
+  if (!parentEntity || !physicsWorld) return null
 
   return <NodeReactor {...props} />
 }

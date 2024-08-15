@@ -39,7 +39,6 @@ import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import NodeEditor from '../../nodeEditor'
-import LightShadowProperties from '../shadowProperties'
 
 /**
  * SpotLightNodeEditor component class used to provide editor view for property customization.
@@ -121,7 +120,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SpotLightComponent, 'decay')}
         />
       </InputGroup>
-      <LightShadowProperties entity={props.entity} component={SpotLightComponent} />
+      {/* <LightShadowProperties entity={props.entity} component={SpotLightComponent} /> */}
     </NodeEditor>
   )
 }

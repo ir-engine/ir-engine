@@ -51,7 +51,7 @@ import SelectInput from '../../input/Select'
 import TexturePreviewInput from '../../input/Texture'
 import Vector2Input from '../../input/Vector2'
 import Vector3Input from '../../input/Vector3'
-import PropertyGroup from '../group'
+import NodeEditor from '../nodeEditor'
 
 enum PropertyTypes {
   BlendFunction,
@@ -285,10 +285,11 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <PropertyGroup
+    <NodeEditor
       name={t('editor:properties.postprocessing.name')}
       description={t('editor:properties.postprocessing.description')}
       icon={<PostProcessingSettingsEditor.iconComponent />}
+      {...props}
     >
       <InputGroup name="Post Processing Enabled" label={t('editor:properties.postprocessing.enabled')}>
         <BooleanInput
@@ -313,7 +314,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           </Accordion>
         </>
       )}
-    </PropertyGroup>
+    </NodeEditor>
   )
 }
 

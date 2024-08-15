@@ -148,7 +148,6 @@ function ModelReactor() {
     /**if we've loaded or converted to vrm, create animation component whose mixer's root is the normalized rig */
     if (boneMatchedAsset instanceof VRM)
       setComponent(entity, AnimationComponent, {
-        animations: gltf.animations,
         mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
       })
 

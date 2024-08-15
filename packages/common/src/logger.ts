@@ -148,7 +148,6 @@ const multiLogger = {
             let logParams = encodeLogParams(...args)
 
             if (typeof opts.modifier === 'function') logParams = opts.modifier(logParams)
-            if (logParams.location_id) console.log('IR> ', logParams)
 
             // In addition to sending to logging endpoint,  output to console
             consoleMethods[level](...args)
@@ -167,15 +166,15 @@ const multiLogger = {
         }
       }
 
-      return config.client.logs.disabled === 'false'
-        ? {
+      return config.client.logs.disabled === 'true'
+        ? nullLogger
+        : {
             debug: send('debug'),
             info: send('info'),
             warn: send('warn'),
             error: send('error'),
             fatal: send('fatal')
           }
-        : nullLogger
     }
   }
 }
@@ -219,6 +218,9 @@ function encodeLogParams(first, second, third) {
     message = stringifyError(first, second)
   } else if (typeof first === 'string') {
     message = interpolate(first, second)
+    if (second && !message.includes('%o')) {
+      mergeObject = second
+    }
   } else {
     mergeObject = first
     message = interpolate(second, third)

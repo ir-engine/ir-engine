@@ -48,15 +48,19 @@ export default (types: string[]) => {
       projectId = context.params.query.projectId
     } else if (context.data?.projectId) {
       projectId = context.data.projectId
-    } else if (context.id) {
+    } else if (context.id && context.path === projectPath) {
       projectId = context.id.toString()
+    } else {
+      throw new BadRequest('Missing project ID in request')
     }
-
-    if (!projectId) throw new BadRequest('Missing project ID in request')
 
     const project = await context.app.service(projectPath).get(projectId)
 
     if (!project) throw new NotFound('Project not found')
+
+    if (project.visibility === 'public') {
+      return context
+    }
 
     const { data } = (await context.app.service(projectPermissionPath).find({
       query: {

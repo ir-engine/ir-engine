@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { World } from '@dimforge/rapier3d-compat'
 import {
   EntityUUID,
   SystemDefinitions,
@@ -41,15 +40,15 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
-import { getMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '../../SpatialModule'
 import { setCallback } from '../../common/CallbackComponent'
-import { Physics } from '../classes/Physics'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { Physics, PhysicsWorld } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
-import { PhysicsState } from '../state/PhysicsState'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 import { TriggerSystem, triggerEnter, triggerExit } from './TriggerSystem'
 
@@ -82,17 +81,23 @@ describe('TriggerSystem', () => {
   let targetEntity = UndefinedEntity
   let testEntity = UndefinedEntity
   let targetEntityUUID = '' as EntityUUID
-  let physicsWorld: World | undefined = undefined
+  let physicsWorld: PhysicsWorld
+  let physicsWorldEntity = UndefinedEntity
 
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    physicsWorld = Physics.createWorld()
-    physicsWorld!.timestep = 1 / 60
-    getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+    physicsWorldEntity = createEntity()
+    setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+    setComponent(physicsWorldEntity, SceneComponent)
+    setComponent(physicsWorldEntity, TransformComponent)
+    setComponent(physicsWorldEntity, EntityTreeComponent)
+    physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+    physicsWorld.timestep = 1 / 60
 
     // Create the entity
     testEntity = createEntity()
+    setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
     setComponent(testEntity, TransformComponent)
     setComponent(testEntity, RigidBodyComponent)
     setComponent(testEntity, ColliderComponent)
@@ -104,6 +109,7 @@ describe('TriggerSystem', () => {
     targetEntityUUID = getComponent(targetEntity, UUIDComponent)
 
     triggerEntity = createEntity()
+    setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
     setComponent(triggerEntity, TransformComponent)
     setComponent(triggerEntity, RigidBodyComponent)
     setComponent(triggerEntity, ColliderComponent)
@@ -116,7 +122,6 @@ describe('TriggerSystem', () => {
     removeEntity(testEntity)
     removeEntity(triggerEntity)
     removeEntity(targetEntity)
-    physicsWorld = undefined
     return destroyEngine()
   })
 
@@ -187,28 +192,19 @@ describe('TriggerSystem', () => {
   })
 
   describe('execute', () => {
-    const triggerTestStartHit = {
-      type: CollisionEvents.TRIGGER_START,
-      bodySelf: Physics._Rigidbodies.get(triggerEntity)!,
-      bodyOther: Physics._Rigidbodies.get(testEntity)!,
-      shapeSelf: Physics._Colliders.get(triggerEntity)!,
-      shapeOther: Physics._Colliders.get(testEntity)!,
-      maxForceDirection: null,
-      totalForce: null
-    } as ColliderHitEvent
-    const triggerTestEndHit = {
-      type: CollisionEvents.TRIGGER_END,
-      bodySelf: Physics._Rigidbodies.get(triggerEntity)!,
-      bodyOther: Physics._Rigidbodies.get(testEntity)!,
-      shapeSelf: Physics._Colliders.get(triggerEntity)!,
-      shapeOther: Physics._Colliders.get(testEntity)!,
-      maxForceDirection: null,
-      totalForce: null
-    } as ColliderHitEvent
-
     const triggerSystemExecute = SystemDefinitions.get(TriggerSystem)!.execute
 
     it('should only run for entities that have both a TriggerComponent and a CollisionComponent  (aka. collisionQuery)', () => {
+      const triggerTestStartHit = {
+        type: CollisionEvents.TRIGGER_START,
+        bodySelf: physicsWorld.Rigidbodies.get(triggerEntity)!,
+        bodyOther: physicsWorld.Rigidbodies.get(testEntity)!,
+        shapeSelf: physicsWorld.Colliders.get(triggerEntity)!,
+        shapeOther: physicsWorld.Colliders.get(testEntity)!,
+        maxForceDirection: null,
+        totalForce: null
+      } as ColliderHitEvent
+
       removeComponent(triggerEntity, TriggerComponent)
       setComponent(triggerEntity, CollisionComponent)
       const collision = getComponent(triggerEntity, CollisionComponent)
@@ -224,6 +220,16 @@ describe('TriggerSystem', () => {
     })
 
     it('should run `triggerEnter` for all entities that match the collisionQuery and have a CollisionComponent', () => {
+      const triggerTestStartHit = {
+        type: CollisionEvents.TRIGGER_START,
+        bodySelf: physicsWorld.Rigidbodies.get(triggerEntity)!,
+        bodyOther: physicsWorld.Rigidbodies.get(testEntity)!,
+        shapeSelf: physicsWorld.Colliders.get(triggerEntity)!,
+        shapeOther: physicsWorld.Colliders.get(testEntity)!,
+        maxForceDirection: null,
+        totalForce: null
+      } as ColliderHitEvent
+
       const beforeEnter = EnterStartValue + 1 // +1 because the system runs once before this test
       assert.equal(enterVal, beforeEnter)
       // Set a start collision and run the system
@@ -237,6 +243,16 @@ describe('TriggerSystem', () => {
     })
 
     it('should run `triggerExit` for all entities that match the collisionQuery and have a CollisionComponent', () => {
+      const triggerTestEndHit = {
+        type: CollisionEvents.TRIGGER_END,
+        bodySelf: physicsWorld.Rigidbodies.get(triggerEntity)!,
+        bodyOther: physicsWorld.Rigidbodies.get(testEntity)!,
+        shapeSelf: physicsWorld.Colliders.get(triggerEntity)!,
+        shapeOther: physicsWorld.Colliders.get(testEntity)!,
+        maxForceDirection: null,
+        totalForce: null
+      } as ColliderHitEvent
+
       const beforeExit = ExitStartValue + 1 // +1 because the system runs once before this test
       assert.equal(exitVal, beforeExit)
       // Set an end collision and run the system

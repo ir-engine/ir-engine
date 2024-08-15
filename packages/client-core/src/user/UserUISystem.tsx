@@ -31,7 +31,7 @@ import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { useFeatureFlags } from '@etherealengine/engine/src/FeatureFlagsHook'
+import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu'

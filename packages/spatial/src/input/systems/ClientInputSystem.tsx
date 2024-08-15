@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Not } from 'bitecs'
 import React from 'react'
 import { Quaternion, Ray, Raycaster, Vector3 } from 'three'
 
@@ -34,13 +35,11 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { Not } from 'bitecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { RaycastArgs } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
@@ -56,7 +55,14 @@ import { InputSourceComponent } from '../components/InputSourceComponent'
 import ClientInputFunctions from '../functions/ClientInputFunctions'
 import ClientInputHeuristics, { HeuristicData, HeuristicFunctions } from '../functions/ClientInputHeuristics'
 import ClientInputHooks from '../functions/ClientInputHooks'
+import { ButtonState, ButtonStateMap } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
+
+const pointersQuery = defineQuery([InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)])
+const xrSpacesQuery = defineQuery([XRSpaceComponent, TransformComponent])
+const inputSourceQuery = defineQuery([InputSourceComponent])
+const inputsQuery = defineQuery([InputComponent])
+const xruiQuery = defineQuery([VisibleComponent, XRUIComponent])
 
 const _rayRotation = new Quaternion()
 
@@ -91,20 +97,13 @@ const _heuristicFunctions = {
   raycastedInput: ClientInputHeuristics.findRaycastedInput
 } as HeuristicFunctions
 
-const pointersQuery = defineQuery([InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)])
-const inputsQuery = defineQuery([InputComponent])
-const xrSpacesQuery = defineQuery([XRSpaceComponent, TransformComponent])
-const inputSourceQuery = defineQuery([InputSourceComponent])
-const xruiQuery = defineQuery([VisibleComponent, XRUIComponent])
-const spatialInputSourceQuery = defineQuery([InputSourceComponent, TransformComponent])
-
 const execute = () => {
   const capturedEntity = getMutableState(InputState).capturingEntity.value
   InputState.setCapturingEntity(UndefinedEntity, true)
 
   for (const eid of inputsQuery()) {
     if (!getComponent(eid, InputComponent).inputSources.length) continue
-    getMutableComponent(eid, InputComponent).inputSources.set([]) // @note Clause Guard. This line was nested inside the `if ...` right above
+    getMutableComponent(eid, InputComponent).inputSources.set([])
   }
 
   // update 2D screen-based (driven by pointer api) input sources
@@ -128,13 +127,11 @@ const execute = () => {
 
   // update xr input sources
   const xrFrame = getState(XRState).xrFrame
-  const physicsState = getState(PhysicsState)
-  _inputRaycast.excludeRigidBody = physicsState.cameraAttachedRigidbodyEntity
 
   for (const eid of xrSpacesQuery()) {
     const space = getComponent(eid, XRSpaceComponent)
     const pose = xrFrame?.getPose(space.space, space.baseSpace)
-    if (!pose) continue // @note Clause Guard. This was nested as   if (pose) { ... }
+    if (!pose) continue
     TransformComponent.position.x[eid] = pose.transform.position.x
     TransformComponent.position.y[eid] = pose.transform.position.y
     TransformComponent.position.z[eid] = pose.transform.position.z
@@ -152,8 +149,6 @@ const execute = () => {
 
   // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents
   for (const sourceEid of inputSourceQuery()) {
-    // @note This function was a ~200 sloc block nested inside this `for` block,
-    // which also contained two other sub-nested blocks of 100 and 50 sloc each
     ClientInputFunctions.assignInputSources(sourceEid, capturedEntity, _heuristicData, _heuristicFunctions)
   }
 
@@ -184,6 +179,16 @@ export const ClientInputSystem = defineSystem({
   execute,
   reactor
 })
+
+function cleanupButton(
+  key: string,
+  buttons: ButtonStateMap<Partial<Record<string | number | symbol, ButtonState | undefined>>>,
+  hasFocus: boolean
+) {
+  const button = buttons[key]
+  if (button?.down) button.down = false
+  if (button?.up || !hasFocus) delete buttons[key]
+}
 
 const cleanupInputs = () => {
   if (typeof globalThis.document === 'undefined') return

@@ -37,7 +37,7 @@ import {
   EditorComponentType,
   commitProperty,
   updateProperty
-} from '@etherealengine/editor/src/components/properties//Util'
+} from '@etherealengine/editor/src/components/properties/Util'
 import {
   FontMaterialKind,
   TextComponent,
