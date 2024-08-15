@@ -50,10 +50,10 @@ import {
   userPath,
   UserType
 } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, getComponent, getMutableComponent } from '@etherealengine/ecs'
+import { EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
-import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, HyperFlux, Identifiable, State } from '@etherealengine/hyperflux'
 import {
   addNetwork,
@@ -69,7 +69,6 @@ import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 
 import './InstanceServerModule'
 
@@ -207,7 +206,12 @@ const initializeInstance = async ({
 
   if (existingInstanceResult.total > 0) {
     const instance = existingInstanceResult.data[0]
-    if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return false
+    if (userId) {
+      const user = await app.service(userPath).get(userId)
+      if (!user) return false
+      const authorised = await authorizeUserToJoinServer(app, instance, user)
+      if (!authorised) return false
+    }
     if (instance.locationId) {
       const existingChannel = (await app.service(channelPath).find({
         query: {
@@ -273,15 +277,18 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
     if (!sceneId) throw new Error('No sceneId provided')
 
+    let unload
+
     const sceneUpdatedListener = async () => {
       const scene = await app.service(staticResourcePath).get(sceneId, { headers })
-      const gltfEntity = GLTFSourceState.load(scene.url, scene.id as EntityUUID)
-      getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+      if (unload) unload()
+      unload = GLTFAssetState.loadScene(scene.url, scene.id as EntityUUID)
+      const entity = UUIDComponent.getEntityByUUID(scene.id as EntityUUID)
 
       /** @todo - quick hack to wait until scene has loaded */
       await new Promise<void>((resolve) => {
         const interval = setInterval(() => {
-          if (getComponent(gltfEntity, GLTFComponent).progress === 100) {
+          if (getComponent(entity, GLTFComponent).progress === 100) {
             clearInterval(interval)
             resolve()
           }
@@ -402,8 +409,13 @@ const updateInstance = async ({
   if (isNeedingNewServer && !instanceStarted) {
     instanceStarted = true
     const initialized = await initializeInstance({ app, status, headers, userId })
-    if (initialized) await loadEngine({ app, sceneId, headers })
-    return true
+    if (initialized) {
+      await loadEngine({ app, sceneId, headers })
+      return true
+    } else {
+      instanceStarted = false
+      return false
+    }
   } else {
     try {
       if (!getState(InstanceServerState).ready)
@@ -416,7 +428,12 @@ const updateInstance = async ({
           }, 1000)
         })
       const instance = await app.service(instancePath).get(instanceServerState.instance.id, { headers })
-      if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return false
+      if (userId) {
+        const user = await app.service(userPath).get(userId)
+        if (!user) return false
+        const authorised = await authorizeUserToJoinServer(app, instance, user)
+        if (!authorised) return false
+      }
 
       logger.info(`Authorized user ${userId} to join server`)
       await serverState.agonesSDK.allocate()
@@ -604,6 +621,15 @@ export const onConnection = (app: Application) => async (connection: PrimusConne
   }
 
   logger.info(`user ${userId} joining ${locationId ?? channelId} and room code ${roomCode}`)
+
+  if (userId) {
+    const user = await app.service(userPath).get(userId)
+    // disallow users from joining media servers if they haven't accepted the TOS
+    if (channelId && !user.acceptedTOS) {
+      logger.warn('User tried to connect without accepting TOS')
+      return
+    }
+  }
 
   const instanceServerState = getState(InstanceServerState)
   const serverState = getState(ServerState)

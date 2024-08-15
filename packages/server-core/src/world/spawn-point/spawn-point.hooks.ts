@@ -43,25 +43,22 @@ export default createSkippableHooks(
       all: [schemaHooks.resolveExternal(spawnPointExternalResolver), schemaHooks.resolveResult(spawnPointResolver)]
     },
     before: {
-      all: [
-        () => schemaHooks.validateQuery(spawnPointQueryValidator),
-        schemaHooks.resolveQuery(spawnPointQueryResolver)
-      ],
+      all: [schemaHooks.validateQuery(spawnPointQueryValidator), schemaHooks.resolveQuery(spawnPointQueryResolver)],
       find: [enableClientPagination()],
       get: [],
       create: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        () => schemaHooks.validateData(spawnPointDataValidator),
+        schemaHooks.validateData(spawnPointDataValidator),
         schemaHooks.resolveData(spawnPointDataResolver)
       ],
       update: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        () => schemaHooks.validateData(spawnPointDataValidator),
+        schemaHooks.validateData(spawnPointDataValidator),
         schemaHooks.resolveData(spawnPointDataResolver)
       ],
       patch: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        () => schemaHooks.validateData(spawnPointDataValidator),
+        schemaHooks.validateData(spawnPointDataValidator),
         schemaHooks.resolveData(spawnPointDataResolver)
       ],
       remove: [iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false))]

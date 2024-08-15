@@ -1,24 +1,28 @@
 
 * @HexaField
 
-/packages/client/ @barankyle @hanzlamateen @aditya-mitra
-/packages/client-core/ @barankyle @hanzlamateen @aditya-mitra @AidanCaruso
-/packages/ecs/ @speigg @DanielBelmes @heysokam
-/packages/editor/ @dinomut1 @aditya-mitra @SYBIOTE @AidanCaruso @CITIZENDOT
-/packages/engine/ @speigg @DanielBelmes @AidanCaruso @MichaelEstes @dinomut1 @CITIZENDOT @heysokam @MbfloydIR @SamMazerIR
+/packages/client/ @barankyle @aditya-mitra
+/packages/client-core/ @aditya-mitra
+/packages/ecs/ @speigg
+/packages/editor/ @dinomut1 @aditya-mitra
+/packages/engine/ @AidanCaruso @MichaelEstes @dinomut1
 /packages/hyperflux/ @speigg
 /packages/matchmaking/ @speigg @hanzlamateen @barankyle
 /packages/network/ @speigg
-/packages/projects/ @barankyle
-/packages/server/ @barankyle @MoizAdnan @hanzlamateen @muradkhateeb78 @hurairahmateen
-/packages/server-core/ @barankyle @MoizAdnan @hanzlamateen @muradkhateeb78 @hurairahmateen @aditya-mitra
-/packages/spatial/ @speigg @DanielBelmes @AidanCaruso @MichaelEstes @dinomut1 @heysokam @MbfloydIR @SamMazerIR
+/packages/server/ @hanzlamateen @barankyle
+/packages/server-core/ @barankyle @MoizAdnan @hanzlamateen @hurairahmateen @aditya-mitra
+/packages/spatial/ @speigg @AidanCaruso @MichaelEstes @MbfloydIR @SamMazerIR
 /packages/taskserver/ @barankyle @hanzlamateen
-/packages/ui/ @aditya-mitra @SYBIOTE @DanielBelmes @CITIZENDOT
+/packages/ui/ @aditya-mitra @SYBIOTE @CITIZENDOT
 /packages/visual-script/ @SYBIOTE
 /packages/xrui/ @speigg
 
-
+/packages/common/src/interfaces/ @hurairahmateen
+/packages/client-core/src/admin/ @hanzlamateen
+/packages/client-core/src/components/World/ @speigg
+/packages/client-core/src/hooks/ @jose-galvan
+/packages/editor/src/classes/ @SYBIOTE
+/packages/editor/src/functions/ @SYBIOTE
 /packages/engine/src/postprocessing/ @DanielBelmes @MbfloydIR
 /packages/engine/src/mocap/ @AidanCaruso
 /packages/engine/src/avatar/ @AidanCaruso
@@ -30,6 +34,11 @@
 /packages/spatial/src/input/ @SamMazerIR @DanielBelmes @speigg
 /packages/spatial/src/resources/ @MichaelEstes
 /packages/spatial/src/xrui/ @speigg
+/packages/spatial/src/physics/ @heysokam
+/packages/spatial/src/input/ @heysokam @SamMazerIR @speigg
+/packages/spatial/src/transform/ @SamMazerIR
+/packages/spatial/src/camera/ @DanielBelmes @SamMazerIR @speigg
+/packages/spatial/src/renderer/ @AidanCaruso @DanielBelmes @MichaelEstes
 /scripts/ @barankyle @hanzlamateen @DanielBelmes
 /patches/postprocessing+6.34.1.patch @DanielBelmes
 /patches/three+0.158.0.patch @DanielBelmes

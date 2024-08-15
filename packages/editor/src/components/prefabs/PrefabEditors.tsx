@@ -18,13 +18,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import config from '@etherealengine/common/src/config'
-import { defineState } from '@etherealengine/hyperflux'
+import { useGLTF } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
+import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import React, { ReactNode } from 'react'
+import { FiHexagon } from 'react-icons/fi'
 
 export type PrefabShelfItem = {
   name: string
   url: string
   category: string
   detail?: string
+}
+
+export const PrefabIcons: Record<string, ReactNode> = {
+  Geo: <FiHexagon size="1.25rem" />,
+  default: <FiHexagon size="1.25rem" />
 }
 
 export const PrefabShelfState = defineState({
@@ -91,12 +99,6 @@ export const PrefabShelfState = defineState({
         detail: 'Simple cylinder collider'
       },
       {
-        name: 'Mesh Collider',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/mesh-collider.prefab.gltf`,
-        category: 'Collider',
-        detail: 'Simple mesh collider, drag and drop your mesh'
-      },
-      {
         name: 'Text',
         url: `${config.client.fileServer}/projects/default-project/assets/prefabs/text.prefab.gltf`,
         category: 'Text'
@@ -135,6 +137,20 @@ export const PrefabShelfState = defineState({
         name: 'Fog',
         url: `${config.client.fileServer}/projects/default-project/assets/prefabs/fog.prefab.gltf`,
         category: 'Lookdev'
+      },
+      {
+        name: 'Camera',
+        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/camera.prefab.gltf`,
+        category: 'Camera'
       }
-    ] as PrefabShelfItem[]
+    ] as PrefabShelfItem[],
+  reactor: () => {
+    const shelfState = useHookstate(getMutableState(PrefabShelfState))
+    return shelfState.value.map((shelfItem) => <ShelfItemReactor key={shelfItem.url} url={shelfItem.url} />)
+  }
 })
+
+const ShelfItemReactor = (props: { key: string; url: string }): JSX.Element | null => {
+  useGLTF(props.url)
+  return null
+}

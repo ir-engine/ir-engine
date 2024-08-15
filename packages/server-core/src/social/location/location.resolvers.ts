@@ -123,6 +123,9 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
       updatedAt: await getDateTimeSql()
     }
   },
+  updatedBy: async (_, __, context) => {
+    return context.params?.user?.id || null
+  },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
 })
@@ -130,6 +133,9 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
 export const locationPatchResolver = resolve<LocationType, HookContext>({
   slugifiedName: async (value, location) => {
     if (location.name) return slugify(location.name, { lower: true })
+  },
+  updatedBy: async (_, __, context) => {
+    return context.params?.user?.id || null
   },
   updatedAt: getDateTimeSql
 })

@@ -34,19 +34,14 @@ import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { HiOutlineArchiveBox } from 'react-icons/hi2'
 import { SiRoundcube } from 'react-icons/si'
 import { twMerge } from 'tailwind-merge'
 
-export type MaterialLibraryEntryType = {
-  uuid: EntityUUID
-  path: string
-  selected?: boolean
-}
-
 export type MaterialLibraryEntryData = {
-  nodes: MaterialLibraryEntryType[]
-  onClick: (e: MouseEvent, node: MaterialLibraryEntryType) => void
-  onCollapse: (e: MouseEvent, node: MaterialLibraryEntryType) => void
+  nodes: string[]
+  onClick: (e: MouseEvent, node: EntityUUID) => void
+  onCollapse: (e: MouseEvent, node: EntityUUID) => void
 }
 
 export type MaterialLibraryEntryProps = {
@@ -55,11 +50,8 @@ export type MaterialLibraryEntryProps = {
   style: StyleHTMLAttributes<HTMLElement>
 }
 
-const nodeDisplayName = (node: MaterialLibraryEntryType) => {
-  return (
-    getOptionalComponent(UUIDComponent.getEntityByUUID(node.uuid as EntityUUID), MaterialStateComponent)?.material
-      ?.name ?? ''
-  )
+const nodeDisplayName = (uuid: EntityUUID) => {
+  return getOptionalComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent)?.material?.name ?? ''
 }
 
 export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
@@ -68,16 +60,18 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
 
   const selectionState = useMutableState(SelectionState)
 
-  const name = useOptionalComponent(UUIDComponent.getEntityByUUID(node.uuid as EntityUUID), NameComponent)
+  /**@todo use asset source decoupled from uuid to make this less brittle */
+  const source = node.includes('/') ? node.split('/')?.pop()?.split('?')[0] : null
+  const name = useOptionalComponent(UUIDComponent.getEntityByUUID(node as EntityUUID), NameComponent)
 
   const onClickNode = (e) => {
-    data.onClick(e, node)
+    if (!source) data.onClick(e, node as EntityUUID)
   }
 
   const onCollapseNode = useCallback(
     (e: MouseEvent) => {
       e.stopPropagation()
-      data.onCollapse(e, node)
+      //data.onCollapse(e, node)
     },
     [node, data.onCollapse]
   )
@@ -90,7 +84,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
       return {
         type: ItemTypes.Material,
         multiple,
-        value: node.uuid
+        value: node[0]
       }
     },
     collect: (monitor) => ({
@@ -103,73 +97,38 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
     <li
       style={props.style}
       ref={drag}
-      id={node.uuid}
+      id={node[0]}
       className={twMerge(
         `bg-${props.index % 2 ? 'theme-surfaceInput' : 'zinc-800'}`,
-        materialSelection.value === node.uuid ? 'border border-gray-100' : 'border-none'
+        materialSelection.value === node ? 'border border-gray-100' : 'border-none'
       )}
       onClick={onClickNode}
     >
-      <div
-        ref={drag}
-        id={node.uuid}
-        tabIndex={0}
-        className={`py-.5 ml-3.5 h-7 justify-between bg-inherit pr-2`}
-        onClick={onClickNode}
-      >
-        <div className={twMerge('flex items-center pr-2', `bg-inherit pl-3`)}>
-          {/* node.isLeaf ? (
-            <div className={'w-5 shrink-0'} />
-          ) : (
-            <button
-              type="button"
-              className={'m-0 h-5 w-5 border-[none] bg-inherit p-0 hover:opacity-80'}
-              onClick={onClickToggle as any}
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              {node.isCollapsed ? (
-                <MdKeyboardArrowRight className="font-small text-white" />
-              ) : (
-                <MdKeyboardArrowDown className="font-small text-white" />
-              )}
-            </button>
-          )*/}
-
-          <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
-            <SiRoundcube className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
-            <div className="flex flex-1 items-center">
-              <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
-                <span className="text-nowrap text-sm leading-4">{name?.value || ''}</span>
+      <div ref={drag} id={node[0]} tabIndex={0} className={``} onClick={onClickNode}>
+        {source ? (
+          <div className={'flex items-center pl-3.5 pr-2'}>
+            <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
+              <HiOutlineArchiveBox className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
+              <div className="flex flex-1 items-center">
+                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
+                  <span className="text-nowrap text-sm leading-4">{source}</span>
+                </div>
               </div>
             </div>
-            {/*<button
-              type="button"
-              className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
-              onClick={toggleVisible}
-            >
-              {visible ? (
-                <PiEyeBold className="font-small text-[#6B7280]" />
-              ) : (
-                <PiEyeClosedBold className="font-small text-[#6B7280]" />
-              )}
-            </button>*/}
           </div>
-        </div>
-      </div>
-
-      {/*<div className={styles.nodeContent}>
-        <Grid container columns={16} sx={{ flexWrap: 'unset' }}>
-          <Grid item xs={1}>
-            <div className={styles.nodeIcon}>
-              <MaterialComponentIcon className={styles.nodeIcon} />
+        ) : (
+          <div className={'flex items-center pl-9 pr-6'}>
+            <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
+              <SiRoundcube className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
+              <div className="flex flex-1 items-center">
+                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
+                  <span className="text-nowrap text-sm leading-4">{name?.value || ''}</span>
+                </div>
+              </div>
             </div>
-          </Grid>
-          <div className={styles.spacer} />
-          <Grid item xs>
-            <div className={styles.nodeContent}>{nodeDisplayName(node)}</div>
-          </Grid>
-        </Grid>
-      </div>*/}
+          </div>
+        )}
+      </div>
     </li>
   )
 }

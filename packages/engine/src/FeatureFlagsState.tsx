@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { defineState, getMutableState } from '@etherealengine/hyperflux/functions/StateFunctions'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { useEffect } from 'react'
 
@@ -33,10 +33,6 @@ export const FeatureFlagsState = defineState({
   initial: {} as Record<string, boolean>,
   enabled(flagName: string) {
     const state = getMutableState(FeatureFlagsState)[flagName].value
-    return typeof state === 'boolean' ? state : true
-  },
-  useEnabled(flagName: string) {
-    const state = useHookstate(getMutableState(FeatureFlagsState)[flagName]).value
     return typeof state === 'boolean' ? state : true
   },
   reactor: () => {

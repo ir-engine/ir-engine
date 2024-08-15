@@ -236,7 +236,14 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity }) => {
 
 function _CSMReactor() {
   const rendererEntity = useEntityContext()
-  const renderSettingsEntity = useChildWithComponent(rendererEntity, RenderSettingsComponent)
+  const renderer = useComponent(rendererEntity, RendererComponent).value
+  /**
+   * @todo Currently this will just return the first entity with a RenderSettingsComponent found,
+   *   but we need some more advanced rule for determining which entity to use
+   *   considering multi-scene support and spatial volumes.
+   *   note: use index 0 (origin entity), index 1 is local floor entity,
+   */
+  const renderSettingsEntity = useChildWithComponent(renderer.scenes[0], RenderSettingsComponent)
   const isEditor = useHookstate(getMutableState(EngineState).isEditor).value
   const renderMode = useHookstate(getMutableState(RendererState).renderMode).value
 

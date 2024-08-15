@@ -189,11 +189,12 @@ const execute = () => {
     const target = getHandTarget(grabbedComponent.grabberEntity, attachmentPoint ?? 'right')!
 
     const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
+    const world = Physics.getWorld(entity)!
 
     if (rigidbodyComponent) {
       rigidbodyComponent.targetKinematicPosition.copy(target.position)
       rigidbodyComponent.targetKinematicRotation.copy(target.rotation)
-      Physics.setRigidbodyPose(entity, target.position, target.rotation, Vector3_Zero, Vector3_Zero)
+      Physics.setRigidbodyPose(world, entity, target.position, target.rotation, Vector3_Zero, Vector3_Zero)
     }
 
     const grabbableTransform = getComponent(entity, TransformComponent)

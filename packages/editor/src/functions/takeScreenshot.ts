@@ -193,7 +193,7 @@ export async function takeScreenshot(
   }
 
   const prevAspect = scenePreviewCamera.aspect
-
+  const prevLayersMask = scenePreviewCamera.layers.mask
   // Setting up scene preview camera
   scenePreviewCamera.aspect = width / height
   scenePreviewCamera.updateProjectionMatrix()
@@ -241,20 +241,22 @@ export async function takeScreenshot(
 
   const canvas = getResizedCanvas(renderer.domElement, width, height)
 
-  const imageBlob = await getCanvasBlob(
-    canvas,
-    format === 'jpeg' ? 'image/jpeg' : 'image/png',
-    format === 'jpeg' ? 0.9 : 1
-  )
-
   // restore
-  effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  camera.layers.mask = prevLayersMask
+  effectComposer.setMainCamera(camera)
   renderer.setPixelRatio(pixelRatio)
   effectComposer.setSize(originalSize.width, originalSize.height, false)
 
   // Restoring previous state
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
+
+  const imageBlob = await getCanvasBlob(
+    canvas,
+    format === 'jpeg' ? 'image/jpeg' : 'image/png',
+    format === 'jpeg' ? 0.9 : 1
+  )
 
   return imageBlob
 }

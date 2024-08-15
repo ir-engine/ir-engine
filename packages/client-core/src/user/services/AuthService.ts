@@ -65,7 +65,6 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@etherealengine/hyperflux'
-
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -96,6 +95,7 @@ export const UserSeed: UserType = {
     createdAt: '',
     updatedAt: ''
   },
+  acceptedTOS: false,
   userSetting: {
     id: '' as UserSettingID,
     themeModes: {},
@@ -108,9 +108,16 @@ export const UserSeed: UserType = {
   locationAdmins: [],
   locationBans: [],
   instanceAttendance: [],
+  lastLogin: {
+    id: '',
+    ipAddress: '',
+    userAgent: '',
+    identityProviderId: '',
+    userId: '' as UserID,
+    createdAt: ''
+  },
   createdAt: '',
-  updatedAt: '',
-  lastLogin: null
+  updatedAt: ''
 }
 
 const resolveWalletUser = (credentials: any): UserType => {
@@ -251,16 +258,19 @@ export const AuthService = {
       }
       getMutableState(AuthState).merge({ isLoggedIn: true, user })
     } catch (err) {
-      NotificationService.dispatchNotify(i18n.t('common:error.loading-error'), { variant: 'error' })
+      NotificationService.dispatchNotify(i18n.t('common:error.loading-error').toString(), { variant: 'error' })
     }
   },
 
   async loginUserByPassword(form: EmailLoginForm) {
     // check email validation.
     if (!validateEmail(form.email)) {
-      NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email address' }), {
-        variant: 'error'
-      })
+      NotificationService.dispatchNotify(
+        i18n.t('common:error.validation-error', { type: 'email address' }).toString(),
+        {
+          variant: 'error'
+        }
+      )
 
       return
     }
@@ -307,41 +317,41 @@ export const AuthService = {
    *
    * @param vprResult {object} - VPR Query result from a user's wallet.
    */
-  async loginUserByXRWallet(vprResult: any) {
-    const authState = getMutableState(AuthState)
-    try {
-      authState.merge({ isProcessing: true, error: '' })
+  // async loginUserByXRWallet(vprResult: any) {
+  //   const authState = getMutableState(AuthState)
+  //   try {
+  //     authState.merge({ isProcessing: true, error: '' })
 
-      const credentials: any = parseUserWalletCredentials(vprResult)
-      console.log(credentials)
+  //     const credentials: any = parseUserWalletCredentials(vprResult)
+  //     console.log(credentials)
 
-      const walletUser = resolveWalletUser(credentials)
-      const authUser = {
-        accessToken: '',
-        authentication: { strategy: 'did-auth' },
-        identityProvider: {
-          id: '',
-          token: '',
-          type: 'didWallet',
-          userId: walletUser.id,
-          createdAt: '',
-          updatedAt: ''
-        }
-      }
+  //     const walletUser = resolveWalletUser(credentials)
+  //     const authUser = {
+  //       accessToken: '',
+  //       authentication: { strategy: 'did-auth' },
+  //       identityProvider: {
+  //         id: '',
+  //         token: '',
+  //         type: 'didWallet',
+  //         userId: walletUser.id,
+  //         createdAt: '',
+  //         updatedAt: ''
+  //       }
+  //     }
 
-      // TODO: This is temp until we move completely to XR wallet #6453
-      const oldId = authState.user.id.value
-      walletUser.id = oldId
+  //     // TODO: This is temp until we move completely to XR wallet #6453
+  //     const oldId = authState.user.id.value
+  //     walletUser.id = oldId
 
-      // loadXRAvatarForUpdatedUser(walletUser)
-      authState.merge({ isLoggedIn: true, user: walletUser, authUser })
-    } catch (err) {
-      authState.merge({ error: i18n.t('common:error.login-error') })
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    } finally {
-      authState.merge({ isProcessing: false, error: '' })
-    }
-  },
+  //     // loadXRAvatarForUpdatedUser(walletUser)
+  //     authState.merge({ isLoggedIn: true, user: walletUser, authUser })
+  //   } catch (err) {
+  //     authState.merge({ error: i18n.t('common:error.login-error') })
+  //     NotificationService.dispatchNotify(err.message, { variant: 'error' })
+  //   } finally {
+  //     authState.merge({ isProcessing: false, error: '' })
+  //   }
+  // },
 
   /**
    * Logs in the current user based on an OAuth response.
@@ -455,7 +465,7 @@ export const AuthService = {
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     } finally {
       authState.merge({ isProcessing: false, error: '' })
-      AuthService.doLoginAuto(true)
+      window.location.reload()
     }
   },
 
@@ -478,7 +488,12 @@ export const AuthService = {
     }
   },
 
-  async createMagicLink(emailPhone: string, authData: AuthStrategiesType, linkType?: 'email' | 'sms') {
+  async createMagicLink(
+    emailPhone: string,
+    authData: AuthStrategiesType,
+    linkType?: 'email' | 'sms',
+    redirectUrl?: string
+  ) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -499,9 +514,12 @@ export const AuthService = {
       const stripped = emailPhone.replace(/-/g, '')
       if (validatePhoneNumber(stripped)) {
         if (!enableSmsMagicLink) {
-          NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email address' }), {
-            variant: 'error'
-          })
+          NotificationService.dispatchNotify(
+            i18n.t('common:error.validation-error', { type: 'email address' }).toString(),
+            {
+              variant: 'error'
+            }
+          )
           return
         }
         type = 'sms'
@@ -509,16 +527,22 @@ export const AuthService = {
         emailPhone = '+1' + stripped
       } else if (validateEmail(emailPhone)) {
         if (!enableEmailMagicLink) {
-          NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'phone number' }), {
-            variant: 'error'
-          })
+          NotificationService.dispatchNotify(
+            i18n.t('common:error.validation-error', { type: 'phone number' }).toString(),
+            {
+              variant: 'error'
+            }
+          )
           return
         }
         type = 'email'
       } else {
-        NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email or phone number' }), {
-          variant: 'error'
-        })
+        NotificationService.dispatchNotify(
+          i18n.t('common:error.validation-error', { type: 'email or phone number' }).toString(),
+          {
+            variant: 'error'
+          }
+        )
         return
       }
     }
@@ -526,13 +550,13 @@ export const AuthService = {
     try {
       await Engine.instance.api
         .service(magicLinkPath)
-        .create({ type, [paramName]: emailPhone, accessToken: storedToken })
+        .create({ type, [paramName]: emailPhone, accessToken: storedToken, redirectUrl })
       const message = {
         email: 'email-sent-msg',
         sms: 'sms-sent-msg',
         default: 'success-msg'
       }
-      NotificationService.dispatchNotify(i18n.t(`user:auth.magiklink.${message[type ?? 'default']}`), {
+      NotificationService.dispatchNotify(i18n.t(`user:auth.magiklink.${message[type ?? 'default']}`).toString(), {
         variant: 'success'
       })
     } catch (err) {
@@ -572,7 +596,9 @@ export const AuthService = {
         userId
       })) as IdentityProviderType
       if (identityProvider.userId) {
-        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.email-sent-msg'), { variant: 'success' })
+        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.email-sent-msg').toString(), {
+          variant: 'success'
+        })
         return AuthService.loadUserData(identityProvider.userId)
       }
     } catch (err) {
@@ -598,7 +624,7 @@ export const AuthService = {
         userId
       })) as IdentityProviderType
       if (identityProvider.userId) {
-        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.sms-sent-msg'), { variant: 'error' })
+        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.sms-sent-msg').toString(), { variant: 'error' })
         return AuthService.loadUserData(identityProvider.userId)
       }
     } catch (err) {
@@ -699,25 +725,25 @@ export const AuthService = {
 /**
  * @param vprResult {any} See `loginUserByXRWallet()`'s docstring.
  */
-function parseUserWalletCredentials(vprResult: any) {
-  console.log('PARSING:', vprResult)
+// function parseUserWalletCredentials(vprResult: any) {
+//   console.log('PARSING:', vprResult)
 
-  const {
-    data: { presentation: vp }
-  } = vprResult
-  const credentials = Array.isArray(vp.verifiableCredential) ? vp.verifiableCredential : [vp.verifiableCredential]
+//   const {
+//     data: { presentation: vp }
+//   } = vprResult
+//   const credentials = Array.isArray(vp.verifiableCredential) ? vp.verifiableCredential : [vp.verifiableCredential]
 
-  const { displayName, displayIcon } = parseLoginDisplayCredential(credentials)
+//   const { displayName, displayIcon } = parseLoginDisplayCredential(credentials)
 
-  return {
-    user: {
-      id: vp.holder,
-      displayName,
-      icon: displayIcon
-      // session // this will contain the access token and helper methods
-    }
-  }
-}
+//   return {
+//     user: {
+//       id: vp.holder,
+//       displayName,
+//       icon: displayIcon
+//       // session // this will contain the access token and helper methods
+//     }
+//   }
+// }
 
 /**
  * Parses the user's preferred display name (username) and avatar icon from the

@@ -73,12 +73,7 @@ import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRLightProbeState } from '../xr/XRLightProbeSystem'
 import { XRState } from '../xr/XRState'
 import { GroupComponent } from './components/GroupComponent'
-import {
-  BackgroundComponent,
-  EnvironmentMapComponent,
-  FogComponent,
-  SceneComponent
-} from './components/SceneComponents'
+import { BackgroundComponent, EnvironmentMapComponent, FogComponent } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
 import { RenderModes } from './constants/RenderModes'
@@ -123,6 +118,8 @@ export const RendererComponent = defineComponent({
 
       renderer: null as null | WebGLRenderer,
       effectComposer: null as null | EffectComposer,
+
+      scenes: [] as Entity[],
       scene,
 
       /** @todo deprecate and replace with engine implementation */
@@ -142,6 +139,7 @@ export const RendererComponent = defineComponent({
 
   onSet(entity, component, json) {
     if (json?.canvas) component.canvas.set(json.canvas)
+    if (json?.scenes) component.scenes.set(json.scenes)
   },
 
   onRemove(entity, component) {
@@ -255,7 +253,7 @@ export const initializeEngineRenderer = (entity: Entity) => {
 
   const xrManager = createWebXRManager(renderer)
   renderer.xr = xrManager as any
-  rendererComponent.xrManager.set(xrManager)
+  rendererComponent.merge({ xrManager })
   xrManager.cameraAutoUpdate = false
   xrManager.enabled = true
 
@@ -365,7 +363,7 @@ export const RenderSettingsState = defineState({
   }
 })
 
-const rendererQuery = defineQuery([RendererComponent, CameraComponent, SceneComponent])
+const rendererQuery = defineQuery([RendererComponent, CameraComponent])
 
 export const filterVisible = (entity: Entity) => hasComponent(entity, VisibleComponent)
 export const getNestedVisibleChildren = (entity: Entity) => getNestedChildren(entity, filterVisible)
@@ -402,10 +400,9 @@ const execute = () => {
   for (const entity of rendererQuery()) {
     const camera = getComponent(entity, CameraComponent)
     const renderer = getComponent(entity, RendererComponent)
-    const sceneComponent = getComponent(entity, SceneComponent)
     const _scene = renderer.scene!
 
-    const entitiesToRender = sceneComponent.children.map(getNestedVisibleChildren).flat()
+    const entitiesToRender = renderer.scenes.map(getNestedVisibleChildren).flat()
     const { background, environment, fog, children } = getSceneParameters(entitiesToRender)
     _scene.children = children
 

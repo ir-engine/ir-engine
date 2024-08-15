@@ -93,7 +93,7 @@
 
   .extensionRibbon {
     --stick-out: 0.5em;
-    
+
     font-size: 0.135em;
     font-weight: bold;
     text-align: right;
@@ -114,7 +114,7 @@
 
 .table {
   .tableHeaderRow {
-    background-color: var(--tableHeaderBackground)  ;
+    background-color: var(--tableHeaderBackground);
     border-bottom: 2px solid var(--dropdownMenuHoverBackground);
   }
 
@@ -176,84 +176,6 @@
     flex-shrink: 0 !important;
     color: var(--textColor) !important;
     background-color: var(--buttonFilled) !important;
-  }
-}
-
-.sceneGridContainer {
-  display: grid;
-  grid-gap: 10px;
-  width: 100%;
-  margin-bottom: auto;
-  padding: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
-
-  .sceneContainer {
-    border-radius: 4px;
-    overflow: hidden;
-    background: var(--inputBackground);
-    min-height: 125px;
-    cursor: pointer;
-
-    .thumbnailContainer {
-      height: calc(100% - 40px);
-      width: 100%;
-    }
-
-    .detailBlock {
-      padding-left: 10px;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 40px;
-
-      span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .inputContainer {
-        background: var(--inputBackground);
-        color: var(--textColor);
-
-        .input {
-          font-size: 12px !important;
-          padding: 0 5px !important;
-        }
-      }
-    }
-
-    button {
-      color: var(--textColor);
-    }
-
-    &:hover,
-    &:focus-visible {
-      outline: solid 2px var(--panelCardHoverOutline);
-
-      .detailBlock {
-        color: var(--textColor);
-      }
-    }
-  }
-}
-
-.sceneContextMenu {
-  background: var(--inputBackground);
-  color: var(--textColor);
-
-  .menuItem {
-    font-size: 14px;
-
-    &:hover,
-    &:focus-visible {
-      background: var(--dropdownMenuHoverBackground);
-    }
-
-    &:global(.Mui-selected) {
-      background: var(--dropdownMenuSelectedBackground);
-    }
   }
 }
 
@@ -399,9 +321,10 @@
 }
 
 .hideScrollbar {
-  scrollbar-width: none;  /* firefox */
+  scrollbar-width: none; /* firefox */
   -ms-overflow-style: none; /* edge */
-  ::-webkit-scrollbar{/* Hide scrollbar for Chrome, Safari and Opera */
+  ::-webkit-scrollbar {
+    /* Hide scrollbar for Chrome, Safari and Opera */
     display: none;
   }
 }

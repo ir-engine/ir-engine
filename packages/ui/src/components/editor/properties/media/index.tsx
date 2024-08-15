@@ -33,6 +33,7 @@ import {
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
+import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import {
   MediaComponent,
   MediaElementComponent,
@@ -100,7 +101,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
           step={1}
           value={media.volume.value}
           onChange={updateProperty(MediaComponent, 'volume')}
-          onRelease={() => commitProperty(MediaComponent, 'volume')}
+          onRelease={commitProperty(MediaComponent, 'volume')}
         />
       </InputGroup>
 
@@ -144,6 +145,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.paths')}
         inputLabel={t('editor:properties.media.path')}
         values={media.resources.value as string[]}
+        dropTypes={[...ItemTypes.Audios, ...ItemTypes.Videos]}
         onChange={commitProperty(MediaComponent, 'resources')}
       />
 
@@ -159,7 +161,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         <InputGroup
           name="media-controls"
           label={t('editor:properties.media.lbl-mediaControls')}
-          containerClassName="gap-2"
+          className="flex flex-row gap-2"
         >
           <Button variant="outline" onClick={toggle}>
             {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}

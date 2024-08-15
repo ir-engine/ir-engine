@@ -25,9 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { LayoutData } from 'rc-dock'
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { EntityUUID, getComponent } from '@etherealengine/ecs'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import {
   defineState,
@@ -37,6 +39,7 @@ import {
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 
 interface IExpandedNodes {
   [scene: string]: {
@@ -86,5 +89,17 @@ export const EditorState = defineState({
     if (!rootEntity) return false
     return !!getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
   },
-  extension: syncStateWithLocalStorage(['expandedNodes'])
+  extension: syncStateWithLocalStorage(['expandedNodes']),
+  reactor: () => {
+    const linkState = useMutableState(LinkState)
+
+    useEffect(() => {
+      if (!linkState.location.value) return
+
+      NotificationService.dispatchNotify('Scene navigation is disabled in the studio', { variant: 'warning' })
+      linkState.location.set(undefined)
+    }, [linkState.location])
+
+    return null
+  }
 })

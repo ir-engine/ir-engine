@@ -256,6 +256,7 @@ export const createMaterialEntity = (material: Material): Entity => {
 export const createAndAssignMaterial = (user: Entity, material: Material, index = 0) => {
   const materialEntity = createMaterialEntity(material)
   assignMaterial(user, materialEntity, index)
+  return materialEntity
 }
 
 export const getMaterialIndices = (entity: Entity, materialUUID: EntityUUID) => {

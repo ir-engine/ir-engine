@@ -56,11 +56,11 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { formatMaterialArgs, getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import Button from '../../../../../primitives/tailwind/Button'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
 import StringInput from '../../../input/String'
 import { PanelDragContainer, PanelTitle } from '../../../layout/Panel'
-import { InfoTooltip } from '../../../layout/Tooltip'
 import ParameterInput from '../../../properties/parameter'
 
 type ThumbnailData = {
@@ -220,7 +220,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           <div className="justify-cneter flex items-center align-middle">
             <label>{t('editor:properties.mesh.material.path')}</label>
           </div>
-          <div>{getOptionalComponent(entity, SourceComponent) ?? 'None'}</div>
+          <div className="break-all">{getOptionalComponent(entity, SourceComponent) ?? 'None'}</div>
         </div>
       </InputGroup>
       <br />
@@ -312,9 +312,9 @@ export const MaterialPropertyTitle = () => {
     <div className={styles.dockableTab}>
       <PanelDragContainer>
         <PanelTitle>
-          <InfoTooltip title={t('editor:properties.mesh.materialProperties.info')}>
-            <span>{t('editor:properties.mesh.materialProperties.title')}</span>
-          </InfoTooltip>
+          <Tooltip content={t('editor:properties.mesh.materialProperties.info')}>
+            {t('editor:properties.mesh.materialProperties.title')}
+          </Tooltip>
         </PanelTitle>
       </PanelDragContainer>
     </div>

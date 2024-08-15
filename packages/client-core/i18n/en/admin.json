@@ -83,9 +83,12 @@
       "all": "All",
       "refresh": "Refresh",
       "name": "Name",
+      "lastUpdatedBy": "Last updated by user id: {{userId}} on {{updatedAt}}",
       "fillRequiredFields": "Please fill all required field",
       "fixErrorFields": "Please fix all errors",
-      "logOut": "Log Out"
+      "logOut": "Log Out",
+      "newestFirst": "Newest First",
+      "oldestFirst": "Oldest First"
     },
     "analytics": {
       "loading": "Loading analytics...",
@@ -101,6 +104,10 @@
       "newUsersToday": "New Users Today",
       "activity": "Activity",
       "users": "Users"
+    },
+    "crashReport": {
+      "title": "Crash Report",
+      "loading": "Loading crash report..."
     },
     "group": {
       "createGroup": "Create Group",
@@ -199,6 +206,7 @@
         "name": "Name",
         "projectVersion": "Version",
         "enabled": "Enabled",
+        "visibility": "Visibility",
         "commitSHA": "Commit SHA",
         "commitDate": "Commit Date",
         "actions": "Actions"
@@ -208,8 +216,10 @@
         "repo": "Repo",
         "access": "Access",
         "invalidateCache": "Invalidate Cache",
-        "update": "Update"
+        "update": "Update",
+        "history": "History"
       },
+      "projectHistory": "Project History",
       "addProject": "Add Project",
       "updateProject": "Update Project",
       "downloadProject": "Download Project",
@@ -532,7 +542,6 @@
         "delete": "Delete",
         "add": "Add",
         "noSettingsMessage": "No settings available",
-        "lastUpdatedBy": "Last updated by user id: {{userId}}",
         "duplicateKey": "Duplicate keys cannot exist",
         "keyName": "Key Name",
         "value": "Value"
@@ -556,12 +565,19 @@
         "port": "Port",
         "processInterval": "Process Interval"
       },
-
       "plugins": "Plugins",
+      "metabase": {
+        "header": "Metabase",
+        "subtitle": "Edit Metabase Settings",
+        "siteUrl": "Site Url",
+        "secretKey": "Secret Key",
+        "expiration": "Expiration",
+        "crashDashboardId": "Crash Dashboard Id"
+      },
       "zendesk": {
         "header": "Zendesk",
         "subtitle": "Edit Zendesk Settings"
-      }, 
+      },
       "keyName": "key Name",
       "kid": "Key Id"
     },
@@ -623,6 +639,7 @@
         "avatar": "Avatar",
         "accountIdentifier": "Linked Accounts",
         "lastLogin": "Last Login",
+        "acceptedTOS": "TOS Agreed",
         "isGuest": "Is Guest",
         "action": "Action"
       },

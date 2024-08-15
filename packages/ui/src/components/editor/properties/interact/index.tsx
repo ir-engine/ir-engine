@@ -30,7 +30,6 @@ import { MdOutlinePanTool } from 'react-icons/md'
 import { getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import BooleanInput from '@etherealengine/editor/src/components/inputs/BooleanInput'
 import {
   commitProperties,
   commitProperty,
@@ -45,6 +44,7 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import Button from '../../../../primitives/tailwind/Button'
+import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
@@ -107,6 +107,12 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
     targets.set(options)
   }, [])
 
+  const updateLabel = (value: string) => {
+    commitProperty(InteractableComponent, 'label')(value)
+    //this might be useful later, but xrui is not updating properly
+    // const msg = value ?? ''
+    // modalState.interactMessage?.set(msg)
+  }
   const addCallback = () => {
     const label = ''
     const callbacks = [
@@ -137,7 +143,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
         <StringInput
           value={interactableComponent.label.value!}
           onChange={updateProperty(InteractableComponent, 'label')}
-          onRelease={commitProperty(InteractableComponent, 'label')}
+          onRelease={(value) => updateLabel(value)}
         />
       </InputGroup>
       <InputGroup name="ActivationDistance" label={t('editor:properties.interactable.lbl-activationDistance')}>

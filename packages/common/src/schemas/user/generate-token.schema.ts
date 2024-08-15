@@ -25,9 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
 
 import { dataValidator, queryValidator } from '../validators'
+import { identityProviderTypes } from './identity-provider.schema'
 
 export const generateTokenPath = 'generate-token'
 
@@ -37,7 +38,9 @@ export const generateTokenMethods = ['create'] as const
 export const generateTokenSchema = Type.Object(
   {
     token: Type.String(),
-    type: Type.String()
+
+    // @ts-ignore
+    type: Type.Optional(StringEnum(identityProviderTypes))
   },
   { $id: 'GenerateToken', additionalProperties: false }
 )

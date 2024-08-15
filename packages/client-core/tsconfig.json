@@ -26,7 +26,11 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": ["vite/client", "mocha", "@types/offscreencanvas"]
+    "types": [
+      "vite/client",
+      "mocha",
+      "@types/offscreencanvas"
+    ]
   },
   "exclude": [
     "../projects/projects/**",

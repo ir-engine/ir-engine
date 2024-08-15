@@ -907,7 +907,8 @@ export const handleRequestConsumer = async (
         kind: consumer.kind,
         rtpParameters: consumer.rtpParameters,
         consumerType: consumer.type,
-        paused: consumer.producerPaused,
+        paused: false,
+        producerPaused: consumer.producerPaused,
         $network: action.$network,
         $topic: action.$topic,
         $to: forPeerID

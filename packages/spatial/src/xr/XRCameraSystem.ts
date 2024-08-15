@@ -268,9 +268,10 @@ const execute = () => {
     }
   }
 
-  getMutableState(XRState).viewerPose.set(
-    ReferenceSpace.localFloor && getState(XRState).xrFrame?.getViewerPose(ReferenceSpace.localFloor)
-  )
+  const { xrFrame } = getState(XRState)
+  if (!xrFrame) return
+
+  getMutableState(XRState).viewerPose.set(ReferenceSpace.localFloor && xrFrame.getViewerPose(ReferenceSpace.localFloor))
 }
 
 export const XRCameraInputSystem = defineSystem({

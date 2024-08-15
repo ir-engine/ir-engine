@@ -98,7 +98,7 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
       ref={ref}
       open={open}
     >
-      <div className="mt-6 grid grid-cols-3 gap-6">
+      <div className="my-6 grid grid-cols-3 gap-6">
         <Input
           className="col-span-1"
           label={t('admin:components.setting.keyName')}
@@ -119,21 +119,22 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
           value={kid?.value || ''}
           onChange={(e) => kid.set(e.target.value)}
         />
-        <div className="col-span-1 grid grid-cols-4 gap-6">
-          <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
-            {t('admin:components.common.reset')}
-          </Button>
-          <Button
-            size="small"
-            variant="primary"
-            className="col-span-1"
-            fullWidth
-            onClick={handleSubmit}
-            startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-          >
-            {t('admin:components.common.save')}
-          </Button>
-        </div>
+      </div>
+
+      <div className="grid grid-cols-8 gap-6">
+        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+          {t('admin:components.common.reset')}
+        </Button>
+        <Button
+          size="small"
+          variant="primary"
+          className="col-span-1"
+          fullWidth
+          onClick={handleSubmit}
+          startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
+        >
+          {t('admin:components.common.save')}
+        </Button>
       </div>
     </Accordion>
   )

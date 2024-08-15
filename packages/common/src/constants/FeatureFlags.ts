@@ -32,17 +32,19 @@ export const FeatureFlags = {
       ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
       CreateAvatar: 'ir.client.menu.createAvatar',
       MotionCapture: 'ir.client.location.menu.motionCapture',
-      AR: 'ir.client.menu.ar'
+      XR: 'ir.client.menu.xr'
     }
   },
   Studio: {
-    ComponentShelfCategories: {
-      ScenePreviewCameraComponent: 'ir.studio.componentShelfCategories.visual.scenePreviewCameraComponent'
+    Model: {
+      Dereference: 'ir.studio.model.dereference',
+      GLTFTransform: 'ir.studio.model.gltfTransform'
     },
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript'
     },
     UI: {
+      TransformPivot: 'ir.editor.ui.transformPivot',
       Hierarchy: {
         ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
       }

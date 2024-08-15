@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { BufferGeometry, Material, Mesh } from 'three'
+import { Box3, BufferGeometry, Material, Mesh } from 'three'
 
 import { Entity, useEntityContext } from '@etherealengine/ecs'
 import {
@@ -34,9 +34,10 @@ import {
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { State } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, useImmediateEffect } from '@etherealengine/hyperflux'
 
 import { useResource } from '../../resources/resourceHooks'
+import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const MeshComponent = defineComponent({
@@ -60,6 +61,16 @@ export const MeshComponent = defineComponent({
       entity,
       !Array.isArray(meshComponent.material.value) ? (meshComponent.material.value as Material).uuid : undefined
     )
+
+    useEffect(() => {
+      const box = geometryResource.boundingBox.get(NO_PROXY) as Box3 | null
+      if (!box) return
+
+      setComponent(entity, BoundingBoxComponent, { box: box })
+      return () => {
+        removeComponent(entity, BoundingBoxComponent)
+      }
+    }, [geometryResource.boundingBox])
 
     useEffect(() => {
       if (meshComponent.value !== meshResource.value) meshResource.set(meshComponent.value)
@@ -87,13 +98,12 @@ export const MeshComponent = defineComponent({
 
 /**
  *
- * Adds a MeshComponent to an entity with the passed in Geometry and Material
- * Functionally no different than calling setComponent(entity, MeshComponent, new Mesh(geometry, material)), but retains the typing for the Geometry and Material objects
+ * Creates a mesh component that won't be exported
  *
  * @param entity entity to add the mesh component to
- * @param geometry a Geometry instance to add to the mesh
- * @param material a Material instance to add to the mesh
- * @returns [Mesh, State<Geometry>, State<Material>]
+ * @param geometry a Geometry instance or function returing a Geometry instance to add to the mesh
+ * @param material a Material instance or function returing a Material instance to add to the mesh
+ * @returns State<Mesh>
  */
 export function useMeshComponent<TGeometry extends BufferGeometry, TMaterial extends Material>(
   entity: Entity,
@@ -108,9 +118,9 @@ export function useMeshComponent<TGeometry extends BufferGeometry, TMaterial ext
 
   const meshComponent = useComponent(entity, MeshComponent)
 
-  // todo: move this into MeshComponent reactor
-  useEffect(() => {
-    const mesh = meshComponent.value as Mesh
+  useImmediateEffect(() => {
+    const mesh = meshComponent.value as Mesh<TGeometry, TMaterial>
+    mesh.userData['ignoreOnExport'] = true
     addObjectToGroup(entity, mesh)
     return () => {
       removeObjectFromGroup(entity, mesh)

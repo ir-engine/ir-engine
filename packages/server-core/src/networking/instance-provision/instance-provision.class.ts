@@ -87,7 +87,7 @@ export async function getFreeInstanceserver({
     query: {
       assigned: true,
       assignedAt: {
-        $lt: toDateTimeSql(new Date(new Date().getTime() - 30000))
+        $lt: toDateTimeSql(new Date(new Date().getTime() - 60000))
       }
     },
     headers
@@ -510,7 +510,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       query: {
         assigned: true,
         assignedAt: {
-          $lt: toDateTimeSql(new Date(new Date().getTime() - 30000))
+          $lt: toDateTimeSql(new Date(new Date().getTime() - 60000))
         }
       }
     })
@@ -615,7 +615,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       query: {
         assigned: true,
         assignedAt: {
-          $lt: toDateTimeSql(new Date(new Date().getTime() - 30000))
+          $lt: toDateTimeSql(new Date(new Date().getTime() - 60000))
         }
       }
     })

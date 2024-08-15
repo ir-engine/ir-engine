@@ -316,7 +316,7 @@ export default function ModelCompressionPanel({
           </Button>
         </div>
 
-        <div className="my-8 flex items-center justify-around gap-x-1 overflow-x-auto rounded-lg border border-[#42454D] p-2">
+        <div className="my-8 flex items-center justify-around gap-x-1 overflow-x-auto rounded-lg border border-theme-input p-2">
           {presetList.value.map((lodItem: LODVariantDescriptor, index) => (
             <Button
               key={index}

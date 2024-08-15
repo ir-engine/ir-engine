@@ -28,10 +28,14 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { defineComponent, getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  getAncestorWithComponent
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 
 export type TransformComponentType = {
   position: Vector3
@@ -119,6 +123,18 @@ export const TransformComponent = defineComponent({
     return vec3
   },
 
+  getMatrixRelativeToEntity: (entity: Entity, relativeEntity: Entity, outMatrix: Matrix4) => {
+    const transform = getComponent(entity, TransformComponent)
+    const relativeTransform = getComponent(relativeEntity, TransformComponent)
+    return outMatrix.copy(relativeTransform.matrixWorld).invert().multiply(transform.matrixWorld)
+  },
+
+  getMatrixRelativeToScene: (entity: Entity, outMatrix: Matrix4) => {
+    const relativeEntity = getAncestorWithComponent(entity, SceneComponent)
+    if (!relativeEntity) return outMatrix.copy(getComponent(entity, TransformComponent).matrixWorld)
+    return TransformComponent.getMatrixRelativeToEntity(entity, relativeEntity, outMatrix)
+  },
+
   // this method is essentially equivalent to Matrix4.decompose
   getWorldRotation: (entity: Entity, quaternion: Quaternion) => {
     const transform = getComponent(entity, TransformComponent)
@@ -166,6 +182,28 @@ export const TransformComponent = defineComponent({
 
     // if determine is negative, we need to invert one scale
     const det = transform.matrixWorld.determinant()
+    if (det < 0) sx = -sx
+
+    vec3.x = sx
+    vec3.y = sy
+    vec3.z = sz
+
+    return vec3
+  },
+
+  getSceneScale: (entity: Entity, vec3: Vector3) => {
+    const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+    if (!sceneEntity) return vec3.set(1, 1, 1)
+
+    TransformComponent.getMatrixRelativeToEntity(entity, sceneEntity, _m1)
+    const te = _m1.elements
+
+    let sx = _v1.set(te[0], te[1], te[2]).length()
+    const sy = _v1.set(te[4], te[5], te[6]).length()
+    const sz = _v1.set(te[8], te[9], te[10]).length()
+
+    // if determine is negative, we need to invert one scale
+    const det = _m1.determinant()
     if (det < 0) sx = -sx
 
     vec3.x = sx

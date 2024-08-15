@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import { Component, ComponentJSONIDMap, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { calculateAndApplyYOffset } from '@etherealengine/common/src/utils/offsets'
 import { EntityUUID } from '@etherealengine/ecs'
 import { ComponentEditorsState } from '@etherealengine/editor/src/services/ComponentEditors'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
@@ -64,30 +65,49 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   const components: Component[] = []
   for (const jsonID of Object.keys(node.extensions.value!)) {
     const component = ComponentJSONIDMap.get(jsonID)!
-    if (!componentEditors[component.name]) continue
+    if (!componentEditors[component?.name]) continue
     components.push(component)
   }
 
+  const popupRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleResize = () => {
+      calculateAndApplyYOffset(popupRef.current)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  const [isAddComponentMenuOpen, setIsAddComponentMenuOpen] = useState(false)
+
   return (
     <>
-      <div className="ml-auto mt-4 flex h-8 bg-zinc-900" id="add-component-popover">
+      <div className="flex w-full justify-end bg-theme-highlight" id="add-component-popover">
         <Popup
           keepInside
           position={'left center'}
+          open={isAddComponentMenuOpen}
+          onClose={() => setIsAddComponentMenuOpen(false)}
           trigger={
             <Button
               startIcon={<HiOutlinePlusCircle />}
               variant="transparent"
               rounded="none"
-              className="ml-auto w-40 bg-theme-highlight px-2"
+              className="ml-auto w-40 bg-[#2F3137] px-2"
               size="small"
+              onClick={() => setIsAddComponentMenuOpen(true)}
             >
               {t('editor:properties.lbl-addComponent')}
             </Button>
           }
+          onOpen={() => calculateAndApplyYOffset(popupRef.current)}
         >
-          <div className="h-[600px] w-72 overflow-y-auto">
-            <ElementList type="components" />
+          <div ref={popupRef} className="h-[600px] w-96 overflow-y-auto">
+            <ElementList type="components" onSelect={() => setIsAddComponentMenuOpen(false)} />
           </div>
         </Popup>
       </div>
@@ -123,7 +143,7 @@ export const PropertiesPanelContainer = () => {
   const materialUUID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
 
   return (
-    <div className="flex h-full flex-col gap-2 overflow-y-auto rounded-[5px] bg-neutral-900 px-1">
+    <div className="flex h-full flex-col gap-0.5 overflow-y-auto rounded-[5px] bg-neutral-900 px-1">
       {materialUUID ? (
         <MaterialEditor materialUUID={materialUUID} />
       ) : uuid ? (
