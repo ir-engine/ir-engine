@@ -588,20 +588,325 @@ describe('ObjectLayerComponents', () => {
     })
   }) //:: IDs
 
-  describe('onSet', () => {}) //:: onSet
-  describe('onRemove', () => {}) //:: onRemove
+  describe('onSet', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should activate the bit for the respective layer ID in ObjectLayerMaskComponent.mask[entity]', () => {
+      const Layer = 10
+      setComponent(testEntity, ObjectLayerComponents[Layer])
+      const hasLayer = Boolean(ObjectLayerMaskComponent.mask[testEntity] & (1 << Layer)) // true when mask contains the Layer bit
+      assert.equal(hasLayer, true)
+    })
+  }) //:: onSet
+
+  describe('onRemove', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should deactivate the bit for the respective layer ID in ObjectLayerMaskComponent.mask[entity]', () => {
+      const Layer = 10
+      setComponent(testEntity, ObjectLayerComponents[Layer])
+      const before = Boolean(ObjectLayerMaskComponent.mask[testEntity] & (1 << Layer)) // true when mask contains the Layer bit
+      assert.equal(before, true)
+      removeComponent(testEntity, ObjectLayerComponents[Layer])
+      const hasLayer = Boolean(ObjectLayerMaskComponent.mask[testEntity] & (1 << Layer)) // true when mask contains the Layer bit
+      assert.equal(hasLayer, false)
+    })
+  }) //:: onRemove
 })
 
 describe('Layer', () => {
-  describe('constructor', () => {}) //:: constructor
-  describe('get mask', () => {}) //:: get mask
-  describe('set mask', () => {}) //:: set mask
-  describe('set', () => {}) //:: set
-  describe('enable', () => {}) //:: enable
-  describe('enableAll', () => {}) //:: enableAll
-  describe('toggle', () => {}) //:: toggle
-  describe('disable', () => {}) //:: disable
-  describe('disableAll', () => {}) //:: disableAll
-  describe('test', () => {}) //:: test
-  describe('isEnabled', () => {}) //:: isEnabled
+  describe('constructor', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it("should add an ObjectLayerMaskComponent component to the entity if it doesn't have one", () => {
+      assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), false)
+      const result = new Layer(testEntity)
+      assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), true)
+    })
+  }) //:: constructor
+
+  describe('get mask', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it("should get the mask contained in the ObjectLayerMaskComponent.mask array, for the entity described in the class's data", () => {
+      const layer = new Layer(testEntity)
+      assert.equal(layer.mask, ObjectLayerMaskComponent.mask[testEntity])
+    })
+  }) //:: get mask
+
+  describe('set mask', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it("should set the mask contained in the ObjectLayerMaskComponent.mask array, for the entity described in the class's data, to the value given in the assignment statement", () => {
+      const Expected = 42
+      const layer = new Layer(testEntity)
+      assert.notEqual(ObjectLayerMaskComponent.mask[testEntity], Expected)
+      assert.equal(ObjectLayerMaskComponent.mask[testEntity], layer.mask)
+      layer.mask = Expected
+      assert.equal(ObjectLayerMaskComponent.mask[testEntity], Expected)
+    })
+  }) //:: set mask
+
+  describe('set', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it("should set the given `@param channel` layer into the ObjectLayerMaskComponent of the entity described by the class's data", () => {
+      const Expected = 10
+      const layer = new Layer(testEntity)
+      layer.set(Expected)
+      assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), true)
+      assert.equal(hasComponent(testEntity, ObjectLayerComponents[Expected]), true)
+      assert.equal(getComponent(testEntity, ObjectLayerMaskComponent), 1 << Expected)
+    })
+  }) //:: set
+
+  describe('enable', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it("should add the ObjectLayerComponent with ID `@param layer` to the entity and add an ObjectLayerMaskComponent to the entity if it doesn't have one", () => {
+      const ID = 10
+      assert.equal(hasComponent(testEntity, ObjectLayerComponents[ID]), false)
+      assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), false)
+      const layer = new Layer(testEntity)
+      layer.enable(ID)
+      assert.equal(hasComponent(testEntity, ObjectLayerComponents[ID]), true)
+      assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), true)
+    })
+  }) //:: enable
+
+  describe('enableAll', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it("should activate all ObjectLayers for the entity described in the class's data", () => {
+      for (const component of ObjectLayerComponents) assert.equal(hasComponent(testEntity, component), false)
+      const layer = new Layer(testEntity)
+      layer.enableAll()
+      for (const component of ObjectLayerComponents) assert.equal(hasComponent(testEntity, component), true)
+    })
+  }) //:: enableAll
+
+  describe('toggle', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it("should add the ObjectLayerComponent with ID `@param layer` to the entity if it doesn't have one", () => {
+      const ID = 10
+      assert.equal(hasComponent(testEntity, ObjectLayerComponents[ID]), false)
+      const layer = new Layer(testEntity)
+      layer.toggle(ID)
+      assert.equal(hasComponent(testEntity, ObjectLayerComponents[ID]), true)
+    })
+
+    /**
+    // @todo After the issues with testing toggleLayer removal are fixed in its unit test on this file
+    it("should remove the ObjectLayerComponent with ID `@param layer` to the entity if it already has it", () => {})
+    */
+  }) //:: toggle
+
+  describe('disable', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it("should remove the ObjectLayerComponent with ID `@param layer` from the entity described in the class's data", () => {
+      const ID = 10
+      const layer = new Layer(testEntity)
+      setComponent(testEntity, ObjectLayerComponents[ID])
+      assert.equal(hasComponent(testEntity, ObjectLayerComponents[ID]), true)
+      layer.disable(ID)
+      assert.equal(hasComponent(testEntity, ObjectLayerComponents[ID]), false)
+    })
+  }) //:: disable
+
+  describe('disableAll', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it("should remove all ObjectLayers from the entity described in the class's data", () => {
+      for (const component of ObjectLayerComponents) assert.equal(hasComponent(testEntity, component), false)
+      const layer = new Layer(testEntity)
+      for (const component of ObjectLayerComponents) setComponent(testEntity, component)
+      layer.disableAll()
+      for (const component of ObjectLayerComponents) assert.equal(hasComponent(testEntity, component), false)
+    })
+  }) //:: disableAll
+
+  describe('test', () => {
+    let oneEntity = UndefinedEntity
+    let twoEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      oneEntity = createEntity()
+      twoEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(oneEntity)
+      removeEntity(twoEntity)
+      return destroyEngine()
+    })
+
+    it("should return true when the entity's mask contains all layers of the `@param layers` mask", () => {
+      const Mask = (1 << 8) | (1 << 4) | (1 << 2)
+      const layerA = new Layer(oneEntity)
+      const layerB = new Layer(twoEntity)
+      layerA.set(Mask)
+      const before = layerA.test(layerB)
+      assert.equal(before, false)
+      layerB.set(Mask)
+      const result = layerA.test(layerB)
+      assert.equal(result, true)
+    })
+
+    it("should return false when the entity's mask does not contain all layers of the `@param layers` mask", () => {
+      const Mask1 = (1 << 8) | (1 << 4) | (1 << 2)
+      const Mask2 = (1 << 8) | (1 << 4)
+      const layerA = new Layer(oneEntity)
+      const layerB = new Layer(twoEntity)
+      layerA.set(Mask1)
+      const before = layerA.test(layerB)
+      assert.equal(before, false)
+      layerB.set(Mask2)
+      const result = layerA.test(layerB)
+      assert.equal(result, false)
+    })
+  }) //:: test
+
+  describe('isEnabled', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it("should return false when the entity's mask does not contain the `@param channel` layer", () => {
+      const ID = 10
+      const Other = 4
+      const layer = new Layer(testEntity)
+      assert.equal(layer.isEnabled(ID), false)
+      layer.enable(Other)
+      assert.equal(layer.isEnabled(ID), false)
+    })
+
+    it("should return true when the entity's mask contains the `@param channel` layer", () => {
+      const ID = 10
+      const layer = new Layer(testEntity)
+      assert.equal(layer.isEnabled(ID), false)
+      layer.enable(ID)
+      assert.equal(layer.isEnabled(ID), true)
+    })
+  }) //:: isEnabled
 }) //:: Layer
