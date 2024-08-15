@@ -51,8 +51,6 @@ export const identityProviderTypes = [
   'admin'
 ] as const
 
-export type ProviderType = (typeof identityProviderTypes)[number]
-
 // Main data model schema
 export const identityProviderSchema = Type.Object(
   {
