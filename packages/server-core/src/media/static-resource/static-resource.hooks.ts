@@ -28,6 +28,7 @@ import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
+import { projectHistoryPath, projectPath } from '@etherealengine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import allowNullQuery from '../../hooks/allow-null-query'
 import checkScope from '../../hooks/check-scope'
@@ -221,6 +222,36 @@ const resolveThumbnailURL = async (context: HookContext<StaticResourceService>) 
   return context
 }
 
+const addDeleteLog = async (context: HookContext<StaticResourceService>) => {
+  try {
+    const resource = context.result as StaticResourceType
+
+    const project = await context.app.service(projectPath).find({
+      query: {
+        name: resource.project,
+        $limit: 1
+      }
+    })
+
+    const projectId = project.data[0].id
+
+    const action = resource.type === 'scene' ? 'SCENE_REMOVED' : 'RESOURCE_REMOVED'
+
+    await context.app.service(projectHistoryPath).create({
+      projectId: projectId,
+      userId: context.params.user?.id || null,
+      action: action,
+      actionIdentifier: resource.id,
+      actionIdentifierType: 'static-resource',
+      actionDetail: JSON.stringify({
+        url: resource.key
+      })
+    })
+  } catch (error) {
+    console.error('Error in adding delete log: ', error)
+  }
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveResult(staticResourceResolver)]
@@ -331,7 +362,7 @@ export default {
     create: [updateResourcesJson],
     update: [updateResourcesJson],
     patch: [updateResourcesJson],
-    remove: [removeResourcesJson]
+    remove: [removeResourcesJson, addDeleteLog]
   },
 
   error: {

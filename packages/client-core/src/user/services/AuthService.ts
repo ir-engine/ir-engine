@@ -317,41 +317,41 @@ export const AuthService = {
    *
    * @param vprResult {object} - VPR Query result from a user's wallet.
    */
-  async loginUserByXRWallet(vprResult: any) {
-    const authState = getMutableState(AuthState)
-    try {
-      authState.merge({ isProcessing: true, error: '' })
+  // async loginUserByXRWallet(vprResult: any) {
+  //   const authState = getMutableState(AuthState)
+  //   try {
+  //     authState.merge({ isProcessing: true, error: '' })
 
-      const credentials: any = parseUserWalletCredentials(vprResult)
-      console.log(credentials)
+  //     const credentials: any = parseUserWalletCredentials(vprResult)
+  //     console.log(credentials)
 
-      const walletUser = resolveWalletUser(credentials)
-      const authUser = {
-        accessToken: '',
-        authentication: { strategy: 'did-auth' },
-        identityProvider: {
-          id: '',
-          token: '',
-          type: 'didWallet',
-          userId: walletUser.id,
-          createdAt: '',
-          updatedAt: ''
-        }
-      }
+  //     const walletUser = resolveWalletUser(credentials)
+  //     const authUser = {
+  //       accessToken: '',
+  //       authentication: { strategy: 'did-auth' },
+  //       identityProvider: {
+  //         id: '',
+  //         token: '',
+  //         type: 'didWallet',
+  //         userId: walletUser.id,
+  //         createdAt: '',
+  //         updatedAt: ''
+  //       }
+  //     }
 
-      // TODO: This is temp until we move completely to XR wallet #6453
-      const oldId = authState.user.id.value
-      walletUser.id = oldId
+  //     // TODO: This is temp until we move completely to XR wallet #6453
+  //     const oldId = authState.user.id.value
+  //     walletUser.id = oldId
 
-      // loadXRAvatarForUpdatedUser(walletUser)
-      authState.merge({ isLoggedIn: true, user: walletUser, authUser })
-    } catch (err) {
-      authState.merge({ error: i18n.t('common:error.login-error') })
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    } finally {
-      authState.merge({ isProcessing: false, error: '' })
-    }
-  },
+  //     // loadXRAvatarForUpdatedUser(walletUser)
+  //     authState.merge({ isLoggedIn: true, user: walletUser, authUser })
+  //   } catch (err) {
+  //     authState.merge({ error: i18n.t('common:error.login-error') })
+  //     NotificationService.dispatchNotify(err.message, { variant: 'error' })
+  //   } finally {
+  //     authState.merge({ isProcessing: false, error: '' })
+  //   }
+  // },
 
   /**
    * Logs in the current user based on an OAuth response.
@@ -725,25 +725,25 @@ export const AuthService = {
 /**
  * @param vprResult {any} See `loginUserByXRWallet()`'s docstring.
  */
-function parseUserWalletCredentials(vprResult: any) {
-  console.log('PARSING:', vprResult)
+// function parseUserWalletCredentials(vprResult: any) {
+//   console.log('PARSING:', vprResult)
 
-  const {
-    data: { presentation: vp }
-  } = vprResult
-  const credentials = Array.isArray(vp.verifiableCredential) ? vp.verifiableCredential : [vp.verifiableCredential]
+//   const {
+//     data: { presentation: vp }
+//   } = vprResult
+//   const credentials = Array.isArray(vp.verifiableCredential) ? vp.verifiableCredential : [vp.verifiableCredential]
 
-  const { displayName, displayIcon } = parseLoginDisplayCredential(credentials)
+//   const { displayName, displayIcon } = parseLoginDisplayCredential(credentials)
 
-  return {
-    user: {
-      id: vp.holder,
-      displayName,
-      icon: displayIcon
-      // session // this will contain the access token and helper methods
-    }
-  }
-}
+//   return {
+//     user: {
+//       id: vp.holder,
+//       displayName,
+//       icon: displayIcon
+//       // session // this will contain the access token and helper methods
+//     }
+//   }
+// }
 
 /**
  * Parses the user's preferred display name (username) and avatar icon from the

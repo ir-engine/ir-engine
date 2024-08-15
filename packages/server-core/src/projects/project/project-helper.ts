@@ -1452,6 +1452,7 @@ export const updateProject = async (
   try {
     const branchExists = await git.raw(['ls-remote', '--heads', repoPath, `${branchName}`])
     if (data.commitSHA) await git.checkout(data.commitSHA)
+    else if (data.sourceBranch) await git.checkout(data.sourceBranch)
     if (branchExists.length === 0 || data.reset) {
       try {
         await git.deleteLocalBranch(branchName)
@@ -1677,6 +1678,19 @@ const staticResourceClasses = [
   AssetType.Prefab
 ]
 
+const ignoreFiles = ['.ds_store']
+
+/**
+ * Checks whether a file is to be ignored in resources.json and static-resources
+ * @param key
+ */
+export const isIgnoredFile = (key: string) => {
+  for (const ignoreFile of ignoreFiles) {
+    if (key.includes(ignoreFile)) return true
+  }
+  return false
+}
+
 /**
  * Updates the local storage provider with the project's current files
  * @param app Application object
@@ -1756,7 +1770,10 @@ export const uploadLocalProjectToProvider = async (
         },
         { isDirectory: false }
       )
-      if (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) {
+      if (
+        (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) ||
+        isIgnoredFile(filePathRelative)
+      ) {
         existingKeySet.delete(key)
         continue
       }
@@ -1767,9 +1784,15 @@ export const uploadLocalProjectToProvider = async (
       const stats = await getStats(fileResult, contentType)
       const resourceInfo = resourcesJson?.[filePathRelative]
       const type = isScene ? 'scene' : getResourceType(filePathRelative, resourceInfo!)
-      const thumbnailKey =
-        resourceInfo?.thumbnailKey ?? (isScene ? key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg' : undefined)
-
+      let thumbnailKey = resourceInfo?.thumbnailKey
+      if (!thumbnailKey) {
+        if (isScene) {
+          thumbnailKey = key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg'
+        } else if (type === 'thumbnail') {
+          //since thumbnails are not in resource json, we need to redefine their thumbnail keys here
+          thumbnailKey = key
+        }
+      }
       if (existingKeySet.has(key)) {
         const id = existingKeySet.get(key)!
         existingKeySet.delete(key)

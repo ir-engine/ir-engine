@@ -47,7 +47,7 @@ const Checkbox = ({ className, containerClassName, label, value, onChange, disab
   }
 
   return (
-    <div className={twMerge('flex cursor-pointer items-end', containerClassName)}>
+    <div className={twMerge('relative flex cursor-pointer items-end', containerClassName)}>
       <input
         type="checkbox"
         checked={value}

@@ -119,7 +119,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
       value: '' as EntityUUID
     }
   ].concat(
-    useQuery([DirectionalLightComponent]).map((entity) => {
+    useQuery([DirectionalLightComponent, SourceComponent]).map((entity) => {
       return {
         label: getComponent(entity, NameComponent),
         value: getComponent(entity, UUIDComponent)
