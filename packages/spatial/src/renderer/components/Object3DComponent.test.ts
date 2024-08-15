@@ -120,5 +120,5 @@ describe('Object3DComponent', () => {
     })
   }) //:: onSet
 
-  /** @todo @maybe Should this component have a reactor that updates the name of the object when a NameComponent is set on the entity after its Object3DComponent is set? */
+  /** @todo This component should have a reactor that updates the name of the object when a NameComponent is set on the entity after its Object3DComponent is set? */
 })
