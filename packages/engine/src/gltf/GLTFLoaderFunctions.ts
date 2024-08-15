@@ -556,10 +556,10 @@ const useLoadMaterial = (
 
   useEffect(() => {
     const alphaMode = materialDef.alphaMode || ALPHA_MODES.OPAQUE
-    result.value?.setValues({ transparent: alphaMode !== ALPHA_MODES.OPAQUE })
+    result.value?.setValues({ transparent: alphaMode === ALPHA_MODES.BLEND })
 
     // See: https://github.com/mrdoob/three.js/issues/17706
-    if (alphaMode !== ALPHA_MODES.OPAQUE) {
+    if (alphaMode === ALPHA_MODES.BLEND) {
       result.value?.setValues({ depthWrite: false })
     }
     if (material) material.needsUpdate = true
