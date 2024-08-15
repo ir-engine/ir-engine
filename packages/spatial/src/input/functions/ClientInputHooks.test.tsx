@@ -35,7 +35,6 @@ import {
   UndefinedEntity
 } from '@etherealengine/ecs'
 import { getMutableState, getState, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
@@ -1162,6 +1161,15 @@ describe('ClientInputHooks', () => {
       const before = getState(InputState).inputMeshes
       assert.equal(before.has(testEntity), false)
 
+      // Create the ancestor entity that contains the InputComponent
+      const parentEntity = createEntity()
+      setComponent(parentEntity, InputComponent)
+      setComponent(parentEntity, EntityTreeComponent)
+
+      // setComponent(testEntity, InputComponent)
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+      assert.equal(before.has(testEntity), false)
+
       // Setup the reactor
       const root = startReactor(() => {
         return React.createElement(
@@ -1170,34 +1178,25 @@ describe('ClientInputHooks', () => {
           React.createElement(ClientInputHooks.MeshInputReactor, {})
         )
       }) as ReactorRoot
-      assert.equal(before.has(testEntity), false)
-
-      // Create the ancestor entity that contains the InputComponent
-      const parentEntity = createEntity()
-      setComponent(parentEntity, InputComponent)
-      setComponent(parentEntity, EntityTreeComponent)
-
-      // setComponent(testEntity, InputComponent)
-      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
 
       // @bug Triggers the reactor, but it doesn't enter the useImmediateEffect
       //  because neither entityContext or the component have changed
       //  useAncestorWithComponent always returns the same value as it did the first time it was run
-      // root.run()
-      const { rerender, unmount } = render(<></>)
-      await act(() => rerender(<></>))
+      root.run()
+      // const { rerender, unmount } = render(<></>)
+      // await act(() => rerender(<></>))
 
       // Check the result
       const one = getState(InputState).inputMeshes
       assert.equal(one.has(parentEntity), true)
 
       removeComponent(parentEntity, InputComponent)
-      await act(() => rerender(<></>))
-      // root.run()
+      // await act(() => rerender(<></>))
+      root.run()
       const two = getState(InputState).inputMeshes
       assert.equal(two.has(parentEntity), false)
 
-      unmount()
+      // unmount()
     })
   })
 

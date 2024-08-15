@@ -311,7 +311,7 @@ describe('InputPointerComponent', () => {
       }
     })
 
-    it.only('should be possible to use the returned array reactively', () => {
+    it('should be possible to use the returned array reactively', () => {
       const cameraEntity = createEntity()
       const Dummy = { pointerId: 12356, cameraEntity: createEntity() }
       const pointerEntity1 = createEntity()
