@@ -51,5 +51,7 @@ export const XRUIComponent = defineComponent({
         xrui.destroy()
       }
     }, [])
+
+    return null
   }
 })

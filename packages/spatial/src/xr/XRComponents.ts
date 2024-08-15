@@ -303,6 +303,8 @@ export const XRAnchorComponent = defineComponent({
         anchor?.delete()
       }
     }, [xrAnchorComponent.anchor])
+
+    return null
   }
 })
 
@@ -340,5 +342,7 @@ export const XRSpaceComponent = defineComponent({
       setComponent(entity, EntityTreeComponent, { parentEntity })
       setComponent(entity, TransformComponent)
     }, [])
+
+    return null
   }
 })

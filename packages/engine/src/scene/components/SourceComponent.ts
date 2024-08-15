@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs'
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { hookstate, none } from '@etherealengine/hyperflux'
+import { useLayoutEffect } from 'react'
 
 const entitiesBySource = {} as Record<string, Entity[]>
 
@@ -49,15 +51,23 @@ export const SourceComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    const src = component.value
+  reactor: () => {
+    const entity = useEntityContext()
+    const sourceComponent = useComponent(entity, SourceComponent)
 
-    const entities = SourceComponent.entitiesBySource[src].filter((currentEntity) => currentEntity !== entity)
-    if (entities.length === 0) {
-      SourceComponent.entitiesBySourceState[src].set(none)
-    } else {
-      SourceComponent.entitiesBySourceState[src].set(entities)
-    }
+    useLayoutEffect(() => {
+      const source = sourceComponent.value
+      return () => {
+        const entities = SourceComponent.entitiesBySource[source].filter((currentEntity) => currentEntity !== entity)
+        if (entities.length === 0) {
+          SourceComponent.entitiesBySourceState[source].set(none)
+        } else {
+          SourceComponent.entitiesBySourceState[source].set(entities)
+        }
+      }
+    }, [])
+
+    return null
   },
 
   entitiesBySourceState: hookstate(entitiesBySource),
