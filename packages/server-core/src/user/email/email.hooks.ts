@@ -35,7 +35,7 @@ export default {
     all: [disallow('external')],
     find: [],
     get: [],
-    create: [() => schemaHooks.validateData(emailDataValidator)],
+    create: [schemaHooks.validateData(emailDataValidator)],
     update: [],
     patch: [],
     remove: []

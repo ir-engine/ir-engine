@@ -41,9 +41,7 @@ export const userApiKeySchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    token: Type.String({
-      format: 'uuid'
-    }),
+    token: Type.String(),
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
@@ -55,7 +53,7 @@ export const userApiKeySchema = Type.Object(
 export interface UserApiKeyType extends Static<typeof userApiKeySchema> {}
 
 // Schema for creating new entries
-export const userApiKeyDataSchema = Type.Partial(userApiKeySchema, {
+export const userApiKeyDataSchema = Type.Partial(Type.Pick(userApiKeySchema, ['userId']), {
   $id: 'UserApiKeyData'
 })
 export interface UserApiKeyData extends Static<typeof userApiKeyDataSchema> {}

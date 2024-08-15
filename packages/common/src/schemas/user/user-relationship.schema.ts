@@ -46,9 +46,7 @@ export const userRelationshipSchema = Type.Object(
     id: TypedString<UserRelationshipID>({
       format: 'uuid'
     }),
-    userId: TypedString<UserID>({
-      format: 'uuid'
-    }),
+    userId: TypedString<UserID>(),
     relatedUserId: TypedString<UserID>({
       format: 'uuid'
     }),

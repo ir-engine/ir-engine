@@ -33,7 +33,7 @@ export default {
     all: [disallow('external')],
     find: [],
     get: [],
-    create: [() => schemaHooks.validateData(smsDataValidator)],
+    create: [schemaHooks.validateData(smsDataValidator)],
     update: [],
     patch: [],
     remove: []

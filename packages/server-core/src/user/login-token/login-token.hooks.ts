@@ -61,18 +61,18 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(loginTokenQueryValidator), schemaHooks.resolveQuery(loginTokenQueryResolver)],
+    all: [schemaHooks.validateQuery(loginTokenQueryValidator), schemaHooks.resolveQuery(loginTokenQueryResolver)],
     find: [disallow('external')],
     get: [disallow('external')],
     create: [
       iff(isProvider('external'), checkIdentityProvider),
-      () => schemaHooks.validateData(loginTokenDataValidator),
+      schemaHooks.validateData(loginTokenDataValidator),
       schemaHooks.resolveData(loginTokenDataResolver)
     ],
     update: [disallow('external')],
     patch: [
       disallow('external'),
-      () => schemaHooks.validateData(loginTokenPatchValidator),
+      schemaHooks.validateData(loginTokenPatchValidator),
       schemaHooks.resolveData(loginTokenPatchResolver)
     ],
     remove: [disallow('external')]
