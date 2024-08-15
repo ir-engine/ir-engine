@@ -34,7 +34,7 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getState, matches, useImmediateEffect } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState, matches, useImmediateEffect } from '@etherealengine/hyperflux'
 
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -298,8 +298,9 @@ export const XRAnchorComponent = defineComponent({
     const xrAnchorComponent = useComponent(entity, XRAnchorComponent)
 
     useImmediateEffect(() => {
+      const anchor = xrAnchorComponent.anchor.get(NO_PROXY)
       return () => {
-        xrAnchorComponent.anchor.value?.delete()
+        anchor?.delete()
       }
     }, [xrAnchorComponent.anchor])
   }
