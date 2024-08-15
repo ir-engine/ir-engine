@@ -48,8 +48,7 @@ export const identityProviderTypes = [
   'linkedin',
   'auth0',
   'guest',
-  'admin',
-  'didWallet'
+  'admin'
 ] as const
 
 export type ProviderType = (typeof identityProviderTypes)[number]
