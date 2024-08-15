@@ -27,7 +27,7 @@ import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from 'react'
 
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
-import { getState, HyperFlux, startReactor } from '@etherealengine/hyperflux'
+import { getState, HyperFlux, startReactor, useImmediateEffect } from '@etherealengine/hyperflux'
 
 import { Component, useOptionalComponent } from './ComponentFunctions'
 import { Entity } from './Entity'
@@ -104,7 +104,7 @@ export function useQuery(components: QueryComponents) {
 
   // create an effect that forces an update when any components in the query change
   // use an immediate effect to ensure that the reactor is initialized even if this component becomes suspended during this render
-  useLayoutEffect(() => {
+  useImmediateEffect(() => {
     function UseQueryEntityReactor({ entity }: { entity: Entity }) {
       return (
         <>
