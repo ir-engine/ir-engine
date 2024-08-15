@@ -47,16 +47,16 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { EngineState } from '../../EngineState'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
-import { PhysicsState } from '../../physics/state/PhysicsState'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { TransformComponent } from '../../SpatialModule'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
-import { XRControlsState } from '../../xr/XRState'
+import { XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { InputComponent } from '../components/InputComponent'
 import { InputState } from '../state/InputState'
@@ -78,13 +78,13 @@ export type HeuristicData = {
 }
 
 export type HeuristicFunctions = {
-  editor: typeof ClientInputHeuristics.applyEditor
-  xrui: typeof ClientInputHeuristics.applyXRUI
-  physicsColliders: typeof ClientInputHeuristics.applyPhysicsColliders
-  bboxes: typeof ClientInputHeuristics.applyBBoxes
-  meshes: typeof ClientInputHeuristics.applyMeshes
-  proximity: typeof ClientInputHeuristics.applyProximity
-  raycastedInput: typeof ClientInputHeuristics.applyRaycastedInput
+  editor: typeof ClientInputHeuristics.findEditor
+  xrui: typeof ClientInputHeuristics.findXRUI
+  physicsColliders: typeof ClientInputHeuristics.findPhysicsColliders
+  bboxes: typeof ClientInputHeuristics.findBBoxes
+  meshes: typeof ClientInputHeuristics.findMeshes
+  proximity: typeof ClientInputHeuristics.findProximity
+  raycastedInput: typeof ClientInputHeuristics.findRaycastedInput
 }
 
 /**Proximity query */
@@ -96,19 +96,19 @@ const spatialInputObjectsQuery = defineQuery([
   Not(XRScenePlacementComponent)
 ])
 
-export function applyProximity(
+export function findProximity(
   isSpatialInput: boolean,
   sourceEid: Entity,
   sortedIntersections: IntersectionData[],
   intersectionData: Set<IntersectionData>
 ) {
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
+
   //use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
   const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID) //would prefer a better way to do this
-  const inputSourceEntity =
-    getState(XRControlsState).isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
+  const inputSourceEntity = isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
 
   // Skip Proximity Heuristic when the entity is undefined
-  // @note Clause Guard. This entire function was a block nested inside   if (inputSourceEntity !== UndefinedEntity) { ... }
   if (inputSourceEntity === UndefinedEntity) return
 
   TransformComponent.getWorldPosition(inputSourceEntity, _worldPosInputSourceComponent)
@@ -129,8 +129,7 @@ export function applyProximity(
   }
 
   const closestEntities = Array.from(intersectionData)
-  if (closestEntities.length === 0) return // @note Clause Guard. The rest of this function was nested inside   if (closestEntities.length > 0) { ... }
-
+  if (closestEntities.length === 0) return
   if (closestEntities.length > 1) {
     //sort if more than 1 entry
     closestEntities.sort((a, b) => {
@@ -141,7 +140,6 @@ export function applyProximity(
       return Math.sign(a.distance - b.distance) + (aNum - bNum)
     })
   }
-  // @note DRY change. This code was duplicated because the `if closestEntities.length` check was inverted
   sortedIntersections.push({
     entity: closestEntities[0].entity,
     distance: Math.sqrt(closestEntities[0].distance)
@@ -159,7 +157,7 @@ const gizmoPickerObjectsQuery = defineQuery([
   TransformGizmoTagComponent
 ])
 
-export function applyEditor(intersectionData: Set<IntersectionData>, caster: Raycaster) {
+export function findEditor(intersectionData: Set<IntersectionData>, caster: Raycaster) {
   const pickerObj = gizmoPickerObjectsQuery() // gizmo heuristic
   const inputObj = inputObjectsQuery()
 
@@ -172,14 +170,15 @@ export function applyEditor(intersectionData: Set<IntersectionData>, caster: Ray
   const hits = caster.intersectObjects<Object3D>(objects, true)
   for (const hit of hits) {
     const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
-    if (!parentObject?.entity) continue // @note Clause Guard. The next line was nested inside   if (parentObject?.entity) { ... }
-    intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
+    if (parentObject?.entity) {
+      intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
+    }
   }
 }
 
 const xruiQuery = defineQuery([VisibleComponent, XRUIComponent])
 
-export function applyXRUI(intersectionData: Set<IntersectionData>, ray: Ray) {
+export function findXRUI(intersectionData: Set<IntersectionData>, ray: Ray) {
   for (const entity of xruiQuery()) {
     const xrui = getComponent(entity, XRUIComponent)
     const layerHit = xrui.hitTest(ray)
@@ -193,33 +192,38 @@ export function applyXRUI(intersectionData: Set<IntersectionData>, ray: Ray) {
   }
 }
 
-export function applyPhysicsColliders(intersectionData: Set<IntersectionData>, raycast: RaycastArgs) {
-  const physicsWorld = getState(PhysicsState).physicsWorld
-  if (!physicsWorld) return // @note Clause Guard. The rest of this function was nested inside   if (physicsWorld) { ... }
+const sceneQuery = defineQuery([SceneComponent])
 
-  const hits = Physics.castRay(physicsWorld, raycast)
-  for (const hit of hits) {
-    if (!hit.entity) continue
-    intersectionData.add({ entity: hit.entity, distance: hit.distance })
+export function findPhysicsColliders(intersectionData: Set<IntersectionData>, raycast: RaycastArgs) {
+  for (const entity of sceneQuery()) {
+    const world = Physics.getWorld(entity)
+    if (!world) continue
+
+    const hits = Physics.castRay(world, raycast)
+    for (const hit of hits) {
+      if (!hit.entity) continue
+      intersectionData.add({ entity: hit.entity, distance: hit.distance })
+    }
   }
 }
 
 const boundingBoxesQuery = defineQuery([VisibleComponent, BoundingBoxComponent])
 
-export function applyBBoxes(intersectionData: Set<IntersectionData>, ray: Ray, hitTarget: Vector3) {
+export function findBBoxes(intersectionData: Set<IntersectionData>, ray: Ray, hitTarget: Vector3) {
   const inputState = getState(InputState)
   for (const entity of inputState.inputBoundingBoxes) {
     const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
     if (!boundingBox) continue
     const hit = ray.intersectBox(boundingBox.box, hitTarget)
-    if (!hit) continue // @note Clause Guard. The next line was nested inside   if (hit) { ... }
-    intersectionData.add({ entity, distance: ray.origin.distanceTo(hitTarget) })
+    if (hit) {
+      intersectionData.add({ entity, distance: ray.origin.distanceTo(hitTarget) })
+    }
   }
 }
 
 const meshesQuery = defineQuery([VisibleComponent, MeshComponent])
 
-export function applyMeshes(intersectionData: Set<IntersectionData>, isEditing: boolean, caster: Raycaster) {
+export function findMeshes(intersectionData: Set<IntersectionData>, isEditing: boolean, caster: Raycaster) {
   const inputState = getState(InputState)
   const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes)) // gizmo heuristic
     .filter((eid) => hasComponent(eid, GroupComponent))
@@ -229,12 +233,13 @@ export function applyMeshes(intersectionData: Set<IntersectionData>, isEditing: 
   const hits = caster.intersectObjects<Object3D>(objects, true)
   for (const hit of hits) {
     const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
-    if (!parentObject) continue // @note Clause Guard. The next line was nested inside   if (parentObject) { ... }
-    intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
+    if (parentObject) {
+      intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
+    }
   }
 }
 
-export function applyRaycastedInput(
+export function findRaycastedInput(
   sourceEid: Entity,
   intersectionData: Set<IntersectionData>,
   data: HeuristicData,
@@ -266,12 +271,12 @@ export function applyRaycastedInput(
 }
 
 export const ClientInputHeuristics = {
-  applyProximity,
-  applyEditor,
-  applyXRUI,
-  applyPhysicsColliders,
-  applyBBoxes,
-  applyMeshes,
-  applyRaycastedInput
+  findProximity,
+  findEditor,
+  findXRUI,
+  findPhysicsColliders,
+  findBBoxes,
+  findMeshes,
+  findRaycastedInput
 }
 export default ClientInputHeuristics
