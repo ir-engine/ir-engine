@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  EntityContext,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -34,14 +35,29 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
+import { ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 import assert from 'assert'
+import React from 'react'
 import sinon from 'sinon'
-import { BoxGeometry, Layers, Mesh, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
-import { assertVecAllApproxNotEq, assertVecApproxEq } from '../../physics/classes/Physics.test'
+import { BoxGeometry, Layers, Matrix4, Mesh, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
+import {
+  assertMatrixAllApproxNotEq,
+  assertMatrixApproxEq,
+  assertVecAllApproxNotEq,
+  assertVecApproxEq
+} from '../../physics/classes/Physics.test'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { TransformComponent } from '../RendererModule'
-import { GroupComponent, addObjectToGroup, removeGroupComponent, removeObjectFromGroup } from './GroupComponent'
+import {
+  GroupComponent,
+  GroupQueryReactor,
+  GroupReactor,
+  addObjectToGroup,
+  removeGroupComponent,
+  removeObjectFromGroup
+} from './GroupComponent'
 import { Layer } from './ObjectLayerComponent'
+import { VisibleComponent } from './VisibleComponent'
 
 const GroupComponentDefaults = [] as Object3D[]
 
@@ -302,47 +318,106 @@ describe('GroupComponent', () => {
       assert.equal(mesh.layers.entity, testEntity)
     })
 
-    /**
-    // @todo How to check that the values are correctly proxified?
-    // it("should proxify the object.position property", () => {})
-    // it("should proxify the object.quaternion property", () => {})
-    // it("should proxify the object.scale property", () => {})
-    */
-
-    /**
-    // @todo Why are these failing?
     it("should set the matrix value of the object to the value of the entity's TransformComponent.matrix", () => {
       const Expected = new Matrix4()
-      for (let id = 0; id < 16; ++id) Expected.elements[id] = id*0.001
+      for (let id = 0; id < 16; ++id) Expected.elements[id] = id * 0.001
+      const position = new Vector3()
+      const rotation = new Quaternion()
+      const scale = new Vector3()
+      Expected.decompose(position, rotation, scale)
       const mesh = new Mesh(new BoxGeometry())
-      setComponent(testEntity, TransformComponent, {matrix: Expected})
+      setComponent(testEntity, TransformComponent, { position: position, rotation: rotation, scale: scale })
       assertMatrixAllApproxNotEq(mesh.matrix, Expected)
       addObjectToGroup(testEntity, mesh)
-      assertMatrixApproxEq(mesh.matrix, Expected)
+      assertMatrixApproxEq(mesh.matrix, getComponent(testEntity, TransformComponent).matrix)
     })
 
     it("should set the matrixWorld value of the object to the value of the entity's TransformComponent.matrixWorld", () => {
       const Expected = new Matrix4()
-      for (let id = 0; id < 16; ++id) Expected.elements[id] = id*0.001
+      for (let id = 0; id < 16; ++id) Expected.elements[id] = id * 0.001
+      const position = new Vector3()
+      const rotation = new Quaternion()
+      const scale = new Vector3()
+      Expected.decompose(position, rotation, scale)
       const mesh = new Mesh(new BoxGeometry())
-      setComponent(testEntity, TransformComponent, {matrixWorld: Expected})
+      setComponent(testEntity, TransformComponent, { position: position, rotation: rotation, scale: scale })
       assertMatrixAllApproxNotEq(mesh.matrixWorld, Expected)
       addObjectToGroup(testEntity, mesh)
-      assertMatrixApproxEq(mesh.matrixWorld, Expected)
+      assertMatrixApproxEq(mesh.matrixWorld, getComponent(testEntity, TransformComponent).matrixWorld)
     })
-    */
-
-    /**
-    // @todo Is this testable?
-    it("should assign a void function that does nothing to the function property named `updateWorldMatrix` of the object", () => {
-      const mesh = new Mesh(new BoxGeometry())
-      // ...
-      addObjectToGroup(testEntity, mesh)
-      // ...
-    })
-    */
   }) //:: addObjectToGroup
 
-  describe('GroupReactor', () => {}) //:: GroupReactor
-  describe('GroupQueryReactor', () => {}) //:: GroupQueryReactor
+  describe('GroupReactor', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should run the `@param GroupChildReactor` once for every object contained in the GroupComponent of the entity', () => {
+      const mesh1 = new Mesh(new BoxGeometry())
+      const mesh2 = new Mesh(new BoxGeometry())
+      addObjectToGroup(testEntity, mesh1)
+      addObjectToGroup(testEntity, mesh2)
+      setComponent(testEntity, GroupComponent)
+      const thingSpy = sinon.spy()
+      function Thing() {
+        thingSpy()
+        return null
+      }
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          <GroupReactor GroupChildReactor={Thing} />
+        )
+      }) as ReactorRoot
+      root.run()
+      assert.equal(thingSpy.callCount, 2)
+      removeObjectFromGroup(testEntity, mesh1)
+      removeObjectFromGroup(testEntity, mesh2)
+      root.run()
+      assert.equal(thingSpy.callCount, 2)
+    })
+  }) //:: GroupReactor
+
+  describe('GroupQueryReactor', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should run the `@param GroupChildReactor` once for every entity that contains both a GroupComponent and the given list of `@param Components`', () => {
+      const mesh1 = new Mesh(new BoxGeometry())
+      const mesh2 = new Mesh(new BoxGeometry())
+      addObjectToGroup(testEntity, mesh1)
+      addObjectToGroup(testEntity, mesh2)
+      setComponent(testEntity, GroupComponent)
+      const thingSpy = sinon.spy()
+      function Thing() {
+        thingSpy()
+        return null
+      }
+      const ComponentList = [VisibleComponent]
+      for (const component of ComponentList) setComponent(testEntity, component)
+      const root = startReactor(() => {
+        return <GroupQueryReactor GroupChildReactor={Thing} Components={ComponentList} />
+      })
+      root.run()
+      assert.equal(thingSpy.callCount, 2)
+    })
+  }) //:: GroupQueryReactor
 })
