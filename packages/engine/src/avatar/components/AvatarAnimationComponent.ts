@@ -30,7 +30,6 @@ import { AnimationAction, Group, Matrix4, SkeletonHelper, Vector3 } from 'three'
 import {
   defineComponent,
   getComponent,
-  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -115,11 +114,6 @@ export const AvatarRigComponent = defineComponent({
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
     if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
-  },
-
-  onRemove: (entity, component) => {
-    // ensure synchronously removed
-    if (component.helperEntity.value) removeComponent(component.helperEntity.value, ComputedTransformComponent)
   },
 
   reactor: function () {
