@@ -1217,6 +1217,7 @@
       "uploadFiles": "Upload Files",
       "uploadFolder": "Upload Folder",
       "uploadingFiles": "Uploading Files ({{completed}}/{{total}})",
+      "downloadingProject": "Downloading Project ({{completed}}/{{total}})",
       "search-placeholder": "Search",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
@@ -1360,7 +1361,10 @@
       "lbl-thumbnail": "Generate thumbnail & envmap",
       "lbl-confirm": "Save Scene",
       "info-confirm": "Are you sure you want to save the scene?",
-      "info-question": "Do you want to save the current scene?"
+      "info-question": "Do you want to save the current scene?",
+      "unsavedChanges": {
+        "title": "Unsaved Changes"
+      }
     },
     "saveNewScene": {
       "title": "Save As",
