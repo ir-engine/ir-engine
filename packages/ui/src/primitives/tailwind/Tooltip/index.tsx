@@ -44,6 +44,10 @@ const Tooltip = ({ title, titleClassName, content, children, className, ...rest 
       keepTooltipInside
       repositionOnResize
       arrow={false}
+      contentStyle={{
+        animation: 'expandFromCenter 0.3s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards',
+        transformOrigin: 'center'
+      }}
       {...rest}
     >
       <div className="-mt-1 grid text-wrap shadow-lg transition-all">

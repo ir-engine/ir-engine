@@ -42,6 +42,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
+import { projectHistoryPath } from '@etherealengine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import checkScopeHook from '../../hooks/check-scope'
@@ -224,6 +225,30 @@ const resolvePermissionId = async (context: HookContext<ProjectPermissionService
   }
 }
 
+const addDeleteLog = async (context: HookContext<ProjectPermissionService>) => {
+  try {
+    const resource = context.result as ProjectPermissionType
+
+    const givenTo = resource.userId
+    const user = await context.app.service(userPath).get(givenTo)
+
+    await context.app.service(projectHistoryPath).create({
+      projectId: resource.projectId,
+      userId: context.params.user?.id || null,
+      action: 'PERMISSION_REMOVED',
+      actionIdentifier: resource.id,
+      actionIdentifierType: 'project-permission',
+      actionDetail: JSON.stringify({
+        userName: user.name,
+        userId: givenTo,
+        permissionType: resource.type
+      })
+    })
+  } catch (error) {
+    console.error('Error in adding delete log: ', error)
+  }
+}
+
 export default {
   around: {
     all: [
@@ -280,7 +305,7 @@ export default {
     create: [],
     update: [],
     patch: [makeRandomProjectOwner],
-    remove: [makeRandomProjectOwner]
+    remove: [makeRandomProjectOwner, addDeleteLog]
   },
 
   error: {

@@ -81,6 +81,7 @@ export const SaveSceneDialog = (props: { isExiting?: boolean; onConfirm?: () => 
 
   return (
     <ConfirmDialog
+      title={props.isExiting ? t('editor:dialog.saveScene.unsavedChanges.title') : t('editor:dialog.saveScene.title')}
       onSubmit={handleSubmit}
       onClose={() => {
         PopoverState.hidePopupover()
