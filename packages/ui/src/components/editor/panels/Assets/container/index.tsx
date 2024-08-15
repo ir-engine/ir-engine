@@ -50,16 +50,18 @@ import { FiRefreshCcw } from 'react-icons/fi'
 import { HiDotsVertical } from 'react-icons/hi'
 import { HiMagnifyingGlass, HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi2'
 import { IoIosArrowDown, IoIosArrowForward } from 'react-icons/io'
-import { IoArrowBack } from 'react-icons/io5'
+import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import Slider from '../../../../../primitives/tailwind/Slider'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import InfiniteScroll from '../../../../tailwind/InfiniteScroll'
+import { Popup } from '../../../../tailwind/Popup'
+import InputGroup from '../../../input/Group'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
-import { ViewModeSettings } from '../../Files/container'
 import { FileIcon } from '../../Files/icon'
 import { FileUploadProgress } from '../../Files/upload/FileUploadProgress'
 import { AssetIconMap } from '../icons'
@@ -125,6 +127,37 @@ function mapCategoriesHelper(collapsedCategories: { [key: string]: boolean }) {
   return result
 }
 
+const ViewModeSettings = () => {
+  const { t } = useTranslation()
+
+  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+
+  return (
+    <Popup
+      contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
+      position={'bottom left'}
+      trigger={
+        <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
+          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
+        </Tooltip>
+      }
+    >
+      <div className="flex flex-col">
+        <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
+          <Slider
+            min={10}
+            max={100}
+            step={0.5}
+            value={viewModeSettings.list.fontSize.value}
+            onChange={viewModeSettings.list.fontSize.set}
+            onRelease={viewModeSettings.list.fontSize.set}
+          />
+        </InputGroup>
+      </div>
+    </Popup>
+  )
+}
+
 const ResourceFile = (props: {
   resource: StaticResourceType
   selected: boolean
@@ -175,10 +208,10 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="mb-3 flex h-auto w-40 cursor-pointer flex-col items-center text-center"
+      className="mb-3 flex h-auto min-w-40 cursor-pointer flex-col items-center text-center"
     >
       <span
-        className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
+        className={`mx-4 mb-3 mt-2 h-full w-full font-['Figtree'] ${
           selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
         }`}
       >
@@ -306,7 +339,7 @@ const AssetCategory = (props: {
     // TODO: add preview functionality
   }
 
-  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
 
   return (
     <div
@@ -316,8 +349,8 @@ const AssetCategory = (props: {
         category.depth === 0 ? 'min-h-9' : 'min-h-7'
       )}
       style={{
-        height: `${viewModeSettings.list.fontSize.value}px`,
-        fontSize: `${viewModeSettings.list.fontSize.value}px`
+        height: `${fontSize}px`,
+        fontSize: `${fontSize}px`
       }}
     >
       <div
