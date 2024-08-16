@@ -34,9 +34,8 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, matches, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -101,7 +100,6 @@ export const AvatarRigComponent = defineComponent({
       rawRig: null! as VRMHumanBones,
       /** contains ik solve data */
       ikMatrices: {} as Record<VRMHumanBoneName, Matrices>,
-      helperEntity: null as Entity | null,
       /** The VRM model */
       vrm: null! as VRM,
       avatarURL: null as string | null
@@ -138,7 +136,6 @@ export const AvatarRigComponent = defineComponent({
       const helperEntity = createEntity()
       setVisibleComponent(helperEntity, true)
       addObjectToGroup(helperEntity, helper)
-      rigComponent.helperEntity.set(helperEntity)
       setComponent(helperEntity, NameComponent, helper.name)
       setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
@@ -152,7 +149,6 @@ export const AvatarRigComponent = defineComponent({
 
       return () => {
         removeEntity(helperEntity)
-        rigComponent.helperEntity.set(none)
       }
     }, [visible, debugEnabled, pending, rigComponent.normalizedRig])
 
