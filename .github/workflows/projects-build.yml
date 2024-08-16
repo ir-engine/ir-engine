@@ -43,7 +43,7 @@ jobs:
       - run: cp .env.local.default .env.local
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
-      - run: npx tsc --noemit && lerna run --scope '@etherealengine/*' check-errors
+      - run: npx lerna run --scope '@etherealengine/*' check-errors
       - run: npm run check-eslint
       - run: npm run dev-docker
       - run: npm run dev-reinit

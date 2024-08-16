@@ -78,7 +78,7 @@ jobs:
           key: dir-${{github.sha}}
       - run: npm run dev-docker
       - run: npm run dev-reinit
-      - run: npx tsc --noemit && lerna run --scope '@etherealengine/*' check-errors
+      - run: npx lerna run --scope '@etherealengine/*' check-errors
         timeout-minutes: 20
 
   build-client:
