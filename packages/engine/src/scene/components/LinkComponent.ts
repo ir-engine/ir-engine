@@ -73,7 +73,7 @@ export const LinkComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      url: 'https://www.etherealengine.org',
+      url: '',
       sceneNav: false,
       location: ''
     }

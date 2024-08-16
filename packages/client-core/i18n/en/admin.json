@@ -571,6 +571,7 @@
         "subtitle": "Edit Metabase Settings",
         "siteUrl": "Site Url",
         "secretKey": "Secret Key",
+        "environment": "Environment",
         "expiration": "Expiration",
         "crashDashboardId": "Crash Dashboard Id"
       },
