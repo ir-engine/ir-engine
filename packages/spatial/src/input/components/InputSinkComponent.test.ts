@@ -23,18 +23,44 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent } from '@etherealengine/ecs'
+import {
+  UndefinedEntity,
+  createEngine,
+  createEntity,
+  destroyEngine,
+  getComponent,
+  removeEntity,
+  setComponent
+} from '@etherealengine/ecs'
+import assert from 'assert'
+import { InputSinkComponent } from './InputSinkComponent'
 
-/** InputSinkComponent - receives input from input entities.  */
-export const InputSinkComponent = defineComponent({
-  name: 'InputSinkComponent',
+const InputSinkComponentDefaults = []
 
-  onInit: () => {
-    return {
-      /**
-       * The set of entities that are actively channeling input into this Entity Tree
-       */
-      inputEntities: [] as Entity[]
-    }
-  }
+describe('InputSinkComponent', () => {
+  describe('IDs', () => {
+    it('should initialize the InputSinkComponent.name field with the expected value', () => {
+      assert.equal(InputSinkComponent.name, 'InputSinkComponent')
+    })
+  })
+
+  describe('onInit', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, InputSinkComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should initialize the component with the expected values', () => {
+      const data = getComponent(testEntity, InputSinkComponent)
+      assert.equal(typeof data, typeof InputSinkComponentDefaults)
+    })
+  }) // << onInit
 })

@@ -53,7 +53,7 @@ const PaddingNumericInput = ({
   return (
     <div className="flex h-8 items-center justify-between rounded bg-[#1A1A1A] p-2">
       <div
-        className="relative mr-2 min-h-3.5 min-w-3.5"
+        className="min-h-3.5 min-w-3.5 relative mr-2"
         style={{
           borderTop: '1px dotted #8B8B8D',
           borderLeft: '1px dotted #8B8B8D',
@@ -63,7 +63,7 @@ const PaddingNumericInput = ({
         }}
       />
       <input
-        className="mr-1 max-w-7 bg-inherit text-xs text-[#8B8B8D] focus:outline-none"
+        className="max-w-7 mr-1 bg-inherit text-xs text-[#8B8B8D] focus:outline-none"
         value={value.toFixed(2)}
         onChange={(event) => onChange(parseFloat(event.target.value))}
       />

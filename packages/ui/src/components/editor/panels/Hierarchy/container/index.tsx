@@ -557,7 +557,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
               startIcon={<HiOutlinePlusCircle />}
               variant="transparent"
               rounded="none"
-              className="ml-auto w-32 text-nowrap bg-theme-highlight px-2 py-3 text-white"
+              className="text-nowrap ml-auto w-32 bg-theme-highlight px-2 py-3 text-white"
               size="small"
               textContainerClassName="mx-0"
               onClick={() => setIsAddEntityMenuOpen(true)}
@@ -575,7 +575,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
         <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
       </div>
       <ContextMenu anchorEvent={anchorEvent} onClose={handleClose}>
-        <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+        <div className="min-w-44 flex w-fit flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           <Button
             fullWidth
             size="small"

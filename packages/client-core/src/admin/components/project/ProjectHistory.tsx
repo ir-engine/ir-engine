@@ -240,9 +240,9 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
   return (
     <div className="mb-3 flex w-full items-center justify-between rounded-lg bg-[#191B1F] px-5 py-2">
-      <div className="grid grid-flow-col place-items-center gap-x-2 [&>*]:text-nowrap">
+      <div className="[&>*]:text-nowrap grid grid-flow-col place-items-center gap-x-2">
         <AvatarImage
-          className="inline-grid min-h-10 min-w-10 rounded-full"
+          className="min-h-10 min-w-10 inline-grid rounded-full"
           src={projectHistory.userAvatarURL}
           name={projectHistory.userName}
         />

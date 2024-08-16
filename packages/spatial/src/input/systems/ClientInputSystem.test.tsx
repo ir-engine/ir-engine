@@ -23,6 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import assert from 'assert'
+
+import { InputSystemGroup, SystemDefinitions } from '@etherealengine/ecs'
+import { ClientInputSystem } from './ClientInputSystem'
+
 // describe('addClientInputListeners', () => {
 //   let documentAddEvent
 //   let documentRemoveEvent
@@ -255,3 +260,30 @@ describe('client input system reactor', () => {
   //   assert(sourceState.assignedButtonEntity == 0)
   // })
 })
+
+describe('ClientInputSystem', () => {
+  describe('Fields', () => {
+    const System = SystemDefinitions.get(ClientInputSystem)
+
+    it('should initialize the ClientInputSystem.uuid field with the expected value', () => {
+      assert.equal(System!.uuid, 'ee.engine.input.ClientInputSystem')
+    })
+
+    it('should initialize the ClientInputSystem.insert field with the expected value', () => {
+      assert.notEqual(System!.insert, undefined)
+      assert.notEqual(System!.insert!.before, undefined)
+      assert.equal(System!.insert!.before!, InputSystemGroup)
+    })
+  })
+
+  /**
+  // @todo
+  describe('execute', () => {})
+  describe('reactor', () => {})
+  */
+})
+
+/**
+// @todo
+describe('ClientInputCleanupSystem', () => {})
+*/

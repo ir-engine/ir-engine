@@ -101,7 +101,7 @@ export const SceneItem = ({
   }, [threeDotsContainRef])
 
   return (
-    <div className="col-span-2 inline-flex h-64 w-64 min-w-64 max-w-64 cursor-pointer flex-col items-start justify-start gap-3 rounded-lg bg-theme-highlight p-3 lg:col-span-1">
+    <div className="min-w-64 max-w-64 col-span-2 inline-flex h-64 w-64 cursor-pointer flex-col items-start justify-start gap-3 rounded-lg bg-theme-highlight p-3 lg:col-span-1">
       <img className="shrink grow basis-0 self-stretch rounded" src={scene.thumbnailURL} onClick={handleOpenScene} />
       <div className="inline-flex items-start justify-between self-stretch">
         <div className="inline-flex w-full flex-col items-start justify-start">
