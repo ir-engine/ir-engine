@@ -42,6 +42,7 @@ export async function seed(knex: Knex): Promise<void> {
       {
         siteUrl: process.env.METABASE_SITE_URL!,
         secretKey: process.env.METABASE_SECRET_KEY!,
+        environment: process.env.METABASE_ENVIRONMENT!,
         crashDashboardId: process.env.METABASE_CRASH_DASHBOARD_ID!,
         expiration: isNaN(parseInt(process.env.METABASE_EXPIRATION!)) ? 10 : parseInt(process.env.METABASE_EXPIRATION!)
       }

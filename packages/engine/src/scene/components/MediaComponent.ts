@@ -234,6 +234,8 @@ export const MediaComponent = defineComponent({
       if (typeof json.seekTime === 'number') component.seekTime.set(json.seekTime)
 
       if (typeof json.autoplay === 'boolean') component.autoplay.set(json.autoplay)
+
+      if (typeof json.synchronize === 'boolean') component.synchronize.set(json.synchronize)
     })
   },
 
