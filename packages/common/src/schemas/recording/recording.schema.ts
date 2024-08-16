@@ -69,7 +69,7 @@ export interface RecordingDatabaseType extends Omit<RecordingType, 'schema'> {
 }
 
 // Schema for creating new entries
-export const recordingDataSchema = Type.Partial(recordingSchema, {
+export const recordingDataSchema = Type.Pick(recordingSchema, ['schema'], {
   $id: 'RecordingData'
 })
 export interface RecordingData extends Static<typeof recordingDataSchema> {}
@@ -81,7 +81,7 @@ export const recordingPatchSchema = Type.Partial(recordingSchema, {
 export interface RecordingPatch extends Static<typeof recordingPatchSchema> {}
 
 // Schema for allowed query properties
-export const recordingQueryProperties = Type.Pick(recordingSchema, ['id', 'userId'])
+export const recordingQueryProperties = Type.Pick(recordingSchema, ['id', 'userId', 'createdAt'])
 export const recordingQuerySchema = Type.Intersect(
   [
     querySyntax(recordingQueryProperties),

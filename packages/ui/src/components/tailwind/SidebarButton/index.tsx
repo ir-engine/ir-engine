@@ -23,56 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
-import { SYNC } from 'feathers-sync'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
-import {
-  fileBrowserPatchValidator,
-  fileBrowserUpdateValidator
-} from '@etherealengine/common/src/schemas/media/file-browser.schema'
-
-import verifyScope from '../../hooks/verify-scope'
-
-export default {
-  before: {
-    all: [iff(isProvider('external'), verifyScope('editor', 'write'))],
-    find: [],
-    get: [],
-    create: [
-      (context) => {
-        context[SYNC] = false
-        return context
-      }
-    ],
-    update: [schemaHooks.validateData(fileBrowserUpdateValidator)],
-    patch: [
-      (context) => {
-        context[SYNC] = false
-        return context
-      },
-      schemaHooks.validateData(fileBrowserPatchValidator)
-    ],
-    remove: []
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+export function SidebarButton({ children, className, ...rest }) {
+  return (
+    <Button className={twMerge('bg-[#141619]', className)} {...rest}>
+      {children}
+    </Button>
+  )
+}
