@@ -529,17 +529,14 @@ describe('ObjectLayerMaskComponent', () => {
       assert.equal(hasComponent(testEntity, ObjectLayerComponents[Layer]), true)
     })
 
-    /**
-    // @todo The last check fails with true, but should be false. Why?
-    it("should remove the ObjectLayerComponent with ID `@param layer` from the entity if it already has it", () => {
+    it('should remove the ObjectLayerComponent with ID `@param layer` from the entity if it already has it', () => {
       const Layer = 10
       assert.equal(hasComponent(testEntity, ObjectLayerComponents[Layer]), false)
-      setComponent(testEntity, ObjectLayerComponents[Layer])
+      ObjectLayerMaskComponent.setLayer(testEntity, Layer)
       assert.equal(hasComponent(testEntity, ObjectLayerComponents[Layer]), true)
       ObjectLayerMaskComponent.toggleLayer(testEntity, Layer)
       assert.equal(hasComponent(testEntity, ObjectLayerComponents[Layer]), false)
     })
-    */
   }) //:: toggleLayer
 
   describe('setMask', () => {
@@ -786,10 +783,15 @@ describe('Layer', () => {
       assert.equal(hasComponent(testEntity, ObjectLayerComponents[ID]), true)
     })
 
-    /**
-    // @todo After the issues with testing toggleLayer removal are fixed in its unit test on this file
-    it("should remove the ObjectLayerComponent with ID `@param layer` to the entity if it already has it", () => {})
-    */
+    it('should remove the ObjectLayerComponent with ID `@param layer` to the entity if it already has it', () => {
+      const ID = 10
+      assert.equal(hasComponent(testEntity, ObjectLayerComponents[ID]), false)
+      const layer = new Layer(testEntity)
+      layer.set(ID)
+      assert.equal(hasComponent(testEntity, ObjectLayerComponents[ID]), true)
+      layer.toggle(ID)
+      assert.equal(hasComponent(testEntity, ObjectLayerComponents[ID]), false)
+    })
   }) //:: toggle
 
   describe('disable', () => {
