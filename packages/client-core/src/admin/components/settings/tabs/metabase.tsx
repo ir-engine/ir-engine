@@ -44,6 +44,7 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
   const id = useHookstate<string | undefined>(undefined)
   const siteUrl = useHookstate('')
   const secretKey = useHookstate('')
+  const environment = useHookstate('')
   const expiration = useHookstate(10)
   const crashDashboardId = useHookstate('')
   const metabaseSettingMutation = useMutation(metabaseSettingPath)
@@ -55,6 +56,7 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
       id.set(data[0].id)
       siteUrl.set(data[0].siteUrl)
       secretKey.set(data[0].secretKey)
+      environment.set(data[0].environment)
       expiration.set(data[0].expiration)
       crashDashboardId.set(data[0].crashDashboardId || '')
     }
@@ -63,13 +65,14 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    if (!siteUrl.value || !secretKey.value) return
+    if (!siteUrl.value || !secretKey.value || !environment.value) return
 
     state.loading.set(true)
 
     const setting = {
       siteUrl: siteUrl.value,
       secretKey: secretKey.value,
+      environment: environment.value,
       crashDashboardId: crashDashboardId.value
     }
 
@@ -90,6 +93,7 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
       id.set(data[0].id)
       siteUrl.set(data[0].siteUrl)
       secretKey.set(data[0].secretKey)
+      environment.set(data[0].environment)
       expiration.set(data[0].expiration)
       crashDashboardId.set(data[0].crashDashboardId || '')
     }
@@ -110,6 +114,13 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
           label={t('admin:components.setting.metabase.siteUrl')}
           value={siteUrl?.value || ''}
           onChange={(e) => siteUrl.set(e.target.value)}
+        />
+
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.metabase.environment')}
+          value={environment?.value || ''}
+          onChange={(e) => environment.set(e.target.value)}
         />
 
         <PasswordInput
