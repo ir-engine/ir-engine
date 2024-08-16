@@ -35,11 +35,16 @@ import {
 } from '@etherealengine/ecs'
 import assert from 'assert'
 import sinon from 'sinon'
+import { Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import { RaycastArgs } from '../../physics/classes/Physics'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { InputComponent } from '../components/InputComponent'
+import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ButtonState, ButtonStateMap } from '../state/ButtonState'
 import ClientInputFunctions from './ClientInputFunctions'
+import ClientInputHeuristics, { HeuristicData, HeuristicFunctions } from './ClientInputHeuristics'
 
 describe('ClientInputFunctions', () => {
   describe('preventDefault', () => {
@@ -185,19 +190,100 @@ describe('ClientInputFunctions', () => {
     })
   })
 
-  /**
-  // @todo
-  // first (raycast)
-  describe('redirectPointerEventsToXRUI', () => {}) // WebContainer3D.hitTest
   // intermediate
   describe('assignInputSources', () => {
-    // should call the heuristic.raycastedInput function when the `@param sourceEid` has a TransformComponent
-    // todo: create a sorted array from the intersection data
-    // should call the heuristic.proximity function when the `@param capturedEntity` is a valid entity, intersectionData.length is not 0 and `@param sourceEid` has a TransformComponent
-    // todo: should add
+    let data = {} as HeuristicData
+    const heuristics = {
+      editor: ClientInputHeuristics.findEditor,
+      xrui: ClientInputHeuristics.findXRUI,
+      physicsColliders: ClientInputHeuristics.findPhysicsColliders,
+      bboxes: ClientInputHeuristics.findBBoxes,
+      meshes: ClientInputHeuristics.findMeshes,
+      proximity: ClientInputHeuristics.findProximity,
+      raycastedInput: ClientInputHeuristics.findRaycastedInput
+    } as HeuristicFunctions
+
+    beforeEach(async () => {
+      createEngine()
+      data = {
+        quaternion: new Quaternion(),
+        ray: new Ray(),
+        raycast: {} as RaycastArgs,
+        caster: new Raycaster(),
+        hitTarget: new Vector3()
+      } as HeuristicData
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    /**
+    // @todo
+    it("....", () => {
+
+      const capturedEntity = UndefinedEntity
+      const sourceEntity = createEntity()
+      setComponent(sourceEntity, TransformComponent)
+      setComponent(sourceEntity, InputSourceComponent)
+      setComponent(sourceEntity, InputPointerComponent)
+
+      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
+
+
+      const result = getComponent(parentEntity, InputComponent).inputSources
+      for (const source of SourcesList) {
+        assert.equal(result.includes(source), true)
+      }
+    })
+    */
+
+    it('should call the heuristic.raycastedInput function when the `@param sourceEid` has a TransformComponent', () => {
+      const spy = sinon.spy()
+      heuristics.raycastedInput = spy
+
+      const PointerID = 42
+      const cameraEntity = createEntity()
+      const capturedEntity = UndefinedEntity
+      const sourceEntity = createEntity()
+      setComponent(sourceEntity, TransformComponent)
+      setComponent(sourceEntity, InputSourceComponent)
+      setComponent(sourceEntity, InputPointerComponent, { pointerId: PointerID, cameraEntity: cameraEntity })
+      assert.equal(spy.callCount, 0)
+
+      // Run and Check the result
+      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
+      assert.equal(spy.callCount, 1)
+    })
+
+    it('should call the heuristic.proximity function when the `@param capturedEntity` is undefined, intersectionData.length is 0 and `@param sourceEid` does not have a InputPointerComponent', () => {
+      const spy = sinon.spy()
+      heuristics.proximity = spy
+
+      const capturedEntity = UndefinedEntity
+      const sourceEntity = createEntity()
+      setComponent(sourceEntity, InputSourceComponent)
+
+      // Run and Check the result
+      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
+      assert.equal(spy.callCount, 1)
+    })
+
+    /**
+    // @todo create a sorted array from the intersection data
+    // @todo should add
+    */
   })
-  // very branchy
+
+  /**
+  // @todo very branchy
   describe('updatePointerDragging', () => {})
   describe('updateGamepadInput', () => {})
+  */
+
+  /**
+  // @todo After the XRUI refactor is completed
+  // first (raycast)
+  // describe('redirectPointerEventsToXRUI', () => {}) // WebContainer3D.hitTest
   */
 })
