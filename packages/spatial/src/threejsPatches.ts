@@ -252,25 +252,50 @@ PropertyBinding.findNode = function (root: SkinnedMesh, nodeName: string | numbe
   }
 
   const entity = root.entity
-  if (!hasComponent(entity, EntityTreeComponent)) return null
+  if (entity) {
+    if (!hasComponent(entity, EntityTreeComponent)) return null
 
-  const children = getComponent(entity, EntityTreeComponent).children
+    const children = getComponent(entity, EntityTreeComponent).children
 
-  // search into node subtree.
-  const searchNodeSubtree = function (children: Entity[]) {
+    // search into node subtree.
+    const searchEntitySubtree = function (children: Entity[]) {
+      for (let i = 0; i < children.length; i++) {
+        const entity = children[i]
+        const childNode =
+          getOptionalComponent(entity, BoneComponent) ??
+          getOptionalComponent(entity, MeshComponent) ??
+          getOptionalComponent(entity, SkinnedMeshComponent) ??
+          getOptionalComponent(entity, Object3DComponent)!
+
+        if (childNode && (childNode.name === nodeName || childNode.uuid === nodeName)) {
+          return childNode
+        }
+
+        const result = searchEntitySubtree(getComponent(entity, EntityTreeComponent).children)
+
+        if (result) return result
+      }
+
+      return null
+    }
+
+    const subTreeNode = searchEntitySubtree(children)
+
+    if (subTreeNode) {
+      return subTreeNode
+    }
+  }
+
+  // fallback to three hierarchy for non-ecs hierarchy (normalize vrm rigs)
+  const searchNodeSubtree = function (children) {
     for (let i = 0; i < children.length; i++) {
-      const entity = children[i]
-      const childNode =
-        getOptionalComponent(entity, BoneComponent) ??
-        getOptionalComponent(entity, MeshComponent) ??
-        getOptionalComponent(entity, SkinnedMeshComponent) ??
-        getOptionalComponent(entity, Object3DComponent)!
+      const childNode = children[i]
 
-      if (childNode && (childNode.name === nodeName || childNode.uuid === nodeName)) {
+      if (childNode.name === nodeName || childNode.uuid === nodeName) {
         return childNode
       }
 
-      const result = searchNodeSubtree(getComponent(entity, EntityTreeComponent).children)
+      const result = searchNodeSubtree(childNode.children)
 
       if (result) return result
     }
@@ -278,7 +303,7 @@ PropertyBinding.findNode = function (root: SkinnedMesh, nodeName: string | numbe
     return null
   }
 
-  const subTreeNode = searchNodeSubtree(children)
+  const subTreeNode = searchNodeSubtree(root.children)
 
   if (subTreeNode) {
     return subTreeNode
