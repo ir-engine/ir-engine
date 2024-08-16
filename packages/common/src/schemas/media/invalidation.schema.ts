@@ -48,7 +48,7 @@ export const invalidationSchema = Type.Object(
 export interface InvalidationType extends Static<typeof invalidationSchema> {}
 
 // Schema for creating new entries
-export const invalidationDataSchema = Type.Partial(invalidationSchema, { $id: 'InvalidationData' })
+export const invalidationDataSchema = Type.Pick(invalidationSchema, ['path'], { $id: 'InvalidationData' })
 export interface InvalidationData extends Static<typeof invalidationDataSchema> {}
 
 // Schema for allowed query properties
