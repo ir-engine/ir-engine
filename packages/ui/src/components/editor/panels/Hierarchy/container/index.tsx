@@ -173,6 +173,14 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
     }
   })
 
+  useHotkeys(`${cmdOrCtrlString}+r`, (e) => {
+    e.preventDefault()
+    const selectedEntities = SelectionState.getSelectedEntities()
+    for (const entity of selectedEntities) {
+      onRenameNode(entity)
+    }
+  })
+
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
       <HierarchyTreeNode
@@ -574,6 +582,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
             variant="transparent"
             className="text-left text-xs"
             onClick={() => onRenameNode(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + r'}
           >
             {t('editor:hierarchy.lbl-rename')}
           </Button>

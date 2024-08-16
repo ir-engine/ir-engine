@@ -74,6 +74,7 @@ import logger from '../../ServerLogger'
 import { useGit } from '../../util/gitHelperFunctions'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
+  cleanProjectName,
   deleteProjectFilesInStorageProvider,
   engineVersion,
   getProjectConfig,
@@ -556,7 +557,7 @@ const updateProjectJob = async (context: HookContext) => {
       returnData: '',
       status: 'pending'
     })
-    const projectJobName = data.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+    const projectJobName = cleanProjectName(data.name)
     const jobBody = await getProjectUpdateJobBody(
       data,
       context.app,
