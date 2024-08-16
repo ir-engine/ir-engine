@@ -107,6 +107,12 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
     targets.set(options)
   }, [])
 
+  const updateLabel = (value: string) => {
+    commitProperty(InteractableComponent, 'label')(value)
+    //this might be useful later, but xrui is not updating properly
+    // const msg = value ?? ''
+    // modalState.interactMessage?.set(msg)
+  }
   const addCallback = () => {
     const label = ''
     const callbacks = [
@@ -137,7 +143,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
         <StringInput
           value={interactableComponent.label.value!}
           onChange={updateProperty(InteractableComponent, 'label')}
-          onRelease={commitProperty(InteractableComponent, 'label')}
+          onRelease={(value) => updateLabel(value)}
         />
       </InputGroup>
       <InputGroup name="ActivationDistance" label={t('editor:properties.interactable.lbl-activationDistance')}>

@@ -41,7 +41,7 @@ export const IdentityProviderSeed: IdentityProviderType = {
   accountIdentifier: '',
   oauthToken: '',
   oauthRefreshToken: '',
-  type: '',
+  type: 'guest',
   userId: '' as UserID,
   createdAt: '',
   updatedAt: ''

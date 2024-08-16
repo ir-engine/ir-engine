@@ -87,7 +87,7 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(recordingQueryValidator), schemaHooks.resolveQuery(recordingQueryResolver)],
+    all: [schemaHooks.validateQuery(recordingQueryValidator), schemaHooks.resolveQuery(recordingQueryResolver)],
     find: [
       iff(
         isProvider('external'),
@@ -100,13 +100,13 @@ export default {
     create: [
       iff(isProvider('external'), verifyScope('recording', 'write')),
       setLoggedinUserInBody('userId'),
-      () => schemaHooks.validateData(recordingDataValidator),
+      schemaHooks.validateData(recordingDataValidator),
       schemaHooks.resolveData(recordingDataResolver)
     ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('recording', 'write')),
-      () => schemaHooks.validateData(recordingPatchValidator),
+      schemaHooks.validateData(recordingPatchValidator),
       schemaHooks.resolveData(recordingPatchResolver)
     ],
     remove: [iff(isProvider('external'), verifyScope('recording', 'write')), ensureRecording]
