@@ -134,7 +134,7 @@ export const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[en
 
 const sortedTransformEntities = [] as Entity[]
 
-const execute = () => {
+const sortAndMakeDirtyEntities = () => {
   // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
 
   // if transform order is dirty, sort by reference depth
@@ -143,7 +143,6 @@ const execute = () => {
   /**
    * Sort transforms if needed
    */
-  const xrFrame = getState(XRState).xrFrame
 
   let needsSorting = TransformComponent.transformsNeedSorting
 
@@ -173,7 +172,9 @@ const execute = () => {
       TransformComponent.dirtyTransforms[getOptionalComponent(entity, EntityTreeComponent)?.parentEntity ?? -1] ||
       false
   }
+}
 
+const execute = () => {
   const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirtyNonRigidbody)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
@@ -185,6 +186,8 @@ const execute = () => {
 
   const viewerEntity = getState(EngineState).viewerEntity
   const cameraEntities = cameraQuery()
+
+  const xrFrame = getState(XRState).xrFrame
 
   for (const entity of cameraEntities) {
     if (xrFrame && entity === viewerEntity) continue
@@ -244,10 +247,16 @@ export const TransformSystem = defineSystem({
   reactor
 })
 
+export const TransformDirtyUpdateSystem = defineSystem({
+  uuid: 'ee.engine.TransformDirtyUpdateSystem',
+  insert: { before: TransformSystem },
+  execute: sortAndMakeDirtyEntities
+})
+
 export const TransformDirtyCleanupSystem = defineSystem({
   uuid: 'ee.engine.TransformDirtyCleanupSystem',
   insert: { after: TransformSystem },
   execute: () => {
-    for (const entity in TransformComponent.dirtyTransforms) TransformComponent.dirtyTransforms[entity] = false
+    for (const entity in TransformComponent.dirtyTransforms) delete TransformComponent.dirtyTransforms[entity]
   }
 })

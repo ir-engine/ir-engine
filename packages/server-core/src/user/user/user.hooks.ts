@@ -100,6 +100,7 @@ const restrictUserPatch = async (context: HookContext<UserService>) => {
     // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
     if (typeof item.avatarId !== 'undefined') data.avatarId = item.avatarId
     if (typeof item.name !== 'undefined') data.name = item.name
+    if (typeof item.acceptedTOS !== 'undefined') data.acceptedTOS = item.acceptedTOS
 
     return data
   }
@@ -283,9 +284,19 @@ const handleUserSearch = async (context: HookContext<UserService>) => {
 
     const searchedIdentityProviders = (await context.app.service(identityProviderPath).find({
       query: {
-        accountIdentifier: {
-          $like: `%${search}%`
-        }
+        $select: ['id', 'userId'],
+        $or: [
+          {
+            accountIdentifier: {
+              $like: `%${search}%`
+            }
+          },
+          {
+            email: {
+              $like: `%${search}%`
+            }
+          }
+        ]
       },
       paginate: false
     })) as IdentityProviderType[]

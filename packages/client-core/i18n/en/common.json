@@ -47,6 +47,8 @@
     "loadingAllowed": "Loading allowed routes...",
     "loadingXRSystems": "Loading immersive session...",
     "connectingToWorld": "Connecting to world...",
+    "needToAgreeTOS": "You need to agree the terms of service to access chat.",
+    "needToLogIn": "You need to log in to access chat.",
     "connectingToMedia": "Connecting to media...",
     "entering": "Entering world...",
     "loading": "Loading...",
@@ -130,7 +132,8 @@
   "error": {
     "loading-error": "Failed to load user data",
     "validation-error": "Please input valid {{type}}",
-    "login-error": "Failed to login"
+    "login-error": "Failed to login",
+    "expiredToken": "The token has expired."
   },
   "table": {
     "refetching": "Refetching Data...",

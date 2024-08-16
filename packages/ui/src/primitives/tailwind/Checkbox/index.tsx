@@ -32,7 +32,7 @@ import Label from '../Label'
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value: boolean
-  label?: string
+  label?: React.ReactNode
   className?: string
   containerClassName?: string
   onChange: (value: boolean) => void
@@ -40,27 +40,34 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
 }
 
 const Checkbox = ({ className, containerClassName, label, value, onChange, disabled }: CheckboxProps) => {
+  const handleChange = () => {
+    if (!disabled) {
+      onChange(!value)
+    }
+  }
+
   return (
-    <div
-      onClick={() => {
-        if (!disabled) {
-          onChange(!value)
-        }
-      }}
-      className={twMerge('flex cursor-pointer items-end space-x-2', containerClassName)}
-    >
-      <div
+    <div className={twMerge('relative flex cursor-pointer items-end', containerClassName)}>
+      <input
+        type="checkbox"
+        checked={value}
+        onChange={handleChange}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            handleChange()
+          }
+        }}
         className={twMerge(
-          'grid h-4 w-4 place-items-center rounded border border-theme-primary',
+          'peer relative appearance-none',
+          'grid h-4 w-4 place-items-center rounded border border-theme-primary focus:border-2 focus:border-theme-focus focus:outline-none',
           value ? 'bg-blue-primary' : 'bg-theme-surfaceInput',
           disabled ? 'cursor-not-allowed opacity-50' : '',
           className
         )}
-      >
-        {value && <HiCheck className="h-3 w-3 text-white" />}
-      </div>
+      />
+      <HiCheck onClick={handleChange} className="absolute m-0.5 hidden h-3 w-3 text-white peer-checked:block" />
 
-      {label && <Label className="cursor-pointer self-stretch leading-[1.15]">{label}</Label>}
+      {label && <Label className="ml-2 cursor-pointer self-stretch leading-[1.15]">{label}</Label>}
     </div>
   )
 }

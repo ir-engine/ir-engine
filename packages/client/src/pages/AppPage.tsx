@@ -38,9 +38,8 @@ import { LoadWebappInjection } from '@etherealengine/client-core/src/components/
 import { useAuthenticated } from '@etherealengine/client-core/src/user/services/AuthService'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
-import '../themes/base.css'
-import '../themes/components.css'
-import '../themes/utilities.css'
+import './mui.styles.scss' /** @todo Remove when MUI is removed */
+import './styles.scss'
 
 const AppPage = (props: { children: React.ReactNode }) => {
   const { t } = useTranslation()

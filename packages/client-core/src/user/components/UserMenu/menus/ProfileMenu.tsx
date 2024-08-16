@@ -27,10 +27,9 @@ Ethereal Engine. All Rights Reserved.
 import { QRCodeSVG } from 'qrcode.react'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
-import Button from '@etherealengine/client-core/src/common/components/Button'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { AppleIcon } from '@etherealengine/client-core/src/common/components/Icons/AppleIcon'
@@ -44,14 +43,23 @@ import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
-import { authenticationSettingPath, clientSettingPath, UserName } from '@etherealengine/common/src/schema.type.module'
+import {
+  authenticationSettingPath,
+  clientSettingPath,
+  UserName,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { Engine } from '@etherealengine/ecs'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useZendesk } from '../../../../hooks/useZendesk'
@@ -63,6 +71,8 @@ import { useUserHasAccessHook } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
+
+const termsOfService = config.client.tosAddress ?? '/terms-of-service'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ProfileMenu', modifier: clientContextParams })
 
@@ -96,6 +106,31 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
   const isGuest = selfUser.isGuest.value
+  const acceptedTOS = !!selfUser.acceptedTOS.value
+
+  const checkedTOS = useHookstate(!isGuest)
+  const checked13OrOver = useHookstate(!isGuest)
+  const checked18OrOver = useHookstate(acceptedTOS)
+  const hasAcceptedTermsAndAge = checkedTOS.value && checked13OrOver.value
+
+  const originallyAcceptedTOS = useHookstate(acceptedTOS)
+
+  useEffect(() => {
+    if (!originallyAcceptedTOS.value && checked18OrOver.value) {
+      Engine.instance.api
+        .service(userPath)
+        .patch(userId, { acceptedTOS: true })
+        .then(() => {
+          selfUser.acceptedTOS.set(true)
+          logger.info({
+            event_name: 'accept_tos'
+          })
+        })
+        .catch((e) => {
+          console.error(e, 'Error updating user')
+        })
+    }
+  }, [checked18OrOver])
 
   const hasAdminAccess = useUserHasAccessHook('admin:admin')
   const avatarThumbnail = useUserAvatarThumbnail(userId)
@@ -146,7 +181,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   }, [selfUser.name.value])
 
   useEffect(() => {
-    if (!loading.value) logger.info({ event_name: 'view_profile', event_value: '' })
+    if (!loading.value) logger.info({ event_name: 'view_profile' })
   }, [loading.value])
 
   useEffect(() => {
@@ -197,8 +232,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
       // @ts-ignore
       AvatarService.updateUsername(userId, name).then(() =>
         logger.info({
-          event_name: 'rename_user',
-          event_value: ''
+          event_name: 'rename_user'
         })
       )
     }
@@ -221,8 +255,11 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const handleGuestSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') AuthService.createMagicLink(emailPhone.value, authState?.value, 'email')
-    else if (type === 'sms') AuthService.createMagicLink(emailPhone.value, authState?.value, 'sms')
+
+    // Get the url without query parameters.
+    const redirectUrl = window.location.toString().replace(window.location.search, '')
+    if (type === 'email') AuthService.createMagicLink(emailPhone.value, authState?.value, 'email', redirectUrl)
+    else if (type === 'sms') AuthService.createMagicLink(emailPhone.value, authState?.value, 'sms', redirectUrl)
     return
   }
 
@@ -284,51 +321,51 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     // console.log('VC Request query result:', result)
   }
 
-  async function handleWalletLoginClick() {
-    const domain = window.location.origin
-    const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a' // TODO: generate
+  // async function handleWalletLoginClick() {
+  //   const domain = window.location.origin
+  //   const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a' // TODO: generate
 
-    console.log('Sending DIDAuth query...')
+  //   console.log('Sending DIDAuth query...')
 
-    const didAuthQuery: any = {
-      web: {
-        VerifiablePresentation: {
-          query: [
-            {
-              type: 'DIDAuth' // request the controller's DID
-            },
-            {
-              type: 'QueryByExample',
-              credentialQuery: [
-                {
-                  example: {
-                    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
-                    // contains username and avatar icon
-                    type: 'LoginDisplayCredential'
-                  }
-                },
-                {
-                  example: {
-                    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
-                    // various Ethereal Engine user preferences
-                    type: 'UserPreferencesCredential'
-                  }
-                }
-              ]
-            }
-          ],
-          challenge,
-          domain // e.g.: requestingparty.example.com
-        }
-      }
-    }
+  //   const didAuthQuery: any = {
+  //     web: {
+  //       VerifiablePresentation: {
+  //         query: [
+  //           {
+  //             type: 'DIDAuth' // request the controller's DID
+  //           },
+  //           {
+  //             type: 'QueryByExample',
+  //             credentialQuery: [
+  //               {
+  //                 example: {
+  //                   '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
+  //                   // contains username and avatar icon
+  //                   type: 'LoginDisplayCredential'
+  //                 }
+  //               },
+  //               {
+  //                 example: {
+  //                   '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
+  //                   // various Ethereal Engine user preferences
+  //                   type: 'UserPreferencesCredential'
+  //                 }
+  //               }
+  //             ]
+  //           }
+  //         ],
+  //         challenge,
+  //         domain // e.g.: requestingparty.example.com
+  //       }
+  //     }
+  //   }
 
-    // Use Credential Handler API to authenticate and receive basic login display credentials
-    const vprResult: any = await navigator.credentials.get(didAuthQuery)
-    console.log(vprResult)
+  //   // Use Credential Handler API to authenticate and receive basic login display credentials
+  //   const vprResult: any = await navigator.credentials.get(didAuthQuery)
+  //   console.log(vprResult)
 
-    AuthService.loginUserByXRWallet(vprResult)
-  }
+  //   AuthService.loginUserByXRWallet(vprResult)
+  // }
 
   const refreshApiKey = () => {
     AuthService.updateApiKey()
@@ -393,7 +430,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         <Box className={styles.profileContainer}>
           <Avatar
             imageSrc={avatarThumbnail}
-            showChangeButton={true}
+            showChangeButton={hasAcceptedTermsAndAge}
             onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
           />
 
@@ -403,26 +440,111 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               <span className={commonStyles.bold}>{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
             </Text>
 
-            {selfUser?.inviteCode.value && (
+            {hasAcceptedTermsAndAge && selfUser?.inviteCode.value && (
               <Text mt={1} variant="body2">
                 {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
               </Text>
             )}
 
-            {!selfUser?.isGuest.value && (
+            {hasAcceptedTermsAndAge && !selfUser?.isGuest.value && (
               <Text mt={1} variant="body2" onClick={() => createLoginLink()}>
                 {t('user:usermenu.profile.createLoginLink')}
               </Text>
             )}
 
-            <Text id="show-user-id" mt={1} variant="body2" onClick={() => showUserId.set(!showUserId.value)}>
-              {showUserId.value ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
-            </Text>
+            {hasAcceptedTermsAndAge && (
+              <Text id="show-user-id" mt={1} variant="body2" onClick={() => showUserId.set(!showUserId.value)}>
+                {showUserId.value ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
+              </Text>
+            )}
 
-            {selfUser?.apiKey?.id && (
+            {hasAcceptedTermsAndAge && selfUser?.apiKey?.id && (
               <Text variant="body2" mt={1} onClick={() => showApiKey.set(!showApiKey.value)}>
                 {showApiKey.value ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
               </Text>
+            )}
+
+            {isGuest && (
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      disabled={hasAcceptedTermsAndAge}
+                      value={checkedTOS.value}
+                      onChange={(e) => checkedTOS.set(e.target.checked)}
+                      color="primary"
+                      name="isAgreedTermsOfService"
+                    />
+                  }
+                  label={
+                    <div
+                      className={styles.termsLink}
+                      style={{
+                        fontStyle: 'italic'
+                      }}
+                    >
+                      {t('user:usermenu.profile.agreeTOS')}
+                      <Link
+                        style={{
+                          fontStyle: 'italic',
+                          color: 'var(--textColor)',
+                          textDecoration: 'underline'
+                        }}
+                        to={termsOfService}
+                      >
+                        {t('user:usermenu.profile.termsOfService')}
+                      </Link>
+                    </div>
+                  }
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      disabled={hasAcceptedTermsAndAge}
+                      value={checked13OrOver.value}
+                      onChange={(e) => checked13OrOver.set(e.target.checked)}
+                      color="primary"
+                      name="is13OrOver"
+                    />
+                  }
+                  label={
+                    <div
+                      style={{
+                        fontStyle: 'italic'
+                      }}
+                      className={styles.termsLink}
+                    >
+                      {t('user:usermenu.profile.confirmAge13')}
+                    </div>
+                  }
+                />
+              </Grid>
+            )}
+
+            {!isGuest && !originallyAcceptedTOS.value && (
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      disabled={checked18OrOver.value}
+                      value={checked18OrOver.value}
+                      onChange={(e) => checked18OrOver.set(e.target.checked)}
+                      color="primary"
+                      name="is13OrOver"
+                    />
+                  }
+                  label={
+                    <div
+                      style={{
+                        fontStyle: 'italic'
+                      }}
+                      className={styles.termsLink}
+                    >
+                      {t('user:usermenu.profile.confirmAge18')}
+                    </div>
+                  }
+                />
+              </Grid>
             )}
 
             {!isGuest && (
@@ -451,46 +573,87 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Settings2)}
             />
           )}
-          {!isGuest && initialized && (
-            <IconButton
-              background="var(--textColor)"
-              sx={{
-                width: '110px',
-                height: '45px',
-                marginTop: '1rem',
-                borderRadius: '10px'
-              }}
-              icon={
-                <>
-                  <Icon
-                    type="Help"
-                    sx={{
-                      display: 'block',
-                      width: '30%',
-                      height: '100%',
-                      margin: 'auto',
-                      color: 'var(--inputBackground)'
-                    }}
-                  />
-                  <Text
-                    align="center"
-                    sx={{
-                      width: '100%',
-                      marginLeft: '4px',
-                      fontSize: '12px',
-                      color: 'var(--inputBackground)'
-                    }}
-                  >
-                    {t('user:usermenu.profile.helpChat')}
-                  </Text>
-                </>
-              }
-              onClick={openChat}
-            ></IconButton>
+          {initialized && (
+            <Box display="flex" flexDirection="column" alignItems="center">
+              {!isGuest && (
+                <IconButton
+                  background="var(--textColor)"
+                  sx={{
+                    width: '125px',
+                    height: '45px',
+                    marginTop: '1rem',
+                    borderRadius: '10px'
+                  }}
+                  icon={
+                    <>
+                      <Icon
+                        type="Help"
+                        sx={{
+                          display: 'block',
+                          width: '30%',
+                          height: '100%',
+                          margin: 'auto',
+                          color: 'var(--inputBackground)'
+                        }}
+                      />
+                      <Text
+                        align="center"
+                        sx={{
+                          width: '100%',
+                          marginLeft: '4px',
+                          fontSize: '12px',
+                          color: 'var(--inputBackground)'
+                        }}
+                      >
+                        {t('user:usermenu.profile.helpChat')}
+                      </Text>
+                    </>
+                  }
+                  onClick={openChat}
+                ></IconButton>
+              )}
+
+              <IconButton
+                background="red"
+                sx={{
+                  width: '125px',
+                  height: '45px',
+                  marginTop: '1rem',
+                  borderRadius: '10px'
+                }}
+                icon={
+                  <>
+                    <Icon
+                      type="Report"
+                      sx={{
+                        display: 'block',
+                        width: '30%',
+                        height: '100%',
+                        margin: 'auto',
+                        color: 'var(--inputBackground)'
+                      }}
+                    />
+                    <Text
+                      align="center"
+                      sx={{
+                        width: '100%',
+                        marginLeft: '4px',
+                        fontSize: '12px',
+                        color: 'var(--inputBackground)'
+                      }}
+                    >
+                      {t('user:usermenu.profile.reportWorld')}
+                    </Text>
+                  </>
+                }
+                onClick={openChat}
+              ></IconButton>
+            </Box>
           )}
         </Box>
 
         <InputText
+          disabled={!hasAcceptedTermsAndAge}
           name={'username' as UserName}
           label={t('user:usermenu.profile.lbl-username')}
           value={username.value || ('' as UserName)}
@@ -561,7 +724,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
           </div>
         )}
 
-        {!hideLogin && (
+        {!hideLogin && hasAcceptedTermsAndAge && (
           <>
             {isGuest && enableConnect && (
               <>
@@ -588,7 +751,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               </>
             )}
 
-            {isGuest && enableWalletLogin && (
+            {/* {isGuest && enableWalletLogin && (
               <>
                 <Text align="center" variant="body2" mb={1} mt={2}>
                   {t('user:usermenu.profile.or')}
@@ -612,13 +775,13 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                   </Box>
                 )}
               </>
-            )}
+            )} */}
 
             {enableSocial && (
               <>
                 {selfUser?.isGuest.value && (
                   <Text align="center" variant="body2" mb={1} mt={2}>
-                    {t('user:usermenu.profile.addSocial')}
+                    {hasAcceptedTermsAndAge ? t('user:usermenu.profile.addSocial') : t('user:usermenu.profile.logIn')}
                   </Text>
                 )}
                 <div className={styles.socialContainer}>

@@ -40,8 +40,9 @@ import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user
 import { copyFolderRecursiveSync, deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { Application } from '../../../declarations'
+import { Application, HookContext } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
+import { identityProviderDataResolver } from '../../user/identity-provider/identity-provider.resolvers'
 import { useGit } from '../../util/gitHelperFunctions'
 
 const cleanup = async (app: Application, projectName: string) => {
@@ -83,13 +84,15 @@ describe('project.test', () => {
 
     testUserApiKey = await app.service(userApiKeyPath).create({ userId: testUser.id })
 
-    await app.service(identityProviderPath).create(
-      {
-        type: 'github',
-        token: `test-token-${Math.round(Math.random() * 1000)}`,
-        userId: testUser.id
-      },
-      getParams()
+    await app.service(identityProviderPath)._create(
+      await identityProviderDataResolver.resolve(
+        {
+          type: 'github',
+          token: `test-token-${Math.round(Math.random() * 1000)}`,
+          userId: testUser.id
+        },
+        {} as HookContext
+      )
     )
   })
 

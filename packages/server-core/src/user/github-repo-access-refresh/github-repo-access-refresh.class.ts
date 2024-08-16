@@ -69,7 +69,7 @@ export class GithubRepoAccessRefreshService implements ServiceInterface<void, Gi
           paginate: false
         })) as any as GithubRepoAccessType[]
 
-        const githubRepos = await getUserRepos(githubIdentityProvider.data[0].oauthToken!)
+        const githubRepos = await getUserRepos(githubIdentityProvider.data[0].oauthToken!, this.app)
         await Promise.all(
           githubRepos.map(async (repo) => {
             const matchingAccess = existingGithubRepoAccesses.find((access) => access.repo === repo.html_url)

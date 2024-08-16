@@ -51,7 +51,7 @@ import config from '../../appconfig'
 import { getContentType } from '../../util/fileUtils'
 import { getIncrementalName } from '../FileUtil'
 import { getStorageProvider } from '../storageprovider/storageprovider'
-import { StorageObjectInterface } from '../storageprovider/storageprovider.interface'
+import { StorageObjectInterface, StorageProviderInterface } from '../storageprovider/storageprovider.interface'
 import { uploadStaticResource } from './file-helper'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
@@ -221,7 +221,16 @@ export class FileBrowserService
 
     const isDirectory = await storageProvider.isDirectory(oldName, oldDirectory)
     const fileName = await getIncrementalName(newName, newDirectory, storageProvider, isDirectory)
-    await storageProvider.moveObject(oldName, fileName, oldDirectory, newDirectory, data.isCopy)
+
+    if (isDirectory) {
+      await this.moveFolderRecursively(
+        storageProvider,
+        path.join(oldDirectory, oldName),
+        path.join(newDirectory, fileName)
+      )
+    } else {
+      await storageProvider.moveObject(oldName, fileName, oldDirectory, newDirectory, data.isCopy)
+    }
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
@@ -235,14 +244,37 @@ export class FileBrowserService
     const results = [] as StaticResourceType[]
     for (const resource of staticResources) {
       const newKey = resource.key.replace(path.join(oldDirectory, oldName), path.join(newDirectory, fileName))
-      const result = await this.app.service(staticResourcePath).patch(
-        resource.id,
-        {
-          key: newKey
-        },
-        { isInternal: true }
-      )
-      results.push(result)
+
+      if (data.isCopy) {
+        const result = await this.app.service(staticResourcePath).create(
+          {
+            key: newKey,
+            hash: resource.hash,
+            mimeType: resource.mimeType,
+            project: data.newProject,
+            stats: resource.stats,
+            type: resource.type,
+            tags: resource.tags,
+            dependencies: resource.dependencies,
+            licensing: resource.licensing,
+            description: resource.description,
+            attribution: resource.attribution,
+            thumbnailKey: resource.thumbnailKey,
+            thumbnailMode: resource.thumbnailMode
+          },
+          { isInternal: true }
+        )
+        results.push(result)
+      } else {
+        const result = await this.app.service(staticResourcePath).patch(
+          resource.id,
+          {
+            key: newKey
+          },
+          { isInternal: true }
+        )
+        results.push(result)
+      }
     }
 
     if (config.fsProjectSyncEnabled) {
@@ -263,6 +295,30 @@ export class FileBrowserService
     }
 
     return results
+  }
+
+  private async moveFolderRecursively(storageProvider: StorageProviderInterface, oldPath: string, newPath: string) {
+    const items = await storageProvider.listFolderContent(oldPath + '/')
+
+    for (const item of items) {
+      const oldItemPath = path.join(oldPath, item.name)
+      const newItemPath = path.join(newPath, item.name)
+
+      if (item.type === 'directory') {
+        await this.moveFolderRecursively(storageProvider, oldItemPath, newItemPath)
+      } else {
+        await storageProvider.moveObject(item.name, item.name, oldPath, newPath, false)
+      }
+    }
+
+    // move the folder itself
+    await storageProvider.moveObject(
+      path.basename(oldPath),
+      path.basename(newPath),
+      path.dirname(oldPath),
+      path.dirname(newPath),
+      false
+    )
   }
 
   /**

@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { featureFlagSettingPath } from '@etherealengine/common/src/schemas/setting/feature-flag-setting.schema'
 import type { Knex } from 'knex'
-
-import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 
 /**
  * @param { import("knex").Knex } knex
@@ -34,11 +33,13 @@ import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 export async function up(knex: Knex): Promise<void> {
   await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const lastLoginColumnExists = await knex.schema.hasColumn(userPath, 'lastLogin')
+  const projectColumnExists = await knex.schema.hasColumn(featureFlagSettingPath, 'userId')
 
-  if (!lastLoginColumnExists) {
-    await knex.schema.alterTable(userPath, async (table) => {
-      table.dateTime('lastLogin').nullable()
+  if (projectColumnExists === false) {
+    await knex.schema.alterTable(featureFlagSettingPath, async (table) => {
+      //@ts-ignore
+      table.uuid('userId', 36).collate('utf8mb4_bin').nullable().index()
+      table.foreign('userId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
     })
   }
 
@@ -52,11 +53,12 @@ export async function up(knex: Knex): Promise<void> {
 export async function down(knex: Knex): Promise<void> {
   await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const lastLoginColumnExists = await knex.schema.hasColumn(userPath, 'lastLogin')
+  const projectColumnExists = await knex.schema.hasColumn(featureFlagSettingPath, 'userId')
 
-  if (lastLoginColumnExists) {
-    await knex.schema.alterTable(userPath, async (table) => {
-      table.dropColumn('lastLogin')
+  if (projectColumnExists === true) {
+    await knex.schema.alterTable(featureFlagSettingPath, async (table) => {
+      table.dropForeign('userId')
+      table.dropColumn('userId')
     })
   }
 

@@ -50,10 +50,16 @@ export const projectPermissionDataResolver = resolve<ProjectPermissionType, Hook
     return uuidv4()
   },
   createdAt: getDateTimeSql,
+  updatedBy: async (_, __, context) => {
+    return context.params?.user?.id || null
+  },
   updatedAt: getDateTimeSql
 })
 
 export const projectPermissionPatchResolver = resolve<ProjectPermissionType, HookContext>({
+  updatedBy: async (_, __, context) => {
+    return context.params?.user?.id || null
+  },
   updatedAt: getDateTimeSql
 })
 

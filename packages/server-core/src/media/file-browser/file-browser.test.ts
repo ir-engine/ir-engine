@@ -28,7 +28,7 @@ import assert from 'assert'
 import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
+import { ProjectType, projectPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -227,18 +227,35 @@ describe('file-browser.test', () => {
     })
 
     it('copies file', async () => {
+      const oldPath = 'projects/' + testProjectName2 + '/public/'
+      const newPath = 'projects/' + testProjectName + '/public/'
+
       const copyFileResult = await app.service(fileBrowserPath).update(null, {
         oldProject: testProjectName2,
         newProject: testProjectName,
         oldName: testFileName2,
         newName: testFileName2,
-        oldPath: 'projects/' + testProjectName2 + '/public/',
-        newPath: 'projects/' + testProjectName + '/public/',
+        oldPath,
+        newPath,
         isCopy: true
       })
 
       assert.equal(copyFileResult.length, 1)
-      assert(copyFileResult[0].key === 'projects/' + testProjectName + '/public/' + testFileName2)
+      assert(copyFileResult[0].key === newPath + testFileName2)
+
+      const originalResource = await app.service(staticResourcePath).find({
+        query: {
+          key: oldPath + testFileName2
+        }
+      })
+      assert.ok(originalResource.data.length === 1, 'Original resource not found')
+
+      const copiedResource = await app.service(staticResourcePath).find({
+        query: {
+          key: newPath + testFileName2
+        }
+      })
+      assert.ok(copiedResource.data.length === 1, 'Copied resource not found')
     })
 
     it('copies directory', async () => {

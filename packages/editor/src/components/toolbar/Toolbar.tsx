@@ -60,27 +60,21 @@ const onImportAsset = async () => {
   }
 }
 
-const onClickNewScene = async () => {
+export const confirmSceneSaveIfModified = async () => {
   const isModified = EditorState.isModified()
 
   if (isModified) {
-    const confirm = await new Promise((resolve) => {
+    return new Promise((resolve) => {
       PopoverState.showPopupover(
-        <SaveSceneDialog
-          isExiting
-          onConfirm={() => {
-            resolve(true)
-          }}
-          onCancel={() => {
-            resolve(false)
-          }}
-        />
+        <SaveSceneDialog isExiting onConfirm={() => resolve(true)} onCancel={() => resolve(false)} />
       )
     })
-    if (!confirm) return
   }
+  return true
+}
 
-  onNewScene()
+const onClickNewScene = async () => {
+  if (!(await confirmSceneSaveIfModified())) return
 
   const newSceneUIAddons = getState(EditorState).uiAddons.newScene
   if (Object.keys(newSceneUIAddons).length > 0) {
@@ -91,24 +85,7 @@ const onClickNewScene = async () => {
 }
 
 const onCloseProject = async () => {
-  const isModified = EditorState.isModified()
-
-  if (isModified) {
-    const confirm = await new Promise((resolve) => {
-      PopoverState.showPopupover(
-        <SaveSceneDialog
-          isExiting
-          onConfirm={() => {
-            resolve(true)
-          }}
-          onCancel={() => {
-            resolve(false)
-          }}
-        />
-      )
-    })
-    if (!confirm) return
-  }
+  if (!(await confirmSceneSaveIfModified())) return
 
   const editorState = getMutableState(EditorState)
   getMutableState(GLTFModifiedState).set({})
@@ -185,7 +162,7 @@ export default function Toolbar() {
             endIcon={<MdOutlineKeyboardArrowDown size="1em" className="-ml-3 text-[#A3A3A3]" />}
             iconContainerClassName="ml-2 mr-1"
             rounded="none"
-            startIcon={<RxHamburgerMenu size={24} className="text-[#9CA0AA]" />}
+            startIcon={<RxHamburgerMenu size={24} className="text-theme-input" />}
             className="-mr-1 border-0 bg-transparent p-0"
             onClick={(event) => {
               anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
@@ -225,7 +202,7 @@ export default function Toolbar() {
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
             <div key={index}>
               <Button
-                className="px-4 py-2.5 text-left font-light text-[#9CA0AA]"
+                className="px-4 py-2.5 text-left font-light text-theme-input"
                 textContainerClassName="text-xs"
                 variant="sidebar"
                 size="small"

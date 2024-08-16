@@ -66,19 +66,24 @@ const TransformPivotTool = () => {
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
 
   return (
-    <div id="transform-pivot" className="flex items-center bg-theme-surfaceInput">
-      <Tooltip title={t('editor:toolbar.transformPivot.toggleTransformPivot')}>
-        <Button startIcon={<FaRegDotCircle />} onClick={toggleTransformPivot} variant="transparent" className="px-0" />
+    <div id="transform-pivot" className="flex items-center">
+      <Tooltip content={t('editor:toolbar.transformPivot.toggleTransformPivot')}>
+        <Button
+          startIcon={<FaRegDotCircle className="text-theme-input" />}
+          onClick={toggleTransformPivot}
+          variant="transparent"
+          className="px-0"
+        />
       </Tooltip>
       <Tooltip
-        title={
+        content={
           transformPivotOptions.find((pivot) => pivot.value === editorHelperState.transformPivot.value)?.description
         }
       >
         <Select
           key={editorHelperState.transformPivot.value}
-          inputClassName="py-1 h-6 rounded-sm text-[#A3A3A3] text-xs"
-          className="m-1 w-28"
+          inputClassName="py-1 h-6 rounded-sm text-theme-gray3 text-xs"
+          className="m-1 w-28 border-theme-input text-theme-gray3"
           onChange={setTransformPivot}
           options={transformPivotOptions}
           currentValue={editorHelperState.transformPivot.value}

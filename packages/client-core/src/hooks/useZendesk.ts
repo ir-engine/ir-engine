@@ -32,7 +32,7 @@ import { AuthState } from '../user/services/AuthService'
 
 declare global {
   interface Window {
-    zE: (...args: any) => void
+    zE?: (...args: any) => void
   }
 }
 
@@ -49,7 +49,7 @@ export const useZendesk = () => {
   const authenticateUser = () => {
     if (authenticated.value || config.client.zendesk.authenticationEnabled !== 'true') return
 
-    window.zE('messenger', 'loginUser', function (callback: any) {
+    window.zE?.('messenger', 'loginUser', function (callback: any) {
       zendeskMutation.create().then(async (token) => {
         authenticated.set(true)
         await callback(token)
@@ -64,17 +64,17 @@ export const useZendesk = () => {
     script.async = true
     script.src = `https://static.zdassets.com/ekr/snippet.js?key=${config.client.zendesk.key}`
     document.body.appendChild(script)
-    initialized.set(true)
 
     script.addEventListener('load', () => {
       if ('zE' in window) {
+        initialized.set(true)
         hideWidget()
         authenticateUser()
       }
-      window.zE('messenger:on', 'close', () => {
+      window.zE?.('messenger:on', 'close', () => {
         hideWidget()
       })
-      window.zE('messenger:on', 'open', function () {
+      window.zE?.('messenger:on', 'open', function () {
         showWidget()
       })
     })
@@ -89,28 +89,28 @@ export const useZendesk = () => {
       authenticateUser()
     } else if (user.isGuest.value && initialized.value) {
       closeChat()
-      window.zE('messenger', 'logoutUser')
+      window.zE?.('messenger', 'logoutUser')
     }
   }, [user.value])
 
   const hideWidget = () => {
     if (!initialized.value) return
-    window.zE('messenger', 'hide')
+    window.zE?.('messenger', 'hide')
     isWidgetVisible.set(false)
   }
   const showWidget = () => {
     if (!initialized.value) return
-    window.zE('messenger', 'show')
+    window.zE?.('messenger', 'show')
     isWidgetVisible.set(true)
   }
   const openChat = () => {
     if (!initialized.value) return
-    window.zE('messenger', 'open')
+    window.zE?.('messenger', 'open')
   }
 
   const closeChat = () => {
     if (!initialized.value) return
-    window.zE('messenger', 'close')
+    window.zE?.('messenger', 'close')
   }
 
   return {

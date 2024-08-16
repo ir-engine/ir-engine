@@ -46,7 +46,11 @@ export const RadioRoot = ({
   const twClassname = twMerge('flex flex-col gap-2', className)
   return (
     <div className={twClassname}>
-      <div className="flex items-center">
+      <label
+        onClick={() => onChange({ target: { value } } as any)}
+        htmlFor={label}
+        className="flex cursor-pointer items-center text-sm font-medium text-theme-primary"
+      >
         <input
           type="radio"
           checked={selected}
@@ -56,14 +60,8 @@ export const RadioRoot = ({
           disabled={disabled}
           className="shrink-0 rounded-full border-gray-200 text-blue-primary checked:border-blue-primary focus:ring-blue-primary disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:focus:ring-offset-gray-800"
         />
-        <label
-          onClick={() => onChange({ target: { value } } as any)}
-          htmlFor={label}
-          className="ml-2 cursor-pointer align-bottom text-sm font-medium text-theme-primary"
-        >
-          {label}
-        </label>
-      </div>
+        {label}
+      </label>
       {description && <div className="ml-5 text-sm text-theme-primary">{description}</div>}
     </div>
   )

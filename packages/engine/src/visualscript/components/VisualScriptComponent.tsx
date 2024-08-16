@@ -111,8 +111,7 @@ export const VisualScriptComponent = defineComponent({
 })
 
 const LoadReactor = (props: { entity: Entity; gltfAncestor: Entity }) => {
-  const gltfComponent = useComponent(props.gltfAncestor, GLTFComponent)
-  const loaded = gltfComponent.progress.value === 100
+  const loaded = GLTFComponent.useSceneLoaded(props.gltfAncestor)
 
   useEffect(() => {
     setComponent(props.entity, VisualScriptComponent, { run: true })
