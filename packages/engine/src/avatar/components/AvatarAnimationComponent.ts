@@ -40,6 +40,7 @@ import { AnimationAction, Euler, Group, Matrix4, Vector3 } from 'three'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -54,6 +55,7 @@ import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/component
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 
 import { UUIDComponent } from '@etherealengine/ecs'
+import { TransformComponent } from '@etherealengine/spatial'
 import { BoneComponent } from '@etherealengine/spatial/src/renderer/components/BoneComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -201,6 +203,8 @@ export const AvatarRigComponent = defineComponent({
 const _rightHandPos = new Vector3(),
   _rightUpperArmPos = new Vector3()
 
+const flip = new Matrix4().makeRotationFromEuler(new Euler(0, Math.PI, 0))
+
 export default function createVRM(rootEntity: Entity) {
   const documentID = GLTFComponent.getInstanceID(rootEntity)
   const gltf = getState(GLTFDocumentState)[documentID]
@@ -211,10 +215,10 @@ export default function createVRM(rootEntity: Entity) {
     addObjectToGroup(rootEntity, obj3d)
     proxifyParentChildRelationships(obj3d)
   }
-
+  console.log(gltf)
   if (gltf.extensions?.VRM) {
     const vrmExtensionDefinition = gltf.extensions!.VRM as V0VRM.VRM
-    const flip = new Matrix4().makeRotationFromEuler(new Euler(0, Math.PI, 0))
+    console.log(vrmExtensionDefinition)
     const bones = vrmExtensionDefinition.humanoid!.humanBones!.reduce((bones, bone) => {
       const nodeID = `${documentID}-${bone.node}` as EntityUUID
       const entity = UUIDComponent.getEntityByUUID(nodeID)
@@ -224,13 +228,14 @@ export default function createVRM(rootEntity: Entity) {
 
     /**hacky, @todo test with vrm1 */
     iterateEntityNode(bones.hips.node.parent!.entity, (entity) => {
-      const bone = getComponent(entity, BoneComponent)
-      bone.matrixWorld.identity()
-      if (bone.entity != bones.hips.node.parent!.entity) bone.matrixWorld.multiply(flip)
+      const bone = getOptionalComponent(entity, BoneComponent)
+      bone?.matrixWorld.identity()
+      if (bone && bone?.entity != bones.hips.node.parent!.entity && vrmExtensionDefinition.meta?.version === '0')
+        bone.matrixWorld.multiply(flip)
     })
     bones.hips.node.rotateY(Math.PI)
 
-    const humanoid = new VRMHumanoid(bones)
+    const humanoid = enforceTPose(bones)
 
     const scene = getComponent(rootEntity, Object3DComponent) as any as Group
 
@@ -288,8 +293,13 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   const removeSuffix = mixamoPrefix ? false : !/[hp]/i.test(hipsName.charAt(9))
   console.log({ removeSuffix, mixamoPrefix })
 
-  iterateEntityNode(hipsEntity, (entity) => {
+  iterateEntityNode(getComponent(hipsEntity, EntityTreeComponent).parentEntity, (entity) => {
     // if (!getComponent(entity, BoneComponent)) return
+    const boneComponent = getOptionalComponent(entity, BoneComponent) || getComponent(entity, TransformComponent)
+    boneComponent?.matrixWorld.identity()
+    console.log(boneComponent)
+    if (boneComponent && entity != getComponent(hipsEntity, EntityTreeComponent).parentEntity && entity != hipsEntity)
+      boneComponent.matrixWorld.multiply(flip)
 
     const name = getComponent(entity, NameComponent)
     /**match the keys to create a humanoid bones object */
@@ -302,8 +312,7 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
     }
   })
 
-  console.log(bones)
-  const humanoid = enforceTPose(new VRMHumanoid(bones))
+  const humanoid = enforceTPose(bones)
   const scene = getComponent(rootEntity, Object3DComponent)
   const children = getComponent(rootEntity, EntityTreeComponent).children
   const childName = getComponent(children[0], NameComponent)
@@ -329,9 +338,8 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
 const legAngle = new Euler(0, 0, Math.PI)
 const rightShoulderAngle = new Euler(Math.PI / 2, 0, Math.PI / 2)
 const leftShoulderAngle = new Euler(Math.PI / 2, 0, -Math.PI / 2)
-export const enforceTPose = (humanoid: VRMHumanoid) => {
-  const bones = humanoid.humanBones
-  console.log('enforcing T pose', humanoid, bones)
+export const enforceTPose = (bones: VRMHumanBones) => {
+  console.log('enforcing T pose', bones)
 
   bones.rightShoulder!.node.quaternion.setFromEuler(rightShoulderAngle)
   bones.rightUpperArm.node.quaternion.set(0, 0, 0, 1)
