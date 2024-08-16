@@ -50,20 +50,20 @@ export default {
 
   before: {
     all: [
-      () => schemaHooks.validateQuery(recordingResourceQueryValidator),
+      schemaHooks.validateQuery(recordingResourceQueryValidator),
       schemaHooks.resolveQuery(recordingResourceQueryResolver)
     ],
     find: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     get: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('recording', 'write'), verifyScope('settings', 'write')),
-      () => schemaHooks.validateData(recordingResourceDataValidator),
+      schemaHooks.validateData(recordingResourceDataValidator),
       schemaHooks.resolveData(recordingResourceDataResolver)
     ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('recording', 'write')),
-      () => schemaHooks.validateData(recordingResourcePatchValidator),
+      schemaHooks.validateData(recordingResourcePatchValidator),
       schemaHooks.resolveData(recordingResourcePatchResolver)
     ],
     remove: [iff(isProvider('external'), verifyScope('recording', 'write'))]
