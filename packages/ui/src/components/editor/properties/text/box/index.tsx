@@ -83,7 +83,7 @@ export const TextBoxEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Text" label={t('editor:properties.textBox.lbl-text')}>
         <ControlledStringInput
-          containerClassname="w-56"
+          containerClassName="w-56"
           value={text.text.value}
           onChange={updateProperty(TextComponent, 'text')}
           onRelease={commitProperty(TextComponent, 'text')}
