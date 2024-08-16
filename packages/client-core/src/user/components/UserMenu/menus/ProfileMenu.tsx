@@ -30,7 +30,6 @@ import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 
 import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
-import Button from '@etherealengine/client-core/src/common/components/Button'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { AppleIcon } from '@etherealengine/client-core/src/common/components/Icons/AppleIcon'
@@ -322,51 +321,51 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     // console.log('VC Request query result:', result)
   }
 
-  async function handleWalletLoginClick() {
-    const domain = window.location.origin
-    const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a' // TODO: generate
+  // async function handleWalletLoginClick() {
+  //   const domain = window.location.origin
+  //   const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a' // TODO: generate
 
-    console.log('Sending DIDAuth query...')
+  //   console.log('Sending DIDAuth query...')
 
-    const didAuthQuery: any = {
-      web: {
-        VerifiablePresentation: {
-          query: [
-            {
-              type: 'DIDAuth' // request the controller's DID
-            },
-            {
-              type: 'QueryByExample',
-              credentialQuery: [
-                {
-                  example: {
-                    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
-                    // contains username and avatar icon
-                    type: 'LoginDisplayCredential'
-                  }
-                },
-                {
-                  example: {
-                    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
-                    // various Ethereal Engine user preferences
-                    type: 'UserPreferencesCredential'
-                  }
-                }
-              ]
-            }
-          ],
-          challenge,
-          domain // e.g.: requestingparty.example.com
-        }
-      }
-    }
+  //   const didAuthQuery: any = {
+  //     web: {
+  //       VerifiablePresentation: {
+  //         query: [
+  //           {
+  //             type: 'DIDAuth' // request the controller's DID
+  //           },
+  //           {
+  //             type: 'QueryByExample',
+  //             credentialQuery: [
+  //               {
+  //                 example: {
+  //                   '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
+  //                   // contains username and avatar icon
+  //                   type: 'LoginDisplayCredential'
+  //                 }
+  //               },
+  //               {
+  //                 example: {
+  //                   '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
+  //                   // various Ethereal Engine user preferences
+  //                   type: 'UserPreferencesCredential'
+  //                 }
+  //               }
+  //             ]
+  //           }
+  //         ],
+  //         challenge,
+  //         domain // e.g.: requestingparty.example.com
+  //       }
+  //     }
+  //   }
 
-    // Use Credential Handler API to authenticate and receive basic login display credentials
-    const vprResult: any = await navigator.credentials.get(didAuthQuery)
-    console.log(vprResult)
+  //   // Use Credential Handler API to authenticate and receive basic login display credentials
+  //   const vprResult: any = await navigator.credentials.get(didAuthQuery)
+  //   console.log(vprResult)
 
-    AuthService.loginUserByXRWallet(vprResult)
-  }
+  //   AuthService.loginUserByXRWallet(vprResult)
+  // }
 
   const refreshApiKey = () => {
     AuthService.updateApiKey()
@@ -752,7 +751,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               </>
             )}
 
-            {isGuest && enableWalletLogin && (
+            {/* {isGuest && enableWalletLogin && (
               <>
                 <Text align="center" variant="body2" mb={1} mt={2}>
                   {t('user:usermenu.profile.or')}
@@ -776,7 +775,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                   </Box>
                 )}
               </>
-            )}
+            )} */}
 
             {enableSocial && (
               <>
