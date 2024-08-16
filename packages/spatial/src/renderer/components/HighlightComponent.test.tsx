@@ -37,6 +37,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  removeComponent,
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
@@ -49,9 +50,10 @@ import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
 import { destroySpatialEngine } from '../../initializeEngine'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../RendererModule'
 import { RendererState } from '../RendererState'
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
-import { GroupComponent } from './GroupComponent'
+import { GroupComponent, addObjectToGroup } from './GroupComponent'
 import { HighlightComponent, HighlightSystem } from './HighlightComponent'
 import { MeshComponent } from './MeshComponent'
 import { PostProcessingComponent } from './PostProcessingComponent'
@@ -137,6 +139,93 @@ describe('HighlightSystem', () => {
       const result = getOptionalComponent(getState(EngineState).viewerEntity, RendererComponent)?.effectComposer
         ?.OutlineEffect.selection
       assert.equal(result, undefined)
+    })
+
+    it("should not add any child of the query [HighlightComponent, VisibleComponent] that doesn't have a MeshComponent to the rendererComponent.effectComposer?.OutlineEffect?.selection list", () => {
+      mockSpatialEngine()
+
+      const queryEntity = createEntity()
+      const mesh = new Mesh(new BoxGeometry())
+      setComponent(queryEntity, HighlightComponent)
+      setComponent(queryEntity, VisibleComponent)
+      setComponent(queryEntity, TransformComponent)
+      setComponent(queryEntity, MeshComponent, mesh)
+      addObjectToGroup(queryEntity, mesh)
+      const notQueryEntity1 = createOutlineEntity('notQueryEntity1')
+      const notQueryEntity2 = createOutlineEntity('notQueryEntity2')
+      setComponent(notQueryEntity1.id, EntityTreeComponent, { parentEntity: queryEntity })
+      setComponent(notQueryEntity2.id, EntityTreeComponent, { parentEntity: queryEntity })
+      removeComponent(notQueryEntity1.id, MeshComponent)
+      removeComponent(notQueryEntity2.id, MeshComponent)
+
+      // Get the system definition
+      const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
+      // Run and Check the result
+      highlightSystemExecute()
+      const result = getOptionalComponent(getState(EngineState).viewerEntity, RendererComponent)?.effectComposer
+        ?.OutlineEffect.selection
+      for (const obj of result!) {
+        assert.notEqual(obj.entity, notQueryEntity1)
+        assert.notEqual(obj.entity, notQueryEntity2)
+      }
+    })
+
+    it("should not add any child of the query [HighlightComponent, VisibleComponent] that doesn't have a GroupComponent to the rendererComponent.effectComposer?.OutlineEffect?.selection list", () => {
+      mockSpatialEngine()
+
+      const queryEntity = createEntity()
+      const mesh = new Mesh(new BoxGeometry())
+      setComponent(queryEntity, HighlightComponent)
+      setComponent(queryEntity, VisibleComponent)
+      setComponent(queryEntity, TransformComponent)
+      setComponent(queryEntity, MeshComponent, mesh)
+      addObjectToGroup(queryEntity, mesh)
+      const notQueryEntity1 = createOutlineEntity('notQueryEntity1')
+      const notQueryEntity2 = createOutlineEntity('notQueryEntity2')
+      setComponent(notQueryEntity1.id, EntityTreeComponent, { parentEntity: queryEntity })
+      setComponent(notQueryEntity2.id, EntityTreeComponent, { parentEntity: queryEntity })
+      removeComponent(notQueryEntity1.id, GroupComponent)
+      removeComponent(notQueryEntity2.id, GroupComponent)
+
+      // Get the system definition
+      const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
+      // Run and Check the result
+      highlightSystemExecute()
+      const result = getOptionalComponent(getState(EngineState).viewerEntity, RendererComponent)?.effectComposer
+        ?.OutlineEffect.selection
+      for (const obj of result!) {
+        assert.notEqual(obj.entity, notQueryEntity1)
+        assert.notEqual(obj.entity, notQueryEntity2)
+      }
+    })
+
+    it("should not add any child of the query [HighlightComponent, VisibleComponent] that doesn't have a VisibleComponent to the rendererComponent.effectComposer?.OutlineEffect?.selection list", () => {
+      mockSpatialEngine()
+
+      const queryEntity = createEntity()
+      const mesh = new Mesh(new BoxGeometry())
+      setComponent(queryEntity, HighlightComponent)
+      setComponent(queryEntity, VisibleComponent)
+      setComponent(queryEntity, TransformComponent)
+      setComponent(queryEntity, MeshComponent, mesh)
+      addObjectToGroup(queryEntity, mesh)
+      const notQueryEntity1 = createOutlineEntity('notQueryEntity1')
+      const notQueryEntity2 = createOutlineEntity('notQueryEntity2')
+      setComponent(notQueryEntity1.id, EntityTreeComponent, { parentEntity: queryEntity })
+      setComponent(notQueryEntity2.id, EntityTreeComponent, { parentEntity: queryEntity })
+      removeComponent(notQueryEntity1.id, VisibleComponent)
+      removeComponent(notQueryEntity2.id, VisibleComponent)
+
+      // Get the system definition
+      const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
+      // Run and Check the result
+      highlightSystemExecute()
+      const result = getOptionalComponent(getState(EngineState).viewerEntity, RendererComponent)?.effectComposer
+        ?.OutlineEffect.selection
+      for (const obj of result!) {
+        assert.notEqual(obj.entity, notQueryEntity1)
+        assert.notEqual(obj.entity, notQueryEntity2)
+      }
     })
   })
 
