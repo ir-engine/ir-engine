@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEntityContext } from '@etherealengine/ecs'
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { hookstate, none } from '@etherealengine/hyperflux'
-import { useLayoutEffect } from 'react'
+import { hookstate, none, useImmediateEffect } from '@etherealengine/hyperflux'
 
 const entitiesBySource = {} as Record<string, Entity[]>
 
@@ -40,23 +39,21 @@ export const SourceComponent = defineComponent({
     if (typeof src !== 'string') throw new Error('SourceComponent expects a non-empty string')
 
     component.set(src)
-
-    const exists = SourceComponent.entitiesBySource[src]
-    const entitiesBySourceState = SourceComponent.entitiesBySourceState[src]
-    if (exists) {
-      if (exists.includes(entity)) return
-      entitiesBySourceState.merge([entity])
-    } else {
-      entitiesBySourceState.set([entity])
-    }
   },
 
   reactor: () => {
     const entity = useEntityContext()
     const sourceComponent = useComponent(entity, SourceComponent)
 
-    useLayoutEffect(() => {
+    useImmediateEffect(() => {
       const source = sourceComponent.value
+      const entitiesBySourceState = SourceComponent.entitiesBySourceState[source]
+      if (!entitiesBySourceState.value) {
+        entitiesBySourceState.set([entity])
+      } else {
+        entitiesBySourceState.merge([entity])
+      }
+
       return () => {
         const entities = SourceComponent.entitiesBySource[source].filter((currentEntity) => currentEntity !== entity)
         if (entities.length === 0) {
@@ -65,7 +62,7 @@ export const SourceComponent = defineComponent({
           SourceComponent.entitiesBySourceState[source].set(entities)
         }
       }
-    }, [])
+    }, [sourceComponent])
 
     return null
   },
