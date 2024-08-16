@@ -41,10 +41,11 @@
   "scripts": {
     "build-client": "cd packages/client && npm run build",
     "check": "npm run lint && npm run check-errors && npm run check-eslint && npm run test && npm run build-client",
-    "check-errors": "tsc --noemit && lerna run --scope '@etherealengine/*' check-errors && lerna run --ignore '@etherealengine/*' check-errors",
+    "check-errors": "lerna run --scope '@etherealengine/*' check-errors && lerna run --ignore '@etherealengine/*' check-errors",
     "check-eslint": "eslint --quiet .",
     "checkout-dev": "lerna exec 'git checkout dev' --parallel --no-bail",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
+    "clone-project": "cross-env ts-node --swc scripts/clone-project.ts",
     "create-root-package-json": "cross-env ts-node --swc scripts/create-root-package-json",
     "create-project": "cross-env ts-node --swc scripts/create-project",
     "depcheck": "lerna exec --no-bail --stream -- depcheck",
