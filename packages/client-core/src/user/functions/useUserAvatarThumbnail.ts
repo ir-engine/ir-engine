@@ -27,7 +27,7 @@ import { config } from '@etherealengine/common/src/config'
 import { avatarPath, userAvatarPath, UserID } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
-export const DEFAULT_PROFILE_IMG_PLACEHOLDER = `${config.client.fileServer}/projects/default-project/assets/default-silhouette.svg`
+export const DEFAULT_PROFILE_IMG_PLACEHOLDER = `${config.client.fileServer}/projects/@etherealengine/default-project/assets/default-silhouette.svg`
 
 export const useUserAvatarThumbnail = (userId?: UserID) => {
   const userAvatar = useFind(userAvatarPath, {

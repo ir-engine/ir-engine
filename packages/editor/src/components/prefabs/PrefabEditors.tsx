@@ -140,7 +140,7 @@ export const PrefabShelfState = defineState({
       },
       {
         name: 'Camera',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/camera.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/camera.prefab.gltf`,
         category: 'Camera'
       }
     ] as PrefabShelfItem[],
