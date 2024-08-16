@@ -27,38 +27,45 @@ import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import {
   createEngine,
   createEntity,
   destroyEngine,
+  Engine,
   Entity,
+  EntityUUID,
+  getComponent,
   getMutableComponent,
   removeEntity,
   setComponent,
-  UndefinedEntity
+  UndefinedEntity,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
 import { Box3, BoxGeometry, Mesh, Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { createMockXRUI } from '../../../tests/util/MockXRUI'
 import { EngineState } from '../../EngineState'
-import { initializeSpatialEngine } from '../../initializeEngine'
+import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { assertFloatApproxEq, assertFloatApproxNotEq, assertVecApproxEq } from '../../physics/classes/Physics.test'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { PhysicsState } from '../../physics/state/PhysicsState'
 import { BodyTypes, SceneQueryType, Shapes } from '../../physics/types/PhysicsTypes'
 import { addObjectToGroup, GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { TransformComponent } from '../../SpatialModule'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
+import { XRState } from '../../xr/XRState'
 import { InputComponent } from '../components/InputComponent'
 import { InputState } from '../state/InputState'
 import ClientInputHeuristics, { HeuristicData, HeuristicFunctions, IntersectionData } from './ClientInputHeuristics'
@@ -368,9 +375,13 @@ describe('ClientInputHeuristics', () => {
     })
 
     it('should add the hit.entity and hit.distance to the `@param intersectionData` for the first entity hit by the `@param raycast`', async () => {
-      const physicsWorld = Physics.createWorld()
-      physicsWorld!.timestep = 1 / 60
-      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+      const physicsWorldEntity = createEntity()
+      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(physicsWorldEntity, SceneComponent)
+      setComponent(physicsWorldEntity, TransformComponent)
+      setComponent(physicsWorldEntity, EntityTreeComponent)
+      const physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      physicsWorld.timestep = 1 / 60
 
       const data = new Set<IntersectionData>()
       const raycast = createDefaultRaycastArgs()
@@ -392,7 +403,7 @@ describe('ClientInputHeuristics', () => {
 
       const { rerender, unmount } = render(<></>)
       await act(() => rerender(<></>))
-      getState(PhysicsState).physicsWorld.step()
+      physicsWorld.step()
 
       ClientInputHeuristics.findPhysicsColliders(data, raycast)
 
@@ -433,9 +444,13 @@ describe('ClientInputHeuristics', () => {
     })
 
     it('should not do anything if the given `@param raycast` does not hit any entities in the current PhysicsState.physicsWorld', async () => {
-      const physicsWorld = Physics.createWorld()
-      physicsWorld!.timestep = 1 / 60
-      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+      const physicsWorldEntity = createEntity()
+      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(physicsWorldEntity, SceneComponent)
+      setComponent(physicsWorldEntity, TransformComponent)
+      setComponent(physicsWorldEntity, EntityTreeComponent)
+      const physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      physicsWorld.timestep = 1 / 60
 
       const data = new Set<IntersectionData>()
       const raycast = createDefaultRaycastArgs()
@@ -457,7 +472,7 @@ describe('ClientInputHeuristics', () => {
 
       const { rerender, unmount } = render(<></>)
       await act(() => rerender(<></>))
-      getState(PhysicsState).physicsWorld.step()
+      physicsWorld.step()
 
       // Run and check that nothing was added
       ClientInputHeuristics.findPhysicsColliders(data, raycast)
@@ -895,24 +910,28 @@ describe('ClientInputHeuristics', () => {
     })
   })
 
-  /**
-  // @todo
   describe('findProximity', () => {
     beforeEach(async () => {
       createEngine()
-      initializeSpatialEngine()
+      mockSpatialEngine()
     })
 
     afterEach(() => {
+      destroySpatialEngine()
       return destroyEngine()
     })
 
-    describe("when both XRControlsState.isCameraAttachedToAvatar and `@param isSpatialInput` are truthy ...", () => {
+    describe('when both XRState.isCameraAttachedToAvatar and `@param isSpatialInput` are truthy ...', () => {
       const isCameraAttachedToAvatar = true
       const isSpatialInput = true
+      const avatarCameraMode = isCameraAttachedToAvatar ? 'attached' : 'auto'
 
-      it.only("... should store the inputEntity and its distanceSquared to the inputSourceEntity into the `@param intersectionData` for every spatialInputObjectQuery entity that is within the proximity threshold", () => {
-        getMutableState(XRControlsState).isCameraAttachedToAvatar.set(isCameraAttachedToAvatar)
+      it('... should store the inputEntity and its distanceSquared to the inputSourceEntity into the `@param intersectionData` for every spatialInputObjectQuery entity that is within the proximity threshold', () => {
+        if (isCameraAttachedToAvatar) {
+          getMutableState(XRState).merge({ avatarCameraMode, session: {} as XRSession })
+          assert.equal(XRState.isCameraAttachedToAvatar, isCameraAttachedToAvatar)
+        }
+
         const sourceEntity = createEntity()
         setComponent(sourceEntity, TransformComponent)
         const sorted = [] as IntersectionData[]
@@ -922,43 +941,315 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, VisibleComponent)
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, InputComponent)
+        // Run and Check the result
         ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
-        console.log(sorted)
-        console.log(intersections)
+        const isStored = Boolean([...intersections].find((intersection) => intersection.entity === testEntity))
+        assert.equal(isStored, true)
       })
 
-      // @todo
-      // it("... should not store the User's avatar entity into the `@param intersectionData` set, even when there is an inputSourceEntity that is within the proximity threshold", () => {})
-      // it("... should not find any intersections when `@param sourceEid` entity is undefined ", () => {})
-      // it("... should not add anything to `@param sortedEntities` if no entities were found within the proximity threshold", () => {})
-      // it("... should add the entity found to the first element of `@param sortedEntities` when there is only one entity within the proximity threshold", () => {})
-      // it("... should sort the entities by distance and add the closest entity found to the first element of `@param sortedEntities` when there is more than one entity within the proximity threshold", () => {})
-      // it("... should only add one entity to the `@param sortedEntities` list when entities are found within the proximity threshold", () => {})
+      it("... should not store the User's avatar entity into the `@param intersectionData` set, even when there is an inputSourceEntity that is within the proximity threshold", () => {
+        if (isCameraAttachedToAvatar) {
+          getMutableState(XRState).merge({ avatarCameraMode, session: {} as XRSession })
+          assert.equal(XRState.isCameraAttachedToAvatar, isCameraAttachedToAvatar)
+        }
+
+        const sourceEntity = createEntity()
+        setComponent(sourceEntity, TransformComponent)
+        const sorted = [] as IntersectionData[]
+        const intersections = new Set<IntersectionData>()
+        Engine.instance.userID = 'testUserID' as UserID
+        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        const testEntity = createEntity()
+        setComponent(testEntity, VisibleComponent)
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, InputComponent)
+        setComponent(testEntity, UUIDComponent, UUID)
+        // Run and Check the result
+        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        const result = Boolean([...intersections].find((intersection) => intersection.entity === testEntity))
+        assert.equal(result, false)
+      })
+
+      it('... should not find any intersections when `@param sourceEid` entity is undefined ', () => {
+        if (isCameraAttachedToAvatar) {
+          getMutableState(XRState).merge({ avatarCameraMode, session: {} as XRSession })
+          assert.equal(XRState.isCameraAttachedToAvatar, isCameraAttachedToAvatar)
+        }
+
+        const sourceEntity = UndefinedEntity
+        const sorted = [] as IntersectionData[]
+        const intersections = new Set<IntersectionData>()
+
+        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        const result = intersections.size
+        assert.equal(result, 0)
+      })
+
+      it('... should add the entity found to the first element of `@param sortedEntities` when there is only one entity within the proximity threshold', () => {
+        if (isCameraAttachedToAvatar) {
+          getMutableState(XRState).merge({ avatarCameraMode, session: {} as XRSession })
+          assert.equal(XRState.isCameraAttachedToAvatar, isCameraAttachedToAvatar)
+        }
+
+        const sourceEntity = createEntity()
+        setComponent(sourceEntity, TransformComponent, { position: new Vector3(1, 1, 1) })
+        const sorted = [] as IntersectionData[]
+        const intersections = new Set<IntersectionData>()
+        const testEntity = createEntity()
+        setComponent(testEntity, VisibleComponent)
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, InputComponent)
+
+        // how to setup proximity threshold
+        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        const afterOne = sorted.length
+        assert.equal(afterOne, 1)
+      })
+
+      it('... should not add anything to `@param sortedEntities` if no entities were found within the proximity threshold', () => {
+        if (isCameraAttachedToAvatar) {
+          getMutableState(XRState).merge({ avatarCameraMode, session: {} as XRSession })
+          assert.equal(XRState.isCameraAttachedToAvatar, isCameraAttachedToAvatar)
+        }
+
+        const sourceEntity = createEntity()
+        setComponent(sourceEntity, TransformComponent, { position: new Vector3(42, 42, 42) })
+        let sorted = [] as IntersectionData[]
+        const intersections = new Set<IntersectionData>()
+        const testEntity = createEntity()
+        setComponent(testEntity, VisibleComponent)
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, InputComponent)
+
+        // how to setup proximity threshold
+        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        const afterOne = sorted.length
+        assert.equal(afterOne, 0)
+        sorted = [] as IntersectionData[]
+
+        setComponent(sourceEntity, TransformComponent, { position: new Vector3(1, 1, 1) })
+        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        const afterTwo = sorted.length
+        assert.equal(afterTwo, 1)
+      })
+
+      it('... should sort the entities by distance and add the closest entity found to the first element of `@param sortedEntities` when there is more than one entity within the proximity threshold', () => {
+        if (isCameraAttachedToAvatar) {
+          getMutableState(XRState).merge({ avatarCameraMode, session: {} as XRSession })
+          assert.equal(XRState.isCameraAttachedToAvatar, isCameraAttachedToAvatar)
+        }
+
+        const sourceEntity = createEntity()
+        setComponent(sourceEntity, TransformComponent)
+        const sorted = [] as IntersectionData[]
+        const intersections = new Set<IntersectionData>()
+        const testEntity1 = createEntity()
+        const testEntity2 = createEntity()
+        setComponent(testEntity1, TransformComponent, { position: new Vector3(1, 1, 1) })
+        setComponent(testEntity1, VisibleComponent)
+        setComponent(testEntity1, InputComponent)
+
+        setComponent(testEntity2, TransformComponent, { position: new Vector3(42, 42, 42) })
+        setComponent(testEntity2, VisibleComponent)
+        setComponent(testEntity2, InputComponent)
+
+        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        assert.equal(sorted.length, 1)
+        for (const obj of sorted) assert.notEqual(obj.entity, testEntity2)
+      })
+
+      it('... should only add one entity to the `@param sortedEntities` list when multiple entities are found within the proximity threshold', () => {
+        if (isCameraAttachedToAvatar) {
+          getMutableState(XRState).merge({ avatarCameraMode, session: {} as XRSession })
+          assert.equal(XRState.isCameraAttachedToAvatar, isCameraAttachedToAvatar)
+        }
+
+        const sourceEntity = createEntity()
+        setComponent(sourceEntity, TransformComponent)
+        const sorted = [] as IntersectionData[]
+        const intersections = new Set<IntersectionData>()
+        const testEntity1 = createEntity()
+        const testEntity2 = createEntity()
+        setComponent(testEntity1, TransformComponent, { position: new Vector3(0.5, 0.5, 0.5) })
+        setComponent(testEntity1, VisibleComponent)
+        setComponent(testEntity1, InputComponent)
+
+        setComponent(testEntity2, TransformComponent, { position: new Vector3(1, 1, 1) })
+        setComponent(testEntity2, VisibleComponent)
+        setComponent(testEntity2, InputComponent)
+
+        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        assert.equal(sorted.length, 1)
+        for (const obj of sorted) assert.notEqual(obj.entity, testEntity2)
+      })
     })
 
-    describe("when XRControlsState.isCameraAttachedToAvatar is truthy and `@param isSpatialInput` is falsy ...", () => {
+    describe('when XRControlsState.isCameraAttachedToAvatar is truthy and `@param isSpatialInput` is falsy ...', () => {
       const isCameraAttachedToAvatar = true
       const isSpatialInput = false
-      // it("... should store the inputEntity and its distanceSquared to the inputSourceEntity into the `@param intersectionData` for every spatialInputObjectQuery entity that is within the proximity threshold", () => {})
-      // it("... should not store the User's avatar entity into the `@param intersectionData` set, even when there is an inputSourceEntity that is within the proximity threshold", () => {})
-      // it("... should not find any intersections when selfAvatarEntity entity is undefined", () => {})
-      // it("... should not add anything to `@param sortedEntities` if no entities were found within the proximity threshold", () => {})
-      // it("... should add the entity found to the first element of `@param sortedEntities` when there is only one entity within the proximity threshold", () => {})
-      // it("... should sort the entities by distance and add the closest entity found to the first element of `@param sortedEntities` when there is more than one entity within the proximity threshold", () => {})
-      // it("... should only add one entity to the `@param sortedEntities` list when entities are found within the proximity threshold", () => {})
+      const avatarCameraMode = isCameraAttachedToAvatar ? 'attached' : 'auto'
+
+      it('... should not store the avatarEntity into the `@param intersectionData`', () => {
+        if (isCameraAttachedToAvatar) {
+          getMutableState(XRState).merge({ avatarCameraMode, session: {} as XRSession })
+          assert.equal(XRState.isCameraAttachedToAvatar, isCameraAttachedToAvatar)
+        }
+
+        const sourceEntity = createEntity()
+        setComponent(sourceEntity, TransformComponent)
+        const sorted = [] as IntersectionData[]
+        const intersections = new Set<IntersectionData>()
+
+        const testEntity = createEntity()
+        setComponent(testEntity, VisibleComponent)
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, InputComponent)
+        // Make the entity the selfAvatarEntity
+        Engine.instance.userID = 'testUserID' as UserID
+        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        setComponent(testEntity, UUIDComponent, UUID)
+
+        // Run and Check the result
+        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        const isStored = Boolean([...intersections].find((intersection) => intersection.entity === testEntity))
+        assert.equal(isStored, false)
+      })
+
+      it("... should not store the User's avatar entity into the `@param intersectionData` set, even when there is an inputSourceEntity that is within the proximity threshold", () => {
+        if (isCameraAttachedToAvatar) {
+          getMutableState(XRState).merge({ avatarCameraMode, session: {} as XRSession })
+          assert.equal(XRState.isCameraAttachedToAvatar, isCameraAttachedToAvatar)
+        }
+
+        const sourceEntity = createEntity()
+        setComponent(sourceEntity, TransformComponent)
+        const sorted = [] as IntersectionData[]
+        const intersections = new Set<IntersectionData>()
+
+        const testEntity = createEntity()
+        setComponent(testEntity, VisibleComponent)
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, InputComponent)
+        // Make the entity the selfAvatarEntity
+        Engine.instance.userID = 'testUserID' as UserID
+        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        setComponent(testEntity, UUIDComponent, UUID)
+
+        // Run and Check the result
+        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        const isStored = Boolean([...intersections].find((intersection) => intersection.entity === testEntity))
+        assert.equal(isStored, false)
+      })
+
+      it('... should not find any intersections when selfAvatarEntity entity is undefined', () => {
+        if (isCameraAttachedToAvatar) {
+          getMutableState(XRState).merge({ avatarCameraMode, session: {} as XRSession })
+          assert.equal(XRState.isCameraAttachedToAvatar, isCameraAttachedToAvatar)
+        }
+
+        const sourceEntity = createEntity()
+        setComponent(sourceEntity, TransformComponent)
+        const sorted = [] as IntersectionData[]
+        const intersections = new Set<IntersectionData>()
+
+        const testEntity = createEntity()
+        setComponent(testEntity, VisibleComponent)
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, InputComponent)
+        // Do not make the testEntity an Avatar entity, so that it is undefined
+        // Engine.instance.userID = "testUserID" as UserID
+        // const UUID = Engine.instance.userID + '_avatar' as EntityUUID
+        // setComponent(testEntity, UUIDComponent, UUID)
+        const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
+        assert.equal(selfAvatarEntity, UndefinedEntity)
+
+        // Run and Check the result
+        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        assert.equal(intersections.size, 0)
+      })
     })
 
-    describe("when XRControlsState.isCameraAttachedToAvatar is falsy and `@param isSpatialInput` is truthy ...", () => {
+    describe('when XRControlsState.isCameraAttachedToAvatar is falsy and `@param isSpatialInput` is truthy ...', () => {
       const isCameraAttachedToAvatar = false
       const isSpatialInput = true
-      // it("... should store the inputEntity and its distanceSquared to the inputSourceEntity into the `@param intersectionData` for every spatialInputObjectQuery entity that is within the proximity threshold", () => {})
-      // it("... should not store the User's avatar entity into the `@param intersectionData` set, even when there is an inputSourceEntity that is within the proximity threshold", () => {})
-      // it("... should not find any intersections when selfAvatarEntity entity is undefined", () => {})
-      // it("... should not add anything to `@param sortedEntities` if no entities were found within the proximity threshold", () => {})
-      // it("... should add the entity found to the first element of `@param sortedEntities` when there is only one entity within the proximity threshold", () => {})
-      // it("... should sort the entities by distance and add the closest entity found to the first element of `@param sortedEntities` when there is more than one entity within the proximity threshold", () => {})
-      // it("... should only add one entity to the `@param sortedEntities` list when entities are found within the proximity threshold", () => {})
+      const avatarCameraMode = isCameraAttachedToAvatar ? 'attached' : 'auto'
+
+      it('... should not store the avatarEntity into the `@param intersectionData`', () => {
+        if (isCameraAttachedToAvatar) {
+          getMutableState(XRState).merge({ avatarCameraMode, session: {} as XRSession })
+          assert.equal(XRState.isCameraAttachedToAvatar, isCameraAttachedToAvatar)
+        }
+
+        const sourceEntity = createEntity()
+        setComponent(sourceEntity, TransformComponent)
+        const sorted = [] as IntersectionData[]
+        const intersections = new Set<IntersectionData>()
+
+        const testEntity = createEntity()
+        setComponent(testEntity, VisibleComponent)
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, InputComponent)
+        // Make the entity the selfAvatarEntity
+        Engine.instance.userID = 'testUserID' as UserID
+        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        setComponent(testEntity, UUIDComponent, UUID)
+
+        // Run and Check the result
+        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        const isStored = Boolean([...intersections].find((intersection) => intersection.entity === testEntity))
+        assert.equal(isStored, false)
+      })
+
+      it("... should not store the User's avatar entity into the `@param intersectionData` set, even when there is an inputSourceEntity that is within the proximity threshold", () => {
+        if (isCameraAttachedToAvatar) {
+          getMutableState(XRState).merge({ avatarCameraMode, session: {} as XRSession })
+          assert.equal(XRState.isCameraAttachedToAvatar, isCameraAttachedToAvatar)
+        }
+
+        const sourceEntity = createEntity()
+        setComponent(sourceEntity, TransformComponent)
+        const sorted = [] as IntersectionData[]
+        const intersections = new Set<IntersectionData>()
+
+        const testEntity = createEntity()
+        Engine.instance.userID = 'testUserID' as UserID
+        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        setComponent(testEntity, UUIDComponent, UUID)
+        setComponent(testEntity, VisibleComponent)
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, InputComponent)
+        // Run and Check the result
+        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        const isStored = Boolean([...intersections].find((intersection) => intersection.entity === testEntity))
+        assert.equal(isStored, false)
+      })
+
+      it('... should not find any intersections when selfAvatarEntity entity is undefined', () => {
+        if (isCameraAttachedToAvatar) {
+          getMutableState(XRState).merge({ avatarCameraMode, session: {} as XRSession })
+          assert.equal(XRState.isCameraAttachedToAvatar, isCameraAttachedToAvatar)
+        }
+
+        const sourceEntity = createEntity()
+        setComponent(sourceEntity, TransformComponent)
+        const sorted = [] as IntersectionData[]
+        const intersections = new Set<IntersectionData>()
+
+        const testEntity = createEntity()
+        setComponent(testEntity, VisibleComponent)
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, InputComponent)
+        // Do not make the testEntity an Avatar entity, so that it is undefined
+        // Engine.instance.userID = "testUserID" as UserID
+        // const UUID = Engine.instance.userID + '_avatar' as EntityUUID
+        // setComponent(testEntity, UUIDComponent, UUID)
+        const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
+        assert.equal(selfAvatarEntity, UndefinedEntity)
+
+        // Run and Check the result
+        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        assert.equal(intersections.size, 0)
+      })
     })
   })
-  */
 })
