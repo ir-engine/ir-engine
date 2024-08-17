@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { API } from '@etherealengine/common'
 import { scopePath, ScopeTypeInterface, UserType } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 
 export const checkScope = async (user: UserType, currentType: string, scopeToVerify: string) => {
-  const scopes = (await Engine.instance.api.service(scopePath).find({
+  const scopes = (await API.instance.service(scopePath).find({
     query: {
       userId: user.id,
       paginate: false
