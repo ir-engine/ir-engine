@@ -26,6 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import type { Knex } from 'knex'
 
+const routePath = 'route'
+const staticResourcePath = 'static-resource'
+const avatarPath = 'avatar'
+
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
@@ -38,16 +42,34 @@ export async function up(knex: Knex): Promise<void> {
 
     for (const project of projects) {
       if (project.name === 'default-project') {
+        const newName = 'etherealengine/default-project'
         await knex(projectPath).where('id', project.id).update({
-          name: 'etherealengine/default-project'
+          name: newName
+        })
+        await knex(routePath).where('projectName', project.name).update({
+          projectName: newName
+        })
+        await knex(staticResourcePath).where('project', project.name).update({
+          project: newName
+        })
+        await knex(avatarPath).where('project', project.name).update({
+          project: newName
         })
       } else if (project.repositoryPath) {
         const repositorySplit = project.repositoryPath.split('/')
-        await knex(projectPath)
-          .where('id', project.id)
-          .update({
-            name: `${repositorySplit[repositorySplit.length - 2].toLowerCase()}/${project.name}`
-          })
+        const newName = `${repositorySplit[repositorySplit.length - 2].toLowerCase()}/${project.name}`
+        await knex(projectPath).where('id', project.id).update({
+          name: newName
+        })
+        await knex(routePath).where('projectName', project.name).update({
+          projectName: newName
+        })
+        await knex(staticResourcePath).where('project', project.name).update({
+          project: newName
+        })
+        await knex(avatarPath).where('project', project.name).update({
+          project: newName
+        })
       }
     }
   }
@@ -66,11 +88,20 @@ export async function down(knex: Knex): Promise<void> {
     for (const project of projects) {
       if (project.repositoryPath) {
         const repositorySplit = project.repositoryPath.split('/')
-        await knex(projectPath)
-          .where('id', project.id)
-          .update({
-            name: `${repositorySplit[repositorySplit.length - 1]}`
-          })
+        const newName = `${repositorySplit[repositorySplit.length - 1]}`
+        const oldName = project.name
+        await knex(projectPath).where('id', project.id).update({
+          name: newName
+        })
+        await knex(routePath).where('projectName', oldName).update({
+          projectName: newName
+        })
+        await knex(staticResourcePath).where('project', oldName).update({
+          project: newName
+        })
+        await knex(avatarPath).where('project', oldName).update({
+          project: newName
+        })
       }
     }
   }
