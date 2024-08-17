@@ -63,7 +63,7 @@ import { createExecutorJob } from '../../k8s-job-helper'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { useGit } from '../../util/gitHelperFunctions'
-import { getProjectPushJobBody } from './project-helper'
+import { cleanProjectName, getProjectPushJobBody } from './project-helper'
 import { ProjectParams } from './project.class'
 
 // 30 MB. GitHub's documentation says that the blob upload cutoff is 50MB, but in testing, some files that were around
@@ -353,7 +353,7 @@ export const pushProjectToGithub = async (
       returnData: '',
       status: 'pending'
     })
-    const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+    const projectJobName = cleanProjectName(project.name)
     const jobBody = await getProjectPushJobBody(app, project, user, reset, newJob.id, commitSHA)
     await app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name

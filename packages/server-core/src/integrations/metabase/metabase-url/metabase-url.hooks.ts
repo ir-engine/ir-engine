@@ -47,6 +47,7 @@ export const metabaseCrashDashboard = async (context: HookContext<MetabaseUrlSer
 
   const METABASE_SITE_URL = metabaseSetting.data[0].siteUrl
   const METABASE_SECRET_KEY = metabaseSetting.data[0].secretKey
+  const ENVIRONMENT = metabaseSetting.data[0].environment
   const EXPIRATION = metabaseSetting.data[0].expiration
   const METABASE_CRASH_DASHBOARD_ID = metabaseSetting.data[0].crashDashboardId
 
@@ -56,7 +57,9 @@ export const metabaseCrashDashboard = async (context: HookContext<MetabaseUrlSer
 
   const payload = {
     resource: { dashboard: parseInt(METABASE_CRASH_DASHBOARD_ID) },
-    params: {},
+    params: {
+      environment: [ENVIRONMENT]
+    },
     exp: Math.round(Date.now() / 1000) + EXPIRATION * 60
   }
 

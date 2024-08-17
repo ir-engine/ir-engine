@@ -45,13 +45,13 @@ export default {
         return context
       }
     ],
-    update: [() => schemaHooks.validateData(fileBrowserUpdateValidator)],
+    update: [schemaHooks.validateData(fileBrowserUpdateValidator)],
     patch: [
       (context) => {
         context[SYNC] = false
         return context
       },
-      () => schemaHooks.validateData(fileBrowserPatchValidator)
+      schemaHooks.validateData(fileBrowserPatchValidator)
     ],
     remove: []
   },

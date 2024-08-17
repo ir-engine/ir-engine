@@ -23,42 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { identityProviderPath, IdentityProviderType } from '@etherealengine/common/src/schema.type.module'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
-import { UserID } from '../schemas/user/user.schema'
-
-export interface AuthUser {
-  accessToken: string
-  authentication: {
-    strategy: string
-  }
-  identityProvider: IdentityProviderType
-}
-
-export const IdentityProviderSeed: IdentityProviderType = {
-  id: '',
-  token: '',
-  accountIdentifier: '',
-  oauthToken: '',
-  oauthRefreshToken: '',
-  type: 'guest',
-  userId: '' as UserID,
-  createdAt: '',
-  updatedAt: ''
-}
-
-export const AuthUserSeed: AuthUser = {
-  accessToken: '',
-  authentication: {
-    strategy: ''
-  },
-  identityProvider: IdentityProviderSeed
-}
-
-export function resolveAuthUser(res: any): AuthUser {
-  return {
-    accessToken: res.accessToken,
-    authentication: res.authentication,
-    identityProvider: res[identityProviderPath]
-  }
+export function SidebarButton({ children, className, ...rest }) {
+  return (
+    <Button className={twMerge('bg-[#141619]', className)} {...rest}>
+      {children}
+    </Button>
+  )
 }

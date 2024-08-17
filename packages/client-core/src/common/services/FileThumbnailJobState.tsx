@@ -158,6 +158,12 @@ export const FileThumbnailJobState = defineState({
         if (seenResources.has(resource.key)) continue
         seenResources.add(resource.key)
 
+        if (resource.type === 'thumbnail') {
+          //set thumbnail's thumbnail as itself
+          Engine.instance.api.service(staticResourcePath).patch(resource.id, { thumbnailKey: resource.key })
+          continue
+        }
+
         if (resource.thumbnailKey != null || !extensionCanHaveThumbnail(resource.key.split('.').pop() ?? '')) continue
 
         getMutableState(FileThumbnailJobState).merge([

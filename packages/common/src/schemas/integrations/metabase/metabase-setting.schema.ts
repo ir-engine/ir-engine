@@ -40,6 +40,7 @@ export const metabaseSettingSchema = Type.Object(
     }),
     siteUrl: Type.String(),
     secretKey: Type.String(),
+    environment: Type.String(),
     crashDashboardId: Type.Optional(Type.String()),
     expiration: Type.Number(),
     createdAt: Type.String({ format: 'date-time' }),
@@ -70,6 +71,7 @@ export const metabaseSettingQueryProperties = Type.Pick(metabaseSettingSchema, [
   'id',
   'siteUrl',
   'secretKey',
+  'environment',
   'crashDashboardId'
 ])
 

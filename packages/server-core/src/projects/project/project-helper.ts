@@ -1042,7 +1042,7 @@ export async function getProjectUpdateJobBody(
     command.push(data.reset.toString())
   }
 
-  const projectJobName = data.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+  const projectJobName = cleanProjectName(data.name)
 
   const labels = {
     'etherealengine/projectUpdater': 'true',
@@ -1090,7 +1090,7 @@ export async function getProjectPushJobBody(
     command.push(storageProviderName)
   }
 
-  const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+  const projectJobName = cleanProjectName(project.name)
 
   const labels = {
     'etherealengine/projectPusher': 'true',
@@ -1104,7 +1104,7 @@ export async function getProjectPushJobBody(
 }
 
 export const getCronJobBody = (project: ProjectType, image: string): object => {
-  const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+  const projectJobName = cleanProjectName(project.name)
   return {
     metadata: {
       name: `${process.env.RELEASE_NAME}-${projectJobName}-auto-update`,
@@ -1180,7 +1180,7 @@ export async function getDirectoryArchiveJobBody(
     jobId
   ]
 
-  const projectJobName = projectName.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+  const projectJobName = cleanProjectName(projectName)
 
   const labels = {
     'etherealengine/directoryArchiver': 'true',
@@ -1537,7 +1537,7 @@ export const updateProject = async (
   returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
 
   if (returned.name !== projectName)
-    await app.service(projectPath).patch(existingProject!.id, {
+    await app.service(projectPath).patch(returned.id, {
       name: projectName
     })
 
@@ -1678,6 +1678,19 @@ const staticResourceClasses = [
   AssetType.Prefab
 ]
 
+const ignoreFiles = ['.ds_store']
+
+/**
+ * Checks whether a file is to be ignored in resources.json and static-resources
+ * @param key
+ */
+export const isIgnoredFile = (key: string) => {
+  for (const ignoreFile of ignoreFiles) {
+    if (key.includes(ignoreFile)) return true
+  }
+  return false
+}
+
 /**
  * Updates the local storage provider with the project's current files
  * @param app Application object
@@ -1757,7 +1770,10 @@ export const uploadLocalProjectToProvider = async (
         },
         { isDirectory: false }
       )
-      if (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) {
+      if (
+        (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) ||
+        isIgnoredFile(filePathRelative)
+      ) {
         existingKeySet.delete(key)
         continue
       }
@@ -1768,9 +1784,15 @@ export const uploadLocalProjectToProvider = async (
       const stats = await getStats(fileResult, contentType)
       const resourceInfo = resourcesJson?.[filePathRelative]
       const type = isScene ? 'scene' : getResourceType(filePathRelative, resourceInfo!)
-      const thumbnailKey =
-        resourceInfo?.thumbnailKey ?? (isScene ? key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg' : undefined)
-
+      let thumbnailKey = resourceInfo?.thumbnailKey
+      if (!thumbnailKey) {
+        if (isScene) {
+          thumbnailKey = key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg'
+        } else if (type === 'thumbnail') {
+          //since thumbnails are not in resource json, we need to redefine their thumbnail keys here
+          thumbnailKey = key
+        }
+      }
       if (existingKeySet.has(key)) {
         const id = existingKeySet.get(key)!
         existingKeySet.delete(key)
@@ -1835,4 +1857,11 @@ export const uploadLocalProjectToProvider = async (
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   const assetsOnly = !fs.existsSync(path.join(projectRootPath, 'xrengine.config.ts'))
   return { files: results.filter((success) => !!success) as string[], assetsOnly }
+}
+
+export const cleanProjectName = (name: string) => {
+  const returned = name.toLowerCase().replace(/[^a-zA-Z0-9-.]/g, '-')
+  if (!/[a-zA-Z0-9]/.test(returned[0])) return cleanProjectName(name.slice(1))
+  if (!/[a-zA-Z0-9]/.test(returned[returned.length - 1])) return cleanProjectName(name.slice(0, returned.length - 1))
+  return returned
 }
