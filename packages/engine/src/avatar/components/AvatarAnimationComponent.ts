@@ -230,12 +230,11 @@ export default function createVRM(rootEntity: Entity) {
     iterateEntityNode(bones.hips.node.parent!.entity, (entity) => {
       const bone = getOptionalComponent(entity, BoneComponent)
       bone?.matrixWorld.identity()
-      if (bone && bone?.entity != bones.hips.node.parent!.entity && vrmExtensionDefinition.meta?.version === '0')
-        bone.matrixWorld.multiply(flip)
+      bone?.matrixWorld.makeRotationY(Math.PI)
     })
-    bones.hips.node.rotateY(Math.PI)
+    bones.hips.node.parent!.rotateY(Math.PI)
 
-    const humanoid = enforceTPose(bones)
+    const humanoid = new VRMHumanoid(bones)
 
     const scene = getComponent(rootEntity, Object3DComponent) as any as Group
 
@@ -282,7 +281,7 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   const bones = {} as VRMHumanBones
 
   /**
-   * some mixamo rigs do not use the mixamo prefix, if so we add
+   * some mixamo rigs do not use the mixamo prefix, if they don't, we add
    * a prefix to the rig names for matching to keys in the mixamoVRMRigMap
    */
   const mixamoPrefix = hipsName.includes('mixamorig') ? '' : 'mixamorig'
@@ -291,27 +290,30 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
    * that must be removed for matching to keys in the mixamoVRMRigMap
    */
   const removeSuffix = mixamoPrefix ? false : !/[hp]/i.test(hipsName.charAt(9))
-  console.log({ removeSuffix, mixamoPrefix })
 
-  iterateEntityNode(getComponent(hipsEntity, EntityTreeComponent).parentEntity, (entity) => {
+  iterateEntityNode(hipsEntity, (entity) => {
     // if (!getComponent(entity, BoneComponent)) return
     const boneComponent = getOptionalComponent(entity, BoneComponent) || getComponent(entity, TransformComponent)
     boneComponent?.matrixWorld.identity()
-    console.log(boneComponent)
-    if (boneComponent && entity != getComponent(hipsEntity, EntityTreeComponent).parentEntity && entity != hipsEntity)
-      boneComponent.matrixWorld.multiply(flip)
+    if (entity != hipsEntity) {
+      boneComponent.matrixWorld.makeRotationZ(Math.PI)
+    }
 
     const name = getComponent(entity, NameComponent)
     /**match the keys to create a humanoid bones object */
     let boneName = mixamoPrefix + name
+
     if (removeSuffix) boneName = boneName.slice(0, 9) + name.slice(10)
+
+    //remove colon from the bone name
+    if (boneName.includes(':')) boneName = boneName.replace(':', '')
+
     const bone = mixamoVRMRigMap[boneName] as string
     console.log({ name, boneName, removeSuffix, bone, mixamoVRMRigMap })
     if (bone) {
       bones[bone] = { node: getComponent(entity, BoneComponent) } as VRMHumanBone
     }
   })
-
   const humanoid = enforceTPose(bones)
   const scene = getComponent(rootEntity, Object3DComponent)
   const children = getComponent(rootEntity, EntityTreeComponent).children
@@ -342,17 +344,30 @@ export const enforceTPose = (bones: VRMHumanBones) => {
   console.log('enforcing T pose', bones)
 
   bones.rightShoulder!.node.quaternion.setFromEuler(rightShoulderAngle)
+  iterateEntityNode(bones.rightShoulder!.node.entity, (entity) => {
+    getComponent(entity, BoneComponent).matrixWorld.makeRotationFromEuler(rightShoulderAngle)
+  })
+  bones.rightShoulder!.node.matrixWorld.makeRotationFromEuler(rightShoulderAngle)
   bones.rightUpperArm.node.quaternion.set(0, 0, 0, 1)
   bones.rightLowerArm.node.quaternion.set(0, 0, 0, 1)
 
   bones.leftShoulder!.node.quaternion.setFromEuler(leftShoulderAngle)
+  iterateEntityNode(bones.leftShoulder!.node.entity, (entity) => {
+    getComponent(entity, BoneComponent).matrixWorld.makeRotationFromEuler(leftShoulderAngle)
+  })
   bones.leftUpperArm.node.quaternion.set(0, 0, 0, 1)
   bones.leftLowerArm.node.quaternion.set(0, 0, 0, 1)
 
   bones.rightUpperLeg.node.quaternion.setFromEuler(legAngle)
+  iterateEntityNode(bones.rightUpperLeg!.node.entity, (entity) => {
+    getComponent(entity, BoneComponent).matrixWorld.makeRotationFromEuler(legAngle)
+  })
   bones.rightLowerLeg.node.quaternion.set(0, 0, 0, 1)
 
   bones.leftUpperLeg.node.quaternion.setFromEuler(legAngle)
+  iterateEntityNode(bones.leftUpperLeg!.node.entity, (entity) => {
+    getComponent(entity, BoneComponent).matrixWorld.makeRotationFromEuler(legAngle)
+  })
   bones.leftLowerLeg.node.quaternion.set(0, 0, 0, 1)
 
   return new VRMHumanoid(bones)
