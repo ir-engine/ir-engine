@@ -61,8 +61,8 @@ async function installAllProjects() {
     await Promise.all(projects.map((project) => download(project.name)))
     const updatedProject = await app
       .service(projectPath)
-      .update('', { sourceURL: '@etherealengine/default-project' }, { isInternal: true, isJob: true })
-    const projectConfig = getProjectConfig('@etherealengine/default-project')
+      .update('', { sourceURL: 'etherealengine/default-project' }, { isInternal: true, isJob: true })
+    const projectConfig = getProjectConfig('etherealengine/default-project')
     if (projectConfig && projectConfig.onEvent)
       await onProjectEvent(app, updatedProject, projectConfig.onEvent, 'onUpdate')
     process.exit(0)

@@ -252,23 +252,23 @@ describe('regex.test', () => {
     it('should match static asset URLs', () => {
       const positiveCases = [
         {
-          url: 'https://example.com/projects/@etherealengine/default-project/assets/images/logo.png',
-          projectName: '@etherealengine/default-project',
+          url: 'https://example.com/projects/etherealengine/default-project/assets/images/logo.png',
+          projectName: 'etherealengine/default-project',
           assetPath: 'assets/images/logo.png'
         },
         {
-          url: 'https://example.com/static-resources/@etherealengine/default-project/assets/images/logo.png',
-          projectName: '@etherealengine/default-project',
+          url: 'https://example.com/static-resources/etherealengine/default-project/assets/images/logo.png',
+          projectName: 'etherealengine/default-project',
           assetPath: 'assets/images/logo.png'
         },
         {
-          url: 'https://example.com/projects/@etherealengine/default-project/assets/animations/emotes.glb',
-          projectName: '@etherealengine/default-project',
+          url: 'https://example.com/projects/etherealengine/default-project/assets/animations/emotes.glb',
+          projectName: 'etherealengine/default-project',
           assetPath: 'assets/animations/emotes.glb'
         },
         {
-          url: 'https://example.com/projects/@etherealengine/default-project/assets/animations/locomotion.glb',
-          projectName: '@etherealengine/default-project',
+          url: 'https://example.com/projects/etherealengine/default-project/assets/animations/locomotion.glb',
+          projectName: 'etherealengine/default-project',
           assetPath: 'assets/animations/locomotion.glb'
         }
       ]
@@ -284,7 +284,7 @@ describe('regex.test', () => {
       const negativeCases = [
         'https://example.com/static-resources/',
         'https://example.com/project/subdir/assets',
-        'https://example.com/@etherealengine/default-project/assets/animations/emotes.glb'
+        'https://example.com/etherealengine/default-project/assets/animations/emotes.glb'
       ]
       negativeCases.forEach((url) => {
         assert.doesNotMatch(url, STATIC_ASSET_REGEX, `Expected '${url}' to not match STATIC_ASSET_REGEX`)
@@ -581,9 +581,9 @@ describe('regex.test', () => {
   describe('ASSETS_REGEX', () => {
     it('should match assets URLs', () => {
       const positiveCases = [
-        'https://example.com/projects/@etherealengine/default-project/assets/images/logo.png',
-        'https://example.com/projects/@etherealengine/default-project/assets/animations/emotes.glb',
-        'https://example.com/projects/@etherealengine/default-project/assets/animations/locomotion.glb'
+        'https://example.com/projects/etherealengine/default-project/assets/images/logo.png',
+        'https://example.com/projects/etherealengine/default-project/assets/animations/emotes.glb',
+        'https://example.com/projects/etherealengine/default-project/assets/animations/locomotion.glb'
       ]
       positiveCases.forEach((url) => {
         assert.match(url, ASSETS_REGEX, `Expected '${url}' to match ASSETS_REGEX`)
@@ -592,9 +592,9 @@ describe('regex.test', () => {
 
     it('should not match non-assets URLs', () => {
       const negativeCases = [
-        'https://example.com/projects/@etherealengine/default-project/scene.json',
-        'https://example.com/projects/@etherealengine/default-project/assets',
-        'https://example.com/@etherealengine/default-project/assets/animations/emotes.glb'
+        'https://example.com/projects/etherealengine/default-project/scene.json',
+        'https://example.com/projects/etherealengine/default-project/assets',
+        'https://example.com/etherealengine/default-project/assets/animations/emotes.glb'
       ]
       negativeCases.forEach((url) => {
         assert.doesNotMatch(url, ASSETS_REGEX, `Expected '${url}' to not match ASSETS_REGEX`)
@@ -605,9 +605,9 @@ describe('regex.test', () => {
   describe('PROJECT_REGEX', () => {
     it('should match valid project paths', () => {
       const positiveCases = [
-        'projects/@etherealengine/project123',
-        'projects/@etherealengine/project-name',
-        'projects/@etherealengine/project_name',
+        'projects/etherealengine/project123',
+        'projects/etherealengine/project-name',
+        'projects/etherealengine/project_name',
         'projects/project/123',
         'projects/project/abc_def'
       ]
@@ -630,9 +630,9 @@ describe('regex.test', () => {
   describe('PROJECT_PUBLIC_REGEX', () => {
     it('should match valid project paths', () => {
       const positiveCases = [
-        'projects/@etherealengine/project123/public/',
-        'projects/@etherealengine/project-name/public/',
-        'projects/@etherealengine/project_name/public/',
+        'projects/etherealengine/project123/public/',
+        'projects/etherealengine/project-name/public/',
+        'projects/etherealengine/project_name/public/',
         'projects/project/123/public/',
         'projects/project/abc_def/public/'
       ]
@@ -643,10 +643,10 @@ describe('regex.test', () => {
 
     it('should not match invalid project paths', () => {
       const negativeCases = [
-        'projects/@etherealengine/project123/public', // (missing trailing slash)
-        'projects/@etherealengine/project-name/private/', // (incorrect folder private instead of public)
-        'projects/@etherealengine/project$name/public/', // (contains invalid character $)
-        'projects/@etherealengine/project-@name/public/', // (contains invalid character @)
+        'projects/etherealengine/project123/public', // (missing trailing slash)
+        'projects/etherealengine/project-name/private/', // (incorrect folder private instead of public)
+        'projects/etherealengine/project$name/public/', // (contains invalid character $)
+        'projects/etherealengine/project-@name/public/', // (contains invalid character @)
         'projects/' // (missing project name and /public/)
       ]
       negativeCases.forEach((value) => {
@@ -658,9 +658,9 @@ describe('regex.test', () => {
   describe('PROJECT_THUMBNAIL_REGEX', () => {
     it('should match valid project thumbnail paths', () => {
       const positiveCases = [
-        'projects/@etherealengine/project123/thumbnails/',
-        'projects/@etherealengine/project-name/thumbnails/',
-        'projects/@etherealengine/project_name/thumbnails/',
+        'projects/etherealengine/project123/thumbnails/',
+        'projects/etherealengine/project-name/thumbnails/',
+        'projects/etherealengine/project_name/thumbnails/',
         'projects/project/123/thumbnails/',
         'projects/project/abc_def/thumbnails/'
       ]
@@ -671,10 +671,10 @@ describe('regex.test', () => {
 
     it('should not match invalid project thumbnail paths', () => {
       const negativeCases = [
-        'projects/@etherealengine/project123/thumbnails', // (missing trailing slash)
-        'projects/@etherealengine/project-name/private/', // (incorrect folder private instead of public)
-        'projects/@etherealengine/project$name/thumbnails/', // (contains invalid character $)
-        'projects/@etherealengine/project-@name/thumbnails/', // (contains invalid character @)
+        'projects/etherealengine/project123/thumbnails', // (missing trailing slash)
+        'projects/etherealengine/project-name/private/', // (incorrect folder private instead of public)
+        'projects/etherealengine/project$name/thumbnails/', // (contains invalid character $)
+        'projects/etherealengine/project-@name/thumbnails/', // (contains invalid character @)
         'projects/' // (missing project name and /thumbnail/)
       ]
       negativeCases.forEach((value) => {

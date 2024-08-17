@@ -100,7 +100,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     const data = (await super._find({ paginate: false })) as ProjectType[]
 
     for (const project of data) {
-      if (project.repositoryPath || project.name === '@etherealengine/default-project') {
+      if (project.repositoryPath || project.name === 'etherealengine/default-project') {
         const [orgName, projectName] = project.name.split('/')
 
         try {

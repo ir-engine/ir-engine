@@ -45,19 +45,19 @@ export async function up(knex: Knex): Promise<void> {
       for (const asset of assets) {
         if (
           asset.assetURL.startsWith('projects/default-project') &&
-          !asset.assetURL.startsWith('projects/@etherealengine/default-project/public/scenes')
+          !asset.assetURL.startsWith('projects/etherealengine/default-project/public/scenes')
         ) {
           await knex(assetPath)
             .where({ id: asset.id })
             .update({
               assetURL: asset.assetURL.replace(
                 'projects/default-project',
-                'projects/@etherealengine/default-project/public/scenes'
+                'projects/etherealengine/default-project/public/scenes'
               ),
               thumbnailURL: asset.thumbnailURL
                 ? asset.thumbnailURL.replace(
                     'projects/default-project',
-                    'projects/@etherealengine/default-project/public/scenes'
+                    'projects/etherealengine/default-project/public/scenes'
                   )
                 : null
             })
@@ -83,17 +83,17 @@ export async function down(knex: Knex): Promise<void> {
     if (project) {
       const assets = await knex.select().from(assetPath).where({ projectId: project.id })
       for (const asset of assets) {
-        if (asset.assetURL.startsWith('projects/@etherealengine/default-project/public/scenes')) {
+        if (asset.assetURL.startsWith('projects/etherealengine/default-project/public/scenes')) {
           await knex(assetPath)
             .where({ id: asset.id })
             .update({
               assetURL: asset.assetURL.replace(
-                'projects/@etherealengine/default-project/public/scenes',
+                'projects/etherealengine/default-project/public/scenes',
                 'projects/default-project'
               ),
               thumbnailURL: asset.thumbnailURL
                 ? asset.thumbnailURL.replace(
-                    'projects/@etherealengine/default-project/public/scenes',
+                    'projects/etherealengine/default-project/public/scenes',
                     'projects/default-project'
                   )
                 : null

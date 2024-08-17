@@ -37,31 +37,31 @@ export async function seed(knex: Knex): Promise<void> {
   const seedData: RouteType[] = await Promise.all(
     [
       {
-        project: '@etherealengine/default-project',
+        project: 'etherealengine/default-project',
         route: '/'
       },
       {
-        project: '@etherealengine/default-project',
+        project: 'etherealengine/default-project',
         route: '/location'
       },
       {
-        project: '@etherealengine/default-project',
+        project: 'etherealengine/default-project',
         route: '/admin'
       },
       {
-        project: '@etherealengine/default-project',
+        project: 'etherealengine/default-project',
         route: '/studio'
       },
       {
-        project: '@etherealengine/default-project',
+        project: 'etherealengine/default-project',
         route: '/studio-old'
       },
       {
-        project: '@etherealengine/default-project',
+        project: 'etherealengine/default-project',
         route: '/capture'
       },
       {
-        project: '@etherealengine/default-project',
+        project: 'etherealengine/default-project',
         route: '/chat'
       }
     ].map(async (item) => ({

@@ -36,7 +36,7 @@ cli.main(async () => {
     const serverPackageJSONPath = path.join(appRootPath.path, 'packages/server-core/package.json')
     const defaultProjectJSONPath = path.join(
       appRootPath.path,
-      'packages/projects/@etherealengine/default-project/package.json'
+      'packages/projects/etherealengine/default-project/package.json'
     )
     const templateProjectJSONPath = path.join(appRootPath.path, 'packages/projects/template-project/package.json')
     const serverPackageJSON = JSON.parse(fs.readFileSync(serverPackageJSONPath, { encoding: 'utf-8' }))

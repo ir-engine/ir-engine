@@ -325,24 +325,12 @@ export const getProjectConfig = (projectName: string) => {
   }
 }
 export const getProjectManifest = (projectName: string): ManifestJson => {
-  const packageJsonPath = path.resolve(projectsRootFolder, projectName, 'package.json')
   const manifestJsonPath = path.resolve(projectsRootFolder, projectName, 'manifest.json')
   if (fs.existsSync(manifestJsonPath)) {
     const data = fs.readFileSync(manifestJsonPath)
     return JSON.parse(data.toString()) as ManifestJson
   }
-  if (fs.existsSync(packageJsonPath)) {
-    const data = fs.readFileSync(packageJsonPath)
-    const packageJson = JSON.parse(data.toString()) as ProjectPackageJsonType
-    return {
-      name: packageJson.name!,
-      version: packageJson.version!,
-      engineVersion: packageJson.etherealEngine?.version,
-      description: packageJson.description,
-      thumbnail: packageJson.etherealEngine?.thumbnail
-    }
-  }
-  throw new Error(`No manifest.json or package.json found in project '${projectName}'`)
+  throw new Error(`No manifest.json found in project '${projectName}'`)
 }
 
 export const engineVersion = (
@@ -371,29 +359,8 @@ export const getProjectManifestFromRemote = async (
       Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
     ) as ManifestJson
   } catch (err) {
-    logger.warn("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
-
-    try {
-      const blobResponse = await octoKit.rest.repos.getContent({
-        owner,
-        repo,
-        path: 'package.json',
-        ref: sha
-      })
-      const packageJson = JSON.parse(
-        Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
-      ) as ProjectPackageJsonType
-      return {
-        name: packageJson.name,
-        version: packageJson.version,
-        engineVersion: packageJson.etherealEngine?.version,
-        description: packageJson.description,
-        thumbnail: packageJson.etherealEngine?.thumbnail
-      } as ManifestJson
-    } catch (err) {
-      logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
-      return Promise.reject(err)
-    }
+    logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
+    return Promise.reject(err)
   }
 }
 
@@ -1300,7 +1267,7 @@ export const copyDefaultProject = () => {
   deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
   copyFolderRecursiveSync(
     path.join(appRootPath.path, 'packages/projects/default-project'),
-    path.join(projectsRootFolder, '@etherealengine')
+    path.join(projectsRootFolder, 'etherealengine')
   )
 }
 
@@ -1350,9 +1317,9 @@ export const updateProject = async (
   },
   params?: ProjectParams
 ) => {
-  if (data.sourceURL === '@etherealengine/default-project') {
+  if (data.sourceURL === 'etherealengine/default-project') {
     copyDefaultProject()
-    await uploadLocalProjectToProvider(app, '@etherealengine/default-project')
+    await uploadLocalProjectToProvider(app, 'etherealengine/default-project')
     if (params?.jobId) {
       const date = await getDateTimeSql()
       await app.service(apiJobPath).patch(params.jobId as string, {
@@ -1364,7 +1331,7 @@ export const updateProject = async (
       (await app.service(projectPath).find({
         query: {
           action: 'admin',
-          name: '@etherealengine/default-project',
+          name: 'etherealengine/default-project',
           $limit: 1
         }
       })) as Paginated<ProjectType>

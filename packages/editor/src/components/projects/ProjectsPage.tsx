@@ -367,7 +367,7 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
             </a>
             <div className={styles.headerContainer} id={'headerContainer-' + project.name}>
               <h3 className={styles.header}>{project.name.replace(/-/g, ' ')}</h3>
-              {project.name !== '@etherealengine/default-project' && (
+              {project.name !== 'etherealengine/default-project' && (
                 <IconButton
                   className={styles.iconButton}
                   disableRipple
@@ -534,7 +534,7 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
           </div>
         ) : null} */}
       </div>
-      {activeProjectValue?.name !== '@etherealengine/default-project' && (
+      {activeProjectValue?.name !== 'etherealengine/default-project' && (
         <Menu
           anchorEl={projectAnchorEl.value}
           open={Boolean(projectAnchorEl.value)}
