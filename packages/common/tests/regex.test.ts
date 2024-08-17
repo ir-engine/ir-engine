@@ -253,22 +253,22 @@ describe('regex.test', () => {
       const positiveCases = [
         {
           url: 'https://example.com/projects/@etherealengine/default-project/assets/images/logo.png',
-          projectName: 'default-project',
+          projectName: '@etherealengine/default-project',
           assetPath: 'assets/images/logo.png'
         },
         {
           url: 'https://example.com/static-resources/@etherealengine/default-project/assets/images/logo.png',
-          projectName: 'default-project',
+          projectName: '@etherealengine/default-project',
           assetPath: 'assets/images/logo.png'
         },
         {
           url: 'https://example.com/projects/@etherealengine/default-project/assets/animations/emotes.glb',
-          projectName: 'default-project',
+          projectName: '@etherealengine/default-project',
           assetPath: 'assets/animations/emotes.glb'
         },
         {
           url: 'https://example.com/projects/@etherealengine/default-project/assets/animations/locomotion.glb',
-          projectName: 'default-project',
+          projectName: '@etherealengine/default-project',
           assetPath: 'assets/animations/locomotion.glb'
         }
       ]
