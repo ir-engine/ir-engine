@@ -546,11 +546,11 @@ export const checkProjectDestinationMatch = async (
     return { sourceProjectMatchesDestination: true, projectName: sourceContent.name }
 
   const destinationManifest = destinationContent as ManifestJson
-  // if (sourceContent.name.toLowerCase() !== destinationManifest.name.toLowerCase())
-  //   return {
-  //     error: 'invalidRepoProjectName',
-  //     text: 'The repository you are attempting to update from contains a different project than the one you are updating'
-  //   }
+  if (sourceContent.name.toLowerCase() !== destinationManifest.name.toLowerCase())
+    return {
+      error: 'invalidRepoProjectName',
+      text: 'The repository you are attempting to update from contains a different project than the one you are updating'
+    }
   return { sourceProjectMatchesDestination: true, projectName: sourceContent.name }
 }
 
