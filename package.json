@@ -58,7 +58,7 @@
     "dev-docker": "cd scripts && ./start-containers.sh",
     "dev-docker-windows": "cd scripts && docker-compose up -d && docker-compose up -d -f docker-compose-minio.yml",
     "dev-tabs": "npm run dev-docker && cd scripts && ./dev-tabs.sh",
-    "fetch-projects": "lerna exec 'git fetch -p && git rebase' --parallel --ignore @etherealengine/* --no-bail",
+    "fetch-projects": "lerna exec 'git fetch -p && git rebase' --parallel --no-bail",
     "dev-reinit": "./scripts/checkenv.sh && npm run dev-docker && cd packages/server && npm run dev-reinit-db",
     "dev-server": "cd packages/server && npm run dev",
     "dev-windows": "npm run dev-docker-windows && concurrently -n agones,server,client npm:dev-agones-silent npm:dev-server npm:dev-client",
