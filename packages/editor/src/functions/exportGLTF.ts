@@ -30,8 +30,8 @@ import exportModelGLTF from '@etherealengine/engine/src/assets/functions/exportM
 import { uploadProjectFiles } from './assetFunctions'
 
 export default async function exportGLTF(entity: Entity, path: string) {
-  const [, pName, fileName] = STATIC_ASSET_REGEX.exec(path)!
-  return exportRelativeGLTF(entity, pName, fileName)
+  const [, orgname, pName, fileName] = STATIC_ASSET_REGEX.exec(path)!
+  return exportRelativeGLTF(entity, `${orgname}/${pName}`, fileName)
 }
 
 export async function exportRelativeGLTF(entity: Entity, projectName: string, relativePath: string) {
