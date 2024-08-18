@@ -32,8 +32,6 @@ import { useTranslation } from 'react-i18next'
 
 import ProjectFields from '@etherealengine/client-core/src/admin/common/Project/ProjectFields'
 import { ProjectUpdateState } from '@etherealengine/client-core/src/admin/services/ProjectUpdateService'
-import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Button } from '../inputs/Button'
@@ -41,7 +39,7 @@ import styles from './styles.module.scss'
 
 interface Props {
   open: boolean
-  onSuccess: (name: string, repositoryPath?: string) => Promise<void>
+  onSuccess: (orgname: string, reponame: string, repositoryPath?: string) => Promise<void>
   onClose: () => void
 }
 
@@ -50,28 +48,19 @@ export const CreateProjectDialog = ({ open, onSuccess, onClose }: Props): any =>
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
-  const [projectName, setProjectName] = useState('')
+  const [orgName, setOrgName] = useState('')
+  const [repoName, setRepoName] = useState('')
 
-  const project = {
-    id: '',
-    name: 'tempProject',
-    thumbnail: '',
-    repositoryPath: '',
-    needsRebuild: false,
-    updateType: 'none' as ProjectType['updateType'],
-    updateSchedule: DefaultUpdateSchedule,
-    commitSHA: '',
-    commitDate: new Date()
-  }
+  const name = `${orgName}/${repoName}`
 
-  const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name]).value
+  const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[name]).value
 
   const handleCreateProject = async () => {
-    if (!projectName) return
+    if (!repoName || !orgName) return
 
     setProcessing(true)
     try {
-      await onSuccess(projectName, projectUpdateStatus?.destinationURL)
+      await onSuccess(orgName, repoName, projectUpdateStatus?.destinationURL)
       closeDialog()
     } catch (err) {
       setError(err.message)
@@ -87,7 +76,7 @@ export const CreateProjectDialog = ({ open, onSuccess, onClose }: Props): any =>
   }
 
   const closeDialog = () => {
-    setProjectName('')
+    setRepoName('')
     onClose()
   }
 
@@ -113,6 +102,23 @@ export const CreateProjectDialog = ({ open, onSuccess, onClose }: Props): any =>
               id="outlined-basic"
               variant="outlined"
               size="small"
+              placeholder={t('editor.projects.orgName')}
+              InputProps={{
+                classes: {
+                  root: styles.inputContainer,
+                  notchedOutline: styles.outline,
+                  input: styles.input
+                }
+              }}
+              value={orgName}
+              onChange={(e) => setOrgName(e.target.value.toLowerCase())}
+              onKeyDown={handleSubmitOnEnter}
+            />
+
+            <TextField
+              id="outlined-basic"
+              variant="outlined"
+              size="small"
               placeholder={t('editor.projects.projectName')}
               InputProps={{
                 classes: {
@@ -121,8 +127,8 @@ export const CreateProjectDialog = ({ open, onSuccess, onClose }: Props): any =>
                   input: styles.input
                 }
               }}
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value.toLowerCase())}
+              value={repoName}
+              onChange={(e) => setRepoName(e.target.value.toLowerCase())}
               onKeyDown={handleSubmitOnEnter}
             />
             {error && error.length > 0 && <h2 className={styles.errorMessage}>{error}</h2>}
@@ -130,7 +136,7 @@ export const CreateProjectDialog = ({ open, onSuccess, onClose }: Props): any =>
             <Button
               onClick={handleCreateProject}
               className={styles.btn}
-              disabled={!projectName || projectUpdateStatus?.submitDisabled}
+              disabled={!repoName || !orgName || projectUpdateStatus?.submitDisabled}
             >
               {t('editor.projects.lbl-createProject')}
             </Button>

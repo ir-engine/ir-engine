@@ -229,11 +229,11 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
   const data: ProjectType[] = context.result!['data'] ? context.result!['data'] : context.result
   for (const item of data) {
     try {
-      const packageJson = getProjectManifest(item.name)
-      item.thumbnail = packageJson.thumbnail || '/static/IR_thumbnail.jpg'
-      item.version = packageJson.version
-      item.engineVersion = packageJson.engineVersion
-      item.description = packageJson.description
+      const manifestJson = getProjectManifest(item.name)
+      item.thumbnail = manifestJson.thumbnail || '/static/IR_thumbnail.jpg'
+      item.version = manifestJson.version
+      item.engineVersion = manifestJson.engineVersion
+      item.description = manifestJson.description
       item.hasWriteAccess = context.projectPushIds.indexOf(item.id) > -1
     } catch (err) {
       //
@@ -263,7 +263,13 @@ const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
 
   const data: ProjectData[] = Array.isArray(context.data) ? context.data : [context.data]
 
-  context.projectName = cleanString(data[0].name!).toLowerCase()
+  const projectName = data[0].name!
+
+  const orgName = projectName.slice(0, projectName.indexOf('/'))
+
+  const cleanedProjectName = cleanString(projectName.slice(projectName.indexOf('/')))
+
+  context.projectName = `${orgName}/${cleanedProjectName}`.toLowerCase()
 
   const projectExists = (await context.service._find({
     query: { name: context.projectName, $limit: 1 }
@@ -279,7 +285,7 @@ const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
  */
 const checkIfNameIsValid = async (context: HookContext<ProjectService>) => {
   if (
-    (!config.db.forceRefresh && context.projectName === 'default-project') ||
+    (!config.db.forceRefresh && context.projectName === 'etherealengine/default-project') ||
     context.projectName === 'template-project'
   )
     throw new Error(`[Projects]: Project name ${context.projectName} not allowed`)

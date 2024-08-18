@@ -25,7 +25,7 @@ jobs:
       - name: Checkout Project
         uses: actions/checkout@v3
         with:
-          path: './packages/projects/projects/${{ github.event.repository.name }}'
+          path: './packages/projects/projects/etherealengine/${{ github.event.repository.name }}'
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:

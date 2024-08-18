@@ -57,10 +57,18 @@ declare module '@etherealengine/common/declarations' {
 
 export const getInstalledRoutes = () => {
   return async () => {
+    const rootPath = path.resolve(__dirname, '../../../../projects/projects/')
     const projects = fs
-      .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
+      .readdirSync(rootPath, { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
+      .map((orgname) => {
+        return fs
+          .readdirSync(path.join(rootPath, orgname), { withFileTypes: true })
+          .filter((dirent) => dirent.isDirectory())
+          .map((dirent) => `${orgname}/${dirent.name}`)
+      })
+      .flat()
 
     const data: InstalledRoutesInterface[] = []
     await Promise.all(

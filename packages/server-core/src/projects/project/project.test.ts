@@ -46,7 +46,7 @@ import { identityProviderDataResolver } from '../../user/identity-provider/ident
 import { useGit } from '../../util/gitHelperFunctions'
 
 const cleanup = async (app: Application, projectName: string) => {
-  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${projectName.split('/')[0]}/`)
   deleteFolderRecursive(projectDir)
   const removingProjects = await app.service(projectPath).find({ query: { name: projectName } })
   if (removingProjects.data.length) await app.service(projectPath).remove(removingProjects.data[0].id)
@@ -106,7 +106,7 @@ describe('project.test', () => {
     })
 
     it('should add new project', async () => {
-      const projectName = `test-project-${uuidv4().slice(0, 8)}`
+      const projectName = `@org/test-project-${uuidv4().slice(0, 8)}`
 
       testProject = await app.service(projectPath).create(
         {
@@ -148,9 +148,9 @@ describe('project.test', () => {
       await git.add('.')
       await git.commit('initial commit')
 
-      testUpdateProjectName = `test-update-project-name-${uuidv4().slice(0, 8)}`
+      testUpdateProjectName = `@org1/test-update-project-name-${uuidv4().slice(0, 8)}`
 
-      const projectName = `test-project-${uuidv4().slice(0, 8)}`
+      const projectName = `@org1/test-project-${uuidv4().slice(0, 8)}`
       testProject = await app.service(projectPath).create(
         {
           name: projectName
@@ -209,7 +209,7 @@ describe('project.test', () => {
 
   describe('patch', () => {
     beforeEach(async () => {
-      const projectName = `test-project-${uuidv4().slice(0, 8)}`
+      const projectName = `@org1/test-project-${uuidv4().slice(0, 8)}`
       testProject = await app.service(projectPath).create(
         {
           name: projectName
@@ -233,7 +233,7 @@ describe('project.test', () => {
 
   describe('remove', () => {
     beforeEach(async () => {
-      const projectName = `test-project-${uuidv4().slice(0, 8)}`
+      const projectName = `@org1/test-project-${uuidv4().slice(0, 8)}`
       testProject = await app.service(projectPath).create(
         {
           name: projectName
