@@ -23,6 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import {
   ProjectPermissionData,
@@ -37,9 +40,6 @@ import { projectPath } from '@ir-engine/common/src/schemas/projects/project.sche
 import { InviteCode, UserID, UserType, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import setLoggedInUserData from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
 import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
-import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
-import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { projectHistoryPath } from '@ir-engine/common/src/schema.type.module'

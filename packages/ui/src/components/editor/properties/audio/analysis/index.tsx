@@ -27,11 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@ir-engine/ecs'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { AudioAnalysisComponent } from '@ir-engine/engine/src/scene/components/AudioAnalysisComponent'
 import { SiAudiomack } from 'react-icons/si'
 import Slider from '../../../../../primitives/tailwind/Slider'

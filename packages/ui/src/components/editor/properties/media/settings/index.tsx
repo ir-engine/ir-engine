@@ -27,11 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
 import { MediaSettingsComponent } from '@ir-engine/engine/src/scene/components/MediaSettingsComponent'
 import { MdPermMedia } from 'react-icons/md'

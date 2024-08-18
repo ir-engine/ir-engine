@@ -52,12 +52,7 @@ import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@ir-engine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { ImmutableArray, NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import {
-  useFind,
-  useMutation,
-  useRealtime,
-  useSearch
-} from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'

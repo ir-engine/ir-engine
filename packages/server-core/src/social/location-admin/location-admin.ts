@@ -23,10 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  locationAdminMethods,
-  locationAdminPath
-} from '@ir-engine/common/src/schemas/social/location-admin.schema'
+import { locationAdminMethods, locationAdminPath } from '@ir-engine/common/src/schemas/social/location-admin.schema'
 
 // Initializes the `location-admin` service on path `/location-admin`
 import { Application } from '../../../declarations'

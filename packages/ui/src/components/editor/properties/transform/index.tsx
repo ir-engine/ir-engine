@@ -27,22 +27,13 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion, Vector3 } from 'three'
 
-import {
-  getComponent,
-  hasComponent,
-  useComponent,
-  useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadTagComponent } from '@ir-engine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { LuMove3D } from 'react-icons/lu'
 
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { ObjectGridSnapState } from '@ir-engine/editor/src/systems/ObjectGridSnapSystem'
 
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'

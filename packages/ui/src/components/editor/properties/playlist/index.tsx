@@ -31,11 +31,7 @@ import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
 
 import { usePrevious } from '@ir-engine/common/src/utils/usePrevious'
 import { Entity } from '@ir-engine/ecs'
-import {
-  EditorComponentType,
-  commitProperties,
-  commitProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { PlaylistComponent } from '@ir-engine/engine/src/scene/components/PlaylistComponent'
 import { NO_PROXY, State, none } from '@ir-engine/hyperflux'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'

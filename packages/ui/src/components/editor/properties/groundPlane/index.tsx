@@ -28,11 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { FaSquareFull } from 'react-icons/fa6'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
 import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
 import ColorInput from '../../../../primitives/tailwind/Color'

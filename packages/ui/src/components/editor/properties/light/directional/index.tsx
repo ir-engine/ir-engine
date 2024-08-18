@@ -30,11 +30,7 @@ import { DirectionalLightComponent } from '@ir-engine/spatial/src/renderer/compo
 import { BsLightning } from 'react-icons/bs'
 
 import { useComponent } from '@ir-engine/ecs'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'

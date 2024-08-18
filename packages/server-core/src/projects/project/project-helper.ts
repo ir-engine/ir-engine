@@ -59,10 +59,7 @@ import { ProjectCommitType } from '@ir-engine/common/src/schemas/projects/projec
 import { ProjectDestinationCheckType } from '@ir-engine/common/src/schemas/projects/project-destination-check.schema'
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { helmSettingPath } from '@ir-engine/common/src/schemas/setting/helm-setting.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { getDateTimeSql, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import {

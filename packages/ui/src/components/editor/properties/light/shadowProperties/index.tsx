@@ -27,11 +27,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Component, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import React from 'react'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'

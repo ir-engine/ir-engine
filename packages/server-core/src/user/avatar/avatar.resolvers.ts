@@ -28,12 +28,7 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import { staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
-import {
-  AvatarDatabaseType,
-  AvatarID,
-  AvatarQuery,
-  AvatarType
-} from '@ir-engine/common/src/schemas/user/avatar.schema'
+import { AvatarDatabaseType, AvatarID, AvatarQuery, AvatarType } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'

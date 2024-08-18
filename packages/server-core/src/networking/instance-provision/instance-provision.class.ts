@@ -38,12 +38,7 @@ import {
 import { InstanceProvisionType } from '@ir-engine/common/src/schemas/networking/instance-provision.schema'
 import { InstanceID, instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { ChannelID, channelPath } from '@ir-engine/common/src/schemas/social/channel.schema'
-import {
-  LocationID,
-  locationPath,
-  LocationType,
-  RoomCode
-} from '@ir-engine/common/src/schemas/social/location.schema'
+import { LocationID, locationPath, LocationType, RoomCode } from '@ir-engine/common/src/schemas/social/location.schema'
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'

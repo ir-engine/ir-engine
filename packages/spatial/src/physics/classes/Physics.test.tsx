@@ -56,14 +56,7 @@ import { TriggerComponent } from '../components/TriggerComponent'
 import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 
-import {
-  Entity,
-  EntityUUID,
-  SystemDefinitions,
-  UUIDComponent,
-  UndefinedEntity,
-  removeEntity
-} from '@ir-engine/ecs'
+import { Entity, EntityUUID, SystemDefinitions, UUIDComponent, UndefinedEntity, removeEntity } from '@ir-engine/ecs'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { MeshComponent } from '../../renderer/components/MeshComponent'

@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import setLoggedInUserInData from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import setLoggedInUserInData from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
 import { iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import {

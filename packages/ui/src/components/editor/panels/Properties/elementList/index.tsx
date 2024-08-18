@@ -30,11 +30,7 @@ import { useTranslation } from 'react-i18next'
 import { Component } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
-import {
-  PrefabIcons,
-  PrefabShelfItem,
-  PrefabShelfState
-} from '@ir-engine/editor/src/components/prefabs/PrefabEditors'
+import { PrefabIcons, PrefabShelfItem, PrefabShelfState } from '@ir-engine/editor/src/components/prefabs/PrefabEditors'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'

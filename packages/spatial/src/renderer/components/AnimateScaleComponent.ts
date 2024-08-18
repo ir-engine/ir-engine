@@ -27,12 +27,7 @@ import { Tween } from '@tweenjs/tween.js'
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
-import {
-  defineComponent,
-  getComponent,
-  removeComponent,
-  setComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 

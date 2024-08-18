@@ -56,11 +56,7 @@ import { State } from '@ir-engine/hyperflux'
 import { HiSparkles } from 'react-icons/hi'
 
 import PaginatedList from '@ir-engine/editor/src/components/layout/PaginatedList'
-import {
-  EditorComponentType,
-  commitProperties,
-  commitProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import Button from '../../../../primitives/tailwind/Button'
 import BehaviorInput from '../../input/Behavior'
 import BooleanInput from '../../input/Boolean'

@@ -35,10 +35,7 @@ import { ChannelType, channelPath } from '@ir-engine/common/src/schemas/social/c
 import { invitePath } from '@ir-engine/common/src/schemas/social/invite.schema'
 import { locationAuthorizedUserPath } from '@ir-engine/common/src/schemas/social/location-authorized-user.schema'
 import { LocationID, locationPath } from '@ir-engine/common/src/schemas/social/location.schema'
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { IdentityProviderType, identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@ir-engine/common/src/schemas/user/user-relationship.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 

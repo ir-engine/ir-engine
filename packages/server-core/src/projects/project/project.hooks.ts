@@ -53,10 +53,7 @@ import {
   githubRepoAccessPath,
   GithubRepoAccessType
 } from '@ir-engine/common/src/schemas/user/github-repo-access.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import templateManifestJson from '@ir-engine/projects/template-project/manifest.json'

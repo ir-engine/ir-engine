@@ -30,10 +30,7 @@ import * as path from 'path'
 import * as pug from 'pug'
 
 import { emailPath } from '@ir-engine/common/src/schemas/user/email.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
 import { smsPath } from '@ir-engine/common/src/schemas/user/sms.schema'
 import { UserName } from '@ir-engine/common/src/schemas/user/user.schema'

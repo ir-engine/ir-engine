@@ -28,10 +28,7 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import {
-  EntityTreeComponent,
-  getAncestorWithComponent
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent, getAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'

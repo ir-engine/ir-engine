@@ -23,12 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { NotImplemented } from '@feathersjs/errors'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { metabaseSettingPath } from '@ir-engine/common/src/schemas/integrations/metabase/metabase-setting.schema'
 import { metabaseUrlDataValidator } from '@ir-engine/common/src/schemas/integrations/metabase/metabase-url.schema'
 import { HookContext } from '@ir-engine/server-core/declarations'
 import verifyScope from '@ir-engine/server-core/src/hooks/verify-scope'
-import { NotImplemented } from '@feathersjs/errors'
-import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff } from 'feathers-hooks-common'
 import Jwt from 'jsonwebtoken'
 import isAction from '../../../hooks/is-action'

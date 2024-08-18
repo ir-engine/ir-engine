@@ -44,6 +44,7 @@ import {
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
 
+import { Paginated } from '@feathersjs/feathers'
 import {
   projectPath,
   projectPermissionPath,
@@ -51,7 +52,6 @@ import {
   UserApiKeyType,
   UserType
 } from '@ir-engine/common/src/schema.type.module'
-import { Paginated } from '@feathersjs/feathers'
 import { HookContext } from '../../../declarations'
 import appConfig from '../../appconfig'
 import persistData from '../../hooks/persist-data'

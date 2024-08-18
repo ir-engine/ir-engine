@@ -27,10 +27,7 @@ import type { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
 import { ProjectDatabaseType, projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
-import {
-  ProjectSettingType,
-  projectSettingPath
-} from '@ir-engine/common/src/schemas/setting/project-setting.schema'
+import { ProjectSettingType, projectSettingPath } from '@ir-engine/common/src/schemas/setting/project-setting.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 
 const getConvertedProjectSettings = async (projects: ProjectDatabaseType[]) => {

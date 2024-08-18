@@ -30,11 +30,7 @@ import { LuCircleDot } from 'react-icons/lu'
 import { MathUtils as _Math } from 'three'
 
 import { useComponent } from '@ir-engine/ecs'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'

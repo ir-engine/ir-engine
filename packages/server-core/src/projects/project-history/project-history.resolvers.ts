@@ -27,10 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import {
-  ProjectHistoryQuery,
-  ProjectHistoryType
-} from '@ir-engine/common/src/schemas/projects/project-history.schema'
+import { ProjectHistoryQuery, ProjectHistoryType } from '@ir-engine/common/src/schemas/projects/project-history.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
 

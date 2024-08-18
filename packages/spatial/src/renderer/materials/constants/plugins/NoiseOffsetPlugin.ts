@@ -25,13 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Material, Uniform, Vector3 } from 'three'
 
-import {
-  defineComponent,
-  defineQuery,
-  getComponent,
-  PresentationSystemGroup,
-  useEntityContext
-} from '@ir-engine/ecs'
+import { defineComponent, defineQuery, getComponent, PresentationSystemGroup, useEntityContext } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'

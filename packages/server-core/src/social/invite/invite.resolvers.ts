@@ -36,10 +36,7 @@ import {
   InviteType,
   SpawnDetailsType
 } from '@ir-engine/common/src/schemas/social/invite.schema'
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { IdentityProviderType, identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'

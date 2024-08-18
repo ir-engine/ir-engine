@@ -26,10 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
 
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 

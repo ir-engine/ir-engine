@@ -37,10 +37,7 @@ import { locationAdminPath, LocationAdminType } from '@ir-engine/common/src/sche
 import { locationBanPath, LocationBanType } from '@ir-engine/common/src/schemas/social/location-ban.schema'
 import { locationPath } from '@ir-engine/common/src/schemas/social/location.schema'
 import { avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { userAvatarPath, UserAvatarType } from '@ir-engine/common/src/schemas/user/user-avatar.schema'
 import { userSettingPath, UserSettingType } from '@ir-engine/common/src/schemas/user/user-setting.schema'

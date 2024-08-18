@@ -23,12 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import {
   userLoginDataValidator,
   userLoginPatchValidator,
   userLoginQueryValidator
 } from '@ir-engine/common/src/schemas/user/user-login.schema'
-import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 import {
   userLoginDataResolver,

@@ -25,12 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import {
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  setComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { ReactorReconciler } from '@ir-engine/hyperflux'
 

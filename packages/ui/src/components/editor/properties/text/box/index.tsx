@@ -24,11 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useComponent } from '@ir-engine/ecs'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { TextComponent } from '@ir-engine/engine/src/scene/components/TextComponent'
 import { FaStreetView } from 'react-icons/fa'
 

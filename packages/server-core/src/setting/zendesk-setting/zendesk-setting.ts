@@ -23,10 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  zendeskSettingMethods,
-  zendeskSettingPath
-} from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
+import { zendeskSettingMethods, zendeskSettingPath } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
 
 import { Application } from '../../../declarations'
 import { updateAppConfig } from '../../updateAppConfig'

@@ -27,10 +27,7 @@ import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
 import { GenerateTokenData, GenerateTokenQuery } from '@ir-engine/common/src/schemas/user/generate-token.schema'
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { IdentityProviderType, identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 
 import { Application } from '../../../declarations'
 

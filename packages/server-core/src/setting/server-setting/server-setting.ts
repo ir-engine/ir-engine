@@ -23,10 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  serverSettingMethods,
-  serverSettingPath
-} from '@ir-engine/common/src/schemas/setting/server-setting.schema'
+import { serverSettingMethods, serverSettingPath } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
 import { Application } from '../../../declarations'
 import { updateAppConfig } from '../../updateAppConfig'

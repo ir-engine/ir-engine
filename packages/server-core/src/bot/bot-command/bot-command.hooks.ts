@@ -26,10 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import {
-  botCommandDataValidator,
-  botCommandQueryValidator
-} from '@ir-engine/common/src/schemas/bot/bot-command.schema'
+import { botCommandDataValidator, botCommandQueryValidator } from '@ir-engine/common/src/schemas/bot/bot-command.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {

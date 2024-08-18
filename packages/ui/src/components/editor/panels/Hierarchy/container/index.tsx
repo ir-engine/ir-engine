@@ -47,6 +47,7 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { Engine, Entity, UUIDComponent, entityExists } from '@ir-engine/ecs'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 
+import { GLTF } from '@gltf-transform/core'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
@@ -68,7 +69,6 @@ import { GLTFAssetState, GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GL
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
-import { GLTF } from '@gltf-transform/core'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'

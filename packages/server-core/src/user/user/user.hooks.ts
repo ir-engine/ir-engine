@@ -28,10 +28,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { userAvatarPath } from '@ir-engine/common/src/schemas/user/user-avatar.schema'
 import { userSettingPath } from '@ir-engine/common/src/schemas/user/user-setting.schema'

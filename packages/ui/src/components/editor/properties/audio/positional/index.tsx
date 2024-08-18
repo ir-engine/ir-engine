@@ -28,11 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { PiSpeakerLowLight } from 'react-icons/pi'
 
 import { hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'

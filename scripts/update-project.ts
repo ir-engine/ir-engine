@@ -27,12 +27,12 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
+import { NotAuthenticated } from '@feathersjs/errors'
 import { projectPath, userPath } from '@ir-engine/common/src/schema.type.module'
 import { ServerMode } from '@ir-engine/server-core/src/ServerState'
 import config from '@ir-engine/server-core/src/appconfig'
 import { createFeathersKoaApp, serverJobPipe } from '@ir-engine/server-core/src/createApp'
 import { updateAppConfig } from '@ir-engine/server-core/src/updateAppConfig'
-import { NotAuthenticated } from '@feathersjs/errors'
 import { Octokit } from '@octokit/rest'
 import { JwtPayload, decode } from 'jsonwebtoken'
 

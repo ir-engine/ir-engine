@@ -25,12 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import {
-  botDataSchema,
-  botPatchSchema,
-  botQuerySchema,
-  botSchema
-} from '@ir-engine/common/src/schemas/bot/bot.schema'
+import { botDataSchema, botPatchSchema, botQuerySchema, botSchema } from '@ir-engine/common/src/schemas/bot/bot.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

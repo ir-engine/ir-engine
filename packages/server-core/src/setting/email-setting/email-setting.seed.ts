@@ -26,10 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
-import {
-  EmailSettingDatabaseType,
-  emailSettingPath
-} from '@ir-engine/common/src/schemas/setting/email-setting.schema'
+import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import appConfig from '@ir-engine/server-core/src/appconfig'
 

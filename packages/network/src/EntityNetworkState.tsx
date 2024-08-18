@@ -27,14 +27,7 @@ import React, { useEffect, useLayoutEffect } from 'react'
 
 import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
 import { UserID } from '@ir-engine/common/src/schema.type.module'
-import {
-  Engine,
-  EntityUUID,
-  getOptionalComponent,
-  removeEntity,
-  setComponent,
-  UUIDComponent
-} from '@ir-engine/ecs'
+import { Engine, EntityUUID, getOptionalComponent, removeEntity, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineState,
   dispatchAction,

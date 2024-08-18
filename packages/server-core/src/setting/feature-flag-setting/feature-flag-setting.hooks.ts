@@ -23,13 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import {
   featureFlagSettingDataValidator,
   featureFlagSettingPatchValidator,
   featureFlagSettingQueryValidator
 } from '@ir-engine/common/src/schemas/setting/feature-flag-setting.schema'
 import setLoggedInUserInData from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
-import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import enableClientPagination from '../../hooks/enable-client-pagination'

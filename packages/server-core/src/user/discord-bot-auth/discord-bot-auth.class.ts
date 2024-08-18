@@ -28,10 +28,7 @@ import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import fetch from 'node-fetch'
 
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID, userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 
 import { Application } from '../../../declarations'

@@ -23,10 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  modelTransformMethods,
-  modelTransformPath
-} from '@ir-engine/common/src/schemas/assets/model-transform.schema'
+import { modelTransformMethods, modelTransformPath } from '@ir-engine/common/src/schemas/assets/model-transform.schema'
 
 import { Application } from '../../../declarations'
 import { ModelTransformService } from './model-transform.class'

@@ -70,10 +70,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { CSM } from '@ir-engine/spatial/src/renderer/csm/CSM'
 //import { CSMHelper } from '@ir-engine/spatial/src/renderer/csm/CSMHelper'
-import {
-  getShadowsEnabled,
-  useShadowsEnabled
-} from '@ir-engine/spatial/src/renderer/functions/RenderSettingsFunction'
+import { getShadowsEnabled, useShadowsEnabled } from '@ir-engine/spatial/src/renderer/functions/RenderSettingsFunction'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/components/DistanceComponents'

@@ -23,11 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Paginated, Params } from '@feathersjs/feathers'
 import { AvatarType, avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { UserApiKeyType, userApiKeyPath } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, UserType, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { Application } from '@ir-engine/server-core/declarations'
-import { Paginated, Params } from '@feathersjs/feathers'
 import crypto from 'crypto'
 import { random } from 'lodash'
 import { v1 } from 'uuid'

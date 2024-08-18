@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import * as ffprobe from '@ffprobe-installer/ffprobe'
 import { ResourcesJson } from '@ir-engine/common/src/interfaces/ResourcesJson'
 import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import * as ffprobe from '@ffprobe-installer/ffprobe'
 import appRootPath from 'app-root-path'
 import execa from 'execa'
 import fs from 'fs'

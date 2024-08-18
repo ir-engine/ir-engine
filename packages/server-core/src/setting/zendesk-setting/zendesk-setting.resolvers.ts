@@ -27,10 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import {
-  ZendeskSettingQuery,
-  ZendeskSettingType
-} from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
+import { ZendeskSettingQuery, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
 

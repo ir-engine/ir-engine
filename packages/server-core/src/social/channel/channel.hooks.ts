@@ -39,10 +39,7 @@ import {
   channelPath,
   ChannelType
 } from '@ir-engine/common/src/schemas/social/channel.schema'
-import {
-  userRelationshipPath,
-  UserRelationshipType
-} from '@ir-engine/common/src/schemas/user/user-relationship.schema'
+import { userRelationshipPath, UserRelationshipType } from '@ir-engine/common/src/schemas/user/user-relationship.schema'
 import setLoggedInUser from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
 
 import { HookContext } from '../../../declarations'

@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import appConfig from '@ir-engine/server-core/src/appconfig'
 import { Application, HookContext } from '@feathersjs/feathers/lib/declarations'
+import appConfig from '@ir-engine/server-core/src/appconfig'
 import { disallow } from 'feathers-hooks-common'
 import { sign } from 'jsonwebtoken'
 

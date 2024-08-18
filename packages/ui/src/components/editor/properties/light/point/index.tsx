@@ -29,11 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { PointLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/PointLightComponent'
 
 import { useComponent } from '@ir-engine/ecs'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { AiOutlineBulb } from 'react-icons/ai'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'

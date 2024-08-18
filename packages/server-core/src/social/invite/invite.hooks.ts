@@ -32,10 +32,7 @@ import {
   invitePatchValidator,
   inviteQueryValidator
 } from '@ir-engine/common/src/schemas/social/invite.schema'
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { IdentityProviderType, identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@ir-engine/common/src/schemas/user/user-relationship.schema'
 import inviteRemoveAuthenticate from '@ir-engine/server-core/src/hooks/invite-remove-authenticate'
 import attachOwnerIdInBody from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'

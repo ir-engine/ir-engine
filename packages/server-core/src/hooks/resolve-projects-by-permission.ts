@@ -23,13 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  ProjectType,
-  UserType,
-  projectPath,
-  projectPermissionPath
-} from '@ir-engine/common/src/schema.type.module'
 import { Forbidden } from '@feathersjs/errors'
+import { ProjectType, UserType, projectPath, projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
 import { Application, HookContext } from '../../declarations'
 /**
  * if project is not provided query the project permission table for all projects the user has permissions for.

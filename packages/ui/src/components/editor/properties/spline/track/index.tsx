@@ -32,11 +32,7 @@ import { MdCameraswitch } from 'react-icons/md'
 
 import { UUIDComponent } from '@ir-engine/ecs'
 import { useQuery } from '@ir-engine/ecs/src/QueryFunctions'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'

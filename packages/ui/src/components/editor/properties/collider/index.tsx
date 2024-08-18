@@ -26,10 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
-import {
-  ColliderComponent,
-  supportedColliderShapes
-} from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { ColliderComponent, supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import React from 'react'
 import { useTranslation } from 'react-i18next'

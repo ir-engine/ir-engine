@@ -23,10 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  migrationsInfoMethods,
-  migrationsInfoPath
-} from '@ir-engine/common/src/schemas/cluster/migrations-info.schema'
+import { migrationsInfoMethods, migrationsInfoPath } from '@ir-engine/common/src/schemas/cluster/migrations-info.schema'
 
 import { Application } from '../../../declarations'
 import { MigrationsInfoService } from './migrations-info.class'

@@ -29,6 +29,9 @@ import {
   staticResourcePath
 } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 
+import { BadRequest } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
+import { Channel } from '@feathersjs/transport-commons'
 import {
   ScopeData,
   ScopeType,
@@ -38,9 +41,6 @@ import {
   projectPermissionPath,
   scopePath
 } from '@ir-engine/common/src/schema.type.module'
-import { BadRequest } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
-import { Channel } from '@feathersjs/transport-commons'
 import _ from 'lodash'
 import { Application } from '../../../declarations'
 import { StaticResourceService } from './static-resource.class'

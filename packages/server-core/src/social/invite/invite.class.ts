@@ -26,12 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Params } from '@feathersjs/feathers'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import {
-  InviteData,
-  InvitePatch,
-  InviteQuery,
-  InviteType
-} from '@ir-engine/common/src/schemas/social/invite.schema'
+import { InviteData, InvitePatch, InviteQuery, InviteType } from '@ir-engine/common/src/schemas/social/invite.schema'
 
 export interface InviteParams extends KnexAdapterParams<InviteQuery> {
   preventUserRelationshipRemoval?: boolean

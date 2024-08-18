@@ -25,10 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Knex } from 'knex'
 
-import {
-  locationSettingPath,
-  LocationSettingType
-} from '@ir-engine/common/src/schemas/social/location-setting.schema'
+import { locationSettingPath, LocationSettingType } from '@ir-engine/common/src/schemas/social/location-setting.schema'
 import { LocationID } from '@ir-engine/common/src/schemas/social/location.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import appConfig from '@ir-engine/server-core/src/appconfig'

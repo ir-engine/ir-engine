@@ -56,15 +56,7 @@ import {
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
-import {
-  defineState,
-  getMutableState,
-  getState,
-  NO_PROXY,
-  none,
-  State,
-  useMutableState
-} from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, NO_PROXY, none, State, useMutableState } from '@ir-engine/hyperflux'
 
 import { Effect, EffectComposer, EffectPass, OutlineEffect } from 'postprocessing'
 import { CameraComponent } from '../camera/components/CameraComponent'

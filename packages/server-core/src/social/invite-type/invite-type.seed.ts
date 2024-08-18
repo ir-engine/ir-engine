@@ -25,11 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Knex } from 'knex'
 
-import {
-  inviteTypePath,
-  inviteTypes,
-  InviteTypeType
-} from '@ir-engine/common/src/schemas/social/invite-type.schema'
+import { inviteTypePath, inviteTypes, InviteTypeType } from '@ir-engine/common/src/schemas/social/invite-type.schema'
 import appConfig from '@ir-engine/server-core/src/appconfig'
 
 export async function seed(knex: Knex): Promise<void> {

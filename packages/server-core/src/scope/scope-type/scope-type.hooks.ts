@@ -25,10 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import {
-  scopeTypeDataValidator,
-  scopeTypeQueryValidator
-} from '@ir-engine/common/src/schemas/scope/scope-type.schema'
+import { scopeTypeDataValidator, scopeTypeQueryValidator } from '@ir-engine/common/src/schemas/scope/scope-type.schema'
 
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import {

@@ -36,10 +36,7 @@ import { GITHUB_PER_PAGE } from '@ir-engine/common/src/constants/GitHubConstants
 import { GITHUB_URL_REGEX } from '@ir-engine/common/src/regex'
 import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
 import { ProjectType, projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { IdentityProviderType, identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { getDateTimeSql, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '@ir-engine/common/src/utils/fsHelperFunctions'

@@ -37,11 +37,7 @@ import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
 
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { UVOL1Component } from '@ir-engine/engine/src/scene/components/UVOL1Component'
 import { UVOL2Component } from '@ir-engine/engine/src/scene/components/UVOL2Component'
 import { TextureType } from '@ir-engine/engine/src/scene/constants/UVOLTypes'

@@ -67,12 +67,7 @@ import { PassThrough, Readable } from 'stream'
 
 import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@ir-engine/common/src/constants/FileSizeConstants'
 
-import {
-  ASSETS_REGEX,
-  PROJECT_PUBLIC_REGEX,
-  PROJECT_REGEX,
-  PROJECT_THUMBNAIL_REGEX
-} from '@ir-engine/common/src/regex'
+import { ASSETS_REGEX, PROJECT_PUBLIC_REGEX, PROJECT_REGEX, PROJECT_THUMBNAIL_REGEX } from '@ir-engine/common/src/regex'
 
 import { FileBrowserContentType } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 

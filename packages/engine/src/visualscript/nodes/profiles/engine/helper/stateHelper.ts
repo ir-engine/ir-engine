@@ -29,12 +29,7 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem, destroySystem, SystemUUID } from '@ir-engine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
-import {
-  makeEventNodeDefinition,
-  makeFlowNodeDefinition,
-  NodeCategory,
-  NodeDefinition
-} from '@ir-engine/visual-script'
+import { makeEventNodeDefinition, makeFlowNodeDefinition, NodeCategory, NodeDefinition } from '@ir-engine/visual-script'
 
 import { EnginetoNodetype, getSocketType, NodetoEnginetype } from './commonHelper'
 

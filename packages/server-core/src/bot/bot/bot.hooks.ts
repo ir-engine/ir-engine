@@ -26,11 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discard, iff, isProvider } from 'feathers-hooks-common'
 
-import {
-  BotCommandData,
-  botCommandPath,
-  BotCommandType
-} from '@ir-engine/common/src/schemas/bot/bot-command.schema'
+import { BotCommandData, botCommandPath, BotCommandType } from '@ir-engine/common/src/schemas/bot/bot-command.schema'
 import {
   botDataValidator,
   botPatchValidator,

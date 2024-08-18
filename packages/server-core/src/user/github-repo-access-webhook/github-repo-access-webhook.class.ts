@@ -30,10 +30,7 @@ import crypto from 'crypto'
 
 import { serverSettingPath, ServerSettingType } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 import { githubRepoAccessRefreshPath } from '@ir-engine/common/src/schemas/user/github-repo-access-refresh.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 
 import { Application } from '../../../declarations'

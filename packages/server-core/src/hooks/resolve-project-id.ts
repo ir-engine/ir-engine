@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ProjectType, projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
+import { ProjectType, projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { Application, HookContext } from '../../declarations'
 /**
  * resolve project id from name in query

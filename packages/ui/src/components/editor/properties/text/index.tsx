@@ -33,11 +33,7 @@ import { useTranslation } from 'react-i18next'
 import { PiTextT } from 'react-icons/pi'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import {
   FontMaterialKind,
   TextComponent,

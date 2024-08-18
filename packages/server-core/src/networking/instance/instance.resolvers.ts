@@ -27,6 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
+import { BadRequest } from '@feathersjs/errors'
 import {
   InstanceID,
   InstanceQuery,
@@ -37,7 +38,6 @@ import { channelPath } from '@ir-engine/common/src/schemas/social/channel.schema
 import { locationPath } from '@ir-engine/common/src/schemas/social/location.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
-import { BadRequest } from '@feathersjs/errors'
 
 export const instanceResolver = resolve<InstanceType, HookContext>({
   location: virtual(async (instance, context) => {

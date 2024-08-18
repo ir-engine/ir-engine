@@ -35,12 +35,7 @@ import {
   dispatchAction,
   removeActionQueue
 } from '@ir-engine/hyperflux'
-import {
-  makeEventNodeDefinition,
-  makeFlowNodeDefinition,
-  NodeCategory,
-  NodeDefinition
-} from '@ir-engine/visual-script'
+import { makeEventNodeDefinition, makeFlowNodeDefinition, NodeCategory, NodeDefinition } from '@ir-engine/visual-script'
 
 import { NodetoEnginetype } from './commonHelper'
 

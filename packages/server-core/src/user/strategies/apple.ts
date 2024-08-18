@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { avatarPath, AvatarType } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
+import { avatarPath, AvatarType } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { random } from 'lodash'
 
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'

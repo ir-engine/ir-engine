@@ -31,11 +31,7 @@ import { ImageAlphaMode, ImageProjection } from '@ir-engine/engine/src/scene/cla
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 
 import { useComponent } from '@ir-engine/ecs'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import SelectInput from '../../../input/Select'

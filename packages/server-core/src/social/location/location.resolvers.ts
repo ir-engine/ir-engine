@@ -28,6 +28,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
+import { BadRequest } from '@feathersjs/errors'
 import { projectPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   LocationAuthorizedUserType,
@@ -39,7 +40,6 @@ import { LocationID, LocationQuery, LocationType } from '@ir-engine/common/src/s
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
-import { BadRequest } from '@feathersjs/errors'
 import slugify from 'slugify'
 import config from '../../appconfig'
 import { LocationService } from './location.class'

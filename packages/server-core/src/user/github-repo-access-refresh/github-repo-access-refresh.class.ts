@@ -30,10 +30,7 @@ import {
   githubRepoAccessPath,
   GithubRepoAccessType
 } from '@ir-engine/common/src/schemas/user/github-repo-access.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 
 import { Application } from '../../../declarations'
 import { getUserRepos } from '../../projects/project/github-helper'

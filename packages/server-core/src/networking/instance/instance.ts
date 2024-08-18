@@ -25,11 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import {
-  instanceMethods,
-  instancePath,
-  InstanceType
-} from '@ir-engine/common/src/schemas/networking/instance.schema'
+import { instanceMethods, instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { scopePath, ScopeType, ScopeTypeInterface } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schemas/social/channel.schema'
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'

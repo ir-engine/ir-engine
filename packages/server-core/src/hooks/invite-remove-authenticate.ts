@@ -27,10 +27,7 @@ import { BadRequest } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
 import { invitePath } from '@ir-engine/common/src/schemas/social/invite.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 
 // This will attach the owner ID in the contact while creating/updating list item

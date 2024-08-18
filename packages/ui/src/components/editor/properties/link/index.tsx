@@ -28,11 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { PiLinkBreak } from 'react-icons/pi'
 
 import { getComponent, hasComponent, useComponent, UUIDComponent } from '@ir-engine/ecs'
-import {
-  commitProperty,
-  EditorComponentType,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import {
   InteractableComponent,

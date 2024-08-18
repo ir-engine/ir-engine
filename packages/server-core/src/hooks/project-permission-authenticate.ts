@@ -32,10 +32,7 @@ import {
   ProjectPermissionType
 } from '@ir-engine/common/src/schemas/projects/project-permission.schema'
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 
 import { Application } from '../../declarations'

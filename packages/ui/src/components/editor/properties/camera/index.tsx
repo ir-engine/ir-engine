@@ -28,11 +28,7 @@ import React from 'react'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import {
-  commitProperty,
-  EditorComponentType,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { HiOutlineCamera } from 'react-icons/hi'
 import InputGroup from '../../input/Group'

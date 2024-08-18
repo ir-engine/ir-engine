@@ -27,11 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { PersistentAnchorComponent } from '@ir-engine/spatial/src/xr/XRAnchorComponents'
 import { MdAnchor } from 'react-icons/md'
 import InputGroup from '../../input/Group'

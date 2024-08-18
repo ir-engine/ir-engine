@@ -25,9 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
-import logRequest from '@ir-engine/server-core/src/hooks/log-request'
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
+import logRequest from '@ir-engine/server-core/src/hooks/log-request'
 import checkScope from '../../hooks/check-scope'
 import resolveProjectId from '../../hooks/resolve-project-id'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'

@@ -23,14 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  defineSystem,
-  destroySystem,
-  ECSState,
-  InputSystemGroup,
-  SystemDefinitions,
-  SystemUUID
-} from '@ir-engine/ecs'
+import { defineSystem, destroySystem, ECSState, InputSystemGroup, SystemDefinitions, SystemUUID } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 import { makeEventNodeDefinition, NodeCategory } from '@ir-engine/visual-script'
 

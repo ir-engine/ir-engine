@@ -32,12 +32,7 @@ import {
   instancePath,
   InstanceType
 } from '@ir-engine/common/src/schemas/networking/instance.schema'
-import {
-  LocationID,
-  locationPath,
-  LocationType,
-  RoomCode
-} from '@ir-engine/common/src/schemas/social/location.schema'
+import { LocationID, locationPath, LocationType, RoomCode } from '@ir-engine/common/src/schemas/social/location.schema'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 
 import { Application } from '../../declarations'

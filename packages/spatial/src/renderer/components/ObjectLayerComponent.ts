@@ -27,12 +27,7 @@ import { Types } from 'bitecs'
 import { Object3D } from 'three'
 
 import { entityExists } from '@ir-engine/ecs'
-import {
-  defineComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
 const maxBitWidth = 32

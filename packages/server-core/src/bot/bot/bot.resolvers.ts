@@ -27,11 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import {
-  BotCommandData,
-  botCommandPath,
-  BotCommandType
-} from '@ir-engine/common/src/schemas/bot/bot-command.schema'
+import { BotCommandData, botCommandPath, BotCommandType } from '@ir-engine/common/src/schemas/bot/bot-command.schema'
 import { BotQuery, BotType } from '@ir-engine/common/src/schemas/bot/bot.schema'
 import { InstanceID, instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { locationPath } from '@ir-engine/common/src/schemas/social/location.schema'

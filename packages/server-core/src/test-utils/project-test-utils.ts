@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Params } from '@feathersjs/feathers'
 import { UserApiKeyType } from '@ir-engine/common/src/schema.type.module'
 import { ProjectType, projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import {
@@ -32,7 +33,6 @@ import {
 } from '@ir-engine/common/src/schemas/setting/project-setting.schema'
 import { UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { Application } from '@ir-engine/server-core/declarations'
-import { Params } from '@feathersjs/feathers'
 import { v4 } from 'uuid'
 import { createUser, getAuthParams } from './user-test-utils'
 

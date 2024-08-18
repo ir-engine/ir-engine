@@ -28,17 +28,9 @@ import { useTranslation } from 'react-i18next'
 import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
 import { useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import {
-  MediaComponent,
-  MediaElementComponent,
-  setTime
-} from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { MediaComponent, MediaElementComponent, setTime } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
 import Button from '../../../../primitives/tailwind/Button'
 import Slider from '../../../../primitives/tailwind/Slider'

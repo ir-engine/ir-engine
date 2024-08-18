@@ -27,12 +27,7 @@ import React, { useCallback, useEffect } from 'react'
 import { DoubleSide, Mesh } from 'three'
 
 import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
-import {
-  ComponentType,
-  getMutableComponent,
-  hasComponent,
-  useComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { ComponentType, getMutableComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import exportGLTF from '@ir-engine/editor/src/functions/exportGLTF'

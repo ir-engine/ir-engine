@@ -29,10 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { useReactFlow } from 'reactflow'
 
 import { UndefinedEntity } from '@ir-engine/ecs'
-import {
-  useVisualScriptFlow,
-  visualToFlow
-} from '@ir-engine/editor/src/components/visualScript/VisualScriptUIModule'
+import { useVisualScriptFlow, visualToFlow } from '@ir-engine/editor/src/components/visualScript/VisualScriptUIModule'
 import { useTemplateHandler } from '@ir-engine/editor/src/components/visualScript/hooks/useTemplateHandler'
 import { useVariableHandler } from '@ir-engine/editor/src/components/visualScript/hooks/useVariableHandler'
 import { NodetoEnginetype } from '@ir-engine/engine'

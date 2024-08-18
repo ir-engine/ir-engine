@@ -29,11 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { HemisphereLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/HemisphereLightComponent'
 
 import { useComponent } from '@ir-engine/ecs'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { PiSunHorizon } from 'react-icons/pi'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'

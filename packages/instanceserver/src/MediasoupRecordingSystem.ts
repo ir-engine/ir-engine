@@ -28,11 +28,7 @@ import { Consumer, PlainTransport, Router } from 'mediasoup/node/lib/types'
 import { useEffect } from 'react'
 import { PassThrough } from 'stream'
 
-import {
-  RecordingID,
-  recordingResourceUploadPath,
-  RecordingSchemaType
-} from '@ir-engine/common/src/schema.type.module'
+import { RecordingID, recordingResourceUploadPath, RecordingSchemaType } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'

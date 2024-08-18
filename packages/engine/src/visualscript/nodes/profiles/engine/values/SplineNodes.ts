@@ -32,12 +32,7 @@ import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
 import { SplineTrackComponent } from '@ir-engine/engine/src/scene/components/SplineTrackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import {
-  Assert,
-  NodeCategory,
-  makeAsyncNodeDefinition,
-  makeFunctionNodeDefinition
-} from '@ir-engine/visual-script'
+import { Assert, NodeCategory, makeAsyncNodeDefinition, makeFunctionNodeDefinition } from '@ir-engine/visual-script'
 
 const splineQuery = defineQuery([SplineComponent])
 

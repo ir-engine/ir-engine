@@ -39,10 +39,7 @@ import {
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import { coilSettingPath, CoilSettingType } from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
-import {
-  EmailSettingDatabaseType,
-  emailSettingPath
-} from '@ir-engine/common/src/schemas/setting/email-setting.schema'
+import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
 import {
   instanceServerSettingPath,
   InstanceServerSettingType
@@ -57,10 +54,7 @@ import {
   TaskServerSettingType
 } from '@ir-engine/common/src/schemas/setting/task-server-setting.schema'
 
-import {
-  zendeskSettingPath,
-  ZendeskSettingType
-} from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
+import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
 import appConfig from './appconfig'
 import logger from './ServerLogger'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'

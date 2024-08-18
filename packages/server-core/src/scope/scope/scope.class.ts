@@ -26,12 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Params } from '@feathersjs/feathers'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import {
-  ScopeData,
-  ScopePatch,
-  ScopeQuery,
-  ScopeTypeInterface
-} from '@ir-engine/common/src/schemas/scope/scope.schema'
+import { ScopeData, ScopePatch, ScopeQuery, ScopeTypeInterface } from '@ir-engine/common/src/schemas/scope/scope.schema'
 
 export interface ScopeParams extends KnexAdapterParams<ScopeQuery> {}
 

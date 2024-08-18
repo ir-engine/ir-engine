@@ -34,10 +34,7 @@ import { InviteType } from '@ir-engine/common/src/schemas/social/invite.schema'
 import { locationPath } from '@ir-engine/common/src/schemas/social/location.schema'
 import { acceptInvitePath } from '@ir-engine/common/src/schemas/user/accept-invite.schema'
 import { EmailData, emailPath } from '@ir-engine/common/src/schemas/user/email.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { SmsData, smsPath } from '@ir-engine/common/src/schemas/user/sms.schema'
 import { userRelationshipPath } from '@ir-engine/common/src/schemas/user/user-relationship.schema'
 import { UserID, UserType } from '@ir-engine/common/src/schemas/user/user.schema'

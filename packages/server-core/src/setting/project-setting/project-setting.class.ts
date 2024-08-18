@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 import {
   ProjectSettingData,
   ProjectSettingPatch,
@@ -30,8 +32,6 @@ import {
   ProjectSettingType
 } from '@ir-engine/common/src/schemas/setting/project-setting.schema'
 import { Application } from '@ir-engine/server-core/declarations'
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 export interface ProjectSettingParams extends KnexAdapterParams<ProjectSettingQuery> {}
 

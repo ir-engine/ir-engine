@@ -33,10 +33,7 @@ import { ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 import { Application } from '@ir-engine/server-core/declarations'
 import { getStorageProvider } from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
 
-import {
-  patchStaticResourceAsAvatar,
-  supportedAvatars
-} from '@ir-engine/server-core/src/user/avatar/avatar-helper'
+import { patchStaticResourceAsAvatar, supportedAvatars } from '@ir-engine/server-core/src/user/avatar/avatar-helper'
 import appRootPath from 'app-root-path'
 import manifestJson from './manifest.json'
 

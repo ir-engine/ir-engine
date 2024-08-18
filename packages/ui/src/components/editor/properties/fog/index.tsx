@@ -30,11 +30,7 @@ import { Color } from 'three'
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { FogSettingsComponent, FogType } from '@ir-engine/spatial/src/renderer/components/FogSettingsComponent'
 
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { GiFog } from 'react-icons/gi'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import InputGroup from '../../input/Group'

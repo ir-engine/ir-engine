@@ -23,10 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  discordBotAuthMethods,
-  discordBotAuthPath
-} from '@ir-engine/common/src/schemas/user/discord-bot-auth.schema'
+import { discordBotAuthMethods, discordBotAuthPath } from '@ir-engine/common/src/schemas/user/discord-bot-auth.schema'
 
 import { Application } from '../../../declarations'
 import { DiscordBotAuthService } from './discord-bot-auth.class'

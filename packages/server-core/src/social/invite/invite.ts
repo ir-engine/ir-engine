@@ -26,10 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { inviteMethods, invitePath, InviteType } from '@ir-engine/common/src/schemas/social/invite.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 
 import { Application } from '../../../declarations'

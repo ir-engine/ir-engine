@@ -24,12 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { UUIDComponent } from '@ir-engine/ecs'
-import {
-  ComponentJSONIDMap,
-  getComponent,
-  hasComponent,
-  setComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { ComponentJSONIDMap, getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, generateEntityUUID } from '@ir-engine/ecs/src/EntityFunctions'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'

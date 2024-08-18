@@ -30,11 +30,7 @@ import { useTranslation } from 'react-i18next'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import {
-  StaticResourceQuery,
-  StaticResourceType,
-  staticResourcePath
-} from '@ir-engine/common/src/schema.type.module'
+import { StaticResourceQuery, StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@ir-engine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
