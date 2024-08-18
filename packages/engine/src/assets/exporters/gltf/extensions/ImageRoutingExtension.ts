@@ -55,8 +55,8 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
     let projectSrc = getState(EditorState).projectName!
     let relativeSrc = './assets/'
     if (resolvedPath) {
-      projectSrc = resolvedPath[1]
-      relativeSrc = resolvedPath[2]
+      projectSrc = `${resolvedPath[1]}/${resolvedPath[2]}`
+      relativeSrc = resolvedPath[3]
       relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
     }
     const dst = this.writer.options.relativePath!.replace(/\/[^\/]*$/, '')
@@ -70,8 +70,8 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
         let oldURI = texture.userData.src
         if (!oldURI) {
           const resolved = STATIC_ASSET_REGEX.exec(texture.image.src)!
-          const oldProject = resolved[1]
-          const relativeOldURL = resolved[2]
+          const oldProject = `${resolved[1]}/${resolved[2]}`
+          const relativeOldURL = resolved[3]
           if (oldProject !== projectSrc) {
             const srcWithProject = pathJoin(projectSrc, relativeSrc)
             const dstWithProject = pathJoin(oldProject, relativeOldURL)

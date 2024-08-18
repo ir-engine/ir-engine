@@ -35,11 +35,14 @@ export function getFileName(path: string) {
 }
 
 export function getRelativeURI(path: string) {
-  return STATIC_ASSET_REGEX.exec(path)?.[2] ?? ''
+  return STATIC_ASSET_REGEX.exec(path)?.[3] ?? ''
 }
 
 export function getProjectName(path: string) {
-  return STATIC_ASSET_REGEX.exec(path)?.[1] ?? ''
+  const match = STATIC_ASSET_REGEX.exec(path)
+  if (!match?.length) return ''
+  const [, orgName, projectName] = match!
+  return `${orgName}/${projectName}`
 }
 
 export function modelResourcesPath(modelName: string) {

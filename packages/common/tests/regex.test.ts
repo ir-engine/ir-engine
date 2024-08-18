@@ -253,28 +253,33 @@ describe('regex.test', () => {
       const positiveCases = [
         {
           url: 'https://example.com/projects/etherealengine/default-project/assets/images/logo.png',
-          projectName: 'etherealengine/default-project',
+          orgName: 'etherealengine',
+          projectName: 'default-project',
           assetPath: 'assets/images/logo.png'
         },
         {
           url: 'https://example.com/static-resources/etherealengine/default-project/assets/images/logo.png',
-          projectName: 'etherealengine/default-project',
+          orgName: 'etherealengine',
+          projectName: 'default-project',
           assetPath: 'assets/images/logo.png'
         },
         {
           url: 'https://example.com/projects/etherealengine/default-project/assets/animations/emotes.glb',
-          projectName: 'etherealengine/default-project',
+          orgName: 'etherealengine',
+          projectName: 'default-project',
           assetPath: 'assets/animations/emotes.glb'
         },
         {
           url: 'https://example.com/projects/etherealengine/default-project/assets/animations/locomotion.glb',
-          projectName: 'etherealengine/default-project',
+          orgName: 'etherealengine',
+          projectName: 'default-project',
           assetPath: 'assets/animations/locomotion.glb'
         }
       ]
-      positiveCases.forEach(({ url, projectName, assetPath }) => {
+      positiveCases.forEach(({ url, orgName, projectName, assetPath }) => {
         const match = STATIC_ASSET_REGEX.exec(url)
         assert.ok(match, `Expected '${url}' to match STATIC_ASSET_REGEX`)
+        assert.equal(match?.[1], orgName, `Expected org name name '${orgName}' in '${url}'. Found ${match?.[1]}`)
         assert.equal(match?.[2], projectName, `Expected project name '${projectName}' in '${url}'. Found ${match?.[2]}`)
         assert.equal(match?.[3], assetPath, `Expected asset path '${assetPath}' in '${url}'. Found ${match?.[3]}`)
       })

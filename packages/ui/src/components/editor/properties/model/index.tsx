@@ -69,7 +69,12 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const editorState = getState(EditorState)
   const projectState = getState(ProjectState)
   const loadedProjects = useState(() => projectState.projects.map((project) => project.name))
-  const srcProject = useState(() => STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[1] ?? editorState.projectName!)
+  const srcProject = useState(() => {
+    const match = STATIC_ASSET_REGEX.exec(modelComponent.src.value)
+    if (!match?.length) return editorState.projectName!
+    const [_, orgName, projectName] = match
+    return `${orgName}/${projectName}`
+  })
 
   const [dereferenceFeatureFlag, gltfTransformFeatureFlag] = useFeatureFlags([
     FeatureFlags.Studio.Model.Dereference,

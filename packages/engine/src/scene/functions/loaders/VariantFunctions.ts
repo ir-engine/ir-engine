@@ -66,8 +66,8 @@ export function updateModelVariant(
     const levelIndex = variantComponent.levels.findIndex((level) => level.metadata['device'] === targetDevice)
     if (levelIndex < 0) return
     const deviceVariant = variantComponent.levels[levelIndex]
-    const modelRelativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[2]
-    const deviceRelativePath = deviceVariant ? STATIC_ASSET_REGEX.exec(deviceVariant.src.value)?.[2] : ''
+    const modelRelativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[3]
+    const deviceRelativePath = deviceVariant ? STATIC_ASSET_REGEX.exec(deviceVariant.src.value)?.[3] : ''
     if (deviceVariant && modelRelativePath !== deviceRelativePath) {
       variantComponent.currentLevel.set(levelIndex)
     }

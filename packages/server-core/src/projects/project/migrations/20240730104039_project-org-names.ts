@@ -46,8 +46,8 @@ export async function up(knex: Knex): Promise<void> {
         await knex(projectPath).where('id', project.id).update({
           name: newName
         })
-        await knex(routePath).where('projectName', project.name).update({
-          projectName: newName
+        await knex(routePath).where('project', project.name).update({
+          project: newName
         })
         await knex(staticResourcePath).where('project', project.name).update({
           project: newName
@@ -61,8 +61,8 @@ export async function up(knex: Knex): Promise<void> {
         await knex(projectPath).where('id', project.id).update({
           name: newName
         })
-        await knex(routePath).where('projectName', project.name).update({
-          projectName: newName
+        await knex(routePath).where('project', project.name).update({
+          project: newName
         })
         await knex(staticResourcePath).where('project', project.name).update({
           project: newName
@@ -93,8 +93,8 @@ export async function down(knex: Knex): Promise<void> {
         await knex(projectPath).where('id', project.id).update({
           name: newName
         })
-        await knex(routePath).where('projectName', oldName).update({
-          projectName: newName
+        await knex(routePath).where('project', oldName).update({
+          project: newName
         })
         await knex(staticResourcePath).where('project', oldName).update({
           project: newName
