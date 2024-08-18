@@ -46,7 +46,7 @@ cli.main(async () => {
       'packages/spatial',
       'packages/visual-script',
       'packages/xrui',
-      'packages/projects/projects/*'
+      'packages/projects/projects/**'
     ]
     fs.writeFileSync(join(appRootPath.path, 'package-root-build.json'), Buffer.from(JSON.stringify(packageJson)))
     process.exit(0)

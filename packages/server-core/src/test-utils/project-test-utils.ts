@@ -38,7 +38,7 @@ import { createUser, getAuthParams } from './user-test-utils'
 
 export const createProject = async (app: Application, projectName?: string, user?: UserType) => {
   if (!projectName) {
-    projectName = `project-${v4()}`
+    projectName = `__test/project-${v4()}`
   }
 
   if (!user) {

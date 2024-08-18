@@ -43,7 +43,7 @@ import {
 import { createUser, createUserApiKey } from '../../test-utils/user-test-utils'
 
 function cleanup(name: string) {
-  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${name}/`)
+  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/__test/`)
   deleteFolderRecursive(projectDir)
 }
 

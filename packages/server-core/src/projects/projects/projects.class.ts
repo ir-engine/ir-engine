@@ -41,7 +41,19 @@ export class ProjectsService implements ServiceInterface<ProjectType['name'][]> 
    */
   async find() {
     return fs
-      .readdirSync(projectsRootFolder)
-      .filter((projectFolder) => fs.existsSync(path.join(projectsRootFolder, projectFolder, 'xrengine.config.ts')))
+      .readdirSync(projectsRootFolder, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name)
+      .map((orgname) => {
+        return fs
+          .readdirSync(path.join(projectsRootFolder, orgname), { withFileTypes: true })
+          .filter(
+            (dirent) =>
+              dirent.isDirectory() &&
+              fs.existsSync(path.join(projectsRootFolder, orgname, dirent.name, 'xrengine.config.ts'))
+          )
+          .map((dirent) => `${orgname}/${dirent.name}`)
+      })
+      .flat()
   }
 }

@@ -70,6 +70,9 @@ cli.main(async () => {
 
     const name = options.name.replace(' ', '-')
 
+    if (!name.includes('/'))
+      throw new Error('Project name must be composed of both an organization and repository name separated by a /')
+
     const projectLocalDirectory = path.resolve(projectsRootFolder, name)
 
     // get if folder exists

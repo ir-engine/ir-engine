@@ -45,6 +45,8 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
     for (const seedFile of knexSeeds) {
       await seedFile.seed(knexClient)
     }
+
+    await app.service(projectPath)._addOrgNameToProject()
   }
 
   if (prepareDb) return
@@ -57,7 +59,8 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
       if (fs.existsSync(uploadPath)) fs.rmSync(uploadPath, { recursive: true })
     }
     copyDefaultProject()
-    if (config.kubernetes.enabled || config.testEnabled) await app.service(projectPath)._seedProject('default-project')
+    if (config.kubernetes.enabled || config.testEnabled)
+      await app.service(projectPath)._seedProject('etherealengine/default-project')
   }
 
   if (!config.kubernetes.enabled && !config.testEnabled) await app.service(projectPath)._syncDevLocalProjects()

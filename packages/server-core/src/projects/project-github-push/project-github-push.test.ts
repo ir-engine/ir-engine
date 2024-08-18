@@ -90,9 +90,10 @@ describe('project-github-push.test', () => {
 
   before(async () => {
     const projectName = `test-project-github-push-${uuidv4()}`
+    const fullName = `@etherealengine/${projectName}`
     testProject = await app
       .service(projectPath)
-      .create({ name: projectName, repositoryPath: `https://github.com/test-user/${projectName}` })
+      .create({ name: fullName, repositoryPath: `https://github.com/test-user/${projectName}` })
   })
 
   beforeEach(() => {

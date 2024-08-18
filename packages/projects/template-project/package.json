@@ -1,5 +1,5 @@
 {
-  "name": "ee-template",
+  "name": "@etherealengine/ee-template",
   "version": "0.0.0",
   "scripts": {
     "test": "mocha --config .mocharc.js",
