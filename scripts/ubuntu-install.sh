@@ -39,7 +39,7 @@ if [[ $(lsb_release -si) -ne "Ubuntu" ]] ; then
   warn "This script only works for Ubuntu Linux distributions."
   read -r -n1 -p 'Are you sure you want to continue? [y/n] ' choice
   case "$choice" in
-    y|Y) warn "Running Ethereal Engine Ubuntu installer script on:"; echo "  $(lsb_release -sa)";;
+    y|Y) warn "Running Infinite Reality Engine Ubuntu installer script on:"; echo "  $(lsb_release -sa)";;
     n|N|*) exit 1;;
   esac
 fi
@@ -50,12 +50,12 @@ echo "1. Add/activate the universe and docker APT repositories to the system (re
 echo "2. Install git, curl, nvm, ca-certificates and nodeLTS"
 echo "3. Instruct you on how to download docker-desktop"
 echo "4. Install docker-desktop with the file you downloaded while the script waited for your input"
-echo "5. Clone Ethereal Engine's repository to the folder $(pwd)/etherealengine"
-echo "6. Install all npm dependencies that Ethereal Engine needs"
+echo "5. Clone Infinite Reality Engine's repository to the folder $(pwd)/ir-engine"
+echo "6. Install all npm dependencies that Infinite Reality Engine needs"
 echo ""
 read -r -n1 -p 'Do you want to continue? [y/n] ' choice
 case "$choice" in
-  y|Y) info "Running Ethereal Engine's Ubuntu installer" ;;
+  y|Y) info "Running Infinite Reality Engine's Ubuntu installer" ;;
   n|N|*) exit 1 ;;
 esac
 
@@ -123,16 +123,16 @@ info "Launching docker-desktop"
 systemctl --user start docker-desktop
 
 # Install the engine
-info "Installing Ethereal Engine into folder $(pwd)/etherealengine ..."
-git clone https://github.com/EtherealEngine/etherealengine
-info "Changing folder to $(pwd)/etherealengine"
-cd etherealengine
+info "Installing Infinite Reality Engine into folder $(pwd)/ir-engine ..."
+git clone https://github.com/ir-engine/ir-engine
+info "Changing folder to $(pwd)/ir-engine"
+cd ir-engine
 info "Creating a new .env file at $(pwd)/.env.local"
 cp .env.local.default .env.local
 info "Running the command 'npm install' inside the folder $(pwd)"
 npm install
 echo ""
-info "Ethereal Engine has been successfully installed into $(pwd)."
+info "Infinite Reality Engine has been successfully installed into $(pwd)."
 echo "   You can now run it by executing the command:"
 echo "   npm run reinit && npm run dev"
 

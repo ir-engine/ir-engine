@@ -1,7 +1,7 @@
 services:
   minio:
     image: docker.io/bitnami/minio:latest
-    container_name: etherealengine_minio_s3
+    container_name: ir-engine_minio_s3
     ports:
       - '9000:9000'
       - '9001:9001'
@@ -15,7 +15,7 @@ services:
       MINIO_API_REQUESTS_DEADLINE: 3m
       BITNAMI_DEBUG: 'true'
       MINIO_SCHEME: https
-      MINIO_DEFAULT_BUCKETS: etherealengine-static-resources:public,etherealengine-static-resources-test:public,etherealengine-microk8s-static-resources:public,etherealengine-minikube-static-resources:public
+      MINIO_DEFAULT_BUCKETS: ir-engine-static-resources:public,ir-engine-static-resources-test:public,ir-engine-microk8s-static-resources:public,ir-engine-minikube-static-resources:public
 
 volumes:
   minio_data:

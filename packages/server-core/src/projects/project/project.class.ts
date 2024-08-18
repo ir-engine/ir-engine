@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
@@ -30,26 +30,26 @@ import fs from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 
-import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
+import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
 import {
   ScopeData,
   ScopeType,
   projectPermissionPath,
   scopePath,
   staticResourcePath
-} from '@etherealengine/common/src/schema.type.module'
-import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
+} from '@ir-engine/common/src/schema.type.module'
+import { ProjectBuildUpdateItemType } from '@ir-engine/common/src/schemas/projects/project-build.schema'
 import {
   ProjectData,
   ProjectPatch,
   ProjectQuery,
   ProjectType,
   ProjectUpdateParams
-} from '@etherealengine/common/src/schemas/projects/project.schema'
-import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { getState } from '@etherealengine/hyperflux'
+} from '@ir-engine/common/src/schemas/projects/project.schema'
+import { getDateTimeSql, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { getState } from '@ir-engine/hyperflux'
 
-import { isDev } from '@etherealengine/common/src/config'
+import { isDev } from '@ir-engine/common/src/config'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
@@ -100,7 +100,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     const data = (await super._find({ paginate: false })) as ProjectType[]
 
     for (const project of data) {
-      if (project.repositoryPath || project.name === 'etherealengine/default-project') {
+      if (project.repositoryPath || project.name === 'ir-engine/default-project') {
         const [orgName, projectName] = project.name.split('/')
 
         try {

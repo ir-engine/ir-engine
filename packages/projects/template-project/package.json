@@ -1,5 +1,5 @@
 {
-  "name": "@etherealengine/ee-template",
+  "name": "@ir-engine/ir-template",
   "version": "0.0.0",
   "scripts": {
     "test": "mocha --config .mocharc.js",
