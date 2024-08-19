@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,26 +14,26 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 
-import { EntityUUID, getOptionalComponent, useOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
-import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { EntityUUID, getOptionalComponent, useOptionalComponent, UUIDComponent } from '@ir-engine/ecs'
+import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
+import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
-import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { HiOutlineArchiveBox } from 'react-icons/hi2'
 import { SiRoundcube } from 'react-icons/si'
 import { twMerge } from 'tailwind-merge'
