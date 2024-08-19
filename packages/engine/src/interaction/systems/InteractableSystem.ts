@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,29 +14,29 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Not } from 'bitecs'
 
-import { hasComponent, removeComponent, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { getState } from '@etherealengine/hyperflux'
-import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { HighlightComponent } from '@etherealengine/spatial/src/renderer/components/HighlightComponent'
-import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
-import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { hasComponent, removeComponent, UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { getState } from '@ir-engine/hyperflux'
+import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { HighlightComponent } from '@ir-engine/spatial/src/renderer/components/HighlightComponent'
+import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
+import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { InteractableComponent } from '../components/InteractableComponent'

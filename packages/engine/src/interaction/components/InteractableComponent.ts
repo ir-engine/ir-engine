@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,22 +14,21 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { MathUtils, Vector2, Vector3 } from 'three'
 import matches from 'ts-matches'
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
   ECSState,
-  Engine,
   Entity,
   EntityUUID,
   getComponent,
@@ -40,40 +39,42 @@ import {
   UndefinedEntity,
   useEntityContext,
   UUIDComponent
-} from '@etherealengine/ecs'
+} from '@ir-engine/ecs'
 import {
   defineComponent,
   getOptionalComponent,
   hasComponent,
   useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { getState, NO_PROXY, useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
-import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
-import { InputComponent, InputExecutionOrder } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { getState, NO_PROXY, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
+import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   BoundingBoxComponent,
   updateBoundingBox
-} from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
-import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
-import { WebLayer3D } from '@etherealengine/xrui'
+} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
+import { WebLayer3D } from '@ir-engine/xrui'
 
-import { smootheLerpAlpha } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
-} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+} from '@ir-engine/spatial/src/transform/components/DistanceComponents'
+import { useXRUIState } from '@ir-engine/spatial/src/xrui/functions/useXRUIState'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
 import { inFrustum, InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
+import { InteractiveModalState } from '../ui/InteractiveModalView'
 
 /**
  * Visibility override for XRUI, none is default behavior, on or off forces that state
@@ -131,7 +132,7 @@ export const updateInteractableUI = (entity: Entity) => {
     xruiTransform.position.z = center.z
     xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, center.y + 0.7 * size.y, alpha)
 
-    const cameraTransform = getComponent(Engine.instance.viewerEntity, TransformComponent)
+    const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
     xruiTransform.rotation.copy(cameraTransform.rotation)
   }
 
@@ -145,7 +146,7 @@ export const updateInteractableUI = (entity: Entity) => {
   const transition = InteractableTransitions.get(entity)!
   let activateUI = false
 
-  const inCameraFrustum = inFrustum(entity)
+  const inCameraFrustum = inFrustum(interactable.uiEntity)
   let hovering = false
 
   if (inCameraFrustum) {
@@ -204,9 +205,9 @@ const addInteractableUI = (entity: Entity) => {
 
   const uiEntity = createUI(entity, interactable.label, interactable.uiInteractable).entity
   getMutableComponent(entity, InteractableComponent).uiEntity.set(uiEntity)
-  setComponent(uiEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+  setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
   setComponent(uiEntity, ComputedTransformComponent, {
-    referenceEntities: [entity, Engine.instance.viewerEntity],
+    referenceEntities: [entity, getState(EngineState).viewerEntity],
     computeFunction: () => updateInteractableUI(entity)
   })
 
@@ -297,28 +298,18 @@ export const InteractableComponent = defineComponent({
     const entity = useEntityContext()
     const interactableComponent = useComponent(entity, InteractableComponent)
     const isEditing = useMutableState(EngineState).isEditing
+    const modalState = useXRUIState<InteractiveModalState>()
 
     useImmediateEffect(() => {
       setComponent(entity, DistanceFromCameraComponent)
       setComponent(entity, DistanceFromLocalClientComponent)
-
+      setComponent(entity, BoundingBoxComponent)
       return () => {
         removeComponent(entity, DistanceFromCameraComponent)
         removeComponent(entity, DistanceFromLocalClientComponent)
+        removeComponent(entity, BoundingBoxComponent)
       }
     }, [])
-
-    useImmediateEffect(() => {
-      if (
-        interactableComponent.uiActivationType.value === XRUIActivationType.hover ||
-        interactableComponent.clickInteract.value
-      ) {
-        setComponent(entity, BoundingBoxComponent)
-        return () => {
-          removeComponent(entity, BoundingBoxComponent)
-        }
-      }
-    }, [interactableComponent.uiActivationType, interactableComponent.clickInteract])
 
     InputComponent.useExecuteWithInput(
       () => {
@@ -348,6 +339,12 @@ export const InteractableComponent = defineComponent({
         }
       }
     }, [isEditing.value])
+
+    useEffect(() => {
+      //const xrUI = getMutableComponent(interactableComponent.uiEntity, XRUIComponent)
+      const msg = interactableComponent.label?.value ?? ''
+      modalState.interactMessage?.set(msg)
+    }, [interactableComponent.label]) //TODO just nuke the whole XRUI and recreate....
     return null
   }
 })
