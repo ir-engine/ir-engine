@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
@@ -28,11 +28,11 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { random } from 'lodash'
 
-import { isDev } from '@etherealengine/common/src/config'
-import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import { scopeTypePath } from '@etherealengine/common/src/schemas/scope/scope-type.schema'
-import { scopePath, ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
-import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { isDev } from '@ir-engine/common/src/config'
+import { staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
+import { scopeTypePath } from '@ir-engine/common/src/schemas/scope/scope-type.schema'
+import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
+import { avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import {
   IdentityProviderData,
   identityProviderDataValidator,
@@ -40,18 +40,18 @@ import {
   identityProviderPath,
   identityProviderQueryValidator,
   IdentityProviderType
-} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { UserID, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
+} from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
 
+import { Paginated } from '@feathersjs/feathers'
 import {
   projectPath,
   projectPermissionPath,
   userApiKeyPath,
   UserApiKeyType,
   UserType
-} from '@etherealengine/common/src/schema.type.module'
-import { Paginated } from '@feathersjs/feathers'
+} from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import appConfig from '../../appconfig'
 import persistData from '../../hooks/persist-data'

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,31 +14,31 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuInfo } from 'react-icons/lu'
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectType, helmSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
-import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
-import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
+import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
+import { ProjectType, helmSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
-import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
+import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
@@ -186,7 +186,7 @@ export default function UpdateEngineModal() {
             </div>
             <div className="grid gap-2">
               {projectState.projects.value
-                .filter((project) => project.name !== 'etherealengine/default-project' && project.repositoryPath)
+                .filter((project) => project.name !== 'ir-engine/default-project' && project.repositoryPath)
                 .map((project) => (
                   <div key={project.id} className="border border-theme-primary bg-theme-surfaceInput px-3.5 py-5">
                     <Checkbox

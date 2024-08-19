@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { VRM } from '@pixiv/three-vrm'
@@ -29,22 +29,22 @@ import { useTranslation } from 'react-i18next'
 import { MdOutlineViewInAr } from 'react-icons/md'
 import { Object3D, Scene } from 'three'
 
-import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import config from '@etherealengine/common/src/config'
-import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { STATIC_ASSET_REGEX } from '@etherealengine/common/src/regex'
-import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import ErrorPopUp from '@etherealengine/editor/src/components/popup/ErrorPopUp'
-import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
-import { exportRelativeGLTF } from '@etherealengine/editor/src/functions/exportGLTF'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { updateModelResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
-import { recursiveHipsLookup } from '@etherealengine/engine/src/avatar/AvatarBoneMatching'
-import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
-import { getState, useState } from '@etherealengine/hyperflux'
+import { ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
+import config from '@ir-engine/common/src/config'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { STATIC_ASSET_REGEX } from '@ir-engine/common/src/regex'
+import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
+import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import ErrorPopUp from '@ir-engine/editor/src/components/popup/ErrorPopUp'
+import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { updateModelResource } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
+import { recursiveHipsLookup } from '@ir-engine/engine/src/avatar/AvatarBoneMatching'
+import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
+import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
+import { getState, useState } from '@ir-engine/hyperflux'
 import Button from '../../../../primitives/tailwind/Button'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
