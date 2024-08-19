@@ -1,11 +1,11 @@
 {
-  "name": "@etherealengine/server-core",
-  "description": "Shared components for Ethereal Engine server",
+  "name": "@ir-engine/server-core",
+  "description": "Shared components for Infinite Reality Engine server",
   "version": "1.6.0",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git://github.com/etherealengine/etherealengine.git"
+    "url": "git://github.com/ir-engine/ir-engine.git"
   },
   "homepage": "",
   "publishConfig": {
@@ -27,8 +27,8 @@
     "vr"
   ],
   "author": {
-    "name": "Ethereal Engine Collective",
-    "email": "hello@etherealengine.org"
+    "name": "Infinite Reality Engine Collective",
+    "email": "hello@ir-engine.org"
   },
   "contributors": [],
   "bugs": {},
@@ -52,9 +52,9 @@
     "@aws-sdk/credential-providers": "^3.549.0",
     "@aws-sdk/lib-storage": "^3.321.1",
     "@aws-sdk/s3-presigned-post": "^3.321.1",
-    "@etherealengine/common": "^1.6.0",
-    "@etherealengine/engine": "^1.6.0",
-    "@etherealengine/matchmaking": "^1.6.0",
+    "@ir-engine/common": "^1.6.0",
+    "@ir-engine/engine": "^1.6.0",
+    "@ir-engine/matchmaking": "^1.6.0",
     "@feathersjs/adapter-commons": "5.0.5",
     "@feathersjs/authentication": "5.0.5",
     "@feathersjs/authentication-oauth": "5.0.5",

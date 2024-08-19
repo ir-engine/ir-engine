@@ -112,8 +112,8 @@ if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" =
   echo "Deleted old client files from S3"
 fi
 
-echo $(kubectl get jobs | grep $RELEASE_NAME-builder-etherealengine-builder)
-if [ -z "$(kubectl get jobs | grep $RELEASE_NAME-builder-etherealengine-builder)" ]
+echo $(kubectl get jobs | grep $RELEASE_NAME-builder-ir-engine-builder)
+if [ -z "$(kubectl get jobs | grep $RELEASE_NAME-builder-ir-engine-builder)" ]
 then
   echo "Non-job builder, sleeping"
   sleep infinity

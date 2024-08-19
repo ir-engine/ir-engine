@@ -21,7 +21,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { getValidator, querySyntax, Static, Type } from '@feathersjs/typebox'
 
-import { UUID } from 'crypto'
+import { UUID } from 'crypto' /** @todo CHANGE back to some form of Entity UUID or move EntityUUID type? */
 import { TypedString } from '../../types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
 

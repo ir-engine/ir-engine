@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 // Add unit tests for new patterns in packages/common/tests/regex.test.ts
@@ -29,7 +29,7 @@ Ethereal Engine. All Rights Reserved.
 export const VALID_FILENAME_REGEX = /^(?!.*[\s_<>:"/\\|?*\u0000-\u001F].*)[^\s_<>:"/\\|?*\u0000-\u001F]{1,64}$/
 // eslint-disable-next-line no-control-regex
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
-export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-]{2,62}[a-zA-Z0-9_\-]$/
+export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-]{2,62}[a-zA-Z0-9]$/
 export const VALID_HEIRARCHY_SEARCH_REGEX = /[.*+?^${}()|[\]\\]/g
 
 /**
@@ -45,12 +45,13 @@ export const CSS_URL_REGEX = /(@import\s+["']([^"']+)["']|url\((?!['"]?(?:data):
 export const ABSOLUTE_URL_PROTOCOL_REGEX = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/
 
 /**
- * Captures project name and asset path from a URL.
+ * Captures org name, project name and asset path from a URL.
  * For eg: `/path/to/projects/project123/assets/images/logo.png` will capture following groups
- * - `project123` => Group 1
- * - `assets/images/logo.png` => Group 2
+ * - `@org123` => Group 1
+ * - `project123` => Group 2
+ * - `assets/images/logo.png` => Group 3
  */
-export const STATIC_ASSET_REGEX = /^(?:.*\/(?:projects|static-resources)\/([^\/]*)\/((?:assets\/|).*)$)/
+export const STATIC_ASSET_REGEX = /^(?:.*\/(?:projects|static-resources)\/([^\/]*)\/([^\/]*)\/((?:assets\/|).*)$)/
 
 // =====================================================================
 // ========================= ID Regex Patterns =========================
@@ -111,22 +112,22 @@ export const INSTALLATION_SIGNED_REGEX = /https:\/\/oauth2:[\w\d\s\-_]+@github.c
 /**
  * This regex is used to match specific file paths or directory structures that start with `projects/`, followed by one or more valid characters (letters, digits, hyphens, underscores, or forward slashes), and end with `/assets/`
  */
-export const ASSETS_REGEX = /projects\/[a-zA-Z0-9-_\/]+\/assets\//
+export const ASSETS_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/assets\//
 
 /**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes.
  */
-export const PROJECT_REGEX = /projects\/[a-zA-Z0-9-_\/]+/
+export const PROJECT_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]/
 
 /**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/public/`.
  */
-export const PROJECT_PUBLIC_REGEX = /projects\/[a-zA-Z0-9-_\/]+\/public\//
+export const PROJECT_PUBLIC_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/public\//
 
 /**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/thumbnails/`.
  */
-export const PROJECT_THUMBNAIL_REGEX = /projects\/[a-zA-Z0-9-_\/]+\/thumbnails\//
+export const PROJECT_THUMBNAIL_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/thumbnails\//
 
 export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
 
@@ -134,8 +135,8 @@ export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
 // ========================= Helm Regex Patterns =========================
 // =======================================================================
 
-export const MAIN_CHART_REGEX = /etherealengine-([0-9]+\.[0-9]+\.[0-9]+)/g
-export const BUILDER_CHART_REGEX = /etherealengine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
+export const MAIN_CHART_REGEX = /ir-engine-([0-9]+\.[0-9]+\.[0-9]+)/g
+export const BUILDER_CHART_REGEX = /ir-engine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
 
 // ==========================================================================
 // ========================= Dynamic Regex Patterns =========================

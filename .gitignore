@@ -128,8 +128,8 @@ dist
 # TernJS port file
 .tern-port
 
-**/etherealengine-secrets.env
-**/etherealengine-dev-secrets.env
+**/ir-engine-secrets.env
+**/ir-engine-dev-secrets.env
 lib/
 bin/
 

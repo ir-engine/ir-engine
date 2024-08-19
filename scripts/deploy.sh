@@ -3,7 +3,7 @@ set -x
 STAGE=$1
 TAG=$2
 
-#kubectl delete job $STAGE-etherealengine-testbot
+#kubectl delete job $STAGE-ir-engine-testbot
 
 npx cross-env tsx scripts/fetch-helm-versions.ts --stage=${RELEASE_NAME}
 docker manifest inspect $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api:$TAG >api-image.txt 2>&1
@@ -35,8 +35,8 @@ then
 else
   if [ "$SERVE_CLIENT_FROM_API" = "true" ] || [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ]
   then
-    helm repo update && helm upgrade --reuse-values --version $HELM_MAIN_VERSION --set taskserver.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-taskserver,taskserver.image.tag=$TAG,api.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api,api.image.tag=$TAG,instanceserver.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-instanceserver,instanceserver.image.tag=$TAG,testbot.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-testbot,testbot.image.tag=$TAG,batchinvalidator.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api,batchinvalidator.image.tag=$TAG $STAGE etherealengine/etherealengine
+    helm repo update && helm upgrade --reuse-values --version $HELM_MAIN_VERSION --set taskserver.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-taskserver,taskserver.image.tag=$TAG,api.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api,api.image.tag=$TAG,instanceserver.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-instanceserver,instanceserver.image.tag=$TAG,testbot.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-testbot,testbot.image.tag=$TAG,batchinvalidator.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api,batchinvalidator.image.tag=$TAG $STAGE ir-engine/ir-engine
   else
-    helm repo update && helm upgrade --reuse-values --version $HELM_MAIN_VERSION --set taskserver.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-taskserver,taskserver.image.tag=$TAG,api.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api,api.image.tag=$TAG,instanceserver.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-instanceserver,instanceserver.image.tag=$TAG,testbot.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-testbot,testbot.image.tag=$TAG,client.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-client,client.image.tag=$TAG,batchinvalidator.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api,batchinvalidator.image.tag=$TAG $STAGE etherealengine/etherealengine
+    helm repo update && helm upgrade --reuse-values --version $HELM_MAIN_VERSION --set taskserver.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-taskserver,taskserver.image.tag=$TAG,api.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api,api.image.tag=$TAG,instanceserver.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-instanceserver,instanceserver.image.tag=$TAG,testbot.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-testbot,testbot.image.tag=$TAG,client.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-client,client.image.tag=$TAG,batchinvalidator.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api,batchinvalidator.image.tag=$TAG $STAGE ir-engine/ir-engine
   fi
 fi

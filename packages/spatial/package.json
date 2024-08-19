@@ -1,25 +1,25 @@
 {
-  "name": "@etherealengine/spatial",
+  "name": "@ir-engine/spatial",
   "version": "1.6.0",
   "main": "index.ts",
   "publishConfig": {
     "access": "public"
   },
-  "description": "Core spatial system for the Ethereal Engine",
+  "description": "Core spatial system for the Infinite Reality Engine",
   "scripts": {
     "check-errors": "tsc --noemit",
     "test": "mocha --jobs 1"
   },
-  "repository": "http://github.com/etherealengine/etherealengine",
-  "author": "Ethereal Engine",
+  "repository": "http://github.com/ir-engine/ir-engine",
+  "author": "Infinite Reality Engine",
   "license": "CPAL",
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.11.2",
-    "@etherealengine/common": "^1.6.0",
-    "@etherealengine/ecs": "^1.6.0",
-    "@etherealengine/visual-script": "^1.6.0",
-    "@etherealengine/hyperflux": "^1.6.0",
-    "@etherealengine/network": "^1.6.0",
+    "@ir-engine/common": "^1.6.0",
+    "@ir-engine/ecs": "^1.6.0",
+    "@ir-engine/visual-script": "^1.6.0",
+    "@ir-engine/hyperflux": "^1.6.0",
+    "@ir-engine/network": "^1.6.0",
     "@tweenjs/tween.js": "^23.1.2",
     "bitecs": "0.3.40",
     "lodash-es": "4.17.21",

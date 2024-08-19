@@ -1,5 +1,5 @@
 {
-  "name": "@etherealengine/hyperflux",
+  "name": "@ir-engine/hyperflux",
   "version": "1.6.0",
   "type": "module",
   "files": [
@@ -15,18 +15,18 @@
       "default": "./dist/hyperflux.js"
     }
   },
-  "description": "State Management for Ethereal Engine",
+  "description": "State Management for Infinite Reality Engine",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/etherealengine/etherealengine.git"
+    "url": "git://github.com/ir-engine/ir-engine.git"
   },
   "author": "",
   "license": "CPAL",
   "bugs": {
-    "url": "https://github.com/etherealengine/etherealengine/issues"
+    "url": "https://github.com/ir-engine/ir-engine/issues"
   },
   "dependencies": {
     "@etherealengine/common": "^1.6.0",

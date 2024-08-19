@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,21 +14,21 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { InviteService } from '@etherealengine/client-core/src/social/services/InviteService'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { InviteService } from '@ir-engine/client-core/src/social/services/InviteService'
 import {
   instancePath,
   InviteCode,
@@ -37,16 +37,16 @@ import {
   InviteType,
   locationPath,
   userPath
-} from '@etherealengine/common/src/schema.type.module'
-import { convertDateTimeSqlToLocal, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
-import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
-import MultiEmailInput from '@etherealengine/ui/src/primitives/tailwind/MultiEmailInput'
-import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
-import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
+} from '@ir-engine/common/src/schema.type.module'
+import { convertDateTimeSqlToLocal, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { useHookstate } from '@ir-engine/hyperflux'
+import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import MultiEmailInput from '@ir-engine/ui/src/primitives/tailwind/MultiEmailInput'
+import Radios from '@ir-engine/ui/src/primitives/tailwind/Radio'
+import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 
 type InviteTypeOptionsType = 'new-user' | 'location' | 'instance'
 const inviteTypeOptions = ['new-user', 'location', 'instance'] as InviteTypeOptionsType[]

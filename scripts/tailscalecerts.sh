@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-if (( "${PWD##*/}" != "etherealengine")); then
-    echo "Please run in /etherealengine"
+if (( "${PWD##*/}" != "ir-engine")); then
+    echo "Please run in /ir-engine"
     exit
 fi
 instructions () {
-  printf "Open ${GREEN}/etherealengine/.env.local${NC}\n"
+  printf "Open ${GREEN}/ir-engine/.env.local${NC}\n"
   printf "Change all '${RED}localhost${NC}' to '${BLUE}$domain${NC}'\n"
   printf "Un Comment'${BLUE}VITE_FILE_SERVER=https://$domain:8642${NC}'\n"
   printf "Un Comment'${BLUE}STORAGE_PROVIDER=local${NC}'\n"
