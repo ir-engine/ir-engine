@@ -4,7 +4,7 @@ function readPackage(pkg) {
     const externalDeps = {};
     
     Object.entries(pkg.peerDependencies).forEach(([key, value]) => {
-        if(key.startsWith('@etherealengine')){
+        if(key.startsWith('@ir-engine')){
             internalDeps[key] = value;
         }else{
             externalDeps[key] = value;

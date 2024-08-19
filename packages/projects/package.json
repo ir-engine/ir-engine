@@ -1,5 +1,5 @@
 {
-  "name": "@etherealengine/projects",
+  "name": "@ir-engine/projects",
   "version": "1.6.0",
   "main": "index.ts",
   "private": true,
@@ -7,7 +7,7 @@
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git://github.com/etherealengine/etherealengine.git"
+    "url": "git://github.com/ir-engine/ir-engine.git"
   },
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   "author": "",
   "license": "CPAL",
   "bugs": {
-    "url": "https://github.com/etherealengine/etherealengine/issues"
+    "url": "https://github.com/ir-engine/ir-engine/issues"
   },
-  "homepage": "https://github.com/etherealengine/etherealengine#readme"
+  "homepage": "https://github.com/ir-engine/ir-engine#readme"
 }

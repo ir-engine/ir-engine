@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
@@ -37,7 +37,7 @@ import {
   Texture
 } from 'three'
 
-import { entityExists, useEntityContext, UUIDComponent } from '@etherealengine/ecs'
+import { entityExists, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -46,33 +46,33 @@ import {
   serializeComponent,
   setComponent,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
-import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { getMutableState, getState, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
-import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { ThreeToPhysics } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { GroupComponent, GroupQueryReactor } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { ResourceManager } from '@etherealengine/spatial/src/resources/ResourceState'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
+import { getMutableState, getState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
+import { ThreeToPhysics } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { GroupComponent, GroupQueryReactor } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { ResourceManager } from '@ir-engine/spatial/src/resources/ResourceState'
 import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
-} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
-import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+} from '@ir-engine/spatial/src/transform/components/DistanceComponents'
+import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
-} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { createAndAssignMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { createAndAssignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
