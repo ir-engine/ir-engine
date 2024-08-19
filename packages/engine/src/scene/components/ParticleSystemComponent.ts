@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
@@ -46,20 +46,15 @@ import {
 } from 'three.quarks'
 import matches from 'ts-matches'
 
-import { Entity, UUIDComponent } from '@etherealengine/ecs'
+import { Entity, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   setComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import {
-  createEntity,
-  generateEntityUUID,
-  removeEntity,
-  useEntityContext
-} from '@etherealengine/ecs/src/EntityFunctions'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { createEntity, generateEntityUUID, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import {
   NO_PROXY,
   defineState,
@@ -68,15 +63,15 @@ import {
   getState,
   none,
   useHookstate
-} from '@etherealengine/hyperflux'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { useDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+} from '@ir-engine/hyperflux'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { AssetType } from '@etherealengine/common/src/constants/AssetType'
+import { AssetType } from '@ir-engine/common/src/constants/AssetType'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useGLTF, useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -868,7 +863,7 @@ export const ParticleSystemComponent = defineComponent({
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
     const sceneID = useOptionalComponent(entity, SourceComponent)?.value
     const rootEntity = useHookstate(getMutableState(GLTFSourceState))[sceneID ?? ''].value
-    const rootGLTF = useOptionalComponent(rootEntity, GLTFComponent)
+    const sceneLoaded = GLTFComponent.useSceneLoaded(rootEntity)
     const refreshed = useHookstate(false)
 
     const [geoDependency] = useGLTF(componentState.value.systemParameters.instancingGeometry!, entity, (url) => {
@@ -890,7 +885,7 @@ export const ParticleSystemComponent = defineComponent({
     })
     //@todo: this is a hack to make trail rendering mode work correctly. We need to find out why an additional snapshot is needed
     useEffect(() => {
-      if (rootGLTF?.value?.progress !== 100) return
+      if (!sceneLoaded) return
       if (refreshed.value) return
 
       //if (componentState.systemParameters.renderMode.value === RenderMode.Trail) {
@@ -898,7 +893,7 @@ export const ParticleSystemComponent = defineComponent({
       dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
       //}
       refreshed.set(true)
-    }, [rootGLTF?.value?.progress])
+    }, [sceneLoaded])
 
     useEffect(() => {
       //add dud material

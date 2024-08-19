@@ -48,25 +48,25 @@ else
 fi
 
 if [ -z "$MYSQL_DATABASE" ]; then
-  MYSQL_DATABASE=etherealengine
+  MYSQL_DATABASE=ir-engine
 else
   MYSQL_DATABASE=$MYSQL_DATABASE
 fi
 
 if [ -z "$VITE_APP_HOST" ]; then
-  VITE_APP_HOST=local.etherealengine.org
+  VITE_APP_HOST=local.ir-engine.org
 else
   VITE_APP_HOST=$VITE_APP_HOST
 fi
 
 if [ -z "$VITE_SERVER_HOST" ]; then
-  VITE_SERVER_HOST=api-local.etherealengine.org
+  VITE_SERVER_HOST=api-local.ir-engine.org
 else
   VITE_SERVER_HOST=$VITE_SERVER_HOST
 fi
 
 if [ -z "$VITE_FILE_SERVER" ]; then
-  VITE_FILE_SERVER=https://localhost:9000/etherealengine-microk8s-static-resources
+  VITE_FILE_SERVER=https://localhost:9000/ir-engine-microk8s-static-resources
 else
   VITE_FILE_SERVER=$VITE_FILE_SERVER
 fi
@@ -78,7 +78,7 @@ else
 fi
 
 if [ -z "$VITE_INSTANCESERVER_HOST" ]; then
-  VITE_INSTANCESERVER_HOST=instanceserver-local.etherealengine.org
+  VITE_INSTANCESERVER_HOST=instanceserver-local.ir-engine.org
 else
   VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST
 fi
@@ -132,7 +132,7 @@ else
 fi
 
 # ./generate-certs.sh
-docker start etherealengine_minikube_db
+docker start ir-engine_minikube_db
 
 mkdir -p ./project-package-jsons/projects/default-project
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
@@ -158,7 +158,7 @@ echo "Tag is: $TAG"
 docker buildx build \
   --network=host \
   --cache-to type=inline \
-  -t $REGISTRY_HOST:32000/etherealengine \
+  -t $REGISTRY_HOST:32000/ir-engine \
   --build-arg NODE_ENV=$NODE_ENV \
   --build-arg MYSQL_HOST=$MYSQL_HOST \
   --build-arg MYSQL_PORT=$MYSQL_PORT \
@@ -183,10 +183,10 @@ docker buildx build \
   --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY \
   --build-arg VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED .
 
-docker tag $REGISTRY_HOST:32000/etherealengine $REGISTRY_HOST:32000/etherealengine:$TAG
-docker push $REGISTRY_HOST:32000/etherealengine:$TAG
+docker tag $REGISTRY_HOST:32000/ir-engine $REGISTRY_HOST:32000/ir-engine:$TAG
+docker push $REGISTRY_HOST:32000/ir-engine:$TAG
 
-# DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/etherealengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
+# DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/ir-engine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
 
-# docker tag $REGISTRY_HOST:32000/etherealengine-testbot $REGISTRY_HOST:32000/etherealengine-testbot:$TAG
-# docker push $REGISTRY_HOST:32000/etherealengine-testbot:$TAG
+# docker tag $REGISTRY_HOST:32000/ir-engine-testbot $REGISTRY_HOST:32000/ir-engine-testbot:$TAG
+# docker push $REGISTRY_HOST:32000/ir-engine-testbot:$TAG

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,23 +14,23 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Application } from '@feathersjs/feathers'
 import cli from 'cli'
 
-import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
-import { routePath } from '@etherealengine/common/src/schema.type.module'
-import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
-import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
-import { ServerMode } from '@etherealengine/server-core/src/ServerState'
+import { InstalledRoutesInterface } from '@ir-engine/common/src/interfaces/Route'
+import { routePath } from '@ir-engine/common/src/schema.type.module'
+import { createFeathersKoaApp, serverJobPipe } from '@ir-engine/server-core/src/createApp'
+import { getStorageProvider } from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
+import { ServerMode } from '@ir-engine/server-core/src/ServerState'
 
 cli.enable('status')
 
@@ -57,7 +57,7 @@ cli.main(async () => {
     await app.setup()
     const storageProvider = getStorageProvider()
     const routes = (await getAllRoutes(app, [], 0)).map((item) => item.route)
-    const name = `etherealengine-${options.stage}-client-route-function`
+    const name = `ir-engine-${options.stage}-client-route-function`
     const functionList = (await storageProvider.listFunctions(null, [])).map((thisFunction) => thisFunction.Name)
     const currentFunctions = [...new Set(functionList)]
     let functionResponse

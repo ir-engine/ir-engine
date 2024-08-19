@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 export function wait(ms: number): void {
@@ -38,6 +38,11 @@ export function isNumber(value: string | number): boolean {
   return value != null && value !== '' && !isNaN(Number(value.toString()))
 }
 
+export function toPrecision(value, precision) {
+  const p = 1 / precision
+  return Math.round(value * p) / p
+}
+
 export function combine(first, second, third) {
   const res: any[] = []
 
@@ -47,6 +52,23 @@ export function combine(first, second, third) {
 
   return res
 }
+
+export const unique = <T, S = T>(arr: T[], keyFinder: (item: T) => S): T[] => {
+  const set = new Set<S>()
+  const newArr = [] as T[]
+  if (!keyFinder) keyFinder = (item: T) => item as any as S
+
+  for (const item of arr) {
+    const key = keyFinder(item)
+    if (set.has(key)) continue
+
+    newArr.push(item)
+    set.add(key)
+  }
+
+  return newArr
+}
+
 export function combineArrays(arrays: [[]]) {
   const res = []
 
@@ -57,6 +79,23 @@ export function combineArrays(arrays: [[]]) {
   }
 
   return res
+}
+
+export function insertArraySeparator(children, separatorFn) {
+  if (!Array.isArray(children)) {
+    return children
+  }
+  const length = children.length
+  if (length === 1) {
+    return children[0]
+  }
+  return children.reduce((acc, item, index) => {
+    acc.push(item)
+    if (index !== length - 1) {
+      acc.push(separatorFn(index))
+    }
+    return acc
+  }, [])
 }
 
 export function arraysAreEqual(arr1: any[], arr2: any[]): boolean {
@@ -153,4 +192,15 @@ export const toCapitalCase = (source: string) => {
   return source.replace(/\w\S*/g, function (txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
   })
+}
+
+export function toCamelPad(source: string) {
+  return source
+    .replace(/([A-Z]+)([A-Z][a-z])/g, ' $1 $2')
+    .replace(/([a-z\d])([A-Z])/g, '$1 $2')
+    .replace(/([a-zA-Z])(\d)/g, '$1 $2')
+    .replace(/^./, (str) => {
+      return str.toUpperCase()
+    })
+    .trim()
 }
