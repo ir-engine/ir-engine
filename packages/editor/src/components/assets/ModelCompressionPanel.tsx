@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,54 +14,54 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Group, LoaderUtils } from 'three'
 
-import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
-import { createEntity, Entity, generateEntityUUID, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
+import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
+import { createEntity, Entity, generateEntityUUID, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine } from '@ir-engine/ecs/src/Engine'
 import {
   DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
-} from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { Heuristic, VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
-import { getState, ImmutableArray, NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+} from '@ir-engine/engine/src/assets/classes/ModelTransform'
+import { transformModel as clientSideTransformModel } from '@ir-engine/engine/src/assets/compression/ModelTransformFunctions'
+import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
+import { proxifyParentChildRelationships } from '@ir-engine/engine/src/scene/functions/loadGLTFModel'
+import { getState, ImmutableArray, NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   EntityTreeComponent,
   removeEntityNodeRecursively
-} from '@etherealengine/spatial/src/transform/components/EntityTree'
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { FileType } from '@etherealengine/ui/src/components/editor/panels/Files/container'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { FileType } from '@ir-engine/ui/src/components/editor/panels/Files/container'
 import { useTranslation } from 'react-i18next'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import exportGLTF from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 
-import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
