@@ -38,20 +38,23 @@ import { HookableFunction } from '@ir-engine/common/src/utils/createHookableFunc
 import { getNestedObject } from '@ir-engine/common/src/utils/getNestedProperty'
 import { HyperFlux, ReactorRoot, startReactor } from '@ir-engine/hyperflux'
 import {
+  getState,
   hookstate,
   InferStateValueType,
   NO_PROXY,
   NO_PROXY_STEALTH,
   none,
   State,
-  useHookstate
+  useHookstate,
+  useMutableState
 } from '@ir-engine/hyperflux/functions/StateFunctions'
 
 import { Entity, UndefinedEntity } from './Entity'
-import { EntityContext } from './EntityFunctions'
+import { createEntity, EntityContext, entityExists } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
 import { useExecute } from './SystemFunctions'
 import { PresentationSystemGroup } from './SystemGroups'
+import { EntityLayerState, LayerID } from './LayerState'
 
 /**
  * @description
@@ -351,9 +354,33 @@ export const setComponent = <C extends Component>(
 
   Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
 
-  if (!componentExists && Component.reactor && !Component.reactorMap.has(entity)) {
+  if (!componentExists && !Component.reactorMap.has(entity)) {
     const root = startReactor(() => {
-      return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(Component.reactor!, {}))
+      const layerState = useMutableState(EntityLayerState)
+      useImmediateEffect(() => {
+        const layer = EntityLayerState.getEntityLayer(entity)
+        for (const dstLayerID of Object.keys(layer.relations)) {
+          if (layer.relations[dstLayerID] === 'inherit') {
+            let dstEntity = EntityLayerState.getLinkedEntity(entity, dstLayerID as LayerID)
+
+            if (!entityExists(dstEntity)) {
+              //if the linked entity doesn't exist, we recreate it and sync its state with the source entity
+              dstEntity = createEntity(dstLayerID as LayerID)
+              EntityLayerState.linkEntity(entity, dstEntity)
+              for (const component of getAllComponents(entity)) {
+                if (component === Component) continue //we're about to do this operation anyways
+                setComponent(dstEntity, component, component.stateMap[entity]!.get(NO_PROXY_STEALTH))
+              }
+            }
+
+            //set up reactive logic to propagate component changes to linked entity
+            setComponent(dstEntity, Component, Component.stateMap[entity]!.get(NO_PROXY_STEALTH))
+          }
+        }
+      }, [Component.stateMap[entity], layerState.layers])
+      return Component.reactor
+        ? React.createElement(EntityContext.Provider, { value: entity }, React.createElement(Component.reactor, {}))
+        : null
     }) as ReactorRoot
     root['entity'] = entity
     root['component'] = Component.name
@@ -382,28 +409,35 @@ export const updateComponent = <C extends Component>(
     throw new Error('[updateComponent]: component does not exist ' + Component.name)
   }
 
-  startTransition(() => {
-    if (typeof props !== 'object') {
-      // component has top level value (eg NameComponent)
-      comp.set(props)
-    } else {
-      for (const propertyName of Object.keys(props as any)) {
-        const value = props[propertyName]
-        const { result, finalProp } = getNestedObject(comp, propertyName)
-        if (
-          typeof value !== 'undefined' &&
-          typeof result[finalProp] === 'object' &&
-          typeof result[finalProp].set === 'function'
-        ) {
-          result[finalProp].set(value)
-        } else {
-          result[finalProp] = value
-        }
+  if (typeof props !== 'object') {
+    // component has top level value (eg NameComponent)
+    comp.set(props)
+  } else {
+    for (const propertyName of Object.keys(props as any)) {
+      const value = props[propertyName]
+      const { result, finalProp } = getNestedObject(comp, propertyName)
+      if (
+        typeof value !== 'undefined' &&
+        typeof result[finalProp] === 'object' &&
+        typeof result[finalProp].set === 'function'
+      ) {
+        result[finalProp].set(value)
+      } else {
+        result[finalProp] = value
       }
     }
-    const root = Component.reactorMap.get(entity)
-    if (!root?.isRunning) root?.run()
-  })
+  }
+  const root = Component.reactorMap.get(entity)
+  if (!root?.isRunning) root?.run()
+
+  const layer = EntityLayerState.getEntityLayer(entity)
+  for (const dstLayerID of Object.keys(layer.relations)) {
+    if (layer.relations[dstLayerID] === 'inherit') {
+      const dstEntity = EntityLayerState.getLinkedEntity(entity, dstLayerID as LayerID)
+      //set up reactive logic to propagate component changes to linked entity
+      updateComponent(dstEntity, Component, props)
+    }
+  }
 }
 
 export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
@@ -412,15 +446,34 @@ export const hasComponent = <C extends Component>(entity: Entity, component: C) 
   return bitECS.hasComponent(HyperFlux.store, component, entity)
 }
 
-export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
-  if (!hasComponent(entity, component)) return
-  component.onRemove(entity, component.stateMap[entity]!)
-  bitECS.removeComponent(HyperFlux.store, component, entity, false)
-  const root = component.reactorMap.get(entity)
-  component.reactorMap.delete(entity)
+export const removeComponent = <C extends Component>(entity: Entity, Component: C) => {
+  if (!hasComponent(entity, Component)) return
+  Component.onRemove(entity, Component.stateMap[entity]!)
+  bitECS.removeComponent(HyperFlux.store, Component, entity, false)
+  const root = Component.reactorMap.get(entity)
+  Component.reactorMap.delete(entity)
   if (root?.isRunning) root.stop()
   /** clear state data after reactor stops, to ensure hookstate is still referenceable */
-  component.stateMap[entity]?.set(none)
+  Component.stateMap[entity]?.set(none)
+
+  const layer = EntityLayerState.getEntityLayer(entity)
+  for (const dstLayerID of Object.keys(layer.relations)) {
+    if (layer.relations[dstLayerID] === 'inherit') {
+      let dstEntity = EntityLayerState.getLinkedEntity(entity, dstLayerID as LayerID)
+
+      if (!entityExists(dstEntity)) {
+        //if the linked entity doesn't exist, we recreate it and sync its state with the source entity
+        dstEntity = createEntity(dstLayerID as LayerID)
+        EntityLayerState.linkEntity(entity, dstEntity)
+        for (const component of getAllComponents(entity)) {
+          if (component === Component) continue //we're about to remove this component anyways
+          setComponent(dstEntity, component, component.stateMap[entity]!.get(NO_PROXY_STEALTH))
+        }
+      }
+      //set up reactive logic to propagate component changes to linked entity
+      removeComponent(dstEntity, Component)
+    }
+  }
 }
 
 /**
