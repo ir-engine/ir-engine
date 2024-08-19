@@ -27,8 +27,7 @@ import { matches } from 'ts-matches'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-
-import { useImmediateEffect } from '@etherealengine/hyperflux'
+import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from './TransformComponent'
 
 export const ComputedTransformComponent = defineComponent({
