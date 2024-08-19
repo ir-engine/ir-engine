@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,19 +14,19 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import {
   ComponentJSONIDMap,
   ComponentMap,
@@ -34,30 +34,30 @@ import {
   getOptionalComponent,
   hasComponent,
   setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { TransformComponent } from '@etherealengine/spatial'
-import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { TransformComponent } from '@ir-engine/spatial'
+import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { FrustumCullCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
-import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { BoneComponent } from '@etherealengine/spatial/src/renderer/components/BoneComponent'
-import { SkinnedMeshComponent } from '@etherealengine/spatial/src/renderer/components/SkinnedMeshComponent'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 import { getModelSceneID } from './loaders/ModelFunctions'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 
 export const parseECSData = (userData: Record<string, any>): ComponentJsonType[] => {
   const components: { [key: string]: any } = {}
