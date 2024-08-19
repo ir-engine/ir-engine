@@ -60,7 +60,7 @@
     "@feathersjs/feathers": "5.0.5",
     "@feathersjs/knex": "5.0.5",
     "@feathersjs/koa": "5.0.5",
-    "@feathersjs/transport-commons": "5.0.5",
+    "@feathersjs/transport-commons": "5.0.8",
     "@ffprobe-installer/ffprobe": "^2.0.0",
     "@gltf-transform/core": "3.4.2",
     "@gltf-transform/extensions": "3.4.2",
