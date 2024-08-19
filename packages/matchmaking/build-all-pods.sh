@@ -13,6 +13,6 @@ REGISTRY=$REGISTRY DEPLOY_TIME=$DEPLOY_TIME ./build-pod.sh matchfunction "$1"
 
 if [[ $2 = "push" ]]
 then
-  docker push $REGISTRY/etherealengine-matchmaking-director
-  docker push $REGISTRY/etherealengine-matchmaking-matchfunction
+  docker push $REGISTRY/ir-engine-matchmaking-director
+  docker push $REGISTRY/ir-engine-matchmaking-matchfunction
 fi
