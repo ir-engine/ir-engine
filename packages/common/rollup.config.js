@@ -23,20 +23,57 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect, useState } from 'react'
 
-import { State, useHookstate } from '@etherealengine/hyperflux'
+import dts from 'rollup-plugin-dts'
+import esbuild from 'rollup-plugin-esbuild'
+// import fs from 'fs'
+// import {resolve} from 'path'
 
-export const useHookstateFromFactory = <T>(cb: (...any) => T): State<T> => {
-  const state = useHookstate({} as T)
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    if (mounted) return
-    state.set(cb())
-    setMounted(true)
-    return () => {
-      setMounted(false)
-    }
-  }, [])
-  return state
+// const __dirname = import.meta.dirname;
+// fs.readdir(resolve(__dirname, 'src'), (err, files) => {
+//   files && files.forEach(file => {
+//     console.log(file);
+//   });
+// });
+
+const productionConfig = {
+  minifyInternalExports: true,
 }
+function customBuild() {
+  return esbuild({minify: true})
+}
+
+const inputFile = `src/index.ts`
+const packageName = "common"
+
+export default [
+  {
+    input: inputFile,
+    plugins: [customBuild()],
+    output: [
+      {
+        file: `dist/${packageName}.js`,
+        format: 'es',
+        ...productionConfig
+      },
+    ]
+  },
+  {
+    input: inputFile,
+    plugins: [customBuild()],
+    output: [
+      {
+        file: `dist/${packageName}.cjs`,
+        format: 'cjs',
+        ...productionConfig
+      },
+    ]
+  },
+  {
+    input: inputFile,
+    plugins: [dts()],
+    output: {
+      file: `dist/${packageName}.d.ts`,
+    },
+  },
+]

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EMAIL_REGEX } from './regex'
-import type { MediaSettingsType } from './schema.type.module'
+import type { MediaSettingsType } from './schemas'
 
 /**
  * Config settings (for client and isomorphic engine usage).

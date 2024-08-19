@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VALID_SCENE_NAME_REGEX, WINDOWS_RESERVED_NAME_REGEX } from '@etherealengine/common/src/regex'
+import { VALID_SCENE_NAME_REGEX, WINDOWS_RESERVED_NAME_REGEX } from '../regex'
 
 export default function isValidSceneName(sceneName: string) {
   return !WINDOWS_RESERVED_NAME_REGEX.test(sceneName) && VALID_SCENE_NAME_REGEX.test(sceneName)

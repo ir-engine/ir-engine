@@ -28,8 +28,7 @@ import React, { Suspense, useTransition } from 'react'
 import Reconciler from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
 
-import { isDev } from '@etherealengine/common/src/config'
-import { createErrorBoundary } from '@etherealengine/common/src/utils/createErrorBoundary'
+import { createErrorBoundary, isDev } from '@etherealengine/common'
 
 import { HyperFlux } from './StoreFunctions'
 

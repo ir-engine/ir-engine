@@ -5,7 +5,7 @@ TAG=$2
 
 #kubectl delete job $STAGE-etherealengine-testbot
 
-npx cross-env ts-node --swc scripts/fetch-helm-versions.ts --stage=${RELEASE_NAME}
+npx cross-env tsx scripts/fetch-helm-versions.ts --stage=${RELEASE_NAME}
 docker manifest inspect $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api:$TAG >api-image.txt 2>&1
 if [ "$SERVE_CLIENT_FROM_API" != "true" ] && [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" != "true" ]
 then

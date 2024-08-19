@@ -97,7 +97,7 @@ ENV VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY
 ENV VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED
 
 ARG CACHE_DATE
-RUN npx cross-env ts-node --swc scripts/check-db-exists.ts
+RUN npx cross-env tsx scripts/check-db-exists.ts
 RUN npm run build-client
 
 RUN rm -r packages/client/public

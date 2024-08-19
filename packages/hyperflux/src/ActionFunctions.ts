@@ -26,11 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { matches, Parser, Validator } from 'ts-matches'
 import { v4 as uuidv4 } from 'uuid'
 
-import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import multiLogger from '@etherealengine/common/src/logger'
-import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
-import { deepEqual } from '@etherealengine/common/src/utils/deepEqual'
+import { createHookableFunction, deepEqual, InstanceID, multiLogger, OpaqueType } from '@etherealengine/common'
 
 import { ReactorRoot } from './ReactorFunctions'
 import { setInitialState, StateDefinitions } from './StateFunctions'

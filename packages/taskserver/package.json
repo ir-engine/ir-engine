@@ -2,6 +2,7 @@
   "name": "@etherealengine/taskserver",
   "description": "Task server for EtherealEngine platform",
   "version": "1.6.0",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git://github.com/etherealengine/etherealengine.git"
@@ -33,8 +34,8 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "start": "cross-env APP_ENV=production ts-node --swc src/index.ts",
-    "dev": "cross-env APP_ENV=development NODE_OPTIONS='--inspect' ts-node --swc src/index.ts",
+    "start": "cross-env APP_ENV=production ts-node --esm --swc src/index.ts",
+    "dev": "cross-env APP_ENV=development NODE_OPTIONS='--inspect' ts-node --esm --swc src/index.ts",
     "test": "exit 0",
     "validate": "npm run build && npm run test"
   },

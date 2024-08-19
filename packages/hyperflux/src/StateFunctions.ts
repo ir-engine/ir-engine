@@ -27,10 +27,7 @@ import { extend, ExtensionFactory, hookstate, SetInitialStateAction, State, useH
 import { Identifiable, identifiable } from '@hookstate/identifiable'
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
-import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
-import multiLogger from '@etherealengine/common/src/logger'
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { resolveObject } from '@etherealengine/common/src/utils/resolveObject'
+import { DeepReadonly, isClient, multiLogger, resolveObject } from '@etherealengine/common'
 
 import { ActionQueueHandle, ActionReceptor } from './ActionFunctions'
 import { startReactor } from './ReactorFunctions'

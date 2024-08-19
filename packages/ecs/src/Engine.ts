@@ -29,10 +29,10 @@ import { getAllEntities } from 'bitecs'
 import { Cache } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
-import type { UserID } from '@etherealengine/common/src/schema.type.module'
+import type { UserID } from '@etherealengine/common/src/schemas'
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { createHyperStore, getState, NO_PROXY_STEALTH, ReactorReconciler } from '@etherealengine/hyperflux'
-import { disposeStore, HyperFlux, HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
+import { disposeStore, HyperFlux, HyperStore } from '@etherealengine/hyperflux/src/StoreFunctions'
 
 import { ECSState } from './ECSState'
 import { Entity } from './Entity'

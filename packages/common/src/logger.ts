@@ -37,17 +37,18 @@ Ethereal Engine. All Rights Reserved.
 
 import type { FeathersApplication } from '@feathersjs/feathers'
 import NodeCache from 'node-cache'
-import schedule from 'node-schedule'
+//import schedule from 'node-schedule'
 
 import { ServiceTypes } from '../declarations'
 import config from './config'
-import { logsApiPath } from './schema.type.module'
+//import { logsApiPath } from './schema.type.module'
 
 // Initialize the cache
 const engineCache = new NodeCache()
 
+/** @todo move to a server*/
 // Schedule the data push at a certain time (e.g., every hour)
-schedule.scheduleJob('*/15 * * * * *', pushToEngine)
+// schedule.scheduleJob('*/15 * * * * *', pushToEngine)
 
 // Function to cache a string
 function cacheLog(value: string): void {
@@ -56,26 +57,26 @@ function cacheLog(value: string): void {
 }
 
 // Function to push cached strings to the server
-function pushToEngine(): void {
-  if (config.client.serverHost && LogConfig.api) {
-    const cachedData = engineCache.keys().map((key) => {
-      const cachedValue = engineCache.get<string>(key)
-      if (cachedValue) {
-        return cachedValue
-      }
-    })
+// function pushToEngine(): void {
+//   if (config.client.serverHost && LogConfig.api) {
+//     const cachedData = engineCache.keys().map((key) => {
+//       const cachedValue = engineCache.get<string>(key)
+//       if (cachedValue) {
+//         return cachedValue
+//       }
+//     })
 
-    if (cachedData.length > 0) {
-      try {
-        LogConfig.api.service(logsApiPath).create(cachedData)
-      } catch (err) {
-        console.log(err)
-      }
+//     if (cachedData.length > 0) {
+//       try {
+//         LogConfig.api.service(logsApiPath).create(cachedData)
+//       } catch (err) {
+//         console.log(err)
+//       }
 
-      engineCache.flushAll()
-    }
-  }
-}
+//       engineCache.flushAll()
+//     }
+//   }
+// }
 
 class LogConfig {
   static api: FeathersApplication<ServiceTypes> | undefined = undefined
@@ -101,7 +102,7 @@ const nullLogger = {
  * A logger class (similar to the one provided by Pino.js) to replace
  * console.log() usage on the client side.
  */
-const multiLogger = {
+export const multiLogger = {
   debug: console.debug.bind(console, `[${baseComponent}]`),
   info: console.log.bind(console, `[${baseComponent}]`),
   warn: console.warn.bind(console, `[${baseComponent}]`),

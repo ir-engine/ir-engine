@@ -23,22 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Bounds, getBounds, getViewportBounds } from '@etherealengine/xrui'
+/** @todo MOVE. Shold not be here*/
 
-export const calculateAndApplyYOffset = (element: HTMLElement | null, additionalOffset = 0) => {
-  if (!element) {
-    return
-  }
-  const popupBounds = getBounds(element)
-  const viewportBounds = getViewportBounds(new Bounds())
+// import { Bounds, getBounds, getViewportBounds } from '@etherealengine/xrui'
 
-  const overflowBottom =
-    (popupBounds?.top ?? 0) + (popupBounds?.height ?? 0) - (viewportBounds.top + viewportBounds.height)
-  let offsetY = 0
+// export const calculateAndApplyYOffset = (element: HTMLElement | null, additionalOffset = 0) => {
+//   if (!element) {
+//     return
+//   }
+//   const popupBounds = getBounds(element)
+//   const viewportBounds = getViewportBounds(new Bounds())
 
-  if (overflowBottom > 0) {
-    offsetY = -(popupBounds?.height ?? 0) + additionalOffset
-  }
+//   const overflowBottom =
+//     (popupBounds?.top ?? 0) + (popupBounds?.height ?? 0) - (viewportBounds.top + viewportBounds.height)
+//   let offsetY = 0
 
-  element.style.transform = `translateY(${offsetY}px)`
-}
+//   if (overflowBottom > 0) {
+//     offsetY = -(popupBounds?.height ?? 0) + additionalOffset
+//   }
+
+//   element.style.transform = `translateY(${offsetY}px)`
+// }

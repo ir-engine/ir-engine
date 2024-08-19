@@ -1,10 +1,4 @@
-// This script adds our license header to any relevant files
-
-import { execSync } from 'child_process'
-import { readFileSync, writeFileSync } from 'fs'
-import { join } from 'path'
-
-const licenseHeader = `/*
+/*
 CPAL-1.0 License
 
 The contents of this file are subject to the Common Public Attribution License
@@ -30,20 +24,59 @@ Ethereal Engine. All Rights Reserved.
 */
 
 
-`
+import dts from 'rollup-plugin-dts'
+import esbuild from 'rollup-plugin-esbuild'
+// import fs from 'fs'
+// import {resolve} from 'path'
 
-const rootDir = join(import.meta.dirname, '..')
-const targetExtensions = ['ts', 'js', 'tsx', 'jsx']
+// const __dirname = import.meta.dirname;
+// fs.readdir(resolve(__dirname, 'src'), (err, files) => {
+//   files && files.forEach(file => {
+//     console.log(file);
+//   });
+// });
 
-const files = execSync('git ls-files', { cwd: rootDir })
-  .toString()
-  .split('\n')
-  .filter((file) => {
-    return targetExtensions.some((ext) => file.endsWith('.' + ext))
-  })
-
-for (const f of files) {
-  const file = readFileSync(join(rootDir, f), 'utf8')
-  if (file.includes('Copyright')) continue
-  writeFileSync(join(rootDir, f), licenseHeader + file)
+const productionConfig = {
+  minifyInternalExports: false,
 }
+function customBuild() {
+  return esbuild({minify: false})
+}
+
+const inputFile = `src/index.ts`
+const packageName = "hyperflux"
+
+export default [
+  {
+    input: inputFile,
+    plugins: [customBuild()],
+    external: ["react"],
+    output: [
+      {
+        file: `dist/${packageName}.js`,
+        format: 'es',
+        ...productionConfig
+      },
+    ]
+  },
+  {
+    input: inputFile,
+    plugins: [customBuild()],
+    external: ["react"],
+    output: [
+      {
+        file: `dist/${packageName}.cjs`,
+        format: 'cjs',
+        ...productionConfig
+      },
+    ]
+  },
+  {
+    input: inputFile,
+    plugins: [dts()],
+    external: ["react"],
+    output: {
+      file: `dist/${packageName}.d.ts`,
+    },
+  },
+]

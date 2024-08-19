@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { State } from '@hookstate/core'
 import { v4 as uuidv4 } from 'uuid'
 
-import { PeerID } from '@etherealengine/hyperflux'
+import { PeerID } from './ActionFunctions'
 
 import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
 import { ReactorReconciler, ReactorRoot } from './ReactorFunctions'

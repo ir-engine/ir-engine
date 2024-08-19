@@ -27,9 +27,9 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
-import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+import { OpaqueType } from '../../interfaces'
 
-import { UserID } from '../../schema.type.module'
+import { UserID } from '..'
 import { TypedString } from '../../types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
 import { dataValidator, queryValidator } from '../validators'

@@ -1,7 +1,20 @@
 {
   "name": "@etherealengine/hyperflux",
   "version": "1.6.0",
-  "main": "index.ts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/hyperflux.cjs",
+  "module": "./dist/hyperflux.js",
+  "exports": {
+    ".": {
+      "import": "./dist/hyperflux.js",
+      "require": "./dist/hyperflux.cjs",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/hyperflux.js"
+    }
+  },
   "description": "State Management for Ethereal Engine",
   "publishConfig": {
     "access": "public"
@@ -16,17 +29,27 @@
     "url": "https://github.com/etherealengine/etherealengine/issues"
   },
   "dependencies": {
+    "@etherealengine/common": "^1.6.0",
     "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",
     "@hookstate/identifiable": "^4.0.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "react": "18.2.0",
     "react-reconciler": "^0.29.0"
   },
   "devDependencies": {
+    "@feathersjs/feathers": "5.0.29",
+    "@types/mocha": "^10.0.7",
     "@types/react-reconciler": "^0.28.2",
     "cross-env": "^7.0.3",
     "ts-matches": "5.3.0",
-    "uuid": "9.0.0"
+    "typescript": "^5.5.3",
+    "uuid": "9.0.0",
+    "rollup": "^4.20.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-esbuild": "^6.1.1"
   },
   "scripts": {
-    "test": "cross-env TEST=true mocha --config .mocharc.js"
+    "test": "cross-env TEST=true mocha --config .mocharc.js",
+    "build": "tsc && rollup -c"
   }
 }

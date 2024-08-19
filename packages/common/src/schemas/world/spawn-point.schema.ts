@@ -21,8 +21,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { getValidator, querySyntax, Static, Type } from '@feathersjs/typebox'
 
-import { EntityUUID } from '@etherealengine/ecs'
-
+import { UUID } from 'crypto'
 import { TypedString } from '../../types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
 
@@ -32,7 +31,7 @@ export const spawnPointMethods = ['get', 'update', 'create', 'find', 'patch', 'r
 
 export const spawnPointSchema = Type.Object(
   {
-    id: TypedString<EntityUUID>({
+    id: TypedString<UUID>({
       format: 'uuid'
     }),
     sceneId: Type.String(),

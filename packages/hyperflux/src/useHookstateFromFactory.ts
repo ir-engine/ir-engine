@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,4 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect, useState } from 'react'
 
+import { State, useHookstate } from './StateFunctions'
+
+export const useHookstateFromFactory = <T>(cb: (...any) => T): State<T> => {
+  const state = useHookstate({} as T)
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    if (mounted) return
+    state.set(cb())
+    setMounted(true)
+    return () => {
+      setMounted(false)
+    }
+  }, [])
+  return state
+}

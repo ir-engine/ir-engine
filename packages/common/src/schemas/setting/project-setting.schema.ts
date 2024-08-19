@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { dataValidator, queryValidator } from '@etherealengine/common/src/schemas/validators'
 import type { Static } from '@feathersjs/typebox'
 import { StringEnum, Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { TypedString } from '../../types/TypeboxUtils'
 import { UserID } from '../user/user.schema'
+import { dataValidator, queryValidator } from '../validators'
 
 export const projectSettingPath = 'project-setting'
 

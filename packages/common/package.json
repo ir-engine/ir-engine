@@ -1,13 +1,28 @@
 {
   "name": "@etherealengine/common",
   "version": "1.6.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/common.cjs",
+  "module": "./dist/common.js",
+  "exports": {
+    ".": {
+      "types": "./dist/common.d.ts",
+      "import": "./dist/common.js",
+      "default": "./dist/common.js",
+      "require": "./dist/common.cjs"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
   "description": "Shared types for other Ethereal Engine packages",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --jobs 1"
+    "test": "mocha --jobs 1",
+    "build": "tsc && rollup -c"
   },
   "repository": "http://github.com/etherealengine/etherealengine",
   "author": "Ethereal Engine",
@@ -18,9 +33,14 @@
     "ts-toolbelt": "^9.6.0"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.6",
     "@types/mocha": "10.0.1",
     "@types/node": "18.15.5",
-    "rimraf": "4.4.0"
+    "rimraf": "4.4.0",
+    "rollup": "^4.20.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "typescript": "^5.4.5"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

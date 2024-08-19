@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
-import { dataValidator, queryValidator } from '@etherealengine/common/src/schemas/validators'
-import { TypedString } from '@etherealengine/common/src/types/TypeboxUtils'
 import { Static, StringEnum, Type, getValidator, querySyntax } from '@feathersjs/typebox'
+import { TypedString } from '../../types/TypeboxUtils'
+import { UserID } from '../user/user.schema'
+import { dataValidator, queryValidator } from '../validators'
 
 export const projectHistoryPath = 'project-history'
 export const projectHistoryMethods = ['create', 'find', 'remove'] as const
