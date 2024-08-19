@@ -41,7 +41,7 @@
           "bakeType": "Baked",
           "resolution": 2048,
           "refreshMode": "OnAwake",
-          "envMapOrigin": "__$project$__/default-project/public/scenes/default.envmap.ktx2",
+          "envMapOrigin": "__$project$__/ir-engine/default-project/public/scenes/default.envmap.ktx2",
           "boxProjection": true
         },
         "EE_fog": {
@@ -334,8 +334,8 @@
           "shadowMapType": 2
         },
         "EE_scene_settings": {
-          "thumbnailURL": "__$project$__/default-project/public/scenes/default.thumbnail.jpg",
-          "loadingScreenURL": "__$project$__/default-project/public/scenes/default.loadingscreen.ktx2",
+          "thumbnailURL": "__$project$__/ir-engine/default-project/public/scenes/default.thumbnail.jpg",
+          "loadingScreenURL": "__$project$__/ir-engine/default-project/public/scenes/default.loadingscreen.ktx2",
           "primaryColor": "#38620D",
           "backgroundColor": "rgb(214, 214, 211)",
           "alternativeColor": "#376312",
@@ -377,7 +377,7 @@
         "EE_skybox": {
           "backgroundColor": 3026478,
           "equirectangularPath": "",
-          "cubemapPath": "__$project$__/default-project/assets/skyboxsun25deg/",
+          "cubemapPath": "__$project$__/ir-engine/default-project/assets/skyboxsun25deg/",
           "backgroundType": 0,
           "skyboxProps": {
             "turbidity": 10,
@@ -469,7 +469,7 @@
       "name": "platform",
       "extensions": {
         "EE_model": {
-          "src": "__$project$__/default-project/assets/platform.glb",
+          "src": "__$project$__/ir-engine/default-project/assets/platform.glb",
           "cameraOcclusion": true,
           "convertToVRM": false
         },

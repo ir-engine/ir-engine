@@ -1,21 +1,21 @@
 {
-  "name": "@etherealengine/ecs",
+  "name": "@ir-engine/ecs",
   "version": "1.6.0",
   "main": "index.ts",
   "publishConfig": {
     "access": "public"
   },
-  "description": "Core execution context for the Ethereal Engine",
+  "description": "Core execution context for the Infinite Reality Engine",
   "scripts": {
     "check-errors": "tsc --noemit",
     "test": "mocha --jobs 1"
   },
-  "repository": "http://github.com/etherealengine/etherealengine",
-  "author": "Ethereal Engine",
+  "repository": "http://github.com/ir-engine/ir-engine",
+  "author": "Infinite Reality Engine",
   "license": "CPAL",
   "dependencies": {
-    "@etherealengine/common": "^1.6.0",
-    "@etherealengine/hyperflux": "^1.6.0",
+    "@ir-engine/common": "^1.6.0",
+    "@ir-engine/hyperflux": "^1.6.0",
     "bitecs": "0.3.40",
     "three": "0.158.0",
     "uuid": "9.0.0"
