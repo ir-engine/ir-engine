@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and
 provide for limited attribution for the Original Developer. In addition,
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
@@ -65,16 +65,11 @@ import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
 import { PassThrough, Readable } from 'stream'
 
-import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
+import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@ir-engine/common/src/constants/FileSizeConstants'
 
-import {
-  ASSETS_REGEX,
-  PROJECT_PUBLIC_REGEX,
-  PROJECT_REGEX,
-  PROJECT_THUMBNAIL_REGEX
-} from '@etherealengine/common/src/regex'
+import { ASSETS_REGEX, PROJECT_PUBLIC_REGEX, PROJECT_REGEX, PROJECT_THUMBNAIL_REGEX } from '@ir-engine/common/src/regex'
 
-import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
+import { FileBrowserContentType } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 
 import config from '../../appconfig'
 import {
@@ -260,12 +255,12 @@ export class S3Provider implements StorageProviderInterface {
     // https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-folders.htmlhow to
     const command = new ListObjectsV2Command({
       Bucket: this.bucket,
-      Prefix: path.join(directoryPath, fileName),
+      Prefix: path.join(directoryPath, fileName, '/'),
       MaxKeys: 1
     })
     try {
       const response = await this.provider.send(command)
-      return response?.Contents?.[0]?.Key?.endsWith('/') || false
+      return (response.Contents && response.Contents.length > 0) || false
     } catch {
       return false
     }
@@ -537,7 +532,7 @@ export class S3Provider implements StorageProviderInterface {
       Name: functionName,
       FunctionCode: new TextEncoder().encode(code),
       FunctionConfig: {
-        Comment: 'Function to handle routing of Ethereal Engine client',
+        Comment: 'Function to handle routing of Infinite Reality Engine client',
         Runtime: FunctionRuntime.cloudfront_js_1_0
       }
     }
@@ -606,7 +601,7 @@ export class S3Provider implements StorageProviderInterface {
       IfMatch: functionDetails.ETag,
       FunctionCode: new TextEncoder().encode(code),
       FunctionConfig: {
-        Comment: 'Function to handle routing of Ethereal Engine client',
+        Comment: 'Function to handle routing of Infinite Reality Engine client',
         Runtime: FunctionRuntime.cloudfront_js_1_0
       }
     }
@@ -740,13 +735,16 @@ export class S3Provider implements StorageProviderInterface {
    * @param isCopy If true it will create a copy of object.
    */
   async moveObject(oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) {
+    const isDirectory = await this.isDirectory(oldName, oldPath)
     const oldFilePath = path.join(oldPath, oldName)
     const newFilePath = path.join(newPath, newName)
-    const listResponse = await this.listObjects(oldFilePath, true)
+    const listResponse = await this.listObjects(oldFilePath + (isDirectory ? '/' : ''), false)
 
     const result = await Promise.all([
       ...listResponse.Contents.map(async (file) => {
-        const key = path.join(newFilePath, file.Key.replace(oldFilePath, ''))
+        const relativePath = file.Key.replace(oldFilePath, '')
+        const key = newFilePath + relativePath
+
         const input = {
           Bucket: this.bucket,
           CopySource: `/${this.bucket}/${file.Key}`,

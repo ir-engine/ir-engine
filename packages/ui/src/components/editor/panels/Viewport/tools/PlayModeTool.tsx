@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,38 +14,38 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { TransformGizmoControlledComponent } from '@etherealengine/editor/src/classes/TransformGizmoControlledComponent'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { transformGizmoControlledQuery } from '@etherealengine/editor/src/systems/GizmoSystem'
-import { VisualScriptActions, visualScriptQuery } from '@etherealengine/engine'
-import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
-import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { WorldNetworkAction } from '@etherealengine/network'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
-import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
+import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, removeComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { TransformGizmoControlledComponent } from '@ir-engine/editor/src/classes/TransformGizmoControlledComponent'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { transformGizmoControlledQuery } from '@ir-engine/editor/src/systems/GizmoSystem'
+import { VisualScriptActions, visualScriptQuery } from '@ir-engine/engine'
+import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { getRandomSpawnPoint } from '@ir-engine/engine/src/avatar/functions/getSpawnPoint'
+import { spawnLocalAvatarInWorld } from '@ir-engine/engine/src/avatar/functions/receiveJoinWorld'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { WorldNetworkAction } from '@ir-engine/network'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
+import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
+import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
-import { InfoTooltip } from '../../../layout/Tooltip'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 const PlayModeTool = () => {
   const { t } = useTranslation()
@@ -88,22 +88,28 @@ const PlayModeTool = () => {
   }
 
   return (
-    <div id="preview" className="flex items-center bg-theme-surfaceInput">
-      <InfoTooltip
+    <div id="preview" className="flex items-center">
+      <Tooltip
         title={
           isEditing.value ? t('editor:toolbar.command.lbl-playPreview') : t('editor:toolbar.command.lbl-stopPreview')
         }
-        info={
+        content={
           isEditing.value ? t('editor:toolbar.command.info-playPreview') : t('editor:toolbar.command.info-stopPreview')
         }
       >
         <Button
           variant="transparent"
-          startIcon={isEditing.value ? <HiOutlinePlay /> : <HiOutlinePause />}
+          startIcon={
+            isEditing.value ? (
+              <HiOutlinePlay className="text-theme-input" />
+            ) : (
+              <HiOutlinePause className="text-theme-input" />
+            )
+          }
           className="p-0"
           onClick={onTogglePlayMode}
         />
-      </InfoTooltip>
+      </Tooltip>
     </div>
   )
 }

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,24 +14,24 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { StaticResourceType, UserType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/ecs'
-import { ImmutableArray, NO_PROXY, State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { StaticResourceType, UserType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { Engine } from '@ir-engine/ecs'
+import { ImmutableArray, NO_PROXY, State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import { HiPencil, HiPlus, HiXMark } from 'react-icons/hi2'
 import { RiSave2Line } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -103,7 +103,8 @@ export default function FilePropertiesModal({
           key: resource.key,
           tags: newTags,
           licensing: resourceDigest.licensing.value,
-          attribution: resourceDigest.attribution.value
+          attribution: resourceDigest.attribution.value,
+          project: projectName
         })
       }
       modifiedFields.set([])
@@ -188,15 +189,15 @@ export default function FilePropertiesModal({
       <div className="flex flex-col items-center gap-2">
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.name')}</Text>
-          <Text className="text-[#9CA0AA]">{filename}</Text>
+          <Text className="text-theme-input">{filename}</Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.type')}</Text>
-          <Text className="text-[#9CA0AA]">{fileDigest.type.toUpperCase()}</Text>
+          <Text className="text-theme-input">{fileDigest.type.toUpperCase()}</Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.size')}</Text>
-          <Text className="text-[#9CA0AA]">
+          <Text className="text-theme-input">
             {files.map((file) => file.size).reduce((total, value) => total + parseInt(value ?? '0'), 0)}
           </Text>
         </div>
@@ -204,7 +205,7 @@ export default function FilePropertiesModal({
           <>
             <div className="grid grid-cols-2 gap-2">
               <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.author')}</Text>
-              <Text className="text-[#9CA0AA]">{author.value?.name}</Text>
+              <Text className="text-theme-input">{author.value?.name}</Text>
             </div>
             <div className="grid grid-cols-2 items-center gap-2">
               <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.attribution')}</Text>
@@ -225,7 +226,7 @@ export default function FilePropertiesModal({
                   </>
                 ) : (
                   <>
-                    <Text className="text-[#9CA0AA]">
+                    <Text className="text-theme-input">
                       {files.length > 1 && !sharedFields.value.includes('attribution')
                         ? t('editor:layout.filebrowser.fileProperties.mixedValues')
                         : resourceDigest.attribution.value || <em>{t('common:components.none')}</em>}
@@ -260,7 +261,7 @@ export default function FilePropertiesModal({
                   </>
                 ) : (
                   <>
-                    <Text className="text-[#9CA0AA]">
+                    <Text className="text-theme-input">
                       {files.length > 1 && !sharedFields.value.includes('licensing')
                         ? t('editor:layout.filebrowser.fileProperties.mixedValues')
                         : resourceDigest.licensing.value || <em>{t('common:components.none')}</em>}
@@ -277,7 +278,7 @@ export default function FilePropertiesModal({
               </span>
             </div>
             <div className="mt-10 flex flex-col gap-2">
-              <Text className="text-[#D3D5D9]" fontSize="sm">
+              <Text className="text-theme-gray3" fontSize="sm">
                 {t('editor:layout.filebrowser.fileProperties.addTag')}
               </Text>
               <div className="flex items-center gap-2">

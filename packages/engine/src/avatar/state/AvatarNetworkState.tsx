@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,33 +14,26 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers'
 import React, { useEffect, useLayoutEffect } from 'react'
 
-import { AvatarID, avatarPath, AvatarType, userAvatarPath } from '@etherealengine/common/src/schema.type.module'
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { EntityUUID, getOptionalComponent, setComponent, UUIDComponent } from '@etherealengine/ecs'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import {
-  defineState,
-  dispatchAction,
-  getMutableState,
-  none,
-  useHookstate,
-  useMutableState
-} from '@etherealengine/hyperflux'
-import { WorldNetworkAction } from '@etherealengine/network'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { AvatarID, avatarPath, AvatarType, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
+import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { EntityUUID, getOptionalComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineState, dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { WorldNetworkAction } from '@ir-engine/network'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
 import { AvatarColliderComponent } from '../components/AvatarControllerComponent'
 import { loadAvatarModelAsset, unloadAvatarForUser } from '../functions/avatarFunctions'

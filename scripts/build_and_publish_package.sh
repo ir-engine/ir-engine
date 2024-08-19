@@ -11,10 +11,8 @@ NODE_ENV=$6
 DESTINATION_REPO_PROVIDER=$7
 PRIVATE_REPO=$8
 
-if [ "$DESTINATION_REPO_PROVIDER" = "aws" ]
-then
-  if [ "$PRIVATE_REPO" = "true" ]
-  then
+if [ "$DESTINATION_REPO_PROVIDER" = "aws" ]; then
+  if [ "$PRIVATE_REPO" = "true" ]; then
     aws ecr get-login-password --region $REGION | docker login -u AWS --password-stdin $DESTINATION_REPO_URL
     aws ecr describe-repositories --repository-names $DESTINATION_REPO_NAME_STEM-$PACKAGE --region $REGION || aws ecr create-repository --repository-name $DESTINATION_REPO_NAME_STEM-$PACKAGE --region $REGION
   else
@@ -25,15 +23,14 @@ else
   echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 fi
 
-docker context create etherealengine-$PACKAGE-context
-docker buildx create --driver=docker-container etherealengine-$PACKAGE-context --name etherealengine-$PACKAGE --driver-opt "image=moby/buildkit:v0.12.0"
+docker context create ir-engine-$PACKAGE-context
+docker buildx create --driver=docker-container ir-engine-$PACKAGE-context --name ir-engine-$PACKAGE --driver-opt "image=moby/buildkit:v0.12.0"
 
-BUILD_START_TIME=`date +"%d-%m-%yT%H-%M-%S"`
+BUILD_START_TIME=$(date +"%d-%m-%yT%H-%M-%S")
 echo "Starting ${PACKAGE} build at ${BUILD_START_TIME}"
-if [ "$DOCKERFILE" != "client-serve-static" ]
-then
+if [ "$DOCKERFILE" != "client-serve-static" ]; then
   docker buildx build \
-    --builder etherealengine-$PACKAGE \
+    --builder ir-engine-$PACKAGE \
     --push \
     -t $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-$PACKAGE:${TAG}__${START_TIME} \
     -t $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-$PACKAGE:latest_$STAGE \
@@ -85,7 +82,7 @@ then
     --build-arg VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED .
 else
   docker buildx build \
-    --builder etherealengine-$PACKAGE \
+    --builder ir-engine-$PACKAGE \
     -f dockerfiles/$PACKAGE/Dockerfile-$DOCKERFILE \
     --cache-to type=registry,mode=max,image-manifest=true,ref=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-$PACKAGE:latest_${STAGE}_cache \
     --cache-from type=registry,ref=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-$PACKAGE:latest_${STAGE}_cache \
@@ -134,12 +131,11 @@ else
     --build-arg VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED .
 fi
 
-if [ $PRIVATE_REPO == "true" ]
-then
+if [ $PRIVATE_REPO == "true" ]; then
   npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-$PACKAGE --region $REGION --service $PACKAGE --releaseName $STAGE
 else
   npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-$PACKAGE --region us-east-1 --service $PACKAGE --releaseName $STAGE --public
 fi
 
-BUILD_END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
+BUILD_END_TIME=$(date +"%d-%m-%yT%H-%M-%S")
 echo "${PACKAGE} build started at ${BUILD_START_TIME}, ended at ${BUILD_END_TIME}"

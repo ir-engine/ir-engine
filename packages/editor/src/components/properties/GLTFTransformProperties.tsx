@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,24 +14,24 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React from 'react'
 
-import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import { State } from '@etherealengine/hyperflux'
-import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
-import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
-import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
+import { State } from '@ir-engine/hyperflux'
+import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
+import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
@@ -74,7 +74,7 @@ function TextParam({
 
       <div className="col-span-2 col-start-3">
         <Input
-          className="py-0 text-xs text-[#9CA0AA]"
+          className="py-0 text-xs text-theme-input"
           value={state.value}
           onChange={(e) => {
             state.set(parseFunction(e.target.value))
@@ -103,7 +103,7 @@ export default function GLTFTransformProperties({
               <Text
                 fontSize="xs"
                 fontWeight="medium"
-                className="block px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
+                className="block px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
                 style={{
                   textWrap: 'nowrap' // tailwind class is not working
                 }}
@@ -113,7 +113,7 @@ export default function GLTFTransformProperties({
               <Text
                 fontSize="xs"
                 fontWeight="medium"
-                className="px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
+                className="px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
                 style={{
                   textWrap: 'nowrap' // tailwind class is not working
                 }}
@@ -127,14 +127,14 @@ export default function GLTFTransformProperties({
                 onChange={(e) => {
                   transformParms.dst.set(e.target.value)
                 }}
-                className="px-2 py-0.5 text-sm text-[#9CA0AA]"
+                className="px-2 py-0.5 text-sm text-theme-input"
               />
               <Input
                 value={transformParms.resourceUri.value}
                 onChange={(e) => {
                   transformParms.resourceUri.set(e.target.value)
                 }}
-                className="px-2 py-0.5 text-sm text-[#9CA0AA]"
+                className="px-2 py-0.5 text-sm text-theme-input"
               />
             </div>
           </div>
@@ -145,7 +145,7 @@ export default function GLTFTransformProperties({
               <Text
                 fontSize="xs"
                 fontWeight="medium"
-                className="block px-2 py-0.5 text-right leading-[1.125rem] text-[#D3D5D9]"
+                className="block px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
                 style={{
                   textWrap: 'nowrap' // tailwind class is not working
                 }}
@@ -154,11 +154,7 @@ export default function GLTFTransformProperties({
               </Text>
             </div>
             <div className="col-span-3 flex flex-col justify-around gap-y-2">
-              <Input
-                value={`${itemCount} Items`}
-                disabled={true}
-                className="px-2 py-0.5 font-['Figtree'] text-sm text-[#9CA0AA]"
-              />
+              <Input value={`${itemCount} Items`} disabled={true} className="px-2 py-0.5 text-sm text-theme-input" />
             </div>
           </div>
         )}
@@ -179,7 +175,7 @@ export default function GLTFTransformProperties({
 
             <div className="col-span-2 col-start-3">
               <Select
-                inputClassName="text-[#9CA0AA] text-xs py-0"
+                inputClassName="text-theme-input text-xs py-0"
                 options={[
                   { label: 'Default', value: 'default' },
                   { label: 'JPG', value: 'jpg' },
@@ -223,7 +219,7 @@ export default function GLTFTransformProperties({
 
             <div className="col-span-2 col-start-3">
               <Select
-                inputClassName="text-[#9CA0AA] text-xs py-0"
+                inputClassName="text-theme-input text-xs py-0"
                 options={[
                   { label: 'UASTC', value: 'uastc' },
                   { label: 'ETC1', value: 'etc1' }
