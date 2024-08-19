@@ -33,11 +33,12 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
+  useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { entityExists, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY, none, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { none, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 
 import { TransformComponent } from './TransformComponent'
@@ -61,6 +62,7 @@ export const EntityTreeComponent = defineComponent({
       // api
       parentEntity: UndefinedEntity,
       // internal
+      childIndex: undefined as undefined | number,
       children: [] as Entity[]
     }
   },
@@ -72,65 +74,61 @@ export const EntityTreeComponent = defineComponent({
       throw new Error('Entity cannot be its own parent: ' + entity)
     }
 
-    const currentParentEntity = component.parentEntity.value
-
-    // If a previous parentEntity, remove this entity from its children
-    if (currentParentEntity && currentParentEntity !== json.parentEntity) {
-      if (entityExists(currentParentEntity)) {
-        const oldParent = getOptionalMutableComponent(currentParentEntity, EntityTreeComponent)
-        if (oldParent) {
-          const parentChildIndex = oldParent.children.value.findIndex((child) => child === entity)
-          const children = oldParent.children.get(NO_PROXY)
-          oldParent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
-        }
-      }
-    }
-
-    // set new data
-    if (typeof json.parentEntity !== 'undefined') {
-      component.parentEntity.set(json.parentEntity)
-    }
-
-    const parentEntity = component.parentEntity.value
-
-    if (parentEntity && entityExists(parentEntity)) {
-      if (!hasComponent(parentEntity, EntityTreeComponent)) setComponent(parentEntity, EntityTreeComponent)
-
-      const parentState = getMutableComponent(parentEntity, EntityTreeComponent)
-      const parent = getComponent(parentEntity, EntityTreeComponent)
-
-      const prevChildIndex = parent.children.indexOf(entity)
-      const isDifferentIndex = typeof json.childIndex === 'number' ? prevChildIndex !== json.childIndex : false
-
-      if (isDifferentIndex && prevChildIndex !== -1) {
-        parentState.children.set((prevChildren) => [
-          ...prevChildren.slice(0, prevChildIndex),
-          ...prevChildren.slice(prevChildIndex + 1)
-        ])
-      }
-
-      if (isDifferentIndex || prevChildIndex === -1) {
-        if (typeof json.childIndex !== 'undefined')
-          parentState.children.set((prevChildren) => [
-            ...prevChildren.slice(0, json.childIndex),
-            entity,
-            ...prevChildren.slice(json.childIndex)
-          ])
-        else parentState.children.set([...parent.children, entity])
-      }
-    }
+    if (typeof json.parentEntity !== 'undefined') component.parentEntity.set(json.parentEntity)
+    if (typeof json.childIndex === 'number') component.childIndex.set(json.childIndex)
   },
 
-  onRemove: (entity, component) => {
-    const parentEntity = component.parentEntity.value
-    if (parentEntity && entityExists(parentEntity)) {
-      if (hasComponent(parentEntity, EntityTreeComponent)) {
+  reactor: () => {
+    const entity = useEntityContext()
+    const treeComponent = useComponent(entity, EntityTreeComponent)
+
+    useImmediateEffect(() => {
+      const parentEntity = treeComponent.parentEntity.value
+      const childIndex = treeComponent.childIndex.value
+
+      if (parentEntity && entityExists(parentEntity)) {
+        if (!hasComponent(parentEntity, EntityTreeComponent)) setComponent(parentEntity, EntityTreeComponent)
+
         const parentState = getMutableComponent(parentEntity, EntityTreeComponent)
         const parent = getComponent(parentEntity, EntityTreeComponent)
-        const parentChildIndex = parent.children.findIndex((child) => child === entity)
-        if (parentChildIndex > -1) parentState.children[parentChildIndex].set(none)
+
+        const prevChildIndex = parent.children.indexOf(entity)
+        const isDifferentIndex = typeof childIndex === 'number' ? prevChildIndex !== childIndex : false
+
+        if (isDifferentIndex && prevChildIndex !== -1) {
+          parentState.children.set((prevChildren) => [
+            ...prevChildren.slice(0, prevChildIndex),
+            ...prevChildren.slice(prevChildIndex + 1)
+          ])
+        }
+
+        if (isDifferentIndex || prevChildIndex === -1) {
+          if (typeof childIndex !== 'undefined')
+            parentState.children.set((prevChildren) => [
+              ...prevChildren.slice(0, childIndex),
+              entity,
+              ...prevChildren.slice(childIndex)
+            ])
+          else parentState.children.set([...parent.children, entity])
+        }
       }
-    }
+
+      return () => {
+        // If a previous parentEntity, remove this entity from its children
+        if (parentEntity && entityExists(parentEntity)) {
+          const oldParent = getOptionalMutableComponent(parentEntity, EntityTreeComponent)
+          if (oldParent) {
+            oldParent.children.set((children) => {
+              const childIndex = children.indexOf(entity)
+              children.splice(childIndex, 1)
+              return children
+            })
+          }
+        }
+      }
+    }, [treeComponent.parentEntity, treeComponent.childIndex])
+
+    return null
   }
 })
 
