@@ -1,19 +1,19 @@
 {
-  "name": "@etherealengine/hyperflux",
+  "name": "@ir-engine/hyperflux",
   "version": "1.6.0",
   "main": "index.ts",
-  "description": "State Management for Ethereal Engine",
+  "description": "State Management for Infinite Reality Engine",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/etherealengine/etherealengine.git"
+    "url": "git://github.com/ir-engine/ir-engine.git"
   },
   "author": "",
   "license": "CPAL",
   "bugs": {
-    "url": "https://github.com/etherealengine/etherealengine/issues"
+    "url": "https://github.com/ir-engine/ir-engine/issues"
   },
   "dependencies": {
     "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",

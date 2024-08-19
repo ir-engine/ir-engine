@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NullableId, Paginated, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
@@ -30,20 +30,20 @@ import fs from 'fs'
 import { Knex } from 'knex'
 import path from 'path/posix'
 
-import { projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import { projectPath, ProjectType } from '@ir-engine/common/src/schema.type.module'
 import {
   FileBrowserContentType,
   FileBrowserPatch,
   FileBrowserUpdate
-} from '@etherealengine/common/src/schemas/media/file-browser.schema'
-import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
-import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+} from '@ir-engine/common/src/schemas/media/file-browser.schema'
+import { invalidationPath } from '@ir-engine/common/src/schemas/media/invalidation.schema'
+import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 import {
   projectPermissionPath,
   ProjectPermissionType
-} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import isValidSceneName from '@etherealengine/common/src/utils/validateSceneName'
-import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
+} from '@ir-engine/common/src/schemas/projects/project-permission.schema'
+import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
+import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
 
 import { BadRequest } from '@feathersjs/errors/lib'
 import { Application } from '../../../declarations'
@@ -244,14 +244,37 @@ export class FileBrowserService
     const results = [] as StaticResourceType[]
     for (const resource of staticResources) {
       const newKey = resource.key.replace(path.join(oldDirectory, oldName), path.join(newDirectory, fileName))
-      const result = await this.app.service(staticResourcePath).patch(
-        resource.id,
-        {
-          key: newKey
-        },
-        { isInternal: true }
-      )
-      results.push(result)
+
+      if (data.isCopy) {
+        const result = await this.app.service(staticResourcePath).create(
+          {
+            key: newKey,
+            hash: resource.hash,
+            mimeType: resource.mimeType,
+            project: data.newProject,
+            stats: resource.stats,
+            type: resource.type,
+            tags: resource.tags,
+            dependencies: resource.dependencies,
+            licensing: resource.licensing,
+            description: resource.description,
+            attribution: resource.attribution,
+            thumbnailKey: resource.thumbnailKey,
+            thumbnailMode: resource.thumbnailMode
+          },
+          { isInternal: true }
+        )
+        results.push(result)
+      } else {
+        const result = await this.app.service(staticResourcePath).patch(
+          resource.id,
+          {
+            key: newKey
+          },
+          { isInternal: true }
+        )
+        results.push(result)
+      }
     }
 
     if (config.fsProjectSyncEnabled) {
