@@ -325,24 +325,12 @@ export const getProjectConfig = (projectName: string) => {
   }
 }
 export const getProjectManifest = (projectName: string): ManifestJson => {
-  const packageJsonPath = path.resolve(projectsRootFolder, projectName, 'package.json')
   const manifestJsonPath = path.resolve(projectsRootFolder, projectName, 'manifest.json')
   if (fs.existsSync(manifestJsonPath)) {
     const data = fs.readFileSync(manifestJsonPath)
     return JSON.parse(data.toString()) as ManifestJson
   }
-  if (fs.existsSync(packageJsonPath)) {
-    const data = fs.readFileSync(packageJsonPath)
-    const packageJson = JSON.parse(data.toString()) as ProjectPackageJsonType
-    return {
-      name: packageJson.name!,
-      version: packageJson.version!,
-      engineVersion: packageJson.etherealEngine?.version,
-      description: packageJson.description,
-      thumbnail: packageJson.etherealEngine?.thumbnail
-    }
-  }
-  throw new Error(`No manifest.json or package.json found in project '${projectName}'`)
+  throw new Error(`No manifest.json found in project '${projectName}'`)
 }
 
 export const engineVersion = (
@@ -371,29 +359,8 @@ export const getProjectManifestFromRemote = async (
       Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
     ) as ManifestJson
   } catch (err) {
-    logger.warn("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
-
-    try {
-      const blobResponse = await octoKit.rest.repos.getContent({
-        owner,
-        repo,
-        path: 'package.json',
-        ref: sha
-      })
-      const packageJson = JSON.parse(
-        Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
-      ) as ProjectPackageJsonType
-      return {
-        name: packageJson.name,
-        version: packageJson.version,
-        engineVersion: packageJson.etherealEngine?.version,
-        description: packageJson.description,
-        thumbnail: packageJson.etherealEngine?.thumbnail
-      } as ManifestJson
-    } catch (err) {
-      logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
-      return Promise.reject(err)
-    }
+    logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
+    return Promise.reject(err)
   }
 }
 
@@ -584,7 +551,7 @@ export const checkProjectDestinationMatch = async (
       error: 'invalidRepoProjectName',
       text: 'The repository you are attempting to update from contains a different project than the one you are updating'
     }
-  else return { sourceProjectMatchesDestination: true, projectName: sourceContent.name }
+  return { sourceProjectMatchesDestination: true, projectName: sourceContent.name }
 }
 
 export const checkDestination = async (app: Application, url: string, params?: ProjectParams) => {
@@ -1042,7 +1009,7 @@ export async function getProjectUpdateJobBody(
     command.push(data.reset.toString())
   }
 
-  const projectJobName = data.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+  const projectJobName = cleanProjectName(data.name)
 
   const labels = {
     'etherealengine/projectUpdater': 'true',
@@ -1090,7 +1057,7 @@ export async function getProjectPushJobBody(
     command.push(storageProviderName)
   }
 
-  const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+  const projectJobName = cleanProjectName(project.name)
 
   const labels = {
     'etherealengine/projectPusher': 'true',
@@ -1104,7 +1071,7 @@ export async function getProjectPushJobBody(
 }
 
 export const getCronJobBody = (project: ProjectType, image: string): object => {
-  const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+  const projectJobName = cleanProjectName(project.name)
   return {
     metadata: {
       name: `${process.env.RELEASE_NAME}-${projectJobName}-auto-update`,
@@ -1180,7 +1147,7 @@ export async function getDirectoryArchiveJobBody(
     jobId
   ]
 
-  const projectJobName = projectName.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+  const projectJobName = cleanProjectName(projectName)
 
   const labels = {
     'etherealengine/directoryArchiver': 'true',
@@ -1298,7 +1265,10 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
 
 export const copyDefaultProject = () => {
   deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
-  copyFolderRecursiveSync(path.join(appRootPath.path, 'packages/projects/default-project'), projectsRootFolder)
+  copyFolderRecursiveSync(
+    path.join(appRootPath.path, 'packages/projects/default-project'),
+    path.join(projectsRootFolder, 'etherealengine')
+  )
 }
 
 export const getGitProjectData = (project) => {
@@ -1347,9 +1317,9 @@ export const updateProject = async (
   },
   params?: ProjectParams
 ) => {
-  if (data.sourceURL === 'default-project') {
+  if (data.sourceURL === 'etherealengine/default-project') {
     copyDefaultProject()
-    await uploadLocalProjectToProvider(app, 'default-project')
+    await uploadLocalProjectToProvider(app, 'etherealengine/default-project')
     if (params?.jobId) {
       const date = await getDateTimeSql()
       await app.service(apiJobPath).patch(params.jobId as string, {
@@ -1361,7 +1331,7 @@ export const updateProject = async (
       (await app.service(projectPath).find({
         query: {
           action: 'admin',
-          name: 'default-project',
+          name: 'etherealengine/default-project',
           $limit: 1
         }
       })) as Paginated<ProjectType>
@@ -1537,7 +1507,7 @@ export const updateProject = async (
   returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
 
   if (returned.name !== projectName)
-    await app.service(projectPath).patch(existingProject!.id, {
+    await app.service(projectPath).patch(returned.id, {
       name: projectName
     })
 
@@ -1857,4 +1827,11 @@ export const uploadLocalProjectToProvider = async (
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   const assetsOnly = !fs.existsSync(path.join(projectRootPath, 'xrengine.config.ts'))
   return { files: results.filter((success) => !!success) as string[], assetsOnly }
+}
+
+export const cleanProjectName = (name: string) => {
+  const returned = name.toLowerCase().replace(/[^a-zA-Z0-9-.]/g, '-')
+  if (!/[a-zA-Z0-9]/.test(returned[0])) return cleanProjectName(name.slice(1))
+  if (!/[a-zA-Z0-9]/.test(returned[returned.length - 1])) return cleanProjectName(name.slice(0, returned.length - 1))
+  return returned
 }
