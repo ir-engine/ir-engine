@@ -33,7 +33,7 @@ import {
   serializeComponent,
   setComponent,
   UndefinedEntity
-} from '@etherealengine/ecs'
+} from '@ir-engine/ecs'
 import assert from 'assert'
 import { setVisibleComponent, VisibleComponent } from './VisibleComponent'
 

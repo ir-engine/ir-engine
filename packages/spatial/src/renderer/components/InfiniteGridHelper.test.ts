@@ -35,8 +35,8 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity
-} from '@etherealengine/ecs'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+} from '@ir-engine/ecs'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Color, ShaderMaterial } from 'three'
 import { NameComponent } from '../../common/NameComponent'

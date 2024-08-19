@@ -31,8 +31,8 @@ import {
   getComponent,
   removeEntity,
   setComponent
-} from '@etherealengine/ecs'
-import { ImmutableObject } from '@etherealengine/hyperflux'
+} from '@ir-engine/ecs'
+import { ImmutableObject } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Color, CubeTexture, FogBase, Texture } from 'three'
 import { BackgroundComponent, EnvironmentMapComponent, FogComponent, SceneComponent } from './SceneComponents'

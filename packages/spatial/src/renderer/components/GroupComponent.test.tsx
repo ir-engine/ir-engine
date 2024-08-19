@@ -34,8 +34,8 @@ import {
   removeComponent,
   removeEntity,
   setComponent
-} from '@etherealengine/ecs'
-import { ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+} from '@ir-engine/ecs'
+import { ReactorRoot, startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'

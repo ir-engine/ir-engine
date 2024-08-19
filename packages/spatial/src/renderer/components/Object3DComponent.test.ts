@@ -31,7 +31,7 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity
-} from '@etherealengine/ecs'
+} from '@ir-engine/ecs'
 import assert from 'assert'
 import { BoxGeometry, Mesh, Object3D } from 'three'
 import { NameComponent } from '../../common/NameComponent'

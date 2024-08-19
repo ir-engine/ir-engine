@@ -40,8 +40,8 @@ import {
   removeComponent,
   removeEntity,
   setComponent
-} from '@etherealengine/ecs'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+} from '@ir-engine/ecs'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
