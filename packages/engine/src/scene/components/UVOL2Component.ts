@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { startTransition, useEffect, useMemo, useRef } from 'react'
@@ -45,8 +45,8 @@ import {
   Vector2
 } from 'three'
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { usePrevious } from '@etherealengine/common/src/utils/usePrevious'
+import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { usePrevious } from '@ir-engine/common/src/utils/usePrevious'
 import {
   defineComponent,
   getMutableComponent,
@@ -56,18 +56,18 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState, ECSState as EngineState } from '@etherealengine/ecs/src/ECSState'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
-import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { getState, NO_PROXY_STEALTH, none, State } from '@etherealengine/hyperflux'
-import { isIPhone, isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSState, ECSState as EngineState } from '@ir-engine/ecs/src/ECSState'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
+import { getState, NO_PROXY_STEALTH, none, State } from '@ir-engine/hyperflux'
+import { isIPhone, isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
-import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
+import { AssetExt } from '@ir-engine/common/src/constants/AssetType'
 import { getLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
@@ -704,7 +704,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         undefined,
         'baseColor'
       )
-      // media.src = 'https://localhost:8642/projects/default-project/ubx_kimberly_bird_t2_2k_std_30fps.mp4'
       mediaValue.preload = 'auto'
       media.addEventListener('loadeddata', () => {
         component.firstTextureFrameLoaded.set(true)

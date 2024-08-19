@@ -5,7 +5,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -15,51 +15,49 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 import { clone, debounce } from 'lodash'
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import {
-  StaticResourceQuery,
-  StaticResourceType,
-  staticResourcePath
-} from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
-import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
-import { FilesViewModeSettings } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
-import { inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { StaticResourceQuery, StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { AssetsPanelCategories } from '@ir-engine/editor/src/components/assets/AssetsPanelCategories'
+import { AssetSelectionChangePropsType } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
+import { FilesViewModeSettings } from '@ir-engine/editor/src/components/assets/FileBrowser/FileBrowserState'
+import { inputFileWithAddToScene } from '@ir-engine/editor/src/functions/assetFunctions'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { ClickPlacementState } from '@ir-engine/editor/src/systems/ClickPlacementSystem'
+import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
+import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { FiRefreshCcw } from 'react-icons/fi'
 import { HiDotsVertical } from 'react-icons/hi'
 import { HiMagnifyingGlass, HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi2'
 import { IoIosArrowDown, IoIosArrowForward } from 'react-icons/io'
-import { IoArrowBack } from 'react-icons/io5'
+import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import Slider from '../../../../../primitives/tailwind/Slider'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import InfiniteScroll from '../../../../tailwind/InfiniteScroll'
+import { Popup } from '../../../../tailwind/Popup'
+import InputGroup from '../../../input/Group'
 import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
-import { ViewModeSettings } from '../../Files/container'
 import { FileIcon } from '../../Files/icon'
 import { FileUploadProgress } from '../../Files/upload/FileUploadProgress'
 import { AssetIconMap } from '../icons'
@@ -125,6 +123,37 @@ function mapCategoriesHelper(collapsedCategories: { [key: string]: boolean }) {
   return result
 }
 
+const ViewModeSettings = () => {
+  const { t } = useTranslation()
+
+  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+
+  return (
+    <Popup
+      contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
+      position={'bottom left'}
+      trigger={
+        <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
+          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
+        </Tooltip>
+      }
+    >
+      <div className="flex flex-col">
+        <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
+          <Slider
+            min={10}
+            max={100}
+            step={0.5}
+            value={viewModeSettings.list.fontSize.value}
+            onChange={viewModeSettings.list.fontSize.set}
+            onRelease={viewModeSettings.list.fontSize.set}
+          />
+        </InputGroup>
+      </div>
+    </Popup>
+  )
+}
+
 const ResourceFile = (props: {
   resource: StaticResourceType
   selected: boolean
@@ -175,7 +204,7 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="mb-3 flex h-auto w-40 cursor-pointer flex-col items-center text-center"
+      className="mb-3 flex h-auto min-w-40 cursor-pointer flex-col items-center text-center"
     >
       <span
         className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
@@ -306,7 +335,7 @@ const AssetCategory = (props: {
     // TODO: add preview functionality
   }
 
-  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
 
   return (
     <div
@@ -316,8 +345,8 @@ const AssetCategory = (props: {
         category.depth === 0 ? 'min-h-9' : 'min-h-7'
       )}
       style={{
-        height: `${viewModeSettings.list.fontSize.value}px`,
-        fontSize: `${viewModeSettings.list.fontSize.value}px`
+        height: `${fontSize}px`,
+        fontSize: `${fontSize}px`
       }}
     >
       <div

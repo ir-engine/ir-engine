@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,22 +14,22 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
 import fs from 'fs'
 import path from 'path'
 
-import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
-import { routeMethods, routePath, RouteType } from '@etherealengine/common/src/schemas/route/route.schema'
-import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
+import { InstalledRoutesInterface } from '@ir-engine/common/src/interfaces/Route'
+import { routeMethods, routePath, RouteType } from '@ir-engine/common/src/schemas/route/route.schema'
+import { ProjectConfigInterface } from '@ir-engine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -37,7 +37,7 @@ import { RouteService } from './route.class'
 import routeDocs from './route.docs'
 import hooks from './route.hooks'
 
-declare module '@etherealengine/common/declarations' {
+declare module '@ir-engine/common/declarations' {
   interface ServiceTypes {
     [routePath]: RouteService
   }
@@ -57,10 +57,18 @@ declare module '@etherealengine/common/declarations' {
 
 export const getInstalledRoutes = () => {
   return async () => {
+    const rootPath = path.resolve(__dirname, '../../../../projects/projects/')
     const projects = fs
-      .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
+      .readdirSync(rootPath, { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
+      .map((orgname) => {
+        return fs
+          .readdirSync(path.join(rootPath, orgname), { withFileTypes: true })
+          .filter((dirent) => dirent.isDirectory())
+          .map((dirent) => `${orgname}/${dirent.name}`)
+      })
+      .flat()
 
     const data: InstalledRoutesInterface[] = []
     await Promise.all(
@@ -68,7 +76,7 @@ export const getInstalledRoutes = () => {
         try {
           if (fs.existsSync(path.resolve(__dirname, `../../../../projects/projects/${project}/xrengine.config.ts`))) {
             const projectConfig: ProjectConfigInterface = (
-              await import(`@etherealengine/projects/projects/${project}/xrengine.config.ts`)
+              await import(`@ir-engine/projects/projects/${project}/xrengine.config.ts`)
             ).default
             data.push({
               routes: Object.keys(projectConfig.routes!),

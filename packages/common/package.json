@@ -1,16 +1,16 @@
 {
-  "name": "@etherealengine/common",
+  "name": "@ir-engine/common",
   "version": "1.6.0",
   "publishConfig": {
     "access": "public"
   },
-  "description": "Shared types for other Ethereal Engine packages",
+  "description": "Shared types for other Infinite Reality Engine packages",
   "scripts": {
     "check-errors": "tsc --noemit",
     "test": "mocha --jobs 1"
   },
-  "repository": "http://github.com/etherealengine/etherealengine",
-  "author": "Ethereal Engine",
+  "repository": "http://github.com/ir-engine/ir-engine",
+  "author": "Infinite Reality Engine",
   "license": "CPAL",
   "dependencies": {
     "cross-fetch": "^3.1.5",
