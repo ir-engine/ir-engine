@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,24 +14,24 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { isDev } from '@etherealengine/common/src/config'
-import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { isDev } from '@ir-engine/common/src/config'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import {
   defineActionQueue,
   defineState,
@@ -39,29 +39,29 @@ import {
   getMutableState,
   getState,
   useMutableState
-} from '@etherealengine/hyperflux'
+} from '@ir-engine/hyperflux'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { Vector3_Back, Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { isMobileXRHeadset, ReferenceSpace, XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { Vector3_Back, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '@ir-engine/spatial/src/input/state/ButtonState'
+import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { isMobileXRHeadset, ReferenceSpace, XRState } from '@ir-engine/spatial/src/xr/XRState'
+import { ObjectFitFunctions } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
 import {
   RegisteredWidgets,
   WidgetAppActions,
   WidgetAppService,
   WidgetAppState
-} from '@etherealengine/spatial/src/xrui/WidgetAppService'
+} from '@ir-engine/spatial/src/xrui/WidgetAppService'
 
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import React from 'react'
 import { createAnchorWidget } from './createAnchorWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'

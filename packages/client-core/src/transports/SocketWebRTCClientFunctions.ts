@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import * as mediasoupClient from 'mediasoup-client'
@@ -39,9 +39,9 @@ import type { EventEmitter } from 'primus'
 import Primus from 'primus-client'
 import { v4 as uuidv4 } from 'uuid'
 
-import config from '@etherealengine/common/src/config'
-import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
-import multiLogger from '@etherealengine/common/src/logger'
+import config from '@ir-engine/common/src/config'
+import { BotUserAgent } from '@ir-engine/common/src/constants/BotUserAgent'
+import multiLogger from '@ir-engine/common/src/logger'
 import {
   ChannelID,
   InstanceID,
@@ -49,20 +49,20 @@ import {
   LocationID,
   RoomCode,
   UserID
-} from '@etherealengine/common/src/schema.type.module'
-import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { AuthTask, ReadyTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { Identifiable, PeerID, State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+} from '@ir-engine/common/src/schema.type.module'
+import { getSearchParamFromURL } from '@ir-engine/common/src/utils/getSearchParamFromURL'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { defineSystem, destroySystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
+import { AuthTask, ReadyTask } from '@ir-engine/engine/src/avatar/functions/receiveJoinWorld'
+import { Identifiable, PeerID, State, dispatchAction, getMutableState, getState, none } from '@ir-engine/hyperflux'
 import {
   Action,
   Topic,
   addOutgoingTopicIfNecessary,
   defineActionQueue,
   removeActionQueue
-} from '@etherealengine/hyperflux/functions/ActionFunctions'
+} from '@ir-engine/hyperflux/functions/ActionFunctions'
 import {
   DataChannelType,
   MediaStreamAppData,
@@ -88,7 +88,7 @@ import {
   screenshareVideoDataChannelType,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
-} from '@etherealengine/network'
+} from '@ir-engine/network'
 
 import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
@@ -101,10 +101,14 @@ import {
 import { ChannelState } from '../social/services/ChannelService'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
+import { clientContextParams } from '../util/contextParams'
 import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
 
-const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
+const logger = multiLogger.child({
+  component: 'client-core:SocketWebRTCClientFunctions',
+  modifier: clientContextParams
+})
 
 export type WebRTCTransportExtension = Omit<MediaSoupTransport, 'appData'> & { appData: MediaStreamAppData }
 export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
@@ -1098,6 +1102,7 @@ export const toggleMicrophonePaused = async () => {
       const audioPaused = mediaStreamState.audioPaused.value
       if (audioPaused) resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value! as ProducerExtension)
       else pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value! as ProducerExtension)
+      logger.info({ event_name: 'microphone', value: !audioPaused })
       mediaStreamState.audioPaused.set(!audioPaused)
     }
   }
@@ -1110,6 +1115,7 @@ export const toggleWebcamPaused = async () => {
     if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
     else {
       const videoPaused = mediaStreamState.videoPaused.value
+      logger.info({ event_name: 'camera', value: !videoPaused })
       if (videoPaused) resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value! as ProducerExtension)
       else pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value! as ProducerExtension)
       mediaStreamState.videoPaused.set(!videoPaused)
@@ -1173,7 +1179,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork) {
 }
 
 export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
-  logger.info('Start screen share')
+  logger.info({ event_name: 'screen_share', event_value: true })
   const mediaStreamState = getMutableState(MediaStreamState)
 
   // get a screen share track
@@ -1229,7 +1235,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
 }
 
 export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
-  logger.info('Screen share stopped')
+  logger.info({ event_name: 'screen_share', event_value: false })
   const mediaStreamState = getMutableState(MediaStreamState)
 
   console.log(mediaStreamState.screenVideoProducer.value, mediaStreamState.screenShareVideoPaused.value)

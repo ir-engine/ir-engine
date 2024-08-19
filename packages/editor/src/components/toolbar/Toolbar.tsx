@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,27 +14,28 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import AddEditLocationModal from '@etherealengine/client-core/src/admin/components/locations/AddEditLocationModal'
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import { useProjectPermissions } from '@etherealengine/client-core/src/user/useUserProjectPermission'
-import { useUserHasAccessHook } from '@etherealengine/client-core/src/user/userHasAccess'
-import { locationPath } from '@etherealengine/common/src/schema.type.module'
-import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { ContextMenu } from '@etherealengine/ui/src/components/tailwind/ContextMenu'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import AddEditLocationModal from '@ir-engine/client-core/src/admin/components/locations/AddEditLocationModal'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
+import { useProjectPermissions } from '@ir-engine/client-core/src/user/useUserProjectPermission'
+import { useUserHasAccessHook } from '@ir-engine/client-core/src/user/userHasAccess'
+import { locationPath } from '@ir-engine/common/src/schema.type.module'
+import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
+import { SidebarButton } from '@ir-engine/ui/src/components/tailwind/SidebarButton'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -60,25 +61,21 @@ const onImportAsset = async () => {
   }
 }
 
-const onClickNewScene = async () => {
+export const confirmSceneSaveIfModified = async () => {
   const isModified = EditorState.isModified()
 
   if (isModified) {
-    const confirm = await new Promise((resolve) => {
+    return new Promise((resolve) => {
       PopoverState.showPopupover(
-        <SaveSceneDialog
-          isExiting
-          onConfirm={() => {
-            resolve(true)
-          }}
-          onCancel={() => {
-            resolve(false)
-          }}
-        />
+        <SaveSceneDialog isExiting onConfirm={() => resolve(true)} onCancel={() => resolve(false)} />
       )
     })
-    if (!confirm) return
   }
+  return true
+}
+
+const onClickNewScene = async () => {
+  if (!(await confirmSceneSaveIfModified())) return
 
   const newSceneUIAddons = getState(EditorState).uiAddons.newScene
   if (Object.keys(newSceneUIAddons).length > 0) {
@@ -89,24 +86,7 @@ const onClickNewScene = async () => {
 }
 
 const onCloseProject = async () => {
-  const isModified = EditorState.isModified()
-
-  if (isModified) {
-    const confirm = await new Promise((resolve) => {
-      PopoverState.showPopupover(
-        <SaveSceneDialog
-          isExiting
-          onConfirm={() => {
-            resolve(true)
-          }}
-          onCancel={() => {
-            resolve(false)
-          }}
-        />
-      )
-    })
-    if (!confirm) return
-  }
+  if (!(await confirmSceneSaveIfModified())) return
 
   const editorState = getMutableState(EditorState)
   getMutableState(GLTFModifiedState).set({})
@@ -222,10 +202,9 @@ export default function Toolbar() {
         <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
             <div key={index}>
-              <Button
+              <SidebarButton
                 className="px-4 py-2.5 text-left font-light text-theme-input"
                 textContainerClassName="text-xs"
-                variant="sidebar"
                 size="small"
                 fullWidth
                 onClick={() => {
@@ -235,7 +214,7 @@ export default function Toolbar() {
                 endIcon={hotkey}
               >
                 {name}
-              </Button>
+              </SidebarButton>
             </div>
           ))}
         </div>

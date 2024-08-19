@@ -1,0 +1,21 @@
+diff --git a/node_modules/@feathersjs/knex/lib/adapter.js b/node_modules/@feathersjs/knex/lib/adapter.js
+index e6851d4..afacfd8 100644
+--- a/node_modules/@feathersjs/knex/lib/adapter.js
++++ b/node_modules/@feathersjs/knex/lib/adapter.js
+@@ -125,9 +125,14 @@ class KnexAdapter extends adapter_commons_1.AdapterBase {
+     }
+     async _find(params = {}) {
+         const { filters, paginate } = this.filterQuery(params);
+-        const { name, id } = this.getOptions(params);
++        const { Model, name, id } = this.getOptions(params);
+         const builder = params.knex ? params.knex.clone() : this.createQuery(params);
+-        const countBuilder = builder.clone().clearSelect().clearOrder().count(`${name}.${id} as total`);
++        const countBuilder = Model.count(`* as total`)
++            .with(
++                'subquery',
++                builder.clone().clearOrder()
++            )
++            .from('subquery');
+         // Handle $limit
+         if (filters.$limit) {
+             builder.limit(filters.$limit);

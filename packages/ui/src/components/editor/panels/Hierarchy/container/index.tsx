@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,56 +14,61 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getComponent, getMutableComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import {
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
+import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
   EntityTreeComponent,
   isAncestor,
   traverseEntityNode
-} from '@etherealengine/spatial/src/transform/components/EntityTree'
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { Engine, Entity, UUIDComponent, entityExists } from '@etherealengine/ecs'
-import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { Engine, Entity, UUIDComponent, entityExists } from '@ir-engine/ecs'
+import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { VALID_HEIRARCHY_SEARCH_REGEX } from '@etherealengine/common/src/regex'
-import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
-import CreatePrefabPanel from '@etherealengine/editor/src/components/dialogs/CreatePrefabPanelDialog'
+import { GLTF } from '@gltf-transform/core'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
+import useUpload from '@ir-engine/editor/src/components/assets/useUpload'
+import CreatePrefabPanel from '@ir-engine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
   HierarchyTreeNodeType,
   gltfHierarchyTreeWalker
-} from '@etherealengine/editor/src/components/hierarchy/HierarchyTreeWalker'
-import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import { CopyPasteFunctions } from '@etherealengine/editor/src/functions/CopyPasteFunctions'
-import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
-import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
-import { cmdOrCtrlString } from '@etherealengine/editor/src/functions/utils'
-import { EditorHelperState, PlacementMode } from '@etherealengine/editor/src/services/EditorHelperState'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
-import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
-import { GLTF } from '@gltf-transform/core'
+} from '@ir-engine/editor/src/components/hierarchy/HierarchyTreeWalker'
+import { ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { CopyPasteFunctions } from '@ir-engine/editor/src/functions/CopyPasteFunctions'
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
+import { cmdOrCtrlString } from '@ir-engine/editor/src/functions/utils'
+import { EditorHelperState, PlacementMode } from '@ir-engine/editor/src/services/EditorHelperState'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { GLTFAssetState, GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
+import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -165,6 +170,14 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
           NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes'), { variant: 'error' })
           console.error(e)
         })
+    }
+  })
+
+  useHotkeys(`${cmdOrCtrlString}+r`, (e) => {
+    e.preventDefault()
+    const selectedEntities = SelectionState.getSelectedEntities()
+    for (const entity of selectedEntities) {
+      onRenameNode(entity)
     }
   })
 
@@ -276,9 +289,11 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
         }
         setPrevClickedNode(entity)
       } else if (e.detail === 2) {
-        const editorCameraState = getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
-        editorCameraState.focusedEntities.set([entity])
-        editorCameraState.refocus.set(true)
+        if (entity && getOptionalComponent(entity, CameraOrbitComponent)) {
+          const editorCameraState = getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
+          editorCameraState.focusedEntities.set([entity])
+          editorCameraState.refocus.set(true)
+        }
       }
     },
     [prevClickedNode, entityHierarchy]
@@ -567,6 +582,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
             variant="transparent"
             className="text-left text-xs"
             onClick={() => onRenameNode(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + r'}
           >
             {t('editor:hierarchy.lbl-rename')}
           </Button>

@@ -138,8 +138,8 @@
       "shareDirect": "Share Direct Link",
       "shareEmbed": "Embed This Space",
       "shareInvite": "Share by Invite",
-      "shareTitle": "AR/VR World | Ethereal Engine",
-      "shareDescription": "Check out AR/VR world on Ethereal Engine",
+      "shareTitle": "AR/VR World | Infinite Reality Engine",
+      "shareDescription": "Check out AR/VR world on Infinite Reality Engine",
       "shareFailed": "Error during sharing"
     },
     "party": {
@@ -312,7 +312,8 @@
     "setting": "Settings",
     "server": "Server",
     "recordings": "Recordings",
-    "channels": "Channels"
+    "channels": "Channels",
+    "crashReport": "Crash Report"
   },
   "resource": {
     "createResource": "Create Resource"

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
@@ -31,22 +31,18 @@ import {
   hasComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
+import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
 
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperty
-} from '@etherealengine/editor/src/components/properties/Util'
-import { UVOL1Component } from '@etherealengine/engine/src/scene/components/UVOL1Component'
-import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL2Component'
-import { TextureType } from '@etherealengine/engine/src/scene/constants/UVOLTypes'
-import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
-import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { UVOL1Component } from '@ir-engine/engine/src/scene/components/UVOL1Component'
+import { UVOL2Component } from '@ir-engine/engine/src/scene/components/UVOL2Component'
+import { TextureType } from '@ir-engine/engine/src/scene/constants/UVOLTypes'
+import { getState } from '@ir-engine/hyperflux/functions/StateFunctions'
+import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
 import { MdVideocam } from 'react-icons/md'
 
 import { Button } from '@mui/material'
