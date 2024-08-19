@@ -25,12 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { startPlayMode, tryStopPlayMode } from '@ir-engine/spatial/src/common/functions/PlayModeFunctions'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
-import { startPlayMode, tryStopPlayMode } from '@ir-engine/spatial/src/common/functions/PlayModeFunctions'
 
 const PlayModeTool = () => {
   const { t } = useTranslation()
