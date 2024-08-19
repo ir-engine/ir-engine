@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,28 +14,30 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
+import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+import { HiMinus, HiPlusSmall, HiUser } from 'react-icons/hi2'
 
-import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { FeatureFlagSettingType, featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { getAllStringValueNodes } from '@etherealengine/common/src/utils/getAllStringValueNodes'
-import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import { useHookstate } from '@hookstate/core'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { FeatureFlagSettingType, featureFlagSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import { getAllStringValueNodes } from '@ir-engine/common/src/utils/getAllStringValueNodes'
+import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
-const defaultProps = ['id', 'flagName', 'flagValue', 'createdAt', 'updatedAt']
+const defaultProps = ['id', 'flagName', 'flagValue', 'userId', 'createdAt', 'updatedAt']
 
 const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
@@ -93,6 +95,8 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
 })
 
 const FeatureItem = ({ feature }: { feature: FeatureFlagSettingType }) => {
+  const { t } = useTranslation()
+
   const featureFlagSettingMutation = useMutation(featureFlagSettingPath)
   const additionalProps = Object.keys(feature).filter((key) => !defaultProps.includes(key))
 
@@ -115,6 +119,16 @@ const FeatureItem = ({ feature }: { feature: FeatureFlagSettingType }) => {
         value={feature.flagValue}
         onChange={(value) => createOrUpdateFeatureFlag(feature, value)}
       />
+      {feature.userId && (
+        <Tooltip
+          content={t('admin:components.common.lastUpdatedBy', {
+            userId: feature.userId,
+            updatedAt: toDisplayDateTime(feature.updatedAt)
+          })}
+        >
+          <HiUser className="mx-2" />
+        </Tooltip>
+      )}
       {additionalProps
         .filter((key) => feature[key])
         .map((key) => (

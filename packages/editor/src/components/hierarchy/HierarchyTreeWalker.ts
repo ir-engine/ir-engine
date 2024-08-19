@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,29 +14,27 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ComponentType, getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { getState } from '@etherealengine/hyperflux'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { getState } from '@ir-engine/hyperflux'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { UUIDComponent } from '@etherealengine/ecs'
-import { FeatureFlagsState } from '@etherealengine/engine'
-import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { GLTF } from '@gltf-transform/core'
+import { UUIDComponent } from '@ir-engine/ecs'
+import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
 import { EditorState } from '../../services/EditorServices'
 
 export type HierarchyTreeNodeType = {
@@ -67,9 +65,10 @@ function buildHierarchyTree(
   nodes: GLTF.INode[],
   array: NestedHierarchyTreeNode[],
   lastChild: boolean,
-  sceneID: string
+  sceneID: string,
+  showModelChildren: boolean
 ) {
-  const uuid = node.extensions && (node.extensions[UUIDComponent.jsonID] as ComponentType<typeof UUIDComponent>)
+  const uuid = node.extensions && (node.extensions[UUIDComponent.jsonID] as EntityUUID)
   const entity = UUIDComponent.getEntityByUUID(uuid!)
   if (!entity || !entityExists(entity)) return
 
@@ -84,10 +83,7 @@ function buildHierarchyTree(
   }
   array.push(item)
 
-  if (
-    hasComponent(entity, ModelComponent) &&
-    FeatureFlagsState.enabled(FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren)
-  ) {
+  if (hasComponent(entity, ModelComponent) && showModelChildren) {
     const modelSceneID = getModelSceneID(entity)
     const snapshotState = getState(GLTFSnapshotState)
     const snapshots = snapshotState[modelSceneID]
@@ -95,7 +91,8 @@ function buildHierarchyTree(
       const snapshotNodes = snapshots.snapshots[snapshots.index].nodes
       if (snapshotNodes && snapshotNodes.length > 0) {
         item.isLeaf = false
-        if (!item.isCollapsed) buildHierarchyTreeForNodes(depth + 1, snapshotNodes, item.children, sceneID)
+        if (!item.isCollapsed)
+          buildHierarchyTreeForNodes(depth + 1, snapshotNodes, item.children, sceneID, showModelChildren)
       }
     }
   }
@@ -103,15 +100,30 @@ function buildHierarchyTree(
   if (node.children && !item.isCollapsed) {
     for (let i = 0; i < node.children.length; i++) {
       const childIndex = node.children[i]
-      buildHierarchyTree(depth + 1, i, nodes[childIndex], nodes, item.children, i === node.children.length - 1, sceneID)
+      buildHierarchyTree(
+        depth + 1,
+        i,
+        nodes[childIndex],
+        nodes,
+        item.children,
+        i === node.children.length - 1,
+        sceneID,
+        showModelChildren
+      )
     }
   }
 }
 
-function buildHierarchyTreeForNodes(depth: number, nodes: GLTF.INode[], outArray: NestedHierarchyTreeNode[], sceneID) {
+function buildHierarchyTreeForNodes(
+  depth: number,
+  nodes: GLTF.INode[],
+  outArray: NestedHierarchyTreeNode[],
+  sceneID: string,
+  showModelChildren: boolean
+) {
   for (let i = 0; i < nodes.length; i++) {
     if (isChild(i, nodes)) continue
-    buildHierarchyTree(depth, i, nodes[i], nodes, outArray, false, sceneID)
+    buildHierarchyTree(depth, i, nodes[i], nodes, outArray, false, sceneID, showModelChildren)
   }
   if (!outArray.length) return
   outArray[outArray.length - 1].lastChild = true
@@ -132,7 +144,11 @@ function flattenTree(array: NestedHierarchyTreeNode[], outArray: HierarchyTreeNo
   }
 }
 
-export function gltfHierarchyTreeWalker(rootEntity: Entity, nodes: GLTF.INode[]): HierarchyTreeNodeType[] {
+export function gltfHierarchyTreeWalker(
+  rootEntity: Entity,
+  nodes: GLTF.INode[],
+  showModelChildren: boolean
+): HierarchyTreeNodeType[] {
   const outArray = [] as NestedHierarchyTreeNode[]
 
   const sceneID = getComponent(rootEntity, SourceComponent)
@@ -146,7 +162,7 @@ export function gltfHierarchyTreeWalker(rootEntity: Entity, nodes: GLTF.INode[])
   const tree = [rootNode] as HierarchyTreeNodeType[]
 
   if (!rootNode.isCollapsed) {
-    buildHierarchyTreeForNodes(1, nodes, outArray, sceneID)
+    buildHierarchyTreeForNodes(1, nodes, outArray, sceneID, showModelChildren)
     flattenTree(outArray, tree)
   }
 

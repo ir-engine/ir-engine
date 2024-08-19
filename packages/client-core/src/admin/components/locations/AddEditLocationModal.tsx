@@ -3,7 +3,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -11,35 +11,35 @@ Exhibit A has been modified to be consistent with Exhibit B.
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+Original Code is the Infinite Reality Engine team.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import {
   LocationData,
   LocationID,
   locationPath,
   LocationType,
   staticResourcePath
-} from '@etherealengine/common/src/schema.type.module'
-import { saveSceneGLTF } from '@etherealengine/editor/src/functions/sceneFunctions'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-import { ModalHeader } from '@etherealengine/ui/src/primitives/tailwind/Modal'
-import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
-import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
+} from '@ir-engine/common/src/schema.type.module'
+import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import { ModalHeader } from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import { HiLink } from 'react-icons/hi2'
 
 const getDefaultErrors = () => ({
@@ -67,8 +67,9 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
 
   const sceneModified = EditorState.useIsModified()
 
-  const submitLoading = useHookstate(false)
-  const isLoading = submitLoading.value || locationQuery.status === 'pending'
+  const publishLoading = useHookstate(false)
+  const unPublishLoading = useHookstate(false)
+  const isLoading = locationQuery.status === 'pending' || publishLoading.value || unPublishLoading.value
   const errors = useHookstate(getDefaultErrors())
 
   const name = useHookstate(location?.name || '')
@@ -100,7 +101,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
     }
   })
 
-  const handleSubmit = async () => {
+  const handlePublish = async () => {
     errors.set(getDefaultErrors())
 
     if (!name.value) {
@@ -116,7 +117,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
       return
     }
 
-    submitLoading.set(true)
+    publishLoading.set(true)
 
     if (sceneModified) {
       try {
@@ -127,7 +128,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
         await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
       } catch (e) {
         errors.serverError.set(e.message)
-        submitLoading.set(false)
+        publishLoading.set(false)
         return
       }
     }
@@ -163,12 +164,12 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
     } catch (err) {
       errors.serverError.set(err.message)
     }
-    submitLoading.set(false)
+    publishLoading.set(false)
   }
 
-  const unpublishLocation = async () => {
+  const unPublishLocation = async () => {
     if (location?.id) {
-      submitLoading.set(true)
+      unPublishLoading.set(true)
       try {
         await locationMutation.remove(location.id, { query: { projectId: location.projectId } })
         locationID.set(null)
@@ -176,7 +177,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
       } catch (err) {
         errors.serverError.set(err.message)
       }
-      submitLoading.set(false)
+      unPublishLoading.set(false)
     }
   }
 
@@ -288,17 +289,17 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
             {location?.id && (
               <Button
                 className="bg-[#162546]"
-                endIcon={isLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
+                endIcon={unPublishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
                 disabled={isLoading}
-                onClick={unpublishLocation}
+                onClick={unPublishLocation}
               >
                 {t('editor:toolbar.publishLocation.unpublish')}
               </Button>
             )}
             <Button
-              endIcon={isLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
+              endIcon={publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
               disabled={isLoading}
-              onClick={handleSubmit}
+              onClick={handlePublish}
             >
               {location?.id
                 ? t('common:components.update')

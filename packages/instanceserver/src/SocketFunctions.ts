@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
@@ -29,17 +29,19 @@ import {
   UserID,
   userPath,
   UserType
-} from '@etherealengine/common/src/schema.type.module'
-import { AuthError, AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { getState } from '@etherealengine/hyperflux'
-import { Application } from '@etherealengine/server-core/declarations'
-import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+} from '@ir-engine/common/src/schema.type.module'
+import { AuthError, AuthTask } from '@ir-engine/engine/src/avatar/functions/receiveJoinWorld'
+import { getState } from '@ir-engine/hyperflux'
+import { Application } from '@ir-engine/server-core/declarations'
+import multiLogger from '@ir-engine/server-core/src/ServerLogger'
 
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleConnectingPeer, handleDisconnect } from './NetworkFunctions'
 import { getServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:spark' })
+
+const NON_READY_INTERVALS = 100 //100 tenths of a second, i.e. 10 seconds
 
 export const setupSocketFunctions = async (app: Application, spark: any) => {
   let authTask: AuthTask | undefined
@@ -50,15 +52,27 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
    *
    * Authorize user and make sure everything is valid before allowing them to join the world
    **/
-  await new Promise<void>((resolve) => {
+  const ready = await new Promise<boolean>((resolve) => {
+    let counter = 0
     const interval = setInterval(() => {
+      counter++
       if (getState(InstanceServerState).ready) {
         clearInterval(interval)
-        resolve()
+        resolve(true)
+      }
+      if (counter > NON_READY_INTERVALS) {
+        clearInterval(interval)
+        resolve(false)
       }
     }, 100)
   })
 
+  if (!ready) {
+    app.primus.write({ instanceReady: false })
+    return
+  }
+
+  app.primus.write({ instanceReady: true })
   const network = getServerNetwork(app)
 
   const onAuthenticationRequest = async (data) => {
@@ -104,7 +118,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
 
       // Check that this use is allowed on this instance
       const instance = await app.service(instancePath).get(getState(InstanceServerState).instance.id)
-      if (!(await authorizeUserToJoinServer(app, instance, userId))) {
+      if (!(await authorizeUserToJoinServer(app, instance, user))) {
         authTask.status = 'fail'
         authTask.error = AuthError.USER_NOT_AUTHORIZED
         logger.error('[MessageTypes.Authorization]: user %s not authorized over peer %s %o', userId, peerID, authTask)

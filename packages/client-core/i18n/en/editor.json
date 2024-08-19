@@ -1,5 +1,6 @@
 {
   "loading": "Loading Project",
+  "loadingNode": "Loading {{name}} Editor...",
   "loadingError": "Error loading project",
   "loadingErrorMsg": "There was an error when loading the project.",
   "selectSceneMsg": "Select a Scene in the Project to Start",
@@ -25,6 +26,7 @@
   "uploadingSceneMsg": "Uploading scene: {{percentage}}%",
   "envMapError": "Error loading cubemap images {{files}}",
   "lbl-return": "Return",
+  "loadingAssets": "Loading Assets",
   "loadingScenes": "Loading Scenes",
   "loadingScenesWithProgress": "Scene Loading... {{progress}}% ({{assetsLeft}} assets left)",
   "help": "Help",
@@ -70,7 +72,7 @@
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Provide a valid scene name"
+    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters and hyphens, and begin and end with an alphanumeric."
   },
   "viewport": {
     "title": "Viewport",
@@ -109,9 +111,9 @@
     "gizmo": {
       "pointer": "Pointer",
       "description": "Transform Gizmo",
-      "translate": "[T] Translate",
-      "rotate": "[R] Rotate",
-      "scale": "[Y] Scale",
+      "translate": "[W] Translate",
+      "rotate": "[E] Rotate",
+      "scale": "[R] Scale",
       "combined": "[U] Combined Transform"
     },
     "transformSpace": {
@@ -566,7 +568,7 @@
     },
     "hemisphere": {
       "name": "Hemisphere Light",
-      "description": "A light which illuminates the scene from directly overhead.",
+      "description": "A light which illuminates the scene with a sky color from above and a ground color from below.",
       "lbl-skyColor": "Sky Color",
       "lbl-groundColor": "Ground Color",
       "lbl-intensity": "Intensity"
@@ -727,8 +729,16 @@
       }
     },
     "cameraSettings": {
-      "name": "Camera",
+      "name": "Camera Settings",
       "description": "Change the camera settings for this scene."
+    },
+    "cameraComponent": {
+      "name": "Camera",
+      "description": "Camera Component",
+      "lbl-fov": "FOV",
+      "lbl-aspect": "Aspect",
+      "lbl-near": "Near",
+      "lbl-far": "Far"
     },
     "postprocessing": {
       "name": "Post Processing Effect",
@@ -815,7 +825,11 @@
       "lbl-loading": "Loading Screen",
       "info-loading": "Change the loading screen",
       "lbl-colors": "Colors",
-      "lbl-killHeight": "Kill Height"
+      "lbl-killHeight": "Kill Height",
+      "lbl-spectate": "Force Spectator",
+      "info-spectate": "Disable avatars and force the user to spectate the scene",
+      "lbl-uuid": "Spectate Entity",
+      "info-uuid": "Optional entity to spectate"
     },
     "scene": {
       "name": "Scene",
@@ -1163,7 +1177,7 @@
         "point-light": "A light which emits in all directions from a single point.",
         "spot-light": "Creates a light that shines in a specific direction.",
         "directional-light": "Creates a light that emits evenly in a single direction.",
-        "hemisphere-light": "A light which illuminates the scene from directly overhead.",
+        "hemisphere-light": "A light which illuminates the scene with a sky color from above and a ground color from below.",
         "particle-system": "Creates a particle emitter.",
         "system": "Inserts code into the scene by creating a new Entity Component System based on the provided .ts file",
         "visual-script": "Customizes state and behavior of entities through a visual node connections.",
@@ -1194,15 +1208,17 @@
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
       "back": "Back",
-      "loadingFiles": "Loading files",
-      "loadingProjects": "Loading projects",
+      "loadingFiles": "Loading Files",
+      "loadingProjects": "Loading Projects",
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
       "uploadAssets": "Upload Assets",
       "uploadFiles": "Upload Files",
       "uploadFolder": "Upload Folder",
-      "search-placeholder": "Search folders",
+      "uploadingFiles": "Uploading Files ({{completed}}/{{total}})",
+      "downloadingProject": "Downloading Project ({{completed}}/{{total}})",
+      "search-placeholder": "Search",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
       "directory": "Directory",
@@ -1251,7 +1267,7 @@
     },
     "scene-assets": {
       "no-category": "No category selected",
-      "search-placeholder": "Search for an asset ...",
+      "search-placeholder": "Search",
       "preview": "Preview",
       "info-drag-drop": "Drag and Drop these items into the scene",
       "settings": "Settings",
@@ -1263,12 +1279,14 @@
     "info": "The scene Hierarchy contains all element currently in your scene (assets, lighting, items from the tool menu, etc).",
     "lbl-rename": "Rename",
     "lbl-renameScene": "Rename Scene",
+    "lbl-edited": "Edited",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
     "lbl-copy": "Copy",
     "lbl-paste": "Paste",
     "lbl-delete": "Delete",
-    "lbl-deleteScene": "Are you sure you want to delete '{{sceneName}}' scene?",
+    "lbl-deleteScene": "Delete Scene",
+    "lbl-deleteSceneDescription": "Are you sure you want to delete '{{sceneName}}' scene?",
     "lbl-expandAll": "Expand All",
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
@@ -1343,7 +1361,10 @@
       "lbl-thumbnail": "Generate thumbnail & envmap",
       "lbl-confirm": "Save Scene",
       "info-confirm": "Are you sure you want to save the scene?",
-      "info-question": "Do you want to save the current scene?"
+      "info-question": "Do you want to save the current scene?",
+      "unsavedChanges": {
+        "title": "Unsaved Changes"
+      }
     },
     "saveNewScene": {
       "title": "Save As",

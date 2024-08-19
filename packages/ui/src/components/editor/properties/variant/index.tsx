@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,39 +14,34 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdDeblur } from 'react-icons/md'
 
-import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
-import { getOptionalMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import Center from '@etherealengine/editor/src/components/layout/Center'
-import {
-  EditorComponentType,
-  commitProperties,
-  commitProperty
-} from '@etherealengine/editor/src/components/properties/Util'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { loadResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { Heuristic, VariantComponent, VariantLevel } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import { State, getState, useHookstate } from '@etherealengine/hyperflux'
+import { AssetExt } from '@ir-engine/common/src/constants/AssetType'
+import { getOptionalMutableComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
+import { loadResource } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
+import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import { Heuristic, VariantComponent, VariantLevel } from '@ir-engine/engine/src/scene/components/VariantComponent'
+import { State, getState, useHookstate } from '@ir-engine/hyperflux'
 import {
   ResourceManager,
   ResourceState,
   ResourceStatus,
   ResourceType
-} from '@etherealengine/spatial/src/resources/ResourceState'
+} from '@ir-engine/spatial/src/resources/ResourceState'
 import Button from '../../../../primitives/tailwind/Button'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
@@ -292,10 +287,14 @@ export const BudgetVariantNodeEditor = (props: {
   return (
     <>
       {level.metadata['maxTextureSize'].value !== undefined && (
-        <Center>{`${t('editor:properties.variant.textureSize')} ${level.metadata['maxTextureSize'].value}`}</Center>
+        <div className="flex flex-col items-center">{`${t('editor:properties.variant.textureSize')} ${
+          level.metadata['maxTextureSize'].value
+        }`}</div>
       )}
       {level.metadata['vertexCount'].value !== undefined && (
-        <Center>{`${t('editor:properties.variant.vertexCount')} ${level.metadata['vertexCount'].value}`}</Center>
+        <div className="flex flex-col items-center">{`${t('editor:properties.variant.vertexCount')} ${
+          level.metadata['vertexCount'].value
+        }`}</div>
       )}
 
       <InputGroup name="Cast Shadow" label={t('editor:properties.variant.preview')}>

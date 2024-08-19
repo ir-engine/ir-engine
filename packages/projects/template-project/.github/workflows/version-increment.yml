@@ -23,11 +23,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          scope: '@etherealengine'
+          scope: '@ir-engine'
       - name: Set git username
         run: git config user.name "CI Bot"
       - name: Set git email
-        run: git config user.email ci-bot@etherealengine.org
+        run: git config user.email ci-bot@ir-engine.org
       - name: Set pr_branch_name environment variable
         run: echo pr_branch_name=version-increment-${{ github.event.release.tag_name }} >> $GITHUB_ENV
       - name: Switch to branch ${{ env.pr_branch_name }}

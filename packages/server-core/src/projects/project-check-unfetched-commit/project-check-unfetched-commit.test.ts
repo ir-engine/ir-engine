@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,29 +14,30 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
 import nock from 'nock'
 import { v4 as uuidv4 } from 'uuid'
 
-import { projectCheckUnfetchedCommitPath } from '@etherealengine/common/src/schemas/projects/project-check-unfetched-commit.schema'
-import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
-import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
-import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { projectCheckUnfetchedCommitPath } from '@ir-engine/common/src/schemas/projects/project-check-unfetched-commit.schema'
+import { ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
+import { avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'
+import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { UserApiKeyType, userApiKeyPath } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
+import { UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
-import { Application } from '../../../declarations'
+import { Application, HookContext } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
+import { identityProviderDataResolver } from '../../user/identity-provider/identity-provider.resolvers'
 import { getRepoManifestJson1, getTestRepoCommit } from '../../util/mockOctokitResponses'
 
 describe('project-check-unfetched-commit.test', () => {
@@ -71,12 +72,15 @@ describe('project-check-unfetched-commit.test', () => {
 
     testUserApiKey = await app.service(userApiKeyPath).create({ userId: testUser.id })
 
-    await app.service(identityProviderPath).create(
-      {
-        type: 'github',
-        token: `test-token-${Math.round(Math.random() * 1000)}`,
-        userId: testUser.id
-      },
+    await app.service(identityProviderPath)._create(
+      await identityProviderDataResolver.resolve(
+        {
+          type: 'github',
+          token: `test-token-${Math.round(Math.random() * 1000)}`,
+          userId: testUser.id
+        },
+        {} as HookContext
+      ),
       getParams()
     )
   })

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,37 +14,37 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlinePanTool } from 'react-icons/md'
 
-import { getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import BooleanInput from '@etherealengine/editor/src/components/inputs/BooleanInput'
+import { getOptionalComponent, UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import {
   commitProperties,
   commitProperty,
   EditorComponentType,
   updateProperty
-} from '@etherealengine/editor/src/components/properties/Util'
-import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
-import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
-import { useState } from '@etherealengine/hyperflux'
-import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
+import { useState } from '@ir-engine/hyperflux'
+import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import Button from '../../../../primitives/tailwind/Button'
+import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
@@ -107,6 +107,12 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
     targets.set(options)
   }, [])
 
+  const updateLabel = (value: string) => {
+    commitProperty(InteractableComponent, 'label')(value)
+    //this might be useful later, but xrui is not updating properly
+    // const msg = value ?? ''
+    // modalState.interactMessage?.set(msg)
+  }
   const addCallback = () => {
     const label = ''
     const callbacks = [
@@ -137,7 +143,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
         <StringInput
           value={interactableComponent.label.value!}
           onChange={updateProperty(InteractableComponent, 'label')}
-          onRelease={commitProperty(InteractableComponent, 'label')}
+          onRelease={(value) => updateLabel(value)}
         />
       </InputGroup>
       <InputGroup name="ActivationDistance" label={t('editor:properties.interactable.lbl-activationDistance')}>

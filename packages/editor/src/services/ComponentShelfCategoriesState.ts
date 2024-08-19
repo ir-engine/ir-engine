@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,65 +14,62 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Component } from '@etherealengine/ecs'
-import { VisualScriptComponent } from '@etherealengine/engine'
-import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
-import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
-import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
-import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
-import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
-import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
-import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
-import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
-import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
-import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
-import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/components/NewVolumetricComponent'
-import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
-import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
-import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
-import { ReflectionProbeComponent } from '@etherealengine/engine/src/scene/components/ReflectionProbeComponent'
-import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
-import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
-import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
-import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
-import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
-import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
-import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
-import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
-import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
-import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
-import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
-import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
-import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { defineState } from '@etherealengine/hyperflux'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { Component } from '@ir-engine/ecs'
+import { VisualScriptComponent } from '@ir-engine/engine'
+import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
+import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
+import { GrabbableComponent } from '@ir-engine/engine/src/interaction/components/GrabbableComponent'
+import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
+import { AudioAnalysisComponent } from '@ir-engine/engine/src/scene/components/AudioAnalysisComponent'
+import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
+import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
+import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
+import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
+import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
+import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
+import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
+import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
+import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
+import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
+import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
+import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
+import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
+import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
+import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
+import { SpawnPointComponent } from '@ir-engine/engine/src/scene/components/SpawnPointComponent'
+import { TextComponent } from '@ir-engine/engine/src/scene/components/TextComponent'
+import { VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
+import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
+import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
+import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
+import { defineState, getMutableState } from '@ir-engine/hyperflux'
 import {
   AmbientLightComponent,
   DirectionalLightComponent,
   HemisphereLightComponent,
   PointLightComponent,
   SpotLightComponent
-} from '@etherealengine/spatial'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
-import { LookAtComponent } from '@etherealengine/spatial/src/transform/components/LookAtComponent'
+} from '@ir-engine/spatial'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
+import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
+import { LookAtComponent } from '@ir-engine/spatial/src/transform/components/LookAtComponent'
+import { useEffect } from 'react'
 
 export const ComponentShelfCategoriesState = defineState({
   name: 'ee.editor.ComponentShelfCategories',
@@ -87,7 +84,7 @@ export const ComponentShelfCategoriesState = defineState({
         VideoComponent,
         ImageComponent
       ],
-      'Scene Composition': [PrimitiveGeometryComponent, GroundPlaneComponent, GroupComponent, VariantComponent],
+      'Scene Composition': [CameraComponent, PrimitiveGeometryComponent, GroundPlaneComponent, VariantComponent],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
       Interaction: [
         SpawnPointComponent,
@@ -105,27 +102,29 @@ export const ComponentShelfCategoriesState = defineState({
         DirectionalLightComponent,
         HemisphereLightComponent
       ],
-      FX: [
-        LoopAnimationComponent,
-        ShadowComponent,
-        ParticleSystemComponent,
-        EnvmapComponent,
-        SDFComponent,
-        PostProcessingComponent,
-        ReflectionProbeComponent
+      FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
+      Scripting: [],
+      Settings: [
+        SceneSettingsComponent,
+        RenderSettingsComponent,
+        // MediaSettingsComponent
+        CameraSettingsComponent
       ],
-      Scripting: [VisualScriptComponent],
-      Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
-      Visual: [
-        EnvMapBakeComponent,
-        ScenePreviewCameraComponent,
-        SkyboxComponent,
-        SplineTrackComponent,
-        SplineComponent,
-        TextComponent,
-        ScreenshareTargetComponent,
-        LookAtComponent
-      ]
+      Visual: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, TextComponent, LookAtComponent]
     } as Record<string, Component[]>
+  },
+  reactor: () => {
+    const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
+    const cShelfState = getMutableState(ComponentShelfCategoriesState)
+    useEffect(() => {
+      if (visualScriptPanelEnabled) {
+        cShelfState.Scripting.merge([VisualScriptComponent])
+        return () => {
+          cShelfState.Scripting.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == VisualScriptComponent.name))
+          })
+        }
+      }
+    }, [visualScriptPanelEnabled])
   }
 })

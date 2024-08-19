@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,51 +14,51 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputCheck from '@etherealengine/client-core/src/common/components/InputCheck'
-import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
-import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
-import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
-import Text from '@etherealengine/client-core/src/common/components/Text'
-import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
-import { UserSettingPatch, clientSettingPath } from '@etherealengine/common/src/schema.type.module'
-import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
-import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
+import InputCheck from '@ir-engine/client-core/src/common/components/InputCheck'
+import InputSelect, { InputMenuItem } from '@ir-engine/client-core/src/common/components/InputSelect'
+import InputSlider from '@ir-engine/client-core/src/common/components/InputSlider'
+import Menu from '@ir-engine/client-core/src/common/components/Menu'
+import Tabs from '@ir-engine/client-core/src/common/components/Tabs'
+import Text from '@ir-engine/client-core/src/common/components/Text'
+import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { defaultThemeModes, defaultThemeSettings } from '@ir-engine/common/src/constants/DefaultThemeSettings'
+import { UserSettingPatch, clientSettingPath } from '@ir-engine/common/src/schema.type.module'
+import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
+import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
   AvatarInputSettingsState
-} from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { XRState } from '@etherealengine/spatial/src/xr/XRState'
-import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+} from '@ir-engine/engine/src/avatar/state/AvatarInputSettingsState'
+import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { XRState } from '@ir-engine/spatial/src/xr/XRState'
+import Box from '@ir-engine/ui/src/primitives/mui/Box'
+import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
+import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 
-import multiLogger from '@etherealengine/common/src/logger'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import multiLogger from '@ir-engine/common/src/logger'
+import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import { clientContextParams } from '../../../../util/contextParams'
 import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
 
-const logger = multiLogger.child({ component: 'system:settings-menu ', modifier: clientContextParams })
+const logger = multiLogger.child({ component: 'system:settings-menu', modifier: clientContextParams })
 
 export const ShadowMapResolutionOptions: InputMenuItem[] = [
   {

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import _ from 'lodash'
@@ -38,28 +38,28 @@ import {
   userKickPath,
   userPath,
   UserType
-} from '@etherealengine/common/src/schema.type.module'
-import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { EntityUUID } from '@etherealengine/ecs'
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-import { Action, getMutableState, getState, PeerID } from '@etherealengine/hyperflux'
-import { NetworkPeerFunctions, NetworkState, updatePeers } from '@etherealengine/network'
-import { Application } from '@etherealengine/server-core/declarations'
-import config from '@etherealengine/server-core/src/appconfig'
-import { config as mediaConfig } from '@etherealengine/server-core/src/config'
-import multiLogger from '@etherealengine/server-core/src/ServerLogger'
-import { ServerState } from '@etherealengine/server-core/src/ServerState'
-import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
-import { SpawnPoseState } from '@etherealengine/spatial'
-import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+} from '@ir-engine/common/src/schema.type.module'
+import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { EntityUUID } from '@ir-engine/ecs'
+import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { AuthTask } from '@ir-engine/engine/src/avatar/functions/receiveJoinWorld'
+import { respawnAvatar } from '@ir-engine/engine/src/avatar/functions/respawnAvatar'
+import { Action, getMutableState, getState, PeerID } from '@ir-engine/hyperflux'
+import { NetworkPeerFunctions, NetworkState, updatePeers } from '@ir-engine/network'
+import { Application } from '@ir-engine/server-core/declarations'
+import config from '@ir-engine/server-core/src/appconfig'
+import { config as mediaConfig } from '@ir-engine/server-core/src/config'
+import multiLogger from '@ir-engine/server-core/src/ServerLogger'
+import { ServerState } from '@ir-engine/server-core/src/ServerState'
+import getLocalServerIp from '@ir-engine/server-core/src/util/get-local-server-ip'
+import { SpawnPoseState } from '@ir-engine/spatial'
+import checkPositionIsValid from '@ir-engine/spatial/src/common/functions/checkPositionIsValid'
+import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
@@ -149,7 +149,11 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
  * @param userId
  * @returns
  */
-export const authorizeUserToJoinServer = async (app: Application, instance: InstanceType, userId: UserID) => {
+export const authorizeUserToJoinServer = async (app: Application, instance: InstanceType, user: UserType) => {
+  const userId = user.id
+  // disallow users from joining media servers if they haven't accepted the TOS
+  if (instance.channelId && !user.acceptedTOS) return false
+
   const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
       instanceId: instance.id,
