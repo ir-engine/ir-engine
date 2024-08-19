@@ -26,9 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { StringEnum, Type, getValidator, querySyntax } from '@feathersjs/typebox'
-import { dataValidator, queryValidator } from '@ir-engine/common/src/schemas/validators'
 import { TypedString } from '../../types/TypeboxUtils'
 import { UserID } from '../user/user.schema'
+import { dataValidator, queryValidator } from '../validators'
 
 export const projectSettingPath = 'project-setting'
 

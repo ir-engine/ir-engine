@@ -1,14 +1,28 @@
 {
   "name": "@ir-engine/ecs",
   "version": "1.6.0",
-  "main": "index.ts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/ecs.cjs",
+  "module": "./dist/ecs.js",
+  "exports": {
+    ".": {
+      "types": "./dist/ecs.d.ts",
+      "import": "./dist/ecs.js",
+      "default": "./dist/ecs.js",
+      "require": "./dist/ecs.cjs"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
   "description": "Core execution context for the Infinite Reality Engine",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --jobs 1"
+    "test": "mocha --jobs 1",
+    "build": "tsc && rimraf dist && rollup -c"
   },
   "repository": "http://github.com/ir-engine/ir-engine",
   "author": "Infinite Reality Engine",
@@ -23,7 +37,11 @@
   "devDependencies": {
     "@types/mocha": "10.0.1",
     "@types/node": "18.15.5",
-    "rimraf": "4.4.0"
+    "rimraf": "4.4.0",
+    "rollup": "^4.20.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "typescript": "^5.4.5"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

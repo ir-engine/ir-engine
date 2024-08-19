@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from 'react'
 
-import { useForceUpdate } from '@ir-engine/common/src/utils/useForceUpdate'
+import { useForceUpdate } from '@ir-engine/common'
 import { getState, HyperFlux, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { Component, useOptionalComponent } from './ComponentFunctions'

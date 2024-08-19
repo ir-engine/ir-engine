@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export * from './AssetType.test.ts'
 export * from './AssetType.ts'
 export * from './AvatarConstants.ts'
 export * from './BotUserAgent.ts'

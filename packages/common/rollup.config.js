@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 
 import dts from 'rollup-plugin-dts'
 import esbuild from 'rollup-plugin-esbuild'
+import typescript from '@rollup/plugin-typescript'
 // import fs from 'fs'
 // import {resolve} from 'path'
 
@@ -49,7 +50,7 @@ const packageName = "common"
 export default [
   {
     input: inputFile,
-    plugins: [customBuild()],
+    plugins: [typescript({exclude: ["**/*.test.ts"]}), customBuild()],
     output: [
       {
         file: `dist/${packageName}.js`,
@@ -60,7 +61,7 @@ export default [
   },
   {
     input: inputFile,
-    plugins: [customBuild()],
+    plugins: [typescript({exclude: ["**/*.test.ts"]}), customBuild()],
     output: [
       {
         file: `dist/${packageName}.cjs`,
@@ -71,7 +72,7 @@ export default [
   },
   {
     input: inputFile,
-    plugins: [dts()],
+    plugins: [dts({compilerOptions: {exclude: ["**/*.test.ts"]}})],
     output: {
       file: `dist/${packageName}.d.ts`,
     },

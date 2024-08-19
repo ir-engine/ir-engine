@@ -28,11 +28,17 @@ import * as bitECS from 'bitecs'
 import { getAllEntities } from 'bitecs'
 import { Cache } from 'three'
 
-import type { ServiceTypes } from '@ir-engine/common/declarations'
-import type { UserID } from '@ir-engine/common/src/schema.type.module'
+import type { ServiceTypes, UserID } from '@ir-engine/common'
 import * as Hyperflux from '@ir-engine/hyperflux'
-import { createHyperStore, getState, NO_PROXY_STEALTH, ReactorReconciler } from '@ir-engine/hyperflux'
-import { disposeStore, HyperFlux, HyperStore } from '@ir-engine/hyperflux/functions/StoreFunctions'
+import {
+  HyperFlux,
+  HyperStore,
+  NO_PROXY_STEALTH,
+  ReactorReconciler,
+  createHyperStore,
+  disposeStore,
+  getState
+} from '@ir-engine/hyperflux'
 
 import { ECSState } from './ECSState'
 import { Entity } from './Entity'

@@ -22,7 +22,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "test": "mocha --jobs 1",
-    "build": "tsc && rollup -c"
+    "build": "tsc && rimraf dist && rollup -c"
   },
   "repository": "http://github.com/ir-engine/ir-engine",
   "author": "Infinite Reality Engine",

@@ -25,6 +25,4 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 
-import '@feathersjs/transport-commons'
-
 export interface ServiceTypes {}

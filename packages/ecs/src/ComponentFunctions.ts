@@ -32,12 +32,11 @@ import React, { startTransition, use } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
-import config from '@ir-engine/common/src/config'
-import { DeepReadonly } from '@ir-engine/common/src/DeepReadonly'
-import { HookableFunction } from '@ir-engine/common/src/utils/createHookableFunction'
-import { getNestedObject } from '@ir-engine/common/src/utils/getNestedProperty'
-import { HyperFlux, ReactorRoot, startReactor } from '@ir-engine/hyperflux'
+import { config, DeepReadonly, HookableFunction, getNestedObject } from '@ir-engine/common'
 import {
+  HyperFlux,
+  ReactorRoot,
+  startReactor,
   hookstate,
   InferStateValueType,
   NO_PROXY,
@@ -45,7 +44,7 @@ import {
   none,
   State,
   useHookstate
-} from '@ir-engine/hyperflux/functions/StateFunctions'
+} from '@ir-engine/hyperflux'
 
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'

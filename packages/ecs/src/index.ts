@@ -44,13 +44,13 @@ import {
   updateComponent,
   useComponent,
   useOptionalComponent
-} from './src/ComponentFunctions'
-import { executeFixedSystem, executeSystems, getDAG } from './src/EngineFunctions'
-import { UndefinedEntity } from './src/Entity'
-import { createEntity, entityExists, removeEntity, useEntityContext } from './src/EntityFunctions'
-import { defineQuery, QueryReactor, removeQuery, useQuery } from './src/QueryFunctions'
-import { defineSystem, destroySystem, executeSystem, useExecute } from './src/SystemFunctions'
-import { UUIDComponent } from './src/UUIDComponent'
+} from './ComponentFunctions'
+import { executeFixedSystem, executeSystems, getDAG } from './EngineFunctions'
+import { UndefinedEntity } from './Entity'
+import { createEntity, entityExists, removeEntity, useEntityContext } from './EntityFunctions'
+import { defineQuery, QueryReactor, removeQuery, useQuery } from './QueryFunctions'
+import { defineSystem, destroySystem, executeSystem, useExecute } from './SystemFunctions'
+import { UUIDComponent } from './UUIDComponent'
 
 const ECS = {
   /** Component API */
@@ -101,15 +101,15 @@ globalThis.ECS = ECS
 export default ECS
 
 export { Not } from 'bitecs'
-export * from './src/ComponentFunctions'
-export * from './src/ECSState'
-export * from './src/Engine'
-export * from './src/EngineFunctions'
-export * from './src/Entity'
-export * from './src/EntityFunctions'
-export * from './src/QueryFunctions'
-export * from './src/SystemFunctions'
-export * from './src/SystemGroups'
-export * from './src/Timer'
-export * from './src/UUIDComponent'
+export * from './ComponentFunctions'
+export * from './ECSState'
+export * from './Engine'
+export * from './EngineFunctions'
+export * from './Entity'
+export * from './EntityFunctions'
+export * from './QueryFunctions'
+export * from './SystemFunctions'
+export * from './SystemGroups'
+export * from './Timer'
+export * from './UUIDComponent'
 export { ECS }

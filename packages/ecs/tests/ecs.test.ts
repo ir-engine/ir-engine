@@ -28,7 +28,7 @@ import { getAllEntities } from 'bitecs'
 
 import { HyperFlux } from '@ir-engine/hyperflux'
 
-import { ECS } from '..'
+import { ECS } from '../src'
 import {
   defineComponent,
   getComponent,

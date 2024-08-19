@@ -27,6 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import dts from 'rollup-plugin-dts'
 import esbuild from 'rollup-plugin-esbuild'
 import typescript from '@rollup/plugin-typescript'
+
 // import fs from 'fs'
 // import {resolve} from 'path'
 
@@ -38,14 +39,14 @@ import typescript from '@rollup/plugin-typescript'
 // });
 
 const productionConfig = {
-  minifyInternalExports: false,
+  minifyInternalExports: true,
 }
 function customBuild() {
-  return esbuild({minify: false})
+  return esbuild({minify: true})
 }
 
 const inputFile = `src/index.ts`
-const packageName = "hyperflux"
+const packageName = "ecs"
 
 export default [
   {

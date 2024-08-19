@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { matches, Parser, Validator } from 'ts-matches'
 import { v4 as uuidv4 } from 'uuid'
 
-import { createHookableFunction, deepEqual, InstanceID, multiLogger, OpaqueType } from '@etherealengine/common'
+import { logger as _logger, createHookableFunction, deepEqual, InstanceID, OpaqueType } from '@etherealengine/common'
 
 import { ReactorRoot } from './ReactorFunctions'
 import { setInitialState, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
 
-const logger = multiLogger.child({ component: 'hyperflux:Action' })
+const logger = _logger.child({ component: 'hyperflux:Action' })
 
 export type PeerID = OpaqueType<'PeerID'> & string
 

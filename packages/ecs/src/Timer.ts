@@ -23,9 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/common'
+import perf_hooks from 'perf_hooks'
 
-const performance: Performance = isClient ? window.performance : require('perf_hooks').performance
+const performance: any = isClient ? window.performance : perf_hooks.performance
 
 /**
  * return current time of the system.

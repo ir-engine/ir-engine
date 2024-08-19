@@ -25,8 +25,8 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
-    "declaration": true,
-    "types": ["vite/client", "mocha"]
+    "declaration": false,
+    "types": ["mocha"],
   },
   "include": ["./src"]
 }

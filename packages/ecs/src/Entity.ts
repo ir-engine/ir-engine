@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
+import { OpaqueType } from '@ir-engine/common'
 import { matches, Validator } from '@ir-engine/hyperflux'
 
 export type Entity = OpaqueType<'entity'> & number

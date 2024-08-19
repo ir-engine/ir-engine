@@ -28,7 +28,7 @@ import { afterEach } from 'mocha'
 
 import { defineState, getMutableState } from '@ir-engine/hyperflux'
 
-import { ECS } from '..'
+import { ECS } from '.'
 import { ECSState } from './ECSState'
 import { createEngine, destroyEngine } from './Engine'
 import { defineSystem } from './SystemFunctions'

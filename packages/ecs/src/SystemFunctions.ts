@@ -28,14 +28,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { FC } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
-import multiLogger from '@ir-engine/common/src/logger'
+import { OpaqueType, logger as _logger } from '@ir-engine/common'
 import { getMutableState, getState, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { SystemState } from './SystemState'
 import { nowMilliseconds } from './Timer'
 
-const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
+const logger = _logger.child({ component: 'engine:ecs:SystemFunctions' })
 
 export type SystemUUID = OpaqueType<'SystemUUID'> & string
 

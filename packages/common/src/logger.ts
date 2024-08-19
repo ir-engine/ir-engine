@@ -39,8 +39,8 @@ import type { FeathersApplication } from '@feathersjs/feathers'
 import NodeCache from 'node-cache'
 //import schedule from 'node-schedule'
 
-import { ServiceTypes } from '../declarations'
 import config from './config'
+import { ServiceTypes } from './declarations'
 //import { logsApiPath } from './schema.type.module'
 
 // Initialize the cache
@@ -102,7 +102,7 @@ const nullLogger = {
  * A logger class (similar to the one provided by Pino.js) to replace
  * console.log() usage on the client side.
  */
-export const multiLogger = {
+const multiLogger = {
   debug: console.debug.bind(console, `[${baseComponent}]`),
   info: console.log.bind(console, `[${baseComponent}]`),
   warn: console.warn.bind(console, `[${baseComponent}]`),
@@ -267,6 +267,6 @@ export type LogParamsObject = {
   [key: string]: any
 }
 
-export default multiLogger
+export const logger = multiLogger
 
 globalThis.logger = multiLogger

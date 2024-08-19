@@ -27,7 +27,7 @@ import { extend, ExtensionFactory, hookstate, SetInitialStateAction, State, useH
 import { Identifiable, identifiable } from '@hookstate/identifiable'
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
-import { DeepReadonly, isClient, multiLogger, resolveObject } from '@etherealengine/common'
+import { logger as _logger, DeepReadonly, isClient, resolveObject } from '@etherealengine/common'
 
 import { ActionQueueHandle, ActionReceptor } from './ActionFunctions'
 import { startReactor } from './ReactorFunctions'
@@ -40,7 +40,7 @@ export * from '@hookstate/identifiable'
 /** @deprecated */
 export const createState = hookstate
 
-const logger = multiLogger.child({ component: 'hyperflux:State' })
+const logger = _logger.child({ component: 'hyperflux:State' })
 
 export const NO_PROXY = { noproxy: true }
 export const NO_PROXY_STEALTH = { noproxy: true, stealth: true }

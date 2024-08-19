@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 export * from './DeepReadonly'
 export * from './config'
 export * from './constants'
+export type * from './declarations'
 export * from './documentLoader'
 export * from './interfaces'
 export * from './logger'
