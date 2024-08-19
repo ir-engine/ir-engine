@@ -168,22 +168,20 @@ export function updatePointerDragging(pointerEntity: Entity, event: PointerEvent
     else if ((event as MouseEvent).button === 2) button = MouseButton.SecondaryClick
   }
   const btn = state[button]
-  if (btn && !btn.dragging) {
-    const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
+  if (!btn || btn.dragging) return
 
-    if (btn.pressed && btn.downPosition) {
-      //if not yet dragging, compare distance to drag threshold and begin if appropriate
-      if (!btn.dragging) {
-        pointer
-          ? _pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
-          : _pointerPositionVector3.copy(Vector3_Zero)
-        const squaredDistance = btn.downPosition.distanceToSquared(_pointerPositionVector3)
+  const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
 
-        if (squaredDistance > DRAGGING_THRESHOLD) {
-          btn.dragging = true
-        }
-      }
-    }
+  if (!btn.pressed || !btn.downPosition) return
+
+  //if not yet dragging, compare distance to drag threshold and begin if appropriate
+  pointer
+    ? _pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
+    : _pointerPositionVector3.copy(Vector3_Zero)
+  const squaredDistance = btn.downPosition.distanceToSquared(_pointerPositionVector3)
+
+  if (squaredDistance > DRAGGING_THRESHOLD) {
+    btn.dragging = true
   }
 }
 
