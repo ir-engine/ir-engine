@@ -34,28 +34,30 @@ import {
   Vector3
 } from 'three'
 
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs'
 import {
+  createEntity,
   defineComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
+  removeEntity,
   setComponent,
   useComponent,
+  useEntityContext,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+} from '@ir-engine/ecs'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
+import { NameComponent } from '../../common/NameComponent'
+import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { RendererState } from '../RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { BoneComponent } from './BoneComponent'
+import { addObjectToGroup } from './GroupComponent'
 import { setObjectLayers } from './ObjectLayerComponent'
+import { VisibleComponent, setVisibleComponent } from './VisibleComponent'
 
 export const SkinnedMeshComponent = defineComponent({
   name: 'SkinnedMeshComponent',

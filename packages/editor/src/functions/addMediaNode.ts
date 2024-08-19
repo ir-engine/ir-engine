@@ -115,6 +115,7 @@ export async function addMediaNode(
       gltfLoader.load(url, (gltf) => {
         const componentJson = gltf.scene.children[0].userData.componentJson
         EditorControlFunctions.overwriteLookdevObject(
+          /**@ts-ignore @todo remove model component */
           [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
           componentJson,
           parent!,
@@ -123,6 +124,7 @@ export async function addMediaNode(
       })
     } else if (contentType.startsWith('model/prefab')) {
       const { entityUUID, sceneID } = EditorControlFunctions.createObjectFromSceneElement(
+        /**@ts-ignore @todo remove model component */
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
         parent!,
         before
@@ -142,6 +144,7 @@ export async function addMediaNode(
     } else {
       EditorControlFunctions.createObjectFromSceneElement(
         [
+          /**@ts-ignore @todo remove model component */
           { name: ModelComponent.jsonID, props: { src: url } },
           { name: ShadowComponent.jsonID },
           { name: EnvmapComponent.jsonID },

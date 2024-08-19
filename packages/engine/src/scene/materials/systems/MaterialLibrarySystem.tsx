@@ -25,19 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import {
-  EntityUUID,
-  getComponent,
-  getOptionalComponent,
-  PresentationSystemGroup,
-  QueryReactor,
-  removeEntity,
-  setComponent,
-  UndefinedEntity,
-  useComponent,
-  useEntityContext,
-  useOptionalComponent
-} from '@ir-engine/ecs'
+import { PresentationSystemGroup, UndefinedEntity } from '@ir-engine/ecs'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import {
   MaterialPrototypeDefinition,
@@ -45,20 +33,11 @@ import {
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
   createAndAssignMaterial,
-  createMaterialPrototype,
-  materialPrototypeMatches,
-  setMeshMaterial,
-  updateMaterialPrototype
+  createMaterialPrototype
 } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import {
-  MaterialInstanceComponent,
-  MaterialStateComponent
-} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { isArray } from 'lodash'
-import { Material, MeshBasicMaterial } from 'three'
-import { SourceComponent } from '../../components/SourceComponent'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { MeshBasicMaterial } from 'three'
 
 const reactor = () => {
   useEffect(() => {

@@ -73,11 +73,11 @@ import {
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { createAndAssignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
-import { GLTFComponent } from '../../gltf/GLTFComponent'
 
 const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { GLTF } from '@gltf-transform/core'
 import {
   ComponentType,
   EntityUUID,
@@ -30,13 +31,12 @@ import {
   getComponent,
   getOptionalComponent,
   useOptionalComponent
-} from '@etherealengine/ecs'
-import { NO_PROXY, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { BoneComponent } from '@etherealengine/spatial/src/renderer/components/BoneComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { MaterialPrototypeComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { GLTF } from '@gltf-transform/core'
+} from '@ir-engine/ecs'
+import { NO_PROXY, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { MaterialPrototypeComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { useEffect } from 'react'
 import {
   AnimationClip,

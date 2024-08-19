@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRM } from '@pixiv/three-vrm'
-
 import { getComponent, getOptionalMutableComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
@@ -35,7 +33,6 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
 import { VRMComponent } from '../components/VRMComponent'

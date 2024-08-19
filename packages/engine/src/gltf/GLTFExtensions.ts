@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState, startReactor } from '@etherealengine/hyperflux'
 import { GLTF } from '@gltf-transform/core'
+import { getState, startReactor } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { BufferGeometry, NormalBufferAttributes } from 'three'
 import { ATTRIBUTES, WEBGL_COMPONENT_TYPES } from '../assets/loaders/gltf/GLTFConstants'

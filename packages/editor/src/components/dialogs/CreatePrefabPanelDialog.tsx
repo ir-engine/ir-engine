@@ -104,6 +104,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
           if (!entityExists(entity)) {
             const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
               [
+                /**@ts-ignore @todo remove model component */
                 { name: ModelComponent.jsonID, props: { src: fileURL } },
                 { name: TransformComponent.jsonID, props: { position, rotation, scale } }
               ],

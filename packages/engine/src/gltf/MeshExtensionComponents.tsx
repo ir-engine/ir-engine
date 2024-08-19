@@ -31,11 +31,11 @@ import {
   useComponent,
   useEntityContext,
   useOptionalComponent
-} from '@etherealengine/ecs'
-import { NO_PROXY, State, none, useHookstate } from '@etherealengine/hyperflux'
-import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@etherealengine/spatial'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+} from '@ir-engine/ecs'
+import { NO_PROXY, State, none, useHookstate } from '@ir-engine/hyperflux'
+import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import React, { useEffect } from 'react'
 import {
   BufferAttribute,

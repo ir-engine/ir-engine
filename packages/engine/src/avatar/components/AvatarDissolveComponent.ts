@@ -46,9 +46,8 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { matches } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
-
-import { SkinnedMeshComponent } from '@etherealengine/spatial/src/renderer/components/SkinnedMeshComponent'
 
 export type MaterialMap = {
   entity: Entity

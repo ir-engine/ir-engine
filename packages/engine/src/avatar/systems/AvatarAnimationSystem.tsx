@@ -59,6 +59,7 @@ import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/sr
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import React from 'react'
 import { useBatchGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
@@ -77,7 +78,6 @@ import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { IKSerialization } from '../IKSerialization'
 import { LocalAvatarState } from '../state/AvatarState'
 import { AnimationSystem } from './AnimationSystem'
-import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',

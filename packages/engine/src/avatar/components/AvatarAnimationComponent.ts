@@ -48,17 +48,18 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
-import { createEntity, entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, getState, matches, none, useHookstate } from '@ir-engine/hyperflux'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { getMutableState, getState, matches, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 
 import { GLTF } from '@gltf-transform/core'
+import { UUIDComponent } from '@ir-engine/ecs'
+import { TransformComponent } from '@ir-engine/spatial'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
+import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
+import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
@@ -74,11 +75,6 @@ import {
 import { AvatarState } from '../state/AvatarNetworkState'
 import { AvatarComponent } from './AvatarComponent'
 import { VRMComponent } from './VRMComponent'
-import { UUIDComponent } from '@ir-engine/ecs'
-import { TransformComponent } from '@ir-engine/spatial'
-import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
-import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
-import { iterateEntityNode, EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 export const AvatarAnimationComponent = defineComponent({
   name: 'AvatarAnimationComponent',

@@ -82,9 +82,16 @@ import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Ob
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent, getAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
+import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
+import { AssetLoaderState } from '../assets/state/AssetLoaderState'
+import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
@@ -92,13 +99,6 @@ import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction
 import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 import { MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 import './MeshExtensionComponents'
-import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
-import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
-import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
-import { AssetLoaderState } from '../assets/state/AssetLoaderState'
-import { AnimationComponent } from '../avatar/components/AnimationComponent'
 
 export const GLTFAssetState = defineState({
   name: 'ee.engine.gltf.GLTFAssetState',

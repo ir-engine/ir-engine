@@ -45,19 +45,23 @@ import {
 } from '@ir-engine/ecs'
 import { dispatchAction, getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
-import { BINARY_EXTENSION_CHUNK_TYPES, BINARY_EXTENSION_HEADER_LENGTH, BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
+import {
+  BINARY_EXTENSION_CHUNK_TYPES,
+  BINARY_EXTENSION_HEADER_LENGTH,
+  BINARY_EXTENSION_HEADER_MAGIC
+} from '../assets/loaders/gltf/GLTFExtensions'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSourceState } from './GLTFState'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 const loadDependencies = {
   ['EE_model']: ['body']

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { GLTF } from '@gltf-transform/core'
 import {
   ComponentType,
   EntityUUID,
@@ -32,11 +33,10 @@ import {
   setComponent,
   useComponent,
   useEntityContext
-} from '@etherealengine/ecs'
-import { NO_PROXY, startReactor, useImmediateEffect } from '@etherealengine/hyperflux'
-import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
-import { MaterialStateComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { GLTF } from '@gltf-transform/core'
+} from '@ir-engine/ecs'
+import { NO_PROXY, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
+import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { useEffect, useLayoutEffect } from 'react'
 import {
   CanvasTexture,
@@ -59,7 +59,7 @@ export const MaterialDefinitionComponent = defineComponent({
     return {
       type: 'MeshStandardMaterial'
     } as GLTF.IMaterial & {
-      type: 'MeshStandardMaterial' | 'MeshPhysicalMaterial' | 'MeshBasicMaterial' | (string & {})
+      type: 'MeshStandardMaterial' | 'MeshPhysicalMaterial' | 'MeshBasicMaterial' | string
     }
   },
 
@@ -122,7 +122,7 @@ export const KHRUnlitExtensionComponent = defineComponent({
     const entity = useEntityContext()
 
     useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshBasicMaterial' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'basic' })
     }, [])
 
     return null
@@ -983,7 +983,7 @@ export const MozillaHubsLightMapComponent = defineComponent({
       const materialDefinitionComponent = getComponent(entity, MaterialDefinitionComponent)
       // Multiply by pi for MeshBasicMaterial shading
       const lightMapIntensity =
-        component.intensity.value * (materialDefinitionComponent.type === 'basic' ? Math.PI : 1.0)
+        component.intensity.value * (materialDefinitionComponent.type === 'MeshBasicMaterial' ? Math.PI : 1.0)
 
       material.setValues({ lightMapIntensity })
       material.needsUpdate = true
