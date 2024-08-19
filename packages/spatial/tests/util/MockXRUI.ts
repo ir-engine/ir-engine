@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, setComponent } from '@etherealengine/ecs'
-import { Bounds, Edges, WebContainer3D, WebLayerManager } from '@etherealengine/xrui'
+import { Entity, setComponent } from '@ir-engine/ecs'
+import { Bounds, Edges, WebContainer3D, WebLayerManager } from '@ir-engine/xrui'
 import { XRUIComponent } from '../../src/xrui/components/XRUIComponent'
 
 /**

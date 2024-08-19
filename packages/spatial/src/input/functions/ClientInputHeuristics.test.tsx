@@ -27,7 +27,7 @@ import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { UserID } from '@ir-engine/common/src/schema.type.module'
 import {
   createEngine,
   createEntity,
@@ -41,8 +41,8 @@ import {
   setComponent,
   UndefinedEntity,
   UUIDComponent
-} from '@etherealengine/ecs'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+} from '@ir-engine/ecs'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { act, render } from '@testing-library/react'
 import { Box3, BoxGeometry, Mesh, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'

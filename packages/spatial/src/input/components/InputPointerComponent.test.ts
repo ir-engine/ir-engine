@@ -33,8 +33,8 @@ import {
   removeComponent,
   removeEntity,
   setComponent
-} from '@etherealengine/ecs'
-import { getState, startReactor } from '@etherealengine/hyperflux'
+} from '@ir-engine/ecs'
+import { getState, startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { useEffect } from 'react'
 import sinon from 'sinon'

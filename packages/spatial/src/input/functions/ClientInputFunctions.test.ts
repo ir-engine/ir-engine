@@ -32,7 +32,7 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity
-} from '@etherealengine/ecs'
+} from '@ir-engine/ecs'
 import assert from 'assert'
 import sinon from 'sinon'
 import { Quaternion, Ray, Raycaster, Vector3 } from 'three'

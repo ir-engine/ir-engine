@@ -31,7 +31,7 @@ import {
   getComponent,
   removeEntity,
   setComponent
-} from '@etherealengine/ecs'
+} from '@ir-engine/ecs'
 import assert from 'assert'
 import { InputSinkComponent } from './InputSinkComponent'
 

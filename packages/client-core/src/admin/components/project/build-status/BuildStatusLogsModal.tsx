@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,27 +14,27 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { BuildStatusType } from '@etherealengine/common/src/schema.type.module'
-import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
-import CopyText from '@etherealengine/ui/src/primitives/tailwind/CopyText'
-import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import Label from '@etherealengine/ui/src/primitives/tailwind/Label'
-import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import { BuildStatusType } from '@ir-engine/common/src/schema.type.module'
+import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
+import CopyText from '@ir-engine/ui/src/primitives/tailwind/CopyText'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 
-import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
+import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { PopoverState } from '../../../../common/services/PopoverState'
 
 const BuildStatusBadgeVariant = {
@@ -78,7 +78,7 @@ export default function BuildStatusLogsModal({ buildStatus }: { buildStatus: Bui
           value={getStartOrEndDate(buildStatus.dateEnded)}
         />
         <div className="col-span-2 max-h-[50vh] overflow-auto">
-          <pre className="relative text-wrap bg-stone-300 px-4 py-2 text-sm font-[var(--lato)] dark:bg-stone-800">
+          <pre className="text-wrap relative bg-stone-300 px-4 py-2 text-sm font-[var(--lato)] dark:bg-stone-800">
             <div className="sticky right-0 top-0 float-right ml-[-100%] h-[calc(100%-1px)] w-[calc(100%-1px)]">
               <CopyText text={buildStatus.logs} className="sticky" />
             </div>
