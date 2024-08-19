@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,34 +14,34 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useEngineCanvas'
-import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
-import { clientSettingPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { getComponent, useComponent, useQuery } from '@etherealengine/ecs'
-import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
-import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
-import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
-import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import React, { useEffect } from 'react'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { useEngineCanvas } from '@ir-engine/client-core/src/hooks/useEngineCanvas'
+import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { clientSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
+import { processFileName } from '@ir-engine/common/src/utils/processFileName'
+import { useComponent, useQuery } from '@ir-engine/ecs'
+import { ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
+import { getCursorSpawnPosition } from '@ir-engine/editor/src/functions/screenSpaceFunctions'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePendingComponent'
+import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
+import { useMutableState } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import React from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -92,7 +92,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
                     contentType: file.type
                   }
                 ]
-              }).promise as Promise<string>
+              }).promise as Promise<string[]>
             } catch (err) {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
             }
@@ -100,8 +100,8 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
         ).then((urls) => {
           const vec3 = new Vector3()
           urls.forEach((url) => {
-            if (!url) return
-            addMediaNode(url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+            if (!url || url.length < 1 || !url[0] || url[0] === '') return
+            addMediaNode(url[0], undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
           })
         })
       }
@@ -121,31 +121,16 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
 const SceneLoadingProgress = ({ rootEntity }) => {
   const { t } = useTranslation()
   const progress = useComponent(rootEntity, GLTFComponent).progress.value
+  const loaded = GLTFComponent.useSceneLoaded(rootEntity)
   const resourcePendingQuery = useQuery([ResourcePendingComponent])
-  const root = getComponent(rootEntity, SourceComponent)
-  const sceneModified = useHookstate(getMutableState(GLTFModifiedState)[root]).value
 
-  useEffect(() => {
-    if (!sceneModified) return
-    const onBeforeUnload = (e: BeforeUnloadEvent) => {
-      alert('You have unsaved changes. Please save before leaving.')
-      e.preventDefault()
-      e.returnValue = ''
-    }
-
-    window.addEventListener('beforeunload', onBeforeUnload)
-
-    return () => {
-      window.removeEventListener('beforeunload', onBeforeUnload)
-    }
-  }, [sceneModified])
-
-  if (progress === 100) return null
+  if (loaded) return null
 
   return (
     <LoadingView
       fullSpace
       className="block h-12 w-12"
+      containerClassname="absolute bg-black bg-opacity-70"
       title={t('editor:loadingScenesWithProgress', { progress, assetsLeft: resourcePendingQuery.length })}
     />
   )
@@ -163,12 +148,14 @@ const ViewPortPanelContainer = () => {
 
   useEngineCanvas(ref)
 
+  const [transformPivotFeatureFlag] = useFeatureFlags([FeatureFlags.Studio.UI.TransformPivot])
+
   return (
     <ViewportDnD>
       <div className="relative z-30 flex h-full w-full flex-col">
         <div ref={toolbarRef} className="z-10 flex gap-1 bg-theme-studio-surface p-1">
           <TransformSpaceTool />
-          <TransformPivotTool />
+          {transformPivotFeatureFlag && <TransformPivotTool />}
           <GridTool />
           <TransformSnapTool />
           <SceneHelpersTool />
@@ -179,8 +166,8 @@ const ViewPortPanelContainer = () => {
         {sceneName.value ? <GizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? (
           <>
-            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
             <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
+            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
           </>
         ) : (
           <div className="flex h-full w-full flex-col justify-center gap-2">

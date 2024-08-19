@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and
 provide for limited attribution for the Original Developer. In addition,
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { AuthenticationResult } from '@feathersjs/authentication'
@@ -29,9 +29,9 @@ import i18n from 'i18next'
 import { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
-import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
-import multiLogger from '@etherealengine/common/src/logger'
+import config, { validateEmail, validatePhoneNumber } from '@ir-engine/common/src/config'
+import { AuthUserSeed, resolveAuthUser } from '@ir-engine/common/src/interfaces/AuthUser'
+import multiLogger from '@ir-engine/common/src/logger'
 import {
   AuthStrategiesType,
   AvatarID,
@@ -56,15 +56,9 @@ import {
   userAvatarPath,
   userPath,
   userSettingPath
-} from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import {
-  defineState,
-  getMutableState,
-  getState,
-  syncStateWithLocalStorage,
-  useHookstate
-} from '@etherealengine/hyperflux'
+} from '@ir-engine/common/src/schema.type.module'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { defineState, getMutableState, getState, syncStateWithLocalStorage, useHookstate } from '@ir-engine/hyperflux'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -108,9 +102,16 @@ export const UserSeed: UserType = {
   locationAdmins: [],
   locationBans: [],
   instanceAttendance: [],
+  lastLogin: {
+    id: '',
+    ipAddress: '',
+    userAgent: '',
+    identityProviderId: '',
+    userId: '' as UserID,
+    createdAt: ''
+  },
   createdAt: '',
-  updatedAt: '',
-  lastLogin: null
+  updatedAt: ''
 }
 
 const resolveWalletUser = (credentials: any): UserType => {
@@ -310,41 +311,41 @@ export const AuthService = {
    *
    * @param vprResult {object} - VPR Query result from a user's wallet.
    */
-  async loginUserByXRWallet(vprResult: any) {
-    const authState = getMutableState(AuthState)
-    try {
-      authState.merge({ isProcessing: true, error: '' })
+  // async loginUserByXRWallet(vprResult: any) {
+  //   const authState = getMutableState(AuthState)
+  //   try {
+  //     authState.merge({ isProcessing: true, error: '' })
 
-      const credentials: any = parseUserWalletCredentials(vprResult)
-      console.log(credentials)
+  //     const credentials: any = parseUserWalletCredentials(vprResult)
+  //     console.log(credentials)
 
-      const walletUser = resolveWalletUser(credentials)
-      const authUser = {
-        accessToken: '',
-        authentication: { strategy: 'did-auth' },
-        identityProvider: {
-          id: '',
-          token: '',
-          type: 'didWallet',
-          userId: walletUser.id,
-          createdAt: '',
-          updatedAt: ''
-        }
-      }
+  //     const walletUser = resolveWalletUser(credentials)
+  //     const authUser = {
+  //       accessToken: '',
+  //       authentication: { strategy: 'did-auth' },
+  //       identityProvider: {
+  //         id: '',
+  //         token: '',
+  //         type: 'didWallet',
+  //         userId: walletUser.id,
+  //         createdAt: '',
+  //         updatedAt: ''
+  //       }
+  //     }
 
-      // TODO: This is temp until we move completely to XR wallet #6453
-      const oldId = authState.user.id.value
-      walletUser.id = oldId
+  //     // TODO: This is temp until we move completely to XR wallet #6453
+  //     const oldId = authState.user.id.value
+  //     walletUser.id = oldId
 
-      // loadXRAvatarForUpdatedUser(walletUser)
-      authState.merge({ isLoggedIn: true, user: walletUser, authUser })
-    } catch (err) {
-      authState.merge({ error: i18n.t('common:error.login-error') })
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    } finally {
-      authState.merge({ isProcessing: false, error: '' })
-    }
-  },
+  //     // loadXRAvatarForUpdatedUser(walletUser)
+  //     authState.merge({ isLoggedIn: true, user: walletUser, authUser })
+  //   } catch (err) {
+  //     authState.merge({ error: i18n.t('common:error.login-error') })
+  //     NotificationService.dispatchNotify(err.message, { variant: 'error' })
+  //   } finally {
+  //     authState.merge({ isProcessing: false, error: '' })
+  //   }
+  // },
 
   /**
    * Logs in the current user based on an OAuth response.
@@ -481,7 +482,12 @@ export const AuthService = {
     }
   },
 
-  async createMagicLink(emailPhone: string, authData: AuthStrategiesType, linkType?: 'email' | 'sms') {
+  async createMagicLink(
+    emailPhone: string,
+    authData: AuthStrategiesType,
+    linkType?: 'email' | 'sms',
+    redirectUrl?: string
+  ) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -538,7 +544,7 @@ export const AuthService = {
     try {
       await Engine.instance.api
         .service(magicLinkPath)
-        .create({ type, [paramName]: emailPhone, accessToken: storedToken })
+        .create({ type, [paramName]: emailPhone, accessToken: storedToken, redirectUrl })
       const message = {
         email: 'email-sent-msg',
         sms: 'sms-sent-msg',
@@ -713,25 +719,25 @@ export const AuthService = {
 /**
  * @param vprResult {any} See `loginUserByXRWallet()`'s docstring.
  */
-function parseUserWalletCredentials(vprResult: any) {
-  console.log('PARSING:', vprResult)
+// function parseUserWalletCredentials(vprResult: any) {
+//   console.log('PARSING:', vprResult)
 
-  const {
-    data: { presentation: vp }
-  } = vprResult
-  const credentials = Array.isArray(vp.verifiableCredential) ? vp.verifiableCredential : [vp.verifiableCredential]
+//   const {
+//     data: { presentation: vp }
+//   } = vprResult
+//   const credentials = Array.isArray(vp.verifiableCredential) ? vp.verifiableCredential : [vp.verifiableCredential]
 
-  const { displayName, displayIcon } = parseLoginDisplayCredential(credentials)
+//   const { displayName, displayIcon } = parseLoginDisplayCredential(credentials)
 
-  return {
-    user: {
-      id: vp.holder,
-      displayName,
-      icon: displayIcon
-      // session // this will contain the access token and helper methods
-    }
-  }
-}
+//   return {
+//     user: {
+//       id: vp.holder,
+//       displayName,
+//       icon: displayIcon
+//       // session // this will contain the access token and helper methods
+//     }
+//   }
+// }
 
 /**
  * Parses the user's preferred display name (username) and avatar icon from the

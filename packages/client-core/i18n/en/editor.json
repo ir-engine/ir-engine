@@ -72,7 +72,7 @@
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Invalid input: Only alphanumeric characters, hyphens, and underscores are allowed."
+    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters and hyphens, and begin and end with an alphanumeric."
   },
   "viewport": {
     "title": "Viewport",
@@ -568,7 +568,7 @@
     },
     "hemisphere": {
       "name": "Hemisphere Light",
-      "description": "A light which illuminates the scene from directly overhead.",
+      "description": "A light which illuminates the scene with a sky color from above and a ground color from below.",
       "lbl-skyColor": "Sky Color",
       "lbl-groundColor": "Ground Color",
       "lbl-intensity": "Intensity"
@@ -1177,7 +1177,7 @@
         "point-light": "A light which emits in all directions from a single point.",
         "spot-light": "Creates a light that shines in a specific direction.",
         "directional-light": "Creates a light that emits evenly in a single direction.",
-        "hemisphere-light": "A light which illuminates the scene from directly overhead.",
+        "hemisphere-light": "A light which illuminates the scene with a sky color from above and a ground color from below.",
         "particle-system": "Creates a particle emitter.",
         "system": "Inserts code into the scene by creating a new Entity Component System based on the provided .ts file",
         "visual-script": "Customizes state and behavior of entities through a visual node connections.",
@@ -1216,6 +1216,8 @@
       "uploadAssets": "Upload Assets",
       "uploadFiles": "Upload Files",
       "uploadFolder": "Upload Folder",
+      "uploadingFiles": "Uploading Files ({{completed}}/{{total}})",
+      "downloadingProject": "Downloading Project ({{completed}}/{{total}})",
       "search-placeholder": "Search",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
@@ -1359,7 +1361,10 @@
       "lbl-thumbnail": "Generate thumbnail & envmap",
       "lbl-confirm": "Save Scene",
       "info-confirm": "Are you sure you want to save the scene?",
-      "info-question": "Do you want to save the current scene?"
+      "info-question": "Do you want to save the current scene?",
+      "unsavedChanges": {
+        "title": "Unsaved Changes"
+      }
     },
     "saveNewScene": {
       "title": "Save As",

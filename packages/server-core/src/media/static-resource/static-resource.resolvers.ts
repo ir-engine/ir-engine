@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
@@ -30,9 +30,9 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   StaticResourceDatabaseType,
   StaticResourceType
-} from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import type { HookContext } from '@etherealengine/server-core/declarations'
+} from '@ir-engine/common/src/schemas/media/static-resource.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import type { HookContext } from '@ir-engine/server-core/declarations'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): StaticResourceType => {
@@ -63,6 +63,16 @@ export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): S
   }
 }
 
+const getThumbnailURL = (staticResource: StaticResourceType, context: HookContext) => {
+  if (context.method !== 'find' && context.method !== 'get') {
+    return ''
+  }
+
+  const values = context.hashedThumbnailResults
+
+  return values[staticResource.id]
+}
+
 /**
  * the first few characters of resources hashes are appended as a version identifier to allow for cache busting
  */
@@ -80,21 +90,7 @@ export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
       )
     }),
     thumbnailURL: virtual(async (staticResource, context) => {
-      if (!staticResource.thumbnailKey) return
-      const storageProvider = getStorageProvider()
-      /** @todo optimize this */
-      const thumbnailStaticResource = await context.app.service('static-resource').find({
-        query: {
-          type: 'thumbnail',
-          key: staticResource.thumbnailKey
-        }
-      })
-      if (!thumbnailStaticResource.data.length) return
-      return (
-        storageProvider.getCachedURL(staticResource.thumbnailKey, context.params.isInternal) +
-        '?hash=' +
-        thumbnailStaticResource.data[0].hash.slice(0, 6)
-      )
+      return getThumbnailURL(staticResource, context)
     })
   },
   {
@@ -111,7 +107,10 @@ export const staticResourceDataResolver = resolve<StaticResourceType, HookContex
       return uuidv4()
     },
     createdAt: getDateTimeSql,
-    updatedAt: getDateTimeSql
+    updatedAt: getDateTimeSql,
+    updatedBy: async (_, __, context) => {
+      return context.params?.user?.id || null
+    }
   },
   {
     // Convert the raw data into a new structure before running property resolvers
@@ -128,7 +127,10 @@ export const staticResourceDataResolver = resolve<StaticResourceType, HookContex
 
 export const staticResourcePatchResolver = resolve<StaticResourceType, HookContext>(
   {
-    updatedAt: getDateTimeSql
+    updatedAt: getDateTimeSql,
+    updatedBy: async (_, __, context) => {
+      return context.params?.user?.id || null
+    }
   },
   {
     // Convert the raw data into a new structure before running property resolvers

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
@@ -31,12 +31,12 @@ import fs from 'fs'
 import { Knex } from 'knex'
 import path from 'path'
 
-import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
-import { GITHUB_URL_REGEX } from '@etherealengine/common/src/regex'
-import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
-import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
-import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { ManifestJson } from '@ir-engine/common/src/interfaces/ManifestJson'
+import { GITHUB_URL_REGEX } from '@ir-engine/common/src/regex'
+import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
+import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schemas/media/static-resource.schema'
+import { ProjectBuildUpdateItemType } from '@ir-engine/common/src/schemas/projects/project-build.schema'
+import { projectPermissionPath } from '@ir-engine/common/src/schemas/projects/project-permission.schema'
 import {
   ProjectData,
   projectDataValidator,
@@ -45,22 +45,19 @@ import {
   projectPath,
   projectQueryValidator,
   ProjectType
-} from '@etherealengine/common/src/schemas/projects/project.schema'
-import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'
-import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
+} from '@ir-engine/common/src/schemas/projects/project.schema'
+import { routePath } from '@ir-engine/common/src/schemas/route/route.schema'
+import { locationPath } from '@ir-engine/common/src/schemas/social/location.schema'
+import { avatarPath, AvatarType } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import {
   githubRepoAccessPath,
   GithubRepoAccessType
-} from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { cleanString } from '@etherealengine/common/src/utils/cleanString'
-import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import templateManifestJson from '@etherealengine/projects/template-project/manifest.json'
-import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
+} from '@ir-engine/common/src/schemas/user/github-repo-access.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { cleanString } from '@ir-engine/common/src/utils/cleanString'
+import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import templateManifestJson from '@ir-engine/projects/template-project/manifest.json'
+import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
 
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
@@ -74,6 +71,7 @@ import logger from '../../ServerLogger'
 import { useGit } from '../../util/gitHelperFunctions'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
+  cleanProjectName,
   deleteProjectFilesInStorageProvider,
   engineVersion,
   getProjectConfig,
@@ -228,11 +226,11 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
   const data: ProjectType[] = context.result!['data'] ? context.result!['data'] : context.result
   for (const item of data) {
     try {
-      const packageJson = getProjectManifest(item.name)
-      item.thumbnail = packageJson.thumbnail || '/static/IR_thumbnail.jpg'
-      item.version = packageJson.version
-      item.engineVersion = packageJson.engineVersion
-      item.description = packageJson.description
+      const manifestJson = getProjectManifest(item.name)
+      item.thumbnail = manifestJson.thumbnail || '/static/IR_thumbnail.jpg'
+      item.version = manifestJson.version
+      item.engineVersion = manifestJson.engineVersion
+      item.description = manifestJson.description
       item.hasWriteAccess = context.projectPushIds.indexOf(item.id) > -1
     } catch (err) {
       //
@@ -262,7 +260,13 @@ const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
 
   const data: ProjectData[] = Array.isArray(context.data) ? context.data : [context.data]
 
-  context.projectName = cleanString(data[0].name!).toLowerCase()
+  const projectName = data[0].name!
+
+  const orgName = projectName.slice(0, projectName.indexOf('/'))
+
+  const cleanedProjectName = cleanString(projectName.slice(projectName.indexOf('/')))
+
+  context.projectName = `${orgName}/${cleanedProjectName}`.toLowerCase()
 
   const projectExists = (await context.service._find({
     query: { name: context.projectName, $limit: 1 }
@@ -278,7 +282,7 @@ const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
  */
 const checkIfNameIsValid = async (context: HookContext<ProjectService>) => {
   if (
-    (!config.db.forceRefresh && context.projectName === 'default-project') ||
+    (!config.db.forceRefresh && context.projectName === 'ir-engine/default-project') ||
     context.projectName === 'template-project'
   )
     throw new Error(`[Projects]: Project name ${context.projectName} not allowed`)
@@ -287,7 +291,7 @@ const checkIfNameIsValid = async (context: HookContext<ProjectService>) => {
 /**
  * Uploads the local project to the storage provider\
  * - asset projects only require the manifest.json, code projects are created with the template-project repository,
- *     or with `npm run create-project -- --name="ee-my-project" --repo="https://github.com/MyOrg/ee-my-project`
+ *     or with `npm run create-project -- --name="my-project" --repo="https://github.com/MyOrg/my-project`
  * @param context
  * @returns
  */
@@ -550,7 +554,7 @@ const updateProjectJob = async (context: HookContext) => {
       returnData: '',
       status: 'pending'
     })
-    const projectJobName = data.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+    const projectJobName = cleanProjectName(data.name)
     const jobBody = await getProjectUpdateJobBody(
       data,
       context.app,
@@ -561,7 +565,7 @@ const updateProjectJob = async (context: HookContext) => {
     await context.app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name
     })
-    const jobLabelSelector = `etherealengine/projectField=${projectJobName},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
+    const jobLabelSelector = `ir-engine/projectField=${projectJobName},ir-engine/release=${process.env.RELEASE_NAME},ir-engine/autoUpdate=false`
     const jobFinishedPromise = createExecutorJob(context.app, jobBody, jobLabelSelector, 1000, newJob.id)
     try {
       await jobFinishedPromise
