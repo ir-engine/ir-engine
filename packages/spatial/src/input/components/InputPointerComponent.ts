@@ -25,8 +25,17 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Vector2 } from 'three'
 
-import { defineComponent, defineQuery, Entity, getComponent, UndefinedEntity, useQuery } from '@ir-engine/ecs'
-import { defineState, getState } from '@ir-engine/hyperflux'
+import {
+  defineComponent,
+  defineQuery,
+  Entity,
+  getComponent,
+  UndefinedEntity,
+  useComponent,
+  useEntityContext,
+  useQuery
+} from '@ir-engine/ecs'
+import { defineState, getState, useImmediateEffect } from '@ir-engine/hyperflux'
 
 export const InputPointerState = defineState({
   name: 'InputPointerState',
@@ -50,16 +59,27 @@ export const InputPointerComponent = defineComponent({
     }
   },
 
-  onSet(entity, component, args: { pointerId: number; cameraEntity: Entity }) {
-    component.pointerId.set(args.pointerId)
-    component.cameraEntity.set(args.cameraEntity)
-    const pointerHash = `canvas-${args.cameraEntity}.pointer-${args.pointerId}`
-    getState(InputPointerState).pointers.set(pointerHash, entity)
+  onSet(entity, component, json: { pointerId: number; cameraEntity: Entity }) {
+    if (typeof json.pointerId === 'number') component.pointerId.set(json.pointerId)
+    if (typeof json.cameraEntity === 'number') component.cameraEntity.set(json.cameraEntity)
   },
 
-  onRemove(entity, component) {
-    const pointerHash = `canvas-${component.cameraEntity}.pointer-${component.pointerId}`
-    getState(InputPointerState).pointers.delete(pointerHash)
+  reactor: () => {
+    const entity = useEntityContext()
+    const inputPointerComponent = useComponent(entity, InputPointerComponent)
+
+    useImmediateEffect(() => {
+      const pointerId = inputPointerComponent.pointerId.value
+      const cameraEntity = inputPointerComponent.cameraEntity.value
+      const pointerHash = `canvas-${cameraEntity}.pointer-${pointerId}`
+
+      getState(InputPointerState).pointers.set(pointerHash, entity)
+      return () => {
+        getState(InputPointerState).pointers.delete(pointerHash)
+      }
+    }, [inputPointerComponent.pointerId, inputPointerComponent.cameraEntity])
+
+    return null
   },
 
   getPointersForCamera(cameraEntity: Entity) {
