@@ -29,10 +29,17 @@ import React from 'react'
 import sinon from 'sinon'
 import { BoxGeometry, Color, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
-import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs'
+import {
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  UndefinedEntity
+} from '@ir-engine/ecs'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { State, getState } from '@ir-engine/hyperflux'
+import { getState, State } from '@ir-engine/hyperflux'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Geometry } from '../../common/constants/Geometry'

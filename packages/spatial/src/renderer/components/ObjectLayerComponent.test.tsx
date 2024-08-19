@@ -26,10 +26,17 @@ Infinite Reality Engine. All Rights Reserved.
 import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
-import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  hasComponent,
+  removeComponent,
+  serializeComponent,
+  setComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 
+import { UndefinedEntity } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { addObjectToGroup } from './GroupComponent'
 import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent, ObjectLayerMaskDefault } from './ObjectLayerComponent'
