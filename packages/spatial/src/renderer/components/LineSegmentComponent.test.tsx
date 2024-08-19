@@ -28,15 +28,34 @@ import assert from 'assert'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
 
-import { BoxGeometry, LineBasicMaterial, LineSegments, MeshBasicMaterial, SphereGeometry } from 'three'
+import {
+  BoxGeometry,
+  BufferGeometry,
+  Color,
+  ColorRepresentation,
+  LineBasicMaterial,
+  LineSegments,
+  Material,
+  MeshBasicMaterial,
+  SphereGeometry
+} from 'three'
 
-import { getComponent, getMutableComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs'
+import {
+  Entity,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  UndefinedEntity
+} from '@ir-engine/ecs'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState } from '@ir-engine/hyperflux'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 
+import { NameComponent } from '../../common/NameComponent'
 import { ResourceState } from '../../resources/ResourceState'
 import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
 import { GroupComponent } from './GroupComponent'
