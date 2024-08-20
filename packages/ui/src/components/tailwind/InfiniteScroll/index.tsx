@@ -65,7 +65,7 @@ export default function InfiniteScroll({
   }, [disableEvent])
 
   return (
-    <div className="h-full" style={{ all: 'unset' }}>
+    <div style={{ all: 'unset' }}>
       {children}
       <span ref={observerRef} style={{ all: 'unset' }} />
     </div>

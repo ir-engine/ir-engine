@@ -554,6 +554,7 @@ const AssetPanel = () => {
   }
 
   useEffect(() => staticResourcesPagination.skip.set(0), [searchText])
+
   useEffect(() => {
     const abortSignal = staticResourcesFindApi()
 
@@ -707,7 +708,9 @@ const AssetPanel = () => {
         </div>
         <div className="flex h-full w-full flex-col overflow-auto">
           <InfiniteScroll
-            disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value}
+            disableEvent={
+              staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || loading.value
+            }
             onScrollBottom={() => staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)}
           >
             <div className="mt-auto flex h-full w-full flex-wrap gap-2">
