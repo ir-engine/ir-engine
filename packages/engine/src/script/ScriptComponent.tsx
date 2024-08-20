@@ -34,6 +34,7 @@ export const ScriptComponent = defineComponent({
 
   onInit: (entity) => {
     return {
+      script: '',
       uuid: '',
       src: '', // default path is in the scripts directory
       async: false,
@@ -44,8 +45,9 @@ export const ScriptComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      src: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.src.get({ noproxy: true })))),
+      src: cleanStorageProviderURLs(component.src.get({ noproxy: true })),
       async: component.async.value,
+      script: '',
       run: false,
       disabled: component.disabled.value
     }
@@ -57,6 +59,7 @@ export const ScriptComponent = defineComponent({
     if (typeof json.run === 'boolean') component.run.set(json.run)
     if (typeof json.async === 'boolean') component.async.set(json.async)
     if (typeof json.src === 'string') component.src.set(json.src)
+    if (typeof json.script === 'string') component.script.set(json.script)
   },
 
   // we make reactor for each component handle the engine
@@ -64,10 +67,23 @@ export const ScriptComponent = defineComponent({
     const entity = useEntityContext()
     const scriptComponent = useComponent(entity, ScriptComponent)
 
+    const fetchCode = async () => {
+      const response = await fetch(scriptComponent.src.value)
+      const text = await response.text()
+      return text
+    }
+
+    useEffect(() => {
+      if (!scriptComponent.src.value) return
+      fetchCode().then(scriptComponent.script.set)
+    }, [scriptComponent.src])
+
     useEffect(() => {
       if (scriptComponent.disabled.value) return
+
       const script: HTMLScriptElement | null = document.querySelector(`script[id="${scriptComponent.uuid.value}"]`)
       if (!script) return
+
       script.src = scriptComponent.src.value
     }, [scriptComponent.src])
 

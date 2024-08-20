@@ -23,24 +23,60 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { IoLogoJavascript } from 'react-icons/io5'
 
+import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
+import config from '@ir-engine/common/src/config'
+import { fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { ScriptComponent } from '@ir-engine/engine'
+import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
+import { uniqueId } from 'lodash'
 import InputGroup from '../../input/Group'
 import ScriptInput from '../../input/Script'
 import { NodeEditor } from '../nodeEditor'
+
+export const updateScriptFile = async (fileName, script = 'hello world') => {
+  const file = new File([script], fileName, { type: ItemTypes.Scripts[3] })
+  await uploadToFeathersService(fileBrowserUploadPath, [file], {
+    args: [
+      {
+        project: getState(EditorState).projectName,
+        path: 'assets/scripts/' + fileName,
+        contentType: file.type
+      }
+    ]
+  }).promise
+  return
+}
 
 export const ScriptNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const scriptComponent = useComponent(props.entity, ScriptComponent)
+
+  const editorState = useHookstate(getMutableState(EditorState))
+
+  useEffect(() => {
+    if (scriptComponent.src.value.length > 0) return // only set if there is no value already set
+
+    const relativePath = `projects/${editorState.projectName.value}/assets/scripts`
+    const fileName = `${uniqueId(`${editorState.sceneName.value}RealityScript`)}.js`
+    ;(async () => {
+      // create emtpty or defualt script file
+      await updateScriptFile(fileName)
+      scriptComponent.src.set(`${config.client.fileServer}/${relativePath}/${fileName}`)
+      commitProperty(ScriptComponent, 'src')(scriptComponent.src.value)
+    })()
+  }, [])
 
   return (
     <NodeEditor

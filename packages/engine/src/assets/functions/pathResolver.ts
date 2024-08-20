@@ -30,6 +30,10 @@ export function getBasePath(path: string) {
   return regex.exec(path)![0]
 }
 
+export function getFileDirectory(path: string) {
+  return /^https:\/\/[^/]+\/[^/]+\/(.+?)\/[^/]+\.*$/.exec(path)?.[1] ?? ''
+}
+
 export function getFileName(path: string) {
   return /[^\\/]+$/.exec(path)?.[0] ?? ''
 }

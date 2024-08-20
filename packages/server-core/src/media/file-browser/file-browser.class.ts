@@ -178,6 +178,8 @@ export class FileBrowserService
    */
   async create(directory: string, params?: FileBrowserParams) {
     const storageProvider = getStorageProvider(params?.query?.storageProviderName)
+
+    console.log('DEBUG directory', directory)
     if (directory[0] === '/') directory = directory.slice(1)
 
     ensureProjectsDirectory(directory)

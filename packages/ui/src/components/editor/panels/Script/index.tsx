@@ -26,28 +26,29 @@ Infinite Reality Engine. All Rights Reserved.
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import AssetsPanel from './container'
 
-export const AssetsPanelTitle = () => {
+import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
+import ScriptPanel from './container'
+
+export const ScriptPanelTitle = () => {
   const { t } = useTranslation()
 
   return (
     <div>
       <PanelDragContainer>
         <PanelTitle>
-          <span>{t('editor:tabs.scene-assets')}</span>
+          <span>{t('editor:script.panel.title')}</span>
         </PanelTitle>
       </PanelDragContainer>
     </div>
   )
 }
 
-export default AssetsPanelTitle
+export default ScriptPanelTitle
 
-export const AssetsPanelTab: TabData = {
-  id: 'assetsPanel',
+export const ScriptPanelTab: TabData = {
+  id: 'visualScriptPanel',
   closable: true,
-  title: <AssetsPanelTitle />,
-  content: <AssetsPanel />
+  title: <ScriptPanelTitle />,
+  content: <ScriptPanel />
 }

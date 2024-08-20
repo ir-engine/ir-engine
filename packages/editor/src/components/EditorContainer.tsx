@@ -32,6 +32,7 @@ import { HierarchyPanelTab } from '@ir-engine/ui/src/components/editor/panels/Hi
 import { MaterialsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Materials'
 import { PropertiesPanelTab } from '@ir-engine/ui/src/components/editor/panels/Properties'
 import { ScenePanelTab } from '@ir-engine/ui/src/components/editor/panels/Scenes'
+import { ScriptPanelTab } from '@ir-engine/ui/src/components/editor/panels/Script'
 import { ViewportPanelTab } from '@ir-engine/ui/src/components/editor/panels/Viewport'
 import { VisualScriptPanelTab } from '@ir-engine/ui/src/components/editor/panels/VisualScript'
 
@@ -87,7 +88,7 @@ const onEditorError = (error) => {
 }
 
 const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
-  const tabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
+  const tabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab, ScriptPanelTab]
   flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
 
   return {
