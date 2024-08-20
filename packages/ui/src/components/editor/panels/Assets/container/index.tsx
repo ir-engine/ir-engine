@@ -495,6 +495,8 @@ const AssetPanel = () => {
   }, [categories, selectedCategory])
 
   const staticResourcesFindApi = () => {
+    const abortController = new AbortController()
+
     searchTimeoutCancelRef.current?.()
     loading.set(true)
 
@@ -535,6 +537,8 @@ const AssetPanel = () => {
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
+          if (abortController.signal.aborted) return
+
           if (staticResourcesPagination.skip.value > 0) {
             searchedStaticResources.merge(resources.data)
           } else {
@@ -547,10 +551,19 @@ const AssetPanel = () => {
 
     debouncedSearchQuery()
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
+
+    return () => {
+      abortController.abort()
+    }
   }
 
   useEffect(() => staticResourcesPagination.skip.set(0), [searchText])
-  useEffect(() => staticResourcesFindApi(), [searchText, selectedCategory, staticResourcesPagination.skip])
+
+  useEffect(() => {
+    const abortSignal = staticResourcesFindApi()
+
+    return () => abortSignal()
+  }, [searchText, selectedCategory, staticResourcesPagination.skip])
 
   const ResourceItems = () => (
     <>
@@ -699,7 +712,9 @@ const AssetPanel = () => {
         </div>
         <div className="flex h-full w-full flex-col overflow-auto">
           <InfiniteScroll
-            disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value}
+            disableEvent={
+              staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || loading.value
+            }
             onScrollBottom={() => staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)}
           >
             <div className="mt-auto flex h-full w-full flex-wrap gap-2">
