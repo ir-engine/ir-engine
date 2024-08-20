@@ -465,6 +465,54 @@ export function useChildWithComponent(rootEntity: Entity, component: ComponentTy
   return result.value
 }
 
+export function useChildrenWithComponent(rootEntity: Entity, component: ComponentType<any>) {
+  const children = useHookstate([] as Entity[])
+
+  useLayoutEffect(() => {
+    let unmounted = false
+    const ChildSubReactor = (props: { entity: Entity }) => {
+      const tree = useOptionalComponent(props.entity, EntityTreeComponent)
+      const matchesQuery = !!useOptionalComponent(props.entity, component)?.value
+
+      useLayoutEffect(() => {
+        if (!matchesQuery) return
+        children.set((prev) => {
+          if (prev.indexOf(props.entity) < 0) prev.push(props.entity)
+          return prev
+        })
+        return () => {
+          if (!unmounted) {
+            children.set((prev) => {
+              const index = prev.indexOf(props.entity)
+              prev.splice(index, 1)
+              return prev
+            })
+          }
+        }
+      }, [matchesQuery])
+
+      if (!tree?.children?.value) return null
+      return (
+        <>
+          {tree.children.value.map((e) => (
+            <ChildSubReactor key={e} entity={e} />
+          ))}
+        </>
+      )
+    }
+
+    const root = startReactor(function useQueryReactor() {
+      return <ChildSubReactor entity={rootEntity} key={rootEntity} />
+    })
+    return () => {
+      unmounted = true
+      root.stop()
+    }
+  }, [rootEntity, component])
+
+  return children
+}
+
 /** @todo make a query component for useTreeQuery */
 // export function TreeQueryReactor (props: { Components: QueryComponents; ChildEntityReactor: FC; props?: any }) {
 
