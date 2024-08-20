@@ -57,7 +57,6 @@ import {
   userAvatarPath,
   userPath,
   userSettingPath
-<<<<<<< HEAD
 } from '@ir-engine/common/src/schema.type.module'
 import {
   HyperFlux,
@@ -67,12 +66,6 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@ir-engine/hyperflux'
-=======
-} from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
-import { defineState, getMutableState, getState, syncStateWithLocalStorage, useHookstate } from '@ir-engine/hyperflux'
-import { API } from '../../API'
->>>>>>> dev
 import { NotificationService } from '../../common/services/NotificationService'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })

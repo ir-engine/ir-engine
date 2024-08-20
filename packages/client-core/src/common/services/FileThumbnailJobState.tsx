@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { API } from '@etherealengine/common'
+import { API } from '@ir-engine/common'
 import {
   FileBrowserContentType,
   fileBrowserUploadPath,

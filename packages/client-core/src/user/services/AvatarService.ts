@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { API } from '@etherealengine/common'
+import { API } from '@ir-engine/common'
 import {
   AvatarID,
   avatarPath,

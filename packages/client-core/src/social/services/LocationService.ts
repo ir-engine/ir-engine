@@ -36,7 +36,7 @@ import {
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 
-import { API } from '@etherealengine/common'
+import { API } from '@ir-engine/common'
 import { useEffect } from 'react'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'

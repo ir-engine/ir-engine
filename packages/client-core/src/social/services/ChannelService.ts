@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { API } from '@etherealengine/common'
+import { API } from '@ir-engine/common'
 import {
   ChannelID,
   channelPath,
