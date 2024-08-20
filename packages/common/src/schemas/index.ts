@@ -79,6 +79,7 @@ export type * from './setting/email-setting.schema'
 export type * from './setting/feature-flag-setting.schema'
 export type * from './setting/helm-setting.schema'
 export type * from './setting/instance-server-setting.schema'
+export type * from './setting/mailchimp-setting.schema'
 export type * from './setting/project-setting.schema'
 export type * from './setting/redis-setting.schema'
 export type * from './setting/server-setting.schema'
@@ -255,6 +256,8 @@ export const analyticsPath = 'analytics'
 export const serverSettingPath = 'server-setting'
 
 export const zendeskSettingPath = 'zendesk-setting'
+
+export const mailchimpSettingPath = 'mailchimp-setting'
 
 export const scopeTypePath = 'scope-type'
 

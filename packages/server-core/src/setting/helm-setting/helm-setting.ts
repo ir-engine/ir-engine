@@ -75,7 +75,7 @@ export default (app: Application): void => {
   app.use(helmMainVersionPath, {
     find: async () => {
       const versions: string[] = []
-      const response = await fetch('https://helm.ir-engine.org')
+      const response = await fetch('https://helm.etherealengine.org')
       const chart = Buffer.from(await response.arrayBuffer()).toString()
 
       const matches = chart.matchAll(MAIN_CHART_REGEX)
@@ -92,7 +92,7 @@ export default (app: Application): void => {
   app.use(helmBuilderVersionPath, {
     find: async () => {
       const versions: string[] = []
-      const response = await fetch('https://helm.ir-engine.org')
+      const response = await fetch('https://helm.etherealengine.org')
       const chart = Buffer.from(await response.arrayBuffer()).toString()
 
       const matches = chart.matchAll(BUILDER_CHART_REGEX)
