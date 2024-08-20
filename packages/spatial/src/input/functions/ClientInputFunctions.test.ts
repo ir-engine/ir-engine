@@ -360,7 +360,7 @@ describe('ClientInputFunctions', () => {
         assert.equal(result, false)
       })
 
-      it('should modify the dragging property of PrimaryClick when PrimaryClick.downPosition is (1,1,1)', () => {
+      it('should modify the dragging property of PrimaryClick when PrimaryClick.downPosition is not (0,0,0)', () => {
         const Btn = MouseButton.PrimaryClick
         const ev = {} as PointerEvent
 
@@ -390,7 +390,7 @@ describe('ClientInputFunctions', () => {
         assert.equal(result, true)
       })
 
-      it('should modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is (1,1,1)', () => {
+      it('should modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is not (0,0,0)', () => {
         const Btn = MouseButton.AuxiliaryClick
         const ev = { type: 'pointermove', button: 1 } as PointerEvent
 
@@ -420,7 +420,7 @@ describe('ClientInputFunctions', () => {
         assert.equal(result, true)
       })
 
-      it('should modify the dragging property of SecondaryClick when SecondaryClick.downPosition is (1,1,1)', () => {
+      it('should modify the dragging property of SecondaryClick when SecondaryClick.downPosition is not (0,0,0)', () => {
         const Btn = MouseButton.SecondaryClick
         const ev = { type: 'pointermove', button: 2 } as PointerEvent
 
@@ -485,17 +485,212 @@ describe('ClientInputFunctions', () => {
         assert.equal(result, true)
       })
 
-      /**
-      // @todo
-      it("should not modify the dragging property when the distance between PrimaryClick.downPosition and InputPointerComponent.position is not greater than the threshold", () => {})
-      // @todo ??
-      it("should not modify the dragging property of PrimaryClick when PrimaryClick.downPosition is (0,0,0)", () => {})
-      it("should not modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is (0,0,0)", () => {})
-      it("should not modify the dragging property of SecondaryClick when SecondaryClick.downPosition is (0,0,0)", () => {})
-      it("should modify the dragging property of PrimaryClick when PrimaryClick.downPosition is (1,1,1)", () => {})
-      it("should modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is (1,1,1)", () => {})
-      it("should modify the dragging property of SecondaryClick when SecondaryClick.downPosition is (1,1,1)", () => {})
-      */
+      it('should not modify the dragging property when the distance between PrimaryClick.downPosition and InputPointerComponent.position is not greater than the threshold', () => {
+        const Btn = MouseButton.PrimaryClick
+        const ev = {} as PointerEvent
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 123, cameraEntity: UndefinedEntity })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(new Vector2(0, 0))
+
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(0, 0, 0),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+        })
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, false)
+      })
+
+      it('should not modify the dragging property of PrimaryClick when PrimaryClick.downPosition is (pointer.position.x, pointer.position.y, 0)', () => {
+        const Btn = MouseButton.PrimaryClick
+        const ev = {} as PointerEvent
+        const Position = new Vector2(42, 42)
+        const DownPosition = new Vector3(Position.x, Position.y, 0)
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: { pressed: true, downPosition: DownPosition, dragging: false } as ButtonState,
+          [MouseButton.AuxiliaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.SecondaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState
+        })
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, false)
+      })
+
+      it('should not modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is (pointer.position.x, pointer.position.y, 0)', () => {
+        const Btn = MouseButton.AuxiliaryClick
+        const ev = {} as PointerEvent
+        const Position = new Vector2(42, 42)
+        const DownPosition = new Vector3(Position.x, Position.y, 0)
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.AuxiliaryClick]: { pressed: true, downPosition: DownPosition, dragging: false } as ButtonState,
+          [MouseButton.SecondaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState
+        })
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, false)
+      })
+
+      it('should not modify the dragging property of SecondaryClick when SecondaryClick.downPosition is (pointer.position.x, pointer.position.y, 0)', () => {
+        const Btn = MouseButton.SecondaryClick
+        const ev = {} as PointerEvent
+        const Position = new Vector2(42, 42)
+        const DownPosition = new Vector3(Position.x, Position.y, 0)
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.AuxiliaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.SecondaryClick]: { pressed: true, downPosition: DownPosition, dragging: false } as ButtonState
+        })
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, false)
+      })
+
+      it('should modify the dragging property of PrimaryClick when PrimaryClick.downPosition is not (pointer.position.x, pointer.position.y, 0)', () => {
+        const Btn = MouseButton.PrimaryClick
+        const ev = {} as PointerEvent
+        const Position = new Vector2(42, 42)
+        const DownPosition = new Vector3(1, 1, 0)
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 123, cameraEntity: UndefinedEntity })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: DownPosition,
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+        })
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, true)
+      })
+
+      it('should modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is not (pointer.position.x, pointer.position.y, 0)', () => {
+        const Btn = MouseButton.AuxiliaryClick
+        const ev = { type: 'pointermove', button: 1 } as PointerEvent
+        const Position = new Vector2(42, 42)
+        const DownPosition = new Vector3(1, 1, 0)
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 123, cameraEntity: UndefinedEntity })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: DownPosition,
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+        })
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, true)
+      })
+
+      it('should modify the dragging property of SecondaryClick when SecondaryClick.downPosition is not (pointer.position.x, pointer.position.y, 0)', () => {
+        const Btn = MouseButton.SecondaryClick
+        const ev = { type: 'pointermove', button: 2 } as PointerEvent
+        const Position = new Vector2(42, 42)
+        const DownPosition = new Vector3(1, 1, 0)
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 123, cameraEntity: UndefinedEntity })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: DownPosition,
+            dragging: false
+          } as ButtonState
+        })
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, true)
+      })
     })
   })
 
