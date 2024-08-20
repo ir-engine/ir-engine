@@ -439,21 +439,14 @@ export class CSM {
   updateUniforms(): void {
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const far = Math.min(camera.far, this.maxFar)
-    const breaks = this.getExtendedBreaks()
 
     for (const [material, shader] of this.shaders.entries()) {
       const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 
       if (shader !== null) {
         const uniforms = shader.uniforms
-        uniforms.CSM_cascades.value = breaks
         uniforms.cameraNear.value = Math.min(this.maxFar, camera.near)
         uniforms.shadowFar.value = far
-      }
-
-      if (material.defines!.CSM_CASCADES !== this.cascades) {
-        material.defines!.CSM_CASCADES = this.cascades
-        material.needsUpdate = true
       }
 
       if (!this.fade && 'CSM_FADE' in material.defines!) {
