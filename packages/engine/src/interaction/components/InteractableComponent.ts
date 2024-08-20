@@ -225,7 +225,7 @@ const addInteractableUI = (entity: Entity) => {
 
 const removeInteractableUI = (entity: Entity) => {
   const interactable = getComponent(entity, InteractableComponent)
-  if (!interactable.label || interactable.label === '' || interactable.uiEntity == UndefinedEntity) return //null or empty label = no ui
+  if (interactable.uiEntity == UndefinedEntity) return //null or empty label = no ui
 
   removeEntity(interactable.uiEntity)
   getMutableComponent(entity, InteractableComponent).uiEntity.set(UndefinedEntity)
@@ -246,7 +246,7 @@ export const InteractableComponent = defineComponent({
       //TODO canInteract for grabbed state on grabbable?
       uiInteractable: true,
       uiEntity: UndefinedEntity,
-      label: null as string | null,
+      label: 'E',
       uiVisibilityOverride: XRUIVisibilityOverride.none as XRUIVisibilityOverride,
       uiActivationType: XRUIActivationType.proximity as XRUIActivationType,
       activationDistance: 2,
@@ -315,6 +315,7 @@ export const InteractableComponent = defineComponent({
         removeComponent(entity, DistanceFromCameraComponent)
         removeComponent(entity, DistanceFromLocalClientComponent)
         removeComponent(entity, BoundingBoxComponent)
+        removeInteractableUI(entity)
       }
     }, [])
 
@@ -341,9 +342,9 @@ export const InteractableComponent = defineComponent({
     useEffect(() => {
       if (!isEditing.value) {
         addInteractableUI(entity)
-        return () => {
-          removeInteractableUI(entity)
-        }
+      }
+      return () => {
+        removeInteractableUI(entity)
       }
     }, [isEditing.value])
 
