@@ -29,22 +29,23 @@ import {
   destroyEngine,
   Entity,
   getComponent,
+  getMutableComponent,
   removeEntity,
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
 import assert from 'assert'
 import sinon from 'sinon'
-import { Quaternion, Ray, Raycaster, Vector3 } from 'three'
-import { RaycastArgs } from '../../physics/classes/Physics'
+import { Vector2, Vector3 } from 'three'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
-import { ButtonState, ButtonStateMap } from '../state/ButtonState'
+import { ButtonState, ButtonStateMap, MouseButton } from '../state/ButtonState'
 import ClientInputFunctions from './ClientInputFunctions'
 import ClientInputHeuristics, { HeuristicData, HeuristicFunctions } from './ClientInputHeuristics'
+import { createHeuristicDummyData } from './ClientInputHeuristics.test'
 
 describe('ClientInputFunctions', () => {
   describe('preventDefault', () => {
@@ -190,7 +191,6 @@ describe('ClientInputFunctions', () => {
     })
   })
 
-  // intermediate
   describe('assignInputSources', () => {
     let data = {} as HeuristicData
     const heuristics = {
@@ -205,38 +205,64 @@ describe('ClientInputFunctions', () => {
 
     beforeEach(async () => {
       createEngine()
-      data = {
-        quaternion: new Quaternion(),
-        ray: new Ray(),
-        raycast: {} as RaycastArgs,
-        caster: new Raycaster(),
-        hitTarget: new Vector3()
-      } as HeuristicData
+      data = createHeuristicDummyData()
     })
 
     afterEach(() => {
       return destroyEngine()
     })
 
-    /**
-    // @todo
-    it("....", () => {
+    it("should add the `@param sourceEid` entity, and entities that have an InputSourceComponent but no TransformComponent, to the list of InputComponent.inputSources of sourceEid's parent, when capturedEntity is undefined", () => {
+      const parentEntity = createEntity()
+      setComponent(parentEntity, InputComponent)
 
+      const PointerID = 42
+      const cameraEntity = createEntity()
       const capturedEntity = UndefinedEntity
       const sourceEntity = createEntity()
       setComponent(sourceEntity, TransformComponent)
       setComponent(sourceEntity, InputSourceComponent)
-      setComponent(sourceEntity, InputPointerComponent)
+      setComponent(sourceEntity, InputPointerComponent, { pointerId: PointerID, cameraEntity: cameraEntity })
+      setComponent(cameraEntity, EntityTreeComponent, { parentEntity: parentEntity })
 
+      const otherEntity = createEntity()
+      setComponent(otherEntity, InputSourceComponent)
+
+      // Run and Check the result
       ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
-
-
+      const SourcesList = [sourceEntity, otherEntity]
       const result = getComponent(parentEntity, InputComponent).inputSources
-      for (const source of SourcesList) {
-        assert.equal(result.includes(source), true)
+      for (const entity of SourcesList) {
+        assert.equal(result.includes(entity), true)
       }
     })
-    */
+
+    it("should add the `@param sourceEid` entity, and entities that have an InputSourceComponent but no TransformComponent, to the list of InputComponent.inputSources of sourceEid's parent, when capturedEntity is a valid entity", () => {
+      const parentEntity = createEntity()
+      setComponent(parentEntity, InputComponent)
+
+      const PointerID = 42
+      const cameraEntity = createEntity()
+      const capturedEntity = createEntity()
+      setComponent(capturedEntity, InputComponent)
+
+      const sourceEntity = createEntity()
+      setComponent(sourceEntity, TransformComponent)
+      setComponent(sourceEntity, InputSourceComponent)
+      setComponent(sourceEntity, InputPointerComponent, { pointerId: PointerID, cameraEntity: cameraEntity })
+      setComponent(cameraEntity, EntityTreeComponent, { parentEntity: parentEntity })
+
+      const otherEntity = createEntity()
+      setComponent(otherEntity, InputSourceComponent)
+
+      // Run and Check the result
+      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
+      const SourcesList = [sourceEntity, otherEntity]
+      const result = getComponent(capturedEntity, InputComponent).inputSources
+      for (const entity of SourcesList) {
+        assert.equal(result.includes(entity), true)
+      }
+    })
 
     it('should call the heuristic.raycastedInput function when the `@param sourceEid` has a TransformComponent', () => {
       const spy = sinon.spy()
@@ -268,18 +294,251 @@ describe('ClientInputFunctions', () => {
       ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
       assert.equal(spy.callCount, 1)
     })
-
-    /**
-    // @todo create a sorted array from the intersection data
-    // @todo should add
-    */
   })
 
-  /**
-  // @todo very branchy
-  describe('updatePointerDragging', () => {})
-  describe('updateGamepadInput', () => {})
-  */
+  describe('updatePointerDragging', () => {
+    beforeEach(async () => {
+      createEngine()
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    describe('when the `@param pointerEntity` does not have an InputPointerComponent ...', () => {
+      it('should not modify the dragging property of PrimaryClick when PrimaryClick.downPosition is (0,0,0)', () => {
+        const Btn = MouseButton.PrimaryClick
+        const ev = {} as PointerEvent
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.AuxiliaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.SecondaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState
+        })
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, false)
+      })
+
+      it('should not modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is (0,0,0)', () => {
+        const Btn = MouseButton.AuxiliaryClick
+        const ev = { type: 'pointermove', button: 1 } as PointerEvent
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.AuxiliaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.SecondaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState
+        })
+
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, false)
+      })
+
+      it('should not modify the dragging property of SecondaryClick when SecondaryClick.downPosition is (0,0,0)', () => {
+        const Btn = MouseButton.SecondaryClick
+        const ev = { type: 'pointermove', button: 2 } as PointerEvent
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.AuxiliaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.SecondaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState
+        })
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, false)
+      })
+
+      it('should modify the dragging property of PrimaryClick when PrimaryClick.downPosition is (1,1,1)', () => {
+        const Btn = MouseButton.PrimaryClick
+        const ev = {} as PointerEvent
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+        })
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, true)
+      })
+
+      it('should modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is (1,1,1)', () => {
+        const Btn = MouseButton.AuxiliaryClick
+        const ev = { type: 'pointermove', button: 1 } as PointerEvent
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+        })
+
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, true)
+      })
+
+      it('should modify the dragging property of SecondaryClick when SecondaryClick.downPosition is (1,1,1)', () => {
+        const Btn = MouseButton.SecondaryClick
+        const ev = { type: 'pointermove', button: 2 } as PointerEvent
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+        })
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, true)
+      })
+    })
+
+    describe('when the `@param pointerEntity` has an InputPointerComponent ...', () => {
+      it('should modify the dragging property when the distance between PrimaryClick.downPosition and InputPointerComponent.position is greater than the threshold', () => {
+        const Btn = MouseButton.PrimaryClick
+        const ev = {} as PointerEvent
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 123, cameraEntity: UndefinedEntity })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(new Vector2(42, 42))
+
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+        })
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, true)
+      })
+
+      /**
+      // @todo
+      it("should not modify the dragging property when the distance between PrimaryClick.downPosition and InputPointerComponent.position is not greater than the threshold", () => {})
+      // @todo ??
+      it("should not modify the dragging property of PrimaryClick when PrimaryClick.downPosition is (0,0,0)", () => {})
+      it("should not modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is (0,0,0)", () => {})
+      it("should not modify the dragging property of SecondaryClick when SecondaryClick.downPosition is (0,0,0)", () => {})
+      it("should modify the dragging property of PrimaryClick when PrimaryClick.downPosition is (1,1,1)", () => {})
+      it("should modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is (1,1,1)", () => {})
+      it("should modify the dragging property of SecondaryClick when SecondaryClick.downPosition is (1,1,1)", () => {})
+      */
+    })
+  })
+
+  describe.skip('updateGamepadInput', () => {
+    // should set the button's downPosition property to the InputPointerComponent.position
+    it('...?', () => {
+      const pointerEntity = createEntity()
+      setComponent(pointerEntity, InputSourceComponent)
+      setComponent(pointerEntity, InputPointerComponent, { pointerId: 123, cameraEntity: UndefinedEntity })
+      getMutableComponent(pointerEntity, InputPointerComponent).position.set(new Vector2(42, 42))
+
+      const Buttons = [{ pressed: true, touched: true, value: 42 }] as GamepadButton[]
+      getMutableComponent(pointerEntity, InputSourceComponent).merge({
+        buttons: {
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+        },
+        source: {
+          gamepad: {
+            buttons: Buttons
+          } as unknown as Gamepad
+        } as XRInputSource
+      })
+
+      // Run and Check the result
+      ClientInputFunctions.updateGamepadInput(pointerEntity)
+      const result = false
+      assert.equal(result, true)
+    })
+  })
 
   /**
   // @todo After the XRUI refactor is completed
