@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers/lib'
@@ -30,21 +30,21 @@ import fs from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 
-import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { routePath, RouteType } from '@etherealengine/common/src/schemas/route/route.schema'
-import { deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
+import { routePath, RouteType } from '@ir-engine/common/src/schemas/route/route.schema'
+import { deleteFolderRecursive } from '@ir-engine/common/src/utils/fsHelperFunctions'
+import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
 const params = { isInternal: true } as any
 
-const cleanup = async (app: Application, projectName: string) => {
-  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+const cleanup = async (app: Application, projectName: string, projectId: string) => {
+  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${projectName.split('/')[0]}/`)
   deleteFolderRecursive(projectDir)
   try {
-    await app.service(projectPath).remove(null, { query: { name: projectName } })
+    await app.service(projectPath).remove(projectId)
   } catch (e) {
     //
   }
@@ -52,15 +52,15 @@ const cleanup = async (app: Application, projectName: string) => {
 
 const updateXREngineConfigForTest = (projectName: string, customRoute: string) => {
   const testXREngineConfig = `
-  import type { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
+  import type { ProjectConfigInterface } from '@ir-engine/projects/ProjectConfigInterface'
 
   const config: ProjectConfigInterface = {
     routes: {
       test: {
-        component: () => import('@etherealengine/client/src/pages/index'),
+        component: () => import('@ir-engine/client/src/pages/index'),
       },
       "${customRoute}": {
-        component: () => import('@etherealengine/client/src/pages/index'),
+        component: () => import('@ir-engine/client/src/pages/index'),
       }
     },
   }
@@ -80,6 +80,7 @@ describe('route.test', () => {
   let app: Application
   let testProject: string
   let testRoute: string
+  let testProjectId: string
 
   before(async () => {
     app = createFeathersKoaApp()
@@ -87,15 +88,15 @@ describe('route.test', () => {
   })
 
   after(async () => {
-    await cleanup(app, testProject)
+    await cleanup(app, testProject, testProjectId)
     await destroyEngine()
   })
 
   it('should find the installed project routes', async () => {
-    testProject = `test-project-${uuidv4()}`
+    testProject = `@org1/test-project-${uuidv4()}`
     testRoute = `test-route-${uuidv4()}`
 
-    await app.service(projectPath).create({ name: testProject }, params)
+    testProjectId = await (await app.service(projectPath).create({ name: testProject }, params)).id
     updateXREngineConfigForTest(testProject, testRoute)
 
     const installedRoutes = await app.service('routes-installed').find()
