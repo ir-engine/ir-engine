@@ -54,6 +54,7 @@ import {
   TaskServerSettingType
 } from '@ir-engine/common/src/schemas/setting/task-server-setting.schema'
 
+import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
 import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
 import appConfig from './appconfig'
 import logger from './ServerLogger'
@@ -295,6 +296,22 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read zendesk setting: ${e.message}`)
     })
   promises.push(zendeskSettingPromise)
+
+  const mailchimpSettingPromise = knexClient
+    .select()
+    .from<MailchimpSettingType>(mailchimpSettingPath)
+    .then(([dbMailchimp]) => {
+      if (dbMailchimp) {
+        appConfig.mailchimp = {
+          ...appConfig.mailchimp,
+          ...dbMailchimp
+        }
+      }
+    })
+    .catch((e) => {
+      logger.error(e, `[updateAppConfig]: Failed to read mailchimp setting: ${e.message}`)
+    })
+  promises.push(mailchimpSettingPromise)
 
   await Promise.all(promises)
 }
