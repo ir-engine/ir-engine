@@ -52,7 +52,7 @@ let serverCoreSrc = '../server-core/src'
 if (currentFolderName === 'server-core') {
   serverCoreSrc = './src'
 } else if (currentDirectory.includes('projects/projects')) {
-  serverCoreSrc = '../../../server-core/src'
+  serverCoreSrc = '../../../../server-core/src'
 } else {
   serverCoreSrc = path.join(appRootPath.path, '/packages/server-core/src')
 }
