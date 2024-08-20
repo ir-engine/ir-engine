@@ -35,7 +35,6 @@ import { ScriptComponent } from '@ir-engine/engine'
 import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
 import InputGroup from '../../input/Group'
 import ScriptInput from '../../input/Script'
-import StringInput from '../../input/String'
 import { NodeEditor } from '../nodeEditor'
 
 export const ScriptNodeEditor: EditorComponentType = (props) => {
@@ -50,28 +49,19 @@ export const ScriptNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.script.description')}
       icon={<ScriptNodeEditor.iconComponent />}
     >
-      <InputGroup
-        name={t('editor:properties.script.lbl-scriptName')}
-        label={t('editor:properties.script.lbl-scriptName')}
-      >
-        <StringInput
-          value={scriptComponent.scriptName.value}
-          onChange={commitProperty(ScriptComponent, 'scriptName')}
-        />
+      <InputGroup name={t('editor:properties.script.lbl-disabled')} label={t('editor:properties.script.lbl-disabled')}>
+        <BooleanInput value={scriptComponent.disabled.value} onChange={commitProperty(ScriptComponent, 'disabled')} />
       </InputGroup>
-
       <InputGroup
         name={t('editor:properties.script.lbl-scriptPath')}
         label={t('editor:properties.script.lbl-scriptPath')}
       >
-        <ScriptInput
-          value={scriptComponent.scriptPath.value}
-          onChange={commitProperty(ScriptComponent, 'scriptPath')}
-        />
+        <ScriptInput value={scriptComponent.src.value} onChange={commitProperty(ScriptComponent, 'src')} />
       </InputGroup>
-      <InputGroup name={t('editor:properties.script.lbl-disabled')} label={t('editor:properties.script.lbl-disabled')}>
-        <BooleanInput value={scriptComponent.disabled.value} onChange={commitProperty(ScriptComponent, 'disabled')} />
+      <InputGroup name={t('editor:properties.script.lbl-async')} label={t('editor:properties.script.lbl-async')}>
+        <BooleanInput value={scriptComponent.async.value} onChange={commitProperty(ScriptComponent, 'async')} />
       </InputGroup>
+
       <InputGroup name={t('editor:properties.script.lbl-run')} label={t('editor:properties.script.lbl-run')}>
         <BooleanInput value={scriptComponent.run.value} onChange={commitProperty(ScriptComponent, 'run')} />
       </InputGroup>

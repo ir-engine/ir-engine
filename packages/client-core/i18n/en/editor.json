@@ -1084,6 +1084,7 @@
       "name": "Script Component",
       "description": " adds a script to the entity",
       "lbl-scriptName": "Script name",
+      "lbl-async": "Async Script",
       "lbl-scriptPath": "Script path",
       "lbl-disabled": "Disable Script",
       "lbl-run": "Play Script"

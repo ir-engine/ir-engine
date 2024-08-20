@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { cleanStorageProviderURLs } from '@ir-engine/common/src/utils/parseSceneJSON'
 import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { useEffect } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
 export const ScriptComponent = defineComponent({
   name: 'ScriptComponent',
@@ -33,8 +34,8 @@ export const ScriptComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      scriptName: '',
-      scriptPath: '',
+      uuid: '',
+      src: '', // default path is in the scripts directory
       async: false,
       run: false,
       disabled: false
@@ -43,8 +44,7 @@ export const ScriptComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      scriptName: component.scriptName.value,
-      scriptPath: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.scriptPath.get({ noproxy: true })))),
+      src: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.src.get({ noproxy: true })))),
       async: component.async.value,
       run: false,
       disabled: component.disabled.value
@@ -56,8 +56,7 @@ export const ScriptComponent = defineComponent({
     if (typeof json.disabled === 'boolean') component.disabled.set(json.disabled)
     if (typeof json.run === 'boolean') component.run.set(json.run)
     if (typeof json.async === 'boolean') component.async.set(json.async)
-    if (typeof json.scriptPath === 'string') component.scriptPath.set(json.scriptPath)
-    if (typeof json.scriptName === 'string') component.scriptName.set(json.scriptName)
+    if (typeof json.src === 'string') component.src.set(json.src)
   },
 
   // we make reactor for each component handle the engine
@@ -66,40 +65,34 @@ export const ScriptComponent = defineComponent({
     const scriptComponent = useComponent(entity, ScriptComponent)
 
     useEffect(() => {
-      let script: HTMLScriptElement | null = document.querySelector(`script[src="${scriptComponent.scriptPath.value}"]`)
-      if (script || scriptComponent.disabled.value) return
-      script = document.createElement('script')
-      script.src = scriptComponent.scriptPath.value
-      script.async = scriptComponent.async.value
-      script.setAttribute('name', scriptComponent.scriptName.value)
-
-      script.onload = () => {
-        console.log(`Script ${scriptComponent.scriptName.value} loaded successfully.`)
-      }
-
-      document.body.appendChild(script)
-      return () => {
-        document.body.removeChild(script as HTMLScriptElement)
-        script = null // manually discard script ( its not needed though, javasript will automatically garbage collect it)
-      }
-    }, [scriptComponent.scriptPath, scriptComponent.disabled])
+      if (scriptComponent.disabled.value) return
+      const script: HTMLScriptElement | null = document.querySelector(`script[id="${scriptComponent.uuid.value}"]`)
+      if (!script) return
+      script.src = scriptComponent.src.value
+    }, [scriptComponent.src])
 
     useEffect(() => {
-      const script: HTMLScriptElement | null = document.querySelector(
-        `script[src="${scriptComponent.scriptName.value}"]`
-      )
+      if (scriptComponent.disabled.value) return
+      const script: HTMLScriptElement | null = document.querySelector(`script[id="${scriptComponent.uuid.value}"]`)
       if (!script) return
       script.async = scriptComponent.async.value
     }, [scriptComponent.async])
 
     useEffect(() => {
-      const script = document.querySelector(`script[src="${scriptComponent.scriptName.value}"]`)
-      if (!script) return
-      script.setAttribute('name', scriptComponent.scriptName.value)
-    }, [scriptComponent.scriptName])
-
-    useEffect(() => {
       if (scriptComponent.disabled.value) return
+      let script: HTMLScriptElement | null = document.querySelector(`script[id="${scriptComponent.uuid.value}"]`)
+      if (!script) {
+        script = document.createElement('script')
+        script.id = uuidv4()
+        scriptComponent.uuid.set(script.id)
+      }
+      if (!scriptComponent.run.value) return
+      script.src = scriptComponent.src.value
+      script.async = scriptComponent.async.value
+      document.body.appendChild(script)
+      return () => {
+        document.body.removeChild(script)
+      }
     }, [scriptComponent.run])
   }
 })
