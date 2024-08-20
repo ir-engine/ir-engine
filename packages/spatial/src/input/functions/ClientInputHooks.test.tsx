@@ -35,6 +35,7 @@ import {
   UndefinedEntity
 } from '@ir-engine/ecs'
 import { getMutableState, getState, ReactorRoot, startReactor } from '@ir-engine/hyperflux'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
@@ -1156,8 +1157,7 @@ describe('ClientInputHooks', () => {
       assert.equal(result.has(testEntity), false)
     })
 
-    // @todo Seems like useAncestorWithComponent is not working as expected?
-    it.skip('should trigger whenever the entityContext.ancestor gets or removes its InputComponent', async () => {
+    it('should trigger whenever the entityContext.ancestor gets or removes its InputComponent', async () => {
       const before = getState(InputState).inputMeshes
       assert.equal(before.has(testEntity), false)
 
@@ -1171,32 +1171,25 @@ describe('ClientInputHooks', () => {
       assert.equal(before.has(testEntity), false)
 
       // Setup the reactor
-      const root = startReactor(() => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: testEntity },
-          React.createElement(ClientInputHooks.MeshInputReactor, {})
-        )
-      }) as ReactorRoot
+      const Reactor = React.createElement(
+        EntityContext.Provider,
+        { value: testEntity },
+        React.createElement(ClientInputHooks.MeshInputReactor, {})
+      )
 
-      // @bug Triggers the reactor, but it doesn't enter the useImmediateEffect
-      //  because neither entityContext or the component have changed
-      //  useAncestorWithComponent always returns the same value as it did the first time it was run
-      root.run()
-      // const { rerender, unmount } = render(<></>)
-      // await act(() => rerender(<></>))
+      const { rerender, unmount } = render(Reactor)
+      await act(() => rerender(Reactor))
 
       // Check the result
       const one = getState(InputState).inputMeshes
-      assert.equal(one.has(parentEntity), true)
+      assert.equal(one.has(testEntity), true)
 
       removeComponent(parentEntity, InputComponent)
-      // await act(() => rerender(<></>))
-      root.run()
+      await act(() => rerender(Reactor))
       const two = getState(InputState).inputMeshes
-      assert.equal(two.has(parentEntity), false)
+      assert.equal(two.has(testEntity), false)
 
-      // unmount()
+      unmount()
     })
   })
 
@@ -1239,7 +1232,7 @@ describe('ClientInputHooks', () => {
       assert.equal(before.has(testEntity), true)
 
       // Run the reactor and check the result
-      const root = startReactor(() => {
+      const Reactor = startReactor(() => {
         return React.createElement(
           EntityContext.Provider,
           { value: testEntity },
@@ -1250,9 +1243,39 @@ describe('ClientInputHooks', () => {
       assert.equal(result.has(testEntity), false)
     })
 
-    /**
-    // @todo After ClientInputHooks.MeshInputReactor bug/setup has been fixed
-    it("should trigger whenever the entityContext.ancestor gets or removes its InputComponent", () => {})
-    */
+    it('should trigger whenever the entityContext.ancestor gets or removes its InputComponent', async () => {
+      const before = getState(InputState).inputMeshes
+      assert.equal(before.has(testEntity), false)
+
+      // Create the ancestor entity that contains the InputComponent
+      const parentEntity = createEntity()
+      setComponent(parentEntity, InputComponent)
+      setComponent(parentEntity, EntityTreeComponent)
+
+      // setComponent(testEntity, InputComponent)
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+      assert.equal(before.has(testEntity), false)
+
+      // Setup the reactor
+      const Reactor = React.createElement(
+        EntityContext.Provider,
+        { value: testEntity },
+        React.createElement(ClientInputHooks.BoundingBoxInputReactor, {})
+      )
+
+      const { rerender, unmount } = render(Reactor)
+      await act(() => rerender(Reactor))
+
+      // Check the result
+      const one = getState(InputState).inputBoundingBoxes
+      assert.equal(one.has(testEntity), true)
+
+      removeComponent(parentEntity, InputComponent)
+      await act(() => rerender(Reactor))
+      const two = getState(InputState).inputBoundingBoxes
+      assert.equal(two.has(testEntity), false)
+
+      unmount()
+    })
   })
 })
