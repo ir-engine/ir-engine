@@ -43,13 +43,20 @@ import { userSeeds } from './user/seeder-config'
 const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
   ? fs
       .readdirSync(path.resolve(__dirname, '../../projects/projects'), { withFileTypes: true })
-      .filter((dirent) => dirent.isDirectory())
-      .map((dirent) => {
+      .filter((orgDir) => orgDir.isDirectory())
+      .map((orgDir) => {
+        return fs
+          .readdirSync(path.resolve(__dirname, '../../projects/projects', orgDir.name), { withFileTypes: true })
+          .filter((projectDir) => projectDir.isDirectory())
+          .map((projectDir) => `${orgDir.name}/${projectDir.name}`)
+      })
+      .flat()
+      .map((projectName) => {
         try {
-          const configPath = `../../projects/projects/${dirent.name}/xrengine.config.ts`
+          const configPath = `../../projects/projects/${projectName}/xrengine.config.ts`
           const config: ProjectConfigInterface = require(configPath).default
           if (!config.databaseSeed) return null
-          return path.join(dirent.name, config.databaseSeed)
+          return path.join(projectName, config.databaseSeed)
         } catch (e) {
           // console.log(e)
         }
