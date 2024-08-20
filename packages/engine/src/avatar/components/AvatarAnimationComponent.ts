@@ -293,9 +293,6 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
     // if (!getComponent(entity, BoneComponent)) return
     const boneComponent = getOptionalComponent(entity, BoneComponent) || getComponent(entity, TransformComponent)
     boneComponent?.matrixWorld.identity()
-    if (entity != hipsEntity) {
-      boneComponent.matrixWorld.makeRotationZ(Math.PI)
-    }
 
     const name = getComponent(entity, NameComponent)
     /**match the keys to create a humanoid bones object */
@@ -307,7 +304,6 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
     if (boneName.includes(':')) boneName = boneName.replace(':', '')
 
     const bone = mixamoVRMRigMap[boneName] as string
-    console.log({ name, boneName, removeSuffix, bone, mixamoVRMRigMap })
     if (bone) {
       bones[bone] = { node: getComponent(entity, BoneComponent) } as VRMHumanBone
     }
