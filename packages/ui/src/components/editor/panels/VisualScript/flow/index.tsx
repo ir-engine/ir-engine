@@ -35,7 +35,7 @@ import {
 import { useSelectionHandler } from '@ir-engine/editor/src/components/visualScript/hooks/useSelectionHandler'
 import { useTemplateHandler } from '@ir-engine/editor/src/components/visualScript/hooks/useTemplateHandler'
 import { useVariableHandler } from '@ir-engine/editor/src/components/visualScript/hooks/useVariableHandler'
-import { useVisualScriptRunner } from '@ir-engine/engine/src/visualscript/systems/useVisualScriptRunner'
+import { useVisualScriptRunner } from '@ir-engine/engine/src/script/visual/systems/useVisualScriptRunner'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { GraphJSON, IRegistry } from '@ir-engine/visual-script'
 import Button from '../../../../../primitives/tailwind/Button'
