@@ -27,8 +27,6 @@ Ethereal Engine. All Rights Reserved.
 import type { StorybookConfig } from '@storybook/react-vite'
 import { mergeConfig } from 'vite'
 
-const host = process.env['VITE_APP_HOST']
-
 const config: StorybookConfig = {
   env: (config) => ({
     ...config,
@@ -36,7 +34,13 @@ const config: StorybookConfig = {
       path: '../../.env.local'
     }).parsed
   }),
-  stories: ['../src/primitives/**/*.stories.@(js|jsx|ts|tsx)'],
+  typescript: {
+    reactDocgen: false
+  },
+  stories: [
+    '../src/primitives/tailwind/**/*.stories.@(js|jsx|ts|tsx)',
+    '../src/components/editor/**/*.stories.@(js|jsx|ts|tsx)'
+  ],
   addons: [
     getAbsolutePath('@storybook/addon-links'),
     getAbsolutePath('@storybook/addon-toolbars'),
