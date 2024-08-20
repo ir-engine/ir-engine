@@ -1073,6 +1073,20 @@
       "lbl-performerURL": "Performer URL",
       "lbl-asset": "Asset",
       "assets": "Assets"
+    },
+    "visualScript":{
+      "name": "'Visual Script Component'",
+      "description": "Adds a visual script to the entity",
+      "lbl-disabled": "Disable Visual Script",
+      "lbl-run": "Play Visual Script"
+    },
+    "script":{
+      "name": "Script Component",
+      "description": " adds a script to the entity",
+      "lbl-scriptName": "Script name",
+      "lbl-scriptPath": "Script path",
+      "lbl-disabled": "Disable Script",
+      "lbl-run": "Play Script"
     }
   },
   "projects": {

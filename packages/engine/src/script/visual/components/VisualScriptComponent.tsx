@@ -79,7 +79,6 @@ export const VisualScriptComponent = defineComponent({
     }
   },
 
-  // we make reactor for each component handle the engine
   reactor: () => {
     const entity = useEntityContext()
     const visualScript = useComponent(entity, VisualScriptComponent)

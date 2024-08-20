@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { Component } from '@ir-engine/ecs'
-import { VisualScriptComponent } from '@ir-engine/engine'
+import { ScriptComponent, VisualScriptComponent } from '@ir-engine/engine'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/interaction/components/GrabbableComponent'
@@ -103,7 +103,7 @@ export const ComponentShelfCategoriesState = defineState({
         HemisphereLightComponent
       ],
       FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
-      Scripting: [],
+      Scripting: [ScriptComponent],
       Settings: [
         SceneSettingsComponent,
         RenderSettingsComponent,

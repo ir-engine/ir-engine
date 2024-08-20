@@ -23,16 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-/** World Module */
-import '@ir-engine/spatial'
+import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { CustomScriptFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
+import React from 'react'
+import FileBrowserInput from '../FileBrowser'
+import { StringInputProps } from '../String'
 
-export * from './FeatureFlagsState'
-export * from './avatar/AvatarModule'
-export * from './interaction/InteractionModule'
-export * from './interaction/MediaModule'
-export * from './mocap/MocapModule'
-export * from './postprocessing/PopulateEffectRegistry'
-export * from './recording/RecordingModule'
-export * from './scene/SceneModule'
-export * from './script/ScriptComponent'
-export * from './script/visual/VisualScriptModule'
+export function ScriptInput({ ...rest }: StringInputProps) {
+  return <FileBrowserInput acceptFileTypes={CustomScriptFileTypes} acceptDropItems={ItemTypes.Scripts} {...rest} />
+}
+
+export default ScriptInput
