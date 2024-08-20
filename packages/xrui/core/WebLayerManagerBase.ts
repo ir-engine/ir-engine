@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { compress, decompress } from 'fflate'
-import { Packr, Unpackr } from 'msgpackr'
 import { Matrix4 } from 'three'
 
 import { getBorder, getBounds, getMargin, getPadding, parseCSSTransform } from './dom-utils'
@@ -93,61 +92,8 @@ export class WebLayerManagerBase {
 
   ktx2Encoder = new KTX2Encoder()
 
-  private _packr = new Packr({ structuredClone: true })
-  private _unpackr = new Unpackr({ structuredClone: true })
-
-  async importCache(url: string) {
-    try {
-      const response = await fetch(url)
-      const zipped = await response.arrayBuffer()
-      const buffer = await new Promise<Uint8Array>((resolve, reject) => {
-        decompress(new Uint8Array(zipped), { consume: true }, (err, data) => {
-          if (err) return reject(err)
-          resolve(data)
-        })
-      })
-      const data: { stateData: StateStoreData[]; textureData: TextureStoreData[] } = this._unpackr.unpack(buffer)
-      data.textureData = data.textureData.filter((t) => t && t.hash && t.texture)
-      console.log(
-        `Importing weblayer cache data from ${url} with ` +
-          data.stateData.length +
-          ' states and ' +
-          data.textureData.length +
-          ' textures'
-      )
-      console.log(data)
-      return this.loadIntoStore(data)
-    } catch (err) {
-      console.warn('Failed to import cache', err)
-    }
-  }
-
   getActiveStateHashes() {
     return Array.from(this._stateData.keys()).filter((k) => typeof k === 'string') as StateHash[]
-  }
-
-  /**
-   * Export a cache file for the given state hashes
-   * @param states by default all active states are exported
-   * @returns
-   */
-  async exportCache(states: StateHash[] = this.getActiveStateHashes()) {
-    const stateData = (await this.store.states.bulkGet(states)) as StateStoreData[]
-
-    let textureData = (await this.store.textures.bulkGet(
-      stateData.map((v) => v.textureHash).filter((v) => typeof v === 'string') as TextureHash[]
-    )) as TextureStoreData[]
-    textureData = textureData.filter((v) => v && typeof v.hash === 'string' && v.texture)
-
-    const data = { stateData, textureData }
-    const buffer = this._packr.pack(data)
-
-    return new Promise<Blob>((resolve, reject) => {
-      compress(buffer, { consume: true }, (err, data) => {
-        if (err) return reject(err)
-        resolve(new Blob([data.buffer]))
-      })
-    })
   }
 
   getLayerState(hash: StateHash | HTMLMediaElement) {

@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import Dexie, { Table } from 'dexie'
+import { compress, decompress } from 'fflate'
+import { Packr, Unpackr } from 'msgpackr'
 import { Matrix4 } from 'three'
 import { Bounds } from './classes/Bounds'
 import { Edges } from './classes/Edges'
@@ -45,39 +47,29 @@ export interface StateData {
   textureWidth: number
   textureHeight: number
   renderAttempts: number
-  texture?: TextureData
   pseudo: {
     hover: boolean
     active: boolean
     focus: boolean
     target: boolean
   }
-  data: TextureStoreData
-}
-
-export interface TextureData {
-  canvas?: HTMLCanvasElement
-  ktx2Url?: string
-  data: TextureStoreData
-}
-
-export interface StateStoreData {
   hash: StateHash
   textureHash?: TextureHash
 }
-export interface TextureStoreData {
+
+export interface TextureData {
   hash: TextureHash
   timestamp: number
+  canvas?: HTMLCanvasElement
+  ktx2Url?: string
   texture?: Uint8Array
 }
 
 export class XRUILayerStore extends Dexie {
-  states!: Table<StateStoreData>
+  states!: Table<StateData>
   textures!: Table<TextureStoreData>
 
-  _unsavedTextureData = new Map<TextureHash, TextureStoreData>()
-  _stateData = new Map<StateHash | HTMLMediaElement, StateData>()
-  _textureData = new Map<TextureHash, TextureData>()
+  _unsavedTextureData = [] as TextureHash[]
   imagePool = [] as Array<HTMLImageElement>
 
   constructor() {
@@ -102,51 +94,129 @@ export const XRUILayerState = defineState({
 
   reactor: () => {},
 
-  saveStore() {
+  async saveStore() {
     const state = getState(XRUILayerState)
-    const stateData = Array.from(Object.entries(state.states))
-      .filter(([k, v]) => typeof k === 'string')
-      .map(([k, v]) => {
-        const texture = state.textures[v.textureHash ?? '']
-        return { hash: k as string, textureHash: texture.hash }
-      })
-    const textureData = Array.from(this._unsavedTextureData.values())
-    this._unsavedTextureData.clear()
-    return XRUILayerState.loadIntoStore({
-      stateData: state.states,
-      textureData
-    })
+    const textureData = state.store._unsavedTextureData.map((v) => state.textures[v])
+    state.store._unsavedTextureData.length = 0
+    return XRUILayerState.loadIntoStore(state.states, Object.fromEntries(textureData.map((v) => [v.hash, v])))
   },
+
+  async loadIntoStore(
+    stateData: Record<StateHash, StateStoreData>,
+    textureData: Record<TextureHash, TextureStoreData>
+  ) {
+    const state = getMutableState(XRUILayerState)
+    // load into textureData
+    state.states.merge(stateData)
+    state.textures.merge(textureData)
+    // load into db
+    return Promise.all([state.store.states.value.bulkPut(stateData), state.store.textures.value.bulkPut(textureData)])
+  },
+
   /**
    * Export the cache data for this
    */
-  downloadStoreCache() {
-    await XRUILayerState.saveIntoStore()
-    const blob = await XRUILayerState.exportCache()
-    const path = location.pathname.split('/').filter((x) => x)
-    downloadBlob(blob, 'web.' + location.host + '.' + (path[path.length - 1] ?? '') + '.cache')
+  // async downloadStoreCache() {
+  //   await XRUILayerState.saveStore()
+  //   const blob = await XRUILayerState.exportCache()
+  //   const path = location.pathname.split('/').filter((x) => x)
+  //   downloadBlob(blob, 'web.' + location.host + '.' + (path[path.length - 1] ?? '') + '.cache')
+  // },
+
+  /**
+   * Export a cache file for the given state hashes
+   * @param states by default all active states are exported
+   * @returns
+   */
+  async exportCache(states: StateHash[] = this.getActiveStateHashes()) {
+    const stateData = (await this.store.states.bulkGet(states)) as StateStoreData[]
+
+    let textureData = (await this.store.textures.bulkGet(
+      stateData.map((v) => v.textureHash).filter((v) => typeof v === 'string') as TextureHash[]
+    )) as TextureStoreData[]
+    textureData = textureData.filter((v) => v && typeof v.hash === 'string' && v.texture)
+
+    const data = {
+      states: Object.fromEntries(stateData.map((v) => [v.hash, v])),
+      textureData: Object.fromEntries(textureData.map((v) => [v.hash, v]))
+    }
+    const buffer = this._packr.pack(data)
+
+    return new Promise<Blob>((resolve, reject) => {
+      compress(buffer, { consume: true }, (err, data) => {
+        if (err) return reject(err)
+        resolve(new Blob([data.buffer]))
+      })
+    })
   },
 
-  loadIntoStore(data: { stateData: StateStoreData[]; textureData: TextureStoreData[] }) {
-    // load into this._textureData
-    for (const t of data.textureData) {
-      const texture = this._textureData.get(t.hash) || {
-        hash: t.hash,
+  async importCache(url: string) {
+    try {
+      const response = await fetch(url)
+      const zipped = await response.arrayBuffer()
+      const buffer = await new Promise<Uint8Array>((resolve, reject) => {
+        decompress(new Uint8Array(zipped), { consume: true }, (err, data) => {
+          if (err) return reject(err)
+          resolve(data)
+        })
+      })
+      const data = this._unpackr.unpack(buffer) as {
+        states: Record<StateHash, StateStoreData>
+        textures: Record<TextureHash, TextureStoreData>
+      }
+
+      data.textureData = data.textureData.filter((t) => t && t.hash && t.texture)
+      return XRUILayerState.loadIntoStore(data)
+    } catch (err) {
+      console.warn('Failed to import cache', err)
+    }
+  },
+
+  getActiveStateHashes() {
+    return Object.keys(getState(XRUILayerState).states)
+  },
+
+  getLayerState(hash: StateHash | HTMLMediaElement) {
+    let data = this._stateData.get(hash)
+    if (!data) {
+      data = {
+        cssTransform: undefined,
+        bounds: new Bounds(),
+        margin: new Edges(),
+        padding: new Edges(),
+        border: new Edges(),
+        fullWidth: 0,
+        fullHeight: 0,
+        renderAttempts: 0,
+        textureWidth: 32,
+        textureHeight: 32,
+        pixelRatio: 1,
+        texture: undefined!,
+        pseudo: {
+          hover: false,
+          active: false,
+          focus: false,
+          target: false
+        }
+      }
+      this._stateData.set(hash, data)
+    }
+    return data
+  },
+
+  getTextureState(textureHash: TextureHash) {
+    let data = this._textureData.get(textureHash)
+    if (!data) {
+      data = {
+        hash: textureHash,
         canvas: undefined,
         ktx2Url: undefined
       }
-      if (!texture.ktx2Url && t.texture)
-        texture.ktx2Url = URL.createObjectURL(new Blob([t.texture], { type: 'image/ktx2' }))
+      this._textureData.set(textureHash, data)
     }
-    // load into this._stateData
-    for (const s of data.stateData) {
-      const state = this.getLayerState(s.hash)
-      if (!state.texture && s.textureHash) {
-        const textureData = this._textureData.get(s.textureHash)
-        state.texture = textureData
-      }
-    }
-    // load into db
-    return Promise.all([this.store.states.bulkPut(data.stateData), this.store.textures.bulkPut(data.textureData)])
+    return data
   }
 })
+
+const _packr = new Packr({ structuredClone: true })
+const _unpackr = new Unpackr({ structuredClone: true })
