@@ -421,7 +421,11 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
   const rootEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
   useEffect(() => {
-    if (animationState.length !== documentState.value?.animations?.length) return
+    if (
+      animationState.length !== documentState.value?.animations?.length ||
+      hasComponent(rootEntity, AnimationComponent)
+    )
+      return
 
     const hasObject3d = hasComponent(rootEntity, Object3DComponent)
     if (!hasObject3d) {

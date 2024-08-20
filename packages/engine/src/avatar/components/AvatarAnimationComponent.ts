@@ -203,8 +203,6 @@ export const AvatarRigComponent = defineComponent({
 const _rightHandPos = new Vector3(),
   _rightUpperArmPos = new Vector3()
 
-const flip = new Matrix4().makeRotationFromEuler(new Euler(0, Math.PI, 0))
-
 export default function createVRM(rootEntity: Entity) {
   const documentID = GLTFComponent.getInstanceID(rootEntity)
   const gltf = getState(GLTFDocumentState)[documentID]
