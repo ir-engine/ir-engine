@@ -34,7 +34,7 @@ import { useMutableState } from '@ir-engine/hyperflux'
 import { useAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GraphJSON, IRegistry, VisualScriptState, defaultVisualScript } from '@ir-engine/visual-script'
 
-import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { GLTFComponent } from '../../../gltf/GLTFComponent'
 import { useVisualScriptRunner } from '../systems/useVisualScriptRunner'
 
 export enum VisualScriptDomain {
