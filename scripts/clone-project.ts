@@ -54,7 +54,7 @@ const cloneRepo = async () => {
 
   const [org, repo] = new URL(url).pathname.split('/').slice(1, 3)
 
-  const orgFolderPath = path.resolve(appRootPath.path, 'packages/projects/projects', '@' + org)
+  const orgFolderPath = path.resolve(appRootPath.path, 'packages/projects/projects', org)
   const orgExists = await fs.promises
     .access(orgFolderPath)
     .then(() => true)
