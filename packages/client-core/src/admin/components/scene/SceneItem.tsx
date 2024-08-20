@@ -109,7 +109,7 @@ export const SceneItem = ({
           <div className="space-between flex w-full flex-row">
             <Text component="h3" fontWeight="light" className="leading-6 text-neutral-100">
               <Tooltip title={sceneName}>
-                <div className="min-w-52 max-w-52 truncate">{sceneName}</div>
+                <div className="w-52 truncate">{sceneName}</div>
               </Tooltip>
             </Text>
           </div>
