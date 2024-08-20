@@ -81,7 +81,7 @@ function createDefaultRaycastArgs(): RaycastArgs {
   } as RaycastArgs
 }
 
-function createHeuristicDummyData(): HeuristicData {
+export function createHeuristicDummyData(): HeuristicData {
   return {
     quaternion: new Quaternion(),
     raycast: createDefaultRaycastArgs(),
@@ -230,16 +230,6 @@ describe('ClientInputHeuristics', () => {
       ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
       assert.equal(spy.callCount, 3)
     })
-
-    /**
-    // @todo Do we care about testing these?
-    // set the `@param quaternion` to the sourceEid.worldRotation
-    // set the raycast direction to ObjectDirection.Forward rotated by sourceEid.worldRotation
-    // set the `@param raycast`.direction as the origin+(direction scaled by -0.01)
-    // set the ray to go from sourceEid.origin to raycast.direction
-    // set the raycaster to go from sourceEid.origin to raycast.direction
-    // set the scene layer in the raycaster
-    */
   })
 
   describe('findBBoxes', () => {
