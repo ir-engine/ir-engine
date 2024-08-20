@@ -36,8 +36,7 @@ const avatarPath = 'avatar'
  */
 export async function up(knex: Knex): Promise<void> {
   const nameColumnExists = await knex.schema.hasColumn(projectPath, 'name')
-  const repositoryPathColumnExists = await knex.schema.hasColumn(projectPath, 'repositoryPath')
-  if (nameColumnExists && repositoryPathColumnExists) {
+  if (nameColumnExists) {
     const projects: ProjectType[] = await knex.select('*').from(projectPath)
 
     for (const project of projects) {
@@ -66,8 +65,7 @@ export async function up(knex: Knex): Promise<void> {
  */
 export async function down(knex: Knex): Promise<void> {
   const nameColumnExists = await knex.schema.hasColumn(projectPath, 'name')
-  const repositoryPathColumnExists = await knex.schema.hasColumn(projectPath, 'repositoryPath')
-  if (nameColumnExists && repositoryPathColumnExists) {
+  if (nameColumnExists) {
     const projects: ProjectType[] = await knex.select('*').from(projectPath)
 
     for (const project of projects) {
