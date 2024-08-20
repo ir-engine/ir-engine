@@ -204,6 +204,13 @@ const addInteractableUI = (entity: Entity) => {
   if (!interactable.label || interactable.label === '' || interactable.uiEntity != UndefinedEntity) return //null or empty label = no ui
 
   const uiEntity = createUI(entity, interactable.label, interactable.uiInteractable).entity
+
+  const uiTransform = getComponent(uiEntity, TransformComponent)
+  const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
+  if (boundingBox) {
+    updateBoundingBox(entity)
+    boundingBox.box.getCenter(uiTransform.position)
+  }
   getMutableComponent(entity, InteractableComponent).uiEntity.set(uiEntity)
   setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
   setComponent(uiEntity, ComputedTransformComponent, {
