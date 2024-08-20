@@ -335,7 +335,7 @@ describe('InputSourceComponent', () => {
     })
 
     /**
-    // @todo How to set `targetRaySpace` so that `if (!baseSpace)` does not throw an error?
+    // @todo After the onSet simplification PR is merged in
     it("should add an XRSpaceComponent to the entity when setting the component with a valid `targetRaySpace` value", () => {
       const data = getComponent(testEntity, InputSourceComponent)
       assertInputSourceComponentEq(data, InputSourceComponentReliableDefaults)
@@ -657,10 +657,4 @@ describe('InputSourceComponent', () => {
       assert.deepEqual(result, Expected[0])
     })
   })
-
-  /**
-  // @todo Is testing the contents of this WeakMap needed?
-  describe("entitiesByInputSource", () => {
-  }) // entitiesByInputSource
-  */
 })

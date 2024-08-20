@@ -279,7 +279,7 @@ describe('InputPointerComponent', () => {
       return destroyEngine()
     })
 
-    it.skip('should return an array of entities for which all of their InputPointerComponent.cameraEntity properties are the same entity as the `@param cameraEntity`', () => {
+    it('should return an array of entities for which all of their InputPointerComponent.cameraEntity properties are the same entity as the `@param cameraEntity`', () => {
       const cameraEntity = createEntity()
       const Dummy = { pointerId: 12356, cameraEntity: createEntity() }
       const pointerEntity1 = createEntity()
