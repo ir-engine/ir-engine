@@ -36,6 +36,7 @@ import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaSortAmountDown, FaSortAmountUpAlt } from 'react-icons/fa'
+import { FiRefreshCw } from 'react-icons/fi'
 
 const PROJECT_HISTORY_PAGE_LIMIT = 10
 
@@ -85,9 +86,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
               </Text>
             </a>
           ) : (
-            <Text className="underline-offset-4 hover:underline" fontWeight="semibold">
-              {actionDetail.locationName}
-            </Text>
+            <Text fontWeight="semibold">{actionDetail.locationName}</Text>
           )}
 
           <Text>from the scene</Text>
@@ -182,9 +181,14 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
           <Text>
             {verb} the {object}
           </Text>
-          <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
-            {relativeURL}
-          </Text>
+
+          {verb === 'created' ? (
+            <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
+              {relativeURL}
+            </Text>
+          ) : (
+            <Text fontWeight="semibold">{relativeURL}</Text>
+          )}
         </>
       )
     } else if (projectHistory.action === 'RESOURCE_RENAMED' || projectHistory.action === 'SCENE_RENAMED') {
@@ -228,6 +232,100 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
       return (
         <>
           <Text>modified the {object}</Text>
+          <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
+            {relativeURL}
+          </Text>
+        </>
+      )
+    } else if (projectHistory.action === 'TAGS_MODIFIED') {
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        url: string
+      }
+
+      const { relativeURL, resourceURL } = getResourceURL(projectName, actionDetail.url, 'resource')
+
+      return (
+        <>
+          <Text>updated the tags for </Text>
+          <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
+            {relativeURL}
+          </Text>
+        </>
+      )
+    } else if (projectHistory.action === 'THUMBNAIL_CREATED') {
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        thumbnailURL: string
+        url: string
+      }
+
+      const { relativeURL: relativeThumbnailURL, resourceURL: thumbnailResourceURL } = getResourceURL(
+        projectName,
+        actionDetail.thumbnailURL,
+        'resource'
+      )
+
+      const { relativeURL, resourceURL } = getResourceURL(projectName, actionDetail.url, 'resource')
+
+      return (
+        <>
+          <Text>created a thumbnail: </Text>
+          <Text
+            href={thumbnailResourceURL}
+            component="a"
+            fontWeight="semibold"
+            className="underline-offset-4 hover:underline"
+          >
+            {relativeThumbnailURL}
+          </Text>
+          <Text>for</Text>
+          <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
+            {relativeURL}
+          </Text>
+        </>
+      )
+    } else if (projectHistory.action === 'THUMBNAIL_MODIFIED') {
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        oldThumbnailURL: string
+        newThumbnailURL: string
+        url: string
+      }
+
+      const { relativeURL: relativeThumbnailURL, resourceURL: thumbnailResourceURL } = getResourceURL(
+        projectName,
+        actionDetail.newThumbnailURL,
+        'resource'
+      )
+
+      const { relativeURL, resourceURL } = getResourceURL(projectName, actionDetail.url, 'resource')
+
+      return (
+        <>
+          <Text>updated the thumbnail of the resource: </Text>
+          <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
+            {relativeURL}
+          </Text>
+          <Text>to</Text>
+          <Text
+            href={thumbnailResourceURL}
+            component="a"
+            fontWeight="semibold"
+            className="underline-offset-4 hover:underline"
+          >
+            {relativeThumbnailURL}
+          </Text>
+        </>
+      )
+    } else if (projectHistory.action === 'THUMBNAIL_REMOVED') {
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        url: string
+      }
+
+      const { relativeURL, resourceURL } = getResourceURL(projectName, actionDetail.url, 'resource')
+
+      return (
+        <>
+          <Text>removed the thumbnail: </Text>
+          <Text>for the resource:</Text>
           <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
             {relativeURL}
           </Text>
@@ -279,13 +377,20 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
 
   return (
     <div className="w-full flex-row justify-between gap-5 px-2">
-      <Button
-        className="mb-4"
-        onClick={toggleSortOrder}
-        endIcon={sortOrder === -1 ? <FaSortAmountDown /> : <FaSortAmountUpAlt />}
-      >
-        {sortOrder === -1 ? t('admin:components.common.newestFirst') : t('admin:components.common.oldestFirst')}
-      </Button>
+      <div className="mb-4 flex items-center justify-start gap-3">
+        <Button onClick={toggleSortOrder} endIcon={sortOrder === -1 ? <FaSortAmountDown /> : <FaSortAmountUpAlt />}>
+          {sortOrder === -1 ? t('admin:components.common.newestFirst') : t('admin:components.common.oldestFirst')}
+        </Button>
+
+        <Button
+          startIcon={<FiRefreshCw />}
+          onClick={() => {
+            projectHistoryQuery.refetch()
+          }}
+        >
+          {t('admin:components.common.refresh')}
+        </Button>
+      </div>
 
       {projectHistoryQuery.data &&
         projectHistoryQuery.data.map((projectHistory, index) => (

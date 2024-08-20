@@ -23,26 +23,43 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import * as fs from 'fs'
+import { ActionType, ActionTypes } from '@ir-engine/common/src/schemas/projects/project-history.schema'
 import type { Knex } from 'knex'
-import * as path from 'path'
 
-const sqlFilePath = path.join(__dirname, './project_triggers.sql')
+const newlyAddedActions = ['TAGS_MODIFIED', 'THUMBNAIL_CREATED', 'THUMBNAIL_MODIFIED', 'THUMBNAIL_REMOVED']
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
 export async function up(knex: Knex): Promise<void> {
-  const sql = fs.readFileSync(sqlFilePath, 'utf8')
-  await knex.raw(sql)
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const enumsToString = ActionTypes.map((action) => `'${action}'`).join(',')
+  const rawQuery = 'ALTER TABLE `project-history` MODIFY COLUMN `action` ENUM(enumsToString);'.replace(
+    'enumsToString',
+    enumsToString
+  )
+
+  await knex.raw(rawQuery)
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
 export async function down(knex: Knex): Promise<void> {
-  await knex.raw('DROP PROCEDURE IF EXISTS insert_project_history;')
-  await knex.raw('DROP TRIGGER IF EXISTS after_project_insert;')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const actionTypes = [...ActionTypes]
+  newlyAddedActions.forEach((action: ActionType) => {
+    const index = actionTypes.indexOf(action)
+    if (index > -1) {
+      actionTypes.splice(index, 1)
+    }
+  })
+
+  const enumsToString = actionTypes.map((action) => `'${action}'`).join(',')
+  const rawQuery = 'ALTER TABLE `project-history` MODIFY COLUMN `action` ENUM(enumsToString);'.replace(
+    'enumsToString',
+    enumsToString
+  )
+
+  await knex.raw(rawQuery)
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
