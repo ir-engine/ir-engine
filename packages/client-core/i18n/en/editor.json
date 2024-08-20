@@ -254,7 +254,8 @@
       "lbl-load": "Load Into Scene",
       "lbl-loadOptions": "Load Options",
       "lbl-unload": "Unload",
-      "lbl-reload": "Reload"
+      "lbl-reload": "Reload",
+      "lbl-confimation": "Prefab Created"
     },
     "persistent-anchor": {
       "name": "Persistent Anchor",

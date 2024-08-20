@@ -33,7 +33,7 @@ export default function PrefabConfirmationPanelDialog({ entity }: { entity: Enti
 
   return (
     <Modal
-      title="Prefab Created"
+      title={t('editor:properties.prefab.lbl-confimation')}
       className="w-[50vw] max-w-2xl"
       onClose={PopoverState.hidePopupover}
       closeButtonText="OK"
