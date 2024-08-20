@@ -23,13 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import logger from '@etherealengine/server-core/src/ServerLogger'
+import logger from '@ir-engine/server-core/src/ServerLogger'
 import cli from 'cli'
 import fs from 'fs'
 import Jwt from 'jsonwebtoken'
 
 cli.enable('status')
 
+/**
+ * Add following script in package.json to run this script
+ * "generate-apple-client-secret": "cross-env ts-node --swc scripts/generate-apple-client-secret.ts",
+ */
 cli.main(async () => {
   try {
     const creds = cli.parse({
