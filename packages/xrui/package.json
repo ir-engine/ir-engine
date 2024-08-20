@@ -1,6 +1,20 @@
 {
   "name": "@ir-engine/xrui",
   "version": "1.6.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/ecs.cjs",
+  "module": "./dist/ecs.js",
+  "exports": {
+    ".": {
+      "types": "./dist/ecs.d.ts",
+      "import": "./dist/ecs.js",
+      "default": "./dist/ecs.js",
+      "require": "./dist/ecs.cjs"
+    }
+  },
   "description": "A set of utilities for using DOM elements to create immerive user interfaces",
   "homepage": "https://github.com/ir-engine/ir-engine#readme",
   "keywords": [
@@ -30,12 +44,11 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "index.ts",
   "npmClient": "npm",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "build": "npm run build:worker",
-    "build:worker": "esbuild core/textures/KTX2Worker.ts --bundle --format=esm --outfile=core/textures/KTX2Worker.bundle.js --loader:.wasm=binary",
+    "build": "tsc && rimraf dist && rollup -c",
+    "build:worker": "esbuild src/textures/KTX2Worker.ts --bundle --format=esm --outfile=src/textures/KTX2Worker.bundle.js --loader:.wasm=binary",
     "test": "cross-env TEST=true mocha --config .mocharc.cjs"
   },
   "dependencies": {
@@ -47,7 +60,12 @@
   "devDependencies": {
     "@types/node": "18.15.5",
     "cross-env": "^7.0.3",
-    "esbuild": "0.17.12"
+    "esbuild": "0.17.12",
+    "rimraf": "4.4.0",
+    "rollup": "^4.20.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "typescript": "^5.4.5"
   },
   "license": "CPAL"
 }

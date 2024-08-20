@@ -23,26 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { projectsPath } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
+import { projectsPath } from '@ir-engine/common'
+import { Engine } from '@ir-engine/ecs'
 
 import { loadConfigForProject } from './loadConfigForProject'
 
-export const loadWebappInjection = async () => {
-  if (window.location.pathname.startsWith('/auth/oauth')) return []
+export const loadEngineInjection = async () => {
   const projects = await Engine.instance.api.service(projectsPath).find()
-  return (
-    await Promise.all(
-      projects.map(async (project) => {
-        try {
-          const projectConfig = (await loadConfigForProject(project))!
-          if (typeof projectConfig.webappInjection !== 'function') return null!
-          return (await projectConfig.webappInjection()).default
-        } catch (e) {
-          console.error(`Failed to import webapp load event for project ${project} with reason ${e}`)
-          return null!
-        }
-      })
-    )
-  ).filter(($) => !!$)
+  return Promise.all(
+    projects.map(async (project) => {
+      try {
+        const projectConfig = (await loadConfigForProject(project))!
+        if (typeof projectConfig.worldInjection !== 'function') return null!
+        return (await projectConfig.worldInjection()).default?.()
+      } catch (e) {
+        console.error(`Failed to import world load event for project ${project} with reason ${e}`)
+        return null!
+      }
+    })
+  )
 }

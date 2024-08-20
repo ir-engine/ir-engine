@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { CSS_URL_REGEX } from '@ir-engine/common/src/regex/index'
+import { CSS_URL_REGEX } from '@ir-engine/common'
 import { WebRenderer } from '../WebRenderer'
 import { getEmbeddedDataURL } from './getEmbeddedDataURL'
 

@@ -2,6 +2,7 @@
   "name": "@ir-engine/projects",
   "version": "1.6.0",
   "main": "index.ts",
+  "type": "module",
   "private": true,
   "description": "",
   "scripts": {},
@@ -17,5 +18,11 @@
   "bugs": {
     "url": "https://github.com/ir-engine/ir-engine/issues"
   },
-  "homepage": "https://github.com/ir-engine/ir-engine#readme"
+  "homepage": "https://github.com/ir-engine/ir-engine#readme",
+  "dependencies": {
+    "@ir-engine/common": "1.6.0",
+    "@ir-engine/server-core": "1.6.0",
+    "@ir-engine/ecs": "1.6.0",
+    "@ir-engine/engine": "1.6.0"
+  }
 }

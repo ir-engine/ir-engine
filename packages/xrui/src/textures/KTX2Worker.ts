@@ -23,11 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import BasisEncoderModuleSRC from './basis_encoder_low_memory/basis_encoder.js.txt'
 // @ts-ignore
 import BasisEncoderWASMBinary from './basis_encoder_low_memory/basis_encoder.wasm'
 import type { KTX2EncodeRequestData, KTX2EncodeResponseData } from './KTX2Encoder'
-;(0, eval)(BasisEncoderModuleSRC)
 declare const BASIS: any
 
 /**

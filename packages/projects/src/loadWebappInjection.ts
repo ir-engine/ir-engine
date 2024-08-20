@@ -23,10 +23,26 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export * from './core/WebLayer'
-export * from './core/WebRenderer'
-export * from './core/dom-utils'
-export * from './core/serialization-utils'
-export * from './core/three/WebContainer3D'
-export * from './core/three/WebLayer3D'
-export * from './core/three/WebLayerManager'
+import { projectsPath } from '@ir-engine/common'
+import { Engine } from '@ir-engine/ecs'
+
+import { loadConfigForProject } from './loadConfigForProject'
+
+export const loadWebappInjection = async () => {
+  if (window.location.pathname.startsWith('/auth/oauth')) return []
+  const projects = await Engine.instance.api.service(projectsPath).find()
+  return (
+    await Promise.all(
+      projects.map(async (project) => {
+        try {
+          const projectConfig = (await loadConfigForProject(project))!
+          if (typeof projectConfig.webappInjection !== 'function') return null!
+          return (await projectConfig.webappInjection()).default
+        } catch (e) {
+          console.error(`Failed to import webapp load event for project ${project} with reason ${e}`)
+          return null!
+        }
+      })
+    )
+  ).filter(($) => !!$)
+}

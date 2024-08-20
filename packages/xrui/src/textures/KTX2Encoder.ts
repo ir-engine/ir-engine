@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createWorkerFromCrossOriginURL } from '@ir-engine/common/src/utils/createWorkerFromCrossOriginURL'
+import { createWorkerFromCrossOriginURL } from '@ir-engine/common'
 
 import { WorkerPool } from '../WorkerPool'
 

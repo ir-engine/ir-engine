@@ -27,6 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import dts from 'rollup-plugin-dts'
 import esbuild from 'rollup-plugin-esbuild'
 import typescript from '@rollup/plugin-typescript'
+
 // import fs from 'fs'
 // import {resolve} from 'path'
 
@@ -45,7 +46,7 @@ function customBuild() {
 }
 
 const inputFile = `src/index.ts`
-const packageName = "hyperflux"
+const packageName = "xrui"
 
 export default [
   {
