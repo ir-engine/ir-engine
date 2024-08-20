@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,56 +14,45 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
-import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import config from '@etherealengine/common/src/config'
+import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import {
   FileBrowserContentType,
   StaticResourceType,
   UserID,
-  archiverPath,
   fileBrowserPath,
   projectPath,
   staticResourcePath
-} from '@etherealengine/common/src/schema.type.module'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import { Engine } from '@etherealengine/ecs'
-import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
+} from '@ir-engine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
+import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
+import { unique } from '@ir-engine/common/src/utils/miscUtils'
+import { AssetSelectionChangePropsType } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
 import {
   FilesViewModeSettings,
   FilesViewModeState,
   availableTableColumns
-} from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
-import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
-import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
-import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
-import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
-import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import {
-  downloadBlobAsZip,
-  handleUploadFiles,
-  inputFileWithAddToScene
-} from '@etherealengine/editor/src/functions/assetFunctions'
-import { bytesToSize, unique } from '@etherealengine/editor/src/functions/utils'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { ImmutableArray, NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import {
-  useFind,
-  useMutation,
-  useRealtime,
-  useSearch
-} from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+} from '@ir-engine/editor/src/components/assets/FileBrowser/FileBrowserState'
+import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
+import ImageCompressionPanel from '@ir-engine/editor/src/components/assets/ImageCompressionPanel'
+import ModelCompressionPanel from '@ir-engine/editor/src/components/assets/ModelCompressionPanel'
+import { DndWrapper } from '@ir-engine/editor/src/components/dnd/DndWrapper'
+import { SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { handleUploadFiles, inputFileWithAddToScene } from '@ir-engine/editor/src/functions/assetFunctions'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { ClickPlacementState } from '@ir-engine/editor/src/systems/ClickPlacementSystem'
+import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
+import { ImmutableArray, NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
@@ -79,12 +68,14 @@ import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Slider from '../../../../../primitives/tailwind/Slider'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import { Popup } from '../../../../tailwind/Popup'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
 import DeleteFileModal from '../browserGrid/DeleteFileModal'
 import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
+import { ProjectDownloadProgress, handleDownloadProject } from '../download/projectDownload'
 import { FileUploadProgress } from '../upload/FileUploadProgress'
 
 type FileBrowserContentPanelProps = {
@@ -140,6 +131,7 @@ export const createStaticResourceDigest = (staticResources: ImmutableArray<Stati
     // stats: '',
     thumbnailKey: '',
     thumbnailMode: '',
+    updatedBy: '' as UserID,
     createdAt: '',
     updatedAt: '',
 
@@ -228,6 +220,66 @@ function GeneratingThumbnailsProgress() {
   )
 }
 
+export const ViewModeSettings = () => {
+  const { t } = useTranslation()
+
+  const filesViewMode = useMutableState(FilesViewModeState).viewMode
+
+  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+  return (
+    <Popup
+      contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
+      position={'bottom left'}
+      trigger={
+        <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
+          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
+        </Tooltip>
+      }
+    >
+      {filesViewMode.value === 'icons' ? (
+        <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+          <Slider
+            min={10}
+            max={100}
+            step={0.5}
+            value={viewModeSettings.icons.iconSize.value}
+            onChange={viewModeSettings.icons.iconSize.set}
+            onRelease={viewModeSettings.icons.iconSize.set}
+          />
+        </InputGroup>
+      ) : (
+        <>
+          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
+            <Slider
+              min={10}
+              max={100}
+              step={0.5}
+              value={viewModeSettings.list.fontSize.value}
+              onChange={viewModeSettings.list.fontSize.set}
+              onRelease={viewModeSettings.list.fontSize.set}
+            />
+          </InputGroup>
+
+          <div>
+            <div className="mt-1 flex flex-auto text-white">
+              <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
+            </div>
+            <div className="flex-col">
+              {availableTableColumns.map((column) => (
+                <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
+                  <BooleanInput
+                    value={viewModeSettings.list.selectedTableColumns[column].value}
+                    onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
+                  />
+                </InputGroup>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </Popup>
+  )
+}
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
  */
@@ -235,6 +287,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const { t } = useTranslation()
 
   const selectedDirectory = useHookstate(props.originalPath)
+
+  const downloadState = useHookstate({
+    total: 0,
+    progress: 0,
+    isDownloading: false
+  })
 
   const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
   const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
@@ -297,7 +355,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const onSelect = (event, params: FileDataType) => {
-    if (params.type !== 'folder') {
+    if (params.isFolder && event.detail === 2) {
+      const newPath = `${selectedDirectory.value}${params.name}/`
+      changeDirectoryByPath(newPath)
+    } else {
       props.onSelectionChanged({
         resourceUrl: params.url,
         name: params.name,
@@ -306,11 +367,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       })
 
       ClickPlacementState.setSelectedAsset(params.url)
-    } else {
-      if (event.detail === 2) {
-        const newPath = `${selectedDirectory.value}${params.name}/`
-        changeDirectoryByPath(newPath)
-      }
     }
   }
 
@@ -324,7 +380,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     selectedFileKeys?: string[]
   ) => {
     if (isLoading) return
-
     const destinationPath = dropOn?.isFolder ? `${dropOn.key}/` : selectedDirectory.value
 
     if (selectedFileKeys && selectedFileKeys.length > 0) {
@@ -332,18 +387,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         selectedFileKeys.map(async (fileKey) => {
           const file = files.find((f) => f.key === fileKey)
           if (file) {
-            if (file.isFolder) {
-              await fileService.create(`${destinationPath}${file.name}`)
-            } else {
-              const newName = `${file.name}${file.type ? '.' + file.type : ''}`
-              await moveContent(file.fullName, newName, file.path, destinationPath, false)
-            }
+            const newName = file.isFolder ? file.name : `${file.name}${file.type ? '.' + file.type : ''}`
+            await moveContent(file.fullName, newName, file.path, destinationPath, false)
           }
         })
       )
     } else if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
-        const newName = `${data.name}${data.type ? '.' + data.type : ''}`
+        const newName = data.isFolder ? data.name : `${data.name}${data.type ? '.' + data.type : ''}`
         await moveContent(data.fullName, newName, data.path, destinationPath, false)
       }
     } else {
@@ -418,27 +469,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     selectedDirectory.value.startsWith('/projects/' + projectName + '/public/') ||
     selectedDirectory.value.startsWith('/projects/' + projectName + '/assets/')
   const showBackButton = selectedDirectory.value.split('/').length > props.originalPath.split('/').length
-
-  const handleDownloadProject = async () => {
-    const data = await Engine.instance.api
-      .service(archiverPath)
-      .get(null, { query: { project: projectName } })
-      .catch((err: Error) => {
-        NotificationService.dispatchNotify(err.message, { variant: 'warning' })
-        return null
-      })
-    if (!data) return
-    const blob = await (await fetch(`${config.client.fileServer}/${data}`)).blob()
-
-    let fileName: string
-    if (selectedDirectory.value.at(-1) === '/') {
-      fileName = selectedDirectory.value.split('/').at(-2) as string
-    } else {
-      fileName = selectedDirectory.value.split('/').at(-1) as string
-    }
-
-    downloadBlobAsZip(blob, fileName)
-  }
 
   const BreadcrumbItems = () => {
     const handleBreadcrumbDirectoryClick = (targetFolder: string) => {
@@ -549,169 +579,157 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       ClickPlacementState.resetSelectedAsset()
     }
 
+    const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
+    const handleClose = () => {
+      setAnchorEvent(undefined)
+    }
+
+    const pasteContent = async () => {
+      handleClose()
+      if (isLoading) return
+
+      fileService.update(null, {
+        oldProject: projectName,
+        newProject: projectName,
+        oldName: currentContentRef.current.item.fullName,
+        newName: currentContentRef.current.item.fullName,
+        oldPath: currentContentRef.current.item.path,
+        newPath: currentContentRef.current.item.path,
+        isCopy: currentContentRef.current.isCopy
+      })
+    }
+
     return (
       <div
-        ref={fileDropRef}
-        className={twMerge(
-          'mb-2 h-auto px-3 pb-6 text-gray-400 ',
-          isListView ? '' : 'flex py-8',
-          isFileDropOver ? 'border-2 border-gray-300' : ''
-        )}
-        onClick={(event) => {
+        className="h-full"
+        onContextMenu={(event) => {
+          event.preventDefault()
           event.stopPropagation()
-          resetSelection()
+          setAnchorEvent(event)
         }}
       >
-        <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
-          <FileTableWrapper wrap={isListView}>
-            <>
-              {unique(files, (file) => file.key).map((file) => (
-                <FileBrowserItem
-                  key={file.key}
-                  item={file}
-                  disableDnD={props.disableDnD}
-                  projectName={projectName}
-                  onClick={(event, currentFile) => {
-                    handleFileBrowserItemClick(event, currentFile)
-                    onSelect(event, file)
-                  }}
-                  onContextMenu={(event, currentFile) => {
-                    if (!fileProperties.value.length) {
-                      fileProperties.set([file])
-                    }
-                  }}
-                  currentContent={currentContentRef}
-                  handleDropItemsOnPanel={(data, dropOn) =>
-                    dropItemsOnPanel(
-                      data,
-                      dropOn,
-                      fileProperties.value.map((file) => file.key)
-                    )
-                  }
-                  openFileProperties={(item) => {
-                    /** If the file is not in the list of files, add it */
-                    if (!(fileProperties.get(NO_PROXY) as FileDataType[]).includes(item)) {
-                      if (fileProperties.value.length > 1) {
-                        fileProperties.merge([item])
-                      } else {
-                        fileProperties.set([item])
+        <div
+          ref={fileDropRef}
+          className={twMerge(
+            'mb-2 h-auto px-3 pb-6 text-gray-400 ',
+            isListView ? '' : 'flex py-8',
+            isFileDropOver ? 'border-2 border-gray-300' : ''
+          )}
+          onClick={(event) => {
+            event.stopPropagation()
+            resetSelection()
+          }}
+        >
+          <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
+            <FileTableWrapper wrap={isListView}>
+              <>
+                {unique(files, (file) => file.key).map((file) => (
+                  <FileBrowserItem
+                    key={file.key}
+                    item={file}
+                    disableDnD={props.disableDnD}
+                    projectName={projectName}
+                    onClick={(event) => {
+                      handleFileBrowserItemClick(event, file)
+                      onSelect(event, file)
+                    }}
+                    onContextMenu={(event, currentFile) => {
+                      if (!fileProperties.value.length) {
+                        fileProperties.set([file])
                       }
-                    }
-                    PopoverState.showPopupover(
-                      <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
-                    )
-                  }}
-                  openDeleteFileModal={() => {
-                    PopoverState.showPopupover(
-                      <DeleteFileModal
-                        files={fileProperties.value as FileDataType[]}
-                        onComplete={(err) => {
-                          resetSelection()
-                        }}
-                      />
-                    )
-                  }}
-                  openImageCompress={() => {
-                    if (filesConsistOfContentType(fileProperties.value, 'image')) {
-                      PopoverState.showPopupover(
-                        <ImageCompressionPanel
-                          selectedFiles={fileProperties.value}
-                          refreshDirectory={refreshDirectory}
-                        />
+                    }}
+                    currentContent={currentContentRef}
+                    handleDropItemsOnPanel={(data, dropOn) =>
+                      dropItemsOnPanel(
+                        data,
+                        dropOn,
+                        fileProperties.value.map((file) => file.key)
                       )
                     }
-                  }}
-                  openModelCompress={() => {
-                    if (filesConsistOfContentType(fileProperties.value, 'model')) {
+                    openFileProperties={(item) => {
+                      /** If the file is not in the list of files, add it */
+                      if (!(fileProperties.get(NO_PROXY) as FileDataType[]).includes(item)) {
+                        if (fileProperties.value.length > 1) {
+                          fileProperties.merge([item])
+                        } else {
+                          fileProperties.set([item])
+                        }
+                      }
                       PopoverState.showPopupover(
-                        <ModelCompressionPanel
-                          selectedFiles={fileProperties.value}
-                          refreshDirectory={refreshDirectory}
+                        <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
+                      )
+                    }}
+                    openDeleteFileModal={() => {
+                      PopoverState.showPopupover(
+                        <DeleteFileModal
+                          files={fileProperties.value as FileDataType[]}
+                          onComplete={(err) => {
+                            resetSelection()
+                          }}
                         />
                       )
-                    }
-                  }}
-                  isFilesLoading={isLoading}
-                  addFolder={createNewFolder}
-                  isListView={isListView}
-                  staticResourceModifiedDates={staticResourceModifiedDates.value}
-                  isSelected={fileProperties.value.some(({ key }) => key === file.key)}
-                  refreshDirectory={refreshDirectory}
-                />
-              ))}
-            </>
-          </FileTableWrapper>
-          {/*   
-            {total > 0 && validFiles.value.length < total && (
-            <TablePagination
-              className={styles.pagination}
-              component="div"
-              count={total}
-              page={page}
-              rowsPerPage={FILES_PAGE_LIMIT}
-              rowsPerPageOptions={[]}
-              onPageChange={handlePageChange}
-            />
-          )}*/}
+                    }}
+                    openImageCompress={() => {
+                      if (filesConsistOfContentType(fileProperties.value, 'image')) {
+                        PopoverState.showPopupover(
+                          <ImageCompressionPanel
+                            selectedFiles={fileProperties.value}
+                            refreshDirectory={refreshDirectory}
+                          />
+                        )
+                      }
+                    }}
+                    openModelCompress={() => {
+                      if (filesConsistOfContentType(fileProperties.value, 'model')) {
+                        PopoverState.showPopupover(
+                          <ModelCompressionPanel
+                            selectedFiles={fileProperties.value}
+                            refreshDirectory={refreshDirectory}
+                          />
+                        )
+                      }
+                    }}
+                    isFilesLoading={isLoading}
+                    addFolder={createNewFolder}
+                    isListView={isListView}
+                    staticResourceModifiedDates={staticResourceModifiedDates.value}
+                    isSelected={fileProperties.value.some(({ key }) => key === file.key)}
+                    refreshDirectory={refreshDirectory}
+                    selectedFileKeys={fileProperties.value.map((file) => file.key)}
+                  />
+                ))}
+              </>
+            </FileTableWrapper>
+            {/*   
+              {total > 0 && validFiles.value.length < total && (
+              <TablePagination
+                className={styles.pagination}
+                component="div"
+                count={total}
+                page={page}
+                rowsPerPage={FILES_PAGE_LIMIT}
+                rowsPerPageOptions={[]}
+                onPageChange={handlePageChange}
+              />
+            )}*/}
+          </div>
+
+          <ContextMenu anchorEvent={anchorEvent} onClose={handleClose}>
+            <Button variant="outline" size="small" fullWidth onClick={() => createNewFolder()}>
+              {t('editor:layout.filebrowser.addNewFolder')}
+            </Button>
+            <Button
+              variant="outline"
+              size="small"
+              fullWidth
+              disabled={!currentContentRef.current}
+              onClick={pasteContent}
+            >
+              {t('editor:layout.filebrowser.pasteAsset')}
+            </Button>
+          </ContextMenu>
         </div>
       </div>
-    )
-  }
-
-  const ViewModeSettings = () => {
-    const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
-    return (
-      <Popup
-        contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
-        position={'bottom left'}
-        trigger={
-          <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-            <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
-          </Tooltip>
-        }
-      >
-        {filesViewMode.value === 'icons' ? (
-          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
-            <Slider
-              min={10}
-              max={100}
-              step={0.5}
-              value={viewModeSettings.icons.iconSize.value}
-              onChange={viewModeSettings.icons.iconSize.set}
-              onRelease={viewModeSettings.icons.iconSize.set}
-            />
-          </InputGroup>
-        ) : (
-          <>
-            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
-              <Slider
-                min={10}
-                max={100}
-                step={0.5}
-                value={viewModeSettings.list.fontSize.value}
-                onChange={viewModeSettings.list.fontSize.set}
-                onRelease={viewModeSettings.list.fontSize.set}
-              />
-            </InputGroup>
-
-            <div>
-              <div className="mt-1 flex flex-auto text-white">
-                <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-              </div>
-              <div className="flex-col">
-                {availableTableColumns.map((column) => (
-                  <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
-                    <BooleanInput
-                      value={viewModeSettings.list.selectedTableColumns[column].value}
-                      onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                    />
-                  </InputGroup>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-      </Popup>
     )
   }
 
@@ -768,7 +786,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               variant="transparent"
               startIcon={<FiDownload />}
               className="p-0"
-              onClick={handleDownloadProject}
+              onClick={() => handleDownloadProject(projectName, selectedDirectory.value)}
               disabled={!showDownloadButtons}
             />
           </Tooltip>
@@ -820,6 +838,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </Button>
       </div>
       <FileUploadProgress />
+      <ProjectDownloadProgress />
       {isLoading && (
         <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} fullSpace className="block h-12 w-12" />
       )}
@@ -846,66 +865,5 @@ export default function FilesPanelContainer() {
       originalPath={'/projects/' + originalPath + '/assets/'}
       onSelectionChanged={onSelectionChanged}
     />
-  )
-}
-
-export const ViewModeSettings = () => {
-  const { t } = useTranslation()
-
-  const filesViewMode = useMutableState(FilesViewModeState).viewMode
-
-  const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
-  return (
-    <Popup
-      contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
-      position={'bottom left'}
-      trigger={
-        <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
-        </Tooltip>
-      }
-    >
-      {filesViewMode.value === 'icons' ? (
-        <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
-          <Slider
-            min={10}
-            max={100}
-            step={0.5}
-            value={viewModeSettings.icons.iconSize.value}
-            onChange={viewModeSettings.icons.iconSize.set}
-            onRelease={viewModeSettings.icons.iconSize.set}
-          />
-        </InputGroup>
-      ) : (
-        <>
-          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
-            <Slider
-              min={10}
-              max={100}
-              step={0.5}
-              value={viewModeSettings.list.fontSize.value}
-              onChange={viewModeSettings.list.fontSize.set}
-              onRelease={viewModeSettings.list.fontSize.set}
-            />
-          </InputGroup>
-
-          <div>
-            <div className="mt-1 flex flex-auto text-white">
-              <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-            </div>
-            <div className="flex-col">
-              {availableTableColumns.map((column) => (
-                <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
-                  <BooleanInput
-                    value={viewModeSettings.list.selectedTableColumns[column].value}
-                    onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                  />
-                </InputGroup>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-    </Popup>
   )
 }

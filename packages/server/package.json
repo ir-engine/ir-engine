@@ -1,6 +1,6 @@
 {
-  "name": "@etherealengine/server",
-  "description": "API Server for Ethereal Engine",
+  "name": "@ir-engine/server",
+  "description": "API Server for Infinite Reality Engine",
   "version": "1.6.0",
   "private": true,
   "homepage": "",
@@ -17,8 +17,8 @@
     "vr"
   ],
   "author": {
-    "name": "Ethereal Engine Collective",
-    "email": "hello@etherealengine.org"
+    "name": "Infinite Reality Engine Collective",
+    "email": "hello@ir-engine.org"
   },
   "contributors": [],
   "bugs": {},
@@ -42,7 +42,7 @@
   },
   "types": "lib/",
   "dependencies": {
-    "@etherealengine/server-core": "^1.6.0",
+    "@ir-engine/server-core": "^1.6.0",
     "@feathersjs/koa": "5.0.5",
     "@feathersjs/transport-commons": "5.0.5",
     "@swc/core": "1.3.41",
