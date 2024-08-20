@@ -5,7 +5,7 @@ DB_USER="server"
 DB_PASSWORD="password"
 
 # Database name to drop
-DB_NAME="etherealengine"
+DB_NAME="ir-engine"
 
 # Change to the "packages/server-core" directory
 cd packages/server-core

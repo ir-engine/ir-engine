@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,23 +14,23 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { metabaseSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import PasswordInput from '@etherealengine/ui/src/components/tailwind/PasswordInput'
-import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import { metabaseSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { useHookstate } from '@ir-engine/hyperflux'
+import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
+import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
@@ -44,6 +44,7 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
   const id = useHookstate<string | undefined>(undefined)
   const siteUrl = useHookstate('')
   const secretKey = useHookstate('')
+  const environment = useHookstate('')
   const expiration = useHookstate(10)
   const crashDashboardId = useHookstate('')
   const metabaseSettingMutation = useMutation(metabaseSettingPath)
@@ -55,6 +56,7 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
       id.set(data[0].id)
       siteUrl.set(data[0].siteUrl)
       secretKey.set(data[0].secretKey)
+      environment.set(data[0].environment)
       expiration.set(data[0].expiration)
       crashDashboardId.set(data[0].crashDashboardId || '')
     }
@@ -63,13 +65,14 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    if (!siteUrl.value || !secretKey.value) return
+    if (!siteUrl.value || !secretKey.value || !environment.value) return
 
     state.loading.set(true)
 
     const setting = {
       siteUrl: siteUrl.value,
       secretKey: secretKey.value,
+      environment: environment.value,
       crashDashboardId: crashDashboardId.value
     }
 
@@ -90,6 +93,7 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
       id.set(data[0].id)
       siteUrl.set(data[0].siteUrl)
       secretKey.set(data[0].secretKey)
+      environment.set(data[0].environment)
       expiration.set(data[0].expiration)
       crashDashboardId.set(data[0].crashDashboardId || '')
     }
@@ -110,6 +114,13 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
           label={t('admin:components.setting.metabase.siteUrl')}
           value={siteUrl?.value || ''}
           onChange={(e) => siteUrl.set(e.target.value)}
+        />
+
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.metabase.environment')}
+          value={environment?.value || ''}
+          onChange={(e) => environment.set(e.target.value)}
         />
 
         <PasswordInput
