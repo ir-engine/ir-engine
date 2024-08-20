@@ -69,9 +69,12 @@ export const projectSettingDataSchema = Type.Pick(
 export interface ProjectSettingData extends Static<typeof projectSettingDataSchema> {}
 
 // Schema for updating existing entries
-export const projectSettingPatchSchema = Type.Partial(Type.Pick(projectSettingSchema, ['key', 'value', 'type']), {
-  $id: 'ProjectSettingPatch'
-})
+export const projectSettingPatchSchema = Type.Partial(
+  Type.Pick(projectSettingSchema, ['key', 'value', 'type', 'userId']),
+  {
+    $id: 'ProjectSettingPatch'
+  }
+)
 export interface ProjectSettingPatch extends Static<typeof projectSettingPatchSchema> {}
 
 // Schema for allowed query properties
