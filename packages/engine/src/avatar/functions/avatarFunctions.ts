@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBoneList, VRMHumanoid } from '@pixiv/three-vrm'
-import { AnimationClip, AnimationMixer, Box3, Matrix4, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Matrix4, Vector3 } from 'three'
 
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@ir-engine/common/src/config'
@@ -136,13 +136,13 @@ const hipsPos = new Vector3(),
   leftUpperLegPos = new Vector3(),
   footGap = new Vector3(),
   eyePos = new Vector3(),
-  size = new Vector3(),
-  box = new Box3()
+  size = new Vector3()
+// box = new Box3()
 
 export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
-  box.expandByObject(vrm.scene).getSize(size)
+  // box.expandByObject(vrm.scene).getSize(size)
 
   const rawRig = vrm.humanoid.rawHumanBones
   rawRig.hips.node.getWorldPosition(hipsPos)
@@ -155,7 +155,7 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rawRig.leftEye ? rawRig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
 
   const avatarComponent = getMutableComponent(entity, AvatarComponent)
-  avatarComponent.avatarHeight.set(size.y)
+  avatarComponent.avatarHeight.set(headPos.y - leftFootPos.y + 0.25)
   avatarComponent.torsoLength.set(Math.abs(headPos.y - hipsPos.y))
   avatarComponent.upperLegLength.set(Math.abs(hipsPos.y - leftLowerLegPos.y))
   avatarComponent.lowerLegLength.set(Math.abs(leftLowerLegPos.y - leftFootPos.y))

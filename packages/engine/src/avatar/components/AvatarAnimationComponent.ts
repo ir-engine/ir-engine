@@ -213,7 +213,7 @@ export default function createVRM(rootEntity: Entity) {
     addObjectToGroup(rootEntity, obj3d)
     proxifyParentChildRelationships(obj3d)
   }
-  console.log(gltf)
+
   if (gltf.extensions?.VRM) {
     const vrmExtensionDefinition = gltf.extensions!.VRM as V0VRM.VRM
     console.log(vrmExtensionDefinition)
