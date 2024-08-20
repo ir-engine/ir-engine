@@ -23,15 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CanvasTexture, ClampToEdgeWrapping, CompressedTexture, LinearMipmapLinearFilter, SRGBColorSpace } from 'three'
+import { CanvasTexture, ClampToEdgeWrapping, LinearMipmapLinearFilter, SRGBColorSpace } from 'three'
 
 import { TextureData, TextureHash, WebLayerManagerBase } from '../WebLayerManagerBase'
 import { WebLayer3D } from './WebLayer3D'
 
-export interface ThreeTextureData {
-  canvasTexture?: CanvasTexture
-  compressedTexture?: CompressedTexture
-}
 export class WebLayerManager extends WebLayerManagerBase {
   static initialize(renderer: THREE.WebGLRenderer, ktx2Loader) {
     WebLayerManager.instance = new WebLayerManager()
