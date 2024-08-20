@@ -25,7 +25,23 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { InputSystemGroup, SystemDefinitions } from '@ir-engine/ecs'
+import {
+  createEngine,
+  createEntity,
+  destroyEngine,
+  getComponent,
+  InputSystemGroup,
+  removeEntity,
+  setComponent,
+  SystemDefinitions,
+  UndefinedEntity
+} from '@ir-engine/ecs'
+import { getMutableState } from '@ir-engine/hyperflux'
+import { Quaternion, Vector3 } from 'three'
+import { assertVecApproxEq } from '../../physics/classes/Physics.test'
+import { TransformComponent } from '../../SpatialModule'
+import { XRSpaceComponent } from '../../xr/XRComponents'
+import { XRState } from '../../xr/XRState'
 import { ClientInputSystem } from './ClientInputSystem'
 
 // describe('addClientInputListeners', () => {
@@ -276,11 +292,44 @@ describe('ClientInputSystem', () => {
     })
   })
 
-  /**
-  // @todo
-  describe('execute', () => {})
-  describe('reactor', () => {})
-  */
+  describe('execute', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    const clientInputSystemExecute = SystemDefinitions.get(ClientInputSystem)!.execute
+
+    it('should update the TransformComponent of every entity that matches the [XRSpaceComponent, TransformComponent] xrSpacesQuery, based on the data set in XRFrame.transform', () => {
+      const position = new Vector3()
+      const rotation = new Quaternion()
+      setComponent(testEntity, XRSpaceComponent, { space: {} as XRSpace, baseSpace: {} as XRSpace })
+      setComponent(testEntity, TransformComponent)
+      getMutableState(XRState).xrFrame.set({
+        getPose: () => {
+          return { transform: { position: position, orientation: rotation } }
+        }
+      } as unknown as XRFrame)
+
+      // Run and Check the result
+      clientInputSystemExecute()
+      const result = getComponent(testEntity, TransformComponent)
+      assertVecApproxEq(result.position, position, 3)
+      assertVecApproxEq(result.rotation, rotation, 4)
+    })
+
+    /**
+    // @todo After the XRUI refactor is complete
+    it("should set the XRUIComponent.interactionRays for every entity that matches the [VisibleComponent, XRUIComponent] xruiQuery, based on the data set in every InputSourceComponent", () => {})
+    */
+  })
 })
 
 /**
