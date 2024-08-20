@@ -23,24 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, removeComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
-import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { TransformGizmoControlledComponent } from '@ir-engine/editor/src/classes/TransformGizmoControlledComponent'
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { transformGizmoControlledQuery } from '@ir-engine/editor/src/systems/GizmoSystem'
-import { VisualScriptActions, visualScriptQuery } from '@ir-engine/engine'
-import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { getRandomSpawnPoint } from '@ir-engine/engine/src/avatar/functions/getSpawnPoint'
-import { spawnLocalAvatarInWorld } from '@ir-engine/engine/src/avatar/functions/receiveJoinWorld'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-import { WorldNetworkAction } from '@ir-engine/network'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
-import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
+import { startPlayMode, tryStopPlayMode } from '@ir-engine/spatial/src/common/functions/PlayModeFunctions'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
@@ -51,39 +36,10 @@ const PlayModeTool = () => {
   const { t } = useTranslation()
 
   const isEditing = useHookstate(getMutableState(EngineState).isEditing)
-  const authState = useHookstate(getMutableState(AuthState))
 
   const onTogglePlayMode = () => {
-    const entity = AvatarComponent.getSelfAvatarEntity()
-    if (entity) {
-      dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(entity, UUIDComponent) }))
-      removeEntity(entity)
-      removeComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
-      removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
-      removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
-      getMutableState(EngineState).isEditing.set(true)
-      visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.stop({ entity })))
-      // stop all visual script logic
-    } else {
-      const avatarDetails = authState.user.avatar.value
-
-      const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
-      const currentScene = getComponent(getState(EditorState).rootEntity, UUIDComponent)
-
-      if (avatarDetails)
-        spawnLocalAvatarInWorld({
-          parentUUID: currentScene,
-          avatarSpawnPose,
-          avatarID: avatarDetails.id!,
-          name: authState.user.name.value
-        })
-
-      // todo
-      getMutableState(EngineState).isEditing.set(false)
-      // run all visual script logic
-      visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
-      transformGizmoControlledQuery().forEach((entity) => removeComponent(entity, TransformGizmoControlledComponent))
-      //just remove all gizmo in the scene
+    if (!tryStopPlayMode()) {
+      startPlayMode()
     }
   }
 
