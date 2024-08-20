@@ -23,19 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+import { defineState, getMutableState, getState, useMutableState, useState } from '@etherealengine/hyperflux'
 import Dexie, { Table } from 'dexie'
 import { decompress } from 'fflate'
-import { Packr, Unpackr } from 'msgpackr'
+import React, { useEffect } from 'react'
 import { CanvasTexture, CompressedTexture, Matrix4 } from 'three'
 import { Bounds } from './classes/Bounds'
 import { Edges } from './classes/Edges'
 
-export type StateHash = string
-export type SVGUrl = string
-export type TextureHash = string
+export type StateHash = string & OpaqueType<'StateHash'>
+export type TextureHash = string & OpaqueType<'Texturehash'>
 
-export interface StateData {
+export interface XRUILayerStateData {
   hash: StateHash
   cssTransform: Matrix4 | undefined
   bounds: Bounds
@@ -54,11 +54,12 @@ export interface StateData {
     focus: boolean
     target: boolean
   }
-  svgURL?: SVGUrl
+  svgDoc?: string
+  svgURL?: string
   textureHash?: TextureHash
 }
 
-export interface TextureData {
+export interface XRUILayerTextureData {
   hash: TextureHash
   timestamp: number
   texture?: Uint8Array
@@ -69,12 +70,8 @@ export interface TextureData {
 }
 
 export class XRUILayerStore extends Dexie {
-  states!: Table<StateData>
-  textures!: Table<TextureData>
-
-  _unsavedTextureData = [] as TextureHash[]
-  imagePool = [] as Array<HTMLImageElement>
-
+  states!: Table<XRUILayerStateData>
+  textures!: Table<XRUILayerTextureData>
   constructor() {
     super('xrui-layer-store')
     this.version(1).stores({
@@ -90,21 +87,25 @@ export const XRUILayerState = defineState({
   initial: () => {
     return {
       store: new XRUILayerStore(),
-      states: {} as Record<StateHash, StateData>,
-      textures: {} as Record<TextureHash, TextureData>
+      states: {} as Record<StateHash, XRUILayerStateData>,
+      textures: {} as Record<TextureHash, XRUILayerTextureData>,
+      unsavedTextures: [] as TextureHash[]
     }
   },
 
-  reactor: () => {},
-
   async saveStore() {
-    const state = getState(XRUILayerState)
-    const textureData = state.store._unsavedTextureData.map((v) => state.textures[v])
-    state.store._unsavedTextureData.length = 0
-    return XRUILayerState.loadIntoStore(state.states, Object.fromEntries(textureData.map((v) => [v.hash, v])))
+    const state = getMutableState(XRUILayerState)
+    const textureEntries = state.unsavedTextures.map(
+      (v) => [v.value, state.textures[v.value].value] as [TextureHash, XRUILayerTextureData]
+    )
+    state.unsavedTextures.set([])
+    return XRUILayerState._loadIntoStore({}, Object.fromEntries(textureEntries))
   },
 
-  async loadIntoStore(states: Record<StateHash, StateData>, textures: Record<TextureHash, TextureData>) {
+  async _loadIntoStore(
+    states: Record<StateHash, XRUILayerStateData>,
+    textures: Record<TextureHash, XRUILayerTextureData>
+  ) {
     const state = getMutableState(XRUILayerState)
     // load into textureData
     state.states.merge(states)
@@ -114,9 +115,10 @@ export const XRUILayerState = defineState({
     const stateData = Object.values(state.states.value).map((v) => {
       return {
         ...v,
+        svgDoc: undefined,
         svgURL: undefined
       }
-    }) as StateData[]
+    }) as XRUILayerStateData[]
     // only upload the non-derivative texture data
     const textureData = Object.values(state.textures.value)
       .filter((v) => {
@@ -132,7 +134,7 @@ export const XRUILayerState = defineState({
           canvasTexture: undefined,
           compressedTexture: undefined
         }
-      }) as TextureData[]
+      }) as XRUILayerTextureData[]
     // load into db
     return Promise.all([state.store.states.value.bulkPut(stateData), state.store.textures.value.bulkPut(textureData)])
   },
@@ -141,12 +143,32 @@ export const XRUILayerState = defineState({
     return Object.keys(getState(XRUILayerState).states)
   },
 
-  async requestStoredData(hash: StateHash) {
-    const stateData = XRUILayerState.getLayerState(hash)
-    if (typeof hash !== 'string') return stateData
+  reactor: () => {
+    const state = useMutableState(XRUILayerState)
+
+    useEffect(() => {
+      if (state.unsavedTextures.length > 0) {
+        XRUILayerState.saveStore()
+      }
+    }, [state.unsavedTextures])
+
+    return (
+      <>
+        {state.states.keys.map((hash: StateHash) => (
+          <XRUILayerStateReactor key={hash} hash={hash} />
+        ))}
+        {state.textures.keys.map((hash: TextureHash) => (
+          <XRUILayerTextureReactor key={hash} hash={hash} />
+        ))}
+      </>
+    )
+  },
+
+  async requestStoredData(hash: StateHash, abortSignal?: AbortSignal) {
+    const stateData = XRUILayerState.getStateData(hash)
+
     if (!this._statesRequestedFromStore.has(hash)) {
       this._statesRequestedFromStore.add(hash)
-      const state = await this.store.states.get(hash)
       if (state?.textureHash) {
         stateData.texture = this.getTextureState(state.textureHash)
       }
@@ -176,8 +198,8 @@ export const XRUILayerState = defineState({
     return stateData
   },
 
-  useStateData(hash: StateHash) {
-    const state = useMutableState(XRUILayerState)
+  getStateData(hash: StateHash) {
+    const state = getMutableState(XRUILayerState)
     let data = state.states[hash].value
     if (!data) {
       data = {
@@ -203,6 +225,12 @@ export const XRUILayerState = defineState({
       }
       state.states[hash].set(data)
     }
+    return state.states[hash]
+  },
+
+  useStateData(hash: StateHash) {
+    const state = useMutableState(XRUILayerState)
+    XRUILayerState.getStateData(hash) // create if it doesn't exist
     return state.states[hash]
   },
 
@@ -284,5 +312,45 @@ export const XRUILayerState = defineState({
   // },
 })
 
-const _packr = new Packr({ structuredClone: true })
-const _unpackr = new Unpackr({ structuredClone: true })
+// const _packr = new Packr({ structuredClone: true })
+// const _unpackr = new Unpackr({ structuredClone: true })
+
+function XRUILayerStateReactor(props: { hash: StateHash }) {
+  const state = XRUILayerState.useStateData(props.hash)
+  const textureHash = state.textureHash.value
+  const pendingStoreLookup = useState(true)
+
+  // try fetch from store if we are missing texture hash
+  useEffect(() => {
+    if (!textureHash) {
+      const layerState = getState(XRUILayerState)
+      layerState.store.states.get(props.hash).then((data) => {
+        if (data?.textureHash && !state.textureHash.value) {
+          state.textureHash.set(data.textureHash)
+        }
+        pendingStoreLookup.set(false)
+      })
+    } else {
+      pendingStoreLookup.set(false)
+    }
+  }, [])
+
+  // begin serialization process if there is no texture data, and we have an svg document
+  useEffect(() => {
+    if (!textureHash && !pendingStoreLookup.value && state.svgDoc.value && !state.svgURL.value) {
+      const textureData = {
+        hash: Math.random().toString(36).slice(2) as TextureHash,
+        timestamp: Date.now(),
+        texture: undefined,
+        canvas: undefined,
+        ktx2Url: undefined,
+        canvasTexture: undefined,
+        compressedTexture: undefined
+      }
+      state.textureHash.set(textureData.hash)
+      getMutableState(XRUILayerState).unsavedTextures.push(textureData.hash)
+      getMutableState(XRUILayerState).textures[textureData.hash].set(textureData)
+    }
+  }, [textureHash, state.svgDoc, state.svgURL, pendingStoreLookup])
+  return null
+}
