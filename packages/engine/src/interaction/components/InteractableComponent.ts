@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,19 +14,19 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { MathUtils, Vector2, Vector3 } from 'three'
 import matches from 'ts-matches'
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
   ECSState,
   Entity,
@@ -39,37 +39,37 @@ import {
   UndefinedEntity,
   useEntityContext,
   UUIDComponent
-} from '@etherealengine/ecs'
+} from '@ir-engine/ecs'
 import {
   defineComponent,
   getOptionalComponent,
   hasComponent,
   useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { getState, NO_PROXY, useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
-import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
-import { InputComponent, InputExecutionOrder } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { getState, NO_PROXY, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
+import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   BoundingBoxComponent,
   updateBoundingBox
-} from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
-import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
-import { WebLayer3D } from '@etherealengine/xrui'
+} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
+import { WebLayer3D } from '@ir-engine/xrui'
 
-import { smootheLerpAlpha } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
-} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
-import { useXRUIState } from '@etherealengine/spatial/src/xrui/functions/useXRUIState'
+} from '@ir-engine/spatial/src/transform/components/DistanceComponents'
+import { useXRUIState } from '@ir-engine/spatial/src/xrui/functions/useXRUIState'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
@@ -314,7 +314,7 @@ export const InteractableComponent = defineComponent({
     InputComponent.useExecuteWithInput(
       () => {
         const buttons = InputComponent.getMergedButtons(entity)
-
+        if (!interactableComponent.clickInteract.value && buttons.PrimaryClick?.pressed) return
         if (
           buttons.Interact?.pressed &&
           !buttons.Interact?.dragging &&
