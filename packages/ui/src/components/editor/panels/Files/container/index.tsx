@@ -43,7 +43,7 @@ import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { handleUploadFiles, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
-import { ProjectDownloadProgress, handleDownloadProject } from '@etherealengine/editor/src/panels/files/download'
+import { ProjectDownloadProgress, handleDownloadProject } from '@etherealengine/editor/src/panels/files/loaders'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import {
   FilesViewModeSettings,

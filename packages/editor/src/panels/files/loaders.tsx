@@ -23,16 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { useUploadingFiles } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
 import { archiverPath } from '@etherealengine/common/src/schema.type.module'
 import { bytesToSize } from '@etherealengine/common/src/utils/btyesToSize'
 import { Engine } from '@etherealengine/ecs'
 import { downloadBlobAsZip } from '@etherealengine/editor/src/functions/assetFunctions'
 import { defineState, getMutableState, useMutableState } from '@etherealengine/hyperflux'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Progress from '@etherealengine/ui/src/primitives/tailwind/Progress'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { useFilesQuery } from '../../services/FilesState'
 
 const DownloadProjectState = defineState({
   name: 'DownloadProjectState',
@@ -88,7 +92,8 @@ export const handleDownloadProject = async (projectName: string, selectedDirecto
   downloadBlobAsZip(blob, fileName)
 }
 
-export const ProjectDownloadProgress = () => {
+export function ProjectDownloadProgress() {
+  // todo remove the export once files/container/index.tsx is deleted
   const { t } = useTranslation()
   const downloadState = useMutableState(DownloadProjectState)
   const isDownloading = downloadState.isDownloading.value
@@ -108,4 +113,59 @@ export const ProjectDownloadProgress = () => {
       </div>
     </div>
   ) : null
+}
+
+function FileUploadProgress() {
+  const { t } = useTranslation()
+  const { completed, total, progress } = useUploadingFiles()
+
+  return total ? (
+    <div className="flex h-auto w-full justify-center pb-2 pt-2">
+      <div className="flex w-1/2">
+        <span className="inline-block pr-2 text-xs font-normal leading-none text-theme-primary">
+          {t('editor:layout.filebrowser.uploadingFiles', { completed, total })}
+        </span>
+        <div className="basis-1/2">
+          <Progress value={progress} />
+        </div>
+      </div>
+    </div>
+  ) : null
+}
+
+function GeneratingThumbnailsProgress() {
+  const { t } = useTranslation()
+  const thumbnailJobState = useMutableState(FileThumbnailJobState)
+
+  if (!thumbnailJobState.length) return null
+
+  return (
+    <LoadingView
+      titleClassname="mt-0"
+      containerClassname="flex-row mt-1"
+      className="mx-2 my-auto h-6 w-6"
+      title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailJobState.length })}
+    />
+  )
+}
+
+function FilesLoading() {
+  const { t } = useTranslation()
+  const filesQuery = useFilesQuery().filesQuery
+  const isLoading = filesQuery?.status === 'pending'
+
+  return isLoading ? (
+    <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} fullSpace className="block h-12 w-12" />
+  ) : null
+}
+
+export default function Loaders() {
+  return (
+    <>
+      <FileUploadProgress />
+      <ProjectDownloadProgress />
+      <FilesLoading />
+      <GeneratingThumbnailsProgress />
+    </>
+  )
 }

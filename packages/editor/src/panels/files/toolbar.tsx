@@ -49,7 +49,7 @@ import {
   availableTableColumns,
   useFilesQuery
 } from '../../services/FilesState'
-import { handleDownloadProject } from './download'
+import { handleDownloadProject } from './loaders'
 
 const VIEW_MODES = [
   { mode: 'list', icon: <FaList /> },
