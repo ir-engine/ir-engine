@@ -26,6 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
+import '../../engine'
+
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { useNetwork } from '@ir-engine/client-core/src/components/World/EngineHooks'
 import { LocationService, LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
@@ -42,6 +44,7 @@ import { getMutableComponent, hasComponent, useQuery } from '@ir-engine/ecs'
 
 import '@ir-engine/engine/src/EngineModule'
 
+import Debug from '@ir-engine/client-core/src/components/Debug'
 import { AvatarControllerComponent } from '@ir-engine/engine/src/avatar/components/AvatarControllerComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 
@@ -84,7 +87,12 @@ export const CaptureLocation = () => {
 
   AuthService.useAPIListeners()
 
-  return <CaptureUI />
+  return (
+    <>
+      <CaptureUI />
+      <Debug />
+    </>
+  )
 }
 
 export default CaptureLocation
