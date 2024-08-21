@@ -58,6 +58,7 @@ import FormControlLabel from '@ir-engine/ui/src/primitives/mui/FormControlLabel'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 
+import { API } from '@ir-engine/common'
 import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
@@ -70,7 +71,6 @@ import { useUserHasAccessHook } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
-import { API } from '@ir-engine/common'
 
 const termsOfService = config.client.tosAddress ?? '/terms-of-service'
 
