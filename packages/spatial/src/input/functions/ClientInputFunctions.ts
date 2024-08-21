@@ -53,10 +53,10 @@ import { ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } fr
 import { HeuristicData, HeuristicFunctions, IntersectionData } from './ClientInputHeuristics'
 
 /** radian threshold for rotating state*/
-const ROTATING_THRESHOLD = 1.5 * (PI / 180)
+export const ROTATING_THRESHOLD = 1.5 * (PI / 180)
 
 /** squared distance threshold for dragging state */
-const DRAGGING_THRESHOLD = 0.001
+export const DRAGGING_THRESHOLD = 0.001
 
 /** anti-garbage variable!! value not to be used unless you set values just before use*/
 const _pointerPositionVector3 = new Vector3()
@@ -99,6 +99,7 @@ export function updateGamepadInput(eid: Entity) {
     }
     const buttonState = buttons[i] as ButtonState
     if (buttonState && (gamepadButton.pressed || gamepadButton.touched)) {
+      // First frame condition: Initialize downPosition when buttonState.pressed and gamepadButton.pressed are different (aka the first frame)
       if (!buttonState.pressed && gamepadButton.pressed) {
         buttonState.down = true
         buttonState.downPosition = new Vector3()
@@ -112,6 +113,7 @@ export function updateGamepadInput(eid: Entity) {
           buttonState.downRotation.copy(xrTransform.rotation)
         }
       }
+      // Sync buttonState with gamepadButton
       buttonState.pressed = gamepadButton.pressed
       buttonState.touched = gamepadButton.touched
       buttonState.value = gamepadButton.value
@@ -120,6 +122,7 @@ export function updateGamepadInput(eid: Entity) {
         //if not yet dragging, compare distance to drag threshold and begin if appropriate
         if (!buttonState.dragging) {
           if (pointer) _pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
+          // Will always be 0 on the first frame: downPosition will be set this frame, and therefore checked against itself
           const squaredDistance = buttonState.downPosition.distanceToSquared(
             pointer ? _pointerPositionVector3 : xrTransform?.position ?? Vector3_Zero
           )
