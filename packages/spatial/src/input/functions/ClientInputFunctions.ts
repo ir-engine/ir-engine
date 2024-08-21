@@ -123,10 +123,7 @@ export function updateGamepadInput(eid: Entity) {
           const squaredDistance = buttonState.downPosition.distanceToSquared(
             pointer ? _pointerPositionVector3 : xrTransform?.position ?? Vector3_Zero
           )
-
-          if (squaredDistance > DRAGGING_THRESHOLD) {
-            buttonState.dragging = true
-          }
+          buttonState.dragging = squaredDistance > DRAGGING_THRESHOLD
         }
 
         //if not yet rotating, compare distance to drag threshold and begin if appropriate
@@ -134,9 +131,7 @@ export function updateGamepadInput(eid: Entity) {
           const angleRadians = buttonState.downRotation!.angleTo(
             pointer ? Q_IDENTITY : xrTransform?.rotation ?? Q_IDENTITY
           )
-          if (angleRadians > ROTATING_THRESHOLD) {
-            buttonState.rotating = true
-          }
+          buttonState.rotating = angleRadians > ROTATING_THRESHOLD
         }
       }
     } else if (buttonState) {
@@ -144,6 +139,7 @@ export function updateGamepadInput(eid: Entity) {
     }
   }
 }
+
 export const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
   const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
   if (!inputEntity) return
