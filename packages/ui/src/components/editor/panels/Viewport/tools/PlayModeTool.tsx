@@ -59,7 +59,6 @@ export const onStopPlayMode = (): boolean => {
     removeComponent(viewerEntity, ComputedTransformComponent)
     removeComponent(viewerEntity, FollowCameraComponent)
     removeComponent(viewerEntity, TargetCameraRotationComponent)
-    // getMutableState(EngineState).isEditing.set(true)
     visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.stop({ entity })))
     // stop all visual script logic
   }
@@ -68,7 +67,6 @@ export const onStopPlayMode = (): boolean => {
 
 export const onStartPlayMode = () => {
   const authState = getState(AuthState)
-  // const authState = useHookstate(getMutableState(AuthState))
   const avatarDetails = authState.user.avatar //.value
 
   const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
@@ -83,7 +81,6 @@ export const onStartPlayMode = () => {
     })
 
   // todo
-  // getMutableState(EngineState).isEditing.set(false)
   // run all visual script logic
   visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
   transformGizmoControlledQuery().forEach((entity) => removeComponent(entity, TransformGizmoControlledComponent))
