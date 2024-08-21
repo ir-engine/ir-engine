@@ -27,6 +27,8 @@ import { t } from 'i18next'
 import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
+import '../../engine'
+
 import { useEngineInjection } from '@ir-engine/client-core/src/components/World/EngineHooks'
 import LocationPage from '@ir-engine/client-core/src/world/Location'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'

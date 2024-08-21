@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   AnimationSystemGroup,
+  Engine,
   Entity,
   defineComponent,
   getComponent,
@@ -39,7 +40,6 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs'
 import { NO_PROXY, State, getMutableState, getState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { useEffect, useRef } from 'react'
 import {
@@ -611,7 +611,7 @@ function NewVolumetricComponentReactor() {
         component.geometry.targets.set(['corto'])
         if (!getState(AssetLoaderState).cortoLoader) {
           const loader = new CORTOLoader()
-          loader.setDecoderPath(getState(EngineState).publicPath + '/loader_decoders/')
+          loader.setDecoderPath(Engine.instance.store.publicPath + '/loader_decoders/')
           loader.preload()
           const assetLoaderState = getMutableState(AssetLoaderState)
           assetLoaderState.cortoLoader.set(loader)

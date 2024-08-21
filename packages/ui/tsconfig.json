@@ -34,7 +34,8 @@
   ],
   "include": [
     "../../__global.d.ts",
-    "../server-core/src/",
+    "../server-core/src/*",
+    "../client-core/src/*",
     "./src/**/*.ts",
     "./src/**/*.tsx"
   ]
