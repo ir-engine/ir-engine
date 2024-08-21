@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,20 +14,19 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { isArray } from 'lodash'
 import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import {
   ComponentJSONIDMap,
   ComponentMap,
@@ -35,39 +34,41 @@ import {
   getOptionalComponent,
   hasComponent,
   setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { TransformComponent } from '@etherealengine/spatial'
-import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { TransformComponent } from '@ir-engine/spatial'
+import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { FrustumCullCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SourceComponent } from '../components/SourceComponent'
-import { createMaterialInstance } from '../materials/functions/materialSourcingFunctions'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
-export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
+export const parseECSData = (userData: Record<string, any>): ComponentJsonType[] => {
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
-
+  const keysToRemove: string[] = []
+  const data = [...Object.entries(userData)]
   for (const [key, value] of data) {
     const parts = key.split('.')
     if (parts.length > 1) {
       if (parts[0] === 'xrengine') {
+        keysToRemove.push(key)
         const componentExists = ComponentMap.has(parts[1])
         const _toLoad = componentExists ? components : prefabs
         if (typeof _toLoad[parts[1]] === 'undefined') {
@@ -81,6 +82,11 @@ export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
         }
       }
     }
+  }
+
+  // remove keys that have been processed as they will be exported in different format
+  for (const key of keysToRemove) {
+    delete userData[key]
   }
 
   const result: ComponentJsonType[] = []
@@ -106,7 +112,7 @@ export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
 }
 
 export const createObjectEntityFromGLTF = (obj3d: Object3D): ComponentJsonType[] => {
-  return parseECSData(Object.entries(obj3d.userData))
+  return parseECSData(obj3d.userData)
 }
 
 export const parseObjectComponentsFromGLTF = (
@@ -180,7 +186,7 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     },
     parent: {
       get() {
-        if (EngineRenderer.activeRender) return null // hack to check if renderer is rendering
+        if (RendererComponent.activeRender) return null // hack to check if renderer is rendering
         if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
           const result = getOptionalComponent(
             getComponent(objEntity, EntityTreeComponent).parentEntity!,
@@ -197,7 +203,7 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     },
     children: {
       get() {
-        if (EngineRenderer.activeRender) return [] // hack to check if renderer is rendering
+        if (RendererComponent.activeRender) return [] // hack to check if renderer is rendering
         if (hasComponent(objEntity, EntityTreeComponent)) {
           const childEntities = getComponent(objEntity, EntityTreeComponent).children
           const result: Object3D[] = []
@@ -286,16 +292,21 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   const findColliderData = (obj: Object3D) => {
     if (
+      hasComponent(obj.entity, ColliderComponent) ||
       Object.keys(obj.userData).find(
         (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
       )
     ) {
       return true
-    } else if (obj.parent) {
-      return Object.keys(obj.parent.userData).some(
-        (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
-      )
     }
+    // else if (obj.parent) {
+    //   return (
+    //     hasComponent(obj.parent.entity, ColliderComponent) ||
+    //     Object.keys(obj.parent.userData).some(
+    //       (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+    //     )
+    //   )
+    // }
     return false
   }
   //if we're not using visible component, set visible by default
@@ -304,6 +315,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     //if this object has a collider component attached to it, set visible to false
     !findColliderData(obj)
   ) {
+    setComponent(objEntity, VisibleComponent, true)
     eJson.components.push({
       name: VisibleComponent.jsonID,
       props: true
@@ -333,18 +345,16 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     }
   }
 
-  const material = mesh.material
-  if (!material) return eJson
-
-  const materials = Array.isArray(material) ? material : [material]
-  materials.map((material) => {
-    const path = getOptionalComponent(rootEntity, ModelComponent)?.src ?? ''
-    createMaterialInstance(path, objEntity, material)
-  })
-  mesh.material = isArray(mesh.material) ? materials : materials[0]
-
   if (!hasComponent(objEntity, MeshComponent)) {
     setComponent(objEntity, Object3DComponent, obj)
   }
+
+  const material = mesh.material
+  if (!material) return eJson
+
+  delete mesh.userData['componentJson']
+  delete mesh.userData['gltfExtensions']
+  delete mesh.userData['useVisible']
+
   return eJson
 }

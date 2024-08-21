@@ -65,7 +65,7 @@
     "ph-tags": "Tags",
     "ph-link": "Link",
     "ph-aboutYou": "More about you",
-    "ph-twitter": "twitter",
+    "ph-twitter": "x",
     "ph-instagram": "instagram",
     "ph-tiktok": "tiktok",
     "sign-out": "Sign-Out"
@@ -185,16 +185,20 @@
   "video": {
     "back": "Back"
   },
+  "user": {
+    "reportUser": "Report User"
+  },
   "terms": {
     "confirmTerms": "I agree to Terms of Service",
     "confirmPolicy": "I agree to Privacy Policy"
   },
   "registration": {
     "ph-phoneEmail": "Use phone / email",
-    "facebook": "Continue with Facebook",
+    "apple": "Continue with Apple",
+    "facebook": "Continue with Meta",
     "google": "Continue with Google",
     "linkedin": "Continue with Linkedin",
-    "twitter": "Continue with Twitter",
+    "twitter": "Continue with X",
     "gitHub": "Continue with GitHub",
     "connect": "Connect your email or phone number",
     "logIn": "Log in",

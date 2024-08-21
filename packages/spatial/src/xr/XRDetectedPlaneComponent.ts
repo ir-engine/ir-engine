@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
@@ -30,17 +30,20 @@ import matches from 'ts-matches'
 import {
   defineComponent,
   getMutableComponent,
+  hasComponent,
+  removeComponent,
   setComponent,
   useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { NameComponent } from '../common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
+import { MeshComponent } from '../renderer/components/MeshComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { ReferenceSpace, XRState } from './XRState'
@@ -89,7 +92,11 @@ export const XRDetectedPlaneComponent = defineComponent({
     const scenePlacementMode = useHookstate(getMutableState(XRState).scenePlacementMode)
 
     useEffect(() => {
+      if (!component.plane.value) return
+
       const geometry = XRDetectedPlaneComponent.createGeometryFromPolygon(component.plane.value as XRPlane)
+
+      XRDetectedPlaneComponent.updatePlanePose(entity, component.plane.value as XRPlane)
       component.geometry.set(geometry)
 
       const shadowMesh = new Mesh(geometry, shadowMaterial)
@@ -97,6 +104,8 @@ export const XRDetectedPlaneComponent = defineComponent({
       const occlusionMesh = new Mesh(geometry, occlusionMat)
 
       const placementHelper = new Mesh(geometry, placementHelperMaterial)
+
+      setComponent(entity, MeshComponent, shadowMesh)
 
       addObjectToGroup(entity, shadowMesh)
       addObjectToGroup(entity, occlusionMesh)
@@ -108,9 +117,13 @@ export const XRDetectedPlaneComponent = defineComponent({
       component.placementHelper.set(placementHelper)
 
       return () => {
+        removeComponent(entity, MeshComponent)
+
         removeObjectFromGroup(entity, shadowMesh)
         removeObjectFromGroup(entity, occlusionMesh)
         removeObjectFromGroup(entity, placementHelper)
+
+        if (!hasComponent(entity, XRDetectedPlaneComponent)) return
 
         component.shadowMesh.set(none)
         component.occlusionMesh.set(none)
@@ -187,14 +200,10 @@ export const XRDetectedPlaneComponent = defineComponent({
     setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
     setComponent(entity, TransformComponent)
     setVisibleComponent(entity, true)
-    setComponent(entity, XRDetectedPlaneComponent)
+    setComponent(entity, XRDetectedPlaneComponent, { plane })
     setComponent(entity, NameComponent, 'plane-' + planeId++)
 
     XRDetectedPlaneComponent.planesLastChangedTimes.set(plane, plane.lastChangedTime)
-    XRDetectedPlaneComponent.updatePlanePose(entity, plane)
-
-    setComponent(entity, XRDetectedPlaneComponent, { plane })
-
     XRDetectedPlaneComponent.detectedPlanesMap.set(plane, entity)
   },
   detectedPlanesMap: new Map<XRPlane, Entity>(),

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,20 +14,20 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import knex, { Knex } from 'knex'
 
-import { isDev } from '@etherealengine/common/src/config'
-import appConfig from '@etherealengine/server-core/src/appconfig'
-import { delay } from '@etherealengine/spatial/src/common/functions/delay'
+import { isDev } from '@ir-engine/common/src/config'
+import appConfig from '@ir-engine/server-core/src/appconfig'
+import { delay } from '@ir-engine/spatial/src/common/functions/delay'
 
 import { Application } from '../declarations'
 import { seeder } from './seeder'
@@ -83,7 +83,8 @@ export default (app: Application): void => {
         host: appConfig.db.host,
         port: parseInt(appConfig.db.port),
         database: appConfig.db.database,
-        charset: 'utf8mb4'
+        charset: 'utf8mb4',
+        multipleStatements: true
       },
       pool: {
         min: 0,
@@ -121,14 +122,28 @@ export default (app: Application): void => {
           await checkLock(knexClient, 0)
 
           logger.info('Knex migration rollback started')
-          await knexClient.migrate.rollback(config.migrations, true)
+
+          const allTables = (
+            await db.raw(
+              `select table_name from information_schema.tables where table_schema = '${appConfig.db.database}'`
+            )
+          )[0].map((table) => table.table_name)
+
+          const trx = await knexClient.transaction()
+          await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+          for (const table of allTables) {
+            await trx.schema.dropTableIfExists(table)
+          }
+
+          await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+          await trx.commit()
+
+          // await knexClient.migrate.rollback(config.migrations, true)
           logger.info('Knex migration rollback ended')
         }
 
-        const tableCount = await db.raw(
-          `select table_schema as etherealengine,count(*) as tables from information_schema.tables where table_type = \'BASE TABLE\' and table_schema not in (\'information_schema\', \'sys\', \'performance_schema\', \'mysql\') group by table_schema order by table_schema;`
-        )
-        const prepareDb = process.env.PREPARE_DATABASE === 'true' || (isDev && tableCount[0] && !tableCount[0][0])
+        const prepareDb = process.env.PREPARE_DATABASE === 'true'
 
         if (forceRefresh || appConfig.testEnabled || prepareDb) {
           // We are running our migrations here, so that tables above in db tree are create 1st using sequelize.

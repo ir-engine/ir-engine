@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 /**
@@ -32,11 +32,11 @@ import { useEffect } from 'react'
 import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector2 } from 'three'
 import { Text as TroikaText } from 'troika-three-text'
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { matches } from '@ir-engine/hyperflux'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 
 /**
  * @description
@@ -168,6 +168,7 @@ const FontDefault = null! as string | null
 const LoremIpsum =
   "Cat ipsum dolor sit amet, munch, munch, chomp, chomp go crazy with excitement when plates are clanked together signalling the arrival of cat food lounge in doorway. Rub face on everything i like to spend my days sleeping and eating fishes that my human fished for me we live on a luxurious yacht, sailing proudly under the sun, i like to walk on the deck, watching the horizon, dreaming of a good bowl of milk yet ooooh feather moving feather! for rub my belly hiss. I see a bird i stare at it i meow at it i do a wiggle come here birdy kick up litter but ignore the squirrels, you'll never catch them anyway meow in empty rooms i like big cats and i can not lie. At four in the morning wake up owner meeeeeeooww scratch at legs and beg for food then cry and yowl until they wake up at two pm jump on window and sleep while observing the bootyful cat next door that u really like but who already has a boyfriend end up making babies with her and let her move in scream at teh bath so leave hair on owner's clothes. If human is on laptop sit on the keyboard haha you hold me hooman i scratch, cough furball into food bowl then scratch owner for a new one make muffins, so kick up litter let me in let me out let me in let me out let me in let me out who broke this door anyway . See owner, run in terror cats are cute show belly and steal mom's crouton while she is in the bathroom so skid on floor, crash into wall ."
 
+const DefaultText = 'type your text here'
 /**
  * @description A Text Component, used to manage the state of the NodeEditor view that customizes spatial text properties.
  */
@@ -178,17 +179,17 @@ export const TextComponent = defineComponent({
   onInit: (entity) => {
     return {
       // Text contents to render
-      text: LoremIpsum,
+      text: DefaultText,
       textOpacity: 100, // range[0..100], sent to troika as [0..1] :number
       textWidth: Infinity,
       textIndent: 0,
-      textAlign: 'justify' as TroikaTextAlignment,
+      textAlign: 'left' as TroikaTextAlignment,
       textWrap: true, // Maps to: troika.Text.whiteSpace as TroikaTextWrap
       textWrapKind: 'normal' as TroikaTextWrapKind, // Maps to troika.Text.overflowWrap
       textAnchor: new Vector2(
         /* X */ 0, // range[0..100+], sent to troika as [0..100]% :string
-        /* Y */ 0 // range[0..100+], sent to troika as [0..100]% :string
-      ),
+        /* Y */ 100 // range[0..100+], sent to troika as [0..100]% :string
+      ), // lower-left by default
       textDepthOffset: 0, // For Z-fighting adjustments. Similar to anchor.Z
       textCurveRadius: 0,
       letterSpacing: 0,
@@ -249,7 +250,13 @@ export const TextComponent = defineComponent({
     if (matches.string.test(json.font)) component.font.set(json.font)
     else if (matches.nill.test(json.font)) component.font.set(null)
     if (matches.number.test(json.fontSize)) component.fontSize.set(json.fontSize)
-    if (matches.object.test(json.fontColor) && json.fontColor.isColor) component.fontColor.set(json.fontColor)
+
+    if (matches.object.test(json.fontColor) && json.fontColor.isColor) {
+      component.fontColor.set(json.fontColor)
+    } else if (matches.number.test(json.fontColor)) {
+      component.fontColor.set(new Color(json.fontColor))
+    }
+
     if (matches.number.test(json.fontMaterial) && json.fontMaterial in FontMaterialKind)
       component.fontMaterial.set(json.fontMaterial)
     if (matches.number.test(json.outlineOpacity)) component.outlineOpacity.set(json.outlineOpacity)
@@ -257,11 +264,22 @@ export const TextComponent = defineComponent({
     if (matches.number.test(json.outlineBlur)) component.outlineBlur.set(json.outlineBlur)
     if (matches.object.test(json.outlineOffset) && json.outlineOffset.isVector2)
       component.outlineOffset.set(json.outlineOffset)
-    if (matches.object.test(json.outlineColor) && json.outlineColor.isColor)
+
+    if (matches.object.test(json.outlineColor) && json.outlineColor.isColor) {
       component.outlineColor.set(json.outlineColor)
+    } else if (matches.number.test(json.outlineColor)) {
+      component.outlineColor.set(new Color(json.outlineColor))
+    }
+
     if (matches.number.test(json.strokeOpacity)) component.strokeOpacity.set(json.strokeOpacity)
     if (matches.number.test(json.strokeWidth)) component.strokeWidth.set(json.strokeWidth)
-    if (matches.object.test(json.strokeColor) && json.strokeColor.isColor) component.strokeColor.set(json.strokeColor)
+
+    if (matches.object.test(json.strokeColor) && json.strokeColor.isColor) {
+      component.strokeColor.set(json.strokeColor)
+    } else if (matches.number.test(json.strokeColor)) {
+      component.strokeColor.set(new Color(json.strokeColor))
+    }
+
     // Advanced configuration
     if (matches.string.test(json.textOrientation)) component.textOrientation.set(json.textOrientation)
     if (matches.boolean.test(json.gpuAccelerated)) component.gpuAccelerated.set(json.gpuAccelerated)
@@ -327,25 +345,103 @@ export const TextComponent = defineComponent({
 
     useEffect(() => {
       const troikaMesh = text.troikaMesh.value! as TextMesh
-      // Update the Text content/properties
       troikaMesh.text = text.text.value
+      troikaMesh.sync()
+    }, [text.text])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.fillOpacity = text.textOpacity.value / 100
-      troikaMesh.maxWidth = text.textWidth.value
+      troikaMesh.sync()
+    }, [text.textOpacity])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.textIndent = text.textIndent.value
+      troikaMesh.sync()
+    }, [text.textIndent])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.textAlign = text.textAlign.value
-      troikaMesh.overflowWrap = text.textWrapKind.value
+      troikaMesh.sync()
+    }, [text.textAlign])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.whiteSpace = text.textWrap.value ? 'normal' : 'nowrap'
+      troikaMesh.sync()
+    }, [text.textWrap])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.overflowWrap = text.textWrapKind.value
+      troikaMesh.sync()
+    }, [text.textWrapKind])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.anchorX = `${text.textAnchor.x.value}%`
       troikaMesh.anchorY = `${text.textAnchor.y.value}%`
-      troikaMesh.depthOffset = text.textDepthOffset.value
+      troikaMesh.sync()
+    }, [text.textAnchor])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.curveRadius = MathUtils.degToRad(text.textCurveRadius.value)
-      troikaMesh.letterSpacing = text.letterSpacing.value
+      troikaMesh.sync()
+    }, [text.textCurveRadius])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.depthOffset = text.textDepthOffset.value
+      troikaMesh.sync()
+    }, [text.textDepthOffset])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.maxWidth = text.textWidth.value
+      troikaMesh.sync()
+    }, [text.textWidth])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.lineHeight = text.lineHeight.value
+      troikaMesh.sync()
+    }, [text.lineHeight])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.letterSpacing = text.letterSpacing.value
+      troikaMesh.sync()
+    }, [text.letterSpacing])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.direction = text.textDirection.value
-      // Update the font properties
+      troikaMesh.sync()
+    }, [text.textDirection])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.font = text.font.value
+      troikaMesh.sync()
+    }, [text.font])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.fontSize = text.fontSize.value
+      troikaMesh.sync()
+    }, [text.fontSize])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.color = text.fontColor.value.getHex()
+      troikaMesh.sync()
+    }, [text.fontColor])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       switch (text.fontMaterial.value) {
         case FontMaterialKind.Basic:
           troikaMesh.material = new MeshBasicMaterial()
@@ -354,18 +450,67 @@ export const TextComponent = defineComponent({
           troikaMesh.material = new MeshStandardMaterial()
           break
       }
+      troikaMesh.sync()
+    }, [text.fontMaterial])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.outlineOpacity = text.outlineOpacity.value / 100
+      troikaMesh.sync()
+    }, [text.outlineOpacity])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.outlineWidth = `${text.outlineWidth.value}%`
+      troikaMesh.sync()
+    }, [text.outlineWidth])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.outlineBlur = `${text.outlineBlur.value}%`
+      troikaMesh.sync()
+    }, [text.outlineBlur])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.outlineOffsetX = `${text.outlineOffset.x.value}%`
       troikaMesh.outlineOffsetY = `${text.outlineOffset.y.value}%`
+      troikaMesh.sync()
+    }, [text.outlineOffset])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.outlineColor = text.outlineColor.value.getHex()
+      troikaMesh.sync()
+    }, [text.outlineColor])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.strokeOpacity = text.strokeOpacity.value / 100
+      troikaMesh.sync()
+    }, [text.strokeOpacity])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.strokeWidth = `${text.strokeWidth.value}%`
+      troikaMesh.sync()
+    }, [text.strokeWidth])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.strokeColor = text.strokeColor.value.getHex()
-      // Update the Advanced configuration propertiess
+      troikaMesh.sync()
+    }, [text.strokeColor])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.orientation = text.textOrientation.value
-      ;(troikaMesh.clipRect = text.clipActive.value
+      troikaMesh.sync()
+    }, [text.textOrientation])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.clipRect = text.clipActive.value
         ? [
             // Send as [minX, minY, maxX, maxY] :Array<number>
             text.clipRectMin.x.value,
@@ -373,45 +518,27 @@ export const TextComponent = defineComponent({
             text.clipRectMax.x.value,
             text.clipRectMax.x.value
           ]
-        : []),
-        (troikaMesh.gpuAccelerateSDF = text.gpuAccelerated.value)
-      troikaMesh.sdfGlyphSize = Math.pow(2, text.glyphResolution.value)
-      troikaMesh.glyphGeometryDetail = text.glyphDetail.value
-      // Order troika to synchronize the mesh
+        : []
       troikaMesh.sync()
-    }, [
-      text.text,
-      text.textOpacity,
-      text.textIndent,
-      text.textAlign,
-      text.textWrap,
-      text.textWrapKind,
-      text.textAnchor,
-      text.textCurveRadius,
-      text.textDepthOffset,
-      text.textWidth,
-      text.lineHeight,
-      text.letterSpacing,
-      text.textDirection,
-      text.fontSize,
-      text.fontColor,
-      text.fontMaterial,
-      text.outlineOpacity,
-      text.outlineWidth,
-      text.outlineBlur,
-      text.outlineOffset,
-      text.outlineColor,
-      text.strokeOpacity,
-      text.strokeWidth,
-      text.strokeColor,
-      text.textOrientation,
-      text.clipActive,
-      text.clipRectMin,
-      text.clipRectMax,
-      text.gpuAccelerated,
-      text.glyphResolution,
-      text.glyphDetail
-    ])
+    }, [text.clipActive, text.clipRectMin, text.clipRectMax])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.gpuAccelerateSDF = text.gpuAccelerated.value
+      troikaMesh.sync()
+    }, [text.gpuAccelerated])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.sdfGlyphSize = Math.pow(2, text.glyphResolution.value)
+      troikaMesh.sync()
+    }, [text.glyphResolution])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.glyphGeometryDetail = text.glyphDetail.value
+      troikaMesh.sync()
+    }, [text.glyphDetail])
 
     return null
   }

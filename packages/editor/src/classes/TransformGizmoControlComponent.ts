@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,31 +14,29 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { DoubleSide, MathUtils, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Vector3 } from 'three'
+import { MathUtils, Quaternion, Vector3 } from 'three'
 
 import {
   defineComponent,
   Engine,
   Entity,
   getComponent,
-  getOptionalComponent,
-  InputSystemGroup,
+  removeComponent,
   setComponent,
   UndefinedEntity,
   useComponent,
-  useEntityContext,
-  useExecute
-} from '@etherealengine/ecs'
+  useEntityContext
+} from '@ir-engine/ecs'
 import {
   SnapMode,
   TransformAxisType,
@@ -46,16 +44,26 @@ import {
   TransformModeType,
   TransformSpace,
   TransformSpaceType
-} from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { matches, useMutableState } from '@etherealengine/hyperflux'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+} from '@ir-engine/engine/src/scene/constants/transformConstants'
+import { getState, matches, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { onPointerDown, onPointerHover, onPointerLost, onPointerMove, onPointerUp } from '../functions/gizmoHelper'
+import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
+import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { gizmoPlane } from '../constants/GizmoPresets'
+import {
+  onGizmoCommit,
+  onPointerDown,
+  onPointerHover,
+  onPointerLost,
+  onPointerMove,
+  onPointerUp
+} from '../functions/gizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 
@@ -122,64 +130,68 @@ export const TransformGizmoControlComponent = defineComponent({
   reactor: function (props) {
     const gizmoControlEntity = useEntityContext()
     const gizmoControlComponent = useComponent(gizmoControlEntity, TransformGizmoControlComponent)
-
-    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
-
+    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
     const editorHelperState = useMutableState(EditorHelperState)
-    useExecute(
+    const inputPointerEntities = InputPointerComponent.usePointersForCamera(Engine.instance.viewerEntity)
+
+    // Commit transform changes if the pointer entities are lost (ie. pointer dragged outside of the canvas)
+    useImmediateEffect(() => {
+      const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
+      if (
+        !gizmoControlComponent.enabled ||
+        !gizmoControlComponent.visualEntity ||
+        !gizmoControlComponent.planeEntity ||
+        !gizmoControlComponent.dragging ||
+        inputPointerEntities.length
+      )
+        return
+
+      onGizmoCommit(gizmoControlEntity)
+      removeComponent(gizmoControlComponent.planeEntity, VisibleComponent)
+    }, [inputPointerEntities])
+
+    InputComponent.useExecuteWithInput(
       () => {
         const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
-        if (!gizmoControlComponent.enabled) return
-        if (!gizmoControlComponent.visualEntity) return
-        if (!gizmoControlComponent.planeEntity) return
+
+        if (!gizmoControlComponent.enabled || !gizmoControlComponent.visualEntity || !gizmoControlComponent.planeEntity)
+          return
 
         const visualComponent = getComponent(gizmoControlComponent.visualEntity, TransformGizmoVisualComponent)
-        const pickerInputSourceEntity = getComponent(visualComponent.picker[gizmoControlComponent.mode], InputComponent)
-          .inputSources[0]
-        const planeInputSourceEntity = getComponent(gizmoControlComponent.planeEntity, InputComponent).inputSources[0]
+        const pickerEntity = visualComponent.picker[gizmoControlComponent.mode]
 
-        if (pickerInputSourceEntity === undefined && planeInputSourceEntity === undefined) {
-          onPointerLost(gizmoControlEntity)
-          return
-        }
         onPointerHover(gizmoControlEntity)
 
-        const pickerButtons = getOptionalComponent(pickerInputSourceEntity, InputSourceComponent)?.buttons
-        const planeButtons = getOptionalComponent(planeInputSourceEntity, InputSourceComponent)?.buttons
+        const pickerButtons = InputComponent.getMergedButtons(pickerEntity)
+        const planeButtons = InputComponent.getMergedButtons(gizmoControlComponent.planeEntity)
 
-        if (!pickerButtons && !planeButtons) {
-          onPointerLost(gizmoControlEntity)
-          return
+        if (
+          (pickerButtons?.PrimaryClick?.pressed || planeButtons?.PrimaryClick?.pressed) &&
+          getState(InputState).capturingEntity === UndefinedEntity
+        ) {
+          InputState.setCapturingEntity(pickerEntity)
+          onPointerMove(gizmoControlEntity)
+
+          //pointer down
+          if (pickerButtons?.PrimaryClick?.down) {
+            setComponent(gizmoControlComponent.planeEntity, VisibleComponent)
+            onPointerDown(gizmoControlEntity)
+          }
+
+          if (planeButtons?.PrimaryClick?.up || pickerButtons?.PrimaryClick?.up) {
+            onPointerUp(gizmoControlEntity)
+            onPointerLost(gizmoControlEntity)
+            removeComponent(gizmoControlComponent.planeEntity, VisibleComponent)
+          }
         }
-        if (!pickerButtons?.PrimaryClick && !planeButtons?.PrimaryClick) {
-          onPointerLost(gizmoControlEntity)
-          return
-        }
-
-        if (!pickerButtons?.PrimaryClick?.touched && !planeButtons?.PrimaryClick?.touched) return
-
-        onPointerMove(gizmoControlEntity)
-        if (planeButtons?.PrimaryClick?.up || pickerButtons?.PrimaryClick?.up) onPointerUp(gizmoControlEntity)
-        else if (pickerButtons?.PrimaryClick?.down) onPointerDown(gizmoControlEntity)
       },
-      { with: InputSystemGroup }
+      true,
+      InputExecutionOrder.Before
     )
 
     useEffect(() => {
-      const plane = new Mesh(
-        new PlaneGeometry(100000, 100000, 2, 2),
-        new MeshBasicMaterial({
-          visible: false,
-          wireframe: true,
-          side: DoubleSide,
-          transparent: true,
-          opacity: 0.1,
-          toneMapped: false
-        })
-      )
-
-      addObjectToGroup(gizmoControlComponent.planeEntity.value, plane)
-      plane.layers.set(ObjectLayers.TransformGizmo)
+      addObjectToGroup(gizmoControlComponent.planeEntity.value, gizmoPlane)
+      gizmoPlane.layers.set(ObjectLayers.TransformGizmo)
       setComponent(gizmoControlComponent.planeEntity.value, InputComponent)
       setComponent(gizmoControlComponent.planeEntity.value, TransformGizmoTagComponent)
     }, [])

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,24 +14,51 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
+
+import { Entity, UndefinedEntity } from '@ir-engine/ecs'
+import { Quaternion, Vector3 } from 'three'
 
 /**
  * Button state
  */
 export type ButtonState = {
+  /** true for ONLY the first frame this button is down*/
   down: boolean
+
+  /** true for every frame this button is down (including the frame it is released and up is true)*/
   pressed: boolean
+
+  /** true if button is touched (e.g. capacitive touch, not the same as pressed/down)*/
   touched: boolean
+
+  /** true for ONLY the first frame this button is up*/
   up: boolean
+
+  /** current value of button (useful for triggers)*/
   value: number
+
+  /** true for every frame this button is being dragged*/
+  dragging: boolean
+
+  /** true for every frame this button is being rotated*/
+  rotating: boolean
+
+  /** position when this button down was true of either InputPointerComponent.position OR the Transform.position if an XRInputSource */
+  downPosition?: Vector3
+
+  /** rotation when this button down was true of the Transform.position if XRInputSource */
+  downRotation?: Quaternion
+
+  /** input source associated with this button state */
+  inputSource: Entity
 }
 
 /**
@@ -169,30 +196,30 @@ export enum KeyboardButton {
  * https://www.w3.org/TR/gamepad/#dfn-standard-gamepad
  */
 export enum StandardGamepadButton {
-  'ButtonA' = 0, // X
-  'ButtonB' = 1, // Circle
-  'ButtonX' = 2, // Square
-  'ButtonY' = 3, // Triangle
-  'Left1' = 4,
-  'Right1' = 5,
-  'Left2' = 6,
-  'Right2' = 7,
-  'ButtonBack' = 8,
-  'ButtonStart' = 9,
-  'LeftStick' = 10,
-  'RightStick' = 11,
-  'DPadUp' = 12,
-  'DPadDown' = 13,
-  'DPadLeft' = 14,
-  'DPadRight' = 15,
-  'ButtonHome' = 16
+  'StandardGamepadButtonA' = 0, // X
+  'StandardGamepadButtonB' = 1, // Circle
+  'StandardGamepadButtonX' = 2, // Square
+  'StandardGamepadButtonY' = 3, // Triangle
+  'StandardGamepadLeft1' = 4,
+  'StandardGamepadRight1' = 5,
+  'StandardGamepadLeft2' = 6,
+  'StandardGamepadRight2' = 7,
+  'StandardGamepadButtonBack' = 8,
+  'StandardGamepadButtonStart' = 9,
+  'StandardGamepadLeftStick' = 10,
+  'StandardGamepadRightStick' = 11,
+  'StandardGamepadDPadUp' = 12,
+  'StandardGamepadDPadDown' = 13,
+  'StandardGamepadDPadLeft' = 14,
+  'StandardGamepadDPadRight' = 15,
+  'StandardGamepadButtonHome' = 16
 }
 
 export enum StandardGamepadAxes {
-  'LeftStickX' = 0,
-  'LeftStickY' = 1,
-  'RightStickX' = 2,
-  'RightStickY' = 3
+  'StandardGamepadLeftStickX' = 0,
+  'StandardGamepadLeftStickY' = 1,
+  'StandardGamepadRightStickX' = 2,
+  'StandardGamepadRightStickY' = 3
 }
 
 /**
@@ -200,33 +227,75 @@ export enum StandardGamepadAxes {
  * https://www.w3.org/TR/webxr-gamepads-module-1/#xr-standard-gamepad-mapping
  */
 export enum XRStandardGamepadButton {
-  'Trigger' = 0,
-  'Squeeze' = 1,
-  'Pad' = 2,
-  'Stick' = 3,
-  'ButtonA' = 4,
-  'ButtonB' = 5
+  'XRStandardGamepadTrigger' = 0,
+  'XRStandardGamepadSqueeze' = 1,
+  'XRStandardGamepadPad' = 2,
+  'XRStandardGamepadStick' = 3,
+  'XRStandardGamepadButtonA' = 4,
+  'XRStandardGamepadButtonB' = 5
 }
 
 export enum XRStandardGamepadAxes {
-  'TouchpadX' = 0,
-  'TouchpadY' = 1,
-  'ThumbstickX' = 2,
-  'ThumbstickY' = 3
+  'XRStandardGamepadTouchpadX' = 0,
+  'XRStandardGamepadTouchpadY' = 1,
+  'XRStandardGamepadThumbstickX' = 2,
+  'XRStandardGamepadThumbstickY' = 3
 }
 
-export type AnyButton = MouseButton | KeyboardButton | StandardGamepadButton | XRStandardGamepadButton
+export type AnyButton =
+  | keyof typeof MouseButton
+  | keyof typeof KeyboardButton
+  | keyof typeof StandardGamepadButton
+  | keyof typeof XRStandardGamepadButton
+  | StandardGamepadButton
+  | XRStandardGamepadButton
+export type AnyAxis =
+  | keyof typeof MouseScroll
+  | keyof typeof StandardGamepadAxes
+  | keyof typeof XRStandardGamepadAxes
+  | MouseScroll
+  | StandardGamepadAxes
+  | XRStandardGamepadAxes
 
-export type ButtonStateMap = Partial<Record<AnyButton, ButtonState>>
+export type ButtonStateMap<A extends Record<string, any>> = Partial<
+  Record<AnyButton | keyof A, ButtonState | undefined>
+>
+export type AxisValueMap<A extends Record<string, any>> = Partial<Record<AnyAxis | keyof A, number>>
 
-export const DefaultBooleanButtonState = Object.freeze({ down: true, pressed: true, touched: true, value: 1 })
+export const ButtonMapping = {
+  '': MouseButton,
+  keyboard: KeyboardButton,
+  standard: StandardGamepadButton,
+  'xr-standard': XRStandardGamepadButton
+} satisfies Record<GamepadMappingType | 'keyboard', Record<string, string | number>>
 
-export const createInitialButtonState = (initial: Readonly<Partial<ButtonState>> = DefaultBooleanButtonState) => {
+export const AxisMapping = {
+  '': MouseScroll,
+  'xr-standard': XRStandardGamepadAxes,
+  standard: StandardGamepadAxes
+} satisfies Record<GamepadMappingType, Record<string, string | number>>
+
+export const DefaultBooleanButtonState = Object.freeze({
+  down: true,
+  pressed: true,
+  touched: true,
+  value: 1,
+  dragging: false,
+  rotating: false
+})
+
+export const createInitialButtonState = (
+  inputSourceEntity: Entity,
+  initial: Readonly<Partial<ButtonState>> = DefaultBooleanButtonState
+) => {
   return {
     down: initial.down ?? initial.pressed ?? false,
     pressed: initial.pressed ?? true,
     touched: initial.touched ?? true,
+    dragging: initial.dragging ?? false,
+    rotating: initial.rotating ?? false,
     up: initial.up ?? false,
-    value: initial.value ?? 1
-  }
+    value: initial.value ?? 1,
+    inputSource: inputSourceEntity ?? UndefinedEntity
+  } as ButtonState
 }

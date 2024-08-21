@@ -5,7 +5,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -15,21 +15,21 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 import React, { useImperativeHandle } from 'react'
 
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
+import { AssetExt } from '@ir-engine/common/src/constants/AssetType'
+import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
 
+import { getTextureAsync } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
 import { JsonPreviewPanel } from './AssetPreviewPanels/JsonPreviewPanel'
@@ -75,9 +75,11 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading, previewPanelP
   const onSelectionChanged = async (props: AssetSelectionChangePropsType) => {
     thumbnail.value && URL.revokeObjectURL(thumbnail.value)
     if (/ktx2$/.test(props.resourceUrl)) {
-      const texture = await AssetLoader.loadAsync(props.resourceUrl)
-      thumbnail.set((await createReadableTexture(texture, { url: true })) as string)
-      texture.dispose()
+      const [texture, unload] = await getTextureAsync(props.resourceUrl)
+      if (texture) {
+        thumbnail.set((await createReadableTexture(texture, { url: true })) as string)
+        unload()
+      }
     } else {
       thumbnail.set('')
     }
@@ -90,13 +92,13 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading, previewPanelP
       case 'model/gltf':
       case 'model/gltf-binary':
       case 'model/glb':
-      case AssetType.VRM:
+      case AssetExt.VRM:
       case 'model/vrm':
-      case AssetType.glB:
-      case AssetType.glTF:
+      case AssetExt.GLB:
+      case AssetExt.GLTF:
       case 'gltf-binary':
-      case AssetType.USDZ:
-      case AssetType.FBX:
+      case AssetExt.USDZ:
+      case AssetExt.FBX:
         const modelPreviewPanel = {
           PreviewSource: ModelPreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }

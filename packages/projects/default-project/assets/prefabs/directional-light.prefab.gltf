@@ -1,0 +1,38 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "name": "New Object",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "Directional Light",
+      "extensions": {
+        "EE_uuid": "e05a3e9b-755b-47b7-b79c-a148a1e21b77",
+        "EE_visible": true,
+        "EE_directional_light": {
+          "color": 16777215,
+          "intensity": 1,
+          "cameraFar": 200,
+          "castShadow": false,
+          "shadowBias": -0.00001,
+          "shadowRadius": 1
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_directional_light",
+    "EE_ecs"
+  ]
+}

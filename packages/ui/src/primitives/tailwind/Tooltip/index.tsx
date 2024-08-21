@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,46 +14,64 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { ReactNode } from 'react'
+import Popup from 'reactjs-popup'
+import { PopupProps } from 'reactjs-popup/dist/types'
 import { twMerge } from 'tailwind-merge'
+import './tooltip.css'
 
-interface TooltipProps {
-  title: string
-  direction?: 'top' | 'bottom' | 'left' | 'right'
+export type TooltipProps = {
+  title?: ReactNode
+  titleClassName?: string
+  content: ReactNode
   children: React.ReactElement
-  className?: string
-}
+} & PopupProps
 
-const TooltipDirectionClass = {
-  top: 'bottom-5',
-  bottom: 'top-5',
-  left: 'right-5',
-  right: 'left-5'
-}
-
-const Tooltip = ({ title, direction = 'top', children, className }: TooltipProps) => {
+const Tooltip = ({ title, titleClassName, content, children, className, ...rest }: TooltipProps) => {
   return (
-    <div className="group relative flex items-center justify-center">
-      {children}
-      <span
-        className={twMerge(
-          'absolute z-10 scale-0 text-wrap rounded bg-gray-800 p-2 text-xs text-white transition-all group-hover:scale-100',
-          TooltipDirectionClass[direction],
-          className
+    <Popup
+      trigger={<div style={{ all: 'unset' }}>{children}</div>}
+      on="hover"
+      keepTooltipInside
+      repositionOnResize
+      arrow={false}
+      contentStyle={{
+        animation: 'expandFromCenter 0.3s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards',
+        transformOrigin: 'center'
+      }}
+      {...rest}
+    >
+      <div className="-mt-1 grid text-wrap shadow-lg transition-all">
+        {title && (
+          <span
+            className={twMerge(
+              'block rounded-t border-b border-b-[#212226] bg-[#141619] px-3 py-1.5 text-sm text-[#F5F5F5]',
+              titleClassName
+            )}
+          >
+            {title}
+          </span>
         )}
-      >
-        {title}
-      </span>
-    </div>
+        <div
+          className={twMerge(
+            'bg-theme-studio-surface px-3 py-2 text-sm text-[#F5F5F5]',
+            title ? 'rounded-b' : 'rounded',
+            className
+          )}
+        >
+          {content}
+        </div>
+      </div>
+    </Popup>
   )
 }
 

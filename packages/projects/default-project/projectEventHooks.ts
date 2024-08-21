@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,30 +14,33 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
+import fs from 'fs'
 import path from 'path'
 
-import { locationPath, LocationType, OembedType } from '@etherealengine/common/src/schema.type.module'
-import { createLocations } from '@etherealengine/projects/createLocations'
-import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
-import { Application } from '@etherealengine/server-core/declarations'
-import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
-import { installAvatarsFromProject } from '@etherealengine/server-core/src/user/avatar/avatar-helper'
+import { locationPath, LocationType, OembedType, ProjectType } from '@ir-engine/common/src/schema.type.module'
+import { createLocations } from '@ir-engine/projects/createLocations'
+import { ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
+import { Application } from '@ir-engine/server-core/declarations'
+import { getStorageProvider } from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
 
+import { patchStaticResourceAsAvatar, supportedAvatars } from '@ir-engine/server-core/src/user/avatar/avatar-helper'
+import appRootPath from 'app-root-path'
 import manifestJson from './manifest.json'
 
+const projectRelativeFolder = path.resolve(appRootPath.path, 'packages/projects')
 const avatarsFolder = path.resolve(__dirname, 'assets/avatars')
 
-const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OembedType) => {
+const handleOEmbedRequest = async (app: Application, project: ProjectType, url: URL, currentOEmbed: OembedType) => {
   const isLocation = /^\/location\//.test(url.pathname)
   const isAdminPanel = /^\/admin/.test(url.pathname)
   const isEditor = /^\/studio/.test(url.pathname)
@@ -50,13 +53,13 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
       pagination: false
     } as any)) as any as LocationType[]
     if (locationResult.length === 0) throw new BadRequest('Invalid location name')
-    const projectName = locationResult[0].sceneAsset.projectName
-    const sceneName = locationResult[0].sceneAsset.assetURL.split('/').pop()!.replace('.gltf', '')
+    const projectName = locationResult[0].sceneAsset.project
+    const sceneName = locationResult[0].sceneAsset.key.split('/').pop()!.replace('.gltf', '')
     const storageProvider = getStorageProvider()
     currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
     currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
     currentOEmbed.type = 'photo'
-    currentOEmbed.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+    currentOEmbed.url = `https://${storageProvider.getCacheDomain()}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
     currentOEmbed.height = 320
     currentOEmbed.width = 512
 
@@ -83,12 +86,12 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
         pagination: false
       } as any)) as any as LocationType[]
       if (locationResult.length > 0) {
-        const projectName = locationResult[0].sceneAsset.projectName
-        const sceneName = locationResult[0].sceneAsset.assetURL.split('/').pop()!.replace('.gltf', '')
+        const projectName = locationResult[0].sceneAsset.project
+        const sceneName = locationResult[0].sceneAsset.key.split('/').pop()!.replace('.gltf', '')
         const storageProvider = getStorageProvider()
         currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
         currentOEmbed.type = 'photo'
-        currentOEmbed.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+        currentOEmbed.url = `https://${storageProvider.getCacheDomain()}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
         currentOEmbed.height = 320
         currentOEmbed.width = 512
         return currentOEmbed
@@ -109,11 +112,22 @@ const config = {
       default: 'public/scenes/default.gltf',
       ['sky-station']: 'public/scenes/sky-station.gltf'
     })
-    return installAvatarsFromProject(app, avatarsFolder)
+    await Promise.all(
+      fs
+        .readdirSync(avatarsFolder)
+        .filter((file) => supportedAvatars.includes(file.split('.').pop()!))
+        .map((file) =>
+          patchStaticResourceAsAvatar(
+            app,
+            manifestJson.name,
+            path.resolve(avatarsFolder, file).replace(projectRelativeFolder + '/', '')
+          )
+        )
+    )
   },
-  onUpdate: (app: Application) => {
-    return installAvatarsFromProject(app, avatarsFolder)
-  },
+  // onUpdate: (app: Application) => {
+  //   return installAvatarsFromProject(app, avatarsFolder)
+  // },
   onOEmbedRequest: handleOEmbedRequest
   // TODO: remove avatars
   // onUninstall: (app: Application) => {

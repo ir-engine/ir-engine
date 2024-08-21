@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
@@ -39,10 +39,11 @@ import {
   WebGLRenderTargetOptions
 } from 'three'
 
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 
+import { createAnimationLoop, ECSState } from '@ir-engine/ecs'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { XRState } from './XRState'
 
@@ -99,6 +100,9 @@ export const XRRendererState = defineState({
 })
 
 export function createWebXRManager(renderer: WebGLRenderer) {
+  const ecsState = getState(ECSState)
+  const { animation } = ecsState.timer
+
   const xrState = getState(XRState)
   const xrRendererState = getMutableState(XRRendererState)
 
@@ -123,8 +127,9 @@ export function createWebXRManager(renderer: WebGLRenderer) {
     xrRendererState.glBinding.set(null)
     xrRendererState.newRenderTarget.set(null)
 
-    renderer.animation.start()
+    animation.setContext(globalThis)
     animation.stop()
+    animation.start()
 
     scope.isPresenting = false
   }
@@ -253,7 +258,7 @@ export function createWebXRManager(renderer: WebGLRenderer) {
       scope.setFoveation(0)
 
       animation.setContext(session)
-      renderer.animation.stop()
+      animation.stop()
       animation.start()
 
       scope.isPresenting = true
@@ -304,61 +309,15 @@ export function createWebXRManager(renderer: WebGLRenderer) {
     }
   }
 
-  // Animation Loop
-
-  let onAnimationFrameCallback = null as typeof onAnimationFrame | null
-
-  function onAnimationFrame(time: number, frame: XRFrame) {
-    if (onAnimationFrameCallback) onAnimationFrameCallback(time, frame)
-  }
-
-  const animation = createWebGLAnimation()
-
-  animation.setAnimationLoop(onAnimationFrame)
-
-  scope.setAnimationLoop = function (callback: typeof onAnimationFrame) {
-    onAnimationFrameCallback = callback
-  }
+  scope.setAnimationLoop = function () {}
+  scope.dispose = function () {}
+  scope.addEventListener = function (type: string, listener: EventListener) {}
+  scope.hasEventListener = function (type: string, listener: EventListener) {}
+  scope.removeEventListener = function (type: string, listener: EventListener) {}
+  scope.dispatchEvent = function (event: Event) {}
 
   return scope
 }
 
-function createWebGLAnimation() {
-  let context = null as any
-  let isAnimating = false
-  let animationLoop = null as null | ((time: number, frame: XRFrame) => void)
-  let requestId = null
-
-  function onAnimationFrame(time, frame) {
-    requestId = context.requestAnimationFrame(onAnimationFrame)
-    animationLoop!(time, frame)
-  }
-
-  return {
-    start: function () {
-      if (isAnimating === true) return
-      if (animationLoop === null) return
-
-      requestId = context.requestAnimationFrame(onAnimationFrame)
-
-      isAnimating = true
-    },
-
-    stop: function () {
-      context.cancelAnimationFrame(requestId)
-
-      isAnimating = false
-    },
-
-    setAnimationLoop: function (callback) {
-      animationLoop = callback
-    },
-
-    setContext: function (value) {
-      context = value
-    }
-  }
-}
-
 export type WebXRManager = ReturnType<typeof createWebXRManager>
-export type WebGLAnimation = ReturnType<typeof createWebGLAnimation>
+export type WebGLAnimation = ReturnType<typeof createAnimationLoop>

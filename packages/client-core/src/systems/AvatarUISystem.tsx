@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,56 +14,56 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { CircleGeometry, Group, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
-import multiLogger from '@etherealengine/common/src/logger'
-import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
-import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { applyVideoToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import multiLogger from '@ir-engine/common/src/logger'
+import { UserID } from '@ir-engine/common/src/schema.type.module'
+import { getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
+import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { applyVideoToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
+import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import {
   MediasoupMediaProducerConsumerState,
   NetworkObjectComponent,
   NetworkObjectOwnedTag,
   NetworkState,
   webcamVideoDataChannelType
-} from '@etherealengine/network'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
-import { easeOutElastic } from '@etherealengine/spatial/src/common/functions/MathFunctions'
-import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
-import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
-import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
-import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
+} from '@ir-engine/network'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
+import { easeOutElastic } from '@ir-engine/spatial/src/common/functions/MathFunctions'
+import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
+import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
+import { Physics, RaycastArgs } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
+import { getInteractionGroups } from '@ir-engine/spatial/src/physics/functions/getInteractionGroups'
+import { SceneQueryType } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
@@ -131,14 +131,15 @@ const raycastComponentData = {
 } as RaycastArgs
 
 const onSecondaryClick = () => {
-  const { physicsWorld } = getState(PhysicsState)
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const physicsWorld = Physics.getWorld(AvatarComponent.getSelfAvatarEntity())
+  if (!physicsWorld) return
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const hits = Physics.castRayFromCamera(
+    physicsWorld,
     getComponent(Engine.instance.cameraEntity, CameraComponent),
     pointerPosition,
-    physicsWorld,
     raycastComponentData
   )
   const state = getMutableState(AvatarUIContextMenuState)
@@ -159,9 +160,14 @@ const onSecondaryClick = () => {
 }
 
 const execute = () => {
+  const viewerEntity = getState(EngineState).viewerEntity
+  if (!viewerEntity) return
+
   const ecsState = getState(ECSState)
 
-  const buttons = InputSourceComponent.getMergedButtons()
+  const buttons = InputComponent.getMergedButtons(viewerEntity)
+
+  // const buttons = InputSourceComponent.getMergedButtons()
   if (buttons.PrimaryClick?.down) onPrimaryClick()
   if (buttons.SecondaryClick?.down) onSecondaryClick()
 
@@ -187,7 +193,7 @@ const execute = () => {
     AvatarUI.set(userEntity, ui)
   }
 
-  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+  const cameraTransform = getComponent(viewerEntity, TransformComponent)
 
   const immersiveMedia = getState(MediaSettingsState).immersiveMedia
   const mediaNetwork = NetworkState.mediaNetwork
@@ -302,7 +308,7 @@ const reactor = () => {
 
 export const AvatarUISystem = defineSystem({
   uuid: 'ee.client.AvatarUISystem',
-  insert: { before: TransformSystem },
+  insert: { before: TransformDirtyUpdateSystem },
   execute,
   reactor
 })

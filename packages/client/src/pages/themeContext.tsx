@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,29 +14,22 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { createContext, useEffect, useMemo } from 'react'
 
-import {
-  AdminClientSettingsState,
-  ClientSettingService
-} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import {
-  AppThemeState,
-  getAppTheme,
-  useAppThemeName
-} from '@etherealengine/client-core/src/common/services/AppThemeState'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { AppThemeState, getAppTheme, useAppThemeName } from '@ir-engine/client-core/src/common/services/AppThemeState'
+import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { ClientThemeOptionsType, clientSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
 export interface ThemeContextProps {
   theme: string
@@ -52,10 +45,10 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
   const authState = useMutableState(AuthState)
   const selfUser = authState.user
 
-  const clientSettingState = useMutableState(AdminClientSettingsState)
-
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSetting = clientSettingQuery.data[0]
   const appTheme = useMutableState(AppThemeState)
-  const [clientSetting] = clientSettingState?.client?.get(NO_PROXY) || []
+
   const clientThemeSettings = useHookstate({} as Record<string, ClientThemeOptionsType>)
 
   const currentThemeName = useAppThemeName()
@@ -72,8 +65,7 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     if (clientSetting) {
       clientThemeSettings.set(clientSetting?.themeSettings)
     }
-    if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
-  }, [clientSettingState?.updateNeeded?.value])
+  }, [clientSetting])
 
   useEffect(() => {
     updateTheme()

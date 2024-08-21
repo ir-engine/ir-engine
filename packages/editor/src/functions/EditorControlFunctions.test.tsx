@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,55 +14,57 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
 import { Cache, Color, MathUtils } from 'three'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { getComponent, UUIDComponent } from '@etherealengine/ecs'
-import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
-import { EntityUUID } from '@etherealengine/ecs/src/Entity'
-import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
-import { applyIncomingActions, getMutableState, getState } from '@etherealengine/hyperflux'
-import { HemisphereLightComponent, TransformComponent } from '@etherealengine/spatial'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { UserID } from '@ir-engine/common/src/schema.type.module'
+import { createEntity, getComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import { createEngine, destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
+import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { GLTFSnapshotState, GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
+import { applyIncomingActions, getMutableState, getState } from '@ir-engine/hyperflux'
+import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
-const timeout = globalThis.setTimeout
-
 describe('EditorControlFunctions', () => {
+  let physicsWorldEntity: Entity
+
   beforeEach(async () => {
     createEngine()
-    getMutableState(PhysicsState).physicsWorld.set({} as any)
     getMutableState(EngineState).isEditing.set(true)
     getMutableState(EngineState).isEditor.set(true)
     Engine.instance.userID = 'user' as UserID
+
     await Physics.load()
-    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
-    // patch setTimeout to run the callback immediately
-    // @ts-ignore
-    globalThis.setTimeout = (fn) => fn()
+    physicsWorldEntity = createEntity()
+    setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+    setComponent(physicsWorldEntity, SceneComponent)
+    setComponent(physicsWorldEntity, TransformComponent)
+    setComponent(physicsWorldEntity, EntityTreeComponent)
+    const physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+    physicsWorld.timestep = 1 / 60
   })
 
   afterEach(() => {
-    globalThis.setTimeout = timeout
     return destroyEngine()
   })
 
@@ -87,7 +89,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -137,7 +139,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -181,7 +183,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -223,7 +225,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -280,7 +282,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -288,7 +290,7 @@ describe('EditorControlFunctions', () => {
       const sourceID = getComponent(nodeEntity, SourceComponent)
 
       EditorControlFunctions.modifyProperty([nodeEntity], SplineComponent, {
-        [`elements.${1}.position`]: {
+        [`elements.${1}.position` as string]: {
           x: 10,
           y: 10,
           z: 10
@@ -326,7 +328,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -379,7 +381,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -433,7 +435,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -497,7 +499,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -561,7 +563,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -614,7 +616,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -659,7 +661,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -705,7 +707,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -758,7 +760,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -776,6 +778,76 @@ describe('EditorControlFunctions', () => {
       assert.equal(newSnapshot.scenes![0].nodes.length, 1)
       assert.equal(newSnapshot.nodes![0].children![0], 1)
       assert.equal(newSnapshot.nodes![0].children![1], 2)
+    })
+
+    it('should reparent inside root node', () => {
+      const node1UUID = MathUtils.generateUUID() as EntityUUID
+      const node2UUID = MathUtils.generateUUID() as EntityUUID
+      const node3UUID = MathUtils.generateUUID() as EntityUUID
+      const node4UUID = MathUtils.generateUUID() as EntityUUID
+
+      const gltf: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0, 1, 2, 3] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node1',
+            extensions: {
+              [UUIDComponent.jsonID]: node1UUID
+            }
+          },
+          {
+            name: 'node2',
+            extensions: {
+              [UUIDComponent.jsonID]: node2UUID
+            }
+          },
+          {
+            name: 'node3',
+            extensions: {
+              [UUIDComponent.jsonID]: node3UUID
+            }
+          },
+          {
+            name: 'node4',
+            extensions: {
+              [UUIDComponent.jsonID]: node4UUID
+            }
+          }
+        ]
+      }
+
+      Cache.add('/test.gltf', gltf)
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      getMutableState(EditorState).rootEntity.set(rootEntity)
+      applyIncomingActions()
+
+      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID)
+      const node4Entity = UUIDComponent.getEntityByUUID(node4UUID)
+
+      const sourceID = getComponent(rootEntity, SourceComponent)
+
+      const currentSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[0]
+      assert.equal(currentSnapshot.nodes?.length, 4)
+      assert.equal(currentSnapshot.nodes?.[3].name, gltf.nodes![3].name)
+
+      const targetNodeIndex = currentSnapshot.nodes!.findIndex(
+        (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(node4Entity, UUIDComponent)
+      )
+      const targetNodeName = currentSnapshot.nodes![targetNodeIndex].name
+      const beforeNodeIndex = currentSnapshot.nodes!.findIndex(
+        (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(node2Entity, UUIDComponent)
+      )
+
+      EditorControlFunctions.reparentObject([node4Entity], node2Entity, rootEntity)
+      applyIncomingActions()
+
+      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
+      assert.equal(newSnapshot.nodes?.length, 4)
+      assert.equal(newSnapshot.nodes?.[beforeNodeIndex].name, targetNodeName)
     })
   })
 
@@ -815,7 +887,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -882,7 +954,7 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
@@ -899,6 +971,93 @@ describe('EditorControlFunctions', () => {
       assert.equal(newSnapshot.scenes![0].nodes.length, 2)
       assert.equal(newSnapshot.nodes![0].name, 'node2')
       assert.equal(newSnapshot.nodes![1].name, 'node3')
+    })
+
+    it('should correctly update state when removing objects in hierarchy', () => {
+      const rootUUID = 'rootUUID' as EntityUUID
+      const parentUUID = 'parentUUID' as EntityUUID
+      const child1UUID = 'child1UUID' as EntityUUID
+      const child2UUID = 'child2UUID' as EntityUUID
+      const grandchildUUID = 'grandchildUUID' as EntityUUID
+
+      const gltf: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'root',
+            children: [1],
+            extensions: {
+              [UUIDComponent.jsonID]: rootUUID
+            }
+          },
+          {
+            name: 'parent',
+            children: [2, 3],
+            extensions: {
+              [UUIDComponent.jsonID]: parentUUID
+            }
+          },
+          {
+            name: 'child1',
+            children: [4],
+            extensions: {
+              [UUIDComponent.jsonID]: child1UUID
+            }
+          },
+          {
+            name: 'child2',
+            extensions: {
+              [UUIDComponent.jsonID]: child2UUID
+            }
+          },
+          {
+            name: 'grandchild',
+            extensions: {
+              [UUIDComponent.jsonID]: grandchildUUID
+            }
+          }
+        ]
+      }
+
+      Cache.add('/test.gltf', gltf)
+      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      getMutableState(EditorState).rootEntity.set(rootEntity)
+      applyIncomingActions()
+
+      const parentEntity = UUIDComponent.getEntityByUUID(parentUUID)
+      const child1Entity = UUIDComponent.getEntityByUUID(child1UUID)
+      const sourceID = getComponent(parentEntity, SourceComponent)
+
+      // remove child1 (which also has a grandchild)
+      EditorControlFunctions.removeObject([child1Entity])
+
+      applyIncomingActions()
+
+      let newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
+
+      // check that child1 and grandchild are removed, but child2 remains
+      assert.equal(newSnapshot.nodes!.length, 3)
+      assert.equal(newSnapshot.nodes![0].extensions![UUIDComponent.jsonID], rootUUID)
+      assert.equal(newSnapshot.nodes![1].extensions![UUIDComponent.jsonID], parentUUID)
+      assert.equal(newSnapshot.nodes![2].extensions![UUIDComponent.jsonID], child2UUID)
+      assert.deepEqual(newSnapshot.nodes![1].children, [2])
+
+      // now remove the parent
+      EditorControlFunctions.removeObject([parentEntity])
+
+      applyIncomingActions()
+
+      newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[2]
+
+      // check that only the root remains
+      assert.equal(newSnapshot.nodes!.length, 1)
+      assert.equal(newSnapshot.nodes![0].extensions![UUIDComponent.jsonID], rootUUID)
+      assert.equal(newSnapshot.nodes![0].children?.length, 0)
+      assert.deepEqual(newSnapshot.scenes![0].nodes, [0])
     })
   })
 })

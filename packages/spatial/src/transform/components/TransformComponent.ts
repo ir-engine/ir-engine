@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,24 +14,25 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Types } from 'bitecs'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { defineComponent, getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { EntityTreeComponent, getAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 
 export type TransformComponentType = {
   position: Vector3
@@ -119,6 +120,18 @@ export const TransformComponent = defineComponent({
     return vec3
   },
 
+  getMatrixRelativeToEntity: (entity: Entity, relativeEntity: Entity, outMatrix: Matrix4) => {
+    const transform = getComponent(entity, TransformComponent)
+    const relativeTransform = getComponent(relativeEntity, TransformComponent)
+    return outMatrix.copy(relativeTransform.matrixWorld).invert().multiply(transform.matrixWorld)
+  },
+
+  getMatrixRelativeToScene: (entity: Entity, outMatrix: Matrix4) => {
+    const relativeEntity = getAncestorWithComponent(entity, SceneComponent)
+    if (!relativeEntity) return outMatrix.copy(getComponent(entity, TransformComponent).matrixWorld)
+    return TransformComponent.getMatrixRelativeToEntity(entity, relativeEntity, outMatrix)
+  },
+
   // this method is essentially equivalent to Matrix4.decompose
   getWorldRotation: (entity: Entity, quaternion: Quaternion) => {
     const transform = getComponent(entity, TransformComponent)
@@ -166,6 +179,28 @@ export const TransformComponent = defineComponent({
 
     // if determine is negative, we need to invert one scale
     const det = transform.matrixWorld.determinant()
+    if (det < 0) sx = -sx
+
+    vec3.x = sx
+    vec3.y = sy
+    vec3.z = sz
+
+    return vec3
+  },
+
+  getSceneScale: (entity: Entity, vec3: Vector3) => {
+    const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+    if (!sceneEntity) return vec3.set(1, 1, 1)
+
+    TransformComponent.getMatrixRelativeToEntity(entity, sceneEntity, _m1)
+    const te = _m1.elements
+
+    let sx = _v1.set(te[0], te[1], te[2]).length()
+    const sy = _v1.set(te[4], te[5], te[6]).length()
+    const sz = _v1.set(te[8], te[9], te[10]).length()
+
+    // if determine is negative, we need to invert one scale
+    const det = _m1.determinant()
     if (det < 0) sx = -sx
 
     vec3.x = sx
@@ -225,6 +260,48 @@ export const TransformComponent = defineComponent({
     const transform = getComponent(entity, TransformComponent)
     transform.matrixWorld.decompose(vec3, quat, vec3_2)
     transform.matrixWorld.compose(vec3, quat, scale)
+  },
+
+  /**Transforms forward vector*/
+  forward: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrixWorld.elements
+    outVector.set(matrixElements[8], matrixElements[9], matrixElements[10]).normalize()
+    return outVector
+  },
+
+  /**Transforms back vector*/
+  back: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrixWorld.elements
+    outVector.set(matrixElements[8], matrixElements[9], matrixElements[10]).normalize().negate()
+    return outVector
+  },
+
+  /**Transforms up vector*/
+  up: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrixWorld.elements
+    outVector.set(matrixElements[4], matrixElements[5], matrixElements[6]).normalize()
+    return outVector
+  },
+
+  /**Transforms down vector*/
+  down: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrixWorld.elements
+    outVector.set(matrixElements[4], matrixElements[5], matrixElements[6]).normalize().negate()
+    return outVector
+  },
+
+  /**Transforms right vector*/
+  right: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrixWorld.elements
+    outVector.set(matrixElements[0], matrixElements[1], matrixElements[2]).normalize()
+    return outVector
+  },
+
+  /**Transforms left vector*/
+  left: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrixWorld.elements
+    outVector.set(matrixElements[0], matrixElements[1], matrixElements[2]).normalize().negate()
+    return outVector
   },
 
   dirtyTransforms: {} as Record<Entity, boolean>,

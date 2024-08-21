@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
@@ -28,7 +28,7 @@ import { useLayoutEffect } from 'react'
 import { Mesh } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -38,33 +38,27 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { NO_PROXY, getState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { ColliderComponent as NewColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
-import { CollisionGroups, DefaultCollisionMask } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { NO_PROXY } from '@ir-engine/hyperflux'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { ColliderComponent as NewColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
+import { CollisionGroups, DefaultCollisionMask } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import {
   Body,
   BodyTypes,
   ColliderDescOptions,
   ColliderOptions,
   OldShapeTypes
-} from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import {
-  computeTransformMatrix,
-  updateGroupChildren
-} from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+} from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { iterateEntityNode, useTreeQuery } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { computeTransformMatrix, updateGroupChildren } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
-import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 
 /** @deprecated - use the new API */
@@ -164,12 +158,12 @@ export const OldColliderComponent = defineComponent({
     const colliderComponent = useComponent(entity, OldColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
+    const tree = useTreeQuery(entity)
 
     useLayoutEffect(() => {
       setComponent(entity, InputComponent)
 
       const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
-      const physicsWorld = getState(PhysicsState).physicsWorld
 
       if (isLoadedFromGLTF?.value || isMeshCollider) {
         const colliderComponent = getComponent(entity, OldColliderComponent)
@@ -226,11 +220,6 @@ export const OldColliderComponent = defineComponent({
 
           meshesToRemove.push(mesh)
         })
-
-        if (!getState(EngineState).isEditor)
-          for (const mesh of meshesToRemove) {
-            cleanupAllMeshData(mesh, {})
-          }
       } else {
         /**
          * If rigidbody does not exist, create one
@@ -266,7 +255,7 @@ export const OldColliderComponent = defineComponent({
           removeComponent(entity, TriggerComponent)
         }
       }
-    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length])
+    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, tree])
 
     return null
   }

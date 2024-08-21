@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,26 +14,26 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Uniform, Vector3 } from 'three'
+import { Material, Uniform, Vector3 } from 'three'
 
-import { getComponent, getOptionalComponent, PresentationSystemGroup } from '@etherealengine/ecs'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { getState } from '@etherealengine/hyperflux'
-import { generateNoiseTexture } from '@etherealengine/spatial/src/renderer/functions/generateNoiseTexture'
+import { defineComponent, defineQuery, getComponent, PresentationSystemGroup, useEntityContext } from '@ir-engine/ecs'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { getState } from '@ir-engine/hyperflux'
+import { generateNoiseTexture } from '@ir-engine/spatial/src/renderer/functions/generateNoiseTexture'
 
-import { PluginObjectType } from '../../../../common/functions/OnBeforeCompilePlugin'
-import { MaterialComponent, MaterialComponents, pluginByName } from '../../MaterialComponent'
-import { applyPluginShaderParameters } from '../../materialFunctions'
+import { useEffect } from 'react'
+import { MaterialStateComponent } from '../../MaterialComponent'
+import { setPlugin } from '../../materialFunctions'
 
 export type NoiseOffsetParameters = {
   textureSize: Uniform
@@ -43,87 +43,101 @@ export type NoiseOffsetParameters = {
   offsetAxis: Uniform
 }
 
-export const NoiseOffsetPlugin: PluginObjectType = {
-  id: 'noiseOffset',
-  priority: 0.4,
-  compile: (shader, renderer) => {
-    const pluginEntity = pluginByName[NoiseOffsetPlugin.id]
-    const plugin = getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
-    if (!plugin || !plugin.parameters) return
-    applyPluginShaderParameters(pluginEntity, shader, {
-      textureSize: 64,
-      frequency: 0.00025,
-      amplitude: 0.005,
-      noiseTexture: generateNoiseTexture(64),
-      offsetAxis: new Vector3(0, 1, 0),
-      time: 0
+export const NoiseOffsetPlugin = defineComponent({
+  name: 'NoiseOffsetPlugin',
+  onInit: (entity) => {
+    return {
+      textureSize: new Uniform(64),
+      frequency: new Uniform(0.00025),
+      amplitude: new Uniform(0.005),
+      noiseTexture: new Uniform(generateNoiseTexture(64)),
+      offsetAxis: new Uniform(new Vector3(0, 1, 0)),
+      time: new Uniform(0)
+    }
+  },
+  reactor: () => {
+    const entity = useEntityContext()
+    useEffect(() => {
+      const materialComponent = getComponent(entity, MaterialStateComponent)
+      const callback = (shader) => {
+        const plugin = getComponent(entity, NoiseOffsetPlugin)
+
+        shader.uniforms.textureSize = plugin.textureSize
+        shader.uniforms.frequency = plugin.frequency
+        shader.uniforms.amplitude = plugin.amplitude
+        plugin.noiseTexture.value = generateNoiseTexture(64)
+        shader.uniforms.noiseTexture = plugin.noiseTexture
+        shader.uniforms.offsetAxis = plugin.offsetAxis
+        shader.uniforms.time = plugin.time
+
+        shader.vertexShader = shader.vertexShader.replace(
+          'void main() {',
+          `
+            uniform sampler2D noiseTexture;
+            uniform float textureSize; // The width of a slice
+            uniform float frequency;
+            uniform float amplitude;
+            uniform float time;
+    
+            vec3 sampleNoise(vec3 pos) {
+                float zSlice = (pos.z * textureSize);
+                vec2 slicePos = vec2(zSlice / textureSize, fract(zSlice / textureSize));
+                vec2 noisePos = slicePos + pos.xy / textureSize;
+                return vec3(texture2D(noiseTexture, noisePos).r);
+            }
+    
+            vec3 turbulence(vec3 position) {
+              vec3 sum = vec3(0.0);
+              float frequencyMutliplied = frequency;
+              float amplitudeMultiplied = amplitude;
+    
+              for (int i = 0; i < 4; i++) {
+                  vec3 p = position * frequencyMutliplied;
+                  p.z += time * 0.0015;
+    
+                  sum += sampleNoise(p).rgb * amplitudeMultiplied;
+              
+                  frequencyMutliplied *= 2.0;
+                  amplitudeMultiplied *= 7.0;
+              }
+            
+              return sum;
+            }
+    
+            void main() {
+          `
+        )
+        shader.vertexShader = shader.vertexShader.replace(
+          'void main() {',
+          `uniform vec3 offsetAxis;
+        void main() {`
+        )
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <begin_vertex>',
+          `
+            #include <begin_vertex>
+            vec4 noiseWorldPosition = vec4(transformed, 1.0);
+            noiseWorldPosition = modelMatrix * noiseWorldPosition;
+            #ifdef USE_INSTANCING
+              noiseWorldPosition = instanceMatrix * noiseWorldPosition;
+            #endif
+            vec3 offset = turbulence(noiseWorldPosition.xyz) * offsetAxis;
+            transformed += offset;
+          `
+        )
+      }
+      setPlugin(materialComponent.material as Material, callback)
     })
-
-    shader.vertexShader = shader.vertexShader.replace(
-      'void main() {',
-      `
-        uniform sampler2D noiseTexture;
-        uniform float textureSize; // The width of a slice
-        uniform float frequency;
-        uniform float amplitude;
-        uniform float time;
-
-        vec3 sampleNoise(vec3 pos) {
-            float zSlice = (pos.z * textureSize);
-            vec2 slicePos = vec2(zSlice / textureSize, fract(zSlice / textureSize));
-            vec2 noisePos = slicePos + pos.xy / textureSize;
-            return vec3(texture2D(noiseTexture, noisePos).r);
-        }
-
-        vec3 turbulence(vec3 position) {
-          vec3 sum = vec3(0.0);
-          float frequencyMutliplied = frequency;
-          float amplitudeMultiplied = amplitude;
-
-          for (int i = 0; i < 4; i++) {
-              vec3 p = position * frequencyMutliplied;
-              p.z += time * 0.0015;
-
-              sum += sampleNoise(p).rgb * amplitudeMultiplied;
-          
-              frequencyMutliplied *= 2.0;
-              amplitudeMultiplied *= 7.0;
-          }
-        
-          return sum;
-        }
-
-        void main() {
-      `
-    )
-    shader.vertexShader = shader.vertexShader.replace(
-      'void main() {',
-      `uniform vec3 offsetAxis;
-    void main() {`
-    )
-    shader.vertexShader = shader.vertexShader.replace(
-      '#include <begin_vertex>',
-      `
-        #include <begin_vertex>
-        vec4 noiseWorldPosition = vec4(transformed, 1.0);
-        noiseWorldPosition = modelMatrix * noiseWorldPosition;
-        #ifdef USE_INSTANCING
-          noiseWorldPosition = instanceMatrix * noiseWorldPosition;
-        #endif
-        vec3 offset = turbulence(noiseWorldPosition.xyz) * offsetAxis;
-        transformed += offset;
-      `
-    )
+    return null
   }
-}
+})
 
+const noisePluginQuery = defineQuery([NoiseOffsetPlugin])
 const execute = () => {
-  const plugin = getOptionalComponent(pluginByName[NoiseOffsetPlugin.id], MaterialComponent[MaterialComponents.Plugin])
-  if (!plugin || !plugin.parameters) return
-  for (const key in plugin.parameters) {
-    const parameters = plugin.parameters[key] as NoiseOffsetParameters
+  for (const entity of noisePluginQuery()) {
+    const noisePlugin = getComponent(entity, NoiseOffsetPlugin)
     const elapsedSeconds = getState(ECSState).elapsedSeconds
-    parameters.time.value = elapsedSeconds
+    noisePlugin.time.value = elapsedSeconds
   }
 }
 

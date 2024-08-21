@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
@@ -35,33 +35,35 @@ import {
   getOptionalMutableComponent,
   hasComponent,
   Not,
+  removeComponent,
   setComponent,
-  UndefinedEntity,
-  useQuery
-} from '@etherealengine/ecs'
-import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+  UndefinedEntity
+} from '@ir-engine/ecs'
 import {
   BoundingBoxHelperComponent,
   ObjectGridSnapComponent
-} from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
-import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+} from '@ir-engine/engine/src/scene/components/ObjectGridSnapComponent'
+import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
+import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
+import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { SelectionState } from '../services/SelectionServices'
-
-const objectGridQuery = defineQuery([ObjectGridSnapComponent])
+import { ClickPlacementState } from './ClickPlacementSystem'
 
 function isParentSelected(entity: Entity) {
   let walker: Entity | null = entity
+  const clickState = getState(ClickPlacementState)
+  const placementEntity = clickState.placementEntity
+
   const selectedEntities = SelectionState.getSelectedEntities()
   while (walker) {
-    if (selectedEntities.includes(walker)) return walker
+    if (placementEntity === walker || selectedEntities.includes(walker)) return walker
     walker = getOptionalComponent(walker, EntityTreeComponent)?.parentEntity ?? null
   }
   return false
@@ -189,14 +191,6 @@ function calculateTranslation(bbox1: Box3, bbox2: Box3): Vector3 {
   return translation
 }
 
-export const ObjectGridSnapState = defineState({
-  name: 'ObjectGridSnapState',
-  initial: {
-    enabled: false,
-    apply: false
-  }
-})
-
 function setHelperLayer(entity: Entity, layer: number) {
   const helper = getOptionalMutableComponent(entity, BoundingBoxHelperComponent)
   if (helper) {
@@ -223,20 +217,56 @@ function resetHelperTransform(entity: Entity) {
   }
 }
 
+export const ObjectGridSnapState = defineState({
+  name: 'ObjectGridSnapState',
+  initial: {
+    enabled: false,
+    selectedEntities: [] as Entity[],
+    selectedParents: [] as Entity[]
+  },
+  apply: () => {
+    const snapState = getState(ObjectGridSnapState)
+    const selectedEntities = snapState.selectedEntities
+    const selectedParents = snapState.selectedParents
+
+    const toCommit = [] as Entity[]
+
+    for (let i = 0; i < selectedEntities.length; i++) {
+      const selectedEntity = selectedEntities[i]
+      const selectedParent = selectedParents[i]
+      const helperEntity = getOptionalComponent(selectedEntity, BoundingBoxHelperComponent)?.entity
+      if (!helperEntity) {
+        console.warn(`ObjectGridSnapSystem:apply No Helper entity found for selected entity: ${selectedEntity}`)
+        continue
+      }
+
+      const helperMatrixWorld = getComponent(helperEntity, TransformComponent).matrixWorld
+      const parentMatrixWorld = getComponent(selectedParent, TransformComponent).matrixWorld
+      const transformMat = parentMatrixWorld.clone().invert().multiply(helperMatrixWorld)
+      parentMatrixWorld.multiply(transformMat)
+      TransformComponent.updateFromWorldMatrix(selectedParent)
+      toCommit.push(selectedParent)
+    }
+
+    EditorControlFunctions.commitTransformSave(toCommit)
+  }
+})
+
+const objectGridQuery = defineQuery([ObjectGridSnapComponent])
+const models = defineQuery([ModelComponent, Not(AvatarRigComponent)])
+
 export const ObjectGridSnapSystem = defineSystem({
   uuid: 'ee.engine.scene.ObjectGridSnapSystem',
   insert: { after: TransformSystem },
   reactor: () => {
     const snapState = useMutableState(ObjectGridSnapState)
     const selectionState = useMutableState(SelectionState)
-    const models = useQuery([ModelComponent, Not(AvatarRigComponent)])
 
     useEffect(() => {
-      if (!snapState.enabled.value) {
-        for (const entity of objectGridQuery()) {
-          setHelperColor(entity, new Color(1, 0, 0))
-          setHelperLayer(entity, ObjectLayers.NodeHelper)
-          resetHelperTransform(entity)
+      if (snapState.enabled.value) {
+        for (const entity of models()) setComponent(entity, ObjectGridSnapComponent)
+        return () => {
+          for (const entity of models()) removeComponent(entity, ObjectGridSnapComponent)
         }
       }
     }, [snapState.enabled])
@@ -253,10 +283,6 @@ export const ObjectGridSnapSystem = defineSystem({
       }
     }, [selectionState.selectedEntities])
 
-    useEffect(() => {
-      for (const entity of models) setComponent(entity, ObjectGridSnapComponent)
-    }, [])
-
     return null
   },
   execute: () => {
@@ -264,10 +290,20 @@ export const ObjectGridSnapSystem = defineSystem({
     if (!engineState.isEditing) return
     const snapState = getState(ObjectGridSnapState)
     if (!snapState.enabled) return
+
+    for (const entity of models.enter()) {
+      setComponent(entity, ObjectGridSnapComponent)
+    }
+
+    for (const entity of models.exit()) {
+      removeComponent(entity, ObjectGridSnapComponent)
+    }
+
     const entities = objectGridQuery()
     const selectedEntities: Entity[] = []
     const selectedParents: Entity[] = []
     const nonSelectedEntities: Entity[] = []
+
     for (const entity of entities) {
       const parent = isParentSelected(entity)
       if (parent) {
@@ -277,15 +313,21 @@ export const ObjectGridSnapSystem = defineSystem({
         setHelperColor(entity, new Color(1, 1, 1))
       } else {
         nonSelectedEntities.push(entity)
+        resetHelperTransform(entity)
         setHelperLayer(entity, ObjectLayers.NodeHelper)
         setHelperColor(entity, new Color(1, 0, 0))
       }
     }
+
+    getMutableState(ObjectGridSnapState).merge({
+      selectedEntities: selectedEntities,
+      selectedParents: selectedParents
+    })
+
     if (selectedEntities.length === 0) return
     for (let i = 0; i < selectedEntities.length; i++) {
       const selectedEntity = selectedEntities[i]
       const selectedParent = selectedParents[i]
-
       const selectedBBox = getComponent(selectedEntity, ObjectGridSnapComponent).bbox
       const selectedMatrixWorld = getComponent(selectedEntity, TransformComponent).matrixWorld
       const closestEntities: Entity[] = []
@@ -300,25 +342,22 @@ export const ObjectGridSnapSystem = defineSystem({
         }
       }
 
-      const helperEntity = getComponent(selectedEntity, BoundingBoxHelperComponent).entity
+      const helperEntity = getOptionalComponent(selectedEntity, BoundingBoxHelperComponent)?.entity
+
       const commitNoOp = () => {
-        if (helperEntity) {
-          //reset helper bbox if exists
-          setComponent(helperEntity, TransformComponent, {
-            position: new Vector3(),
-            rotation: new Quaternion().identity(),
-            scale: new Vector3(1, 1, 1)
-          })
-        }
-        if (getState(ObjectGridSnapState).apply) {
-          EditorControlFunctions.commitTransformSave([selectedParent])
-          getMutableState(ObjectGridSnapState).apply.set(false)
-        }
+        resetHelperTransform(selectedEntity)
       }
+
       if (closestEntities.length === 0) {
         commitNoOp()
         continue
       }
+
+      if (!helperEntity) {
+        commitNoOp()
+        continue
+      }
+
       let leastOffset = Infinity
       let closestEntity = UndefinedEntity
       for (const candidateEntity of closestEntities) {
@@ -348,9 +387,8 @@ export const ObjectGridSnapSystem = defineSystem({
       if (closestEntity === UndefinedEntity) {
         commitNoOp()
         continue
-      } else {
-        setHelperColor(closestEntity, new Color(0, 1, 0))
       }
+      setHelperColor(closestEntity, new Color(0, 1, 0))
       const closestBBox = getComponent(closestEntity, ObjectGridSnapComponent).bbox
       const closestMatrixWorld = getComponent(closestEntity, TransformComponent).matrixWorld
       const parentMatrixWorld = getComponent(selectedParent, TransformComponent).matrixWorld
@@ -359,16 +397,12 @@ export const ObjectGridSnapSystem = defineSystem({
       const position = new Vector3()
       const scale = new Vector3()
       srcMatrixWorld.decompose(position, new Quaternion(), scale)
-      const dstEntity = getState(ObjectGridSnapState).apply ? selectedParent : helperEntity
-      if (!dstEntity) {
-        commitNoOp()
-        continue
-      }
-      const dstMatrixWorld = getComponent(dstEntity, TransformComponent).matrixWorld
+
+      const dstMatrixWorld = getComponent(helperEntity, TransformComponent).matrixWorld
       dstMatrixWorld.extractRotation(rotationMatrix)
       dstMatrixWorld.scale(scale)
       dstMatrixWorld.setPosition(position)
-      TransformComponent.updateFromWorldMatrix(dstEntity)
+      TransformComponent.updateFromWorldMatrix(helperEntity)
       const translation = boundedTranslation(
         selectedBBox,
         closestBBox,
@@ -376,12 +410,7 @@ export const ObjectGridSnapSystem = defineSystem({
         dstMatrixWorld.clone().invert().multiply(closestMatrixWorld)
       )
       dstMatrixWorld.multiply(new Matrix4().makeTranslation(translation))
-      TransformComponent.updateFromWorldMatrix(dstEntity)
-      if (getState(ObjectGridSnapState).apply) {
-        EditorControlFunctions.commitTransformSave([dstEntity])
-        getMutableState(ObjectGridSnapState).apply.set(false)
-      }
-      break
+      TransformComponent.updateFromWorldMatrix(helperEntity)
     }
   }
 })

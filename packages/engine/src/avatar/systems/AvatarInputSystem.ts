@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Quaternion, Vector3 } from 'three'
@@ -33,25 +33,25 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { getState } from '@etherealengine/hyperflux'
-import { Vector3_Up, Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { StandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { ClientInputSystem } from '@etherealengine/spatial/src/input/systems/ClientInputSystem'
-import { RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
-import { RigidBodyFixedTagComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
-import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
-import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { getState } from '@ir-engine/hyperflux'
+import { Vector3_Up, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
+import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
+import { StandardGamepadButton } from '@ir-engine/spatial/src/input/state/ButtonState'
+import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
+import { ClientInputSystem } from '@ir-engine/spatial/src/input/systems/ClientInputSystem'
+import { RaycastArgs } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { RigidBodyFixedTagComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
+import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
+import { getInteractionGroups } from '@ir-engine/spatial/src/physics/functions/getInteractionGroups'
+import { SceneQueryType } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
@@ -62,20 +62,12 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { applyInputSourcePoseToIKTargets } from '../functions/applyInputSourcePoseToIKTargets'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
-const _quat = new Quaternion()
+import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
+import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { getThumbstickOrThumbpadAxes } from '@ir-engine/spatial/src/input/functions/getThumbstickOrThumbpadAxes'
 
-/**
- * On 'xr-standard' mapping, get thumbstick input [2,3], fallback to thumbpad input [0,1]
- * On 'standard' mapping, get thumbstick input [0,1]
- */
-export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, handedness: XRHandedness, deadZone = 0.05) {
-  const gamepad = inputSource.gamepad
-  const axes = gamepad!.axes
-  const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' || handedness === 'right' ? 2 : 0
-  const xAxis = Math.abs(axes[axesIndex]) > deadZone ? axes[axesIndex] : 0
-  const zAxis = Math.abs(axes[axesIndex + 1]) > deadZone ? axes[axesIndex + 1] : 0
-  return [xAxis, zAxis] as [number, number]
-}
+const _quat = new Quaternion()
 
 export const InputSourceAxesDidReset = new WeakMap<XRInputSource, boolean>()
 
@@ -210,7 +202,8 @@ const execute = () => {
   const controller = getComponent(selfAvatarEntity, AvatarControllerComponent)
 
   const xrState = getState(XRState)
-  const { isCameraAttachedToAvatar, isMovementControlsEnabled } = getState(XRControlsState)
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
+  const isMovementControlsEnabled = XRState.isMovementControlsEnabled
 
   if (!isMovementControlsEnabled) return
 
@@ -243,14 +236,17 @@ const execute = () => {
 
   controller.gamepadLocalInput.set(0, 0, 0)
 
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
-  if (!inputPointerEntity && !xrState.session) return
+  const viewerEntity = Engine.instance.viewerEntity
 
-  const buttons = InputSourceComponent.getMergedButtons()
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(viewerEntity)[0]
+
+  if (!isMobile && !inputPointerEntity && !xrState.session) return
+
+  const buttons = InputComponent.getMergedButtons(viewerEntity)
 
   if (buttons.ShiftLeft?.down) onShiftLeft()
 
-  const gamepadJump = buttons[StandardGamepadButton.ButtonA]?.down
+  const gamepadJump = buttons[StandardGamepadButton.StandardGamepadButtonA]?.down
 
   //** touch input (only for avatar jump)*/
   const doubleClicked = isCameraAttachedToAvatar ? false : getAvatarDoubleClick(buttons)
@@ -258,15 +254,22 @@ const execute = () => {
   const keyDeltaX =
     (buttons.KeyA?.pressed ? -1 : 0) +
     (buttons.KeyD?.pressed ? 1 : 0) +
-    (buttons[StandardGamepadButton.DPadLeft]?.pressed ? -1 : 0) +
-    (buttons[StandardGamepadButton.DPadRight]?.pressed ? 1 : 0)
+    (buttons[StandardGamepadButton.StandardGamepadDPadLeft]?.pressed ? -1 : 0) +
+    (buttons[StandardGamepadButton.StandardGamepadDPadRight]?.pressed ? 1 : 0)
   const keyDeltaZ =
     (buttons.KeyW?.pressed ? -1 : 0) +
     (buttons.KeyS?.pressed ? 1 : 0) +
     (buttons.ArrowUp?.pressed ? -1 : 0) +
     (buttons.ArrowDown?.pressed ? 1 : 0) +
-    (buttons[StandardGamepadButton.DPadUp]?.pressed ? -1 : 0) +
-    (buttons[StandardGamepadButton.DPadDown]?.pressed ? -1 : 0)
+    (buttons[StandardGamepadButton.StandardGamepadDPadUp]?.pressed ? -1 : 0) +
+    (buttons[StandardGamepadButton.StandardGamepadDPadDown]?.pressed ? -1 : 0)
+
+  if (keyDeltaZ === 1) {
+    // todo: auto-adjust target distance in follow camera system based on target velocity
+    const follow = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
+    if (follow?.mode === FollowCameraMode.ThirdPerson || follow?.mode === FollowCameraMode.ShoulderCam)
+      follow.targetDistance = Math.max(follow.targetDistance, follow.effectiveMaxDistance * 0.5)
+  }
 
   controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ).normalize()
 
@@ -274,13 +277,14 @@ const execute = () => {
 
   // TODO: refactor AvatarControlSchemes to allow multiple input sources to be passed
   for (const eid of InputSourceComponent.nonCapturedInputSources()) {
+    if (hasComponent(eid, InputPointerComponent)) continue
     const inputSource = getComponent(eid, InputSourceComponent)
-    if (inputSource.source.handedness === 'none') continue
-    const controlScheme = !isCameraAttachedToAvatar
-      ? AvatarAxesControlScheme.Move
-      : inputSource.source.handedness === inputState.preferredHand
-      ? avatarInputSettings.rightAxesControlScheme
-      : avatarInputSettings.leftAxesControlScheme
+    const controlScheme =
+      !isCameraAttachedToAvatar || inputSource.source.handedness === 'none'
+        ? AvatarAxesControlScheme.Move
+        : inputSource.source.handedness === inputState.preferredHand
+        ? avatarInputSettings.rightAxesControlScheme
+        : avatarInputSettings.leftAxesControlScheme
     AvatarAxesControlSchemeBehavior[controlScheme](
       inputSource.source,
       controller,

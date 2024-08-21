@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 /**
@@ -32,11 +32,11 @@ import React, { startTransition, use } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
-import config from '@etherealengine/common/src/config'
-import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
-import { HookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
-import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { HyperFlux, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import config from '@ir-engine/common/src/config'
+import { DeepReadonly } from '@ir-engine/common/src/DeepReadonly'
+import { HookableFunction } from '@ir-engine/common/src/utils/createHookableFunction'
+import { getNestedObject } from '@ir-engine/common/src/utils/getNestedProperty'
+import { HyperFlux, ReactorRoot, startReactor } from '@ir-engine/hyperflux'
 import {
   hookstate,
   InferStateValueType,
@@ -45,7 +45,7 @@ import {
   none,
   State,
   useHookstate
-} from '@etherealengine/hyperflux/functions/StateFunctions'
+} from '@ir-engine/hyperflux/functions/StateFunctions'
 
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
@@ -87,7 +87,7 @@ type StringLiteral<T> = string extends T ? SomeStringLiteral : string
  */
 export interface ComponentPartial<
   ComponentType = any,
-  Schema extends bitECS.ISchema = Record<string, any>,
+  Schema extends bitECS.ISchema = Record<string, never>,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = never
@@ -132,7 +132,7 @@ export interface ComponentPartial<
    * `@todo` Explain what reactive is in this context
    * `@todo` Explain this function
    */
-  reactor?: React.FC
+  reactor?: any // previously <React.FC> breaks types
   /**
    * @todo Explain ComponentPartial.errors[]
    */
@@ -161,7 +161,7 @@ export interface Component<
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
-  reactor?: HookableFunction<React.FC>
+  reactor?: any
   reactorMap: Map<Entity, ReactorRoot>
   stateMap: Record<Entity, State<ComponentType> | undefined>
   errors: ErrorTypes[]
@@ -213,22 +213,23 @@ export type ComponentErrorsType<C extends Component> =
  */
 export const defineComponent = <
   ComponentType = true,
-  Schema extends bitECS.ISchema = Record<string, any>,
+  Schema extends bitECS.ISchema = Record<string, never>,
   JSON = ComponentType,
-  ComponentExtras = unknown,
+  ComponentExtras = Record<string, any>,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   Error extends StringLiteral<Error> = ''
 >(
   def: ComponentPartial<ComponentType, Schema, JSON, SetJSON, Error> & ComponentExtras
 ) => {
-  const Component = (def.schema ? bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) : {}) as ComponentExtras &
-    SoAComponentType<Schema> &
-    Component<ComponentType, Schema, JSON, SetJSON, Error>
+  const Component = (
+    def.schema ? bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) : {}
+  ) as SoAComponentType<Schema> & Component<ComponentType, Schema, JSON, SetJSON, Error>
   Component.isComponent = true
   Component.onInit = (entity) => true as any
   Component.onSet = (entity, component, json) => {}
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => null!
+
   Component.errors = []
   Object.assign(Component, def)
   if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
@@ -240,10 +241,14 @@ export const defineComponent = <
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
     console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
+  } else if (def.toJSON) {
+    console.warn(
+      `Component ${Component.name} has toJson defined, but no jsonID defined. This will cause serialization issues.`
+    )
   }
   ComponentMap.set(Component.name, Component)
 
-  return Component as typeof Component & { _TYPE: ComponentType }
+  return Component as typeof Component & { _TYPE: ComponentType } & ComponentExtras
 
   // const ExternalComponentReactor = (props: SetJSON) => {
   //   const entity = useEntityContext()
@@ -298,13 +303,13 @@ export const getComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, Record<string, any>, unknown>
 ): ComponentType => {
-  const componentState = component.stateMap[entity]!
-  if (!componentState || componentState.promised) {
+  if (!bitECS.hasComponent(HyperFlux.store, component, entity)) {
     console.warn(
       `[getComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
     )
     return undefined as any
   }
+  const componentState = component.stateMap[entity]!
   return componentState.get(NO_PROXY_STEALTH) as ComponentType
 }
 
@@ -353,11 +358,12 @@ export const setComponent = <C extends Component>(
     root['entity'] = entity
     root['component'] = Component.name
     Component.reactorMap.set(entity, root)
-    return
+    return getComponent(entity, Component) as ComponentType<C>
   }
 
   const root = Component.reactorMap.get(entity)
   root?.run()
+  return getComponent(entity, Component) as ComponentType<C>
 }
 
 /**
@@ -446,21 +452,6 @@ export const getAllComponents = (entity: Entity): Component[] => {
   return bitECS.getEntityComponents(HyperFlux.store, entity) as Component[]
 }
 
-export const useAllComponents = (entity: Entity) => {
-  const result = useHookstate([] as Component[])
-
-  useExecute(
-    () => {
-      const components = getAllComponents(entity)
-      /** @todo we need a better strategy than relying on lengths */
-      if (components.length !== result.length) result.set(components)
-    },
-    { after: PresentationSystemGroup }
-  )
-
-  return result.get(NO_PROXY) // for some reason .value does not work
-}
-
 /**
  * @description Returns an {@link Object} containing the data of all {@link Component}s of the given {@link Entity}.
  * @param entity The desired Entity.
@@ -490,7 +481,7 @@ export const serializeComponent = <C extends Component<any, any, any>>(entity: E
 }
 
 // use seems to be unavailable in the server environment
-function _use(promise) {
+export function _use(promise) {
   if (promise.status === 'fulfilled') {
     return promise.value
   } else if (promise.status === 'rejected') {
@@ -517,6 +508,7 @@ function _use(promise) {
  * Use a component in a reactive context (a React component)
  */
 export function useComponent<C extends Component<any>>(entity: Entity, Component: C) {
+  if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
   if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(none)
   const componentState = Component.stateMap[entity]!
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved

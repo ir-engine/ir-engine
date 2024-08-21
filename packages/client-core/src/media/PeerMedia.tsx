@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,27 +14,20 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 
-import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import {
-  dispatchAction,
-  getMutableState,
-  getState,
-  PeerID,
-  useHookstate,
-  useMutableState
-} from '@etherealengine/hyperflux'
+import { InstanceID } from '@ir-engine/common/src/schema.type.module'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { dispatchAction, getMutableState, getState, PeerID, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import {
   MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
@@ -43,7 +36,7 @@ import {
   screenshareAudioDataChannelType,
   screenshareVideoDataChannelType,
   webcamAudioDataChannelType
-} from '@etherealengine/network'
+} from '@ir-engine/network'
 
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../transports/MediaStreams'
@@ -93,7 +86,14 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
     if (!peerMediaChannelState) return
     if (isAudio) peerMediaChannelState.audioStreamPaused.set(!!consumerState.paused.value)
     else peerMediaChannelState.videoStreamPaused.set(!!consumerState.paused.value)
-  }, [consumerState.paused])
+  }, [consumerState.paused?.value])
+
+  useEffect(() => {
+    const peerMediaChannelState = getMutableState(PeerMediaChannelState)[peerID]?.[type]
+    if (!peerMediaChannelState) return
+    if (isAudio) peerMediaChannelState.audioProducerPaused.set(!!consumerState.producerPaused.value)
+    else peerMediaChannelState.videoProducerPaused.set(!!consumerState.producerPaused.value)
+  }, [consumerState.producerPaused?.value])
 
   useEffect(() => {
     const globalMute = !!producerState.globalMute?.value
@@ -109,7 +109,7 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
       peerMediaChannelState.videoProducerPaused.set(paused)
       peerMediaChannelState.videoProducerGlobalMute.set(globalMute)
     }
-  }, [producerState.paused])
+  }, [producerState.paused?.value])
 
   return null
 }
@@ -162,7 +162,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
 
   useEffect(() => {
-    if (!networkState.ready.value) return
+    if (!networkState.ready?.value) return
 
     const peerID = producerState.peerID.value
     // dont need to request our own consumers
@@ -176,13 +176,13 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
       MediasoupMediaConsumerActions.requestConsumer({
         mediaTag,
         peerID,
-        rtpCapabilities: network.transport.mediasoupDevice.rtpCapabilities,
+        rtpCapabilities: network.mediasoupDevice.rtpCapabilities,
         channelID,
         $topic: network.topic,
         $to: network.hostPeerID
       })
     )
-  }, [networkState.ready.value])
+  }, [networkState.ready?.value])
 
   return null
 }

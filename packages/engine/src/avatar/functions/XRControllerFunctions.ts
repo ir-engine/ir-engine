@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,27 +14,27 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { AnimationMixer, Group, LoopOnce } from 'three'
 
-import { config } from '@etherealengine/common/src/config'
-import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState } from '@etherealengine/hyperflux'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { config } from '@ir-engine/common/src/config'
+import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { getMutableState } from '@ir-engine/hyperflux'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { getGLTFAsync } from '../../assets/functions/resourceLoaderHooks'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { AvatarControllerType, AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
 import { XRHandMeshModel } from './XRHandMeshModel'
@@ -44,8 +44,8 @@ export const initializeControllerModel = async (entity: Entity, handedness: stri
   const avatarInputControllerType = avatarInputState.controlType.value
   if (avatarInputControllerType !== AvatarControllerType.OculusQuest) return
 
-  const gltf = await AssetLoader.loadAsync(
-    `${config.client.fileServer}/projects/default-project/assets/controllers/${handedness}_controller.glb`
+  const [gltf] = await getGLTFAsync(
+    `${config.client.fileServer}/projects/ir-engine/default-project/assets/controllers/${handedness}_controller.glb`
   )
   let handMesh = gltf?.scene?.children[0]
 
@@ -84,10 +84,10 @@ export const initializeHandModel = async (entity: Entity, handedness: string) =>
   // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)
   if (avatarInputControllerType === AvatarControllerType.None) return
 
-  const gltf = await AssetLoader.loadAsync(
-    `${config.client.fileServer}/projects/default-project/assets/controllers/${handedness}.glb`
+  const [gltf] = await getGLTFAsync(
+    `${config.client.fileServer}/projects/ir-engine/default-project/assets/controllers/${handedness}.glb`
   )
-  let handMesh = gltf?.scene?.children[0]
+  const handMesh = gltf?.scene?.children[0]
 
   const controller = new Group()
   controller.name = `controller-hand-model-${entity}`
@@ -100,7 +100,7 @@ export const initializeHandModel = async (entity: Entity, handedness: string) =>
     removeObjectFromGroup(controllerEntity, controller.userData.mesh)
   }
 
-  controller.userData.mesh = new XRHandMeshModel(entity, controller, handMesh, handedness)
+  controller.userData.mesh = new XRHandMeshModel(entity, controller, handMesh!, handedness)
   addObjectToGroup(controllerEntity, controller.userData.mesh)
   controller.userData.handedness = handedness
 

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,35 +14,36 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MeshBasicMaterial } from 'three'
 
-import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
-import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
-import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
-import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
-import type { WebLayer3D } from '@etherealengine/xrui'
+import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
+import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
+import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
+import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
+import { ObjectFitFunctions } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
+import { createXRUI } from '@ir-engine/spatial/src/xrui/functions/createXRUI'
+import type { WebLayer3D } from '@ir-engine/xrui'
 
 export const WarningUIState = defineState({
   name: 'WarningUIState',
@@ -151,12 +152,8 @@ export const WarningUISystemState = defineState({
     const transitionPeriodSeconds = 0.2
     const transition = createTransitionState(transitionPeriodSeconds, 'OUT')
 
-    const ui = createXRUI(WarningSystemXRUI)
-    removeComponent(ui.entity, VisibleComponent)
-    setComponent(ui.entity, NameComponent, 'Warning XRUI')
-
     return {
-      ui,
+      ui: null as null | ReturnType<typeof createXRUI>,
       transition
     }
   }
@@ -179,8 +176,10 @@ function TransitionReactor() {
 let accumulator = 0
 
 const execute = () => {
-  const state = getState(WarningUIState)
   const { transition, ui } = getState(WarningUISystemState)
+  if (!ui) return
+
+  const state = getState(WarningUIState)
 
   const deltaSeconds = getState(ECSState).deltaSeconds
 
@@ -226,10 +225,14 @@ const execute = () => {
   })
 }
 
-const reactor = () => {
+const Reactor = () => {
   useEffect(() => {
+    const ui = createXRUI(WarningSystemXRUI)
+    removeComponent(ui.entity, VisibleComponent)
+    setComponent(ui.entity, NameComponent, 'Warning XRUI')
+    getMutableState(WarningUISystemState).ui.set(ui)
+
     return () => {
-      const ui = getState(WarningUISystemState).ui
       removeEntity(ui.entity)
     }
   }, [])
@@ -240,5 +243,8 @@ export const WarningUISystem = defineSystem({
   uuid: 'ee.client.WarningUISystem',
   insert: { after: PresentationSystemGroup },
   execute,
-  reactor
+  reactor: () => {
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <Reactor />
+  }
 })

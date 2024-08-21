@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { render } from '@testing-library/react'
@@ -29,13 +29,15 @@ import React, { useEffect } from 'react'
 import { act } from 'react-dom/test-utils'
 import sinon from 'sinon'
 
-import { destroyEngine } from '@etherealengine/ecs'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { ComponentType, destroyEngine } from '@ir-engine/ecs'
+import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
-import { createEngine } from '../initializeEngine'
+import { createEngine } from '@ir-engine/ecs/src/Engine'
+import { EngineState } from '../EngineState'
+import { initializeSpatialEngine } from '../initializeEngine'
 import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
-import { EngineRenderer, RenderSettingsState } from './WebGLRendererSystem'
+import { RenderSettingsState, RendererComponent } from './WebGLRendererSystem'
 
 describe('PerformanceState', () => {
   const mockRenderer = {
@@ -49,7 +51,7 @@ describe('PerformanceState', () => {
       MAX_ELEMENTS_INDICES: 4000,
       MAX_ELEMENTS_VERTICES: 5000
     }
-  } as unknown as EngineRenderer
+  } as unknown as ComponentType<typeof RendererComponent>
 
   let screen
   let dpr
@@ -72,27 +74,29 @@ describe('PerformanceState', () => {
 
   beforeEach(async () => {
     createEngine()
+    initializeSpatialEngine()
+    getMutableState(EngineState).isEditing.set(false)
+    getMutableState(RendererState).automatic.set(true)
+    getMutableState(PerformanceState).merge({
+      initialized: true,
+      enabled: true
+    })
   })
 
   afterEach(() => {
     return destroyEngine()
   })
 
-  it('Builds Performance State', (done) => {
-    PerformanceManager.buildPerformanceState(
-      mockRenderer,
-      () => {
-        const performanceState = getState(PerformanceState)
-        const budgets = performanceState.budgets
-        assert(budgets.max3DTextureSize === 1000)
-        assert(budgets.maxBufferSize === 54000000000)
-        assert(budgets.maxIndices === 8000)
-        assert(budgets.maxTextureSize === 2000)
-        assert(budgets.maxVerticies === 10000)
-        done()
-      },
-      { renderer: 'nvidia corporation, nvidia geforce rtx 3070/pcie/sse2, ' }
-    )
+  it('Builds Performance State', async () => {
+    await PerformanceManager.buildPerformanceState(mockRenderer, {
+      renderer: 'nvidia corporation, nvidia geforce rtx 3070/pcie/sse2, '
+    })
+    const performanceState = getState(PerformanceState)
+    assert(performanceState.max3DTextureSize === 1000)
+    assert(performanceState.maxBufferSize === 54000000000)
+    assert(performanceState.maxIndices === 8000)
+    assert(performanceState.maxTextureSize === 2000)
+    assert(performanceState.maxVerticies === 10000)
   })
 
   it('Increments performance offset', (done) => {
@@ -176,8 +180,9 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
     act(async () => {
+      // Decrementing performance state twice consecutively should only have one reactive change with the value off by 1 instead of 2
       PerformanceManager.decrementGPUPerformance()
-      PerformanceManager.incrementGPUPerformance()
+      PerformanceManager.decrementGPUPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
@@ -196,12 +201,12 @@ describe('PerformanceState', () => {
     const renderSettings = getState(RenderSettingsState)
     const engineSettings = getState(RendererState)
 
-    const { smaaPreset } = renderSettings
-    const { shadowMapResolution } = engineSettings
-
     const Reactor = PerformanceState.reactor
 
     const { rerender, unmount } = render(<Reactor />)
+
+    const { smaaPreset } = renderSettings
+    const { shadowMapResolution } = engineSettings
 
     act(async () => {
       performanceState.gpuTier.set(updatedTier as any)

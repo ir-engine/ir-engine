@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,34 +14,35 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { lazy, Suspense, useEffect } from 'react'
+import React, { lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Route, Routes } from 'react-router-dom'
 
-import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { BrowserRouter, history } from '@etherealengine/client-core/src/common/services/RouterService'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import ErrorBoundary from '@ir-engine/client-core/src/common/components/ErrorBoundary'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
-import './pages/styles.scss'
 // tslint:disable:ordered-imports
 // @ts-ignore
 ;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
 
+const $offline = lazy(() => import('@ir-engine/client/src/pages/offline/offline'))
+const $location = lazy(() => import('@ir-engine/client/src/pages/location/location'))
+const $auth = lazy(() => import('@ir-engine/client/src/pages/auth/authRoutes'))
+
 const Engine = lazy(() => import('./engine'))
 
-/** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
-const AppPage = lazy(() => import('./pages/_app'))
-const TailwindPage = lazy(() => import('./pages/_app_tw'))
+const AppPage = lazy(() => import('./pages/AppPage'))
+const Router = lazy(() => import('./route/CustomRouter'))
 
 const projectsToImport = ['default-project']
 
@@ -52,38 +53,21 @@ for (const project of projectsToImport) {
 }
 
 const App = () => {
-  useEffect(() => {
-    const urlSearchParams = new URLSearchParams(window.location.search)
-    const redirectUrl = urlSearchParams.get('redirectUrl')
-    if (redirectUrl) {
-      history.push(redirectUrl)
-    }
-  }, [])
-
   return (
     <ErrorBoundary>
-      <BrowserRouter history={history}>
+      <Engine>
         <Routes>
           {/* @todo - these are for backwards compatibility with non tailwind pages - they will be removed eventually */}
           <Route
             key="location"
             path="/location/*"
             element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'location'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          <Route
-            key="studio"
-            path="/studio/*"
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'studio'} />
-                </Engine>
+              <Suspense
+                fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.starting')} />}
+              >
+                <AppPage>
+                  <$location />
+                </AppPage>
               </Suspense>
             }
           />
@@ -91,27 +75,40 @@ const App = () => {
             key="offline"
             path="/offline/*"
             element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'offline'} />
-                </Engine>
+              <Suspense
+                fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.starting')} />}
+              >
+                <AppPage>
+                  <$offline />
+                </AppPage>
               </Suspense>
             }
           />
-          {/* This will become redundant and we can embed the TailwindPage directly */}
+          {/* This will become redundant and we can embed the AppPage directly */}
+          <Route
+            key="auth"
+            path="/auth/*"
+            element={
+              <Suspense
+                fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.starting')} />}
+              >
+                <$auth />
+              </Suspense>
+            }
+          />
           <Route
             key="default"
             path="/*"
             element={
               <Suspense>
-                <Engine tailwind>
-                  <TailwindPage />
-                </Engine>
+                <AppPage>
+                  <Router />
+                </AppPage>
               </Suspense>
             }
           />
         </Routes>
-      </BrowserRouter>
+      </Engine>
     </ErrorBoundary>
   )
 }

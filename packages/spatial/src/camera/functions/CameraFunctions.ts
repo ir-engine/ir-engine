@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,21 +14,18 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { clamp } from 'lodash'
+import { ComponentType, getOptionalComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 
-import { ComponentType, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-
-import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
 export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number, time = 0.3) => {
@@ -48,54 +45,4 @@ export const setTargetCameraRotation = (entity: Entity, phi: number, theta: numb
     cameraRotationTransition.theta = theta
     cameraRotationTransition.time = time
   }
-}
-
-/**
- * Change camera distance.
- * @param cameraEntity Entity holding camera and input component.
- */
-export const handleCameraZoom = (cameraEntity: Entity, scrollDelta: number): void => {
-  if (scrollDelta === 0) {
-    return
-  }
-
-  const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent) as
-    | ComponentType<typeof FollowCameraComponent>
-    | undefined
-
-  if (!followComponent) {
-    return
-  }
-
-  const epsilon = 0.001
-  const nextZoomLevel = clamp(followComponent.zoomLevel + scrollDelta, epsilon, followComponent.maxDistance)
-
-  // Move out of first person mode
-  if (followComponent.zoomLevel <= epsilon && scrollDelta > 0) {
-    followComponent.zoomLevel = followComponent.minDistance
-    return
-  }
-
-  // Move to first person mode
-  if (nextZoomLevel < followComponent.minDistance) {
-    followComponent.zoomLevel = epsilon
-    setTargetCameraRotation(cameraEntity, 0, followComponent.theta)
-    return
-  }
-
-  // Rotate camera to the top but let the player rotate if he/she desires
-  if (Math.abs(followComponent.maxDistance - nextZoomLevel) <= 1.0 && scrollDelta > 0) {
-    setTargetCameraRotation(cameraEntity, 85, followComponent.theta)
-  }
-
-  // Rotate from top
-  if (
-    Math.abs(followComponent.maxDistance - followComponent.zoomLevel) <= 1.0 &&
-    scrollDelta < 0 &&
-    followComponent.phi >= 80
-  ) {
-    setTargetCameraRotation(cameraEntity, 45, followComponent.theta)
-  }
-
-  followComponent.zoomLevel = nextZoomLevel
 }

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers'
@@ -31,22 +31,22 @@ import path from 'path'
 import {
   projectPermissionPath,
   ProjectPermissionType
-} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { scopePath, ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
-import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
-import { InviteCode, UserID, UserName, userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
-import { deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+} from '@ir-engine/common/src/schemas/projects/project-permission.schema'
+import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
+import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
+import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
+import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
+import { InviteCode, UserID, UserName, userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
+import { deleteFolderRecursive } from '@ir-engine/common/src/utils/fsHelperFunctions'
+import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-const newProjectName1 = 'ProjectTest_test_project_name_1'
+const newProjectName1 = 'org/projecttest_test_project_name_1'
 
 const cleanup = async (app: Application) => {
-  const project1Dir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName1}/`)
+  const project1Dir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName1.split('/')[0]}/`)
   deleteFolderRecursive(project1Dir)
   try {
     await app.service(projectPath).remove(null, { query: { name: newProjectName1 } })
@@ -196,7 +196,8 @@ describe('project-permission.test', () => {
         project1Permission2 = await app.service(projectPermissionPath).create(
           {
             projectId: project1.id,
-            userId: user2.id
+            userId: user2.id,
+            type: 'editor'
           },
           params
         )
@@ -216,7 +217,8 @@ describe('project-permission.test', () => {
         const duplicate = await app.service(projectPermissionPath).create(
           {
             projectId: project1.id,
-            userId: user2.id
+            userId: user2.id,
+            type: 'editor'
           },
           params
         )
@@ -237,7 +239,8 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).create(
               {
                 projectId: 'abcdefg',
-                userId: user2.id
+                userId: user2.id,
+                type: 'editor'
               },
               params
             )
@@ -259,7 +262,8 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).create(
               {
                 projectId: project1.id,
-                userId: 'abcdefg' as UserID
+                userId: 'abcdefg' as UserID,
+                type: 'editor'
               },
               params
             )
@@ -281,7 +285,8 @@ describe('project-permission.test', () => {
             const res = await app.service(projectPermissionPath).create(
               {
                 projectId: project1.id,
-                userId: user3.id
+                userId: user3.id,
+                type: 'editor'
               },
               params
             )
@@ -303,7 +308,8 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).create(
               {
                 projectId: project1.id,
-                userId: user3.id
+                userId: user3.id,
+                type: 'editor'
               },
               params
             )
@@ -353,8 +359,6 @@ describe('project-permission.test', () => {
         const update = (await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
-            projectId: project1.id,
-            userId: 'abcdefg' as UserID,
             type: 'owner'
           }
           // params
@@ -374,8 +378,6 @@ describe('project-permission.test', () => {
         const update = (await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
-            projectId: project1.id,
-            userId: user2.id,
             type: 'editor'
           },
           params
@@ -397,8 +399,6 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).patch(
               project1Permission2.id,
               {
-                projectId: project1.id,
-                userId: user3.id,
                 type: ''
               },
               params
@@ -427,8 +427,6 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).patch(
               project1Permission2.id,
               {
-                projectId: project1.id,
-                userId: user3.id,
                 type: ''
               },
               params

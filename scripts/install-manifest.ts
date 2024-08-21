@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 /**
@@ -34,7 +34,7 @@ import dotenv from 'dotenv-flow'
 import fs, { promises as fsp } from 'fs'
 import path from 'path'
 
-import { execPromise } from '@etherealengine/server-core/src/util/execPromise'
+import { execPromise } from '@ir-engine/server-core/src/util/execPromise'
 
 dotenv.config({
   path: appRootPath.path,
@@ -46,11 +46,13 @@ cli.enable('status')
 const options = cli.parse({
   manifestURL: [false, 'Manifest URL', 'string'],
   branch: ['b', 'Branch', 'string', 'main'],
-  replace: ['r', 'Replace existing project?', 'string', 'no']
+  replace: ['r', 'Replace existing project?', 'string', 'no'],
+  singleBranch: ['s', 'Clone repos in a single branch?', 'string', 'no']
 }) as {
   manifestURL?: string
   branch?: string
   replace?: string
+  singleBranch?: string
 }
 
 /**
@@ -93,7 +95,7 @@ interface PackageManifest_V_1_0_0 {
 }
 
 const installManifest = async () => {
-  const { branch } = options // ?? 'main' -> unnecessary coalescing operator, leveraging default value from cli settings instead
+  const { branch, singleBranch } = options // ?? 'main' -> unnecessary coalescing operator, leveraging default value from cli settings instead
   const manifest = (await fetchManifest()) as PackageManifest_V_1_0_0
   const replacing = options.replace?.toLowerCase() === 'yes' || options.replace?.toLowerCase() === 'y'
   if (!manifest) throw new Error('No manifest found')
@@ -143,7 +145,7 @@ const installManifest = async () => {
       const curatedURL = url.replace('https://github.com/', 'git@github.com:')
       console.log(`Cloning ${curatedURL}`)
       // Improving performance by cloning the code from the expected branch in a single step
-      await execPromise(`git clone -b ${branch} --single-branch ${curatedURL}`, {
+      await execPromise(`git clone -b ${branch} ${singleBranch === 'yes' ? '--single-branch' : ''} ${curatedURL}`, {
         cwd: path.resolve(appRootPath.path, 'packages/projects/projects')
       })
 
@@ -159,9 +161,18 @@ const installManifest = async () => {
       */
     })
   )
+
   await execPromise(`ls`, {
     cwd: path.resolve(appRootPath.path, 'packages/projects/projects')
   })
+
+  if (singleBranch === 'yes') {
+    console.log(`You enabled cloning a single branch, the only branch currently available in your local environment
+    is "${branch}", in case you need to checkout a different remote branch, run the following commands in your terminal:
+    
+    $ git fetch origin [branch]
+    $ git checkout FETCH_HEAD -b [branch]`)
+  }
 }
 
 cli.main(async () => {

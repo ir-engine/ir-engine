@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License") you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
@@ -29,38 +29,38 @@ import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import ReactSlider from 'react-slider'
 import { twMerge } from 'tailwind-merge'
 
-import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useResizableVideoCanvas } from '@etherealengine/client-core/src/hooks/useResizableVideoCanvas'
-import { useScrubbableVideo } from '@etherealengine/client-core/src/hooks/useScrubbableVideo'
-import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
-import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
+import { useWorldNetwork } from '@ir-engine/client-core/src/common/services/LocationInstanceConnectionService'
+import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useEngineCanvas } from '@ir-engine/client-core/src/hooks/useEngineCanvas'
+import { useResizableVideoCanvas } from '@ir-engine/client-core/src/hooks/useResizableVideoCanvas'
+import { useScrubbableVideo } from '@ir-engine/client-core/src/hooks/useScrubbableVideo'
+import { CaptureClientSettingsState } from '@ir-engine/client-core/src/media/CaptureClientSettingsState'
+import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
+import { MediaStreamState } from '@ir-engine/client-core/src/transports/MediaStreams'
 import {
   SocketWebRTCClientNetwork,
   toggleWebcamPaused
-} from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+} from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
 import {
   RecordingID,
   StaticResourceType,
-  assetPath,
-  recordingPath
-} from '@etherealengine/common/src/schema.type.module'
-import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
-import { getComponent } from '@etherealengine/ecs'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
+  recordingPath,
+  staticResourcePath
+} from '@ir-engine/common/src/schema.type.module'
+import { useVideoFrameCallback } from '@ir-engine/common/src/utils/useVideoFrameCallback'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
   mocapDataChannelType
-} from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+} from '@ir-engine/engine/src/mocap/MotionCaptureSystem'
 import {
   ECSRecordingActions,
   PlaybackState,
   RecordingState,
   activePlaybacks
-} from '@etherealengine/engine/src/recording/ECSRecordingSystem'
+} from '@ir-engine/engine/src/recording/ECSRecordingSystem'
 import {
   defineState,
   dispatchAction,
@@ -69,14 +69,13 @@ import {
   syncStateWithLocalStorage,
   useHookstate,
   useMutableState
-} from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/network'
-import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import Header from '@etherealengine/ui/src/components/tailwind/Header'
-import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
-import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
-import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
+} from '@ir-engine/hyperflux'
+import { NetworkState } from '@ir-engine/network'
+import { useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import Header from '@ir-engine/ui/src/components/tailwind/Header'
+import RecordingsList from '@ir-engine/ui/src/components/tailwind/RecordingList'
+import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
+import Video from '@ir-engine/ui/src/primitives/tailwind/Video'
 
 import Button from '../../primitives/tailwind/Button'
 
@@ -130,7 +129,7 @@ const sendResults = (results: MotionCaptureResults) => {
   const network = NetworkState.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.ready) return
   const data = MotionCaptureFunctions.sendResults(results)
-  network.transport.bufferToAll(mocapDataChannelType, Engine.instance.store.peerID, data)
+  network.bufferToAll(mocapDataChannelType, Engine.instance.store.peerID, data)
 }
 
 // const useVideoStatus = () => {
@@ -423,21 +422,7 @@ const VideoPlayback = (props: {
 
 const EngineCanvas = () => {
   const ref = useRef(null as null | HTMLDivElement)
-
-  useEffect(() => {
-    if (!ref?.current) return
-
-    const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement
-    ref.current.appendChild(canvas)
-
-    getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
-
-    // return () => {
-    //   const canvas = document.getElementById('engine-renderer-canvas')!
-    //   parent.removeChild(canvas)
-    // }
-  }, [ref])
-
+  useEngineCanvas(ref)
   return (
     <div className="relative aspect-[2/3] h-full w-auto">
       <div ref={ref} className="h-full w-full" />
@@ -494,7 +479,7 @@ const PlaybackMode = () => {
   const locationState = useMutableState(LocationState)
 
   const recording = useGet(recordingPath, recordingID.value!)
-  const scene = useGet(assetPath, locationState.currentLocation.location.sceneId.value).data
+  const scene = useGet(staticResourcePath, locationState.currentLocation.location.sceneId.value).data
 
   useEffect(() => {
     recording.refetch()
@@ -512,8 +497,7 @@ const PlaybackMode = () => {
       !scene
     )
       return
-    const sceneURL = scene.assetURL
-    return GLTFAssetState.loadScene(sceneURL, scene.id)
+    return GLTFAssetState.loadScene(scene.url, scene.id)
   }, [scene])
 
   const ActiveRecording = () => {

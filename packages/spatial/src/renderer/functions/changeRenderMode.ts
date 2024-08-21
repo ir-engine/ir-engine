@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,74 +14,48 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { RenderPass } from 'postprocessing'
 import { MeshBasicMaterial, MeshNormalMaterial } from 'three'
 
-import { Engine, getComponent } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
+import { Entity, getComponent } from '@ir-engine/ecs'
+import { getState } from '@ir-engine/hyperflux'
 
-import { RenderModes } from '../constants/RenderModes'
 import { RendererState } from '../RendererState'
 import { RendererComponent } from '../WebGLRendererSystem'
+import { RenderModes } from '../constants/RenderModes'
 
 /**
  * Change render mode of the renderer
  * @param mode Mode which will be set to renderer
  */
-export function changeRenderMode() {
+
+export function changeRenderMode(entity: Entity) {
   const renderMode = getState(RendererState).renderMode
 
-  // revert any changes made by a render mode
-  switch (renderMode) {
-    case RenderModes.UNLIT:
-      // Not currently working, will be replaced with custom renderer in the future
-
-      // iterateObject3D(Engine.instance.scene, (obj: Light) => {
-      //   if (obj.isLight && obj.userData.editor_disabled) {
-      //     delete obj.userData.editor_disabled
-      //     obj.visible = true
-      //   }
-      // })
-      break
-    default:
-      break
-  }
-
-  const passes = getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.passes.filter(
+  const passes = getComponent(entity, RendererComponent).effectComposer?.passes.filter(
     (p) => p.name === 'RenderPass'
   ) as any
   const renderPass: RenderPass = passes ? passes[0] : undefined
-
   if (!renderPass) return
 
   switch (renderMode) {
     case RenderModes.UNLIT:
-      // See above comment
-      // iterateObject3D(Engine.instance.scene, (obj: Light) => {
-      //   if (obj.isLight && obj.visible) {
-      //     obj.userData.editor_disabled = true
-      //     obj.visible = false
-      //   }
-      // })
-      renderPass.overrideMaterial = null!
-      break
     case RenderModes.LIT:
-      renderPass.overrideMaterial = null!
-      break
     case RenderModes.SHADOW:
       renderPass.overrideMaterial = null!
       break
     case RenderModes.WIREFRAME:
       renderPass.overrideMaterial = new MeshBasicMaterial({
+        color: 0x000000,
         wireframe: true
       })
       break

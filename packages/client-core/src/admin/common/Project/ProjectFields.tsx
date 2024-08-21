@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,35 +14,35 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import classNames from 'classnames'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Autocomplete from '@etherealengine/client-core/src/common/components/AutoCompleteSingle'
-import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
-import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
-import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
-import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
-import { toDateTimeSql, toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import Container from '@etherealengine/ui/src/primitives/mui/Container'
-import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
-import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import Autocomplete from '@ir-engine/client-core/src/common/components/AutoCompleteSingle'
+import InputRadio from '@ir-engine/client-core/src/common/components/InputRadio'
+import InputSelect, { InputMenuItem } from '@ir-engine/client-core/src/common/components/InputSelect'
+import InputSwitch from '@ir-engine/client-core/src/common/components/InputSwitch'
+import InputText from '@ir-engine/client-core/src/common/components/InputText'
+import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
+import { ProjectBranchType, ProjectCommitType, ProjectType } from '@ir-engine/common/src/schema.type.module'
+import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import Box from '@ir-engine/ui/src/primitives/mui/Box'
+import Container from '@ir-engine/ui/src/primitives/mui/Container'
+import DialogTitle from '@ir-engine/ui/src/primitives/mui/DialogTitle'
+import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
+import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
+import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -233,8 +233,8 @@ const ProjectFields = ({
       ProjectUpdateService.setSourceProjectName(project.name, '')
       return
     }
-    const valueRegex = new RegExp(`^${value}`, 'g')
-    let matchingCommit = commitData.find((data) => valueRegex.test(data.commitSHA))
+
+    let matchingCommit = commitData.find((data) => data.commitSHA.startsWith(value))
     if (!matchingCommit) {
       const commitResponse = (await ProjectService.checkUnfetchedCommit({
         url: projectUpdateStatus.value.sourceURL,
@@ -251,7 +251,7 @@ const ProjectFields = ({
             resolve(null)
           }, 100)
         })
-        matchingCommit = commitData.find((data) => valueRegex.test(data.commitSHA))
+        matchingCommit = commitData.find((data) => data.commitSHA.startsWith(value))
       }
     }
     ProjectUpdateService.setSourceProjectName(project.name, matchingCommit?.projectName || '')

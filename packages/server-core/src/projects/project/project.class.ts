@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
@@ -30,24 +30,32 @@ import fs from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 
-import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
-import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
+import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
+import {
+  ScopeData,
+  ScopeType,
+  projectPermissionPath,
+  scopePath,
+  staticResourcePath
+} from '@ir-engine/common/src/schema.type.module'
+import { ProjectBuildUpdateItemType } from '@ir-engine/common/src/schemas/projects/project-build.schema'
 import {
   ProjectData,
   ProjectPatch,
   ProjectQuery,
   ProjectType,
   ProjectUpdateParams
-} from '@etherealengine/common/src/schemas/projects/project.schema'
-import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { getState } from '@etherealengine/hyperflux'
+} from '@ir-engine/common/src/schemas/projects/project.schema'
+import { getDateTimeSql, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { getState } from '@ir-engine/hyperflux'
 
+import { isDev } from '@ir-engine/common/src/config'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import { seedSceneAssets } from '../../assets/asset/asset-helper'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
+import config from '../../appconfig'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 import {
   deleteProjectFilesInStorageProvider,
   engineVersion,
@@ -64,7 +72,9 @@ const UPDATE_JOB_TIMEOUT = 60 * 5 //5 minute timeout on project update jobs comp
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
-export interface ProjectParams extends KnexAdapterParams<ProjectQuery>, ProjectUpdateParams {}
+export interface ProjectParams extends KnexAdapterParams<ProjectQuery>, ProjectUpdateParams {
+  appJWT?: string
+}
 
 export type ProjectParamsClient = Omit<ProjectParams, 'user'>
 
@@ -80,31 +90,40 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     super(options)
     this.app = app
 
-    this.app.isSetup.then(() => this._callOnLoad())
+    this.app.isSetup.then(() => this._addOrgNameToProject())
   }
 
-  async _callOnLoad() {
-    try {
-      const projects = (await super._find({
-        query: { $select: ['name'] },
-        paginate: false
-      })) as Array<{ name }>
-      await Promise.all(
-        projects.map(async ({ name }) => {
-          if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
-          const config = getProjectConfig(name)
-          if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
-        })
-      )
-    } catch (err) {
-      logger.error(err)
-      throw err
+  async _addOrgNameToProject(): Promise<any> {
+    if (getState(ServerState).serverMode !== ServerMode.API) return
+
+    const storageProvider = getStorageProvider()
+    const data = (await super._find({ paginate: false })) as ProjectType[]
+
+    for (const project of data) {
+      if (project.repositoryPath || project.name === 'ir-engine/default-project') {
+        const [orgName, projectName] = project.name.split('/')
+
+        try {
+          if (await storageProvider.doesExist(projectName, `projects/`)) {
+            const files = await storageProvider.listObjects(`projects/${projectName}`, true)
+            for (const file of files.Contents) {
+              const fileName = file.Key.split('/').pop()!
+              const oldDirectory = file.Key.replace(fileName, '')
+              const newDirectory = `projects/${orgName}/${oldDirectory.replace('projects/', '')}`
+              await storageProvider.moveObject(fileName, fileName, oldDirectory, newDirectory, false)
+            }
+          }
+        } catch (error) {
+          logger.error(`[Projects]: Error moving project files for ${project.name}. Error: ${error}`)
+        }
+      }
     }
+    return Promise.resolve()
   }
 
   async _seedProject(projectName: string): Promise<any> {
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
-    const projectConfig = getProjectConfig(projectName) ?? {}
+    const projectConfig = getProjectConfig(projectName)
     const enabled = getProjectEnabled(projectName)
 
     // if no manifest.json exists, add one
@@ -112,14 +131,22 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     const manifestJsonPath = path.resolve(projectsRootFolder, projectName, 'manifest.json')
     if (!fs.existsSync(manifestJsonPath) && fs.existsSync(packageJsonPath)) {
       const json = getProjectManifest(projectName)
+      fs.writeFileSync(manifestJsonPath, JSON.stringify(json, null, 2))
       const sceneJsonFiles = fs
         .readdirSync(path.resolve(projectsRootFolder, projectName))
         .filter((file) => file.endsWith('.scene.json'))
-      if (sceneJsonFiles.length) json.scenes = [...sceneJsonFiles]
-      fs.writeFileSync(manifestJsonPath, JSON.stringify(json, null, 2))
+      for (const scene of sceneJsonFiles) {
+        const sceneName = scene.split('/').pop()!.replace('.scene.json', '')
+        await this.app.service(staticResourcePath).create({
+          key: `projects/${projectName}/${sceneName}`,
+          mimeType: 'application/json',
+          hash: createStaticResourceHash(fs.readFileSync(scene)),
+          project: projectName,
+          type: 'scene',
+          thumbnailKey: `projects/${projectName}/${sceneName.replace('.scene.json', '.thumbnail.jpg')}`
+        })
+      }
     }
-
-    const projectManifest = getProjectManifest(projectName)
 
     const gitData = getGitProjectData(projectName)
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
@@ -143,24 +170,23 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     await uploadLocalProjectToProvider(this.app, projectName)
 
-    if (projectManifest?.scenes) {
-      // check all scene assets exist in the storage provider
-      const sceneAssets = (
-        await Promise.all(
-          projectManifest.scenes.map(async (assetKey) =>
-            (await this.app.service(fileBrowserPath).get(`projects/${projectName}/${assetKey}`)) ? assetKey : undefined
-          )
-        )
-      ).filter(Boolean) as string[]
-      // update manifest json
-      projectManifest.scenes = sceneAssets
-      fs.writeFileSync(manifestJsonPath, JSON.stringify(projectManifest, null, 2))
-      await seedSceneAssets(this.app, project.name, sceneAssets)
+    // run project install script
+    if (projectConfig?.onEvent) {
+      return onProjectEvent(this.app, project, projectConfig.onEvent, 'onInstall')
     }
 
-    // run project install script
-    if (projectConfig.onEvent) {
-      return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
+    // if in dev mode, give all admins access to the project
+    if (isDev) {
+      const admins = (await this.app
+        .service(scopePath)
+        .find({ query: { type: 'static_resource:write' as ScopeType, paginate: false } })) as any as ScopeData[]
+      for (const admin of admins) {
+        await this.app.service(projectPermissionPath).create({
+          projectId: project.id,
+          userId: admin.userId,
+          type: 'owner'
+        })
+      }
     }
 
     return Promise.resolve()
@@ -169,11 +195,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
   /**
    * On dev, sync the db with any projects installed locally
    */
-  async _fetchDevLocalProjects() {
-    return this._syncDevLocalProjects(true)
-  }
-
-  async _syncDevLocalProjects(removeProjects) {
+  async _syncDevLocalProjects() {
     if (getState(ServerState).serverMode !== ServerMode.API) return
 
     const data = (await super._find({ paginate: false })) as ProjectType[]
@@ -182,15 +204,25 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       fs.mkdirSync(projectsRootFolder, { recursive: true })
     }
 
+    // projects now take the form <orgname/projectname>
     const locallyInstalledProjects = fs
       .readdirSync(projectsRootFolder, { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
+      .map((orgname) => {
+        return fs
+          .readdirSync(path.join(projectsRootFolder, orgname), { withFileTypes: true })
+          .filter((dirent) => dirent.isDirectory())
+          .map((dirent) => `${orgname}/${dirent.name}`)
+      })
+      .flat()
 
     const promises: Promise<any>[] = []
 
     for (const projectName of locallyInstalledProjects) {
+      let seeded = false
       if (!data.find((e) => e.name === projectName)) {
+        seeded = true
         try {
           promises.push(this._seedProject(projectName))
         } catch (e) {
@@ -210,13 +242,14 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
         { enabled, commitSHA, commitDate: toDateTimeSql(commitDate) },
         { query: { name: projectName } }
       )
+
+      if (!seeded) promises.push(uploadLocalProjectToProvider(this.app, projectName))
     }
 
     await Promise.all(promises)
 
-    await this._callOnLoad()
-
-    if (removeProjects)
+    /** if a project was removed locally, remove it from the db */
+    if (config.fsProjectSyncEnabled)
       for (const { name, id } of data) {
         if (!locallyInstalledProjects.includes(name)) {
           await deleteProjectFilesInStorageProvider(this.app, name)

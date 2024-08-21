@@ -1,10 +1,10 @@
 {
-  "name": "@etherealengine/server-core",
-  "description": "Shared components for Ethereal Engine server",
+  "name": "@ir-engine/server-core",
+  "description": "Shared components for Infinite Reality Engine server",
   "version": "1.6.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/etherealengine/etherealengine.git"
+    "url": "git://github.com/ir-engine/ir-engine.git"
   },
   "homepage": "",
   "publishConfig": {
@@ -26,8 +26,8 @@
     "vr"
   ],
   "author": {
-    "name": "Ethereal Engine Collective",
-    "email": "hello@etherealengine.org"
+    "name": "Infinite Reality Engine Collective",
+    "email": "hello@ir-engine.org"
   },
   "contributors": [],
   "bugs": {},
@@ -46,14 +46,14 @@
   "dependencies": {
     "@aws-sdk/client-cloudfront": "^3.321.1",
     "@aws-sdk/client-ecr-public": "^3.316.0",
-    "@aws-sdk/client-s3": "^3.317.0",
+    "@aws-sdk/client-s3": "^3.316.0",
     "@aws-sdk/client-sns": "^3.316.0",
     "@aws-sdk/credential-providers": "^3.549.0",
     "@aws-sdk/lib-storage": "^3.321.1",
     "@aws-sdk/s3-presigned-post": "^3.321.1",
-    "@etherealengine/common": "^1.6.0",
-    "@etherealengine/engine": "^1.6.0",
-    "@etherealengine/matchmaking": "^1.6.0",
+    "@ir-engine/common": "^1.6.0",
+    "@ir-engine/engine": "^1.6.0",
+    "@ir-engine/matchmaking": "^1.6.0",
     "@feathersjs/adapter-commons": "5.0.5",
     "@feathersjs/authentication": "5.0.5",
     "@feathersjs/authentication-oauth": "5.0.5",
@@ -70,7 +70,7 @@
     "@octokit/rest": "^19.0.11",
     "app-root-path": "3.1.0",
     "bent": "^7.3.12",
-    "chargebee": "^2.19.0",
+    "chargebee": "2.19.0",
     "compare-versions": "^6.0.0-rc.1",
     "cors-anywhere": "^0.4.4",
     "cross-env": "7.0.3",
@@ -86,6 +86,7 @@
     "fs-blob-store": "6.0.0",
     "internal-ip": "^6.1.0",
     "ipfs-http-client": "^56.0.3",
+    "jsonwebtoken": "^9.0.0",
     "jszip": "^3.10.1",
     "knex": "2.4.2",
     "koa-compress": "^5.1.1",
@@ -102,7 +103,6 @@
     "multer": "1.4.5-lts.1",
     "mysql": "2.18.1",
     "mysql2": "3.2.0",
-    "nanoid": "3.3.4",
     "nock": "^13.4.0",
     "node-fetch": "2.6.9",
     "nodemailer-smtp-transport": "^2.7.4",
@@ -111,6 +111,7 @@
     "pino-elasticsearch": "6.6.0",
     "pino-opensearch": "^1.1.0",
     "pino-pretty": "^10.0.0",
+    "pino-socket": "^7.3.0",
     "primus": "^8.0.6",
     "primus-emitter": "^3.1.1",
     "probe-image-size": "^7.2.3",
@@ -121,7 +122,7 @@
     "slugify": "1.6.5",
     "swagger-ui-dist": "^4.12.0",
     "trace-unhandled": "2.0.1",
-    "typescript": "5.0.2",
+    "typescript": "5.4.5",
     "uint8arrays": "^3.0.0",
     "universal-analytics": "^0.5.3",
     "uuid": "9.0.0"

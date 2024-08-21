@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Resizable } from 're-resizable'
@@ -29,20 +29,20 @@ import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
 import { HiPhone, HiPhoneMissedCall } from 'react-icons/hi'
 import { MdScreenShare, MdStopScreenShare, MdVideocam, MdVideocamOff } from 'react-icons/md'
 
-import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
-import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
+import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
+import { ChannelService, ChannelState } from '@ir-engine/client-core/src/social/services/ChannelService'
+import { MediaStreamState } from '@ir-engine/client-core/src/transports/MediaStreams'
 import {
   toggleMicrophonePaused,
   toggleScreenshare,
   toggleWebcamPaused
-} from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
-import { ChannelID, channelPath, ChannelType, messagePath } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/network'
-import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+} from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/user/functions/useUserAvatarThumbnail'
+import { ChannelID, channelPath, ChannelType, messagePath } from '@ir-engine/common/src/schema.type.module'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NetworkState } from '@ir-engine/network'
+import { useFind, useGet, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
 import AttachFileIcon from './assets/attach-file2.svg'
 import SendIcon from './assets/send.svg'
@@ -96,7 +96,7 @@ export const MessageList = (props: { channelID: ChannelID }) => {
           maxWidth={780}
         >
           <div className="my-5 flex justify-end gap-1">
-            <div className="w-max-[780px] ml-[58px] mr-5 h-[100%] min-w-0 justify-end">
+            <div className="w-max-[780px] ml-[58px] mr-5 h-full min-w-0 justify-end">
               <p className="rounded-xl border-2 border-[#E1E1E1] bg-[#E1E1E1] p-[3px] text-black">
                 {props.message.text}
               </p>

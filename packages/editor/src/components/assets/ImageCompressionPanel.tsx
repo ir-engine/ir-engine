@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,38 +14,40 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
 import React from 'react'
 
-import Button from '@etherealengine/client-core/src/common/components/Button'
-import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
-import { fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
+import { fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
-} from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { State, useHookstate } from '@etherealengine/hyperflux'
-import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
+} from '@ir-engine/engine/src/assets/constants/CompressionParms'
+import { ImmutableArray, useHookstate } from '@ir-engine/hyperflux'
+import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
-import BooleanInput from '../inputs/BooleanInput'
-import CompoundNumericInput from '../inputs/CompoundNumericInput'
-import InputGroup from '../inputs/InputGroup'
-import SelectInput from '../inputs/SelectInput'
-import { FileType } from './FileBrowser/FileBrowserContentPanel'
-import styles from './styles.module.scss'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
+import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
+import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
+import { FileType, createFileDigest } from '@ir-engine/ui/src/components/editor/panels/Files/container'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { useTranslation } from 'react-i18next'
+import { MdClose } from 'react-icons/md'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },
@@ -62,32 +64,33 @@ const UASTCFlagOptions = [
 ]
 
 export default function ImageCompressionPanel({
-  openCompress,
-  fileProperties,
-  onRefreshDirectory
+  selectedFiles,
+  refreshDirectory
 }: {
-  openCompress: State<boolean>
-  fileProperties: State<FileType>
-  onRefreshDirectory: () => Promise<void>
+  selectedFiles: ImmutableArray<FileType>
+  refreshDirectory: () => Promise<void>
 }) {
+  const { t } = useTranslation()
+  const digest = createFileDigest(selectedFiles)
+
   const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const compressionLoading = useHookstate(false)
 
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
 
-    const props = fileProperties.value
-    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
-
-    const compressor = compressImage
-    await compressor()
-    await onRefreshDirectory()
+    for (const file of selectedFiles) {
+      await compressImage(file)
+    }
+    await refreshDirectory()
 
     compressionLoading.set(false)
-    openCompress.set(false)
+    PopoverState.hidePopupover()
   }
 
-  const compressImage = async () => {
+  const compressImage = async (props: FileType) => {
+    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
+
     const ktx2Encoder = new KTX2Encoder()
 
     const img = await new Promise<HTMLImageElement>((resolve) => {
@@ -117,112 +120,167 @@ export default function ImageCompressionPanel({
       uastcZstandard: compressProperties.uastcZstandard.value
     })
 
-    const props = fileProperties.value
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
     const path = props.key.replace(/(.*\/).*/, '$1')
+    const projectName = props.key.split('/')[1] // TODO: support projects with / in the name
+    const relativePath = path.replace('projects/' + projectName + '/', '')
 
     const file = new File([data], newFileName, { type: 'image/ktx2' })
 
     try {
       await uploadToFeathersService(fileBrowserUploadPath, [file], {
-        fileName: newFileName,
-        path,
-        contentType: file.type
+        args: [
+          {
+            project: projectName,
+            path: relativePath + file.name,
+            contentType: file.type
+          }
+        ]
       }).promise
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 
-  return (
-    <Menu
-      open={openCompress.value}
-      onClose={() => openCompress.set(false)}
-      showCloseButton={true}
-      maxWidth={'lg'}
-      header={fileProperties.value.name}
-      actions={
-        <>
-          {!compressionLoading.value ? (
-            <Button type="gradient" className={styles.horizontalCenter} onClick={compressContentInBrowser}>
-              {t('editor:properties.model.transform.compress') as string}
-            </Button>
-          ) : (
-            <CircularProgress style={{ margin: '1rem auto' }} className={styles.horizontalCenter} />
-          )}
-        </>
-      }
-    >
-      <InputGroup name="fileType" label={fileProperties.value?.isFolder ? 'Directory' : 'File'}>
-        <Typography variant="body2">{t('editor:properties.model.transform.compress') as string}</Typography>
-      </InputGroup>
+  let title: string
+  if (selectedFiles.length === 1) {
+    title = selectedFiles[0].name
+  } else {
+    title = selectedFiles.length + ' Items'
+  }
 
-      <div>
+  return (
+    <div className="max-h-[80vh] w-[680px] overflow-y-auto rounded-xl bg-[#0E0F11]">
+      <div className="relative mb-3 flex items-center justify-center px-8 py-3">
+        <Text className="leading-6">{t('editor:properties.model.transform.compressImage')}</Text>
+        <Button
+          variant="outline"
+          className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
+          startIcon={<MdClose />}
+          onClick={() => PopoverState.hidePopupover()}
+        />
+      </div>
+
+      <div className="mx-auto grid w-1/2 gap-y-2">
         <InputGroup
+          containerClassName="w-full justify-start"
+          labelClassName="w-24 text-theme-gray3"
+          name="mode"
+          label={t('editor:properties.model.transform.dst')}
+        >
+          <Input className="border-theme-input bg-[#141619] px-2 py-1.5" value={title} disabled />
+        </InputGroup>
+        <div className="w-full border border-[#2B2C30]" />
+        <InputGroup
+          containerClassName="w-full justify-start"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="mode"
           label={t('editor:properties.model.transform.mode')}
           info={t('editor:properties.model.transform.modeTooltip')}
         >
-          <SelectInput
+          <Select
+            className="w-full"
+            inputClassName="px-2 py-0.5 text-theme-input text-sm"
             options={[
               { label: 'ETC1S', value: 'ETC1S' },
               { label: 'UASTC', value: 'UASTC' }
             ]}
-            value={compressProperties.mode.value}
+            currentValue={compressProperties.mode.value}
             onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
           />
         </InputGroup>
         <InputGroup
+          containerClassName="w-full justify-start"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="flipY"
           label={t('editor:properties.model.transform.flipY')}
           info={t('editor:properties.model.transform.flipYTooltip')}
         >
-          <BooleanInput value={compressProperties.flipY.value} onChange={compressProperties.flipY.set} />
+          <BooleanInput
+            className="bg-[#141619]"
+            value={compressProperties.flipY.value}
+            onChange={compressProperties.flipY.set}
+          />
         </InputGroup>
         <InputGroup
+          containerClassName="w-full justify-start"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="linear"
           label={t('editor:properties.model.transform.srgb')}
           info={t('editor:properties.model.transform.srgbTooltip')}
         >
-          <BooleanInput value={compressProperties.srgb.value} onChange={compressProperties.srgb.set} />
+          <BooleanInput
+            className="bg-[#141619]"
+            value={compressProperties.srgb.value}
+            onChange={compressProperties.srgb.set}
+          />
         </InputGroup>
         <InputGroup
+          containerClassName="w-full justify-start"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="mipmaps"
           label={t('editor:properties.model.transform.mipmaps')}
           info={t('editor:properties.model.transform.mipmapsTooltip')}
         >
-          <BooleanInput value={compressProperties.mipmaps.value} onChange={compressProperties.mipmaps.set} />
+          <BooleanInput
+            className="bg-[#141619]"
+            value={compressProperties.mipmaps.value}
+            onChange={compressProperties.mipmaps.set}
+          />
         </InputGroup>
         <InputGroup
+          containerClassName="w-full justify-start"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="normalMap"
           label={t('editor:properties.model.transform.normalMap')}
           info={t('editor:properties.model.transform.normalMapTooltip')}
         >
-          <BooleanInput value={compressProperties.normalMap.value} onChange={compressProperties.normalMap.set} />
+          <BooleanInput
+            className="bg-[#141619]"
+            value={compressProperties.normalMap.value}
+            onChange={compressProperties.normalMap.set}
+          />
         </InputGroup>
         {compressProperties.mode.value === 'ETC1S' && (
           <>
             <InputGroup
+              containerClassName="w-full justify-start"
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="quality"
               label={t('editor:properties.model.transform.quality')}
               info={t('editor:properties.model.transform.qualityTooltip')}
             >
-              <CompoundNumericInput
+              <Slider
+                className="bg-theme-studio-surface [&::-moz-range-track]:bg-theme-studio-surface"
+                width={160}
                 value={compressProperties.quality.value}
                 onChange={compressProperties.quality.set}
+                onRelease={compressProperties.quality.set}
                 min={1}
                 max={255}
                 step={1}
               />
             </InputGroup>
             <InputGroup
+              containerClassName="w-full justify-start"
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="compressionLevel"
               label={t('editor:properties.model.transform.compressionLevel')}
               info={t('editor:properties.model.transform.compressionLevelTooltip')}
             >
-              <CompoundNumericInput
+              <Slider
+                className="bg-theme-studio-surface [&::-moz-range-track]:bg-theme-studio-surface"
+                width={160}
                 value={compressProperties.compressionLevel.value}
                 onChange={compressProperties.compressionLevel.set}
+                onRelease={compressProperties.compressionLevel.set}
                 min={0}
                 max={6}
                 step={1}
@@ -233,22 +291,30 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'UASTC' && (
           <>
             <InputGroup
+              containerClassName="w-full justify-start"
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="uastcFlags"
               label={t('editor:properties.model.transform.uastcFlags')}
               info={t('editor:properties.model.transform.uastcFlagsTooltip')}
             >
               <SelectInput
+                className="w-full"
                 options={UASTCFlagOptions}
                 value={compressProperties.uastcFlags.value}
                 onChange={(val: number) => compressProperties.uastcFlags.set(val)}
               />
             </InputGroup>
             <InputGroup
+              containerClassName="w-full justify-start"
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="uastcZstandard"
               label={t('editor:properties.model.transform.uastcZstandard')}
               info={t('editor:properties.model.transform.uastcZstandardTooltip')}
             >
               <BooleanInput
+                className="bg-[#141619]"
                 value={compressProperties.uastcZstandard.value}
                 onChange={compressProperties.uastcZstandard.set}
               />
@@ -256,6 +322,16 @@ export default function ImageCompressionPanel({
           </>
         )}
       </div>
-    </Menu>
+
+      <div className="mb-6 flex justify-end px-8">
+        {compressionLoading.value ? (
+          <LoadingView spinnerOnly className="mx-0 h-12 w-12" />
+        ) : (
+          <Button variant="primary" onClick={compressContentInBrowser}>
+            {t('editor:properties.model.transform.compress')}
+          </Button>
+        )}
+      </div>
+    </div>
   )
 }

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,31 +14,32 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath } from 'react-icons/hi2'
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { AvatarService } from '@etherealengine/client-core/src/user/services/AvatarService'
-import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@etherealengine/common/src/constants/AvatarConstants'
-import { AvatarType } from '@etherealengine/common/src/schema.type.module'
-import { AssetsPreviewPanel } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
-import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import { useHookstate } from '@etherealengine/hyperflux'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import DragNDrop from '@etherealengine/ui/src/primitives/tailwind/DragNDrop'
-import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
-import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { AvatarService } from '@ir-engine/client-core/src/user/services/AvatarService'
+import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@ir-engine/common/src/constants/AvatarConstants'
+import { AvatarType } from '@ir-engine/common/src/schema.type.module'
+import { cleanURL } from '@ir-engine/common/src/utils/cleanURL'
+import { AssetsPreviewPanel } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
+import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { useHookstate } from '@ir-engine/hyperflux'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import DragNDrop from '@ir-engine/ui/src/primitives/tailwind/DragNDrop'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import Radios from '@ir-engine/ui/src/primitives/tailwind/Radio'
 
 import { getCanvasBlob } from '../../../common/utils'
 
@@ -118,12 +119,12 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
       avatarFile = avatarAssets.model.value
       avatarThumbnail = avatarAssets.thumbnail.value
     } else {
-      const modelName = avatarAssets.modelURL.value.split('/').pop()!
       const avatarData = await fetch(avatarAssets.modelURL.value)
+      const modelName = cleanURL(avatarAssets.modelURL.value).split('/').pop()!
       avatarFile = new File([await avatarData.blob()], modelName)
 
       const thumbnailData = await fetch(avatarAssets.thumbnailURL.value)
-      const thumbnailName = avatarAssets.thumbnailURL.value.split('/').pop()!
+      const thumbnailName = cleanURL(avatarAssets.thumbnailURL.value).split('/').pop()!
       avatarThumbnail = new File([await thumbnailData.blob()], thumbnailName)
     }
 
@@ -165,12 +166,13 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
 
   useEffect(() => {
     if (!avatarAssets.modelURL.value || avatarAssets.source.value !== 'url') return
-    const modelName = avatarAssets.modelURL.value.split('/').pop()
-    const modelType = avatarAssets.modelURL.value.split('.').pop()
+    const modelURL = cleanURL(avatarAssets.modelURL.value)
+    const modelName = modelURL.split('/').pop()
+    const modelType = modelURL.split('.').pop()
     if (!modelName || !modelType) return
     ;(previewPanelRef as any).current?.onSelectionChanged({
       name: modelName,
-      resourceUrl: avatarAssets.modelURL.value,
+      resourceUrl: modelURL,
       contentType: `model/${modelType}`
     })
   }, [avatarAssets.modelURL])

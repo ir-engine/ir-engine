@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,17 +14,18 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
   Box3,
+  ColorRepresentation,
   DirectionalLight,
   Material,
   MathUtils,
@@ -37,16 +38,16 @@ import {
   Vector3
 } from 'three'
 
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { getState } from '@etherealengine/hyperflux'
+import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 
+import { getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { NameComponent } from '../../common/NameComponent'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
-import { NameComponent } from '../../common/NameComponent'
 import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
@@ -85,6 +86,7 @@ type CSMParams = {
   lightDirection?: Vector3
   lightDirectionUp?: Vector3
   lightIntensity?: number
+  lightColor?: ColorRepresentation
   lightNear?: number
   lightFar?: number
   lightMargin?: number
@@ -98,8 +100,10 @@ export class CSM {
   mode: (typeof CSMModes)[keyof typeof CSMModes]
   shadowBias: number
   shadowNormalBias: number
+  shadowMapSize: number
   lightDirection: Vector3
   lightDirectionUp: Vector3
+  lightColor: ColorRepresentation
   lightIntensity: number
   lightMargin: number
   customSplitsCallback?: (amount: number, near: number, far: number, target: number[]) => void
@@ -119,10 +123,12 @@ export class CSM {
     this.cascades = data.cascades ?? 5
     this.maxFar = data.maxFar ?? 100
     this.mode = data.mode ?? CSMModes.PRACTICAL
+    this.shadowMapSize = data.shadowMapSize ?? 1024
     this.shadowBias = data.shadowBias ?? 0
     this.shadowNormalBias = 0
     this.lightDirection = data.lightDirection ?? new Vector3(1, -1, 1).normalize()
     this.lightDirectionUp = data.lightDirectionUp ?? Object3D.DEFAULT_UP
+    this.lightColor = data.lightColor ?? 0xffffff
     this.lightIntensity = data.lightIntensity ?? 1
     this.lightMargin = data.lightMargin ?? 200
     this.customSplitsCallback = data.customSplitsCallback
@@ -164,6 +170,30 @@ export class CSM {
     })
   }
 
+  createLight(light: DirectionalLight, i: number): void {
+    light.castShadow = true
+    light.frustumCulled = false
+
+    light.shadow.mapSize.width = this.shadowMapSize
+    light.shadow.mapSize.height = this.shadowMapSize
+
+    light.shadow.camera.near = 0
+    light.shadow.camera.far = 1
+
+    light.intensity = this.lightIntensity
+
+    const entity = createEntity()
+    addObjectToGroup(entity, light)
+    setComponent(entity, NameComponent, 'CSM light ' + i)
+    setComponent(entity, VisibleComponent)
+    setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+
+    this.lightEntities.push(entity)
+    this.lights.push(light)
+    light.name = 'CSM_' + light.name
+    light.target.name = 'CSM_' + light.target.name
+  }
+
   createLights(sourceLight?: DirectionalLight): void {
     if (sourceLight) {
       this.sourceLight = sourceLight
@@ -172,47 +202,15 @@ export class CSM {
 
       for (let i = 0; i < this.cascades; i++) {
         const light = sourceLight.clone()
-        light.castShadow = true
-        light.frustumCulled = false
-
-        light.intensity = this.lightIntensity
-
-        const entity = createEntity()
-        addObjectToGroup(entity, light)
-        setComponent(entity, NameComponent, 'CSM light ' + i)
-        setComponent(entity, VisibleComponent)
-        setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-
-        this.lightEntities.push(entity)
-        this.lights.push(light)
-        light.name = 'CSM_' + sourceLight.name
-        light.target.name = 'CSM_' + sourceLight.target.name
+        this.createLight(light, i)
       }
       return
     }
 
     // if no lights are provided, create default ones
-
     for (let i = 0; i < this.cascades; i++) {
-      const light = new DirectionalLight(0xffffff, this.lightIntensity)
-
-      light.castShadow = true
-
-      light.shadow.camera.near = 0
-      light.shadow.camera.far = 1
-
-      light.frustumCulled = false
-
-      const entity = createEntity()
-      addObjectToGroup(entity, light)
-      setComponent(entity, NameComponent, 'CSM light ' + i)
-      setComponent(entity, VisibleComponent)
-      setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-
-      this.lightEntities.push(entity)
-      this.lights.push(light)
-      light.name = 'CSM_' + light.name
-      light.target.name = 'CSM_' + light.target.name
+      const light = new DirectionalLight(this.lightColor, this.lightIntensity)
+      this.createLight(light, i)
     }
   }
 
@@ -322,7 +320,9 @@ export class CSM {
   update(): void {
     if (this.sourceLight) this.lightDirection.subVectors(this.sourceLight.target.position, this.sourceLight.position)
     if (this.needsUpdate) {
-      this.updateFrustums()
+      this.injectInclude()
+      // Only update uniforms if WebGLRendererSystem isn't already updating them every frame
+      this.updateFrustums(!getState(RendererState).updateCSMFrustums)
       for (const light of this.lights) {
         light.shadow.map?.dispose()
         light.shadow.map = null as any
@@ -338,10 +338,8 @@ export class CSM {
       const frustum = frustums[i]
       const shadowCam = light.shadow.camera
 
-      const shadowMapSize = getState(RendererState).shadowMapResolution
-
-      const texelWidth = (shadowCam.right - shadowCam.left) / shadowMapSize
-      const texelHeight = (shadowCam.top - shadowCam.bottom) / shadowMapSize
+      const texelWidth = (shadowCam.right - shadowCam.left) / this.shadowMapSize
+      const texelHeight = (shadowCam.top - shadowCam.bottom) / this.shadowMapSize
 
       // This matrix only represents sun orientation, origin is zero
       _lightOrientationMatrix.lookAt(Vector3_Zero, this.lightDirection, this.lightDirectionUp)
@@ -444,7 +442,8 @@ export class CSM {
   updateUniforms(): void {
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const far = Math.min(camera.far, this.maxFar)
-    this.shaders.forEach(function (shader: ShaderType, material: Material) {
+
+    for (const [material, shader] of this.shaders.entries()) {
       const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 
       if (shader !== null) {
@@ -461,7 +460,7 @@ export class CSM {
         material.defines!.CSM_FADE = ''
         material.needsUpdate = true
       }
-    }, this)
+    }
   }
 
   getExtendedBreaks(target: Vector2[]): void {
@@ -479,17 +478,21 @@ export class CSM {
     }
   }
 
-  updateFrustums(): void {
+  updateFrustums(updateUniforms = true): void {
     this.getBreaks()
     this.initCascades()
     this.updateShadowBounds()
-    this.updateUniforms()
+    if (updateUniforms) this.updateUniforms()
   }
 
   remove(): void {
     this.lightEntities.forEach((entity) => {
       removeEntity(entity)
     })
+    this.lights.forEach((light) => {
+      light.dispose()
+    })
+    this.lightEntities = []
     this.lights = []
   }
 

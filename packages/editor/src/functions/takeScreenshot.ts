@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
@@ -37,20 +37,20 @@ import {
   WebGLRenderTarget
 } from 'three'
 
-import { getCanvasBlob } from '@etherealengine/client-core/src/common/utils'
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
-import { getState } from '@etherealengine/hyperflux'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { render, RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
+import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
+import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
+import { getState } from '@ir-engine/hyperflux'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { render, RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
 import { EditorState } from '../services/EditorServices'
 
@@ -115,8 +115,9 @@ export async function previewScreenshot(
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
   let blob: Blob | null = null
-  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
-  renderer.renderer.outputColorSpace = SRGBColorSpace
+  const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  const renderer = rendererComponent.renderer!
+  renderer.outputColorSpace = SRGBColorSpace
   const renderTarget = new WebGLRenderTarget(width, height, {
     minFilter: LinearFilter,
     magFilter: LinearFilter,
@@ -127,12 +128,12 @@ export async function previewScreenshot(
     type: UnsignedByteType
   })
 
-  renderer.renderer.setRenderTarget(renderTarget)
+  renderer.setRenderTarget(renderTarget)
 
-  render(renderer, scene, new ArrayCamera([scenePreviewCamera]), 0, false)
+  render(rendererComponent, scene, new ArrayCamera([scenePreviewCamera]), 0, false)
 
   const pixels = new Uint8Array(4 * width * height)
-  renderer.renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
+  renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
   const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
   const flippedData = new Uint8ClampedArray(imageData.data.length)
   for (let y = 0; y < height; y++) {
@@ -148,7 +149,7 @@ export async function previewScreenshot(
   }
   const flippedImageData = new ImageData(flippedData, width, height)
 
-  renderer.renderer.setRenderTarget(null) // pass `null` to set canvas as render target
+  renderer.setRenderTarget(null) // pass `null` to set canvas as render target
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
   canvas.width = width
@@ -192,14 +193,17 @@ export async function takeScreenshot(
   }
 
   const prevAspect = scenePreviewCamera.aspect
-
+  const prevLayersMask = scenePreviewCamera.layers.mask
   // Setting up scene preview camera
   scenePreviewCamera.aspect = width / height
   scenePreviewCamera.updateProjectionMatrix()
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
-  const { renderer, effectComposer, renderContext } = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  const renderer = rendererComponent.renderer!
+  const renderContext = rendererComponent.renderContext!
+  const effectComposer = rendererComponent.effectComposer!
 
   if (hideHelpers) {
     effectComposer.OutlineEffect?.clearSelection()
@@ -237,20 +241,22 @@ export async function takeScreenshot(
 
   const canvas = getResizedCanvas(renderer.domElement, width, height)
 
-  const imageBlob = await getCanvasBlob(
-    canvas,
-    format === 'jpeg' ? 'image/jpeg' : 'image/png',
-    format === 'jpeg' ? 0.9 : 1
-  )
-
   // restore
-  effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  camera.layers.mask = prevLayersMask
+  effectComposer.setMainCamera(camera)
   renderer.setPixelRatio(pixelRatio)
   effectComposer.setSize(originalSize.width, originalSize.height, false)
 
   // Restoring previous state
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
+
+  const imageBlob = await getCanvasBlob(
+    canvas,
+    format === 'jpeg' ? 'image/jpeg' : 'image/png',
+    format === 'jpeg' ? 0.9 : 1
+  )
 
   return imageBlob
 }

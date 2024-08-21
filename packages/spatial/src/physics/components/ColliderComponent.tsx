@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,27 +14,28 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
+import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
+import { useState } from '@ir-engine/hyperflux'
 
-import { findAncestorWithComponent } from '../../transform/components/EntityTree'
+import { useLayoutEffect } from 'react'
+import { useAncestorWithComponent } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { PhysicsState } from '../state/PhysicsState'
 import { Shape, Shapes } from '../types/PhysicsTypes'
 import { RigidBodyComponent } from './RigidBodyComponent'
+import { TriggerComponent } from './TriggerComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
@@ -80,43 +81,67 @@ export const ColliderComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, ColliderComponent)
+    const transform = useComponent(entity, TransformComponent)
+    const rigidbodyEntity = useAncestorWithComponent(entity, RigidBodyComponent)
+    const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
+    const physicsWorld = Physics.useWorld(entity)
+    const triggerComponent = useOptionalComponent(entity, TriggerComponent)
+    const hasCollider = useState(false)
 
     useLayoutEffect(() => {
-      const shape = Physics.getShape(entity)
-      if (!shape || shape === component.shape.value) return
+      if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
 
-      const ancestor = findAncestorWithComponent(entity, RigidBodyComponent)
-      if (ancestor) {
-        const physicsWorld = getState(PhysicsState).physicsWorld
+      const colliderDesc = Physics.createColliderDesc(physicsWorld, entity, rigidbodyEntity)
+
+      if (!colliderDesc) return
+
+      Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
+      hasCollider.set(true)
+
+      return () => {
         Physics.removeCollider(physicsWorld, entity)
-        const colliderDesc = Physics.createColliderDesc(entity, ancestor)
-        if (colliderDesc) Physics.attachCollider(physicsWorld, colliderDesc, ancestor, entity)
+        hasCollider.set(false)
       }
-    }, [component.shape])
+    }, [physicsWorld, component.shape, !!rigidbodyComponent?.initialized?.value, transform.scale])
 
     useLayoutEffect(() => {
-      Physics.setMass(entity, component.mass.value)
-    }, [component.mass])
+      if (!physicsWorld) return
+      Physics.setMass(physicsWorld, entity, component.mass.value)
+    }, [physicsWorld, component.mass])
 
     // useLayoutEffect(() => {
     // @todo
-    // }, [component.massCenter])
+    // }, [physicsWorld, component.massCenter])
 
     useLayoutEffect(() => {
-      Physics.setFriction(entity, component.friction.value)
-    }, [component.friction])
+      if (!physicsWorld) return
+      Physics.setFriction(physicsWorld, entity, component.friction.value)
+    }, [physicsWorld, component.friction])
 
     useLayoutEffect(() => {
-      Physics.setRestitution(entity, component.restitution.value)
-    }, [component.restitution])
+      if (!physicsWorld) return
+      Physics.setRestitution(physicsWorld, entity, component.restitution.value)
+    }, [physicsWorld, component.restitution])
 
     useLayoutEffect(() => {
-      Physics.setCollisionLayer(entity, component.collisionLayer.value)
-    }, [component.collisionLayer])
+      if (!physicsWorld) return
+      Physics.setCollisionLayer(physicsWorld, entity, component.collisionLayer.value)
+    }, [physicsWorld, component.collisionLayer])
 
     useLayoutEffect(() => {
-      Physics.setCollisionMask(entity, component.collisionMask.value)
-    }, [component.collisionMask])
+      if (!physicsWorld) return
+      Physics.setCollisionMask(physicsWorld, entity, component.collisionMask.value)
+    }, [physicsWorld, component.collisionMask])
+
+    useLayoutEffect(() => {
+      if (!physicsWorld || !triggerComponent?.value || !hasCollider.value) return
+
+      Physics.setTrigger(physicsWorld, entity, true)
+
+      return () => {
+        Physics.setTrigger(physicsWorld, entity, false)
+      }
+    }, [physicsWorld, triggerComponent, hasCollider])
 
     return null
   }

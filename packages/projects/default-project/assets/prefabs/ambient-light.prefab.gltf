@@ -1,0 +1,34 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "name": "New Object",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "Ambient Light",
+      "extensions": {
+        "EE_uuid": "40a996ad-7d64-43c1-a5cb-6be9ec150ef3",
+        "EE_visible": true,
+        "EE_ambient_light": {
+          "color": 16777215,
+          "intensity": 1
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_ambient_light",
+    "EE_ecs"
+  ]
+}

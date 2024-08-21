@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import Accessibility from '@mui/icons-material/Accessibility'
@@ -30,6 +30,7 @@ import Add from '@mui/icons-material/Add'
 import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings'
 import AllOutIcon from '@mui/icons-material/AllOut'
 import Anchor from '@mui/icons-material/Anchor'
+import Apple from '@mui/icons-material/Apple'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import ArrowBackIos from '@mui/icons-material/ArrowBackIos'
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown'
@@ -151,7 +152,6 @@ import ThumbUp from '@mui/icons-material/ThumbUp'
 import Timeline from '@mui/icons-material/Timeline'
 import TouchApp from '@mui/icons-material/TouchApp'
 import Toys from '@mui/icons-material/Toys'
-import Twitter from '@mui/icons-material/Twitter'
 import Upload from '@mui/icons-material/Upload'
 import Videocam from '@mui/icons-material/Videocam'
 import VideocamOff from '@mui/icons-material/VideocamOff'
@@ -165,6 +165,7 @@ import VolumeMute from '@mui/icons-material/VolumeMute'
 import VolumeOff from '@mui/icons-material/VolumeOff'
 import VolumeUp from '@mui/icons-material/VolumeUp'
 import WarningAmber from '@mui/icons-material/WarningAmber'
+import X from '@mui/icons-material/X'
 import ZoomOutMap from '@mui/icons-material/ZoomOutMap'
 import { SvgIconProps } from '@mui/material'
 import React from 'react'
@@ -174,6 +175,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
     default:
       console.log(`----------------Icon type not found: ${type}`)
       return <CrisisAlert {...props} />
+    case 'Apple':
+      return <Apple {...props} />
     case 'AccessibilityNew':
       return <AccessibilityNew {...props} />
     case 'default':
@@ -421,13 +424,15 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
     case 'TouchApp':
       return <TouchApp {...props} />
     case 'Twitter':
-      return <Twitter {...props} />
+      return <X {...props} />
     case 'Upload':
       return <Upload {...props} />
     case 'Visibility':
       return <Visibility {...props} />
     case 'VisibilityOff':
       return <VisibilityOff {...props} />
+    case 'X':
+      return <X {...props} />
     case 'Dashboard':
       return <Dashboard {...props} />
     case 'Storage':

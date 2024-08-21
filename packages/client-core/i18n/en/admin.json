@@ -57,7 +57,7 @@
       "spawnBot": "Spawn Bot",
       "lastRunStatus": "Last run status",
       "autoRefreshing": "auto refreshing in 10s",
-      "engineBots": "Ethereal Engine bots",
+      "engineBots": "Infinite Reality Engine bots",
       "updateBot": "UPDATE BOT",
       "name": "Name",
       "confirmBotDelete": "Do you want to delete bot"
@@ -83,9 +83,12 @@
       "all": "All",
       "refresh": "Refresh",
       "name": "Name",
+      "lastUpdatedBy": "Last updated by user id: {{userId}} on {{updatedAt}}",
       "fillRequiredFields": "Please fill all required field",
       "fixErrorFields": "Please fix all errors",
-      "logOut": "Log Out"
+      "logOut": "Log Out",
+      "newestFirst": "Newest First",
+      "oldestFirst": "Oldest First"
     },
     "analytics": {
       "loading": "Loading analytics...",
@@ -101,6 +104,10 @@
       "newUsersToday": "New Users Today",
       "activity": "Activity",
       "users": "Users"
+    },
+    "crashReport": {
+      "title": "Crash Report",
+      "loading": "Loading crash report..."
     },
     "group": {
       "createGroup": "Create Group",
@@ -199,6 +206,7 @@
         "name": "Name",
         "projectVersion": "Version",
         "enabled": "Enabled",
+        "visibility": "Visibility",
         "commitSHA": "Commit SHA",
         "commitDate": "Commit Date",
         "actions": "Actions"
@@ -208,8 +216,10 @@
         "repo": "Repo",
         "access": "Access",
         "invalidateCache": "Invalidate Cache",
-        "update": "Update"
+        "update": "Update",
+        "history": "History"
       },
+      "projectHistory": "Project History",
       "addProject": "Add Project",
       "updateProject": "Update Project",
       "downloadProject": "Download Project",
@@ -256,7 +266,7 @@
       "commitData": "Commit",
       "branchProcessing": "Fetching branches of project",
       "commitsProcessing": "Fetching commits of project",
-      "mismatchedProjectWarning": "This version of this project does not match the installed version of Ethereal Engine. There may be compilation or runtime errors if this project is installed.",
+      "mismatchedProjectWarning": "This version of this project does not match the installed version of Infinite Reality Engine. There may be compilation or runtime errors if this project is installed.",
       "needsGithubProvider": "You must connect your account with GitHub in order to create new projects, or add or update projects from GitHub",
       "sourceProjectName": "Project in source repo",
       "destinationProjectName": "Project in destination repo",
@@ -355,6 +365,7 @@
         "subtitle": "Edit Authentication Settings"
       },
       "service": "Service",
+      "githubAppId": "App ID (Enter for GitHub App, omit for OAuth App)",
       "secret": "Secret",
       "entity": "Entity",
       "authStrategies": "Authentication Strategies",
@@ -365,12 +376,13 @@
       "defaults": "Defaults",
       "host": "Host",
       "protocol": "Protocol",
+      "apple": "Apple",
       "discord": "Discord",
-      "facebook": "Facebook",
+      "facebook": "Meta",
       "google": "Google",
       "github": "Github",
       "linkedIn": "LinkedIn",
-      "twitter": "Twitter",
+      "twitter": "X",
       "key": "Key",
       "callback": "Callback",
       "appTitle": "App Title",
@@ -384,6 +396,10 @@
       "aws": {
         "header": "AWS",
         "subtitle": "Edit AWS Settings"
+      },
+      "features": {
+        "header": "Features",
+        "subtitle": "Edit Feature Flag Settings"
       },
       "keys": "Keys",
       "accessKeyId": "Access Key ID",
@@ -509,12 +525,26 @@
       "screenshareMidResMaxBitrate": "Screenshare mid-res video max bitrate (kbps)",
       "screenshareHighResMaxBitrate": "Screenshare high-res video max bitrate (kbps)",
       "privacyPolicy": "Privacy Policy",
+      "webRTCSettings": {
+        "main": "WebRTC Settings",
+        "useCustomICEServers": "Use custom iceServers configuration",
+        "iceServers": "iceServers (STUN/TURN configuration; must provide proper JSON)",
+        "useTimeLimitedCredentials": "Use time-limited credentials to authenticate STUN/TURN server",
+        "webRTCStaticAuthSecretKey": "Shared static-auth-secret for authenticating STUN/TURN server",
+        "usePrivateInstanceserverIP": "Return instanceservers' raw private IP address instead of DNS record"
+      },
       "project": {
         "header": "Project",
         "subtitle": "Edit Project Settings",
         "submit": "Submit",
         "clear": "Clear",
-        "noSettingsMessage": "No settings schema available in xrengine.config.ts"
+        "save": "Save",
+        "delete": "Delete",
+        "add": "Add",
+        "noSettingsMessage": "No settings available",
+        "duplicateKey": "Duplicate keys cannot exist",
+        "keyName": "Key Name",
+        "value": "Value"
       },
       "server": {
         "header": "Server",
@@ -535,8 +565,30 @@
         "port": "Port",
         "processInterval": "Process Interval"
       },
-
-      "plugins": "Plugins"
+      "plugins": "Plugins",
+      "metabase": {
+        "header": "Metabase",
+        "subtitle": "Edit Metabase Settings",
+        "siteUrl": "Site Url",
+        "secretKey": "Secret Key",
+        "environment": "Environment",
+        "expiration": "Expiration",
+        "crashDashboardId": "Crash Dashboard Id"
+      },
+      "zendesk": {
+        "header": "Zendesk",
+        "subtitle": "Edit Zendesk Settings"
+      },
+      "mailchimp": {
+        "header": "Mailchimp",
+        "subtitle": "Edit Mailchimp Settings", 
+        "key": "Key", 
+        "server": "Server",
+        "audienceId": "Audience Id",
+        "defaultTags": "Default Tags (comma separated)"
+      },
+      "keyName": "key Name",
+      "kid": "Key Id"
     },
     "avatar": {
       "columns": {
@@ -596,6 +648,7 @@
         "avatar": "Avatar",
         "accountIdentifier": "Linked Accounts",
         "lastLogin": "Last Login",
+        "acceptedTOS": "TOS Agreed",
         "isGuest": "Is Guest",
         "action": "Action"
       },
@@ -627,12 +680,13 @@
       "clearAllScopes": "Clear All Scopes",
       "userSearch": "user by id, name or account identifier",
       "linkedAccounts": "Linked Accounts",
+      "apple": "Apple",
       "discord": "Discord",
-      "facebook": "Facebook",
+      "facebook": "Meta",
       "google": "Google",
       "github": "Github",
       "linkedIn": "LinkedIn",
-      "twitter": "Twitter",
+      "twitter": "X",
       "sms": "SMS",
       "email": "Email",
       "selectAvatar": "Select an Avatar",

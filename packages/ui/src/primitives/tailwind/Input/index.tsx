@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { forwardRef, InputHTMLAttributes } from 'react'
@@ -79,8 +79,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
     const twClassname = twMerge(
       'text-base font-normal tracking-tight',
-      'textshadow-sm border-theme-primary bg-theme-surfaceInput flex h-9 w-full rounded-lg border px-3.5 py-5 transition-colors',
-      'file:bg-theme-surfaceInput file:border-0 file:text-sm file:font-medium',
+      'textshadow-sm flex h-9 w-full rounded-lg border border-theme-primary bg-theme-surfaceInput px-3.5 py-5 transition-colors',
+      'file:border-0 file:bg-theme-surfaceInput file:text-sm file:font-medium',
       'dark:[color-scheme:dark]',
       'focus-visible:ring-ring placeholder:text-gray-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
       variant !== 'outlined' ? '' : 'focus-visible:ring-1',
@@ -97,12 +97,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     }
 
     const twcontainerClassName = twMerge(
-      'flex w-full flex-col items-center ',
+      'flex w-full flex-col items-center',
       containerVariants[variant],
       containerClassname
     )
 
-    const containerClass = variant === 'outlined' ? 'bg-theme-surface-main relative w-full' : ' relative w-full'
+    const containerClass =
+      variant === 'outlined' ? 'bg-theme-surface-main relative h-full w-full' : ' relative h-full w-full'
     const labelClass = variant === 'outlined' ? '' : 'text-neutral-500 text-xs'
 
     return (
@@ -128,9 +129,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             <div className="pointer-events-auto absolute inset-y-0 end-0 flex items-center">{endComponent}</div>
           )}
         </div>
-        {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
+        {description && <p className="self-stretch text-xs text-theme-secondary">{description}</p>}
         {error && (
-          <p className="text-theme-iconRed inline-flex items-center gap-2.5 self-start text-sm">
+          <p className="inline-flex items-center gap-2.5 self-start text-sm text-theme-iconRed">
             <HiXCircle /> {error}
           </p>
         )}

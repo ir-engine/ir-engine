@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,23 +14,23 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 
-import config, { isDev } from '@etherealengine/common/src/config'
-import { useMutableState } from '@etherealengine/hyperflux'
-import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
-import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
+import { isDev } from '@ir-engine/common/src/config'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
+import Tabs from '@ir-engine/ui/src/primitives/tailwind/Tabs'
 
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -40,6 +40,7 @@ import ProjectTopMenu from './ProjectTopMenu'
 
 export default function AdminProject() {
   const { t } = useTranslation()
+  const search = useHookstate({ local: '', query: '' })
 
   const projectState = useMutableState(ProjectState)
   const authState = useMutableState(AuthState)
@@ -99,7 +100,8 @@ export default function AdminProject() {
             title: t('admin:components.project.project'),
             tabLabel: t('admin:components.common.all'),
             rightComponent: <ProjectTopMenu />,
-            bottomComponent: <ProjectTable />
+            bottomComponent: <ProjectTable search={search.query.value} />,
+            search: search
           },
           {
             title: t('admin:components.buildStatus.buildStatus'),
@@ -123,7 +125,7 @@ export default function AdminProject() {
               </span>
             ),
             bottomComponent: <BuildStatusTable />,
-            disabled: config.client.localBuildOrDev
+            disabled: false //config.client.localBuildOrDev
           }
         ]}
         tabcontainerClassName="bg-theme-primary"

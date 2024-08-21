@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,16 +14,14 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
-
-import React, { useLayoutEffect } from 'react'
 
 import {
   ComponentType,
@@ -36,12 +34,12 @@ import {
   removeComponent,
   setComponent,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { NO_PROXY, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { entityExists, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { NO_PROXY, none, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import React, { useLayoutEffect } from 'react'
 
-import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from './TransformComponent'
 
 type EntityTreeSetType = {
@@ -197,15 +195,14 @@ export function traverseEntityNodeChildFirst(
   cb: (entity: Entity, index: number) => void,
   index = 0
 ): void {
-  const entityTreeNode = getComponent(entity, EntityTreeComponent)
+  const entityTreeNode = getOptionalComponent(entity, EntityTreeComponent)
 
-  if (!entityTreeNode) return
-
-  const children = [...entityTreeNode.children]
-
-  for (let i = 0; i < children.length; i++) {
-    const child = children[i]
-    traverseEntityNodeChildFirst(child, cb, i)
+  if (entityTreeNode) {
+    const children = [...entityTreeNode.children]
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i]
+      traverseEntityNodeChildFirst(child, cb, i)
+    }
   }
 
   cb(entity, index)
@@ -270,19 +267,20 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
 }
 
 /**
- * @todo rename to getAncestorWithComponent
- * @param entity
- * @param component
- * @param closest
+ * Returns the closest ancestor of an entity that has the given component by walking up the entity tree
+ * @param entity Entity to start from
+ * @param component Component to search for
+ * @param closest (default true) - whether to return the closest ancestor or the furthest ancestor
+ * @param includeSelf (default true) - whether to include the entity itself in the search
  * @returns
  */
-export function findAncestorWithComponent(
+export function getAncestorWithComponent(
   entity: Entity,
   component: ComponentType<any>,
   closest = true,
   includeSelf = true
-): Entity | undefined {
-  let result: Entity | undefined
+): Entity {
+  let result = UndefinedEntity
   if (includeSelf && closest && hasComponent(entity, component)) return entity
   traverseEntityNodeParent(entity, (parent) => {
     if (closest && result) return
@@ -365,23 +363,13 @@ export function useTreeQuery(entity: Entity) {
     }
 
     const root = startReactor(function useQueryReactor() {
-      const sceneComponent = useOptionalComponent(entity, SceneComponent)
-      if (sceneComponent) {
-        return (
-          <>
-            {sceneComponent.children.value.map((e) => (
-              <TreeSubReactor key={e} entity={e} />
-            ))}
-          </>
-        )
-      }
       return <TreeSubReactor entity={entity} />
     })
     return () => {
       unmounted = true
       root.stop()
     }
-  }, [])
+  }, [entity])
 
   return result.keys.map(Number) as Entity[]
 }
@@ -396,9 +384,9 @@ export function useTreeQuery(entity: Entity) {
  * @returns
  */
 export function useAncestorWithComponent(entity: Entity, component: ComponentType<any>) {
-  const result = useHookstate(UndefinedEntity)
+  const result = useHookstate(() => getAncestorWithComponent(entity, component))
 
-  useLayoutEffect(() => {
+  useImmediateEffect(() => {
     let unmounted = false
     const ParentSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
@@ -426,12 +414,16 @@ export function useAncestorWithComponent(entity: Entity, component: ComponentTyp
       unmounted = true
       root.stop()
     }
-  }, [])
+  }, [entity, component])
 
   return result.value
 }
 
-export function useChildWithComponent(entity: Entity, component: ComponentType<any>) {
+/**
+ * @todo - return an array of entities that have the component
+ *
+ */
+export function useChildWithComponent(rootEntity: Entity, component: ComponentType<any>) {
   const result = useHookstate(UndefinedEntity)
 
   useLayoutEffect(() => {
@@ -462,15 +454,63 @@ export function useChildWithComponent(entity: Entity, component: ComponentType<a
     }
 
     const root = startReactor(function useQueryReactor() {
-      return <ChildSubReactor entity={entity} key={entity} />
+      return <ChildSubReactor entity={rootEntity} key={rootEntity} />
     })
     return () => {
       unmounted = true
       root.stop()
     }
-  }, [])
+  }, [rootEntity, component])
 
   return result.value
+}
+
+export function useChildrenWithComponent(rootEntity: Entity, component: ComponentType<any>) {
+  const children = useHookstate([] as Entity[])
+
+  useLayoutEffect(() => {
+    let unmounted = false
+    const ChildSubReactor = (props: { entity: Entity }) => {
+      const tree = useOptionalComponent(props.entity, EntityTreeComponent)
+      const matchesQuery = !!useOptionalComponent(props.entity, component)?.value
+
+      useLayoutEffect(() => {
+        if (!matchesQuery) return
+        children.set((prev) => {
+          if (prev.indexOf(props.entity) < 0) prev.push(props.entity)
+          return prev
+        })
+        return () => {
+          if (!unmounted) {
+            children.set((prev) => {
+              const index = prev.indexOf(props.entity)
+              prev.splice(index, 1)
+              return prev
+            })
+          }
+        }
+      }, [matchesQuery])
+
+      if (!tree?.children?.value) return null
+      return (
+        <>
+          {tree.children.value.map((e) => (
+            <ChildSubReactor key={e} entity={e} />
+          ))}
+        </>
+      )
+    }
+
+    const root = startReactor(function useQueryReactor() {
+      return <ChildSubReactor entity={rootEntity} key={rootEntity} />
+    })
+    return () => {
+      unmounted = true
+      root.stop()
+    }
+  }, [rootEntity, component])
+
+  return children
 }
 
 /** @todo make a query component for useTreeQuery */
@@ -526,9 +566,9 @@ export function findCommonAncestors(objects: Entity[], target: Entity[] = []): E
   return target
 }
 
-export function isAncestor(parent: Entity, potentialChild: Entity) {
-  if (!potentialChild) return false
-  if (parent === potentialChild) return false
+export function isAncestor(parent: Entity, potentialChild: Entity, includeSelf = false) {
+  if (!potentialChild || !parent) return false
+  if (!includeSelf && parent === potentialChild) return false
   return traverseEarlyOut(parent, (child) => child === potentialChild)
 }
 

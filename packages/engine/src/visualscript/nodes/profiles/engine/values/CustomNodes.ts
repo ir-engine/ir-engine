@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Tween } from '@tweenjs/tween.js'
@@ -45,35 +45,35 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { AnimationState } from '@etherealengine/engine/src/avatar/AnimationManager'
-import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
-import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
-import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
-import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
-import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
-import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
-import { endXRSession, requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
-import { ContentFitType } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
+import { AnimationState } from '@ir-engine/engine/src/avatar/AnimationManager'
+import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
+import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
+import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
+import { dispatchAction, getState } from '@ir-engine/hyperflux'
+import { CameraActions } from '@ir-engine/spatial/src/camera/CameraState'
+import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
+import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
+import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
+import { endXRSession, requestXRSession } from '@ir-engine/spatial/src/xr/XRSessionFunctions'
+import { ContentFitType } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
 import {
   NodeCategory,
   makeAsyncNodeDefinition,
   makeFlowNodeDefinition,
   makeFunctionNodeDefinition
-} from '@etherealengine/visual-script'
+} from '@ir-engine/visual-script'
 
 import { addMediaComponent } from '../helper/assetHelper'
 
 export const playVideo = makeFlowNodeDefinition({
   typeName: 'engine/media/playVideo',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Play video',
   in: {
     flow: 'flow',
@@ -133,7 +133,7 @@ export const playVideo = makeFlowNodeDefinition({
 
 export const playAudio = makeFlowNodeDefinition({
   typeName: 'engine/media/playAudio',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Play audio',
   in: {
     flow: 'flow',
@@ -190,7 +190,7 @@ export const playAudio = makeFlowNodeDefinition({
 /*
 export const makeRaycast = makeFlowNodeDefinition({
   typeName: 'engine/playAudio',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Play audio',
   in: {
     flow: 'flow',
@@ -234,7 +234,7 @@ export const makeRaycast = makeFlowNodeDefinition({
 
 export const getAnimationPack = makeFunctionNodeDefinition({
   typeName: 'engine/media/getAnimationPack',
-  category: NodeCategory.Query,
+  category: NodeCategory.Engine,
   label: 'Get Avatar Animations',
   in: {
     animationName: (_) => {
@@ -256,7 +256,7 @@ export const getAnimationPack = makeFunctionNodeDefinition({
 
 export const playAnimation = makeFlowNodeDefinition({
   typeName: 'engine/media/playAnimation',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Play animation',
   in: {
     flow: 'flow',
@@ -289,7 +289,7 @@ export const playAnimation = makeFlowNodeDefinition({
 
 export const setAnimationAction = makeFlowNodeDefinition({
   typeName: 'engine/media/setAnimationAction',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Set animation action',
   in: {
     flow: 'flow',
@@ -352,7 +352,7 @@ export const setAnimationAction = makeFlowNodeDefinition({
 const initialState = () => {}
 export const loadAsset = makeAsyncNodeDefinition({
   typeName: 'engine/asset/loadAsset',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Load asset',
   in: {
     flow: 'flow',
@@ -385,7 +385,7 @@ export const loadAsset = makeAsyncNodeDefinition({
 
 export const fadeCamera = makeFlowNodeDefinition({
   typeName: 'engine/camera/cameraFade',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Camera fade',
   in: {
     flow: 'flow',
@@ -405,7 +405,7 @@ export const fadeCamera = makeFlowNodeDefinition({
 
 export const setCameraZoom = makeFlowNodeDefinition({
   typeName: 'engine/camera/setCameraZoom',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Set camera zoom',
   in: {
     flow: 'flow',
@@ -416,14 +416,14 @@ export const setCameraZoom = makeFlowNodeDefinition({
   triggered: ({ read, commit }) => {
     const entity = Engine.instance.cameraEntity
     const zoom = read<number>('zoom')
-    setComponent(entity, FollowCameraComponent, { zoomLevel: zoom })
+    setComponent(entity, FollowCameraComponent, { targetDistance: zoom })
     commit('flow')
   }
 })
 
 export const startXRSession = makeFlowNodeDefinition({
   typeName: 'engine/xr/startSession',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Start XR Session',
   in: {
     flow: 'flow',
@@ -447,7 +447,7 @@ export const startXRSession = makeFlowNodeDefinition({
 
 export const finishXRSession = makeFlowNodeDefinition({
   typeName: 'engine/xr/endSession',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'End XR Session',
   in: {
     flow: 'flow'
@@ -462,7 +462,7 @@ export const finishXRSession = makeFlowNodeDefinition({
 
 export const switchScene = makeFlowNodeDefinition({
   typeName: 'engine/switchScene',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Switch Scene',
   in: {
     flow: 'flow',
@@ -487,7 +487,7 @@ export const group = makeFunctionNodeDefinition({
 
 export const redirectToURL = makeFlowNodeDefinition({
   typeName: 'engine/redirectToURL',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Redirect to URL',
   in: {
     flow: 'flow',
@@ -506,7 +506,7 @@ export const redirectToURL = makeFlowNodeDefinition({
  */
 export const fadeMesh = makeFlowNodeDefinition({
   typeName: 'engine/fadeMesh',
-  category: NodeCategory.Effect,
+  category: NodeCategory.Engine,
   label: 'Fade Mesh',
   in: {
     flow: 'flow',

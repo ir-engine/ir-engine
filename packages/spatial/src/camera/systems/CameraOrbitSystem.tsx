@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,19 +14,19 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Not } from 'bitecs'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
   defineQuery,
   defineSystem,
@@ -34,21 +34,22 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  setComponent
-} from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
-import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+  InputSystemGroup,
+  setComponent,
+  UndefinedEntity
+} from '@ir-engine/ecs'
+import { getState } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
+import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 
 import { EngineState } from '../../EngineState'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 import { MouseScroll } from '../../input/state/ButtonState'
-import { ClientInputSystem } from '../../input/systems/ClientInputSystem'
+import { InputState } from '../../input/state/InputState'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { FlyControlComponent } from '../components/FlyControlComponent'
 
@@ -76,24 +77,29 @@ const execute = () => {
 
   // TODO: handle multi-touch pinch/zoom
 
-  const buttons = InputSourceComponent.getMergedButtons()
-  const axes = InputSourceComponent.getMergedAxes()
-
   /**
    * assign active orbit camera based on which input source registers input
    */
   for (const cameraEid of orbitCameraQuery()) {
-    const inputPointerEntity = InputPointerComponent.getPointerForCanvas(cameraEid)
-    if (!inputPointerEntity) continue
-    const inputPointer = getComponent(inputPointerEntity, InputPointerComponent)
+    const inputPointerEntity = InputPointerComponent.getPointersForCamera(cameraEid)[0]
 
     const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)
 
+    if (!inputPointerEntity && !cameraOrbit.refocus.value) continue
+
     // TODO: replace w/ EnabledComponent or DisabledComponent in query
-    if (cameraOrbit.disabled.value || (cameraEid == Engine.instance.viewerEntity && !getState(EngineState).isEditing))
+    if (
+      cameraOrbit.disabled.value ||
+      getState(InputState).capturingEntity !== UndefinedEntity ||
+      (cameraEid == Engine.instance.viewerEntity && !getState(EngineState).isEditing)
+    )
       continue
 
-    if (buttons.PrimaryClick?.pressed) {
+    const buttons = InputComponent.getMergedButtons(cameraEid)
+    const axes = InputComponent.getMergedAxes(cameraEid)
+
+    if (buttons.PrimaryClick?.pressed && buttons.PrimaryClick?.dragging) {
+      InputState.setCapturingEntity(cameraEid)
       cameraOrbit.isOrbiting.set(true)
     }
 
@@ -109,19 +115,22 @@ const execute = () => {
     if (buttons.KeyF?.down || distance < cameraOrbit.minimumZoom.value) {
       cameraOrbit.refocus.set(true)
     }
-    if (selecting) {
-      cameraOrbit.isOrbiting.set(true)
-      const mouseMovement = inputPointer.movement
-      if (mouseMovement) {
-        cameraOrbit.cursorDeltaX.set(mouseMovement.x)
-        cameraOrbit.cursorDeltaY.set(mouseMovement.y)
-      }
-    } else if (panning) {
-      cameraOrbit.isPanning.set(true)
-      const mouseMovement = inputPointer.movement
-      if (mouseMovement) {
-        cameraOrbit.cursorDeltaX.set(mouseMovement.x)
-        cameraOrbit.cursorDeltaY.set(mouseMovement.y)
+    if (inputPointerEntity) {
+      const inputPointer = getComponent(inputPointerEntity, InputPointerComponent)
+      if (selecting) {
+        cameraOrbit.isOrbiting.set(true)
+        const mouseMovement = inputPointer.movement
+        if (mouseMovement) {
+          cameraOrbit.cursorDeltaX.set(mouseMovement.x)
+          cameraOrbit.cursorDeltaY.set(mouseMovement.y)
+        }
+      } else if (panning) {
+        cameraOrbit.isPanning.set(true)
+        const mouseMovement = inputPointer.movement
+        if (mouseMovement) {
+          cameraOrbit.cursorDeltaX.set(mouseMovement.x)
+          cameraOrbit.cursorDeltaY.set(mouseMovement.y)
+        }
       }
     }
 
@@ -198,6 +207,6 @@ const execute = () => {
 
 export const CameraOrbitSystem = defineSystem({
   uuid: 'ee.engine.CameraOrbitSystem',
-  insert: { after: ClientInputSystem },
+  insert: { after: InputSystemGroup },
   execute
 })

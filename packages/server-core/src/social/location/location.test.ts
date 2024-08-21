@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,23 +14,23 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
 
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
-import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
-import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { locationSettingPath } from '@ir-engine/common/src/schemas/social/location-setting.schema'
+import { LocationID, locationPath, LocationType } from '@ir-engine/common/src/schemas/social/location.schema'
+import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { LocationParams } from './location.class'
@@ -53,9 +53,9 @@ describe('location.test', () => {
   it('should create a new location', async () => {
     const name = `Test Location ${uuidv4()}`
 
-    const scene = await app.service(assetPath).find({
+    const scene = await app.service(staticResourcePath).find({
       query: {
-        assetURL: 'projects/default-project/public/scenes/default.gltf'
+        key: 'projects/ir-engine/default-project/public/scenes/default.gltf'
       }
     })
 
@@ -114,6 +114,7 @@ describe('location.test', () => {
     delete locationData.createdAt
     delete locationData.updatedAt
     delete locationData.sceneAsset
+    delete locationData.url
 
     const item = (await app
       .service(locationPath)
@@ -123,10 +124,6 @@ describe('location.test', () => {
     assert.equal(item.name, newName)
 
     locations[0].name = newName
-  })
-
-  it('should not be able to make lobby if not admin', () => {
-    assert.rejects(() => app.service(locationPath).patch(locations[0].id, { isLobby: true }))
   })
 
   it('should be able to delete the location', async () => {

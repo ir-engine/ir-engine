@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,37 +14,32 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
 import { BufferGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { getComponent, getMutableComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { WebContainer3D } from '@etherealengine/xrui'
+import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { WebContainer3D } from '@ir-engine/xrui'
 
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { XRStandardGamepadButton } from '../../input/state/ButtonState'
-import { InputState } from '../../input/state/InputState'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
-import { XRState } from '../../xr/XRState'
 import { PointerComponent, PointerObject } from '../components/PointerComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
-import { XRUIState } from '../XRUIState'
 
 const hitColor = new Color(0x00e6e6)
 const normalColor = new Color(0xffffff)
@@ -56,10 +51,11 @@ const inputSourceQuery = defineQuery([InputSourceComponent])
 // redirect DOM events from the canvas, to the 3D scene,
 // to the appropriate child Web3DLayer, and finally (back) to the
 // DOM to dispatch an event on the intended DOM target
-const redirectDOMEvent = (evt) => {
+const redirectDOMEvent = (evt: PointerEvent) => {
   for (const entity of visibleInteractableXRUIQuery()) {
     const layer = getComponent(entity, XRUIComponent)
-    const inputSources = getComponent(entity, InputComponent).inputSources
+    const inputSources = InputComponent.getInputSourceEntities(entity)
+    // const inputSources = getComponent(entity, InputComponent).inputSources
     if (!inputSources.length) continue
     const inputSource = getComponent(inputSources[0], InputSourceComponent) // assume only one input source per XRUI
     if (inputSource.intersections.length && inputSource.intersections[0].entity !== entity) continue // only handle events for the first intersection
@@ -67,7 +63,7 @@ const redirectDOMEvent = (evt) => {
     const raycaster = inputSource.raycaster
     const hit = layer.hitTest(raycaster.ray)
     if (hit && hit.intersection.object.visible) {
-      hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
+      hit.target.dispatchEvent(new (evt.constructor as any)(evt.type, evt))
       hit.target.focus()
       return
     }
@@ -103,9 +99,6 @@ const updateControllerRayInteraction = (entity: Entity, xruiEntities: Entity[]) 
       cursor.visible = true
       cursor.position.copy(hit.intersection.point)
       pointer.worldToLocal(cursor.position)
-      // this is a hack because this system runs after the transform system
-      // @todo turn cursor and pointer into entities
-      cursor.updateMatrixWorld(true)
 
       if (interactable) {
         cursor.material.color = hitColor
@@ -133,17 +126,6 @@ const updateClickEventsForController = (entity: Entity) => {
 const execute = () => {
   if (!isClient) return
 
-  const xruiState = getState(XRUIState)
-  const xrFrame = getState(XRState).xrFrame
-
-  /** Update the objects to use for intersection tests */
-  const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
-  if (xrFrame && xruiState.interactionRays[0] === pointerScreenRaycaster.ray)
-    xruiState.interactionRays = [...PointerComponent.getPointers(), pointerScreenRaycaster.ray] // todo, replace pointerScreenRaycaster with input sources
-
-  if (!xrFrame && xruiState.interactionRays[0] !== pointerScreenRaycaster.ray)
-    xruiState.interactionRays = [pointerScreenRaycaster.ray]
-
   const interactableXRUIEntities = visibleInteractableXRUIQuery()
 
   const inputSourceEntities = inputSourceQuery()
@@ -166,7 +148,7 @@ const execute = () => {
     if (!pointer) continue
 
     if (
-      buttons[XRStandardGamepadButton.Trigger]?.down &&
+      buttons.XRStandardGamepadTrigger?.down &&
       (inputSource.handedness === 'left' || inputSource.handedness === 'right')
     )
       updateClickEventsForController(pointerEntity)
@@ -221,10 +203,6 @@ const reactor = () => {
     document.body.addEventListener('click', redirectDOMEvent)
     document.body.addEventListener('contextmenu', redirectDOMEvent)
     document.body.addEventListener('dblclick', redirectDOMEvent)
-
-    const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
-
-    getMutableState(XRUIState).interactionRays.set([pointerScreenRaycaster.ray])
 
     return () => {
       document.body.removeEventListener('pointerdown', redirectDOMEvent)

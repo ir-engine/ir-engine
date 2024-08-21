@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,26 +14,26 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import Box from '@mui/material/Box'
 import React from 'react'
 
-import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
-import RoomMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/RoomMenu'
-import { useMutableState } from '@etherealengine/hyperflux'
+import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
+import RoomMenu from '@ir-engine/client-core/src/user/components/UserMenu/menus/RoomMenu'
+import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
-export const RoomPage = (): any => {
-  const clientSettingState = useMutableState(AdminClientSettingsState)
-  const [clientSetting] = clientSettingState?.client?.value || []
+export const RoomPage = () => {
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSetting = clientSettingQuery.data[0]
 
   return (
     <div className="lander">
@@ -46,20 +46,20 @@ export const RoomPage = (): any => {
       </style>
       <MetaTags>
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;600;800&display=swap"
           rel="stylesheet"
         />
       </MetaTags>
       <div className="main-background">
         <div className="img-container">
-          {clientSetting?.appBackground && <img src={clientSetting.appBackground} alt="" crossOrigin="anonymous" />}
+          {clientSetting?.appBackground && <img src={clientSetting?.appBackground} alt="" crossOrigin="anonymous" />}
         </div>
       </div>
       <nav className="navbar">
         <div className="logo-section">
-          {clientSetting?.appTitle && <object className="lander-logo" data={clientSetting.appTitle} />}
+          {clientSetting?.appTitle && <object className="lander-logo" data={clientSetting?.appTitle} />}
           <div className="logo-bottom">
-            {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting.appSubtitle}</span>}
+            {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting?.appSubtitle}</span>}
           </div>
         </div>
       </nav>

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,136 +14,96 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
   uploadToFeathersService
-} from '@etherealengine/client-core/src/util/upload'
-import multiLogger from '@etherealengine/common/src/logger'
-import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { Engine } from '@etherealengine/ecs'
-import { ModelFormat } from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
-import { Heuristic } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import { getState } from '@etherealengine/hyperflux'
+} from '@ir-engine/client-core/src/util/upload'
+import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
+import { processFileName } from '@ir-engine/common/src/utils/processFileName'
+import { Engine } from '@ir-engine/ecs'
+import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
 
-import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
-import { createLODVariants } from '../components/assets/ModelCompressionPanel'
-import { LODVariantDescriptor } from '../constants/GLTFPresets'
+import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
 
-const logger = multiLogger.child({ component: 'editor:assetFunctions' })
+export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
+  return Promise.all(
+    Array.from(files).map((file) => {
+      const fileDirectory = file.webkitRelativePath || file.name
+      return uploadToFeathersService(fileBrowserUploadPath, [file], {
+        args: [
+          {
+            project: projectName,
+            path: directoryPath.replace('projects/' + projectName + '/', '') + fileDirectory,
+            type: 'asset',
+            contentType: file.type
+          }
+        ]
+      }).promise
+    })
+  )
+}
 
 /**
  * @param config
  * @param config.projectName input and upload the file to the assets directory of the project
  * @param config.directoryPath input and upload the file to the `directoryPath`
  */
-export const inputFileWithAddToScene = async ({
+export const inputFileWithAddToScene = ({
   projectName,
-  directoryPath
+  directoryPath,
+  preserveDirectory
 }: {
-  projectName?: string
-  directoryPath?: string
+  projectName: string
+  directoryPath: string
+  preserveDirectory?: boolean
 }): Promise<null> =>
   new Promise((resolve, reject) => {
     const el = document.createElement('input')
     el.type = 'file'
+    if (preserveDirectory) {
+      el.setAttribute('webkitdirectory', 'webkitdirectory')
+    }
     el.multiple = true
-    el.accept =
-      '.bin,.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
     el.style.display = 'none'
 
     el.onchange = async () => {
       try {
-        let uploadedURLs: string[] = []
-        if (el.files && el.files.length > 0) {
-          const files = Array.from(el.files)
-          if (projectName) {
-            const importSettings = getState(ImportSettingsState)
-            uploadedURLs = (
-              await Promise.all(
-                uploadProjectFiles(
-                  projectName,
-                  files,
-                  files.map(() => `projects/${projectName}${importSettings.importFolder}`)
-                ).promises
-              )
-            ).map((url) => url[0])
-            for (const url of uploadedURLs) {
-              if (url.endsWith('.gltf') || url.endsWith('.glb') || url.endsWith('.wrm')) {
-                const importSettings = getState(ImportSettingsState)
-                if (importSettings.LODsEnabled) {
-                  const LODSettings = JSON.parse(JSON.stringify(importSettings.selectedLODS)) as LODVariantDescriptor[]
-                  for (const lod of LODSettings) {
-                    const fileName = url.match(/\/([^\/]+)\.\w+$/)!
-                    const fileType = url.match(/\.(\w+)$/)!
-                    const dst = (fileName[1] + lod.suffix).replace(/\s/g, '')
-
-                    lod.params.src = url
-                    lod.params.dst = `${importSettings.LODFolder}${dst}`
-                    lod.params.modelFormat = fileType[1] as ModelFormat
-                  }
-                  await createLODVariants(LODSettings, true, Heuristic.BUDGET, true)
-                }
-              }
-            }
-          } else if (directoryPath) {
-            uploadedURLs = await Promise.all(
-              files.map(
-                (file) =>
-                  uploadToFeathersService(fileBrowserUploadPath, [file], {
-                    fileName: file.name,
-                    path: directoryPath,
-                    contentType: ''
-                  }).promise
-              )
-            )
-          }
-
-          await Promise.all(uploadedURLs.filter((url) => /\.zip$/.test(url)).map(extractZip)).then(() =>
-            logger.info('zip files extracted')
-          )
-
-          // if (projectName) {
-          //   uploadedURLs.forEach((url) => addMediaNode(url))
-          // }
-
-          resolve(null)
-        }
+        if (el.files?.length) await handleUploadFiles(projectName, directoryPath, el.files)
+        resolve(null)
       } catch (err) {
         reject(err)
+      } finally {
+        el.remove()
       }
     }
 
     el.click()
-    el.remove()
   })
 
-export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], onProgress?) => {
+export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], args?: object[]) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
-    const path = paths[i]
+    const fileDirectory = paths[i].replace('projects/' + projectName + '/', '')
+    const filePath = fileDirectory ? pathJoin(fileDirectory, file.name) : file.name
+    const fileArgs = args?.[i] ?? {}
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: file.name, path, contentType: '' }, onProgress)
+      uploadToFeathersService(fileBrowserUploadPath, [file], {
+        args: [{ contentType: '', ...fileArgs, project: projectName, path: filePath }]
+      })
     )
   }
-
-  const uploadPromises = [...promises]
-  Promise.all(uploadPromises).then(() =>
-    Engine.instance.api.service('project-resources').create({ project: projectName })
-  )
 
   return {
     cancel: () => promises.forEach((promise) => promise.cancel()),
@@ -193,11 +153,11 @@ export const processEntry = async (
 
   if (item.isFile) {
     const file = await getFile(item)
-    const path = `projects/${projectName}/assets${directory}`
     const name = processFileName(file.name)
+    const path = `assets${directory}/` + name
 
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: name, path, contentType: '' }, onProgress)
+      uploadToFeathersService(fileBrowserUploadPath, [file], { projectName, path, contentType: '' }, onProgress)
     )
   }
 }

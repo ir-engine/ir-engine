@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
@@ -28,17 +28,21 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { BadRequest } from '@feathersjs/errors'
+import { projectPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
-  locationAuthorizedUserPath,
-  LocationAuthorizedUserType
-} from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
-import { locationBanPath, LocationBanType } from '@etherealengine/common/src/schemas/social/location-ban.schema'
-import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
-import { LocationID, LocationQuery, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
-import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
-import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import type { HookContext } from '@etherealengine/server-core/declarations'
+  LocationAuthorizedUserType,
+  locationAuthorizedUserPath
+} from '@ir-engine/common/src/schemas/social/location-authorized-user.schema'
+import { LocationBanType, locationBanPath } from '@ir-engine/common/src/schemas/social/location-ban.schema'
+import { locationSettingPath } from '@ir-engine/common/src/schemas/social/location-setting.schema'
+import { LocationID, LocationQuery, LocationType } from '@ir-engine/common/src/schemas/social/location.schema'
+import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import type { HookContext } from '@ir-engine/server-core/declarations'
+import slugify from 'slugify'
+import config from '../../appconfig'
+import { LocationService } from './location.class'
 
 export const locationResolver = resolve<LocationType, HookContext>({
   locationSetting: virtual(async (location, context) => {
@@ -67,7 +71,10 @@ export const locationResolver = resolve<LocationType, HookContext>({
     })) as LocationBanType[]
   }),
   sceneAsset: virtual(async (location, context) => {
-    return context.app.service(assetPath).get(location.sceneId)
+    return context.app.service(staticResourcePath).get(location.sceneId)
+  }),
+  url: virtual(async (location, _context) => {
+    return `${config.client.url}/location/${location.slugifiedName}`
   }),
   createdAt: virtual(async (location) => fromDateTimeSql(location.createdAt)),
   updatedAt: virtual(async (location) => fromDateTimeSql(location.updatedAt))
@@ -81,6 +88,20 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
 export const locationDataResolver = resolve<LocationType, HookContext>({
   id: async () => {
     return uuidv4() as LocationID
+  },
+  slugifiedName: async (value, location) => {
+    if (location.name) return slugify(location.name, { lower: true })
+  },
+  projectId: async (value, location, context: HookContext<LocationService>) => {
+    try {
+      const asset = await context.app.service(staticResourcePath).get(location.sceneId)
+      if (!asset.project) throw new BadRequest('Error populating projectId into location')
+      const project = await context.app.service(projectPath).find({ query: { name: asset.project } })
+      if (!project || project.total === 0) throw new BadRequest('Error populating projectId into location')
+      return project.data[0].id
+    } catch (error) {
+      throw new BadRequest('Error populating projectId into location')
+    }
   },
   locationSetting: async (value, location) => {
     return {
@@ -102,11 +123,20 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
       updatedAt: await getDateTimeSql()
     }
   },
+  updatedBy: async (_, __, context) => {
+    return context.params?.user?.id || null
+  },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
 })
 
 export const locationPatchResolver = resolve<LocationType, HookContext>({
+  slugifiedName: async (value, location) => {
+    if (location.name) return slugify(location.name, { lower: true })
+  },
+  updatedBy: async (_, __, context) => {
+    return context.params?.user?.id || null
+  },
   updatedAt: getDateTimeSql
 })
 

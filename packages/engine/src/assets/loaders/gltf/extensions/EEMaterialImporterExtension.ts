@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,31 +14,30 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Color, Material, SRGBColorSpace } from 'three'
 import matches from 'ts-matches'
 
-import { getComponent, UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
-  MaterialComponent,
-  MaterialComponents,
+  MaterialPrototypeComponent,
   MaterialPrototypeObjectConstructor,
-  prototypeByName
-} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 
 import {
-  getPrototypeConstructorFromName,
+  getPrototypeEntityFromName,
   injectMaterialDefaults,
   PrototypeNotFoundError
-} from '../../../../scene/materials/functions/materialSourcingFunctions'
+} from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import {
   EEMaterialExtensionType,
   isOldEEMaterial,
@@ -57,7 +56,10 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     const eeMaterial: EEMaterialExtensionType = materialDef.extensions[this.name] as any
     let constructor: MaterialPrototypeObjectConstructor | null = null
     try {
-      constructor = getPrototypeConstructorFromName(eeMaterial.prototype)
+      constructor = getComponent(
+        getPrototypeEntityFromName(eeMaterial.prototype)!,
+        MaterialPrototypeComponent
+      ).prototypeConstructor
     } catch (e) {
       if (e instanceof PrototypeNotFoundError) {
         console.warn('prototype ' + eeMaterial.prototype + ' not found')
@@ -82,19 +84,23 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     if (extension.plugins) {
       if (!materialDef.extras) materialDef.extras = {}
       materialDef.extras['plugins'] = extension.plugins
+      for (const plugin of extension.plugins) {
+        if (!plugin?.uniforms) continue
+        for (const v of Object.values(plugin.uniforms)) {
+          if (v.type === 'texture') {
+            parser.assignTexture(materialParams, v.name, v.contents)
+          }
+        }
+      }
     }
-    const materialComponent = getComponent(
-      UUIDComponent.getEntityByUUID(extension.uuid),
-      MaterialComponent[MaterialComponents.State]
-    )
+    const materialComponent = getComponent(UUIDComponent.getEntityByUUID(extension.uuid), MaterialStateComponent)
     let foundPrototype = false
     if (materialComponent) {
-      foundPrototype = !!materialComponent.prototypeConstructor
+      foundPrototype = !!materialComponent.prototypeEntity
       injectMaterialDefaults(extension.uuid)
     } else {
       try {
-        getComponent(prototypeByName[extension.prototype], MaterialComponent[MaterialComponents.Prototype])
-          .prototypeArguments
+        getComponent(getPrototypeEntityFromName(extension.prototype)!, MaterialPrototypeComponent).prototypeArguments
         foundPrototype = true
       } catch (e) {
         if (e instanceof PrototypeNotFoundError) {
@@ -151,7 +157,7 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
             }
             break
           case 'color':
-            if (v.contents !== null && !(v.contents as Color).isColor) {
+            if (v.contents !== null && !(v.contents as Color)?.isColor) {
               parseTarget[k] = new Color(v.contents)
             } else {
               parseTarget[k] = v.contents

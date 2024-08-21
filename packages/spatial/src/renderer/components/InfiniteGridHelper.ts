@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
@@ -36,11 +36,11 @@ import {
   ShaderMaterial
 } from 'three'
 
-import { Entity } from '@etherealengine/ecs'
-import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useMutableState } from '@etherealengine/hyperflux'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { Entity } from '@ir-engine/ecs'
+import { defineComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { useMutableState } from '@ir-engine/hyperflux'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { NameComponent } from '../../common/NameComponent'
 import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
@@ -94,13 +94,13 @@ float getGrid(float size) {
 }
 
 float getXAxisLine() {
-  float lineWidth = 0.02; // Adjust line width if needed
+  float lineWidth = 0.1; // Adjust line width if needed
   float xLine = smoothstep(-lineWidth, lineWidth, abs(worldPosition.x));
   return 1.0 - xLine;
 }
 
 float getZAxisLine() {
-  float lineWidth = 0.02; // Adjust line width if needed
+  float lineWidth = 0.1; // Adjust line width if needed
   float zLine = smoothstep(-lineWidth, lineWidth, abs(worldPosition.z));
   return 1.0 - zLine;
 }
@@ -114,14 +114,13 @@ void main() {
   float g2 = getGrid(uSize2);
   float xAxisLine = getXAxisLine();
   float zAxisLine = getZAxisLine();
-  vec3 xAxisColor = vec3(1.0, 0.0, 0.0);
-  vec3 zAxisColor = vec3(0.0, 0.0, 1.0);
 
   if (xAxisLine > 0.0 || zAxisLine > 0.0) {
     discard;
   } else {
-    gl_FragColor = vec4(uColor.rgb, mix(g2, g1, g1) * pow(d, 3.0));
+    gl_FragColor = vec4(uColor.rgb, mix(g2, g1, g1));
     gl_FragColor.a = mix(0.5 * gl_FragColor.a, gl_FragColor.a, g2);
+    gl_FragColor.a *= pow(d, 3.0);
 }
 
   if ( gl_FragColor.a <= 0.0 ) discard;
@@ -133,8 +132,8 @@ export const InfiniteGridComponent = defineComponent({
   onInit(entity) {
     return {
       size: 1,
-      color: new Color('white'),
-      distance: 8000
+      color: new Color(0x535353),
+      distance: 200
     }
   },
 

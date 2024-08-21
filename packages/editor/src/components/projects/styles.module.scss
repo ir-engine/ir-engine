@@ -1,7 +1,7 @@
 .profileButton {
-  display: flex;
-  align-items: center;
-  color: var(--textColor);
+  display: flex !important;
+  align-items: center !important;
+  color: var(--textColor) !important;
   background: transparent;
 
   span {

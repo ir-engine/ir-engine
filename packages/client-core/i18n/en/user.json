@@ -36,11 +36,12 @@
       "sms-sent-msg": "Login Magic Link was sent. Please check your SMS."
     },
     "social": {
+      "apple": "Login with Apple",
       "gitHub": "Login with GitHub",
       "google": "Login with Google",
-      "facebook": "Login with Facebook",
+      "facebook": "Login with Meta",
       "linkedin": "Login with Linkedin",
-      "twitter": "Login with Twitter"
+      "twitter": "Login with X"
     },
     "register": {
       "header": "Sign Up",
@@ -135,9 +136,10 @@
       "party": "Party",
       "shareQuest": "Share to Quest",
       "shareDirect": "Share Direct Link",
+      "shareEmbed": "Embed This Space",
       "shareInvite": "Share by Invite",
-      "shareTitle": "AR/VR World | Ethereal Engine",
-      "shareDescription": "Check out AR/VR world on Ethereal Engine",
+      "shareTitle": "AR/VR World | Infinite Reality Engine",
+      "shareDescription": "Check out AR/VR world on Infinite Reality Engine",
       "shareFailed": "Error during sharing"
     },
     "party": {
@@ -163,7 +165,7 @@
       "lbl-left-control-scheme": "Left Control Scheme",
       "lbl-right-control-scheme": "Right Control Scheme",
       "lbl-preferred-hand": "Preferred Hand",
-      "lbl-resolution": "Resolution",
+      "lbl-quality": "Quality Preset",
       "lbl-shadow": "Shadows",
       "lbl-pp": "Post Processing",
       "lbl-pbr": "Full PBR",
@@ -220,6 +222,11 @@
       "issueVC": "Issue a VC",
       "requestVC": "Request a VC",
       "addSocial": "Connect your Social Logins",
+      "logIn": "Log In",
+      "agreeTOS": "I agree to the ",
+      "termsOfService": "Infinite Reality Terms of Service",
+      "confirmAge13": "I am 13 years of age or older",
+      "confirmAge18": "I am 18 years of age or older",
       "removeSocial": "Remove Social Logins",
       "connections": {
         "title": "Connections",
@@ -262,7 +269,9 @@
       "userIdCopied": "User ID copied",
       "apiKeyCopied": "API Key copied",
       "refreshApiKey": "Refresh API Key",
-      "privacyPolicy": "Privacy Policy"
+      "privacyPolicy": "Privacy Policy",
+      "helpChat": "Help Chat",
+      "reportWorld": "Report World"
     },
     "oauth": {
       "authenticating": "Authenticating...",
@@ -303,7 +312,8 @@
     "setting": "Settings",
     "server": "Server",
     "recordings": "Recordings",
-    "channels": "Channels"
+    "channels": "Channels",
+    "crashReport": "Crash Report"
   },
   "resource": {
     "createResource": "Create Resource"

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
@@ -33,7 +33,7 @@ import { dataValidator, queryValidator } from '../validators'
 
 export const staticResourcePath = 'static-resource'
 
-export const staticResourceMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
+export const staticResourceMethods = ['get', 'find', 'create', 'update', 'patch', 'remove'] as const
 
 // Main data model schema
 export const staticResourceSchema = Type.Object(
@@ -41,62 +41,108 @@ export const staticResourceSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    sid: Type.String(),
     key: Type.String(),
-    metadata: Type.Any(),
     mimeType: Type.String(),
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
     hash: Type.String(),
-    project: Type.String(),
-    driver: Type.String(),
-    attribution: Type.String(),
-    licensing: Type.String(),
-    tags: Type.Array(Type.String()),
+    type: Type.String(), // 'scene' | 'asset' | 'file' | 'thumbnail' | 'avatar' | 'recording'
+    project: Type.Optional(Type.String()),
+    tags: Type.Optional(Type.Array(Type.String())),
+    dependencies: Type.Optional(Type.Array(Type.String())),
+    attribution: Type.Optional(Type.String()),
+    licensing: Type.Optional(Type.String()),
+    description: Type.Optional(Type.String()),
     url: Type.String(),
-    stats: Type.Record(Type.String(), Type.Any()),
+    stats: Type.Optional(Type.Record(Type.String(), Type.Any())),
+    thumbnailKey: Type.Optional(Type.String()),
+    thumbnailURL: Type.Optional(Type.String()),
+    thumbnailMode: Type.Optional(Type.String()), // 'automatic' | 'manual'
+    updatedBy: TypedString<UserID>({
+      format: 'uuid'
+    }),
     createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' }),
-    thumbnailURL: Type.String(),
-    thumbnailType: Type.String()
+    updatedAt: Type.String({ format: 'date-time' })
   },
   { $id: 'StaticResource', additionalProperties: false }
 )
 export interface StaticResourceType extends Static<typeof staticResourceSchema> {}
 
-export interface StaticResourceDatabaseType extends Omit<StaticResourceType, 'metadata' | 'tags' | 'stats'> {
-  metadata: string
+export interface StaticResourceDatabaseType
+  extends Omit<StaticResourceType, 'url' | 'dependencies' | 'tags' | 'stats' | 'thumbnailURL'> {
+  dependencies: string
   tags: string
   stats: string
 }
 
 // Schema for creating new entries
-export const staticResourceDataSchema = Type.Partial(staticResourceSchema, { $id: 'StaticResourceData' })
+export const staticResourceDataSchema = Type.Partial(
+  Type.Pick(staticResourceSchema, [
+    'id',
+    'key',
+    'mimeType',
+    'userId',
+    'hash',
+    'type',
+    'project',
+    'tags',
+    'dependencies',
+    'attribution',
+    'licensing',
+    'description',
+    'stats',
+    'thumbnailKey',
+    'thumbnailMode'
+  ]),
+  { $id: 'StaticResourceData' }
+)
 export interface StaticResourceData extends Static<typeof staticResourceDataSchema> {}
 
 // Schema for updating existing entries
-export const staticResourcePatchSchema = Type.Partial(staticResourceSchema, {
-  $id: 'StaticResourcePatch'
-})
+export const staticResourcePatchSchema = Type.Partial(
+  Type.Pick(staticResourceSchema, [
+    'id',
+    'key',
+    'mimeType',
+    'userId',
+    'hash',
+    'type',
+    'project',
+    'tags',
+    'dependencies',
+    'attribution',
+    'licensing',
+    'description',
+    'stats',
+    'thumbnailKey',
+    'thumbnailMode'
+  ]),
+  {
+    $id: 'StaticResourcePatch'
+  }
+)
 export interface StaticResourcePatch extends Static<typeof staticResourcePatchSchema> {}
 
 // Schema for allowed query properties
 export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
   'id',
-  'sid',
   'key',
-  // 'metadata', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
   'mimeType',
   'userId',
   'hash',
+  'type',
   'project',
-  'driver',
+  'tags',
+  'dependencies',
   'attribution',
   'licensing',
-  'tags',
-  'url'
-  // 'stats'
+  'description',
+  'stats',
+  'thumbnailKey',
+  'thumbnailMode',
+  'createdAt',
+  'updatedAt'
 ])
 export const staticResourceQuerySchema = Type.Intersect(
   [

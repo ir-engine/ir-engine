@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,18 +14,17 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 export type * from './schemas/analytics/analytics.schema'
 export type * from './schemas/assets/asset-library.schema'
-export type * from './schemas/assets/asset.schema'
 export type * from './schemas/assets/model-transform.schema'
 export type * from './schemas/bot/bot-command.schema'
 export type * from './schemas/bot/bot.schema'
@@ -34,6 +33,9 @@ export type * from './schemas/cluster/build-status.schema'
 export type * from './schemas/cluster/logs-api.schema'
 export type * from './schemas/cluster/migrations-info.schema'
 export type * from './schemas/cluster/pods.schema'
+export type * from './schemas/integrations/metabase/metabase-setting.schema'
+export type * from './schemas/integrations/metabase/metabase-url.schema'
+export type * from './schemas/integrations/zendesk/zendesk.schema'
 export type * from './schemas/matchmaking/match-instance.schema'
 export type * from './schemas/matchmaking/match-user.schema'
 export type * from './schemas/media/archiver.schema'
@@ -62,7 +64,6 @@ export type * from './schemas/projects/project-permission-type.schema'
 export type * from './schemas/projects/project-permission.schema'
 export type * from './schemas/projects/project.schema'
 export type * from './schemas/projects/projects.schema'
-export type * from './schemas/projects/scene-data.schema'
 export type * from './schemas/recording/recording-resource-upload.schema'
 export type * from './schemas/recording/recording-resource.schema'
 export type * from './schemas/recording/recording.schema'
@@ -78,9 +79,12 @@ export type * from './schemas/setting/email-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
 export type * from './schemas/setting/helm-setting.schema'
 export type * from './schemas/setting/instance-server-setting.schema'
+export type * from './schemas/setting/mailchimp-setting.schema'
+export type * from './schemas/setting/project-setting.schema'
 export type * from './schemas/setting/redis-setting.schema'
 export type * from './schemas/setting/server-setting.schema'
 export type * from './schemas/setting/task-server-setting.schema'
+export type * from './schemas/setting/zendesk-setting.schema'
 export type * from './schemas/social/channel-user.schema'
 export type * from './schemas/social/channel.schema'
 export type * from './schemas/social/invite-code-lookup.schema'
@@ -109,11 +113,15 @@ export type * from './schemas/user/sms.schema'
 export type * from './schemas/user/user-api-key.schema'
 export type * from './schemas/user/user-avatar.schema'
 export type * from './schemas/user/user-kick.schema'
+export type * from './schemas/user/user-login.schema'
 export type * from './schemas/user/user-relationship-type.schema'
 export type * from './schemas/user/user-relationship.schema'
 export type * from './schemas/user/user-setting.schema'
 export type * from './schemas/user/user.schema'
 export type * from './schemas/world/spawn-point.schema'
+
+export type * from './schemas/projects/project-history.schema'
+
 export const locationPath = 'location'
 
 export const userRelationshipPath = 'user-relationship'
@@ -145,6 +153,8 @@ export const avatarPath = 'avatar'
 export const magicLinkPath = 'magic-link'
 
 export const userKickPath = 'user-kick'
+
+export const userLoginPath = 'user-login'
 
 export const userSettingPath = 'user-setting'
 
@@ -215,6 +225,8 @@ export const routePath = 'route'
 export const helmMainVersionPath = 'helm-main-version'
 export const helmBuilderVersionPath = 'helm-builder-version'
 
+export const projectSettingPath = 'project-setting'
+
 export const coilSettingPath = 'coil-setting'
 
 export const awsSettingPath = 'aws-setting'
@@ -243,6 +255,10 @@ export const analyticsPath = 'analytics'
 
 export const serverSettingPath = 'server-setting'
 
+export const zendeskSettingPath = 'zendesk-setting'
+
+export const mailchimpSettingPath = 'mailchimp-setting'
+
 export const scopeTypePath = 'scope-type'
 
 export const scopePath = 'scope'
@@ -259,8 +275,6 @@ export const projectPath = 'project'
 
 export const projectsPath = 'projects'
 
-export const assetPath = 'asset'
-
 export const builderInfoPath = 'builder-info'
 
 export const projectCheckSourceDestinationMatchPath = 'project-check-source-destination-match'
@@ -272,8 +286,6 @@ export const botCommandPath = 'bot-command'
 export const projectPermissionTypePath = 'project-permission-type'
 
 export const projectDestinationCheckPath = 'project-destination-check'
-
-export const sceneDataPath = 'scene-data'
 
 export const spawnPointPath = 'spawn-point'
 
@@ -298,3 +310,13 @@ export const migrationsInfoPath = 'knex_migrations'
 export const uploadAssetPath = 'upload-asset'
 
 export const invalidationPath = 'invalidation'
+
+export const imageConvertPath = 'image-convert'
+
+export const zendeskPath = 'zendesk'
+
+export const projectHistoryPath = 'project-history'
+
+export const metabaseSettingPath = 'metabase-setting'
+
+export const metabaseUrlPath = 'metabase-url'

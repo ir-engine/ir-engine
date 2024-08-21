@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
@@ -30,10 +30,11 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import {
   ScopeData,
   scopeDataValidator,
+  ScopeID,
   scopePath,
   scopeQueryValidator,
   ScopeTypeInterface
-} from '@etherealengine/common/src/schemas/scope/scope.schema'
+} from '@ir-engine/common/src/schemas/scope/scope.schema'
 
 import { HookContext } from '../../../declarations'
 import enableClientPagination from '../../hooks/enable-client-pagination'
@@ -60,37 +61,21 @@ const checkExistingScopes = async (context: HookContext<ScopeService>) => {
     paginate: false
   })) as any as ScopeTypeInterface[]
 
-  const existingData: ScopeData[] = []
-  const createData: ScopeData[] = []
+  const existingData: ScopeID[] = []
 
   for (const item of data) {
     const existingScope = oldScopes && oldScopes.find((el) => el.type === item.type)
-    if (existingScope) {
-      existingData.push(existingScope)
-    } else {
-      createData.push(item)
+    if (existingScope) existingData.push(existingScope.id)
+  }
+
+  await context.app.service(scopePath).remove(null, {
+    query: {
+      id: {
+        $in: existingData
+      },
+      userId: data[0].userId
     }
-  }
-
-  if (createData.length > 0) {
-    context.data = createData
-    context.existingData = existingData
-  } else {
-    context.result = existingData
-  }
-}
-
-/**
- * Append existing scopes with the newly created scopes
- * @param context
- * @returns
- */
-const addExistingScopes = async (context: HookContext<ScopeService>) => {
-  if (context.existingData?.length > 0) {
-    let result = (Array.isArray(context.result) ? context.result : [context.result]) as ScopeTypeInterface[]
-    result = [...result, ...context.existingData]
-    context.result = result
-  }
+  })
 }
 
 export default {
@@ -98,12 +83,12 @@ export default {
     all: [schemaHooks.resolveExternal(scopeExternalResolver), schemaHooks.resolveResult(scopeResolver)]
   },
   before: {
-    all: [() => schemaHooks.validateQuery(scopeQueryValidator), schemaHooks.resolveQuery(scopeQueryResolver)],
+    all: [schemaHooks.validateQuery(scopeQueryValidator), schemaHooks.resolveQuery(scopeQueryResolver)],
     find: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read')), enableClientPagination()],
     get: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('user', 'write'), verifyScope('admin', 'admin')),
-      () => schemaHooks.validateData(scopeDataValidator),
+      schemaHooks.validateData(scopeDataValidator),
       schemaHooks.resolveData(scopeDataResolver),
       checkExistingScopes
     ],
@@ -116,7 +101,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [addExistingScopes],
+    create: [],
     update: [],
     patch: [],
     remove: []

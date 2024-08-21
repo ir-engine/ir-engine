@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,34 +14,37 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
+import { FormControl, InputLabel } from '@mui/material'
 import { QRCodeSVG } from 'qrcode.react'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Button from '@etherealengine/client-core/src/common/components/Button'
-import { OculusIcon } from '@etherealengine/client-core/src/common/components/Icons/OculusIcon'
-import InputCheck from '@etherealengine/client-core/src/common/components/InputCheck'
-import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import multiLogger from '@etherealengine/common/src/logger'
-import { InviteCode, InviteData } from '@etherealengine/common/src/schema.type.module'
-import { useMutableState } from '@etherealengine/hyperflux'
-import { isShareAvailable } from '@etherealengine/spatial/src/common/functions/DetectFeatures'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Button from '@ir-engine/client-core/src/common/components/Button'
+import commonStyles from '@ir-engine/client-core/src/common/components/common.module.scss'
+import { OculusIcon } from '@ir-engine/client-core/src/common/components/Icons/OculusIcon'
+import InputCheck from '@ir-engine/client-core/src/common/components/InputCheck'
+import InputText from '@ir-engine/client-core/src/common/components/InputText'
+import Menu from '@ir-engine/client-core/src/common/components/Menu'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import multiLogger from '@ir-engine/common/src/logger'
+import { EMAIL_REGEX, PHONE_REGEX } from '@ir-engine/common/src/regex'
+import { InviteCode, InviteData } from '@ir-engine/common/src/schema.type.module'
+import { useMutableState } from '@ir-engine/hyperflux'
+import { isShareAvailable } from '@ir-engine/spatial/src/common/functions/DetectFeatures'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import Box from '@ir-engine/ui/src/primitives/mui/Box'
+import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
+import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
+import OutlinedInput from '@ir-engine/ui/src/primitives/mui/OutlinedInput'
 
 import { InviteService } from '../../../../social/services/InviteService'
 import { AuthState } from '../../../services/AuthService'
@@ -175,6 +178,8 @@ const ShareMenu = (): JSX.Element => {
   const questShareLink = new URL('https://oculus.com/open_url/')
   questShareLink.searchParams.set('url', shareLink)
 
+  const iframeString = `<iframe src="${window.location.href}" height="100%" width="100%" allow="camera 'src'; microphone 'src';xr-spatial-tracking" style="pointer-events:all;user-select:none;border:none;"></iframe>`
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     NotificationService.dispatchNotify(t('user:usermenu.share.linkCopied'), { variant: 'success' })
@@ -217,6 +222,35 @@ const ShareMenu = (): JSX.Element => {
           value={shareLink}
           onEndIconClick={copyLinkToClipboard}
         />
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', mt: 2, mb: 3 }}>
+          <Box sx={{ display: 'flex' }}>
+            <FormControl
+              variant="outlined"
+              className={`${commonStyles.inputField}`}
+              disabled={true}
+              focused={true}
+              size="small"
+            >
+              <InputLabel sx={{ zIndex: 999 }}>{t('user:usermenu.share.shareEmbed')}</InputLabel>
+              <OutlinedInput
+                disabled={true}
+                fullWidth
+                label={t('user:usermenu.share.shareEmbed')}
+                size={'small'}
+                endAdornment={
+                  <IconButton
+                    className={styles.iconButton}
+                    icon={<Icon type="ContentCopy" />}
+                    sx={{ mr: -1.5 }}
+                    onClick={() => copyToClipboard(iframeString)}
+                  />
+                }
+                value={iframeString}
+              />
+            </FormControl>
+          </Box>
+        </Box>
 
         <InputText
           endIcon={<Icon type="Send" />}

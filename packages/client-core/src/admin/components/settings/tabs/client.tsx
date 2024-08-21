@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,31 +14,31 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-import { ClientSettingType } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, NO_PROXY, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
+import { clientSettingPath, ClientSettingType } from '@ir-engine/common/src/schema.type.module'
+import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
+import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
-import { AuthState } from '../../../../user/services/AuthService'
-import { AdminClientSettingsState, ClientSettingService } from '../../../services/Setting/ClientSettingService'
+import { Engine } from '@ir-engine/ecs'
+import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
 const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
@@ -47,48 +47,19 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     loading: false,
     errorMessage: ''
   })
-  const user = useHookstate(getMutableState(AuthState).user)
 
-  const clientSettingState = useMutableState(AdminClientSettingsState)
-  const [clientSetting] = clientSettingState?.client?.get({ noproxy: true }) || []
-  const id = clientSetting?.id
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettings = clientSettingQuery.data[0] ?? null
+  const id = clientSettings?.id
 
-  const settings = useHookstate(clientSetting)
-
-  useEffect(() => {
-    if (user?.id?.value != null && clientSettingState?.updateNeeded?.value === true) {
-      ClientSettingService.fetchClientSettings()
-    }
-  }, [user?.id?.value, clientSettingState?.updateNeeded?.value])
+  const settingsState = useHookstate(null as null | ClientSettingType)
 
   useEffect(() => {
-    if (clientSetting) {
-      settings.merge({
-        logo: clientSetting?.logo,
-        title: clientSetting?.title,
-        shortTitle: clientSetting?.shortTitle,
-        startPath: clientSetting?.startPath || '/',
-        appTitle: clientSetting?.appTitle,
-        appSubtitle: clientSetting?.appSubtitle,
-        appDescription: clientSetting?.appDescription,
-        appBackground: clientSetting?.appBackground,
-        appSocialLinks: JSON.parse(JSON.stringify(clientSetting?.appSocialLinks)) || [],
-        appleTouchIcon: clientSetting?.appleTouchIcon,
-        icon192px: clientSetting?.icon192px,
-        icon512px: clientSetting?.icon512px,
-        webmanifestLink: clientSetting?.webmanifestLink,
-        swScriptLink: clientSetting?.swScriptLink,
-        favicon16px: clientSetting?.favicon16px,
-        favicon32px: clientSetting?.favicon32px,
-        siteDescription: clientSetting?.siteDescription,
-        key8thWall: clientSetting?.key8thWall,
-        privacyPolicy: clientSetting?.privacyPolicy,
-        homepageLinkButtonEnabled: clientSetting?.homepageLinkButtonEnabled,
-        homepageLinkButtonRedirect: clientSetting?.homepageLinkButtonRedirect,
-        homepageLinkButtonText: clientSetting?.homepageLinkButtonText
-      })
+    if (clientSettings) {
+      settingsState.set(clientSettings)
+      state.set({ loading: false, errorMessage: '' })
     }
-  }, [clientSettingState?.updateNeeded?.value])
+  }, [clientSettings])
 
   const codecMenu = [
     {
@@ -127,14 +98,18 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   const handleSubmit = (event) => {
     state.loading.set(true)
     event.preventDefault()
-    console.log(settings.get(NO_PROXY))
-    settings.merge({
-      createdAt: none,
-      updatedAt: none
-    })
-    ClientSettingService.patchClientSetting(settings.value as ClientSettingType, id)
+    const newSettings = {
+      ...settingsState.get(NO_PROXY),
+      createdAt: undefined!,
+      updatedAt: undefined!
+    } as any as ClientSettingType
+
+    Engine.instance.api
+      .service(clientSettingPath)
+      .patch(id, newSettings)
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
+        clientSettingQuery.refetch()
       })
       .catch((e) => {
         state.set({ loading: false, errorMessage: e.message })
@@ -142,8 +117,13 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   }
 
   const handleCancel = () => {
-    settings.set(clientSetting)
+    settingsState.set(clientSettings)
   }
+
+  if (!settingsState.value)
+    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loading')} />
+
+  const settings = settingsState as State<ClientSettingType>
 
   return (
     <Accordion
@@ -289,14 +269,14 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         <Input
           className="col-span-1"
           label={t('admin:components.setting.url')}
-          value={clientSetting?.url || ''}
+          value={clientSettings?.url || ''}
           disabled
         />
 
         <Input
           className="col-span-1"
           label={t('admin:components.setting.releaseName')}
-          value={clientSetting?.releaseName || ''}
+          value={clientSettings?.releaseName || ''}
           disabled
         />
 
@@ -407,7 +387,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
-        <Button size="small" className="bg-theme-highlight text-primary col-span-1" onClick={handleCancel} fullWidth>
+        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
           {t('admin:components.common.reset')}
         </Button>
         <Button

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and
 provide for limited attribution for the Original Developer. In addition,
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
@@ -139,11 +139,13 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
           `../projects/projects/${project}/vite.config.extension.ts`
         )
         if (typeof viteConfigExtension === 'function') {
-          const configExtension = await viteConfigExtension()
+          const configExtension = (await viteConfigExtension(config)) as UserConfig
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          config.plugins = [...config.plugins!, ...configExtension.default.plugins]
-          delete configExtension.default.plugins
-          config = merge(config, configExtension.default)
+          if (configExtension?.plugins) {
+            config.plugins = [...config.plugins!, ...configExtension.plugins]
+            delete configExtension.plugins
+          }
+          config = merge(config, configExtension)
         }
       } catch (e) {
         console.error(e)
@@ -294,7 +296,7 @@ export default defineConfig(async () => {
       process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
       ViteEjsPlugin({
         ...manifest,
-        title: clientSetting.title || 'Ethereal Engine',
+        title: clientSetting.title || 'iR Engine',
         description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
         // short_name: clientSetting?.shortName || 'EE',
         // theme_color: clientSetting?.themeColor || '#ffffff',
@@ -305,6 +307,9 @@ export default defineConfig(async () => {
         icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
         icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
         webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
+        siteManifest: clientSetting.siteManifest || '/site.webmanifest',
+        safariPinnedTab: clientSetting.safariPinnedTab || '/safari-pinned-tab.svg',
+        favicon: clientSetting.favicon || '/favicon.ico',
         swScriptLink:
           clientSetting.swScriptLink || process.env.VITE_PWA_ENABLED === 'true'
             ? process.env.APP_ENV === 'development'
@@ -334,6 +339,15 @@ export default defineConfig(async () => {
       target: 'esnext',
       sourcemap: process.env.VITE_SOURCEMAPS === 'true' ? true : false,
       minify: 'terser',
+      terserOptions: {
+        mangle: {
+          // This is a work-around for a terser bug which occurs when a local variable named `fetch` is
+          // used in a function that also references the global `fetch` function as a default parameter value
+          // In this case, terser was mangling the local `fetch` variable a different name (which is fine),
+          // however it also updated the default parameter to the same mangled name (uh-oh), causing a runtime error.
+          reserved: ['fetch']
+        }
+      },
       dynamicImportVarsOptions: {
         warnOnError: true
       },

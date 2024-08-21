@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
@@ -34,22 +34,22 @@ import {
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
+  ShaderMaterial,
   SphereGeometry,
   SRGBColorSpace,
   Texture,
   Vector2
 } from 'three'
 
-import config from '@etherealengine/common/src/config'
-import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
-import { Engine, EntityUUID } from '@etherealengine/ecs'
-import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import config from '@ir-engine/common/src/config'
+import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
+import { EntityUUID } from '@ir-engine/ecs'
+import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 
+import { AssetType } from '@ir-engine/common/src/constants/AssetType'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AssetClass } from '../../assets/enum/AssetClass'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
@@ -75,7 +75,7 @@ export const ImageComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      source: `${config.client.fileServer}/projects/default-project/assets/sample_etc1s.ktx2`,
+      source: `${config.client.fileServer}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`,
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
       alphaCutoff: 0.5,
       projection: ImageProjection.Flat as ImageProjectionType,
@@ -117,6 +117,19 @@ export function getTextureSize(texture: Texture | CompressedTexture | null, size
   const width = image?.videoWidth || image?.naturalWidth || image?.width || 0
   const height = image?.videoHeight || image?.naturalHeight || image?.height || 0
   return size.set(width, height)
+}
+
+export function resizeVideoMesh(mesh: Mesh<any, ShaderMaterial>) {
+  if (!mesh.material.uniforms.map?.value) return
+
+  const { width, height } = getTextureSize(mesh.material.uniforms.map.value as Texture | CompressedTexture)
+
+  if (!width || !height) return
+
+  const ratio = (height || 1) / (width || 1)
+  const _width = Math.min(1.0, 1.0 / ratio)
+  const _height = Math.min(1.0, ratio)
+  mesh.scale.set(_width, _height, 1)
 }
 
 export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
@@ -163,7 +176,7 @@ export function ImageReactor() {
     }
 
     const assetType = AssetLoader.getAssetClass(image.source.value)
-    if (assetType !== AssetClass.Image) {
+    if (assetType !== AssetType.Image) {
       addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
     }
   }, [image.source])
@@ -179,9 +192,6 @@ export function ImageReactor() {
 
       mesh.material.map.set(texture)
       mesh.visible.set(true)
-
-      // upload to GPU immediately
-      getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.initTexture(texture)
     },
     [texture]
   )
@@ -207,7 +217,7 @@ export function ImageReactor() {
 
   useEffect(
     function updateMaterial() {
-      mesh.material.transparent.set(image.alphaMode.value === ImageAlphaMode.Blend)
+      mesh.material.transparent.set(image.alphaMode.value !== ImageAlphaMode.Opaque)
       mesh.material.alphaTest.set(image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0)
       mesh.material.side.set(image.side.value)
     },

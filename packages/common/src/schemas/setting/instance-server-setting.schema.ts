@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
@@ -32,6 +32,30 @@ import { dataValidator, queryValidator } from '../validators'
 export const instanceServerSettingPath = 'instance-server-setting'
 
 export const instanceServerSettingMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+
+export const iceServerSchema = Type.Object(
+  {
+    urls: Type.String() || Type.Array(Type.String()),
+    username: Type.Optional(Type.String()),
+    credential: Type.Optional(Type.String())
+  },
+  { $id: 'IceServerSchema', additionalProperties: false }
+)
+
+export interface IceServerType extends Static<typeof iceServerSchema> {}
+
+export const webRTCSettingsSchema = Type.Object(
+  {
+    iceServers: Type.Array(Type.Ref(iceServerSchema)),
+    useCustomICEServers: Type.Boolean(),
+    useTimeLimitedCredentials: Type.Boolean(),
+    webRTCStaticAuthSecretKey: Type.String(),
+    usePrivateInstanceserverIP: Type.Boolean()
+  },
+  { $id: 'webRTCSettingsSchema', additionalProperties: false }
+)
+
+export interface webRTCSettingsType extends Static<typeof webRTCSettingsSchema> {}
 
 // Main data model schema
 export const instanceServerSettingSchema = Type.Object(
@@ -50,6 +74,7 @@ export const instanceServerSettingSchema = Type.Object(
     port: Type.String(),
     mode: Type.String(),
     locationName: Type.String(),
+    webRTCSettings: Type.Ref(webRTCSettingsSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -71,7 +96,8 @@ export const instanceServerSettingDataSchema = Type.Pick(
     'releaseName',
     'port',
     'mode',
-    'locationName'
+    'locationName',
+    'webRTCSettings'
   ],
   {
     $id: 'InstanceServerSettingData'
@@ -110,6 +136,8 @@ export const instanceServerSettingQuerySchema = Type.Intersect(
 )
 export interface InstanceServerSettingQuery extends Static<typeof instanceServerSettingQuerySchema> {}
 
+export const iceServerValidator = /* @__PURE__ */ getValidator(iceServerSchema, dataValidator)
+export const webRTCSettingsValidator = /* @__PURE__ */ getValidator(webRTCSettingsSchema, dataValidator)
 export const instanceServerSettingValidator = /* @__PURE__ */ getValidator(instanceServerSettingSchema, dataValidator)
 export const instanceServerSettingDataValidator = /* @__PURE__ */ getValidator(
   instanceServerSettingDataSchema,

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
@@ -31,12 +31,12 @@ import fs from 'fs'
 import { Knex } from 'knex'
 import path from 'path'
 
-import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
-import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
-import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
-import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { ManifestJson } from '@ir-engine/common/src/interfaces/ManifestJson'
+import { GITHUB_URL_REGEX } from '@ir-engine/common/src/regex'
+import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
+import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schemas/media/static-resource.schema'
+import { ProjectBuildUpdateItemType } from '@ir-engine/common/src/schemas/projects/project-build.schema'
+import { projectPermissionPath } from '@ir-engine/common/src/schemas/projects/project-permission.schema'
 import {
   ProjectData,
   projectDataValidator,
@@ -45,36 +45,33 @@ import {
   projectPath,
   projectQueryValidator,
   ProjectType
-} from '@etherealengine/common/src/schemas/projects/project.schema'
-import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'
-import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
+} from '@ir-engine/common/src/schemas/projects/project.schema'
+import { routePath } from '@ir-engine/common/src/schemas/route/route.schema'
+import { locationPath } from '@ir-engine/common/src/schemas/social/location.schema'
+import { avatarPath, AvatarType } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import {
   githubRepoAccessPath,
   GithubRepoAccessType
-} from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { cleanString } from '@etherealengine/common/src/utils/cleanString'
-import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import templateManifestJson from '@etherealengine/projects/template-project/manifest.json'
-import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
+} from '@ir-engine/common/src/schemas/user/github-repo-access.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { cleanString } from '@ir-engine/common/src/utils/cleanString'
+import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import templateManifestJson from '@ir-engine/projects/template-project/manifest.json'
+import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
 
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
-import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
+import { isSignedByAppJWT } from '../../hooks/is-signed-by-app-jwt'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import { createExecutorJob } from '../../k8s-job-helper'
 import logger from '../../ServerLogger'
 import { useGit } from '../../util/gitHelperFunctions'
-import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
-  createExecutorJob,
+  cleanProjectName,
   deleteProjectFilesInStorageProvider,
   engineVersion,
   getProjectConfig,
@@ -164,7 +161,7 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
       allowedProjectGithubRepos.map(async (project) => {
         const regexExec = GITHUB_URL_REGEX.exec(project.repositoryPath)
         if (!regexExec) return { repositoryPath: '', name: '' }
-        const split = regexExec[2].split('/')
+        const split = regexExec[1].split('/')
         project.repositoryPath = `https://github.com/${split[0]}/${split[1]}`
         return project
       })
@@ -183,7 +180,7 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
           repositoryPaths.push(`${url}.git`)
           const regexExec = GITHUB_URL_REGEX.exec(url)
           if (regexExec) {
-            const split = regexExec[2].split('/')
+            const split = regexExec[1].split('/')
             repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}`)
             repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}.git`)
           }
@@ -229,11 +226,11 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
   const data: ProjectType[] = context.result!['data'] ? context.result!['data'] : context.result
   for (const item of data) {
     try {
-      const packageJson = getProjectManifest(item.name)
-      item.thumbnail = packageJson.thumbnail || '/static/etherealengine_thumbnail.jpg'
-      item.version = packageJson.version
-      item.engineVersion = packageJson.engineVersion
-      item.description = packageJson.description
+      const manifestJson = getProjectManifest(item.name)
+      item.thumbnail = manifestJson.thumbnail || '/static/IR_thumbnail.jpg'
+      item.version = manifestJson.version
+      item.engineVersion = manifestJson.engineVersion
+      item.description = manifestJson.description
       item.hasWriteAccess = context.projectPushIds.indexOf(item.id) > -1
     } catch (err) {
       //
@@ -245,7 +242,7 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
       ? data
       : {
           data: data,
-          total: data.length,
+          total: context.result?.['total'] ?? data.length,
           limit: context.params?.query?.$limit || 1000,
           skip: context.params?.query?.$skip || 0
         }
@@ -263,7 +260,13 @@ const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
 
   const data: ProjectData[] = Array.isArray(context.data) ? context.data : [context.data]
 
-  context.projectName = cleanString(data[0].name!).toLowerCase()
+  const projectName = data[0].name!
+
+  const orgName = projectName.slice(0, projectName.indexOf('/'))
+
+  const cleanedProjectName = cleanString(projectName.slice(projectName.indexOf('/')))
+
+  context.projectName = `${orgName}/${cleanedProjectName}`.toLowerCase()
 
   const projectExists = (await context.service._find({
     query: { name: context.projectName, $limit: 1 }
@@ -279,7 +282,7 @@ const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
  */
 const checkIfNameIsValid = async (context: HookContext<ProjectService>) => {
   if (
-    (!config.db.forceRefresh && context.projectName === 'default-project') ||
+    (!config.db.forceRefresh && context.projectName === 'ir-engine/default-project') ||
     context.projectName === 'template-project'
   )
     throw new Error(`[Projects]: Project name ${context.projectName} not allowed`)
@@ -288,7 +291,7 @@ const checkIfNameIsValid = async (context: HookContext<ProjectService>) => {
 /**
  * Uploads the local project to the storage provider\
  * - asset projects only require the manifest.json, code projects are created with the template-project repository,
- *     or with `npm run create-project -- --name="ee-my-project" --repo="https://github.com/MyOrg/ee-my-project`
+ *     or with `npm run create-project -- --name="my-project" --repo="https://github.com/MyOrg/my-project`
  * @param context
  * @returns
  */
@@ -311,7 +314,11 @@ const uploadLocalProject = async (context: HookContext<ProjectService>) => {
   manifestData.engineVersion = engineVersion
   fs.writeFileSync(path.resolve(projectLocalDirectory, 'manifest.json'), JSON.stringify(manifestData, null, 2))
 
+  // we should replace this with explicitly putting the files into the storage provider, rather than writing to disk
   await uploadLocalProjectToProvider(context.app, context.projectName, false)
+
+  // TODO: see if this is necessary
+  // if (!config.fsProjectSyncEnabled) fs.rmSync(projectLocalDirectory, { recursive: true })
 }
 
 /**
@@ -355,18 +362,29 @@ const linkGithubToProject = async (context: HookContext) => {
     if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
     if (githubIdentityProvider.data.length === 0)
       throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
-    const split = githubPathRegexExec[2].split('/')
+    const split = githubPathRegexExec[1].split('/')
     const org = split[0]
-    const repo = split[1].replace('.git', '')
-    const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken)
+    const repo = split[1]
+    const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken!, context.app)
     if (!appOrgAccess)
       throw new Forbidden(
-        `The organization ${org} needs to install the GitHub OAuth app ${config.authentication.oauth.github.key} in order to push code to its repositories`
+        `The organization ${org} needs to install the GitHub ${
+          config.authentication.oauth.github.appId != null ? 'App' : 'OAuth app'
+        } ${config.authentication.oauth.github.key} in order to push code to its repositories`
       )
-    const repoWriteStatus = await checkUserRepoWriteStatus(org, repo, githubIdentityProvider.data[0].oauthToken)
+    const repoWriteStatus = await checkUserRepoWriteStatus(
+      org,
+      repo,
+      githubIdentityProvider.data[0].oauthToken!,
+      context.app
+    )
     if (repoWriteStatus !== 200) {
       if (repoWriteStatus === 404) {
-        const orgWriteStatus = await checkUserOrgWriteStatus(org, githubIdentityProvider.data[0].oauthToken)
+        const orgWriteStatus = await checkUserOrgWriteStatus(
+          org,
+          githubIdentityProvider.data[0].oauthToken!,
+          context.app
+        )
         if (orgWriteStatus !== 200) throw new Forbidden('You do not have write access to that organization')
       } else {
         throw new Forbidden('You do not have write access to that repo')
@@ -382,7 +400,7 @@ const linkGithubToProject = async (context: HookContext) => {
  */
 const getProjectName = async (context: HookContext<ProjectService>) => {
   if (!context.id) throw new BadRequest('You need to pass project id')
-  context.name = ((await context.app.service(projectPath).get(context.id, context.params)) as ProjectType).name
+  context.project = await context.app.service(projectPath).get(context.id, context.params)
 }
 
 /**
@@ -391,10 +409,10 @@ const getProjectName = async (context: HookContext<ProjectService>) => {
  * @returns
  */
 const runProjectUninstallScript = async (context: HookContext<ProjectService>) => {
-  const projectConfig = getProjectConfig(context.name)
+  const projectConfig = getProjectConfig(context.project.name)
 
   if (projectConfig?.onEvent) {
-    await onProjectEvent(context.app, context.name, projectConfig.onEvent, 'onUninstall')
+    await onProjectEvent(context.app, context.project, projectConfig.onEvent, 'onUninstall')
   }
 }
 
@@ -404,12 +422,12 @@ const runProjectUninstallScript = async (context: HookContext<ProjectService>) =
  * @returns
  */
 const removeProjectFiles = async (context: HookContext<ProjectService>) => {
-  if (fs.existsSync(path.resolve(projectsRootFolder, context.name))) {
-    fs.rmSync(path.resolve(projectsRootFolder, context.name), { recursive: true })
+  if (fs.existsSync(path.resolve(projectsRootFolder, context.project.name))) {
+    fs.rmSync(path.resolve(projectsRootFolder, context.project.name), { recursive: true })
   }
 
-  logger.info(`[Projects]: removing project id "${context.id}", name: "${context.name}".`)
-  await deleteProjectFilesInStorageProvider(context.app, context.name)
+  logger.info(`[Projects]: removing project id "${context.id}", name: "${context.project.name}".`)
+  await deleteProjectFilesInStorageProvider(context.app, context.project.name)
 }
 
 /**
@@ -421,15 +439,9 @@ const createProjectPermission = async (context: HookContext<ProjectService>) => 
   const result = (Array.isArray(context.result) ? context.result : [context.result]) as ProjectType[]
 
   if (context.params?.user?.id) {
-    const projectPermissionData = await projectPermissionDataResolver.resolve(
-      {
-        userId: context.params.user.id,
-        projectId: result[0].id,
-        type: 'owner'
-      },
-      context as any
-    )
-    return context.app.service(projectPermissionPath).create(projectPermissionData)
+    return context.app
+      .service(projectPermissionPath)
+      .create({ projectId: result[0].id, userId: context.params.user.id, type: 'owner' })
   }
   return context
 }
@@ -443,7 +455,7 @@ const removeLocationFromProject = async (context: HookContext<ProjectService>) =
   const removingLocations = await context.app.service(locationPath).find({
     query: {
       sceneId: {
-        $like: `${context.name}/%`
+        $like: `${context.project.name}/%`
       }
     }
   })
@@ -460,7 +472,7 @@ const removeLocationFromProject = async (context: HookContext<ProjectService>) =
 const removeRouteFromProject = async (context: HookContext<ProjectService>) => {
   await context.app.service(routePath).remove(null, {
     query: {
-      project: context.name
+      project: context.project.name
     }
   })
 }
@@ -473,7 +485,7 @@ const removeRouteFromProject = async (context: HookContext<ProjectService>) => {
 const removeAvatarsFromProject = async (context: HookContext<ProjectService>) => {
   const avatarItems = (await context.app.service(avatarPath).find({
     query: {
-      project: context.name
+      project: context.project.name
     },
     paginate: false
   })) as any as AvatarType[]
@@ -493,13 +505,13 @@ const removeAvatarsFromProject = async (context: HookContext<ProjectService>) =>
 const removeStaticResourcesFromProject = async (context: HookContext<ProjectService>) => {
   const staticResourceItems = (await context.app.service(staticResourcePath).find({
     query: {
-      project: context.name
+      project: context.project.name
     },
     paginate: false
   })) as any as StaticResourceType[]
   staticResourceItems.length &&
     staticResourceItems.forEach(async (staticResource) => {
-      await context.app.service(staticResourcePath).remove(staticResource.id)
+      await context.app.service(staticResourcePath).remove(staticResource.id, { ignoreResourcesJson: true })
     })
 }
 
@@ -509,7 +521,7 @@ const removeStaticResourcesFromProject = async (context: HookContext<ProjectServ
  * @returns
  */
 const removeProjectUpdate = async (context: HookContext<ProjectService>) => {
-  await removeProjectUpdateJob(context.app, context.name)
+  await removeProjectUpdateJob(context.app, context.project.name)
 }
 
 /**
@@ -529,7 +541,7 @@ const updateProjectJob = async (context: HookContext) => {
     context.result = await updateProject(context.app, context.data, context.params)
   else {
     const urlParts = data.sourceURL.split('/')
-    let projectName = data.name || urlParts.pop()
+    let projectName = data.name?.length > 0 ? data.name : urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
     projectName = projectName.toLowerCase()
     if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
@@ -542,11 +554,18 @@ const updateProjectJob = async (context: HookContext) => {
       returnData: '',
       status: 'pending'
     })
-    const jobBody = await getProjectUpdateJobBody(data, context.app, context.params!.user!.id, newJob.id)
+    const projectJobName = cleanProjectName(data.name)
+    const jobBody = await getProjectUpdateJobBody(
+      data,
+      context.app,
+      newJob.id,
+      context.params!.user?.id,
+      context.params!.appJWT
+    )
     await context.app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name
     })
-    const jobLabelSelector = `etherealengine/projectField=${data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
+    const jobLabelSelector = `ir-engine/projectField=${projectJobName},ir-engine/release=${process.env.RELEASE_NAME},ir-engine/autoUpdate=false`
     const jobFinishedPromise = createExecutorJob(context.app, jobBody, jobLabelSelector, 1000, newJob.id)
     try {
       await jobFinishedPromise
@@ -578,9 +597,8 @@ export default createSkippableHooks(
     },
 
     before: {
-      all: [() => schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
+      all: [schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
       find: [
-        enableClientPagination(),
         iffElse(isAction('admin'), [], filterDisabledProjects),
         discardQuery('action'),
         ensurePushStatus,
@@ -589,8 +607,8 @@ export default createSkippableHooks(
       ],
       get: [],
       create: [
-        iff(isProvider('external'), verifyScope('editor', 'write')),
-        () => schemaHooks.validateData(projectDataValidator),
+        iff(isProvider('external') && !isSignedByAppJWT(), verifyScope('editor', 'write')),
+        schemaHooks.validateData(projectDataValidator),
         schemaHooks.resolveData(projectDataResolver),
         discardQuery('action'),
         checkIfProjectExists,
@@ -599,12 +617,20 @@ export default createSkippableHooks(
         updateCreateData
       ],
       update: [
-        iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+        iff(
+          isProvider('external') && !isSignedByAppJWT(),
+          verifyScope('editor', 'write'),
+          projectPermissionAuthenticate(false)
+        ),
         updateProjectJob
       ],
       patch: [
-        iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        () => schemaHooks.validateData(projectPatchValidator),
+        iff(
+          isProvider('external') && !isSignedByAppJWT(),
+          verifyScope('editor', 'write'),
+          projectPermissionAuthenticate(false)
+        ),
+        schemaHooks.validateData(projectPatchValidator),
         schemaHooks.resolveData(projectPatchResolver),
         iff(isProvider('external'), iffElse(checkEnabled, [], linkGithubToProject))
       ],

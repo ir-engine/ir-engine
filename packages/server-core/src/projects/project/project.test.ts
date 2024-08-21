@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers'
@@ -31,21 +31,22 @@ import nock from 'nock'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 
-import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
-import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
-import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { copyFolderRecursiveSync, deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
+import { ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
+import { avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'
+import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
+import { UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { copyFolderRecursiveSync, deleteFolderRecursive } from '@ir-engine/common/src/utils/fsHelperFunctions'
+import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
-import { Application } from '../../../declarations'
+import { Application, HookContext } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
+import { identityProviderDataResolver } from '../../user/identity-provider/identity-provider.resolvers'
 import { useGit } from '../../util/gitHelperFunctions'
 
 const cleanup = async (app: Application, projectName: string) => {
-  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${projectName.split('/')[0]}/`)
   deleteFolderRecursive(projectDir)
   const removingProjects = await app.service(projectPath).find({ query: { name: projectName } })
   if (removingProjects.data.length) await app.service(projectPath).remove(removingProjects.data[0].id)
@@ -63,12 +64,10 @@ describe('project.test', () => {
     }
   })
 
-  before(async () => {
+  beforeEach(async () => {
     app = createFeathersKoaApp()
     await app.setup()
-  })
 
-  before(async () => {
     const name = ('test-project-user-name-' + uuidv4()) as UserName
     const avatarName = 'test-project-avatar-name-' + uuidv4()
 
@@ -85,24 +84,29 @@ describe('project.test', () => {
 
     testUserApiKey = await app.service(userApiKeyPath).create({ userId: testUser.id })
 
-    await app.service(identityProviderPath).create(
-      {
-        type: 'github',
-        token: `test-token-${Math.round(Math.random() * 1000)}`,
-        userId: testUser.id
-      },
-      getParams()
+    await app.service(identityProviderPath)._create(
+      await identityProviderDataResolver.resolve(
+        {
+          type: 'github',
+          token: `test-token-${Math.round(Math.random() * 1000)}`,
+          userId: testUser.id
+        },
+        {} as HookContext
+      )
     )
   })
 
-  after(async () => {
-    await cleanup(app, testProject.name)
+  afterEach(async () => {
     await destroyEngine()
   })
 
   describe('create', () => {
+    afterEach(async () => {
+      await cleanup(app, testProject.name)
+    })
+
     it('should add new project', async () => {
-      const projectName = `test-project-${uuidv4()}`
+      const projectName = `@org/test-project-${uuidv4().slice(0, 8)}`
 
       testProject = await app.service(projectPath).create(
         {
@@ -131,7 +135,7 @@ describe('project.test', () => {
     let sourceDirectory: string
     let testUpdateProjectName: string
 
-    before(() => {
+    beforeEach(async () => {
       sourceDirectory = path.resolve(appRootPath.path, `packages/projects/projects/test-cloning-directory`)
       copyFolderRecursiveSync(
         path.resolve(appRootPath.path, `packages/projects/template-project`),
@@ -140,17 +144,26 @@ describe('project.test', () => {
       fs.renameSync(path.resolve(appRootPath.path, `packages/projects/projects/template-project`), sourceDirectory)
 
       const git = useGit(sourceDirectory)
-      git.init()
-      git.add('.')
-      git.commit('initial commit')
+      await git.init()
+      await git.add('.')
+      await git.commit('initial commit')
 
-      testUpdateProjectName = `test-update-project-name-${uuidv4()}`
+      testUpdateProjectName = `@org1/test-update-project-name-${uuidv4().slice(0, 8)}`
+
+      const projectName = `@org1/test-project-${uuidv4().slice(0, 8)}`
+      testProject = await app.service(projectPath).create(
+        {
+          name: projectName
+        },
+        getParams()
+      )
     })
 
-    after(async () => {
+    afterEach(async () => {
       await cleanup(app, testUpdateProjectName)
       await cleanup(app, 'template-project')
       fs.rmSync(sourceDirectory, { force: true, recursive: true })
+      await cleanup(app, testProject.name)
     })
 
     it('should create and add the project details if it does not exist', async () => {
@@ -195,16 +208,45 @@ describe('project.test', () => {
   })
 
   describe('patch', () => {
+    beforeEach(async () => {
+      const projectName = `@org1/test-project-${uuidv4().slice(0, 8)}`
+      testProject = await app.service(projectPath).create(
+        {
+          name: projectName
+        },
+        getParams()
+      )
+    })
+
+    afterEach(async () => {
+      await cleanup(app, 'template-project')
+      await cleanup(app, testProject.name)
+    })
+
     it('should change the project data', async () => {
-      const randomUpdateType = `test-update-type-${Math.round(Math.random() * 1000)}`
-      const patchedProject = await app.service(projectPath).patch(testProject.id, { updateType: randomUpdateType })
+      const patchedProject = await app.service(projectPath).patch(testProject.id, { updateType: 'tag' })
 
       assert.equal(patchedProject.name, testProject.name)
-      assert.equal(patchedProject.updateType, randomUpdateType)
+      assert.equal(patchedProject.updateType, 'tag')
     })
   })
 
   describe('remove', () => {
+    beforeEach(async () => {
+      const projectName = `@org1/test-project-${uuidv4().slice(0, 8)}`
+      testProject = await app.service(projectPath).create(
+        {
+          name: projectName
+        },
+        getParams()
+      )
+    })
+
+    afterEach(async () => {
+      await cleanup(app, 'template-project')
+      await cleanup(app, testProject.name)
+    })
+
     it('should remove project', async function () {
       await app.service(projectPath).remove(testProject.id, getParams())
 

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
@@ -28,6 +28,7 @@ import {
   AdditiveBlending,
   Blending,
   BufferGeometry,
+  DoubleSide,
   Material,
   MeshBasicMaterial,
   Object3D,
@@ -36,7 +37,6 @@ import {
   Vector3
 } from 'three'
 import {
-  BatchedParticleRenderer,
   BatchedRenderer,
   Behavior,
   BehaviorFromJSON,
@@ -46,43 +46,95 @@ import {
 } from 'three.quarks'
 import matches from 'ts-matches'
 
-import { Engine, UUIDComponent } from '@etherealengine/ecs'
-import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { createEntity, generateEntityUUID, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { useDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { Entity, UUIDComponent } from '@ir-engine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { createEntity, generateEntityUUID, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import {
+  NO_PROXY,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  none,
+  useHookstate
+} from '@ir-engine/hyperflux'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { AssetType } from '@ir-engine/common/src/constants/AssetType'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AssetClass } from '../../assets/enum/AssetClass'
 import { useGLTF, useTexture } from '../../assets/functions/resourceLoaderHooks'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
+import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import getFirstMesh from '../util/meshUtils'
+import { SourceComponent } from './SourceComponent'
+
+export type ParticleSystemRendererInstance = {
+  renderer: BatchedRenderer
+  rendererEntity: Entity
+  instanceCount: number
+}
+
+const createBatchedRenderer: (sceneID: string) => ParticleSystemRendererInstance = (sceneID) => {
+  const particleState = getMutableState(ParticleState)
+  if (particleState.renderers[sceneID].value) {
+    const instance = particleState.renderers[sceneID].get(NO_PROXY) as ParticleSystemRendererInstance
+    instance.instanceCount++
+    return instance
+  } else {
+    const renderer = new BatchedRenderer()
+    const rendererEntity = createEntity()
+    setComponent(rendererEntity, UUIDComponent, generateEntityUUID())
+    setComponent(rendererEntity, VisibleComponent)
+    setComponent(rendererEntity, NameComponent, 'Particle Renderer')
+    const sourceState = getState(GLTFSourceState)
+    setComponent(rendererEntity, EntityTreeComponent, { parentEntity: sourceState[sceneID] })
+    addObjectToGroup(rendererEntity, renderer)
+    renderer.parent = {
+      type: 'Scene',
+      remove: () => {},
+      removeFromParent: () => {}
+    } as Object3D
+    const instance: ParticleSystemRendererInstance = { renderer, rendererEntity, instanceCount: 1 }
+    particleState.renderers[sceneID].set(instance)
+    return instance
+  }
+}
+
+const removeBatchedRenderer: (sceneID: string) => void = (sceneID) => {
+  const particleState = getMutableState(ParticleState)
+  if (particleState.renderers[sceneID].value) {
+    const instance = particleState.renderers[sceneID].get(NO_PROXY) as ParticleSystemRendererInstance
+    if (instance.instanceCount <= 1) {
+      removeObjectFromGroup(instance.rendererEntity, instance.renderer)
+      for (const batch of instance.renderer.batches) {
+        batch.geometry.dispose()
+        batch.dispose()
+      }
+      removeEntity(instance.rendererEntity)
+      particleState.renderers[sceneID].set(none)
+    } else {
+      instance.instanceCount--
+    }
+  }
+}
 
 export const ParticleState = defineState({
   name: 'ParticleState',
-  initial: () => {
-    const batchRenderer = new BatchedParticleRenderer()
-    const batchRendererEntity = createEntity()
-    setComponent(batchRendererEntity, UUIDComponent, generateEntityUUID())
-    setComponent(batchRendererEntity, VisibleComponent)
-    setComponent(batchRendererEntity, NameComponent, 'Particle Batched Renderer')
-    setComponent(batchRendererEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-    addObjectToGroup(batchRendererEntity, batchRenderer)
-    // Three.quarks checks if the top level parent is not scene to tell if an emitter is ready for disposal
-    // Mocking parent so the batchRenderer doesn't dispose emitters, emitters are already being disposed of reactively in ParticleSystemComponent
-    batchRenderer.parent = {
-      type: 'Scene'
-    } as Object3D
-
-    return {
-      batchRenderer,
-      batchRendererEntity
-    }
-  }
+  initial: () => ({
+    renderers: {} as Record<string, ParticleSystemRendererInstance>
+  })
 })
 
 /*
@@ -808,16 +860,19 @@ export const ParticleSystemComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
-    const batchRenderer = useHookstate(getMutableState(ParticleState).batchRenderer)
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
+    const sceneID = useOptionalComponent(entity, SourceComponent)?.value
+    const rootEntity = useHookstate(getMutableState(GLTFSourceState))[sceneID ?? ''].value
+    const sceneLoaded = GLTFComponent.useSceneLoaded(rootEntity)
+    const refreshed = useHookstate(false)
 
-    const [geoDependency] = useGLTF(componentState.value.systemParameters.instancingGeometry!, entity, {}, (url) => {
+    const [geoDependency] = useGLTF(componentState.value.systemParameters.instancingGeometry!, entity, (url) => {
       metadata.geometries.nested(url).set(none)
     })
-    const [shapeMesh] = useGLTF(componentState.value.systemParameters.shape.mesh!, entity, {}, (url) => {
+    const [shapeMesh] = useGLTF(componentState.value.systemParameters.shape.mesh!, entity, (url) => {
       metadata.geometries.nested(url).set(none)
     })
-    const [texture] = useTexture(componentState.value.systemParameters.texture!, entity, {}, (url) => {
+    const [texture] = useTexture(componentState.value.systemParameters.texture!, entity, (url) => {
       metadata.textures.nested(url).set(none)
       dudMaterial.map = null
     })
@@ -825,8 +880,20 @@ export const ParticleSystemComponent = defineComponent({
     const [dudMaterial] = useDisposable(MeshBasicMaterial, entity, {
       color: 0xffffff,
       transparent: componentState.value.systemParameters.transparent ?? true,
-      blending: componentState.value.systemParameters.blending as Blending
+      blending: componentState.value.systemParameters.blending as Blending,
+      side: DoubleSide
     })
+    //@todo: this is a hack to make trail rendering mode work correctly. We need to find out why an additional snapshot is needed
+    useEffect(() => {
+      if (!sceneLoaded) return
+      if (refreshed.value) return
+
+      //if (componentState.systemParameters.renderMode.value === RenderMode.Trail) {
+      const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID!)
+      dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
+      //}
+      refreshed.set(true)
+    }, [sceneLoaded])
 
     useEffect(() => {
       //add dud material
@@ -862,7 +929,8 @@ export const ParticleSystemComponent = defineComponent({
       if (!componentState._loadIndex.value) return
 
       const component = componentState.get(NO_PROXY)
-      const renderer = batchRenderer.get(NO_PROXY) as BatchedRenderer
+      const rendererInstance = createBatchedRenderer(sceneID!)
+      const renderer = rendererInstance.renderer
 
       const systemParameters = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
       const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata.value as ParticleSystemMetadata, {})
@@ -877,7 +945,7 @@ export const ParticleSystemComponent = defineComponent({
       const emitterAsObj3D = nuSystem.emitter
       emitterAsObj3D.userData['_refresh'] = component._refresh
       addObjectToGroup(entity, emitterAsObj3D)
-      emitterAsObj3D.parent = getState(ParticleState).batchRenderer
+      emitterAsObj3D.parent = renderer
       const transformComponent = getComponent(entity, TransformComponent)
       emitterAsObj3D.matrix = transformComponent.matrix
       componentState.system.set(nuSystem)
@@ -896,10 +964,10 @@ export const ParticleSystemComponent = defineComponent({
             }
           }
         }
-
         removeObjectFromGroup(entity, emitterAsObj3D)
         nuSystem.dispose()
         emitterAsObj3D.dispose()
+        removeBatchedRenderer(sceneID!)
       }
     }, [componentState._loadIndex])
 
@@ -908,15 +976,15 @@ export const ParticleSystemComponent = defineComponent({
 
       const doLoadEmissionGeo =
         component.systemParameters.shape.type === 'mesh_surface' &&
-        AssetLoader.getAssetClass(component.systemParameters.shape.mesh ?? '') === AssetClass.Model
+        AssetLoader.getAssetClass(component.systemParameters.shape.mesh ?? '') === AssetType.Model
 
       const doLoadInstancingGeo =
         component.systemParameters.instancingGeometry &&
-        AssetLoader.getAssetClass(component.systemParameters.instancingGeometry) === AssetClass.Model
+        AssetLoader.getAssetClass(component.systemParameters.instancingGeometry) === AssetType.Model
 
       const doLoadTexture =
         component.systemParameters.texture &&
-        AssetLoader.getAssetClass(component.systemParameters.texture) === AssetClass.Image
+        AssetLoader.getAssetClass(component.systemParameters.texture) === AssetType.Image
 
       const loadedEmissionGeo = (doLoadEmissionGeo && shapeMesh) || !doLoadEmissionGeo
       const loadedInstanceGeo = (doLoadInstancingGeo && geoDependency) || !doLoadInstancingGeo

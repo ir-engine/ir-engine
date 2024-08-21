@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,34 +14,35 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
 import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
 
-import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
+import { insertionSort } from '@ir-engine/common/src/utils/insertionSort'
 import {
   AnimationSystemGroup,
   defineQuery,
   defineSystem,
-  Engine,
   Entity,
   getComponent,
   getOptionalComponent,
   hasComponent
-} from '@etherealengine/ecs'
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/network'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+} from '@ir-engine/ecs'
+import { getMutableState, getState, none } from '@ir-engine/hyperflux'
+import { NetworkState } from '@ir-engine/network'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { EngineState } from '../../EngineState'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
@@ -102,6 +103,7 @@ export const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vec
 }
 
 const _frustum = new Frustum()
+const _worldPos = new Vector3()
 const _projScreenMatrix = new Matrix4()
 
 const transformDepths = new Map<Entity, number>()
@@ -126,11 +128,13 @@ const compareReferenceDepth = (a: Entity, b: Entity) => {
   return aDepth - bDepth
 }
 
+const isDirtyNonRigidbody = (entity: Entity) =>
+  TransformComponent.dirtyTransforms[entity] && !hasComponent(entity, RigidBodyComponent)
 export const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
 
 const sortedTransformEntities = [] as Entity[]
 
-const execute = () => {
+const sortAndMakeDirtyEntities = () => {
   // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
 
   // if transform order is dirty, sort by reference depth
@@ -139,7 +143,6 @@ const execute = () => {
   /**
    * Sort transforms if needed
    */
-  const xrFrame = getState(XRState).xrFrame
 
   let needsSorting = TransformComponent.transformsNeedSorting
 
@@ -169,19 +172,25 @@ const execute = () => {
       TransformComponent.dirtyTransforms[getOptionalComponent(entity, EntityTreeComponent)?.parentEntity ?? -1] ||
       false
   }
+}
 
-  const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
+const execute = () => {
+  const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirtyNonRigidbody)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
-  // XRUI is the only non ecs hierarchy with support still - see https://github.com/EtherealEngine/etherealengine/issues/8519
-  const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirty)
-  for (const entity of dirtyOrAnimatingGroupEntities) updateGroupChildren(entity)
+  const dirtyGroupEntities = groupQuery().filter(isDirty)
+  for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
 
+  const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
+  for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
+
+  const viewerEntity = getState(EngineState).viewerEntity
   const cameraEntities = cameraQuery()
 
-  for (const entity of cameraEntities) {
-    if (entity === Engine.instance.viewerEntity && xrFrame) continue
+  const xrFrame = getState(XRState).xrFrame
 
+  for (const entity of cameraEntities) {
+    if (xrFrame && entity === viewerEntity) continue
     const camera = getComponent(entity, CameraComponent)
     camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
     const viewCamera = camera.cameras[0]
@@ -191,11 +200,10 @@ const execute = () => {
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
   }
 
-  const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
-  for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
+  if (!viewerEntity) return
 
-  const cameraPosition = getComponent(Engine.instance.viewerEntity, TransformComponent).position
-  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
+  const cameraPosition = getComponent(viewerEntity, TransformComponent).position
+  const camera = getComponent(viewerEntity, CameraComponent)
   for (const entity of distanceFromCameraQuery())
     DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
@@ -209,7 +217,7 @@ const execute = () => {
     )?.box
     const cull = boundingBox
       ? _frustum.intersectsBox(boundingBox)
-      : _frustum.containsPoint(getComponent(entity, TransformComponent).position)
+      : _frustum.containsPoint(TransformComponent.getWorldPosition(entity, _worldPos))
     FrustumCullCameraComponent.isCulled[entity] = cull ? 0 : 1
   }
 }
@@ -239,10 +247,16 @@ export const TransformSystem = defineSystem({
   reactor
 })
 
+export const TransformDirtyUpdateSystem = defineSystem({
+  uuid: 'ee.engine.TransformDirtyUpdateSystem',
+  insert: { before: TransformSystem },
+  execute: sortAndMakeDirtyEntities
+})
+
 export const TransformDirtyCleanupSystem = defineSystem({
   uuid: 'ee.engine.TransformDirtyCleanupSystem',
   insert: { after: TransformSystem },
   execute: () => {
-    for (const entity in TransformComponent.dirtyTransforms) TransformComponent.dirtyTransforms[entity] = false
+    for (const entity in TransformComponent.dirtyTransforms) delete TransformComponent.dirtyTransforms[entity]
   }
 })

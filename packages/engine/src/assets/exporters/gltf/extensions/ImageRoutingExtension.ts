@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,25 +14,26 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Material, Object3D, Object3DEventMap, Texture } from 'three'
 
-import { pathJoin, relativePathTo } from '@etherealengine/common/src/utils/miscUtils'
-import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { pathJoin, relativePathTo } from '@ir-engine/common/src/utils/miscUtils'
+import { EntityUUID, UUIDComponent, getOptionalComponent } from '@ir-engine/ecs'
 
+import { STATIC_ASSET_REGEX } from '@ir-engine/common/src/regex'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { getState } from '@ir-engine/hyperflux'
 import { SourceComponent } from '../../../../scene/components/SourceComponent'
-import { pathResolver } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
-
 export default class ImageRoutingExtension extends ExporterExtension implements GLTFExporterPlugin {
   replacementImages: { texture: Texture; original: HTMLImageElement }[]
 
@@ -45,12 +46,21 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
     if (this.writer.options.binary || this.writer.options.embedImages) return
     const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
     if (!materialEntity) return
-    const src = getComponent(materialEntity, SourceComponent)
-    const resolvedPath = pathResolver().exec(src)!
-    let relativeSrc = resolvedPath[2]
-    relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
+    const src = getOptionalComponent(materialEntity, SourceComponent)
+    if (!src) return
+    const resolvedPath = STATIC_ASSET_REGEX.exec(src)!
+    //const projectDst = this.writer.options.projectName!
+    // let projectSrc = this.writer.options.projectName!
+    const projectDst = getState(EditorState).projectName!
+    let projectSrc = getState(EditorState).projectName!
+    let relativeSrc = './assets/'
+    if (resolvedPath) {
+      projectSrc = `${resolvedPath[1]}/${resolvedPath[2]}`
+      relativeSrc = resolvedPath[3]
+      relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
+    }
     const dst = this.writer.options.relativePath!.replace(/\/[^\/]*$/, '')
-    const relativeBridge = relativePathTo(dst, relativeSrc)
+    const relativeBridge = relativePathTo(pathJoin(projectDst, dst), pathJoin(projectSrc, relativeSrc))
 
     for (const [field, value] of Object.entries(material)) {
       if (field === 'envMap') continue
@@ -59,9 +69,16 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
         if (texture.image instanceof ImageBitmap) continue
         let oldURI = texture.userData.src
         if (!oldURI) {
-          const resolved = pathResolver().exec(texture.image.src)!
-          const relativeOldURL = resolved[2]
-          oldURI = relativePathTo(relativeSrc, relativeOldURL)
+          const resolved = STATIC_ASSET_REGEX.exec(texture.image.src)!
+          const oldProject = `${resolved[1]}/${resolved[2]}`
+          const relativeOldURL = resolved[3]
+          if (oldProject !== projectSrc) {
+            const srcWithProject = pathJoin(projectSrc, relativeSrc)
+            const dstWithProject = pathJoin(oldProject, relativeOldURL)
+            oldURI = relativePathTo(srcWithProject, dstWithProject)
+          } else {
+            oldURI = relativePathTo(relativeSrc, relativeOldURL)
+          }
         }
         const newURI = pathJoin(relativeBridge, oldURI)
         if (!texture.image.src) {

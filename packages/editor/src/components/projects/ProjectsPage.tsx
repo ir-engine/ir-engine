@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import ArrowRightRounded from '@mui/icons-material/ArrowRightRounded'
@@ -53,19 +53,14 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import ProjectDrawer from '@etherealengine/client-core/src/admin/common/Project/ProjectDrawer'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
-import multiLogger from '@etherealengine/common/src/logger'
-import {
-  InviteCode,
-  ProjectType,
-  projectPath,
-  projectPermissionPath
-} from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import ProjectDrawer from '@ir-engine/client-core/src/admin/common/Project/ProjectDrawer'
+import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
+import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { userHasAccess } from '@ir-engine/client-core/src/user/userHasAccess'
+import multiLogger from '@ir-engine/common/src/logger'
+import { InviteCode, ProjectType, projectPath, projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
+import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
 import { EditorState } from '../../services/EditorServices'
 import { Button } from '../inputs/Button'
@@ -83,59 +78,59 @@ function sortAlphabetical(a, b) {
 }
 
 const OFFICIAL_PROJECTS_DATA = [
-  {
-    id: '1570ae14-889a-11ec-886e-b126f7590685',
-    name: 'ee-ethereal-village',
-    repositoryPath: 'https://github.com/etherealengine/ee-ethereal-village',
-    thumbnail: 'https://media.githubusercontent.com/media/EtherealEngine/ee-ethereal-village/dev/thumbnail.png',
-    description: 'A medieval world showcasing advanced open world multiplayer features',
-    needsRebuild: true
-  },
-  {
-    id: '1570ae12-889a-11ec-886e-b126f7590685',
-    name: 'ee-productivity',
-    repositoryPath: 'https://github.com/etherealengine/ee-productivity',
-    thumbnail: '/static/etherealengine_thumbnail.jpg',
-    description: 'Utility and productivity tools for Virtual and Augmented Reality',
-    needsRebuild: true
-  },
+  // {
+  //   id: '1570ae14-889a-11ec-886e-b126f7590685',
+  //   name: 'ee-ethereal-village',
+  //   repositoryPath: 'https://github.com/ir-engine/ee-ethereal-village',
+  //   thumbnail: 'https://media.githubusercontent.com/media/ir-engine/ee-ethereal-village/dev/thumbnail.png',
+  //   description: 'A medieval world showcasing advanced open world multiplayer features',
+  //   needsRebuild: true
+  // },
+  // {
+  //   id: '1570ae12-889a-11ec-886e-b126f7590685',
+  //   name: 'ee-productivity',
+  //   repositoryPath: 'https://github.com/ir-engine/ee-productivity',
+  //   thumbnail: '/static/IR_thumbnail.jpg',
+  //   description: 'Utility and productivity tools for Virtual and Augmented Reality',
+  //   needsRebuild: true
+  // },
   {
     id: '1570ae00-889a-11ec-886e-b126f7590685',
-    name: 'ee-development-test-suite',
-    repositoryPath: 'https://github.com/etherealengine/ee-development-test-suite',
-    thumbnail: '/static/etherealengine_thumbnail.jpg',
-    description: 'Assets and tests for Ethereal Engine core development',
+    name: 'ir-development-test-suite',
+    repositoryPath: 'https://github.com/ir-engine/ir-development-test-suite',
+    thumbnail: '/static/IR_thumbnail.jpg',
+    description: 'Assets and tests for Infinite Reality Engine core development',
     needsRebuild: true
   },
-  {
-    id: '1570ae01-889a-11ec-886e-b126f7590685',
-    name: 'ee-i18n',
-    repositoryPath: 'https://github.com/etherealengine/ee-i18n',
-    thumbnail: '/static/etherealengine_thumbnail.jpg',
-    description: 'Complete language translations in over 100 languages',
-    needsRebuild: true
-  },
+  // {
+  //   id: '1570ae01-889a-11ec-886e-b126f7590685',
+  //   name: 'ee-i18n',
+  //   repositoryPath: 'https://github.com/ir-engine/ee-i18n',
+  //   thumbnail: '/static/IR_thumbnail.jpg',
+  //   description: 'Complete language translations in over 100 languages',
+  //   needsRebuild: true
+  // },
   {
     id: '1570ae02-889a-11ec-886e-b126f7590685',
-    name: 'ee-bot',
-    repositoryPath: 'https://github.com/etherealengine/ee-bot',
-    thumbnail: '/static/etherealengine_thumbnail.jpg',
+    name: 'ir-bot',
+    repositoryPath: 'https://github.com/ir-engine/ir-bot',
+    thumbnail: '/static/IR_thumbnail.jpg',
     description: 'A test bot using puppeteer',
-    needsRebuild: true
-  },
-  {
-    id: '1570ae11-889a-11ec-886e-b126f7590685',
-    name: 'ee-maps  ',
-    repositoryPath: 'https://github.com/etherealengine/ee-maps',
-    thumbnail: '/static/etherealengine_thumbnail.jpg',
-    description: 'Procedurally generated map tiles using geojson data with mapbox and turf.js',
     needsRebuild: true
   }
   // {
+  //   id: '1570ae11-889a-11ec-886e-b126f7590685',
+  //   name: 'ee-maps  ',
+  //   repositoryPath: 'https://github.com/ir-engine/ee-maps',
+  //   thumbnail: '/static/IR_thumbnail.jpg',
+  //   description: 'Procedurally generated map tiles using geojson data with mapbox and turf.js',
+  //   needsRebuild: true
+  // }
+  // {
   //   id: '1570ae12-889a-11ec-886e-b126f7590685',
   //   name: 'Inventory',
-  //   repositoryPath: 'https://github.com/etherealengine/ee-inventory',
-  //   thumbnail: '/static/etherealengine_thumbnail.jpg',
+  //   repositoryPath: 'https://github.com/ir-engine/ee-inventory',
+  //   thumbnail: '/static/IR_thumbnail.jpg',
   //   description:
   //     'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.',
   //   needsRebuild: true
@@ -165,7 +160,7 @@ const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summa
   )
 }
 
-const ProjectsPage = () => {
+const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
   const { t } = useTranslation()
   const activeProject = useHookstate<ProjectType | null>(null)
   const activeProjectValue = activeProject.value as ProjectType | null
@@ -197,7 +192,8 @@ const ProjectsPage = () => {
   const { create: projectCreateQuery, remove: projectRemoveQuery } = useMutation(projectPath)
   const projectFindQuery = useFind(projectPath, {
     query: {
-      paginate: false,
+      /** @todo - add pagination to UI */
+      $limit: 1000,
       action: 'studio',
       allowed: true,
       ...(!!search.query.value && { name: { $like: `%${search.query.value}%` } }),
@@ -254,7 +250,7 @@ const ProjectsPage = () => {
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
-    navigate(`/studio?project=${project.name}`)
+    navigate(`${studioPath}?project=${project.name}`)
     getMutableState(EditorState).projectName.set(project.name)
     const parsed = new URL(window.location.href)
     const query = parsed.searchParams
@@ -265,12 +261,12 @@ const ProjectsPage = () => {
     }
   }
 
-  const onCreateProject = async (name: string, repositoryPath?: string) => {
-    projectCreateQuery({ name, repositoryPath }, { query: { action: 'studio' } })
+  const onCreateProject = async (orgname: string, projectName: string, repositoryPath?: string) => {
+    projectCreateQuery({ name: `${orgname}/${projectName}`, repositoryPath }, { query: { action: 'studio' } })
   }
 
   const onCreatePermission = async (userInviteCode: InviteCode, projectId: string) => {
-    await ProjectService.createPermission(userInviteCode, projectId)
+    await ProjectService.createPermission(userInviteCode, projectId, 'reviewer')
   }
 
   const onPatchPermission = async (id: string, type: string) => {
@@ -360,13 +356,13 @@ const ProjectsPage = () => {
             >
               <div
                 className={styles.thumbnailContainer}
-                style={{ backgroundImage: `url(${project.thumbnail ?? '/static/etherealengine_thumbnail.jpg'})` }}
+                style={{ backgroundImage: `url(${project.thumbnail ?? '/static/IR_thumbnail.jpg'})` }}
                 id={'open-' + project.name}
               />
             </a>
             <div className={styles.headerContainer} id={'headerContainer-' + project.name}>
               <h3 className={styles.header}>{project.name.replace(/-/g, ' ')}</h3>
-              {project.name !== 'default-project' && (
+              {project.name !== 'ir-engine/default-project' && (
                 <IconButton
                   className={styles.iconButton}
                   disableRipple
@@ -492,7 +488,7 @@ const ProjectsPage = () => {
               <Button onClick={() => handleOpenProjectDrawer(false)} className={styles.btn}>
                 {t(`editor.projects.install`)}
               </Button>
-              <Button onClick={openCreateDialog} className={styles.btn}>
+              <Button onClick={openCreateDialog} className={styles.btn} disabled>
                 {t(`editor.projects.lbl-createProject`)}
               </Button>
             </div>
@@ -533,7 +529,7 @@ const ProjectsPage = () => {
           </div>
         ) : null} */}
       </div>
-      {activeProjectValue?.name !== 'default-project' && (
+      {activeProjectValue?.name !== 'ir-engine/default-project' && (
         <Menu
           anchorEl={projectAnchorEl.value}
           open={Boolean(projectAnchorEl.value)}

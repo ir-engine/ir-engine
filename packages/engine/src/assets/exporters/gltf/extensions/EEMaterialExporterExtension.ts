@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,27 +14,27 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { CubeTexture, Material, Texture } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { EntityUUID, getComponent, hasComponent, UUIDComponent } from '@ir-engine/ecs'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
-  materialByName,
-  MaterialComponent,
-  MaterialComponents
-} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+  MaterialPlugins,
+  MaterialPrototypeComponent,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 
-import { injectMaterialDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
+import { injectMaterialDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -58,7 +58,7 @@ export function isOldEEMaterial(extension: any) {
     .test(argValues)
 }
 
-export type MaterialExtensionPluginType = { id: string; parameters: { [key: string]: any } }
+export type MaterialExtensionPluginType = { id: string; uniforms: { [key: string]: any } }
 
 export type EEMaterialExtensionType = {
   uuid: EntityUUID
@@ -83,7 +83,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
   matCache: Map<any, any>
 
   writeMaterial(material: Material, materialDef) {
-    const materialEntityUUID = materialByName[material.name]
+    const materialEntityUUID = material.uuid as EntityUUID
     const materialEntity = UUIDComponent.getEntityByUUID(materialEntityUUID)
     const argData = injectMaterialDefaults(materialEntityUUID)
     if (!argData) return
@@ -98,17 +98,17 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
         if ((material[k] as CubeTexture).isCubeTexture) return //for skipping environment maps which cause errors
         const texture = material[k] as Texture
         if (texture.source.data && this.matCache.has(texture.source.data)) {
-          argEntry.contents = this.matCache.get(texture)
+          argEntry.contents = this.matCache.get(texture.source.data)
         } else {
           const mapDef = {
-            index: this.writer.processTexture(texture),
-            texCoord: k === 'lightMap' ? 1 : 0
+            index: this.writer.processTexture(texture)
           }
-          this.writer.options.flipY && (texture.repeat.y *= -1)
-          this.writer.applyTextureTransform(mapDef, texture)
+          this.matCache.set(texture.source.data, { ...mapDef })
           argEntry.contents = mapDef
-          this.matCache.set(texture.source.data, mapDef)
         }
+        argEntry.contents.texCoord = texture.channel
+        this.writer.options.flipY && (texture.repeat.y *= -1)
+        this.writer.applyTextureTransform(argEntry.contents, texture)
       }
       result[k] = argEntry
     })
@@ -116,21 +116,28 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.normalTexture
     delete materialDef.emissiveTexture
     delete materialDef.emissiveFactor
-    const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-    const prototype = getComponent(materialComponent.prototypeEntity!, MaterialComponent[MaterialComponents.Prototype])
-    const materialStates = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-    const materialPlugins = materialStates.pluginEntities?.map((entity) => {
-      const plugin = getComponent(entity, MaterialComponent[MaterialComponents.Plugin])
-      return { id: plugin?.plugin?.id ?? '', name: plugin?.parameters ?? '' }
-    })
+    const materialComponent = getComponent(materialEntity, MaterialStateComponent)
+    const prototype = getComponent(materialComponent.prototypeEntity!, MaterialPrototypeComponent)
+    const plugins = Object.keys(MaterialPlugins)
+      .map((plugin) => {
+        if (!hasComponent(materialEntity, MaterialPlugins[plugin])) return
+        const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin])
+        const uniforms = {}
+        for (const key in pluginComponent) {
+          uniforms[key] = pluginComponent[key].value
+        }
+        return { id: plugin, uniforms }
+      })
+      .filter(Boolean)
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
       uuid: getComponent(materialEntity, UUIDComponent),
       name: getComponent(materialEntity, NameComponent),
       prototype: Object.keys(prototype.prototypeConstructor!)[0],
-      plugins: materialPlugins,
+      plugins: plugins,
       args: result
     }
+    materialDef.name = getComponent(materialEntity, NameComponent)
     this.writer.extensionsUsed[this.name] = true
   }
 }

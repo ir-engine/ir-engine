@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,26 +14,27 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Types } from 'bitecs'
-import { useLayoutEffect } from 'react'
 
-import { useEntityContext } from '@etherealengine/ecs'
+import { useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
+} from '@ir-engine/ecs/src/ComponentFunctions'
 
+import { useEffect } from 'react'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
@@ -67,6 +68,8 @@ export const RigidBodyComponent = defineComponent({
       canSleep: true,
       gravityScale: 1,
       // internal
+      /** @deprecated  @todo make the physics api properly reactive to remove this property  */
+      initialized: false,
       previousPosition: proxifyVector3(this.previousPosition, entity),
       previousRotation: proxifyQuaternion(this.previousRotation, entity),
       position: proxifyVector3(this.position, entity),
@@ -88,8 +91,15 @@ export const RigidBodyComponent = defineComponent({
     if (typeof json.allowRolling === 'boolean') component.allowRolling.set(json.allowRolling)
     if (typeof json.canSleep === 'boolean') component.canSleep.set(json.canSleep)
     if (typeof json.gravityScale === 'number') component.gravityScale.set(json.gravityScale)
-    if (Array.isArray(json.enabledRotations) && json.enabledRotations.length === 3)
+    if (
+      Array.isArray(json.enabledRotations) &&
+      json.enabledRotations.length === 3 &&
+      typeof json.enabledRotations[0] === 'boolean' &&
+      typeof json.enabledRotations[1] === 'boolean' &&
+      typeof json.enabledRotations[2] === 'boolean'
+    ) {
       component.enabledRotations.set(json.enabledRotations)
+    }
   },
 
   toJSON: (entity, component) => {
@@ -106,27 +116,47 @@ export const RigidBodyComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, RigidBodyComponent)
+    const physicsWorld = Physics.useWorld(entity)!
 
-    useLayoutEffect(() => {
+    useEffect(() => {
+      if (!physicsWorld) return
+      Physics.createRigidBody(physicsWorld, entity)
+      component.initialized.set(true)
+      return () => {
+        Physics.removeRigidbody(physicsWorld, entity)
+        if (!hasComponent(entity, RigidBodyComponent)) return
+        component.initialized.set(false)
+      }
+    }, [physicsWorld])
+
+    useEffect(() => {
+      if (!physicsWorld) return
       const type = component.type.value
       setComponent(entity, getTagComponentForRigidBody(type))
-      Physics.setRigidBodyType(entity, type)
+      Physics.setRigidBodyType(physicsWorld, entity, type)
       return () => {
         removeComponent(entity, getTagComponentForRigidBody(type))
       }
-    }, [component.type])
+    }, [physicsWorld, component.type])
 
-    useLayoutEffect(() => {
-      Physics.enabledCcd(entity, component.ccd.value)
-    }, [component.ccd])
+    useEffect(() => {
+      if (!physicsWorld) return
+      Physics.enabledCcd(physicsWorld, entity, component.ccd.value)
+    }, [physicsWorld, component.ccd])
 
-    useLayoutEffect(() => {
-      Physics.lockRotations(entity, !component.allowRolling.value)
-    }, [component.allowRolling])
+    useEffect(() => {
+      if (!physicsWorld) return
+      const value = component.allowRolling.value
+      /**
+       * @todo Change this back to `Physics.lockRotations( entity, !value )` when we update to Rapier >= 0.12.0
+       * https://github.com/dimforge/rapier.js/issues/282  */
+      Physics.setEnabledRotations(physicsWorld, entity, [value, value, value])
+    }, [component.allowRolling.value])
 
-    useLayoutEffect(() => {
-      Physics.setEnabledRotations(entity, component.enabledRotations.value as [boolean, boolean, boolean])
-    }, [component.enabledRotations])
+    useEffect(() => {
+      if (!physicsWorld) return
+      Physics.setEnabledRotations(physicsWorld, entity, component.enabledRotations.value as [boolean, boolean, boolean])
+    }, [component.enabledRotations[0].value, component.enabledRotations[1].value, component.enabledRotations[2].value])
 
     return null
   }

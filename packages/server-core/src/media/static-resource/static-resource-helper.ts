@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,16 +14,18 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import * as ffprobe from '@ffprobe-installer/ffprobe'
+import { ResourcesJson } from '@ir-engine/common/src/interfaces/ResourcesJson'
+import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import appRootPath from 'app-root-path'
 import execa from 'execa'
 import fs from 'fs'
@@ -31,10 +33,8 @@ import mp3Duration from 'mp3-duration'
 import path from 'path'
 import probe from 'probe-image-size'
 import { Readable } from 'stream'
-
-import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export type MediaUploadArguments = {
@@ -48,79 +48,6 @@ export type MediaUploadArguments = {
   parentId?: string
   LODNumber?: string
   stats?: any
-}
-
-/**
- * Get the files to upload for a given resource
- * @param url
- * @param download - if true, will download the file and return it as a buffer, otherwise will return the url
- * @returns
- */
-export const downloadResourceAndMetadata = async (url: string, download = false): Promise<UploadFile> => {
-  // console.log('getResourceFiles', url, download)
-  if (/http(s)?:\/\//.test(url)) {
-    // if configured to clone project static resources, we need to fetch the file and upload it
-    if (download) {
-      const file = await fetch(url)
-      return {
-        buffer: Buffer.from(await file.arrayBuffer()),
-        originalname: url.split('/').pop()!,
-        mimetype:
-          file.headers.get('content-type') ||
-          file.headers.get('Content-Type') ||
-          CommonKnownContentTypes[url.split('.').pop()!],
-        size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
-      }
-    } else {
-      // otherwise we just return the url and let the client download it as needed
-      const file = await fetch(url, { method: 'HEAD' })
-      return {
-        buffer: url,
-        originalname: url.split('/').pop()!,
-        mimetype:
-          file.headers.get('content-type') ||
-          file.headers.get('Content-Type') ||
-          CommonKnownContentTypes[url.split('.').pop()!],
-        size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
-      }
-    }
-  } else {
-    const file = fs.readFileSync(url)
-    return {
-      buffer: download ? file : url,
-      originalname: url.split('/').pop()!,
-      mimetype: CommonKnownContentTypes[url.split('.').pop()!],
-      size: file.length
-    }
-  }
-}
-
-const absoluteProjectPath = path.join(appRootPath.path, '/packages/projects/projects')
-
-export const isAssetFromDomain = (url: string) => {
-  const storageProvider = getStorageProvider()
-  return (
-    url.includes(storageProvider.cacheDomain) || !!storageProvider.originURLs.find((origin) => url.includes(origin))
-  )
-}
-
-/**
- * Get the key for a given asset
- * - if from project, will return the path relative to the project
- * - if from external url, will return the path relative to the static-resources folder
- */
-export const getKeyForAsset = (url: string, project: string) => {
-  const storageProvider = getStorageProvider()
-  const storageProviderPath = 'https://' + path.join(storageProvider.cacheDomain, 'projects/', project)
-  const originPath = 'https://' + path.join(storageProvider.originURLs[0], 'projects/', project)
-  const projectPath = url
-    .replace(originPath, '')
-    .replace(storageProviderPath, '')
-    .replace(path.join(absoluteProjectPath, project), '')
-    .split('/')
-    .slice(0, -1)
-    .join('/')
-  return `projects/${project}${projectPath}`
 }
 
 export const getStats = async (buffer: Buffer | string, mimeType: string): Promise<Record<string, any>> => {
@@ -274,4 +201,191 @@ export const StatFunctions = {
   image: getImageStats,
   model: getModelStats,
   volumetric: getVolumetricStats
+}
+
+export const regenerateProjectResourcesJson = async (app: Application, projectName: string) => {
+  const resources: StaticResourceType[] = await app.service(staticResourcePath).find({
+    query: { project: projectName, type: { $ne: 'thumbnail' } },
+    paginate: false
+  })
+  if (resources.length === 0) return
+  const resourcesJson = Object.fromEntries(
+    resources.map((resource) => [
+      resource.key.replace(`projects/${projectName}/`, ''),
+      {
+        type: resource.type,
+        tags: resource.tags ?? undefined,
+        dependencies: resource.dependencies ?? undefined,
+        licensing: resource.licensing ?? undefined,
+        description: resource.description ?? undefined,
+        attribution: resource.attribution ?? undefined,
+        thumbnailKey: resource.thumbnailKey ?? undefined,
+        thumbnailMode: resource.thumbnailMode ?? undefined
+      }
+    ])
+  )
+
+  const sortedResourcesJson = Object.fromEntries(
+    Object.entries(resourcesJson).sort(([a], [b]) => {
+      return a.localeCompare(b)
+    })
+  )
+
+  const key = `projects/${projectName}/resources.json`
+  const body = Buffer.from(JSON.stringify(sortedResourcesJson, null, 2))
+
+  const storageProvider = getStorageProvider()
+
+  await storageProvider.putObject(
+    {
+      Key: key,
+      Body: body,
+      ContentType: 'application/json'
+    },
+    {
+      isDirectory: false
+    }
+  )
+
+  if (config.fsProjectSyncEnabled) {
+    const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
+    const dirname = path.dirname(filePath)
+    fs.mkdirSync(dirname, { recursive: true })
+    fs.writeFileSync(filePath, body)
+  }
+}
+
+export const patchSingleProjectResourcesJson = async (app: Application, id: string) => {
+  // refetch resource since after hooks have not run resolvers yet to parse strings into objects
+  const resource = (await app.service(staticResourcePath).get(id)) as StaticResourceType
+  if (resource.type === 'thumbnail') return
+
+  const projectName = resource.project
+
+  const key = `projects/${projectName}/resources.json`
+  const storageProvider = getStorageProvider()
+
+  if (!(await storageProvider.doesExist('resources.json', `projects/${projectName}`))) {
+    const resourcesJson = {
+      [resource.key.replace(`projects/${projectName}/`, '')]: {
+        type: resource.type,
+        tags: resource.tags ?? undefined,
+        dependencies: resource.dependencies ?? undefined,
+        licensing: resource.licensing ?? undefined,
+        description: resource.description ?? undefined,
+        attribution: resource.attribution ?? undefined,
+        thumbnailKey: resource.thumbnailKey ?? undefined,
+        thumbnailMode: resource.thumbnailMode ?? undefined
+      }
+    }
+
+    const sortedResourcesJson = Object.fromEntries(
+      Object.entries(resourcesJson).sort(([a], [b]) => {
+        return a.localeCompare(b)
+      })
+    )
+
+    const body = Buffer.from(JSON.stringify(sortedResourcesJson, null, 2))
+
+    await storageProvider.putObject(
+      {
+        Key: key,
+        Body: body,
+        ContentType: 'application/json'
+      },
+      {
+        isDirectory: false
+      }
+    )
+
+    if (config.fsProjectSyncEnabled) {
+      const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
+      const dirname = path.dirname(filePath)
+      fs.mkdirSync(dirname, { recursive: true })
+      fs.writeFileSync(filePath, body)
+    }
+    return
+  }
+
+  const result = await storageProvider.getObject(key)
+  const resourcesJson = JSON.parse(result.Body.toString()) as ResourcesJson
+
+  const projectRelativeKey = resource.key.replace(`projects/${projectName}/`, '')
+  resourcesJson[projectRelativeKey] = {
+    type: resource.type,
+    tags: resource.tags ?? undefined,
+    dependencies: resource.dependencies ?? undefined,
+    licensing: resource.licensing ?? undefined,
+    description: resource.description ?? undefined,
+    attribution: resource.attribution ?? undefined,
+    thumbnailKey: resource.thumbnailKey ?? undefined,
+    thumbnailMode: resource.thumbnailMode ?? undefined
+  }
+
+  const sortedResourcesJson = Object.fromEntries(
+    Object.entries(resourcesJson).sort(([a], [b]) => {
+      return a.localeCompare(b)
+    })
+  )
+
+  const body = Buffer.from(JSON.stringify(sortedResourcesJson, null, 2))
+
+  await storageProvider.putObject(
+    {
+      Key: key,
+      Body: body,
+      ContentType: 'application/json'
+    },
+    {
+      isDirectory: false
+    }
+  )
+
+  if (config.fsProjectSyncEnabled) {
+    const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
+    const dirname = path.dirname(filePath)
+    fs.mkdirSync(dirname, { recursive: true })
+    fs.writeFileSync(filePath, body)
+  }
+}
+
+export const removeProjectResourcesJson = async (app: Application, resource: StaticResourceType) => {
+  const projectName = resource.project
+
+  const key = `projects/${projectName}/resources.json`
+  const storageProvider = getStorageProvider()
+
+  const resourcesJson = JSON.parse((await storageProvider.getObject(key)).Body.toString()) as ResourcesJson
+
+  const projectRelativeKey = resource.key.replace(`projects/${projectName}/`, '')
+  delete resourcesJson[projectRelativeKey]
+
+  if (Object.keys(resourcesJson).length === 0) {
+    await storageProvider.deleteResources([key])
+    if (config.fsProjectSyncEnabled) {
+      const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
+      fs.unlinkSync(filePath)
+    }
+    return
+  }
+
+  const body = Buffer.from(JSON.stringify(resourcesJson, null, 2))
+
+  await storageProvider.putObject(
+    {
+      Key: key,
+      Body: body,
+      ContentType: 'application/json'
+    },
+    {
+      isDirectory: false
+    }
+  )
+
+  if (config.fsProjectSyncEnabled) {
+    const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
+    const dirname = path.dirname(filePath)
+    fs.mkdirSync(dirname, { recursive: true })
+    fs.writeFileSync(filePath, body)
+  }
 }

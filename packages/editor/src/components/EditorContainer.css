@@ -1,76 +1,64 @@
-/* this is basically style for the editor page*/
-/* we can drill down furthur if needed*/
+/** references https://github.com/ticlo/rc-dock/blob/master/dist/rc-dock.css */
 
+.dock-top .dock-bar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  background: transparent !important;
+}
 
 .dock-panel {
-  background: transparent;
-  pointer-events: auto;
   border: none;
-  color: var(--textColor); 
-  font-family: var(--lato);
-  font-size: 12px;
 }
 
-.dock-panel:first-child {
-  position: relative;
-  z-index: 99;
+.dock.dock-top {
+  background: var(--bg-primary);
 }
 
-.dock-panel[data-dockid='+5'] {
-  pointer-events: none;
-}
-
-.dock-panel[data-dockid='+5'] .dock-bar {
-  display: none;
-}
-
-.dock-panel[data-dockid='+5'] .dock {
-  background: transparent;
-}
-.dock-divider {
-  pointer-events: auto;
-  background: rgba(1, 1, 1, var(--dividerAlpha , 0));
-}
-
-.dock {
-  border-radius: 4px;
-  background: var(--dockBackground);
+.dock-nav-list {
+  justify-content: center;
+  align-items: center;
 }
 
 .dock-top .dock-bar {
-  font-size: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  background: transparent;
+  border-bottom: none !important;
 }
 
 .dock-tab {
-  background: transparent;
-  border-bottom: none;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  background: transparent !important;
+  margin: 0;
+  border-bottom: none !important;
 }
 
-.dock-tab:hover,
-.dock-tab-active,
-.dock-tab-active:hover {
-  border-bottom: 1px solid #ddd;
+.dock-tab.dock-tab-active {
+  background: var(--bg-surface-main) !important;
 }
 
-.dock-tab:hover div,
-.dock-tab:hover svg {
-  color: var(--textColor);
+.dock-tab:not(.dock-tab-active):hover {
+  background: var(--bg-surface-input) !important;
 }
 
 .dock-tab > div {
-  padding: 2px 12px;
-}
-
-.dock-tab-active {
-  color: var(--textColor);
+  padding: 0 !important;
 }
 
 .dock-ink-bar {
-  background-color: var(--textColor);
+  display: none;  
 }
 
-.dock-panel-max-btn:before {
-  border-color: var(--iconButtonColor);
+.dock-tab-close-btn{
+  display: none;
+}
+
+.dock-bar.drag-initiator{
+  padding: 0;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
 }

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,23 +14,21 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { VRMLoaderPlugin } from '@pixiv/three-vrm'
-import { Group } from 'three'
+import { Group, WebGLRenderer } from 'three'
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Engine, getComponent } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { getState } from '@ir-engine/hyperflux'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { CachedImageLoadExtension } from '../loaders/gltf/extensions/CachedImageLoadExtension'
@@ -45,22 +43,25 @@ import { ResourceManagerLoadExtension } from '../loaders/gltf/extensions/Resourc
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { MeshoptDecoder } from '../loaders/gltf/meshopt_decoder.module'
-import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
+import { loadDRACODecoderNode, NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
   const ktxLoader = new KTX2Loader()
   ktxLoader.setTranscoderPath(getState(EngineState).publicPath + '/loader_decoders/basis/')
-  ktxLoader.detectSupport(getComponent(Engine.instance.viewerEntity, RendererComponent).renderer)
+  const renderer = new WebGLRenderer()
+  ktxLoader.detectSupport(renderer)
+  renderer.dispose()
   loader.setKTX2Loader(ktxLoader)
 }
 
 export const createGLTFLoader = (keepMaterials = false) => {
   const loader = new GLTFLoader()
+  if (isClient) initializeKTX2Loader(loader)
 
   if (isClient || keepMaterials) {
     loader.register((parser) => new GPUInstancingExtension(parser))
     loader.register((parser) => new HubsLightMapExtension(parser))
-    loader.register((parser) => new EEMaterialImporterExtension(parser))
+    loader.registerFirst((parser) => new EEMaterialImporterExtension(parser))
   } else {
     loader.register((parser) => new RemoveMaterialsExtension(parser))
   }
@@ -77,11 +78,13 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.setMeshoptDecoder(MeshoptDecoder)
 
   if (isClient) {
+    initializeKTX2Loader(loader)
     const dracoLoader = new DRACOLoader()
     dracoLoader.setDecoderPath(getState(EngineState).publicPath + '/loader_decoders/')
     dracoLoader.setWorkerLimit(1)
     loader.setDRACOLoader(dracoLoader)
   } else {
+    loadDRACODecoderNode()
     const dracoLoader = new NodeDRACOLoader()
     /* @ts-ignore */
     dracoLoader.preload = () => {}

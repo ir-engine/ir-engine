@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,19 +14,19 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Box3, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-import { UUIDComponent } from '@etherealengine/ecs'
+import { UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -35,23 +35,15 @@ import {
   removeComponent,
   setComponent,
   useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import {
-  dispatchAction,
-  getMutableState,
-  getState,
-  matches,
-  useHookstate,
-  useMutableState
-} from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
-import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
-import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { dispatchAction, getMutableState, getState, matches, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { ArrowHelperComponent } from '@ir-engine/spatial/src/common/debug/ArrowHelperComponent'
+import { matchesVector3 } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -78,6 +70,7 @@ const mountPointInteractMessages = {
 const mountCallbackName = 'mountEntity'
 
 const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
+  if (avatarEntity === UndefinedEntity) return //No avatar found, likely in edit mode for now
   const mountedEntities = getState(MountPointState)
   if (mountedEntities[getComponent(mountEntity, UUIDComponent)]) return //already sitting, exiting
 
@@ -178,12 +171,12 @@ export const MountPointComponent = defineComponent({
 
     useEffect(() => {
       setCallback(entity, mountCallbackName, () => mountEntity(AvatarComponent.getSelfAvatarEntity(), entity))
-      setComponent(entity, BoundingBoxComponent, {
-        box: new Box3().setFromCenterAndSize(
-          getComponent(entity, TransformComponent).position,
-          new Vector3(0.1, 0.1, 0.1)
-        )
-      })
+      // setComponent(entity, BoundingBoxComponent, {
+      //   box: new Box3().setFromCenterAndSize(
+      //     getComponent(entity, TransformComponent).position,
+      //     new Vector3(0.1, 0.1, 0.1)
+      //   )
+      // })
     }, [])
 
     useEffect(() => {

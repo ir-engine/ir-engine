@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,45 +14,43 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router-dom'
 
-import styles from '@etherealengine/client-core/src/admin/old-styles/admin.module.scss'
-import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import styles from '@ir-engine/client-core/src/admin/old-styles/admin.module.scss'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 
-import '@etherealengine/client-core/src/user/UserUISystem'
+import '@ir-engine/client-core/src/user/UserUISystem'
 
-import { PopupMenuState } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
-import config from '@etherealengine/common/src/config'
-import { getState, useMutableState } from '@etherealengine/hyperflux'
-
-import '@etherealengine/client-core/src/world/LocationModule'
+import { PopupMenuState } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
+import config from '@ir-engine/common/src/config'
+import { getState, useMutableState } from '@ir-engine/hyperflux'
 
 import { Box, Button } from '@mui/material'
 
-import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
+import ProfileMenu from '@ir-engine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+import { UserMenus } from '@ir-engine/client-core/src/user/UserUISystem'
 
+import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import './index.scss'
 
 const ROOT_REDIRECT = config.client.rootRedirect
 
 export const HomePage = (): any => {
   const { t } = useTranslation()
-  const clientSettingState = useMutableState(AdminClientSettingsState)
-  const [clientSetting] = clientSettingState?.client?.value || []
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSetting = clientSettingQuery.data[0]
   const popupMenuState = useMutableState(PopupMenuState)
   const popupMenu = getState(PopupMenuState)
   const Panel = popupMenu.openMenu ? popupMenu.menus[popupMenu.openMenu] : null
@@ -80,12 +78,6 @@ export const HomePage = (): any => {
             }
           `}
         </style>
-        <MetaTags>
-          <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;800&display=swap"
-            rel="stylesheet"
-          />
-        </MetaTags>
         <div className="main-background">
           <div className="img-container">
             {clientSetting?.appBackground && (
@@ -94,7 +86,7 @@ export const HomePage = (): any => {
                   height: 'auto',
                   maxWidth: '100%'
                 }}
-                src={clientSetting.appBackground}
+                src={clientSetting?.appBackground}
                 alt=""
                 crossOrigin="anonymous"
               />
@@ -103,26 +95,26 @@ export const HomePage = (): any => {
         </div>
         <nav className="navbar">
           <div className="logo-section">
-            {clientSetting?.appTitle && <object className="lander-logo" data={clientSetting.appTitle} />}
+            {clientSetting?.appTitle && <object className="lander-logo" data={clientSetting?.appTitle} />}
             <div className="logo-bottom">
-              {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting.appSubtitle}</span>}
+              {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting?.appSubtitle}</span>}
             </div>
           </div>
         </nav>
         <div className="main-section">
           <div className="desc">
             {clientSetting?.appDescription && (
-              <Trans t={t} i18nKey={clientSetting.appDescription}>
-                <span>{clientSetting.appDescription}</span>
+              <Trans t={t} i18nKey={clientSetting?.appDescription}>
+                <span>{clientSetting?.appDescription}</span>
               </Trans>
             )}
             {Boolean(clientSetting?.homepageLinkButtonEnabled) && (
               <Button
                 className={styles.gradientButton + ' ' + styles.forceVaporwave}
                 autoFocus
-                onClick={() => (window.location.href = clientSetting.homepageLinkButtonRedirect)}
+                onClick={() => (window.location.href = clientSetting?.homepageLinkButtonRedirect)}
               >
-                {clientSetting.homepageLinkButtonText}
+                {clientSetting?.homepageLinkButtonText}
               </Button>
             )}
           </div>
@@ -147,7 +139,7 @@ export const HomePage = (): any => {
         <div className="link-container">
           <div className="link-block">
             {clientSetting?.appSocialLinks?.length > 0 &&
-              clientSetting.appSocialLinks.map((social, index) => (
+              clientSetting?.appSocialLinks.map((social, index) => (
                 <a key={index} target="_blank" className="icon" href={social.link}>
                   <img
                     style={{
@@ -161,7 +153,7 @@ export const HomePage = (): any => {
               ))}
           </div>
           <div className="logo-bottom">
-            {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting.appSubtitle}</span>}
+            {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting?.appSubtitle}</span>}
           </div>
         </div>
       </div>

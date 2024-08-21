@@ -50,8 +50,8 @@ if [ $REPO_PROVIDER === "aws" ]
 then
   if [ $PRIVATE_REPO == "true" ]
   then
-    node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-builder --region $REGION --service builder --releaseName $STAGE
+    npx ts-node ./scripts/prune_ecr_images.ts --repoName $REPO_NAME-builder --region $REGION --service builder --releaseName $STAGE
   else
-    node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-builder --region us-east-1 --service builder --releaseName $STAGE --public
+    npx ts-node ./scripts/prune_ecr_images.ts --repoName $REPO_NAME-builder --region us-east-1 --service builder --releaseName $STAGE --public
   fi
 fi

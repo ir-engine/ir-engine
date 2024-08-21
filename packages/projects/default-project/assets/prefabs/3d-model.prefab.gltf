@@ -1,0 +1,70 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "name": "New Object",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "3D Model",
+      "extensions": {
+        "EE_uuid": "9a88d4b8-1605-4ecf-b0a2-b083d0231c4f",
+        "EE_visible": true,
+        "EE_model": {
+          "src": "",
+          "cameraOcclusion": true,
+          "convertToVRM": false
+        },
+        "EE_input": {
+          "inputSinks": [
+            "9a88d4b8-1605-4ecf-b0a2-b083d0231c4f"
+          ],
+          "activationDistance": 2
+        },
+        "EE_shadow": {
+          "cast": true,
+          "receive": true
+        },
+        "EE_loop_animation": {
+          "activeClipIndex": -1,
+          "animationPack": "",
+          "paused": false,
+          "time": 0,
+          "timeScale": 1,
+          "blendMode": 2500,
+          "loop": 2201,
+          "clampWhenFinished": false,
+          "zeroSlopeAtStart": true,
+          "zeroSlopeAtEnd": true,
+          "weight": 1
+        },
+        "EE_envmap": {
+          "type": "Skybox",
+          "envMapTextureType": "Equirectangular",
+          "envMapSourceColor": 4095,
+          "envMapSourceURL": "",
+          "envMapSourceEntityUUID": "",
+          "envMapIntensity": 1
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_model",
+    "EE_input",
+    "EE_shadow",
+    "EE_loop_animation",
+    "EE_envmap",
+    "EE_ecs"
+  ]
+}

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,19 +14,19 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { startCase } from 'lodash'
 import matches from 'ts-matches'
 
-import { defineSystem, destroySystem, InputSystemGroup, SystemDefinitions, SystemUUID } from '@etherealengine/ecs'
+import { defineSystem, destroySystem, InputSystemGroup, SystemDefinitions, SystemUUID } from '@ir-engine/ecs'
 import {
   Action,
   ActionDefinitions,
@@ -34,13 +34,8 @@ import {
   defineActionQueue,
   dispatchAction,
   removeActionQueue
-} from '@etherealengine/hyperflux'
-import {
-  makeEventNodeDefinition,
-  makeFlowNodeDefinition,
-  NodeCategory,
-  NodeDefinition
-} from '@etherealengine/visual-script'
+} from '@ir-engine/hyperflux'
+import { makeEventNodeDefinition, makeFlowNodeDefinition, NodeCategory, NodeDefinition } from '@ir-engine/visual-script'
 
 import { NodetoEnginetype } from './commonHelper'
 
@@ -154,7 +149,7 @@ export function registerActionConsumers() {
 
     const node = makeEventNodeDefinition({
       typeName: `action/${namePath}/${dispatchName}/consume`,
-      category: NodeCategory.Event,
+      category: NodeCategory.Action,
       label: `on ${namePath} ${dispatchName}`,
       in: {
         system: (_, graph) => {

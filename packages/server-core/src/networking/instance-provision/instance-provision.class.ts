@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
@@ -34,20 +34,15 @@ import fetch from 'node-fetch'
 import {
   instanceAuthorizedUserPath,
   InstanceAuthorizedUserType
-} from '@etherealengine/common/src/schemas/networking/instance-authorized-user.schema'
-import { InstanceProvisionType } from '@etherealengine/common/src/schemas/networking/instance-provision.schema'
-import { InstanceID, instancePath, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { ChannelID, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
-import {
-  LocationID,
-  locationPath,
-  LocationType,
-  RoomCode
-} from '@etherealengine/common/src/schemas/social/location.schema'
-import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
-import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { getState } from '@etherealengine/hyperflux'
+} from '@ir-engine/common/src/schemas/networking/instance-authorized-user.schema'
+import { InstanceProvisionType } from '@ir-engine/common/src/schemas/networking/instance-provision.schema'
+import { InstanceID, instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
+import { ChannelID, channelPath } from '@ir-engine/common/src/schemas/social/channel.schema'
+import { LocationID, locationPath, LocationType, RoomCode } from '@ir-engine/common/src/schemas/social/location.schema'
+import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { getState } from '@ir-engine/hyperflux'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -87,7 +82,7 @@ export async function getFreeInstanceserver({
     query: {
       assigned: true,
       assignedAt: {
-        $lt: toDateTimeSql(new Date(new Date().getTime() - 30000))
+        $lt: toDateTimeSql(new Date(new Date().getTime() - 60000))
       }
     },
     headers
@@ -96,8 +91,8 @@ export async function getFreeInstanceserver({
     //Clear any instance assignments older than 30 seconds - those assignments have not been
     //used, so they should be cleared and the IS they were attached to can be used for something else.
     logger.info('Local server spinning up new instance')
-    const localIp = await getLocalServerIp(channelId != null)
-    const stringIp = `${localIp.ipAddress}:${localIp.port}`
+    const localIp = await getLocalServerIp()
+    const stringIp = `${localIp}:${channelId ? '3032' : '3031'}`
     return checkForDuplicatedAssignments({
       app,
       headers,
@@ -478,8 +473,9 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
   }
 
   /**
-   * A method which gets and instance of Instanceserver
+   * A method which gets an instance of Instanceserver
    * @param availableLocationInstances for Instanceserver
+   * @param headers
    * @param locationId
    * @param channelId
    * @param roomCode
@@ -509,7 +505,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       query: {
         assigned: true,
         assignedAt: {
-          $lt: toDateTimeSql(new Date(new Date().getTime() - 30000))
+          $lt: toDateTimeSql(new Date(new Date().getTime() - 60000))
         }
       }
     })
@@ -531,11 +527,12 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
     const instance = instanceUserSort[0]
     if (!config.kubernetes.enabled) {
       logger.info('Resetting local instance to ' + instance.id)
-      const localIp = await getLocalServerIp(channelId != null)
+      const localIp = await getLocalServerIp()
       return {
         id: instance.id,
         roomCode: instance.roomCode,
-        ...localIp
+        ipAddress: localIp,
+        port: channelId ? '3032' : '3031'
       }
     }
     const isCleanup = await this.isCleanup(instance)
@@ -613,7 +610,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       query: {
         assigned: true,
         assignedAt: {
-          $lt: toDateTimeSql(new Date(new Date().getTime() - 30000))
+          $lt: toDateTimeSql(new Date(new Date().getTime() - 60000))
         }
       }
     })
@@ -799,11 +796,12 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         //   const maxInstance = await this.app.service(instancePath).get(maxInstanceId)
         //   if (!config.kubernetes.enabled) {
         //     logger.info('Resetting local instance to ' + maxInstanceId)
-        //     const localIp = await getLocalServerIp(false)
+        //     const localIp = await getLocalServerIp()
         //     return {
         //       id: maxInstanceId,
         //       roomCode: instance.roomCode,
-        //       ...localIp
+        //       ipAddress: localIp,
+        //       port: 3031
         //     }
         //   }
         //   const ipAddressSplit = maxInstance.ipAddress.split(':')

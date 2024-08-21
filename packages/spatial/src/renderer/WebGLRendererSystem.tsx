@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,24 +14,25 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import '../threejsPatches'
 
-import { EffectComposer, NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
+import { NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
 import React, { useEffect } from 'react'
 import {
   ArrayCamera,
   Color,
   CubeTexture,
   FogBase,
+  Object3D,
   Scene,
   SRGBColorSpace,
   Texture,
@@ -41,199 +42,250 @@ import {
 } from 'three'
 
 import {
+  ComponentType,
   defineComponent,
   defineQuery,
   defineSystem,
   ECSState,
   Entity,
   getComponent,
-  getOptionalComponent,
+  getMutableComponent,
   hasComponent,
   PresentationSystemGroup,
   QueryReactor,
   useComponent,
   useEntityContext
-} from '@etherealengine/ecs'
-import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+} from '@ir-engine/ecs'
+import { defineState, getMutableState, getState, NO_PROXY, none, State, useMutableState } from '@ir-engine/hyperflux'
 
+import { Effect, EffectComposer, EffectPass, OutlineEffect } from 'postprocessing'
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
-import { EngineState } from '../EngineState'
 import { getNestedChildren } from '../transform/components/EntityTree'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRLightProbeState } from '../xr/XRLightProbeSystem'
 import { XRState } from '../xr/XRState'
 import { GroupComponent } from './components/GroupComponent'
-import {
-  BackgroundComponent,
-  EnvironmentMapComponent,
-  FogComponent,
-  SceneComponent
-} from './components/SceneComponents'
+import { BackgroundComponent, EnvironmentMapComponent, FogComponent } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
+import { RenderModes } from './constants/RenderModes'
 import { CSM } from './csm/CSM'
 import CSMHelper from './csm/CSMHelper'
 import { changeRenderMode } from './functions/changeRenderMode'
-import { PerformanceManager } from './PerformanceState'
+import { HighlightState } from './HighlightState'
+import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
+
+declare module 'postprocessing' {
+  interface EffectComposer {
+    EffectPass: EffectPass
+    OutlineEffect: OutlineEffect
+  }
+  interface Effect {
+    isActive: boolean
+  }
+}
 
 export const RendererComponent = defineComponent({
   name: 'RendererComponent',
 
   onInit() {
-    return new EngineRenderer()
+    const scene = new Scene()
+    scene.matrixAutoUpdate = false
+    scene.matrixWorldAutoUpdate = false
+    scene.layers.set(ObjectLayers.Scene)
+
+    return {
+      /** Is resize needed? */
+      needsResize: false,
+
+      renderPass: null as null | RenderPass,
+      normalPass: null as null | NormalPass,
+      renderContext: null as WebGLRenderingContext | WebGL2RenderingContext | null,
+      effects: {} as Record<string, Effect>,
+
+      supportWebGL2: false,
+      canvas: null as null | HTMLCanvasElement,
+
+      renderer: null as null | WebGLRenderer,
+      effectComposer: null as null | EffectComposer,
+
+      scenes: [] as Entity[],
+      scene,
+
+      /** @todo deprecate and replace with engine implementation */
+      xrManager: null as null | WebXRManager,
+      webGLLostContext: null as null | WEBGL_lose_context,
+
+      csm: null as CSM | null,
+      csmHelper: null as CSMHelper | null
+    }
   },
+
+  /**
+   * @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts
+   * see https://github.com/ir-engine/ir-engine/issues/9308
+   */
+  activeRender: false,
 
   onSet(entity, component, json) {
     if (json?.canvas) component.canvas.set(json.canvas)
+    if (json?.scenes) component.scenes.set(json.scenes)
+  },
+
+  onRemove(entity, component) {
+    component.value.renderer?.dispose()
+    component.value.effectComposer?.dispose()
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const rendererComponent = useComponent(entity, RendererComponent)
+    const camera = useComponent(entity, CameraComponent).value as ArrayCamera
+    const hightlightState = useMutableState(HighlightState)
+    const renderSettings = useMutableState(RendererState)
+    const effectComposerState = rendererComponent.effectComposer as State<EffectComposer>
+
+    useEffect(() => {
+      if (!effectComposerState.value) return
+
+      const scene = rendererComponent.scene.value as Scene
+      const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
+      outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
+      effectComposerState.OutlineEffect.set(outlineEffect)
+
+      return () => {
+        if (!hasComponent(entity, RendererComponent)) return
+        outlineEffect.dispose()
+        effectComposerState.OutlineEffect.set(none)
+      }
+    }, [!!effectComposerState.value, hightlightState])
+
+    useEffect(() => {
+      const effectComposer = effectComposerState.value
+      if (!effectComposer) return
+
+      const effectsVal = rendererComponent.effects.get(NO_PROXY) as Record<string, Effect>
+
+      const enabled = renderSettings.usePostProcessing.value
+
+      const effectArray = enabled ? Object.values(effectsVal) : []
+      if (effectComposer.OutlineEffect) effectArray.unshift(effectComposer.OutlineEffect as OutlineEffect)
+
+      const effectPass = new EffectPass(camera, ...effectArray)
+      effectComposerState.EffectPass.set(effectPass)
+
+      if (enabled) {
+        effectComposerState.merge(effectsVal)
+      }
+
+      try {
+        effectComposer.addPass(effectPass)
+      } catch (e) {
+        console.warn(e) /** @todo Implement user messaging Ex: (Can not use multiple convolution effects) */
+      }
+
+      effectComposer.setRenderer(rendererComponent.renderer.value as WebGLRenderer)
+
+      return () => {
+        if (!hasComponent(entity, RendererComponent)) return
+        if (enabled) {
+          for (const effect in effectsVal) {
+            effectsVal[effect].dispose()
+            effectComposerState[effect].set(none)
+          }
+        }
+        effectComposer.EffectPass.dispose()
+        effectComposer.removePass(effectPass)
+      }
+    }, [rendererComponent.effects, !!effectComposerState?.OutlineEffect?.value, renderSettings.usePostProcessing.value])
+
+    return null
   }
 })
 
-let lastRenderTime = 0
-const _scene = new Scene()
-_scene.matrixAutoUpdate = false
-_scene.matrixWorldAutoUpdate = false
-_scene.layers.set(ObjectLayers.Scene)
-globalThis._scene = _scene
+export const initializeEngineRenderer = (entity: Entity) => {
+  const rendererComponent = getMutableComponent(entity, RendererComponent)
 
-export class EngineRenderer {
+  rendererComponent.supportWebGL2.set(WebGL.isWebGL2Available())
+
+  if (!rendererComponent.canvas) throw new Error('Canvas is not defined')
+
+  const canvas = rendererComponent.canvas.value as HTMLCanvasElement
+  const context = rendererComponent.supportWebGL2 ? canvas.getContext('webgl2')! : canvas.getContext('webgl')!
+
+  rendererComponent.renderContext.set(context)
+  const options: WebGLRendererParameters = {
+    precision: 'highp',
+    powerPreference: 'high-performance',
+    stencil: false,
+    antialias: false,
+    depth: true,
+    logarithmicDepthBuffer: false,
+    canvas,
+    context,
+    preserveDrawingBuffer: false,
+    //@ts-ignore
+    multiviewStereo: true
+  }
+
+  const renderer = rendererComponent.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options)
+  rendererComponent.renderer.set(renderer)
+  renderer.outputColorSpace = SRGBColorSpace
+
+  const composer = new EffectComposer(renderer)
+  rendererComponent.effectComposer.set(composer)
+  const renderPass = new RenderPass()
+  composer.addPass(renderPass)
+  rendererComponent.renderPass.set(renderPass)
+
+  // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
+  renderer.debug.checkShaderErrors = false
+
+  const xrManager = createWebXRManager(renderer)
+  renderer.xr = xrManager as any
+  rendererComponent.merge({ xrManager })
+  xrManager.cameraAutoUpdate = false
+  xrManager.enabled = true
+
+  const onResize = () => {
+    rendererComponent.needsResize.set(true)
+  }
+
+  // https://stackoverflow.com/questions/48124372/pointermove-event-not-working-with-touch-why-not
+  canvas.style.touchAction = 'none'
+  canvas.addEventListener('resize', onResize, false)
+  window.addEventListener('resize', onResize, false)
+
+  renderer.autoClear = true
+
   /**
-   * @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts
-   * see https://github.com/EtherealEngine/etherealengine/issues/9308
+   * This can be tested with document.getElementById('engine-renderer-canvas').getContext('webgl2').getExtension('WEBGL_lose_context').loseContext();
    */
-  static activeRender = false
-  /** Is resize needed? */
-  needsResize: boolean
+  rendererComponent.webGLLostContext.set(context.getExtension('WEBGL_lose_context'))
 
-  /** Maximum Quality level of the rendered. **Default** value is 5. */
-  maxQualityLevel = 5
-  /** point at which we downgrade quality level (large delta) */
-  maxRenderDelta = 1000 / 28 // 28 fps = 35 ms  (on some devices, rAF updates at 30fps, e.g., Low Power Mode)
-  /** point at which we upgrade quality level (small delta) */
-  minRenderDelta = 1000 / 55 // 55 fps = 18 ms
-  /** Resoulion scale. **Default** value is 1. */
-  scaleFactor = 1
-
-  renderPass: RenderPass
-  normalPass: NormalPass
-  renderContext: WebGLRenderingContext | WebGL2RenderingContext
-
-  supportWebGL2: boolean
-  canvas: HTMLCanvasElement
-
-  averageTimePeriods = 3 * 60 // 3 seconds @ 60fps
-  /** init ExponentialMovingAverage */
-  movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
-
-  renderer: WebGLRenderer = null!
-  /** used to optimize proxified threejs objects during render time, see loadGLTFModel and https://github.com/EtherealEngine/etherealengine/issues/9308 */
-  rendering = false
-  effectComposer: EffectComposer = null!
-  /** @todo deprecate and replace with engine implementation */
-  xrManager: WebXRManager = null!
-  webGLLostContext: any = null
-
-  csm = null as CSM | null
-  csmHelper = null as CSMHelper | null
-
-  initialize() {
-    this.supportWebGL2 = WebGL.isWebGL2Available()
-
-    if (!this.canvas) throw new Error('Canvas is not defined')
-
-    const canvas = this.canvas
-    const context = this.supportWebGL2 ? canvas.getContext('webgl2')! : canvas.getContext('webgl')!
-
-    this.renderContext = context!
-    const options: WebGLRendererParameters = {
-      precision: 'highp',
-      powerPreference: 'high-performance',
-      stencil: false,
-      antialias: false,
-      depth: true,
-      logarithmicDepthBuffer: false,
-      canvas,
-      context,
-      preserveDrawingBuffer: false,
-      //@ts-ignore
-      multiviewStereo: true
-    }
-
-    const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options)
-    this.renderer = renderer
-    this.renderer.outputColorSpace = SRGBColorSpace
-
-    // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-    this.renderer.debug.checkShaderErrors = false
-
-    // @ts-ignore
-    this.xrManager = renderer.xr = createWebXRManager(renderer)
-    this.xrManager.cameraAutoUpdate = false
-    this.xrManager.enabled = true
-
-    const onResize = () => {
-      this.needsResize = true
-    }
-
-    canvas.addEventListener('resize', onResize, false)
-    window.addEventListener('resize', onResize, false)
-
-    this.renderer.autoClear = true
-
-    /**
-     * This can be tested with document.getElementById('engine-renderer-canvas').getContext('webgl2').getExtension('WEBGL_lose_context').loseContext();
-     */
-    this.webGLLostContext = context.getExtension('WEBGL_lose_context')
-
-    const handleWebGLConextLost = (e) => {
-      console.log('Browser lost the context.', e)
-      e.preventDefault()
-      this.needsResize = false
-      setTimeout(() => {
-        if (this.webGLLostContext) this.webGLLostContext.restoreContext()
-      }, 1)
-    }
-
-    const handleWebGLContextRestore = (e) => {
-      canvas.removeEventListener('webglcontextlost', handleWebGLConextLost)
-      canvas.removeEventListener('webglcontextrestored', handleWebGLContextRestore)
-      this.initialize()
-      this.needsResize = true
-      console.log("Browser's context is restored.", e)
-    }
-
-    if (this.webGLLostContext) {
-      canvas.addEventListener('webglcontextlost', handleWebGLConextLost)
-    } else {
-      console.log('Browser does not support `WEBGL_lose_context` extension')
-    }
-  }
-}
-
-/**
- * Change the quality of the renderer.
- */
-const changeQualityLevel = (renderer: EngineRenderer) => {
-  const time = Date.now()
-  const delta = time - lastRenderTime
-  lastRenderTime = time
-
-  const { qualityLevel } = getState(RendererState)
-  let newQualityLevel = qualityLevel
-
-  renderer.movingAverage.update(Math.min(delta, 50))
-  const averageDelta = renderer.movingAverage.mean
-
-  if (averageDelta > renderer.maxRenderDelta && newQualityLevel > 1) {
-    newQualityLevel--
-  } else if (averageDelta < renderer.minRenderDelta && newQualityLevel < renderer.maxQualityLevel) {
-    newQualityLevel++
+  const handleWebGLConextLost = (e) => {
+    console.log('Browser lost the context.', e)
+    e.preventDefault()
+    rendererComponent.needsResize.set(false)
+    setTimeout(() => {
+      if (rendererComponent.webGLLostContext) rendererComponent.webGLLostContext.value!.restoreContext()
+    }, 1)
   }
 
-  if (newQualityLevel !== qualityLevel) {
-    getMutableState(RendererState).qualityLevel.set(newQualityLevel)
+  const handleWebGLContextRestore = (e) => {
+    canvas.removeEventListener('webglcontextlost', handleWebGLConextLost)
+    canvas.removeEventListener('webglcontextrestored', handleWebGLContextRestore)
+    initializeEngineRenderer(entity)
+    rendererComponent.needsResize.set(true)
+    console.log("Browser's context is restored.", e)
+  }
+
+  if (rendererComponent.webGLLostContext) {
+    canvas.addEventListener('webglcontextlost', handleWebGLConextLost)
+  } else {
+    console.log('Browser does not support `WEBGL_lose_context` extension')
   }
 }
 
@@ -242,7 +294,7 @@ const changeQualityLevel = (renderer: EngineRenderer) => {
  * @param delta Time since last frame.
  */
 export const render = (
-  renderer: EngineRenderer,
+  renderer: ComponentType<typeof RendererComponent>,
   scene: Scene,
   camera: ArrayCamera,
   delta: number,
@@ -250,19 +302,16 @@ export const render = (
 ) => {
   const xrFrame = getState(XRState).xrFrame
 
-  const canvasParent = renderer.canvas.parentElement
+  const canvasParent = renderer.canvas!.parentElement
   if (!canvasParent) return
 
   const state = getState(RendererState)
 
-  const engineState = getState(EngineState)
-  if (!engineState.isEditor && state.automatic) changeQualityLevel(renderer)
-
   if (renderer.needsResize) {
-    const curPixelRatio = renderer.renderer.getPixelRatio()
-    const scaledPixelRatio = window.devicePixelRatio * renderer.scaleFactor
+    const curPixelRatio = renderer.renderer!.getPixelRatio()
+    const scaledPixelRatio = window.devicePixelRatio * state.renderScale
 
-    if (curPixelRatio !== scaledPixelRatio) renderer.renderer.setPixelRatio(scaledPixelRatio)
+    if (curPixelRatio !== scaledPixelRatio) renderer.renderer!.setPixelRatio(scaledPixelRatio)
 
     const width = canvasParent.clientWidth
     const height = canvasParent.clientHeight
@@ -272,31 +321,31 @@ export const render = (
       camera.updateProjectionMatrix()
     }
 
-    state.qualityLevel > 0 && renderer.csm?.updateFrustums()
+    state.updateCSMFrustums && renderer.csm?.updateFrustums()
 
     if (renderer.effectComposer) {
       renderer.effectComposer.setSize(width, height, true)
     } else {
-      renderer.renderer.setSize(width, height, true)
+      renderer.renderer!.setSize(width, height, true)
     }
 
     renderer.needsResize = false
   }
 
-  EngineRenderer.activeRender = true
+  RendererComponent.activeRender = true
 
   /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
   if (xrFrame || !effectComposer || !renderer.effectComposer) {
     for (const c of camera.cameras) c.layers.mask = camera.layers.mask
-    renderer.renderer.clear()
-    renderer.renderer.render(scene, camera)
+    renderer.renderer!.clear()
+    renderer.renderer!.render(scene, camera)
   } else {
     renderer.effectComposer.setMainScene(scene)
     renderer.effectComposer.setMainCamera(camera)
     renderer.effectComposer.render(delta)
   }
 
-  EngineRenderer.activeRender = false
+  RendererComponent.activeRender = false
 }
 
 export const RenderSettingsState = defineState({
@@ -306,45 +355,54 @@ export const RenderSettingsState = defineState({
   }
 })
 
-const rendererQuery = defineQuery([RendererComponent, CameraComponent, SceneComponent])
+const rendererQuery = defineQuery([RendererComponent, CameraComponent])
 
 export const filterVisible = (entity: Entity) => hasComponent(entity, VisibleComponent)
 export const getNestedVisibleChildren = (entity: Entity) => getNestedChildren(entity, filterVisible)
+export const getSceneParameters = (entities: Entity[]) => {
+  const vals = {
+    background: null as Color | Texture | CubeTexture | null,
+    environment: null as Texture | null,
+    fog: null as FogBase | null,
+    children: [] as Object3D[]
+  }
+
+  for (const entity of entities) {
+    if (hasComponent(entity, EnvironmentMapComponent)) {
+      vals.environment = getComponent(entity, EnvironmentMapComponent)
+    }
+    if (hasComponent(entity, BackgroundComponent)) {
+      vals.background = getComponent(entity, BackgroundComponent as any) as Color | Texture | CubeTexture
+    }
+    if (hasComponent(entity, FogComponent)) {
+      vals.fog = getComponent(entity, FogComponent)
+    }
+    if (hasComponent(entity, GroupComponent)) {
+      vals.children.push(...getComponent(entity, GroupComponent)!)
+    }
+  }
+
+  return vals
+}
 
 const execute = () => {
   const deltaSeconds = getState(ECSState).deltaSeconds
 
-  const onRenderEnd = PerformanceManager.profileGPURender(deltaSeconds)
+  const onRenderEnd = PerformanceManager.profileGPURender()
   for (const entity of rendererQuery()) {
     const camera = getComponent(entity, CameraComponent)
     const renderer = getComponent(entity, RendererComponent)
-    const scene = getComponent(entity, SceneComponent)
+    const _scene = renderer.scene!
 
-    let background: Color | Texture | CubeTexture | null = null
-    let environment: Texture | null = null
-    let fog: FogBase | null = null
+    const entitiesToRender = renderer.scenes.map(getNestedVisibleChildren).flat()
+    const { background, environment, fog, children } = getSceneParameters(entitiesToRender)
+    _scene.children = children
 
-    const entitiesToRender = scene.children.map(getNestedVisibleChildren).flat()
-    for (const entity of entitiesToRender) {
-      if (hasComponent(entity, EnvironmentMapComponent)) {
-        environment = getComponent(entity, EnvironmentMapComponent)
-      }
-      if (hasComponent(entity, BackgroundComponent)) {
-        background = getComponent(entity, BackgroundComponent as any) as Color | Texture | CubeTexture
-      }
-      if (hasComponent(entity, FogComponent)) {
-        fog = getComponent(entity, FogComponent)
-      }
-    }
-    const objects = entitiesToRender
-      .map((entity) => getOptionalComponent(entity, GroupComponent)!)
-      .flat()
-      .filter(Boolean)
-
-    _scene.children = objects
+    const renderMode = getState(RendererState).renderMode
 
     const sessionMode = getState(XRState).sessionMode
-    _scene.background = sessionMode === 'immersive-ar' ? null : background
+    _scene.background =
+      sessionMode === 'immersive-ar' ? null : renderMode === RenderModes.WIREFRAME ? new Color(0xffffff) : background
 
     const lightProbe = getState(XRLightProbeState).environment
     _scene.environment = lightProbe ?? environment
@@ -362,13 +420,22 @@ const rendererReactor = () => {
   const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
-    renderer.scaleFactor.set(engineRendererSettings.qualityLevel.value / renderer.maxQualityLevel.value)
-    renderer.renderer.value.setPixelRatio(window.devicePixelRatio * renderer.scaleFactor.value)
-    renderer.needsResize.set(true)
-  }, [engineRendererSettings.qualityLevel])
+    if (engineRendererSettings.automatic.value) return
+
+    const qualityLevel = engineRendererSettings.qualityLevel.value
+    getMutableState(PerformanceState).merge({
+      gpuTier: qualityLevel,
+      cpuTier: qualityLevel
+    } as any)
+  }, [engineRendererSettings.qualityLevel, engineRendererSettings.automatic])
 
   useEffect(() => {
-    changeRenderMode()
+    renderer.renderer.value!.setPixelRatio(window.devicePixelRatio * engineRendererSettings.renderScale.value)
+    renderer.needsResize.set(true)
+  }, [engineRendererSettings.renderScale])
+
+  useEffect(() => {
+    changeRenderMode(entity)
   }, [engineRendererSettings.renderMode])
 
   return null

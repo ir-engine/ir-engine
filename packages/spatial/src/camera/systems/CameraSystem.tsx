@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
@@ -33,18 +33,20 @@ import {
   Engine,
   EntityUUID,
   getComponent,
+  getOptionalMutableComponent,
   setComponent,
   UUIDComponent
-} from '@etherealengine/ecs'
-import { defineState, getMutableState, none, useMutableState } from '@etherealengine/hyperflux'
-import { NetworkObjectOwnedTag, WorldNetworkAction } from '@etherealengine/network'
+} from '@ir-engine/ecs'
+import { defineState, getMutableState, none, useMutableState } from '@ir-engine/hyperflux'
+import { NetworkObjectOwnedTag, WorldNetworkAction } from '@ir-engine/network'
 
+import { EngineState } from '../../EngineState'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
-import { switchCameraMode } from '../functions/switchCameraMode'
+import { FollowCameraComponent } from '../components/FollowCameraComponent'
 
 export const CameraEntityState = defineState({
   name: 'CameraEntityState',
@@ -91,12 +93,23 @@ function CameraReactor() {
     if (!cameraSettings?.cameraNearClip) return
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent) as PerspectiveCamera
     if (camera?.isPerspectiveCamera) {
+      camera.fov = cameraSettings.fov.value
       camera.near = cameraSettings.cameraNearClip.value
       camera.far = cameraSettings.cameraFarClip.value
       camera.updateProjectionMatrix()
     }
-    switchCameraMode(Engine.instance.cameraEntity, cameraSettings.value)
-  }, [cameraSettings.cameraNearClip, cameraSettings.cameraFarClip])
+  }, [cameraSettings.fov, cameraSettings.cameraNearClip, cameraSettings.cameraFarClip])
+
+  // TODO: this is messy and not properly reactive; we need a better way to handle camera settings
+  useEffect(() => {
+    if (!cameraSettings?.fov) return
+    const follow = getOptionalMutableComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+    if (follow) {
+      follow.thirdPersonMinDistance.set(cameraSettings.minCameraDistance.value)
+      follow.thirdPersonMaxDistance.set(cameraSettings.maxCameraDistance.value)
+      follow.distance.set(cameraSettings.startCameraDistance.value)
+    }
+  }, [cameraSettings])
 
   return null
 }
@@ -125,5 +138,8 @@ export const CameraSystem = defineSystem({
   uuid: 'ee.engine.CameraSystem',
   insert: { with: AnimationSystemGroup },
   execute,
-  reactor
+  reactor: () => {
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <CameraReactor />
+  }
 })

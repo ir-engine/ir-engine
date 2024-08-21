@@ -36,8 +36,10 @@ let DRACO_ENCODER
 
 export const loadDRACODecoderNode = async () => {
   if (typeof DRACO_DECODER === 'undefined') {
-    DRACO_DECODER = await draco.createDecoderModule()
-    DRACO_ENCODER = await draco.createEncoderModule()
+    [DRACO_DECODER, DRACO_ENCODER] = await Promise.all([
+      draco.createDecoderModule(),
+      draco.createEncoderModule()
+    ])
   }
 }
 

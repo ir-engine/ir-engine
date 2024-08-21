@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
@@ -36,7 +36,6 @@ import {
   Vector3
 } from 'three'
 
-import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import {
   ComponentType,
   getComponent,
@@ -44,28 +43,32 @@ import {
   removeComponent,
   setComponent,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineQuery, useQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { smootheLerpAlpha } from '../common/functions/MathLerpFunctions'
 
-import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
-import { Vector3_Up } from '../common/constants/MathConstants'
+import React from 'react'
+import { EngineState } from '../EngineState'
 import { NameComponent } from '../common/NameComponent'
+import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
+import { Vector3_One, Vector3_Up } from '../common/constants/MathConstants'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { InputState } from '../input/state/InputState'
 import { addObjectToGroup } from '../renderer/components/GroupComponent'
-import { setVisibleComponent, VisibleComponent } from '../renderer/components/VisibleComponent'
+import { VisibleComponent, setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
 import { XRCameraUpdateSystem } from './XRCameraSystem'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
+import { XRScenePlacementComponent } from './XRScenePlacementComponent'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 export const updateHitTest = (entity: Entity) => {
@@ -160,7 +163,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   if (!transform || !xrFrame || !xrSession) return
 
   const deltaSeconds = getState(ECSState).deltaSeconds
-  const lerpAlpha = smootheLerpAlpha(5, deltaSeconds)
+  const lerpAlpha = smootheLerpAlpha(0.1, deltaSeconds)
 
   const sceneScaleAutoMode = xrState.sceneScaleAutoMode
 
@@ -172,7 +175,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   const targetScale = xrState.sceneScaleTarget
   if (targetScale !== xrState.sceneScale) {
     const newScale = MathUtils.lerp(xrState.sceneScale, targetScale, lerpAlpha)
-    getMutableState(XRState).sceneScale.set(newScale > 0.9 ? 1 : newScale)
+    getMutableState(XRState).sceneScale.set(newScale > 0.99 ? 1 : newScale)
   }
 
   xrState.scenePosition.copy(transform.position)
@@ -189,9 +192,43 @@ const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
 
 export const XRAnchorSystemState = defineState({
   name: 'XRAnchorSystemState',
-  initial: () => {
+  initial: {
+    scenePlacementEntity: UndefinedEntity,
+    originAnchorEntity: UndefinedEntity
+  }
+})
+
+const execute = () => {
+  const xrState = getState(XRState)
+
+  const { scenePlacementEntity, originAnchorEntity } = getState(XRAnchorSystemState)
+
+  for (const action of xrSessionChangedQueue()) {
+    if (!action.active) {
+      getMutableState(XRState).scenePlacementMode.set('unplaced')
+      for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
+      for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)
+    }
+  }
+
+  if (!getState(XRState).xrFrame) return
+
+  for (const entity of xrAnchorQuery()) updateAnchor(entity)
+  for (const entity of xrHitTestQuery()) updateHitTest(entity)
+
+  if (xrState.scenePlacementMode === 'placing') {
+    updateScenePlacement(scenePlacementEntity)
+    updateWorldOriginFromScenePlacement()
+
+    getComponent(originAnchorEntity, TransformComponent).scale.copy(Vector3_One)
+  }
+}
+
+const Reactor = () => {
+  useEffect(() => {
     const scenePlacementEntity = createEntity()
     setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
+    setComponent(scenePlacementEntity, XRScenePlacementComponent)
     setComponent(scenePlacementEntity, TransformComponent)
     setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
     setComponent(scenePlacementEntity, VisibleComponent, true)
@@ -215,43 +252,11 @@ export const XRAnchorSystemState = defineState({
     const originAnchorEntity = createEntity()
     setComponent(originAnchorEntity, NameComponent, 'xr-world-anchor')
     addObjectToGroup(originAnchorEntity, originAnchorMesh)
+    setComponent(originAnchorEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
-    return {
-      scenePlacementEntity,
-      originAnchorEntity
-    }
-  }
-})
+    getMutableState(XRAnchorSystemState).set({ scenePlacementEntity, originAnchorEntity })
+  }, [])
 
-const execute = () => {
-  const xrState = getState(XRState)
-
-  const { scenePlacementEntity, originAnchorEntity } = getState(XRAnchorSystemState)
-
-  for (const action of xrSessionChangedQueue()) {
-    if (!action.active) {
-      setComponent(Engine.instance.localFloorEntity, TransformComponent) // reset world origin
-      getMutableState(XRState).scenePlacementMode.set('unplaced')
-      for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
-      for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)
-    }
-  }
-
-  if (!getState(XRState).xrFrame) return
-
-  for (const entity of xrAnchorQuery()) updateAnchor(entity)
-  for (const entity of xrHitTestQuery()) updateHitTest(entity)
-
-  if (xrState.scenePlacementMode === 'placing') {
-    updateScenePlacement(scenePlacementEntity)
-    updateWorldOriginFromScenePlacement()
-
-    const inverseWorldScale = 1 / XRState.worldScale
-    getComponent(originAnchorEntity, TransformComponent).scale.setScalar(inverseWorldScale)
-  }
-}
-
-const reactor = () => {
   const { scenePlacementMode, session: xrSession } = useMutableState(XRState).value
   const { scenePlacementEntity, originAnchorEntity } = useMutableState(XRAnchorSystemState).value
   const hitTest = useOptionalComponent(scenePlacementEntity, XRHitTestComponent)
@@ -364,5 +369,8 @@ export const XRAnchorSystem = defineSystem({
   uuid: 'ee.engine.XRAnchorSystem',
   insert: { after: XRCameraUpdateSystem },
   execute,
-  reactor
+  reactor: () => {
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <Reactor />
+  }
 })

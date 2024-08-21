@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,29 +14,29 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
 import { NullableId, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import JSZip from 'jszip'
-import fetch from 'node-fetch'
 
-import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
-import { ArchiverQuery } from '@etherealengine/common/src/schemas/media/archiver.schema'
-import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
+import { ArchiverQuery } from '@ir-engine/common/src/schemas/media/archiver.schema'
+import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import { createExecutorJob, getDirectoryArchiveJobBody } from '../../projects/project/project-helper'
 import logger from '../../ServerLogger'
+import config from '../../appconfig'
+import { createExecutorJob } from '../../k8s-job-helper'
+import { getDirectoryArchiveJobBody } from '../../projects/project/project-helper'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 const DIRECTORY_ARCHIVE_TIMEOUT = 60 * 10 //10 minutes
@@ -47,29 +47,15 @@ const DIRECTORY_ARCHIVE_TIMEOUT = 60 * 10 //10 minutes
 
 export interface ArchiverParams extends KnexAdapterParams<ArchiverQuery> {}
 
-const archive = async (app: Application, directory, params?: ArchiverParams): Promise<string> => {
-  if (directory.at(0) === '/') directory = directory.slice(1)
-  if (!directory.startsWith('projects/') || ['projects', 'projects/'].includes(directory)) {
-    return Promise.reject(new Error('Cannot archive non-project directories'))
-  }
-
-  const split = directory.split('/')
-  let projectName
-  if (split[split.length - 1].length === 0) projectName = split[split.length - 2]
-  else projectName = split[split.length - 1]
-  projectName = projectName.toLowerCase()
-
+const archive = async (app: Application, projectName: string, params?: ArchiverParams): Promise<string> => {
   if (!params) params = {}
   if (!params.query) params.query = {}
-  const storageProviderName = params.query.storageProviderName?.toString()
 
-  delete params.query.storageProviderName
+  const storageProvider = getStorageProvider()
 
-  const storageProvider = getStorageProvider(storageProviderName)
+  logger.info(`Archiving ${projectName}`)
 
-  logger.info(`Archiving ${directory} using ${storageProviderName}`)
-
-  const result = await storageProvider.listFolderContent(directory)
+  const result = await storageProvider.listFolderContent(`projects/${projectName}`)
 
   const zip = new JSZip()
 
@@ -83,14 +69,11 @@ const archive = async (app: Application, directory, params?: ArchiverParams): Pr
 
     if (result[i].type == 'folder') continue
 
-    const blobPromise = await fetch(result[i].url, { method: 'GET' }).then((r) => {
-      if (r.status === 200) return r.arrayBuffer()
-      return Promise.reject(new Error(r.statusText))
-    })
+    const blobPromise = (await storageProvider.getObject(result[i].key)).Body
 
     logger.info(`Added ${result[i].key} to archive`)
 
-    const dir = result[i].key.substring(result[i].key.indexOf('/') + 1)
+    const dir = result[i].key.replace(`projects/${projectName}/`, '')
     zip.file(dir, blobPromise)
   }
 
@@ -106,7 +89,7 @@ const archive = async (app: Application, directory, params?: ArchiverParams): Pr
     ContentType: 'archive/zip'
   })
 
-  logger.info(`Archived ${directory} to ${zipOutputDirectory}`)
+  logger.info(`Archived ${projectName} to ${zipOutputDirectory}`)
 
   if (params.query.jobId) {
     const date = await getDateTimeSql()
@@ -130,17 +113,11 @@ export class ArchiverService implements ServiceInterface<string, ArchiverParams>
   async get(id: NullableId, params?: ArchiverParams) {
     if (!params) throw new BadRequest('No directory specified')
 
-    const directory = params?.query?.directory!.toString()
-    delete params.query?.directory
+    const project = params?.query?.project!.toString()!
+    delete params.query?.project
 
-    if (!config.kubernetes.enabled || params?.query?.isJob) return archive(this.app, directory, params)
+    if (!config.kubernetes.enabled || params?.query?.isJob) return archive(this.app, project, params)
     else {
-      const split = directory!.split('/')
-      let projectName
-      if (split[split.length - 1].length === 0) projectName = split[split.length - 2]
-      else projectName = split[split.length - 1]
-      projectName = projectName.toLowerCase()
-
       const date = await getDateTimeSql()
       const newJob = await this.app.service(apiJobPath).create({
         name: '',
@@ -149,11 +126,12 @@ export class ArchiverService implements ServiceInterface<string, ArchiverParams>
         returnData: '',
         status: 'pending'
       })
-      const jobBody = await getDirectoryArchiveJobBody(this.app, directory!, projectName, newJob.id)
+      const projectJobName = project.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+      const jobBody = await getDirectoryArchiveJobBody(this.app, project, newJob.id)
       await this.app.service(apiJobPath).patch(newJob.id, {
         name: jobBody.metadata!.name
       })
-      const jobLabelSelector = `etherealengine/directoryField=${projectName},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/directoryArchiver=true`
+      const jobLabelSelector = `ir-engine/projectField=${projectJobName},ir-engine/release=${process.env.RELEASE_NAME},ir-engine/directoryArchiver=true`
       const jobFinishedPromise = createExecutorJob(
         this.app,
         jobBody,
@@ -165,11 +143,11 @@ export class ArchiverService implements ServiceInterface<string, ArchiverParams>
         await jobFinishedPromise
         const job = await this.app.service(apiJobPath).get(newJob.id)
 
-        logger.info(`Archived ${directory} to ${job.returnData}`)
+        logger.info(`Archived ${project} to ${job.returnData}`)
 
         return job.returnData
       } catch (err) {
-        console.log('Error: Directory was not properly archived', directory, err)
+        console.log('Error: Directory was not properly archived', project, err)
         throw new BadRequest('Directory was not properly archived')
       }
     }

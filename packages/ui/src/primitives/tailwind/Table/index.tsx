@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
@@ -37,7 +37,7 @@ const TableHeaderCell = ({ className, children, ...props }: TableCellProps) => {
   const twClassName = twMerge(
     'text-neutral-600 dark:text-white',
     'p-4',
-    'border-theme-primary border border-[0.5px]',
+    'border border-[0.5px] border-theme-primary',
     className
   )
   return (
@@ -57,7 +57,7 @@ const TableHeadRow = ({
   children: JSX.Element | JSX.Element[]
 }) => {
   const twClassName = twMerge('text-left capitalize', className)
-  const twClassNameThead = twMerge('bg-theme-table-secondary sticky top-0', theadClassName)
+  const twClassNameThead = twMerge('sticky top-0 bg-theme-table-secondary', theadClassName)
   return (
     <thead className={twClassNameThead}>
       <tr className={twClassName}>{children}</tr>
@@ -68,7 +68,7 @@ const TableHeadRow = ({
 const TableCell = ({ className, children, ...props }: TableCellProps) => {
   const twClassName = twMerge(
     'p-4',
-    'border-theme-primary border border-[0.5px]',
+    'border border-[0.5px] border-theme-primary',
     'text-left text-neutral-600 dark:text-white',
     className
   )
@@ -122,7 +122,7 @@ const Table = ({ containerClassName, className, children }: TableProps) => {
 
 const TablePagination = ({
   className,
-  steps = 3,
+  neighbours = 1,
   totalPages,
   currentPage,
   onPageChange
@@ -130,11 +130,11 @@ const TablePagination = ({
   className?: string
   totalPages: number
   currentPage: number
-  steps?: number
+  neighbours?: number
   onPageChange: (newPage: number) => void
 }) => {
   const commonClasses = twMerge(
-    'bg-theme-primary flex h-8 items-center justify-center border px-3 leading-tight',
+    'flex h-8 items-center justify-center border bg-theme-primary px-3 leading-tight',
     'border-gray-300 dark:border-gray-600',
     'text-gray-400 dark:text-gray-500',
     'enabled:text-gray-600 dark:enabled:dark:text-gray-300',
@@ -142,8 +142,19 @@ const TablePagination = ({
     'hover:enabled:text-gray-700 dark:hover:enabled:text-gray-200'
   )
 
+  const prevPages = [] as number[]
+  for (let i = currentPage - 1; i >= Math.max(0, currentPage - neighbours); i--) {
+    prevPages.push(i)
+  }
+  prevPages.reverse()
+
+  const nextPages = [] as number[]
+  for (let i = currentPage + 1; i < Math.min(totalPages, currentPage + neighbours + 1); i++) {
+    nextPages.push(i)
+  }
+
   return (
-    <div className="flex-column mb-2 flex flex-wrap items-center justify-between pt-4 md:flex-row">
+    <div className="flex-column mb-2 flex flex-wrap items-center justify-center pt-4 md:flex-row">
       <ul className="inline-flex h-8 -space-x-px text-sm rtl:space-x-reverse">
         <li>
           <button
@@ -163,16 +174,31 @@ const TablePagination = ({
             <GoChevronLeft />
           </button>
         </li>
-        {[...Array(Math.min(totalPages, steps)).keys()].map((page) => (
+        {prevPages.map((page) => (
           <li key={page}>
-            <button
-              onClick={() => onPageChange(page)}
-              className={twMerge(commonClasses, currentPage === page ? 'bg-gray-300 dark:bg-gray-600' : '')}
-            >
+            <button onClick={() => onPageChange(page)} className={commonClasses}>
               {page + 1}
             </button>
           </li>
         ))}
+
+        <li>
+          <button
+            onClick={() => onPageChange(currentPage)}
+            className={twMerge(commonClasses, 'bg-gray-300 dark:bg-gray-600')}
+          >
+            {currentPage + 1}
+          </button>
+        </li>
+
+        {nextPages.map((page) => (
+          <li key={page}>
+            <button onClick={() => onPageChange(page)} className={commonClasses}>
+              {page + 1}
+            </button>
+          </li>
+        ))}
+
         <li>
           <button
             disabled={currentPage === totalPages - 1}
@@ -197,4 +223,4 @@ const TablePagination = ({
 }
 
 export default Table
-export { TableHeaderCell, TableCell, TableRow, TableHeadRow, TableBody, TablePagination, Table }
+export { Table, TableBody, TableCell, TableHeadRow, TableHeaderCell, TablePagination, TableRow }

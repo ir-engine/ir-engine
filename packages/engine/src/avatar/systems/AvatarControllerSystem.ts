@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Vector3 } from 'three'
@@ -35,15 +35,13 @@ import {
   removeComponent,
   setComponent,
   UUIDComponent
-} from '@etherealengine/ecs'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
-import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@etherealengine/network'
-import { TransformComponent, TransformSystem } from '@etherealengine/spatial'
-import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
-import { DistanceFromLocalClientComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
-import { getDistanceSquaredFromTarget } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
+} from '@ir-engine/ecs'
+import { dispatchAction } from '@ir-engine/hyperflux'
+import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@ir-engine/network'
+import { TransformComponent, TransformSystem } from '@ir-engine/spatial'
+import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
+import { DistanceFromLocalClientComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
+import { getDistanceSquaredFromTarget } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -55,31 +53,16 @@ const controllerQuery = defineQuery([AvatarControllerComponent, NetworkObjectAut
 const execute = () => {
   const controlledEntities = controllerQuery()
 
-  for (const avatarEntity of controllerQuery.enter()) {
-    const controller = getComponent(avatarEntity, AvatarControllerComponent)
-
-    const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
-    setComponent(controller.cameraEntity, FollowCameraComponent, {
-      targetEntity: avatarEntity,
-      phi: targetCameraRotation.phi,
-      theta: targetCameraRotation.theta
-    })
-  }
-
   /** @todo non-immersive camera should utilize isCameraAttachedToAvatar */
-  if (!getState(XRControlsState).isCameraAttachedToAvatar)
-    for (const entity of controlledEntities) {
-      const controller = getComponent(entity, AvatarControllerComponent)
-      const followCamera = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
-      if (followCamera) {
-        // todo calculate head size and use that as the bound #7263
-        if (followCamera.distance < 0.3) setComponent(entity, AvatarHeadDecapComponent, true)
-        else removeComponent(entity, AvatarHeadDecapComponent)
-      }
-    }
-
   for (const entity of controlledEntities) {
     const controller = getComponent(entity, AvatarControllerComponent)
+
+    const followCamera = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
+    if (followCamera) {
+      // todo calculate head size and use that as the bound #7263
+      if (followCamera.distance < 0.3) setComponent(entity, AvatarHeadDecapComponent, true)
+      else removeComponent(entity, AvatarHeadDecapComponent)
+    }
 
     if (!controller.movementCaptured.length) {
       if (

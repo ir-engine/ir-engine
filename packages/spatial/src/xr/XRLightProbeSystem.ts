@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,30 +14,30 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
 import { Color, CubeTexture, LightProbe, Vector3, WebGLCubeRenderTarget } from 'three'
 
-import { Engine } from '@etherealengine/ecs'
-import { getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+import { Engine } from '@ir-engine/ecs'
+import { getComponent, getMutableComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
 import { Vector3_Zero } from '../common/constants/MathConstants'
-import { DirectionalLightComponent } from '../renderer/components/DirectionalLightComponent'
+import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../renderer/components/GroupComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
-import { RendererComponent } from '../renderer/WebGLRendererSystem'
+import { DirectionalLightComponent } from '../renderer/components/lights/DirectionalLightComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 import { XRSystem } from './XRSystem'
@@ -82,7 +82,7 @@ const updateReflection = () => {
 
   if (!xrLightProbeState.environment || !xrLightProbeState.xrWebGLBinding || !xrLightProbeState.probe) return
 
-  const textureProperties = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.properties.get(
+  const textureProperties = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.properties.get(
     xrLightProbeState.environment
   )
 
@@ -218,7 +218,7 @@ const reactor = () => {
       const cubeRenderTarget = new WebGLCubeRenderTarget(16)
       xrLightProbeState.environment.set(cubeRenderTarget.texture)
 
-      const gl = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.getContext()
+      const gl = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.getContext()
 
       // Ensure that we have any extensions needed to use the preferred cube map format.
       switch (session.preferredReflectionFormat) {

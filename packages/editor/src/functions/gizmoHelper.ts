@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Euler, Matrix4, Quaternion, Raycaster, Vector3 } from 'three'
@@ -33,24 +33,21 @@ import {
   getOptionalComponent,
   setComponent,
   UndefinedEntity
-} from '@etherealengine/ecs'
-import {
-  TransformAxis,
-  TransformMode,
-  TransformSpace
-} from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { Axis, Q_IDENTITY, Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+} from '@ir-engine/ecs'
+import { TransformAxis, TransformMode, TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
+import { getState, NO_PROXY } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { Axis, Q_IDENTITY, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
+import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from '../classes/TransformGizmoVisualComponent'
+import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
 import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -85,7 +82,6 @@ const _alignVector = new Vector3(0, 1, 0)
 const _lookAtMatrix = new Matrix4()
 const _dirVector = new Vector3()
 const _tempMatrix = new Matrix4()
-const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
 
 const _v1 = new Vector3()
 const _v2 = new Vector3()
@@ -105,6 +101,8 @@ export function gizmoUpdate(gizmoEntity) {
 
   const gizmo = getComponent(gizmoControl.visualEntity, TransformGizmoVisualComponent)
   if (gizmo === undefined) return
+
+  const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
 
   const factor = (camera as any).isOrthographicCamera
     ? ((camera as any).top - (camera as any).bottom) / camera.zoom
@@ -339,23 +337,28 @@ export function gizmoUpdate(gizmoEntity) {
 
     // highlight selected axis
 
+    //handle.material._color = handle.material._color || handle.material.uniforms.color.value
     handle.material._color = handle.material._color || handle.material.color.clone()
     handle.material._opacity = handle.material._opacity || handle.material.opacity
+
+    //setGizmogizmoMaterialProperties(handle.material , handle.material._color , handle.material._opacity, true)
 
     handle.material.color.copy(handle.material._color)
     handle.material.opacity = handle.material._opacity
 
     if (gizmoControl.enabled && gizmoControl.axis) {
       if (handle.name === gizmoControl.axis) {
-        handle.material.color.setHex(0xffff00)
-        handle.material.opacity = 1.0
+        //setGizmoMaterial(handle, GizmoMaterial.YELLOW)
+        handle.material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
+        handle.material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
       } else if (
         gizmoControl.axis.split('').some(function (a) {
           return handle.name === a
         })
       ) {
-        handle.material.color.setHex(0xffff00)
-        handle.material.opacity = 1.0
+        //setGizmoMaterial(handle, GizmoMaterial.YELLOW)
+        handle.material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
+        handle.material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
       }
     }
   }
@@ -427,6 +430,7 @@ export function planeUpdate(gizmoEntity) {
   }
   if (_dirVector.length() === 0) {
     // If in rotate mode, make the plane parallel to camera
+    const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
     setComponent(gizmoControl.planeEntity, TransformComponent, { rotation: camera.quaternion })
   } else {
     _tempMatrix.lookAt(Vector3_Zero, _dirVector, _alignVector)
@@ -465,6 +469,7 @@ export function controlUpdate(gizmoEntity: Entity) {
   else _parentQuaternionInv.set(0, 0, 0, 1).invert()
   _worldQuaternionInv.copy(getComponent(targetEntity, TransformComponent).rotation).invert()
 
+  const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
   if ((camera as any).isOrthographicCamera) {
     camera.getWorldDirection(gizmoControl.eye.value).negate()
   } else {
@@ -474,7 +479,7 @@ export function controlUpdate(gizmoEntity: Entity) {
 
 function pointerHover(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
@@ -487,6 +492,7 @@ function pointerHover(gizmoEntity) {
 
   if (targetEntity === UndefinedEntity || gizmoControlComponent.dragging.value === true) return
 
+  const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
   _raycaster.setFromCamera(pointerPosition, camera)
   const intersect = intersectObjectWithRay(picker, _raycaster, true)
 
@@ -499,7 +505,7 @@ function pointerHover(gizmoEntity) {
 
 function pointerDown(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointer = getComponent(inputPointerEntity, InputPointerComponent)
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
@@ -517,12 +523,15 @@ function pointerDown(gizmoEntity) {
     return
 
   if (gizmoControlComponent.axis.value !== null) {
+    const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
     _raycaster.setFromCamera(pointer.position, camera)
 
     const planeIntersect = intersectObjectWithRay(plane, _raycaster, true)
     if (planeIntersect) {
       const currenttransform = getComponent(targetEntity, TransformComponent)
-      currenttransform.matrix.decompose(_positionStart, _quaternionStart, _scaleStart)
+      _positionStart.copy(currenttransform.position)
+      _quaternionStart.copy(currenttransform.rotation)
+      _scaleStart.copy(currenttransform.scale)
       gizmoControlComponent.worldPositionStart.set(_positionStart)
       gizmoControlComponent.worldQuaternionStart.set(_quaternionStart)
 
@@ -663,6 +672,7 @@ function applyScale(entity, pointStart, pointEnd, axis, scaleSnap, pivotControll
 
 function applyRotation(entity, gizmoControlComponent, axis, space) {
   _offset.copy(gizmoControlComponent.pointEnd.value).sub(gizmoControlComponent.pointStart.value)
+  const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
 
   const ROTATION_SPEED =
     20 / gizmoControlComponent.worldPosition.value.distanceTo(_tempVector.setFromMatrixPosition(camera.matrixWorld))
@@ -756,7 +766,7 @@ function applyPivotRotation(entity, pivotToOriginMatrix, originToPivotMatrix, ro
 
 function pointerMove(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointer = getComponent(inputPointerEntity, InputPointerComponent)
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
@@ -786,6 +796,7 @@ function pointerMove(gizmoEntity) {
   )
     return
 
+  const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
   _raycaster.setFromCamera(pointer.position, camera)
 
   const planeIntersect = intersectObjectWithRay(plane, _raycaster, true)
@@ -886,25 +897,28 @@ function pointerMove(gizmoEntity) {
   }
 }
 
-function pointerUp(gizmoEntity) {
-  // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
-  if (!inputPointerEntity) return
-  const pointer = getComponent(inputPointerEntity, InputPointerComponent)
-
-  if (pointer.movement.length() !== 0) return
-
+export function onGizmoCommit(gizmoEntity) {
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControlComponent.dragging && gizmoControlComponent.axis !== null) {
     //check for snap modes
     if (!getState(ObjectGridSnapState).enabled) {
       EditorControlFunctions.commitTransformSave(gizmoControlComponent.controlledEntities.get(NO_PROXY) as Entity[])
     } else {
-      getMutableState(ObjectGridSnapState).apply.set(true)
+      ObjectGridSnapState.apply()
     }
   }
   gizmoControlComponent.dragging.set(false)
   gizmoControlComponent.axis.set(null)
+}
+
+function pointerUp(gizmoEntity) {
+  // TODO support gizmos in multiple viewports
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
+  if (!inputPointerEntity) return
+  const pointer = getComponent(inputPointerEntity, InputPointerComponent)
+
+  if (pointer.movement.length() !== 0) return
+  onGizmoCommit(gizmoEntity)
 }
 
 export function onPointerHover(gizmoEntity) {

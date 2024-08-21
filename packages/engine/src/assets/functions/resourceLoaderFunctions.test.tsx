@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,26 +14,26 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
 
-import { createEntity, destroyEngine } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { createEntity, destroyEngine } from '@ir-engine/ecs'
+import { createEngine } from '@ir-engine/ecs/src/Engine'
+import { getState } from '@ir-engine/hyperflux'
 import {
   ResourceManager,
   ResourceState,
   ResourceStatus,
   ResourceType
-} from '@etherealengine/spatial/src/resources/ResourceState'
+} from '@ir-engine/spatial/src/resources/ResourceState'
 
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
@@ -64,7 +64,6 @@ describe('resourceLoaderFunctions', () => {
         nonExistingUrl,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(false)
         },
@@ -89,7 +88,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(response.asset)
           assert(resourceState.resources[url].status === ResourceStatus.Loaded, 'Asset not loaded')
@@ -114,7 +112,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           ResourceManager.unload(url, entity)
           assert(resourceState.resources[url] === undefined, 'Asset not removed')
@@ -140,7 +137,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(resourceState.resources[url].references.length === 1, 'References not counted')
           assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
@@ -149,7 +145,6 @@ describe('resourceLoaderFunctions', () => {
             url,
             ResourceType.GLTF,
             entity2,
-            {},
             (response) => {
               assert(response.asset)
               assert(resourceState.resources[url].references.length === 2, 'References not counted')
@@ -190,7 +185,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(resourceState.resources[url].references.length === 1, 'References not counted')
           assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
@@ -199,7 +193,6 @@ describe('resourceLoaderFunctions', () => {
             url,
             ResourceType.GLTF,
             entity,
-            {},
             (response) => {
               assert(resourceState.resources[url].references.length === 2, 'References not counted')
               assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
@@ -241,7 +234,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(resourceState.resources[url] !== undefined, 'Asset not found')
           ResourceManager.unload(url, entity)
@@ -258,7 +250,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity2,
-        {},
         (response) => {
           assert(resourceState.resources[url] !== undefined, 'Asset not found')
           ResourceManager.unload(url, entity2)
@@ -283,7 +274,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(resourceState.resources[url])
           assert(resourceState.resources[url].assetRefs?.Mesh.length === 2)

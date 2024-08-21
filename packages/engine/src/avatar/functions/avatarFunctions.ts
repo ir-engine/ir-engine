@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,21 +14,21 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBoneList, VRMHumanoid } from '@pixiv/three-vrm'
 import { AnimationClip, AnimationMixer, Box3, Matrix4, Vector3 } from 'three'
 
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import config from '@etherealengine/common/src/config'
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import config from '@ir-engine/common/src/config'
+import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
   getComponent,
   getMutableComponent,
@@ -36,16 +36,16 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
-import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { XRState } from '@etherealengine/spatial/src/xr/XRState'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { ModelComponent } from '../../scene/components/ModelComponent'
@@ -59,7 +59,6 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
-import { ditherCalculationType, TransparencyDitheringComponent } from '../components/TransparencyDitheringComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { LocalAvatarState } from '../state/AvatarState'
 import { bindAnimationClipFromMixamo } from './retargetMixamoRig'
@@ -67,7 +66,7 @@ import { bindAnimationClipFromMixamo } from './retargetMixamoRig'
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
     userData: {
-      /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/7519 */
+      /** @deprecated see https://github.com/ir-engine/ir-engine/issues/7519 */
       retargeted?: boolean
     }
   }
@@ -77,28 +76,30 @@ declare module '@pixiv/three-vrm/types/VRM' {
 export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
   const scene = model.scene ?? model // FBX assets do not have 'scene' property
   if (!scene) return null!
-
-  //vrm1's vrm object is in the userData property
+  let foundModel = model
+  //sometimes, for some exporters, the vrm object is stored in the userData
   if (model.userData?.vrm instanceof VRM) {
-    return model.userData.vrm
+    if (model.userData.vrmMeta.metaVersion > 0) return model.userData.vrm
+    foundModel = model.userData.vrm
   }
 
   //vrm0 is an instance of the vrm object
-  if (model instanceof VRM) {
-    const bones = model.humanoid.rawHumanBones
-    model.humanoid.normalizedHumanBonesRoot.removeFromParent()
+  if (foundModel instanceof VRM) {
+    const bones = foundModel.humanoid.rawHumanBones
+    foundModel.humanoid.normalizedHumanBonesRoot.removeFromParent()
     bones.hips.node.rotateY(Math.PI)
     const humanoid = new VRMHumanoid(bones)
     const vrm = new VRM({
+      ...foundModel,
       humanoid,
-      scene: model.scene,
-      meta: { name: model.scene.children[0].name } as VRM1Meta
+      scene: foundModel.scene,
+      meta: { name: foundModel.scene.children[0].name } as VRM1Meta
     })
     if (!vrm.userData) vrm.userData = {}
     return vrm
   }
 
-  return avatarBoneMatching(model)
+  return avatarBoneMatching(foundModel)
 }
 
 export const isAvaturn = (url: string) => {
@@ -187,10 +188,6 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
  */
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  if (entity == selfAvatarEntity) {
-    setComponent(entity, TransparencyDitheringComponent[0], { calculationType: ditherCalculationType.worldTransformed })
-    setComponent(entity, TransparencyDitheringComponent[1], { calculationType: ditherCalculationType.localPosition })
-  }
 
   setComponent(entity, AvatarRigComponent, {
     normalizedRig: model.humanoid.normalizedHumanBones,
