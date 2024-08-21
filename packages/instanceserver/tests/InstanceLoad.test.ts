@@ -29,6 +29,7 @@ import assert from 'assert'
 import { ChildProcess } from 'child_process'
 import { v4 as uuidv4 } from 'uuid'
 
+import { API } from '@ir-engine/common'
 import {
   identityProviderPath,
   InstanceData,
@@ -37,7 +38,7 @@ import {
   RoomCode,
   UserID
 } from '@ir-engine/common/src/schema.type.module'
-import { destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
+import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { getState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { Application } from '@ir-engine/server-core/declarations'
@@ -66,7 +67,7 @@ describe('InstanceLoad', () => {
   })
 
   it('should load location', async () => {
-    const app = Engine.instance.api as Application
+    const app = API.instance as Application
     const loadLocation = onConnection(app)
 
     const type = 'guest'
