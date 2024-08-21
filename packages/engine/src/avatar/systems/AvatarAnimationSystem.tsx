@@ -73,7 +73,7 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
-import { retargetAnimationClip } from '../functions/retargetMixamoRig'
+import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { IKSerialization } from '../IKSerialization'
 import { LocalAvatarState } from '../state/AvatarState'
@@ -349,6 +349,7 @@ const Reactor = () => {
         })
         for (let i = 0; i < asset.animations.length; i++) {
           retargetAnimationClip(asset.animations[i], asset.scene)
+          bindAnimationClipFromMixamo(asset.animations[i])
         }
         //ensure animations are always placed in the scene
         asset.scene.animations = asset.animations

@@ -49,19 +49,19 @@ import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { getRootSpeed } from '../animation/AvatarAnimationGraph'
-import { preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
 import avatarBoneMatching from '../AvatarBoneMatching'
+import { getRootSpeed } from '../animation/AvatarAnimationGraph'
+import { preloadedAnimations } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
+import { VRMComponent } from '../components/VRMComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { LocalAvatarState } from '../state/AvatarState'
-import { bindAnimationClipFromMixamo } from './retargetMixamoRig'
 
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
@@ -212,17 +212,18 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   if (entity === selfAvatarEntity) getMutableState(LocalAvatarState).avatarReady.set(true)
 }
 
-export const retargetAvatarAnimations = (entity: Entity) => {
-  const rigComponent = getComponent(entity, AvatarRigComponent)
+export const setAvatarAnimations = (entity: Entity) => {
+  const vrm = getComponent(entity, VRMComponent)
   const manager = getState(AnimationState)
-  const animations = [] as AnimationClip[]
-  for (const key in manager.loadedAnimations) {
-    for (const animation of manager.loadedAnimations[key].animations)
-      animations.push(bindAnimationClipFromMixamo(animation, rigComponent.vrm))
+  for (const boneName of VRMHumanBoneList) {
+    const bone = vrm.humanoid.getNormalizedBoneNode(boneName)
+    if (bone) bone.name = boneName
   }
   setComponent(entity, AnimationComponent, {
-    animations: animations,
-    mixer: new AnimationMixer(rigComponent.vrm.humanoid.normalizedHumanBonesRoot)
+    animations: Object.values(manager.loadedAnimations)
+      .map((anim) => anim.animations)
+      .flat(),
+    mixer: new AnimationMixer(vrm.humanoid.normalizedHumanBonesRoot)
   })
 }
 

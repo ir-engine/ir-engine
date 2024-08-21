@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRM } from '@pixiv/three-vrm'
 import { AnimationClip, KeyframeTrack, Object3D, Quaternion, QuaternionKeyframeTrack, VectorKeyframeTrack } from 'three'
 
 import { mixamoVRMRigMap, recursiveHipsLookup } from '../AvatarBoneMatching'
@@ -72,8 +71,8 @@ export const retargetAnimationClip = (clip: AnimationClip, mixamoScene: Object3D
   }
 }
 
-/**Clones and binds a mixamo animation clip to a given VRM humanoid's normalized bones */
-export const bindAnimationClipFromMixamo = (clip: AnimationClip, vrm: VRM) => {
+/**Binds a mixamo animation clip to the VRM bone schema */
+export const bindAnimationClipFromMixamo = (clip: AnimationClip) => {
   const tracks = [] as KeyframeTrack[]
   for (let i = 0; i < clip.tracks.length; i++) {
     const trackClone = clip.tracks[i].clone()
@@ -81,13 +80,10 @@ export const bindAnimationClipFromMixamo = (clip: AnimationClip, vrm: VRM) => {
     const mixamoPrefix = trackSplitted[0].includes('mixamorig') ? '' : 'mixamorig'
     const mixamoBoneName = mixamoPrefix + trackSplitted[0]
     const vrmBoneName = mixamoVRMRigMap[mixamoBoneName]
-    const vrmNodeName = vrm.humanoid?.getNormalizedBoneNode(vrmBoneName)?.name
-
-    if (vrmNodeName != null) {
-      const propertyName = trackSplitted[1]
-      trackClone.name = `${vrmNodeName}.${propertyName}`
-      tracks.push(trackClone)
-    }
+    const propertyName = trackSplitted[1]
+    trackClone.name = `${vrmBoneName}.${propertyName}`
+    tracks.push(trackClone)
   }
-  return new AnimationClip(clip.name, clip.duration, tracks)
+  clip.tracks = tracks
+  return clip
 }

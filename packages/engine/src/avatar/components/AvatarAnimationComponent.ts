@@ -67,7 +67,7 @@ import { AnimationState } from '../AnimationManager'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { preloadedAnimations } from '../animation/Util'
 import {
-  retargetAvatarAnimations,
+  setAvatarAnimations,
   setAvatarSpeedFromRootMotion,
   setupAvatarForUser,
   setupAvatarProportions
@@ -184,7 +184,7 @@ export const AvatarRigComponent = defineComponent({
       const rig = getComponent(entity, AvatarRigComponent)
       try {
         setupAvatarForUser(entity, rig.vrm)
-        retargetAvatarAnimations(entity)
+        setAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
         if (entity === AvatarComponent.getSelfAvatarEntity()) AvatarState.selectRandomAvatar()
@@ -335,8 +335,6 @@ const legAngle = new Euler(0, 0, Math.PI)
 const rightShoulderAngle = new Euler(Math.PI / 2, 0, Math.PI / 2)
 const leftShoulderAngle = new Euler(Math.PI / 2, 0, -Math.PI / 2)
 export const enforceTPose = (bones: VRMHumanBones) => {
-  console.log('enforcing T pose', bones)
-
   bones.rightShoulder!.node.quaternion.setFromEuler(rightShoulderAngle)
   iterateEntityNode(bones.rightShoulder!.node.entity, (entity) => {
     getComponent(entity, BoneComponent).matrixWorld.makeRotationFromEuler(rightShoulderAngle)
