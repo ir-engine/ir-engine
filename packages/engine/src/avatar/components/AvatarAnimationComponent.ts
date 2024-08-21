@@ -160,6 +160,7 @@ export const AvatarRigComponent = defineComponent({
     useEffect(() => {
       if (gltfComponent?.progress?.value !== 100) return
       const vrm = createVRM(entity)
+      setupAvatarProportions(entity, vrm)
       rigComponent.vrm.set(vrm)
     }, [gltfComponent?.progress?.value])
 
@@ -249,8 +250,6 @@ export default function createVRM(rootEntity: Entity) {
       // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
     })
 
-    setupAvatarProportions(rootEntity, vrm)
-
     return vrm
   }
 
@@ -328,8 +327,6 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   if (!vrm.userData) vrm.userData = {}
   humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
   humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
-
-  setupAvatarProportions(rootEntity, vrm)
 
   return vrm
 }
