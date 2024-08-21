@@ -70,7 +70,6 @@ import {
   SkinnedMesh,
   Sphere,
   Texture,
-  TextureLoader,
   Vector2,
   Vector3,
   VectorKeyframeTrack
@@ -95,6 +94,7 @@ import {
 } from '../assets/loaders/gltf/GLTFLoaderFunctions'
 import { GLTFParserOptions, GLTFRegistry, getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
 import { KTX2Loader } from '../assets/loaders/gltf/KTX2Loader'
+import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
