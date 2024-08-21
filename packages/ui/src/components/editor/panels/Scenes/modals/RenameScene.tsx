@@ -30,7 +30,7 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
-import { renameScene } from '@ir-engine/editor/src/functions/sceneFunctions'
+import { renameScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import Input from '../../../../../primitives/tailwind/Input'

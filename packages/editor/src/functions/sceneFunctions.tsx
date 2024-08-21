@@ -28,7 +28,7 @@ import i18n from 'i18next'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
-import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
 import { EntityUUID, UUIDComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -40,47 +40,11 @@ import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { tryStopPlayMode } from '@ir-engine/spatial/src/common/functions/PlayModeFunctions'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { Params } from '@feathersjs/feathers'
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
+import { createScene } from '@ir-engine/client-core/src/world/SceneAPI'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
-
-/**
- * deleteScene used to delete project using projectId.
- *
- * @param  {string}  sceneId
- * @return {Promise}
- */
-export const deleteScene = async (sceneKey: string): Promise<any> => {
-  try {
-    await API.instance.service(fileBrowserPath).remove(sceneKey)
-  } catch (error) {
-    logger.error(error, 'Error in deleting project')
-    throw error
-  }
-  return true
-}
-
-export const renameScene = async (
-  resource: StaticResourceType,
-  newKey: string,
-  projectName: string,
-  params?: Params
-) => {
-  const oldPath = resource.key
-  const newPath = newKey
-  const oldName = resource.key.split('/').pop()!
-  const newName = newKey.split('/').pop()!
-  try {
-    return await API.instance
-      .service(fileBrowserPath)
-      .update(null, { oldProject: projectName, newProject: projectName, oldPath, newPath, oldName, newName }, params)
-  } catch (error) {
-    logger.error(error, 'Error in renaming project')
-    throw error
-  }
-}
 
 const fileServer = config.client.fileServer
 
@@ -151,21 +115,6 @@ export const saveSceneGLTF = async (
     projectName,
     sceneAssetID: result.data[0].id
   })
-}
-
-export const createScene = async (
-  projectName: string,
-  templateURL = config.client.fileServer + '/projects/ir-engine/default-project/public/scenes/default.gltf'
-) => {
-  const sceneData = await API.instance.service(fileBrowserPath).patch(null, {
-    project: projectName,
-    type: 'scene',
-    body: templateURL,
-    path: 'public/scenes/New-Scene.gltf',
-    thumbnailKey: templateURL.replace(`${config.client.fileServer}/`, '').replace('.gltf', '.thumbnail.jpg'),
-    unique: true
-  })
-  return sceneData
 }
 
 export const onNewScene = async (

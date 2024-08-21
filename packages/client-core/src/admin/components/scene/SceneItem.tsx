@@ -26,7 +26,7 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import { useClickOutside } from '@ir-engine/common/src/utils/useClickOutside'
-import { deleteScene } from '@ir-engine/editor/src/functions/sceneFunctions'
+import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import RenameSceneModal from '@ir-engine/ui/src/components/editor/panels/Scenes/modals/RenameScene'
