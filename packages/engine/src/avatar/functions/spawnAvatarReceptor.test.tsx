@@ -28,6 +28,7 @@ import assert from 'assert'
 import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 
+import { API } from '@ir-engine/common'
 import { AvatarID, UserID } from '@ir-engine/common/src/schema.type.module'
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -59,7 +60,7 @@ describe('spawnAvatarReceptor', () => {
     initializeSpatialEngine()
     Engine.instance.store.defaultDispatchDelay = () => 0
     await Physics.load()
-    Engine.instance.userID = 'user' as UserID
+    Engine.instance.store.userID = 'user' as UserID
     sceneEntity = loadEmptyScene()
 
     setComponent(sceneEntity, SceneComponent)
@@ -69,7 +70,7 @@ describe('spawnAvatarReceptor', () => {
     createMockNetwork()
 
     const eventDispatcher = new EventDispatcher()
-    ;(Engine.instance.api as any) = {
+    ;(API.instance as any) = {
       service: () => {
         return {
           on: (serviceName, cb) => {
