@@ -69,7 +69,7 @@
     "init-db-production": "cross-env APP_ENV=production FORCE_DB_REFRESH=true EXIT_ON_DB_INIT=true ts-node --swc packages/server/src/index.ts",
     "install-manifest": "cross-env ts-node --swc scripts/install-manifest.ts",
     "lint": "prettier --check \"packages/**/*.{ts,tsx}\"",
-    "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true LOCAL=true concurrently -n agones,server,worldserver,mediaserver,client npm:dev-agones-silent \"cd packages/server && npm run start\" \"cd packages/instanceserver && npm run start\" \"cd packages/instanceserver && npm run start-channel\" \"cd packages/client && npm run local\"",
+    "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true LOCAL=true concurrently -n agones,server,worldserver,mediaserver npm:dev-agones-silent \"cd packages/server && npm run start\" \"cd packages/instanceserver && npm run start\" \"cd packages/instanceserver && npm run start-channel\" ",
     "make-user-admin": "cross-env ts-node --swc scripts/make-user-admin.ts",
     "migrate": "cd packages/server-core && npm run migrate",
     "migrate:rollback": "cd packages/server-core && npm run migrate:rollback",

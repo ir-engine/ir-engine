@@ -36,6 +36,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgr from 'vite-plugin-svgr'
 
 import appRootPath from 'app-root-path'
+import { getProjectsFSList } from '../server-core/src/util/getProjectsFSList'
 import manifest from './manifest.default.json'
 import packageJson from './package.json'
 import PWA from './pwa.config'
@@ -125,13 +126,16 @@ import('ts-node').then((tsnode) => {
   })
 })
 
+const projects = getProjectsFSList()
+
 const getProjectConfigExtensions = async (config: UserConfig) => {
-  const projects = fs
-    .readdirSync(path.resolve(__dirname, '../projects/projects/'), { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name)
   for (const project of projects) {
-    const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'vite.config.extension.ts')
+    const staticPath = path.resolve(
+      appRootPath.path,
+      `packages/projects/projects/`,
+      project,
+      'vite.config.extension.ts'
+    )
     if (fs.existsSync(staticPath)) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -153,6 +157,17 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
     }
   }
   return config as UserConfig
+}
+
+const getProjectsWithConfigs = () => {
+  const projectConfigs = [] as string[]
+  for (const project of projects) {
+    const staticPath = path.resolve(appRootPath.path, `packages/projects/projects/`, project, 'xrengine.config.ts')
+    if (fs.existsSync(staticPath)) {
+      projectConfigs.push(project)
+    }
+  }
+  return projectConfigs
 }
 
 // https://github.com/google/mediapipe/issues/4120
@@ -228,12 +243,14 @@ const resetSWFiles = () => {
   deleteDirFilesUsingPattern(/workbox-/, './public/')
 }
 
-export default defineConfig(async () => {
+export default defineConfig(async ({ command }) => {
   dotenv.config({
     path: packageRoot.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
   const coilSetting = await getCoilSetting()
+
+  const projectsWithConfigs = getProjectsWithConfigs()
 
   resetSWFiles()
 
@@ -326,9 +343,13 @@ export default defineConfig(async () => {
       viteCommonjs({
         include: ['use-sync-external-store']
       }),
-      importMap(isDevOrLocal ? 'development' : 'production', {
-        'default-project': path.resolve(appRootPath.path, 'packages/projects/projects/default-project/src/index.ts')
-      })
+      importMap(
+        command,
+        projectsWithConfigs.reduce((acc, project) => {
+          acc[project] = path.resolve(appRootPath.path, `packages/projects/projects/${project}/xrengine.config.ts`)
+          return acc
+        }, {})
+      )
     ].filter(Boolean),
     resolve: {
       alias: {

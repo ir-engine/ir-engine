@@ -44,19 +44,11 @@ import ScopeService from './scope/service'
 import SettingService from './setting/service'
 import SocialServices from './social/services'
 import UserServices from './user/services'
+import { getProjectsFSList } from './util/getProjectsFSList'
 import WorldServices from './world/services'
 
 const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
-  ? fs
-      .readdirSync(path.resolve(__dirname, '../../projects/projects'), { withFileTypes: true })
-      .filter((orgDir) => orgDir.isDirectory())
-      .map((orgDir) => {
-        return fs
-          .readdirSync(path.resolve(__dirname, '../../projects/projects', orgDir.name), { withFileTypes: true })
-          .filter((projectDir) => projectDir.isDirectory())
-          .map((projectDir) => `${orgDir.name}/${projectDir.name}`)
-      })
-      .flat()
+  ? getProjectsFSList()
       .map((projectName) => {
         try {
           const configPath = `../../projects/projects/${projectName}/xrengine.config.ts`

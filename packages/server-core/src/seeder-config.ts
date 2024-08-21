@@ -39,18 +39,10 @@ import { scopeSeeds } from './scope/seeder-config'
 import { settingSeeds } from './setting/seeder-config'
 import { socialSeeds } from './social/seeder-config'
 import { userSeeds } from './user/seeder-config'
+import { getProjectsFSList } from './util/getProjectsFSList'
 
 const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
-  ? fs
-      .readdirSync(path.resolve(__dirname, '../../projects/projects'), { withFileTypes: true })
-      .filter((orgDir) => orgDir.isDirectory())
-      .map((orgDir) => {
-        return fs
-          .readdirSync(path.resolve(__dirname, '../../projects/projects', orgDir.name), { withFileTypes: true })
-          .filter((projectDir) => projectDir.isDirectory())
-          .map((projectDir) => `${orgDir.name}/${projectDir.name}`)
-      })
-      .flat()
+  ? getProjectsFSList()
       .map((projectName) => {
         try {
           const configPath = `../../projects/projects/${projectName}/xrengine.config.ts`
