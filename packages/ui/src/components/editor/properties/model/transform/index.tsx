@@ -28,12 +28,7 @@ import { DoubleSide, Mesh } from 'three'
 
 import { API } from '@ir-engine/common'
 import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
-import {
-  ComponentType,
-  getMutableComponent,
-  hasComponent,
-  useComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { ComponentType, getMutableComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import exportGLTF from '@ir-engine/editor/src/functions/exportGLTF'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'

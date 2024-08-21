@@ -29,12 +29,7 @@ import { useEffect } from 'react'
 
 import { API } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
-import {
-  UserID,
-  UserName,
-  userRelationshipPath,
-  UserRelationshipType
-} from '@ir-engine/common/src/schema.type.module'
+import { UserID, UserName, userRelationshipPath, UserRelationshipType } from '@ir-engine/common/src/schema.type.module'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'

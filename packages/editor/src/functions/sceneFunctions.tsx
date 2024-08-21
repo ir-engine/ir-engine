@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import i18n from 'i18next'
 
+import { createScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
@@ -42,7 +43,6 @@ import { tryStopPlayMode } from '@ir-engine/spatial/src/common/functions/PlayMod
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
-import { createScene } from '@ir-engine/client-core/src/world/SceneAPI'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 

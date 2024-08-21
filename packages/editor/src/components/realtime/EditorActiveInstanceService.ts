@@ -28,6 +28,7 @@ import {
   LocationInstanceState
 } from '@ir-engine/client-core/src/common/services/LocationInstanceConnectionService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { API } from '@ir-engine/common'
 import logger from '@ir-engine/common/src/logger'
 import {
   InstanceActiveType,
@@ -36,7 +37,6 @@ import {
   instanceActivePath,
   instanceProvisionPath
 } from '@ir-engine/common/src/schema.type.module'
-import { API } from '@ir-engine/common'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 
 export const EditorActiveInstanceState = defineState({

@@ -32,14 +32,7 @@ import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { EntityUUID, getOptionalComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
-import {
-  defineState,
-  dispatchAction,
-  getMutableState,
-  none,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
+import { defineState, dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { WorldNetworkAction } from '@ir-engine/network'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 

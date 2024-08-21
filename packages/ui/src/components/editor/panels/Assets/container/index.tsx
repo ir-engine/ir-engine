@@ -31,11 +31,7 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { API } from '@ir-engine/common'
-import {
-  StaticResourceQuery,
-  StaticResourceType,
-  staticResourcePath
-} from '@ir-engine/common/src/schema.type.module'
+import { StaticResourceQuery, StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { AssetsPanelCategories } from '@ir-engine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
 import { FilesViewModeSettings } from '@ir-engine/editor/src/components/assets/FileBrowser/FileBrowserState'

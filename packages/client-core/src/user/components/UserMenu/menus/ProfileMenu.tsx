@@ -70,6 +70,7 @@ import { useUserHasAccessHook } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
+import { API } from '@ir-engine/common'
 
 const termsOfService = config.client.tosAddress ?? '/terms-of-service'
 
