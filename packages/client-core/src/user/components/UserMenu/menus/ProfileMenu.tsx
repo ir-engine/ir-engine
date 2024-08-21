@@ -58,7 +58,7 @@ import FormControlLabel from '@ir-engine/ui/src/primitives/mui/FormControlLabel'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 
-import { Engine } from '@ir-engine/ecs'
+import { API } from '@ir-engine/common'
 import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
@@ -117,7 +117,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
   useEffect(() => {
     if (!originallyAcceptedTOS.value && checked18OrOver.value) {
-      Engine.instance.api
+      API.instance
         .service(userPath)
         .patch(userId, { acceptedTOS: true })
         .then(() => {

@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 import React, { useEffect, useLayoutEffect } from 'react'
 
+import { API } from '@ir-engine/common'
 import { AvatarID, avatarPath, AvatarType, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
 import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { EntityUUID, getOptionalComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
@@ -67,7 +68,7 @@ export const AvatarState = defineState({
   },
 
   selectRandomAvatar() {
-    Engine.instance.api
+    API.instance
       .service(avatarPath)
       .find({})
       .then((avatars: Paginated<AvatarType>) => {
@@ -77,7 +78,7 @@ export const AvatarState = defineState({
   },
 
   updateUserAvatarId(avatarId: AvatarID) {
-    Engine.instance.api
+    API.instance
       .service(userAvatarPath)
       .patch(null, { avatarId: avatarId }, { query: { userId: Engine.instance.userID } })
       .then(() => {
@@ -115,7 +116,7 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   useEffect(() => {
     let aborted = false
 
-    Engine.instance.api
+    API.instance
       .service(avatarPath)
       .get(avatarID.value!)
       .then((avatarDetails) => {

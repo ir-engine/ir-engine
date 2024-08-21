@@ -27,9 +27,9 @@ import { Paginated } from '@feathersjs/feathers'
 import i18n from 'i18next'
 import { useEffect } from 'react'
 
+import { API } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
 import { UserID, UserName, userRelationshipPath, UserRelationshipType } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
@@ -53,7 +53,7 @@ export const FriendService = {
     try {
       getMutableState(FriendState).isFetching.set(true)
 
-      const relationships = (await Engine.instance.api.service(userRelationshipPath).find({
+      const relationships = (await API.instance.service(userRelationshipPath).find({
         query: {
           userId,
           $limit: 100
@@ -70,7 +70,7 @@ export const FriendService = {
   },
   acceptFriend: async (userId: UserID, relatedUserId: UserID) => {
     try {
-      await Engine.instance.api.service(userRelationshipPath).patch(relatedUserId, {
+      await API.instance.service(userRelationshipPath).patch(relatedUserId, {
         userRelationshipType: 'friend'
       })
 
@@ -124,14 +124,14 @@ export const FriendService = {
         FriendService.getUserRelationship(selfUser.id)
       }
 
-      Engine.instance.api.service(userRelationshipPath).on('created', userRelationshipCreatedListener)
-      Engine.instance.api.service(userRelationshipPath).on('patched', userRelationshipPatchedListener)
-      Engine.instance.api.service(userRelationshipPath).on('removed', userRelationshipRemovedListener)
+      API.instance.service(userRelationshipPath).on('created', userRelationshipCreatedListener)
+      API.instance.service(userRelationshipPath).on('patched', userRelationshipPatchedListener)
+      API.instance.service(userRelationshipPath).on('removed', userRelationshipRemovedListener)
 
       return () => {
-        Engine.instance.api.service(userRelationshipPath).off('created', userRelationshipCreatedListener)
-        Engine.instance.api.service(userRelationshipPath).off('patched', userRelationshipPatchedListener)
-        Engine.instance.api.service(userRelationshipPath).off('removed', userRelationshipRemovedListener)
+        API.instance.service(userRelationshipPath).off('created', userRelationshipCreatedListener)
+        API.instance.service(userRelationshipPath).off('patched', userRelationshipPatchedListener)
+        API.instance.service(userRelationshipPath).off('removed', userRelationshipRemovedListener)
       }
     }, [])
   }
@@ -139,7 +139,7 @@ export const FriendService = {
 
 async function createRelation(userId: UserID, relatedUserId: UserID, type: 'requested' | 'blocking') {
   try {
-    await Engine.instance.api.service(userRelationshipPath).create({
+    await API.instance.service(userRelationshipPath).create({
       relatedUserId,
       userRelationshipType: type,
       userId: '' as UserID
@@ -153,7 +153,7 @@ async function createRelation(userId: UserID, relatedUserId: UserID, type: 'requ
 
 async function removeRelation(userId: UserID, relatedUserId: UserID) {
   try {
-    await Engine.instance.api.service(userRelationshipPath).remove(relatedUserId)
+    await API.instance.service(userRelationshipPath).remove(relatedUserId)
 
     FriendService.getUserRelationship(userId)
   } catch (err) {

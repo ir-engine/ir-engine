@@ -30,8 +30,8 @@ import { useTranslation } from 'react-i18next'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { API } from '@ir-engine/common'
 import { StaticResourceQuery, StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@ir-engine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
 import { FilesViewModeSettings } from '@ir-engine/editor/src/components/assets/FileBrowser/FileBrowserState'
@@ -529,7 +529,7 @@ const AssetPanel = () => {
         $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
       } as StaticResourceQuery
 
-      Engine.instance.api
+      API.instance
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {

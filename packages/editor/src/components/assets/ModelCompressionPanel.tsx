@@ -27,10 +27,10 @@ import React, { useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Group, LoaderUtils } from 'three'
 
+import { API } from '@ir-engine/common'
 import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
 import { createEntity, Entity, generateEntityUUID, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import {
   DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
@@ -111,7 +111,7 @@ export const createLODVariants = async (
         transformMetadata[i][key] = data
       })
     } else {
-      await Engine.instance.api.service(modelTransformPath).create(variant)
+      await API.instance.service(modelTransformPath).create(variant)
     }
   }
 

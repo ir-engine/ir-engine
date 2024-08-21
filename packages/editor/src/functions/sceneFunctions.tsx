@@ -25,62 +25,25 @@ Infinite Reality Engine. All Rights Reserved.
 
 import i18n from 'i18next'
 
-import { Params } from '@feathersjs/feathers'
+import { createScene } from '@ir-engine/client-core/src/world/SceneAPI'
+import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
-import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
 import { EntityUUID, UUIDComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { handleScenePaths } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { tryStopPlayMode } from '@ir-engine/spatial/src/common/functions/PlayModeFunctions'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
-
-/**
- * deleteScene used to delete project using projectId.
- *
- * @param  {string}  sceneId
- * @return {Promise}
- */
-export const deleteScene = async (sceneKey: string): Promise<any> => {
-  try {
-    await Engine.instance.api.service(fileBrowserPath).remove(sceneKey)
-  } catch (error) {
-    logger.error(error, 'Error in deleting project')
-    throw error
-  }
-  return true
-}
-
-export const renameScene = async (
-  resource: StaticResourceType,
-  newKey: string,
-  projectName: string,
-  params?: Params
-) => {
-  const oldPath = resource.key
-  const newPath = newKey
-  const oldName = resource.key.split('/').pop()!
-  const newName = newKey.split('/').pop()!
-  try {
-    return await Engine.instance.api
-      .service(fileBrowserPath)
-      .update(null, { oldProject: projectName, newProject: projectName, oldPath, newPath, oldName, newName }, params)
-  } catch (error) {
-    logger.error(error, 'Error in renaming project')
-    throw error
-  }
-}
 
 const fileServer = config.client.fileServer
 
@@ -100,7 +63,7 @@ export const saveSceneGLTF = async (
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
 
   if (saveAs) {
-    const existingScene = await Engine.instance.api.service(staticResourcePath).find({
+    const existingScene = await API.instance.service(staticResourcePath).find({
       query: { key: `${currentSceneDirectory}/${sceneName}.gltf`, $limit: 1 }
     })
 
@@ -115,7 +78,7 @@ export const saveSceneGLTF = async (
   const blob = [JSON.stringify(encodedGLTF, null, 2)]
   const file = new File(blob, `${sceneName}.gltf`)
 
-  const currentScene = await Engine.instance.api.service(staticResourcePath).get(sceneAssetID)
+  const currentScene = await API.instance.service(staticResourcePath).get(sceneAssetID)
 
   const [[newPath]] = await Promise.all(
     uploadProjectFiles(
@@ -137,7 +100,7 @@ export const saveSceneGLTF = async (
   newURL.search = ''
   const assetURL = newURL.href.replace(fileServer, '').slice(1) // remove leading slash
 
-  const result = await Engine.instance.api.service(staticResourcePath).find({
+  const result = await API.instance.service(staticResourcePath).find({
     query: { key: assetURL, $limit: 1 }
   })
 
@@ -151,21 +114,6 @@ export const saveSceneGLTF = async (
     projectName,
     sceneAssetID: result.data[0].id
   })
-}
-
-export const createScene = async (
-  projectName: string,
-  templateURL = config.client.fileServer + '/projects/ir-engine/default-project/public/scenes/default.gltf'
-) => {
-  const sceneData = await Engine.instance.api.service(fileBrowserPath).patch(null, {
-    project: projectName,
-    type: 'scene',
-    body: templateURL,
-    path: 'public/scenes/New-Scene.gltf',
-    thumbnailKey: templateURL.replace(`${config.client.fileServer}/`, '').replace('.gltf', '.thumbnail.jpg'),
-    unique: true
-  })
-  return sceneData
 }
 
 export const onNewScene = async (
@@ -191,7 +139,6 @@ export const onNewScene = async (
 }
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
-  tryStopPlayMode()
   const gltfEntity = GLTFSourceState.load(sceneURL, uuid, getState(EngineState).originEntity)
   setComponent(gltfEntity, SceneComponent)
   getMutableState(EditorState).rootEntity.set(gltfEntity)
