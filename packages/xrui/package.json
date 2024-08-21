@@ -5,14 +5,14 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/ecs.cjs",
-  "module": "./dist/ecs.js",
+  "main": "./dist/xrui.cjs",
+  "module": "./dist/xrui.js",
   "exports": {
     ".": {
-      "types": "./dist/ecs.d.ts",
-      "import": "./dist/ecs.js",
-      "default": "./dist/ecs.js",
-      "require": "./dist/ecs.cjs"
+      "types": "./dist/xrui.d.ts",
+      "import": "./dist/xrui.js",
+      "default": "./dist/xrui.js",
+      "require": "./dist/xrui.cjs"
     }
   },
   "description": "A set of utilities for using DOM elements to create immerive user interfaces",
@@ -48,7 +48,6 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "build": "tsc && rimraf dist && rollup -c",
-    "build:worker": "esbuild src/textures/KTX2Worker.ts --bundle --format=esm --outfile=src/textures/KTX2Worker.bundle.js --loader:.wasm=binary",
     "test": "cross-env TEST=true mocha --config .mocharc.cjs"
   },
   "dependencies": {
@@ -58,6 +57,7 @@
     "msgpackr": "^1.8.5"
   },
   "devDependencies": {
+    "@rollup/plugin-wasm": "^6.2.2",
     "@types/node": "18.15.5",
     "cross-env": "^7.0.3",
     "esbuild": "0.17.12",

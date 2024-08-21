@@ -27,6 +27,8 @@ Ethereal Engine. All Rights Reserved.
 import dts from 'rollup-plugin-dts'
 import esbuild from 'rollup-plugin-esbuild'
 import typescript from '@rollup/plugin-typescript'
+import { wasm } from '@rollup/plugin-wasm';
+
 
 // import fs from 'fs'
 // import {resolve} from 'path'
@@ -49,6 +51,17 @@ const inputFile = `src/index.ts`
 const packageName = "xrui"
 
 export default [
+  {
+    input: "./src/textures/KTX2Worker.ts",
+    plugins: [typescript({exclude: ["**/*.test.ts"]}), wasm(), esbuild({minify: true, loaders:".wasm=binary"})],
+    output: [
+      {
+        file: `dist/KTX2Worker.bundle.js`,
+        format: 'es',
+        ...productionConfig
+      },
+    ]
+  },
   {
     input: inputFile,
     plugins: [typescript({exclude: ["**/*.test.ts"]}), customBuild()],
