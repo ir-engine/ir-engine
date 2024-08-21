@@ -29,10 +29,6 @@ import { defineState } from '@ir-engine/hyperflux'
 export const EngineState = defineState({
   name: 'EngineState',
   initial: {
-    /**
-     * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
-     */
-    publicPath: '',
     /** @deprecated use isEditing instead */
     isEditor: false,
     isEditing: false,
