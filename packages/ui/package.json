@@ -1,19 +1,19 @@
 {
-  "name": "@etherealengine/ui",
+  "name": "@ir-engine/ui",
   "version": "1.6.0",
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
-  "homepage": "https://github.com/etherealengine/etherealengine#readme",
+  "homepage": "https://github.com/ir-engine/ir-engine#readme",
   "author": {
-    "name": "Ethereal Engine Collective",
-    "email": "hello@etherealengine.org",
-    "url": "http://github.com/etherealengine"
+    "name": "Infinite Reality Engine Collective",
+    "email": "hello@ir-engine.org",
+    "url": "http://github.com/ir-engine"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/etherealengine/etherealengine.git"
+    "url": "git://github.com/ir-engine/ir-engine.git"
   },
   "bugs": {
-    "url": "https://github.com/etherealengine/etherealengine/issues"
+    "url": "https://github.com/ir-engine/ir-engine/issues"
   },
   "engines": {
     "node": ">= 18.12.0"
@@ -39,10 +39,10 @@
   "dependencies": {
     "@emotion/react": "11.10.6",
     "@emotion/styled": "11.10.6",
-    "@etherealengine/common": "^1.6.0",
-    "@etherealengine/engine": "^1.6.0",
-    "@etherealengine/hyperflux": "^1.6.0",
-    "@etherealengine/projects": "^1.6.0",
+    "@ir-engine/common": "^1.6.0",
+    "@ir-engine/engine": "^1.6.0",
+    "@ir-engine/hyperflux": "^1.6.0",
+    "@ir-engine/projects": "^1.6.0",
     "@mui/icons-material": "5.15.15",
     "@mui/material": "5.11.13",
     "@pixiv/three-vrm": "^2.0.6",
