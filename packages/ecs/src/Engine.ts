@@ -30,7 +30,7 @@ import { Cache } from 'three'
 import { API } from '@ir-engine/common'
 import * as Hyperflux from '@ir-engine/hyperflux'
 import { getState, NO_PROXY_STEALTH, ReactorReconciler } from '@ir-engine/hyperflux'
-import { disposeStore, HyperFlux, HyperStore } from '@ir-engine/hyperflux/functions/StoreFunctions'
+import { createHyperStore, disposeStore, HyperFlux, HyperStore } from '@ir-engine/hyperflux/functions/StoreFunctions'
 
 import { ECSState } from './ECSState'
 import { Entity } from './Entity'
@@ -84,10 +84,9 @@ export class Engine {
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
-export function createEngine() {
+export function createEngine(hyperstore = createHyperStore({ publicPath: '' })) {
   if (Engine.instance) throw new Error('Store already exists')
   Engine.instance = new Engine()
-  const hyperstore = HyperFlux.store
   hyperstore.getCurrentReactorRoot = () =>
     getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
   hyperstore.getDispatchTime = () => getState(ECSState).simulationTime

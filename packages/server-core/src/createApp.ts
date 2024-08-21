@@ -174,8 +174,7 @@ export const createFeathersKoaApp = (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
 ): Application => {
-  createHyperStore({ publicPath: config.client.dist })
-  createEngine()
+  createEngine(createHyperStore({ publicPath: config.client.dist }))
 
   const serverState = getMutableState(ServerState)
   serverState.serverMode.set(serverMode)
