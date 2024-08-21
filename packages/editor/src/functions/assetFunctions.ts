@@ -28,9 +28,9 @@ import {
   CancelableUploadPromiseReturnType,
   uploadToFeathersService
 } from '@ir-engine/client-core/src/util/upload'
+import { API } from '@ir-engine/common'
 import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { processFileName } from '@ir-engine/common/src/utils/processFileName'
-import { Engine } from '@ir-engine/ecs'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
 
 import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
@@ -113,9 +113,9 @@ export const uploadProjectFiles = (projectName: string, files: File[], paths: st
 
 export async function clearModelResources(projectName: string, modelName: string) {
   const resourcePath = `projects/${projectName}/assets/${modelResourcesPath(modelName)}`
-  const exists = await Engine.instance.api.service(fileBrowserPath).get(resourcePath)
+  const exists = await API.instance.service(fileBrowserPath).get(resourcePath)
   if (exists) {
-    await Engine.instance.api.service(fileBrowserPath).remove(resourcePath)
+    await API.instance.service(fileBrowserPath).remove(resourcePath)
   }
 }
 
@@ -188,7 +188,7 @@ export const getEntries = async (directoryReader: FileSystemDirectoryReader): Pr
 export const extractZip = async (path: string): Promise<any> => {
   try {
     const params = { path: path }
-    await Engine.instance.api.service(assetLibraryPath).create(params)
+    await API.instance.service(assetLibraryPath).create(params)
   } catch (err) {
     console.error('error extracting zip: ', err)
   }
