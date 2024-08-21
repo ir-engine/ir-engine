@@ -1,7 +1,7 @@
 {
-  "name": "Ethereal Engine",
+  "name": "Infinite Reality Engine",
   "start_url":"/",
-  "id": "EtherealEngine",
+  "id": "IREngine",
   "short_name": "EE",
   "description": "Connected Worlds for Everyone",
   "theme_color": "#ffffff",
