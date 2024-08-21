@@ -27,6 +27,9 @@ import { t } from 'i18next'
 import React, { Suspense, useRef } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
+import '../../engine'
+
+import Debug from '@ir-engine/client-core/src/components/Debug'
 import { useEngineInjection } from '@ir-engine/client-core/src/components/World/EngineHooks'
 import { useEngineCanvas } from '@ir-engine/client-core/src/hooks/useEngineCanvas'
 import LocationPage from '@ir-engine/client-core/src/world/Location'
@@ -48,6 +51,7 @@ const LocationRoutes = () => {
       <Routes>
         <Route path=":locationName" element={<LocationPage online />} />
       </Routes>
+      <Debug />
     </Suspense>
   )
 }

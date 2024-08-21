@@ -24,10 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
-import { Engine, Entity, createEntity, entityExists, getComponent, removeEntity, setComponent } from '@ir-engine/ecs'
+import { Entity, createEntity, entityExists, getComponent, removeEntity, setComponent } from '@ir-engine/ecs'
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
@@ -47,6 +48,7 @@ import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
+
 export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
@@ -84,7 +86,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
       getMutableState(SelectionState).selectedEntities.set([])
       await exportRelativeGLTF(prefabEntity, srcProject, fileName)
 
-      const resources = await Engine.instance.api.service(staticResourcePath).find({
+      const resources = await API.instance.service(staticResourcePath).find({
         query: { key: 'projects/' + srcProject + '/' + fileName }
       })
       if (resources.data.length === 0) {
@@ -92,7 +94,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
       }
       const resource = resources.data[0]
       const tags = [...prefabTag.value]
-      await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
+      await API.instance.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
 
       removeEntity(prefabEntity)
       EditorControlFunctions.removeObject([entity])
