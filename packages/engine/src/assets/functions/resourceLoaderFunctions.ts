@@ -35,6 +35,7 @@ import {
 
 import { AssetExt } from '@ir-engine/common/src/constants/AssetType'
 import { AssetLoader, getLoader } from '../classes/AssetLoader'
+import { GLTF } from '../loaders/gltf/GLTFLoader'
 
 interface Cloneable<T> {
   clone?: () => T
@@ -64,6 +65,47 @@ const getLoaderForResourceType = (resourceType: ResourceType) => {
       break
   }
   return undefined
+}
+
+export const setGLTFResource = (url: string, entity: Entity, status: ResourceStatus) => {
+  const resourceType = ResourceType.GLTF
+  const resourceState = getMutableState(ResourceState)
+  const resources = resourceState.nested('resources')
+  if (!resources[url].value) {
+    resources.merge({
+      [url]: {
+        id: url,
+        status: ResourceStatus.Unloaded,
+        type: resourceType,
+        asset: {} as GLTF,
+        references: [entity],
+        metadata: {},
+        onLoads: {}
+      }
+    })
+  } else {
+    resources[url].references.merge([entity])
+  }
+
+  const callbacks = ResourceManager.resourceCallbacks[resourceType]
+  const resource = resources[url]
+  resource.status.set(status)
+
+  switch (resource.status.value) {
+    case ResourceStatus.Unloaded:
+      break
+    case ResourceStatus.Loading:
+      callbacks.onStart(resource)
+      break
+    case ResourceStatus.Loaded:
+      callbacks.onLoad({} as GLTF, resource, resourceState)
+      break
+    case ResourceStatus.Error:
+      break
+    default:
+      console.error('resourceLoaderFunctions:setGLTFResource: Invalid resource status')
+      break
+  }
 }
 
 export const loadResource = <T extends ResourceAssetType>(

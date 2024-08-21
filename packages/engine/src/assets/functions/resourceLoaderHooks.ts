@@ -23,18 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { GLTF } from '@gltf-transform/core'
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { Texture } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
 import { Entity, UndefinedEntity } from '@ir-engine/ecs'
 import { NO_PROXY, State, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
-import { ResourceAssetType, ResourceManager, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
+import {
+  ResourceAssetType,
+  ResourceManager,
+  ResourceStatus,
+  ResourceType
+} from '@ir-engine/spatial/src/resources/ResourceState'
 
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { GLTF as GLTFAsset } from '../loaders/gltf/GLTFLoader'
-import { loadResource } from './resourceLoaderFunctions'
+import { loadResource, setGLTFResource } from './resourceLoaderFunctions'
 
 function useLoader<T extends ResourceAssetType>(
   url: string,
@@ -223,12 +228,22 @@ export function useGLTF(
   return useLoader<GLTFAsset>(url, ResourceType.GLTF, entity, onUnload)
 }
 
-export function useGLTFDocument(
-  url: string,
-  entity?: Entity,
-  onUnload?: (url: string) => void
-): [GLTF.IGLTF | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
-  return useLoader<any>(url, ResourceType.Unknown, entity, onUnload)
+export function useGLTFResource(url: string, entity: Entity): void {
+  const loaded = GLTFComponent.useSceneLoaded(entity)
+
+  useImmediateEffect(() => {
+    if (!loaded) {
+      setGLTFResource(url, entity, ResourceStatus.Loading)
+    } else {
+      setGLTFResource(url, entity, ResourceStatus.Loaded)
+    }
+  }, [loaded])
+
+  useLayoutEffect(() => {
+    return () => {
+      if (url) ResourceManager.unload(url, entity)
+    }
+  }, [])
 }
 
 /**

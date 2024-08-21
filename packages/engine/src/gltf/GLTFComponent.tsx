@@ -50,6 +50,7 @@ import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/compon
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { useGLTFResource } from '../assets/functions/resourceLoaderHooks'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import {
   BINARY_EXTENSION_CHUNK_TYPES,
@@ -227,6 +228,8 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
       if (!compValue[key]) return
     }
 
+    console.log(`All dependencies loaded for entity: ${entity} on component: ${component.jsonID}`)
+
     const gltfComponent = getMutableComponent(gltfComponentEntity, GLTFComponent)
     const uuid = getComponent(entity, UUIDComponent)
     gltfComponent.dependencies.set((prev) => {
@@ -295,6 +298,7 @@ const onProgress: (event: ProgressEvent) => void = (event) => {
 const useGLTFDocument = (url: string, entity: Entity) => {
   const state = useComponent(entity, GLTFComponent)
   const source = GLTFComponent.getInstanceID(entity)
+  useGLTFResource(url, entity)
 
   useEffect(() => {
     return () => {
