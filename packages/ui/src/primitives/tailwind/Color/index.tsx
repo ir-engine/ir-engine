@@ -51,7 +51,7 @@ export function ColorInput({
   sketchPickerClassName
 }: ColorInputProp) {
   const color = new Color(value)
-  const hexColor = typeof color.getHexString === 'function' ? '#' + color.getHexString() : '#000'
+  const hexColor = '#' + color.getHexString()
 
   const handleChange = (result: ColorResult) => {
     const color = new Color(result.hex)
