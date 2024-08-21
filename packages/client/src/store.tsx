@@ -42,6 +42,7 @@ const initializeLogs = async () => {
   pipeLogs(CommonAPI.instance)
 }
 
+//@ts-ignore
 const publicPath = import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL!.slice(0, -1) // remove trailing '/'
 createHyperStore({ publicPath })
 initializei18n()
