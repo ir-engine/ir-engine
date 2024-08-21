@@ -698,7 +698,7 @@ describe('ClientInputFunctions', () => {
     })
   })
 
-  describe.only('updateGamepadInput', () => {
+  describe('updateGamepadInput', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
