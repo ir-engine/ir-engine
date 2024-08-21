@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useLayoutEffect, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
@@ -187,6 +187,13 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
     rendererState.automatic.set(!rendererState.automatic.value)
   }
 
+  useEffect(() => {
+    if (!userSettings) return
+
+    const settings: UserSettingPatch = { themeModes: { ...themeModes, client: 'dark' } }
+    AuthService.updateUserSettings(userSettings.id, settings)
+  }, [])
+
   return (
     <Menu
       open
@@ -218,7 +225,6 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
                     label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
                     value={mode === 'client' ? 'dark' : themeModes[mode]}
                     className="w-full"
-                    disabled={mode === 'client'}
                     inputClassName="rounded-lg overflow-hidden"
                     onChange={(val) => handleChangeUserThemeMode(mode, val)}
                     options={colorModesMenu}
