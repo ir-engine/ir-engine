@@ -39,7 +39,6 @@ import { GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { handleScenePaths } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { tryStopPlayMode } from '@ir-engine/spatial/src/common/functions/PlayModeFunctions'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
@@ -191,7 +190,6 @@ export const onNewScene = async (
 }
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
-  tryStopPlayMode()
   const gltfEntity = GLTFSourceState.load(sceneURL, uuid, getState(EngineState).originEntity)
   setComponent(gltfEntity, SceneComponent)
   getMutableState(EditorState).rootEntity.set(gltfEntity)
