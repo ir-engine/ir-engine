@@ -167,7 +167,6 @@ export const AvatarRigComponent = defineComponent({
       if (!rigComponent?.vrm?.value) return
       const rig = getComponent(entity, AvatarRigComponent)
       setComponent(entity, VRMComponent, rig.vrm)
-      setupAvatarProportions(entity, rig.vrm)
       return () => {
         removeComponent(entity, VRMComponent)
       }
@@ -250,7 +249,7 @@ export default function createVRM(rootEntity: Entity) {
       // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
     })
 
-    console.log(vrm)
+    setupAvatarProportions(rootEntity, vrm)
 
     return vrm
   }
@@ -289,10 +288,11 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
    */
   const removeSuffix = mixamoPrefix ? false : !/[hp]/i.test(hipsName.charAt(9))
 
-  iterateEntityNode(hipsEntity, (entity) => {
+  iterateEntityNode(rootEntity, (entity) => {
     // if (!getComponent(entity, BoneComponent)) return
     const boneComponent = getOptionalComponent(entity, BoneComponent) || getComponent(entity, TransformComponent)
     boneComponent?.matrixWorld.identity()
+    if (entity === rootEntity) return
 
     const name = getComponent(entity, NameComponent)
     /**match the keys to create a humanoid bones object */
@@ -328,6 +328,9 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   if (!vrm.userData) vrm.userData = {}
   humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
   humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
+
+  setupAvatarProportions(rootEntity, vrm)
+
   return vrm
 }
 
