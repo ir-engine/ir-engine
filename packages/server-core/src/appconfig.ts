@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
@@ -29,13 +29,13 @@ import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
-import { oembedPath } from '@etherealengine/common/src/schemas/media/oembed.schema'
-import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'
-import { acceptInvitePath } from '@etherealengine/common/src/schemas/user/accept-invite.schema'
-import { discordBotAuthPath } from '@etherealengine/common/src/schemas/user/discord-bot-auth.schema'
-import { githubRepoAccessWebhookPath } from '@etherealengine/common/src/schemas/user/github-repo-access-webhook.schema'
-import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { loginPath } from '@etherealengine/common/src/schemas/user/login.schema'
+import { oembedPath } from '@ir-engine/common/src/schemas/media/oembed.schema'
+import { routePath } from '@ir-engine/common/src/schemas/route/route.schema'
+import { acceptInvitePath } from '@ir-engine/common/src/schemas/user/accept-invite.schema'
+import { discordBotAuthPath } from '@ir-engine/common/src/schemas/user/discord-bot-auth.schema'
+import { githubRepoAccessWebhookPath } from '@ir-engine/common/src/schemas/user/github-repo-access-webhook.schema'
+import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
 import multiLogger from './ServerLogger'
 import {
@@ -418,6 +418,13 @@ const zendesk = {
   kid: process.env.ZENDESK_KID
 }
 
+const mailchimp = {
+  key: process.env.MAILCHIMP_KEY,
+  server: process.env.MAILCHIMP_SERVER,
+  audienceId: process.env.MAILCHIMP_AUDIENCE_ID,
+  defaultTags: process.env.MAILCHIMP_DEFAULT_TAGS
+}
+
 /**
  * Full config
  */
@@ -449,7 +456,8 @@ const config = {
   allowOutOfDateProjects:
     typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true',
   fsProjectSyncEnabled: process.env.FS_PROJECT_SYNC_ENABLED === 'false' ? false : true,
-  zendesk
+  zendesk,
+  mailchimp
 }
 
 chargebeeInst.configure({

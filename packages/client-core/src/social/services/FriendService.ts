@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,28 +14,23 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers'
 import i18n from 'i18next'
 import { useEffect } from 'react'
 
-import multiLogger from '@etherealengine/common/src/logger'
-import {
-  UserID,
-  UserName,
-  userRelationshipPath,
-  UserRelationshipType
-} from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { API } from '@ir-engine/common'
+import multiLogger from '@ir-engine/common/src/logger'
+import { UserID, UserName, userRelationshipPath, UserRelationshipType } from '@ir-engine/common/src/schema.type.module'
+import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
@@ -58,7 +53,7 @@ export const FriendService = {
     try {
       getMutableState(FriendState).isFetching.set(true)
 
-      const relationships = (await Engine.instance.api.service(userRelationshipPath).find({
+      const relationships = (await API.instance.service(userRelationshipPath).find({
         query: {
           userId,
           $limit: 100
@@ -75,7 +70,7 @@ export const FriendService = {
   },
   acceptFriend: async (userId: UserID, relatedUserId: UserID) => {
     try {
-      await Engine.instance.api.service(userRelationshipPath).patch(relatedUserId, {
+      await API.instance.service(userRelationshipPath).patch(relatedUserId, {
         userRelationshipType: 'friend'
       })
 
@@ -129,14 +124,14 @@ export const FriendService = {
         FriendService.getUserRelationship(selfUser.id)
       }
 
-      Engine.instance.api.service(userRelationshipPath).on('created', userRelationshipCreatedListener)
-      Engine.instance.api.service(userRelationshipPath).on('patched', userRelationshipPatchedListener)
-      Engine.instance.api.service(userRelationshipPath).on('removed', userRelationshipRemovedListener)
+      API.instance.service(userRelationshipPath).on('created', userRelationshipCreatedListener)
+      API.instance.service(userRelationshipPath).on('patched', userRelationshipPatchedListener)
+      API.instance.service(userRelationshipPath).on('removed', userRelationshipRemovedListener)
 
       return () => {
-        Engine.instance.api.service(userRelationshipPath).off('created', userRelationshipCreatedListener)
-        Engine.instance.api.service(userRelationshipPath).off('patched', userRelationshipPatchedListener)
-        Engine.instance.api.service(userRelationshipPath).off('removed', userRelationshipRemovedListener)
+        API.instance.service(userRelationshipPath).off('created', userRelationshipCreatedListener)
+        API.instance.service(userRelationshipPath).off('patched', userRelationshipPatchedListener)
+        API.instance.service(userRelationshipPath).off('removed', userRelationshipRemovedListener)
       }
     }, [])
   }
@@ -144,7 +139,7 @@ export const FriendService = {
 
 async function createRelation(userId: UserID, relatedUserId: UserID, type: 'requested' | 'blocking') {
   try {
-    await Engine.instance.api.service(userRelationshipPath).create({
+    await API.instance.service(userRelationshipPath).create({
       relatedUserId,
       userRelationshipType: type,
       userId: '' as UserID
@@ -158,7 +153,7 @@ async function createRelation(userId: UserID, relatedUserId: UserID, type: 'requ
 
 async function removeRelation(userId: UserID, relatedUserId: UserID) {
   try {
-    await Engine.instance.api.service(userRelationshipPath).remove(relatedUserId)
+    await API.instance.service(userRelationshipPath).remove(relatedUserId)
 
     FriendService.getUserRelationship(userId)
   } catch (err) {

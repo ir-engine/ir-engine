@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,40 +14,33 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import config from '@etherealengine/common/src/config'
-import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import {
-  Engine,
-  Entity,
-  createEntity,
-  entityExists,
-  getComponent,
-  removeEntity,
-  setComponent
-} from '@etherealengine/ecs'
-import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
-import { getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { API } from '@ir-engine/common'
+import config from '@ir-engine/common/src/config'
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
+import { Entity, createEntity, entityExists, getComponent, removeEntity, setComponent } from '@ir-engine/ecs'
+import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { proxifyParentChildRelationships } from '@ir-engine/engine/src/scene/functions/loadGLTFModel'
+import { getMutableState, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Quaternion, Scene, Vector3 } from 'three'
@@ -55,6 +48,7 @@ import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
+
 export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
@@ -92,7 +86,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
       getMutableState(SelectionState).selectedEntities.set([])
       await exportRelativeGLTF(prefabEntity, srcProject, fileName)
 
-      const resources = await Engine.instance.api.service(staticResourcePath).find({
+      const resources = await API.instance.service(staticResourcePath).find({
         query: { key: 'projects/' + srcProject + '/' + fileName }
       })
       if (resources.data.length === 0) {
@@ -100,7 +94,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
       }
       const resource = resources.data[0]
       const tags = [...prefabTag.value]
-      await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
+      await API.instance.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
 
       removeEntity(prefabEntity)
       EditorControlFunctions.removeObject([entity])
@@ -176,7 +170,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
               }}
               size="small"
               variant="outline"
-              className="text-left text-xs"
+              className="mt-6 max-h-20 text-left text-xs"
             >
               {' '}
               x{' '}

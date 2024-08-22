@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
@@ -34,10 +34,10 @@ import {
   removeComponent,
   setComponent,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { NO_PROXY, none, startReactor, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { entityExists, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { NO_PROXY, none, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 
 import { TransformComponent } from './TransformComponent'
@@ -463,6 +463,54 @@ export function useChildWithComponent(rootEntity: Entity, component: ComponentTy
   }, [rootEntity, component])
 
   return result.value
+}
+
+export function useChildrenWithComponent(rootEntity: Entity, component: ComponentType<any>) {
+  const children = useHookstate([] as Entity[])
+
+  useLayoutEffect(() => {
+    let unmounted = false
+    const ChildSubReactor = (props: { entity: Entity }) => {
+      const tree = useOptionalComponent(props.entity, EntityTreeComponent)
+      const matchesQuery = !!useOptionalComponent(props.entity, component)?.value
+
+      useLayoutEffect(() => {
+        if (!matchesQuery) return
+        children.set((prev) => {
+          if (prev.indexOf(props.entity) < 0) prev.push(props.entity)
+          return prev
+        })
+        return () => {
+          if (!unmounted) {
+            children.set((prev) => {
+              const index = prev.indexOf(props.entity)
+              prev.splice(index, 1)
+              return prev
+            })
+          }
+        }
+      }, [matchesQuery])
+
+      if (!tree?.children?.value) return null
+      return (
+        <>
+          {tree.children.value.map((e) => (
+            <ChildSubReactor key={e} entity={e} />
+          ))}
+        </>
+      )
+    }
+
+    const root = startReactor(function useQueryReactor() {
+      return <ChildSubReactor entity={rootEntity} key={rootEntity} />
+    })
+    return () => {
+      unmounted = true
+      root.stop()
+    }
+  }, [rootEntity, component])
+
+  return children
 }
 
 /** @todo make a query component for useTreeQuery */

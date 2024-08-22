@@ -57,7 +57,7 @@
       "spawnBot": "Spawn Bot",
       "lastRunStatus": "Last run status",
       "autoRefreshing": "auto refreshing in 10s",
-      "engineBots": "Ethereal Engine bots",
+      "engineBots": "Infinite Reality Engine bots",
       "updateBot": "UPDATE BOT",
       "name": "Name",
       "confirmBotDelete": "Do you want to delete bot"
@@ -266,7 +266,7 @@
       "commitData": "Commit",
       "branchProcessing": "Fetching branches of project",
       "commitsProcessing": "Fetching commits of project",
-      "mismatchedProjectWarning": "This version of this project does not match the installed version of Ethereal Engine. There may be compilation or runtime errors if this project is installed.",
+      "mismatchedProjectWarning": "This version of this project does not match the installed version of Infinite Reality Engine. There may be compilation or runtime errors if this project is installed.",
       "needsGithubProvider": "You must connect your account with GitHub in order to create new projects, or add or update projects from GitHub",
       "sourceProjectName": "Project in source repo",
       "destinationProjectName": "Project in destination repo",
@@ -571,12 +571,21 @@
         "subtitle": "Edit Metabase Settings",
         "siteUrl": "Site Url",
         "secretKey": "Secret Key",
+        "environment": "Environment",
         "expiration": "Expiration",
         "crashDashboardId": "Crash Dashboard Id"
       },
       "zendesk": {
         "header": "Zendesk",
         "subtitle": "Edit Zendesk Settings"
+      },
+      "mailchimp": {
+        "header": "Mailchimp",
+        "subtitle": "Edit Mailchimp Settings", 
+        "key": "Key", 
+        "server": "Server",
+        "audienceId": "Audience Id",
+        "defaultTags": "Default Tags (comma separated)"
       },
       "keyName": "key Name",
       "kid": "Key Id"
