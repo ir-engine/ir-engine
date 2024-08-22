@@ -38,6 +38,7 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { MaterialPrototypeComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { useEffect } from 'react'
 import {
   AnimationClip,
@@ -105,7 +106,7 @@ import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } fr
 const cache = new GLTFRegistry()
 
 const useLoadPrimitive = (options: GLTFParserOptions, nodeIndex: number, primitiveIndex: number) => {
-  const result = useHookstate(null as null | BufferGeometry)
+  const [result] = useResource(() => null as null | BufferGeometry)
 
   const json = options.document
   const node = json.nodes![nodeIndex]!
