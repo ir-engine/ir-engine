@@ -37,7 +37,10 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
-import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
+import {
+  InteractableComponent,
+  XRUIActivationType
+} from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { useState } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -146,23 +149,41 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
           onRelease={(value) => updateLabel(value)}
         />
       </InputGroup>
-      <InputGroup name="ActivationDistance" label={t('editor:properties.interactable.lbl-activationDistance')}>
-        <NumericInput
-          value={interactableComponent.activationDistance.value}
-          onChange={updateProperty(InteractableComponent, 'activationDistance')}
-          onRelease={commitProperty(InteractableComponent, 'activationDistance')}
+
+      <InputGroup name="activationType" label="Activation Type">
+        <SelectInput
+          key={props.entity}
+          value={interactableComponent.uiActivationType.value}
+          options={[
+            { label: 'Hover', value: XRUIActivationType.hover },
+            { label: 'Proximity', value: XRUIActivationType.proximity }
+          ]}
+          onChange={commitProperty(InteractableComponent, `uiActivationType`)}
         />
       </InputGroup>
-      <InputGroup
-        name="ClickInteract"
-        label={t('editor:properties.interactable.lbl-clickInteract')}
-        info={t('editor:properties.interactable.info-clickInteract')}
-      >
-        <BooleanInput
-          value={interactableComponent.clickInteract.value}
-          onChange={commitProperty(InteractableComponent, 'clickInteract')}
-        />
-      </InputGroup>
+
+      {interactableComponent.uiActivationType.value == XRUIActivationType.proximity && (
+        <InputGroup name="ActivationDistance" label={t('editor:properties.interactable.lbl-activationDistance')}>
+          <NumericInput
+            value={interactableComponent.activationDistance.value}
+            onChange={updateProperty(InteractableComponent, 'activationDistance')}
+            onRelease={commitProperty(InteractableComponent, 'activationDistance')}
+          />
+        </InputGroup>
+      )}
+
+      {interactableComponent.uiActivationType.value == XRUIActivationType.proximity && (
+        <InputGroup
+          name="ClickInteract"
+          label={t('editor:properties.interactable.lbl-clickInteract')}
+          info={t('editor:properties.interactable.info-clickInteract')}
+        >
+          <BooleanInput
+            value={interactableComponent.clickInteract.value}
+            onChange={commitProperty(InteractableComponent, 'clickInteract')}
+          />
+        </InputGroup>
+      )}
 
       <Button className="self-end" onClick={addCallback}>
         {t('editor:properties.interactable.lbl-addcallback')}
