@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,26 +14,26 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/ecs'
-import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
+import { Entity } from '@ir-engine/ecs'
+import { getMutableState, getState, NO_PROXY } from '@ir-engine/hyperflux'
 import {
   ResourceAssetType,
   ResourceManager,
   ResourceState,
   ResourceStatus,
   ResourceType
-} from '@etherealengine/spatial/src/resources/ResourceState'
+} from '@ir-engine/spatial/src/resources/ResourceState'
 
-import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
+import { AssetExt } from '@ir-engine/common/src/constants/AssetType'
 import { AssetLoader, getLoader } from '../classes/AssetLoader'
 
 interface Cloneable<T> {
@@ -90,12 +90,12 @@ export const loadResource = <T extends ResourceAssetType>(
         onLoads: {}
       }
     })
-    if (uuid) resources[url].onLoads.merge({ [uuid]: onLoad })
+    if (uuid) resources[url].onLoads.merge({ [uuid]: { entity, onLoad } })
   } else {
     //No need for callbacks if the asset has already been loaded
     callbacks = ResourceManager.resourceCallbacks[ResourceType.Unknown]
     resources[url].references.merge([entity])
-    if (uuid) resources[url].onLoads.merge({ [uuid]: onLoad })
+    if (uuid) resources[url].onLoads.merge({ [uuid]: { entity, onLoad } })
 
     const resource = getState(ResourceState).resources[url]
     const asset = resource.asset as Cloneable<T> | undefined
@@ -160,13 +160,13 @@ export const loadResource = <T extends ResourceAssetType>(
 
 /**
  *
- * Updates a model's resource without the url changing
+ * Updates a resource without the url changing
  * Removes the model from the resource state and reloads
  *
  * @param url the url of the asset to update
  * @returns
  */
-export const updateModelResource = (url: string) => {
+const updateResource = (url: string) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   const resource = resources[url]
@@ -176,36 +176,27 @@ export const updateModelResource = (url: string) => {
   }
   const onLoads = resource.onLoads.get(NO_PROXY)
   if (!onLoads) {
-    console.warn('resourceLoaderFunctions:updateResource No callbacks found to update for url: ' + url)
-    return
-  }
-
-  const onLoadArr = Object.values(onLoads)
-  const entities = resource.references.get(NO_PROXY) as Entity[]
-  if (onLoadArr.length !== entities.length) {
-    console.warn(
-      'resourceLoaderFunctions:updateResource There should be one loaded callback for every reference, url: ' + url
-    )
+    ResourceState.debugLog('resourceLoaderFunctions:updateResource No callbacks found to update for url: ' + url)
     return
   }
 
   ResourceState.debugLog('resourceLoaderFunctions:updateResource Updating asset for url: ' + url)
   const resourceType = resource.type.value
   ResourceManager.__unsafeRemoveResource(url)
-  for (let i = 0; i < onLoadArr.length; i++) {
-    const onLoad = onLoadArr[i]
+  for (const [uuid, loadObj] of Object.entries(onLoads)) {
     loadResource(
       url,
       resourceType,
-      entities[i],
-      (response: ResourceAssetType) => {
-        onLoad(response)
-      },
+      loadObj.entity,
+      loadObj.onLoad,
       () => {},
       (error) => {
         console.error('resourceLoaderFunctions:updateResource error updating resource for url: ' + url, error)
       },
-      new AbortController().signal
+      new AbortController().signal,
+      uuid
     )
   }
 }
+
+export const ResourceLoaderManager = { updateResource }

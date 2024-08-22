@@ -28,9 +28,10 @@
     "**/node_modules/**"
   ],
   "include": [
-    "../../../../__global.d.ts",
-    "../../../server-core/src/*",
-    "../**/*.ts",
-    "../**/*.tsx"
+    "../../../../../__global.d.ts",
+    "../../../../server-core/src/*",
+    "../../../../client-core/src/*",
+    "./**/*.ts",
+    "./**/*.tsx"
   ]
 }

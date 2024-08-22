@@ -1,6 +1,6 @@
 {
-  "appId": "org.etherealengine.client",
-  "appName": "@etherealengine/client",
+  "appId": "org.ir-engine.client",
+  "appName": "@ir-engine/client",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",
