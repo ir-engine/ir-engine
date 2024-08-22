@@ -24,17 +24,17 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { hasComponent, useOptionalComponent, useQuery } from '@ir-engine/ecs'
-import { commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
-import { ScriptComponent } from '@ir-engine/engine'
+import { ScriptComponent, validateScriptUrl } from '@ir-engine/engine'
 import { getFileName } from '@ir-engine/engine/src/assets/functions/pathResolver'
+import { clearErrors } from '@ir-engine/engine/src/scene/functions/ErrorFunctions'
 import { Editor } from '@monaco-editor/react'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import Button from '../../../../../primitives/tailwind/Button'
-import { updateScriptFile } from '../../../properties/script'
+import { fetchCode, updateScriptFile } from '../../../properties/script'
 
 const ActiveScript = () => {
   const entities = SelectionState.useSelectedEntities()
@@ -42,9 +42,26 @@ const ActiveScript = () => {
   const validEntity = typeof entity === 'number' && hasComponent(entity, ScriptComponent)
   const { t } = useTranslation()
   const scriptComponent = useOptionalComponent(entity, ScriptComponent)
+  const [code, setCode] = useState('')
+
+  useEffect(() => {
+    if (!scriptComponent?.src.value) return
+    if (!validateScriptUrl(entity, scriptComponent?.src.value)) return
+    clearErrors(entity, ScriptComponent)
+
+    fetchCode(scriptComponent!.src.value).then((code) => {
+      setCode(code)
+    })
+  }, [scriptComponent?.src])
+
+  useEffect(() => {
+    if (!scriptComponent?.src.value) return
+    if (!validateScriptUrl(entity, scriptComponent?.src.value)) return
+    clearErrors(entity, ScriptComponent)
+    updateScriptFile(getFileName(scriptComponent!.src.value), code)
+  }, [code])
 
   const addScript = () => EditorControlFunctions.addOrRemoveComponent([entity], ScriptComponent, true)
-
   useQuery([ScriptComponent])
   return (
     <AutoSizer>
@@ -67,10 +84,9 @@ const ActiveScript = () => {
               height="100%"
               language="javascript"
               defaultLanguage="javascript"
-              value={scriptComponent?.script.value}
-              onChange={async (code) => {
-                commitProperty(ScriptComponent, 'script')(code ?? '')
-                await updateScriptFile(getFileName(scriptComponent!.src.value), code)
+              value={code} // get the file contents
+              onChange={(newCode) => {
+                setCode(newCode ?? code)
               }}
               theme="vs-dark"
             />

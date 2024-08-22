@@ -39,11 +39,18 @@ import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { ScriptComponent } from '@ir-engine/engine'
 import { getEntityErrors, useEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { uniqueId } from 'lodash'
 import InputGroup from '../../input/Group'
 import ScriptInput from '../../input/Script'
 import { NodeEditor } from '../nodeEditor'
 
-export const updateScriptFile = async (fileName, script = 'hello world') => {
+export const fetchCode = async (url) => {
+  const response = await fetch(url)
+  const text = await response.text()
+  return text
+}
+
+export const updateScriptFile = async (fileName, script = 'console.log("hello world")') => {
   const file = new File([script], fileName, { type: ItemTypes.Scripts[3] })
   await uploadToFeathersService(fileBrowserUploadPath, [file], {
     args: [
@@ -71,9 +78,9 @@ export const ScriptNodeEditor: EditorComponentType = (props) => {
     if (scriptComponent.src.value.length > 0) return // only set if there is no value already set
 
     const relativePath = `projects/${editorState.projectName.value}/assets/scripts`
-    const fileName = `${uniqueId(`${editorState.sceneName.value}RealityScript`)}.js`
+    const fileName = `${uniqueId('RealityScript')}.js`
     ;(async () => {
-      // create emtpty or defualt script file
+      // create empty or defualt script file
       await updateScriptFile(fileName)
       scriptComponent.src.set(`${config.client.fileServer}/${relativePath}/${fileName}`)
       commitProperty(ScriptComponent, 'src')(scriptComponent.src.value)
@@ -112,6 +119,3 @@ export const ScriptNodeEditor: EditorComponentType = (props) => {
 ScriptNodeEditor.iconComponent = IoLogoJavascript
 
 export default ScriptNodeEditor
-function uniqueId(arg0: string) {
-  throw new Error('Function not implemented.')
-}
