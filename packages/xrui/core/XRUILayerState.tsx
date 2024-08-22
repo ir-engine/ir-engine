@@ -89,7 +89,8 @@ export const XRUILayerState = defineState({
       store: new XRUILayerStore(),
       states: {} as Record<StateHash, XRUILayerStateData>,
       textures: {} as Record<TextureHash, XRUILayerTextureData>,
-      unsavedTextures: [] as TextureHash[]
+      unsavedTextures: [] as TextureHash[],
+      cleanupIntermediateData: true // set false to keep memory-heavy intermediate data (e.g., svg docs) for debugging
     }
   },
 
@@ -338,19 +339,117 @@ function XRUILayerStateReactor(props: { hash: StateHash }) {
   // begin serialization process if there is no texture data, and we have an svg document
   useEffect(() => {
     if (!textureHash && !pendingStoreLookup.value && state.svgDoc.value && !state.svgURL.value) {
-      const textureData = {
-        hash: Math.random().toString(36).slice(2) as TextureHash,
-        timestamp: Date.now(),
-        texture: undefined,
-        canvas: undefined,
-        ktx2Url: undefined,
-        canvasTexture: undefined,
-        compressedTexture: undefined
-      }
-      state.textureHash.set(textureData.hash)
-      getMutableState(XRUILayerState).unsavedTextures.push(textureData.hash)
-      getMutableState(XRUILayerState).textures[textureData.hash].set(textureData)
+      state.svgURL.set(URL.createObjectURL(new Blob([state.svgDoc.value], { type: 'image/svg+xml' })))
     }
-  }, [textureHash, state.svgDoc, state.svgURL, pendingStoreLookup])
+  }, [textureHash, pendingStoreLookup, state.svgDoc, state.svgURL])
+
+  // rasterize svg image if we need to
+  useEffect(() => {
+    if (!textureHash && !pendingStoreLookup.value && state.svgURL.value) {
+      let abort = false
+      const svgImage = new Image()
+      const svgImagePromise = new Promise<void>((resolve, reject) => {
+        svgImage.onload = () => {
+          resolve()
+        }
+        svgImage.onerror = (error) => {
+          reject(error)
+        }
+        svgImage.width = state.bounds.value.width
+        svgImage.height = state.bounds.value.height
+        svgImage.src = state.svgURL.value!
+      }).then(() => {
+        if (!svgImage.complete || svgImage.currentSrc !== state.svgURL.value || abort) return
+        return svgImage.decode()
+      })
+
+      return () => {
+        abort = true
+        svgImage.src = ''
+      }
+    }
+  }, [textureHash, pendingStoreLookup, state.svgDoc, state.bounds])
+
   return null
+}
+
+const renderedFontCache = new Map()
+
+function getRenderedFont(element) {
+  const computedStyle = getComputedStyle(element)
+  const fontFamily = computedStyle.fontFamily
+
+  if (renderedFontCache.has(fontFamily)) {
+    return renderedFontCache.get(fontFamily)
+  }
+
+  const fonts = fontFamily.split(',').map((f) => f.trim())
+  const testString = 'ABCDWxyz0123'
+
+  const canvas = document.createElement('canvas')
+  const context = canvas.getContext('2d')!
+
+  const baselineFont = 'monospace'
+  context.font = `100px ${baselineFont}`
+  const baselineWidth = context.measureText(testString).width
+
+  let selectedFont = fonts[0]
+
+  for (let font of fonts) {
+    context.font = `100px ${font}, ${baselineFont}`
+    const width = context.measureText(testString).width
+
+    if (width !== baselineWidth) {
+      selectedFont = font
+      break
+    }
+  }
+
+  renderedFontCache.set(fontFamily, selectedFont)
+  return selectedFont
+}
+
+function cloneDomWithXrLayerReplacement(node) {
+  // If the node is an element and has the xr-layer attribute
+  if (node.nodeType === Node.ELEMENT_NODE && node.hasAttribute('xr-layer')) {
+    // Create an invisible placeholder that retains layout
+    const placeholder = document.createElement('div')
+    const computedStyle = getComputedStyle(node)
+
+    // Copy over essential styles to maintain layout integrity
+    placeholder.style.display = computedStyle.display
+    placeholder.style.position = computedStyle.position
+    placeholder.style.margin = computedStyle.margin
+    placeholder.style.padding = computedStyle.padding
+    placeholder.style.width = computedStyle.width
+    placeholder.style.height = computedStyle.height
+    placeholder.style.flex = computedStyle.flex
+    placeholder.style.gridArea = computedStyle.gridArea
+    placeholder.style.visibility = 'hidden' // Invisible but takes up space
+    placeholder.style.boxSizing = computedStyle.boxSizing
+
+    // Special handling for Flexbox and Grid layouts
+    if (computedStyle.display.includes('flex') || computedStyle.display.includes('grid')) {
+      placeholder.style.minWidth = computedStyle.minWidth
+      placeholder.style.minHeight = computedStyle.minHeight
+      placeholder.style.maxWidth = computedStyle.maxWidth
+      placeholder.style.maxHeight = computedStyle.maxHeight
+      placeholder.style.alignSelf = computedStyle.alignSelf
+      placeholder.style.justifySelf = computedStyle.justifySelf
+    }
+
+    return placeholder
+  }
+
+  // If the node is a text node, simply clone it
+  if (node.nodeType === Node.TEXT_NODE) {
+    return node.cloneNode(true)
+  }
+
+  // Otherwise, clone the node and recursively clone its children
+  const clone = node.cloneNode(false) // Shallow clone
+  for (let child of node.childNodes) {
+    clone.appendChild(cloneDomWithXrLayerReplacement(child))
+  }
+  return clone
 }
