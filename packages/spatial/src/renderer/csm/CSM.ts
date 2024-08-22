@@ -405,9 +405,10 @@ export class CSM {
         const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
         const far = Math.min(camera.far, this.maxFar)
         const near = Math.min(this.maxFar, camera.near)
-        const breaksVec2 = this.getExtendedBreaks()
 
-        shader.uniforms.CSM_cascades = { value: breaksVec2 }
+        if (!shader.uniforms.CSM_cascades) shader.uniforms.CSM_cascades = { value: [] }
+        this.getExtendedBreaks(shader.uniforms.CSM_cascades.value)
+
         shader.uniforms.cameraNear = { value: near }
         shader.uniforms.shadowFar = { value: far }
 
@@ -459,13 +460,18 @@ export class CSM {
     }
   }
 
-  getExtendedBreaks(): Vector2[] {
-    const target: Vector2[] = []
+  getExtendedBreaks(target: Vector2[]): Vector2[] {
+    while (target.length < this.breaks.length) {
+      target.push(new Vector2())
+    }
+
+    target.length = this.breaks.length
 
     for (let i = 0; i < this.cascades; i++) {
       const amount = this.breaks[i] || 0
       const prev = this.breaks[i - 1] || 0
-      target.push(new Vector2(prev, amount))
+      target[i].x = prev
+      target[i].y = amount
     }
 
     return target
