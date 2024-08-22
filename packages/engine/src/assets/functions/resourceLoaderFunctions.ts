@@ -36,26 +36,7 @@ import {
 import { AssetLoader } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 
-interface Cloneable<T> {
-  clone?: () => T
-}
-
-const pending: Record<string, Set<(response) => void>> = {}
-
-const isCloneable = (resourceType: ResourceType): boolean => {
-  /** @todo Add cloning for GLTF data */
-  return resourceType === ResourceType.Texture
-}
-
-const cloneAsset = <T>(asset: Cloneable<T> | undefined, onLoad: (T) => void): boolean => {
-  if (asset && typeof asset.clone === 'function') {
-    onLoad(asset.clone())
-    return true
-  }
-
-  return false
-}
-
+// This is most likely a temporary function that will be removed
 export const setGLTFResource = (url: string, entity: Entity, status: ResourceStatus) => {
   const resourceType = ResourceType.GLTF
   const resourceState = getMutableState(ResourceState)
@@ -81,20 +62,36 @@ export const setGLTFResource = (url: string, entity: Entity, status: ResourceSta
   resource.status.set(status)
 
   switch (resource.status.value) {
-    case ResourceStatus.Unloaded:
-      break
     case ResourceStatus.Loading:
       callbacks.onStart(resource)
       break
     case ResourceStatus.Loaded:
       callbacks.onLoad({} as GLTF, resource, resourceState)
       break
-    case ResourceStatus.Error:
-      break
     default:
       console.error('resourceLoaderFunctions:setGLTFResource: Invalid resource status')
       break
   }
+}
+
+interface Cloneable<T> {
+  clone?: () => T
+}
+
+const pending: Record<string, Set<(response) => void>> = {}
+
+const isCloneable = (resourceType: ResourceType): boolean => {
+  /** @todo Add cloning for GLTF data */
+  return resourceType === ResourceType.Texture
+}
+
+const cloneAsset = <T>(asset: Cloneable<T> | undefined, onLoad: (T) => void): boolean => {
+  if (asset && typeof asset.clone === 'function') {
+    onLoad(asset.clone())
+    return true
+  }
+
+  return false
 }
 
 export const loadResource = <T extends ResourceAssetType>(
