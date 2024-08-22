@@ -97,7 +97,6 @@ const PlayModeTool: React.FC = () => {
   }
 
   useEffect(() => {
-    // !isEditing.value ? onStartPlayMode() : onStopPlayMode()
     if (isEditing.value) return
     onStartPlayMode()
     return () => {
