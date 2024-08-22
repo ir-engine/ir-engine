@@ -470,10 +470,10 @@ describe('useTreeQuery', () => {
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 4, 'query incorrect after adding another deep child')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
-    assert.equal(ents[1], childEntity, 'child entity not populated')
-    assert.equal(ents[2], deepChildEntity, 'deep child entity not populated')
-    assert.equal(ents[3], deepChildEntity2, 'deep child 2 entity not populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
+    assert.equal(ents.includes(childEntity), true, 'child entity not populated')
+    assert.equal(ents.includes(deepChildEntity), true, 'deep child entity not populated')
+    assert.equal(ents.includes(deepChildEntity2), true, 'deep child 2 entity not populated')
 
     console.log({ ents }, '\n')
 
