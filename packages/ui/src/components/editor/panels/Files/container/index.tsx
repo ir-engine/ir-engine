@@ -43,7 +43,13 @@ import ModelCompressionPanel from '@ir-engine/editor/src/components/assets/Model
 import { DndWrapper } from '@ir-engine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { handleUploadFiles, inputFileWithAddToScene } from '@ir-engine/editor/src/functions/assetFunctions'
+import { ProjectDownloadProgress, handleDownloadProject } from '@ir-engine/editor/src/panels/files/loaders'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import {
+  FilesViewModeSettings,
+  FilesViewModeState,
+  availableTableColumns
+} from '@ir-engine/editor/src/services/FilesState'
 import { ClickPlacementState } from '@ir-engine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { ImmutableArray, NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
@@ -71,12 +77,6 @@ import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../bro
 import DeleteFileModal from '../browserGrid/DeleteFileModal'
 import FilePropertiesModal from '../browserGrid/FilePropertiesModal'
 import { FileUploadProgress } from '../upload/FileUploadProgress'
-import {
-  FilesViewModeSettings,
-  FilesViewModeState,
-  availableTableColumns
-} from '@ir-engine/editor/src/services/FilesState'
-import { ProjectDownloadProgress, handleDownloadProject } from '@ir-engine/editor/src/panels/files/loaders'
 
 type FileBrowserContentPanelProps = {
   projectName?: string

@@ -30,6 +30,7 @@ import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowse
 import { SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@ir-engine/editor/src/functions/screenSpaceFunctions'
+import { FilesViewModeSettings, availableTableColumns } from '@ir-engine/editor/src/services/FilesState'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -47,7 +48,6 @@ import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import { FileIcon } from '../icon'
 import ImageConvertModal from './ImageConvertModal'
 import RenameFileModal from './RenameFileModal'
-import { availableTableColumns, FilesViewModeSettings } from '@ir-engine/editor/src/services/FilesState'
 
 export const canDropItemOverFolder = (folderName: string) =>
   folderName.endsWith('/assets') ||

@@ -36,6 +36,7 @@ import { AssetsPanelCategories } from '@ir-engine/editor/src/components/assets/A
 import { AssetSelectionChangePropsType } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
 import { inputFileWithAddToScene } from '@ir-engine/editor/src/functions/assetFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { FilesViewModeSettings } from '@ir-engine/editor/src/services/FilesState'
 import { ClickPlacementState } from '@ir-engine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
@@ -60,7 +61,6 @@ import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
 import { FileIcon } from '../../Files/icon'
 import { FileUploadProgress } from '../../Files/upload/FileUploadProgress'
 import { AssetIconMap } from '../icons'
-import { FilesViewModeSettings } from '@ir-engine/editor/src/services/FilesState'
 
 const ASSETS_PAGE_LIMIT = 10
 
