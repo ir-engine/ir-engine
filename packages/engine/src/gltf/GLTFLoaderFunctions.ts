@@ -444,7 +444,7 @@ const useLoadMaterial = (
   options: GLTFParserOptions,
   materialDef: ComponentType<typeof MaterialDefinitionComponent>
 ) => {
-  const result = useHookstate(null as null | MeshStandardMaterial | MeshBasicMaterial)
+  const [result] = useResource(() => null as null | MeshStandardMaterial | MeshBasicMaterial)
 
   useEffect(() => {
     /** @todo refactor this into a proper registry, rather than prototype definition entities */
@@ -469,7 +469,7 @@ const useLoadMaterial = (
     result.set(material)
   }, [materialDef.type])
 
-  const material = result.get(NO_PROXY) as MeshStandardMaterial | MeshBasicMaterial
+  const material = result.get(NO_PROXY) as null | MeshStandardMaterial | MeshBasicMaterial
   const map = GLTFLoaderFunctions.useAssignTexture(options, materialDef.pbrMetallicRoughness?.baseColorTexture)
 
   useEffect(() => {
