@@ -33,6 +33,7 @@ import LoadingView from '../LoadingView'
 import Text from '../Text'
 
 export interface ModalProps {
+  id?: string
   title?: string
   hideFooter?: boolean
   className?: string
@@ -71,6 +72,7 @@ export const ModalHeader = ({
 }
 
 export const ModalFooter = ({
+  id,
   onCancel,
   onSubmit,
   submitLoading,
@@ -80,6 +82,7 @@ export const ModalFooter = ({
   submitButtonText,
   showCloseButton = true
 }: {
+  id?: string
   onCancel?: (isHeader: boolean) => void
   onSubmit?: () => void
   submitLoading?: boolean
@@ -93,12 +96,18 @@ export const ModalFooter = ({
   return (
     <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
       {showCloseButton && (
-        <Button variant="secondary" disabled={closeButtonDisabled} onClick={() => onCancel && onCancel(false)}>
+        <Button
+          data-test-id={`${id}-close-button`}
+          variant="secondary"
+          disabled={closeButtonDisabled}
+          onClick={() => onCancel && onCancel(false)}
+        >
           {closeButtonText || t('common:components.cancel')}
         </Button>
       )}
       {onSubmit && (
         <Button
+          data-test-id={`${id}-submit-button`}
           endIcon={submitLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
           disabled={submitButtonDisabled || submitLoading}
           onClick={onSubmit}
@@ -112,6 +121,7 @@ export const ModalFooter = ({
 }
 
 const Modal = ({
+  id,
   title,
   onClose,
   onSubmit,
@@ -136,6 +146,7 @@ const Modal = ({
 
         {!hideFooter && (
           <ModalFooter
+            id={id}
             closeButtonText={closeButtonText}
             submitButtonText={submitButtonText}
             closeButtonDisabled={closeButtonDisabled}
