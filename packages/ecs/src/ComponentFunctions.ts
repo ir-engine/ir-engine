@@ -36,7 +36,7 @@ import config from '@ir-engine/common/src/config'
 import { DeepReadonly } from '@ir-engine/common/src/DeepReadonly'
 import { HookableFunction } from '@ir-engine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@ir-engine/common/src/utils/getNestedProperty'
-import { HyperFlux, ReactorRoot, startReactor } from '@ir-engine/hyperflux'
+import { HyperFlux, ReactorRoot, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
 import {
   getState,
   hookstate,
