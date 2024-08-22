@@ -114,15 +114,15 @@ const RecordingsList = (props: {
                   })
                 }}
               >
-                <HiStop className="min-h-6 min-w-6 block" />
+                <HiStop className="block min-h-6 min-w-6" />
               </button>
             ) : (
               <>
                 <button className="btn btn-ghost" onClick={() => startPlayback(recording.id, false)}>
-                  <HiPlay className="min-h-6 min-w-6 block" />
+                  <HiPlay className="block min-h-6 min-w-6" />
                 </button>
                 <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id, true)}>
-                  <HiPlusCircle className="min-h-6 min-w-6 block" />
+                  <HiPlusCircle className="block min-h-6 min-w-6" />
                 </button>
               </>
             )}

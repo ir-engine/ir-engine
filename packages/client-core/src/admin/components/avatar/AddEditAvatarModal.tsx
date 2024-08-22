@@ -273,7 +273,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             externalChildren={
               <>
                 {error.model.value && (
-                  <p className="text-wrap absolute right-2 top-2 max-w-[50%] text-red-700">{error.model.value}</p>
+                  <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-red-700">{error.model.value}</p>
                 )}
                 {avatarAssets.source.value === 'file' && (
                   <Button
@@ -330,7 +330,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             externalChildren={
               <>
                 {error.thumbnail.value && (
-                  <p className="text-wrap absolute right-2 top-2 max-w-[50%] text-red-700">{error.thumbnail.value}</p>
+                  <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-red-700">{error.thumbnail.value}</p>
                 )}
                 {avatarAssets.source.value === 'file' && (
                   <Button

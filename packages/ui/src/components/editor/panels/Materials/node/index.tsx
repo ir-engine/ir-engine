@@ -110,7 +110,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
             <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
               <HiOutlineArchiveBox className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
               <div className="flex flex-1 items-center">
-                <div className="text-nowrap ml-2 min-w-0 flex-1 rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
+                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
                   <span className="text-nowrap text-sm leading-4">{source}</span>
                 </div>
               </div>
@@ -121,7 +121,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
             <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
               <SiRoundcube className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
               <div className="flex flex-1 items-center">
-                <div className="text-nowrap ml-2 min-w-0 flex-1 rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
+                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
                   <span className="text-nowrap text-sm leading-4">{name?.value || ''}</span>
                 </div>
               </div>

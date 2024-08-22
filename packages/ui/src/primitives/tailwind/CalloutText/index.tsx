@@ -73,7 +73,7 @@ const CalloutText = ({ variant, children, className, ...props }: CalloutTextProp
     <div className={classes} {...props}>
       <Icon
         size="1.5rem"
-        className={`min-h-6 min-w-6	mr-2 ${variantMap[variant].lightColor.replace('bg', 'text')} dark:${variantMap[
+        className={`mr-2 min-h-6	min-w-6 ${variantMap[variant].lightColor.replace('bg', 'text')} dark:${variantMap[
           variant
         ].darkColor.replace('bg', 'text')}]`}
       />
