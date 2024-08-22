@@ -50,7 +50,7 @@ const Tooltip = ({ title, titleClassName, content, children, className, ...rest 
       }}
       {...rest}
     >
-      <div className="-mt-1 grid text-wrap shadow-lg transition-all">
+      <div className="text-wrap -mt-1 grid shadow-lg transition-all">
         {title && (
           <span
             className={twMerge(

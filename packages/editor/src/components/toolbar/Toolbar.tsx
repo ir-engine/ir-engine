@@ -199,7 +199,7 @@ export default function Toolbar() {
         anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
         onClose={() => anchorEvent.set(null)}
       >
-        <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+        <div className="min-w-44 flex w-fit flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
             <div key={index}>
               <SidebarButton

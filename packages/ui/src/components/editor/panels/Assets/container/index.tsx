@@ -204,7 +204,7 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="mb-3 flex h-auto min-w-40 cursor-pointer flex-col items-center text-center"
+      className="min-w-40 mb-3 flex h-auto cursor-pointer flex-col items-center text-center"
     >
       <span
         className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
@@ -215,7 +215,7 @@ const ResourceFile = (props: {
       </span>
 
       <Tooltip content={name}>
-        <span className="line-clamp-1 w-full text-wrap break-all text-sm text-[#F5F5F5]">{name}</span>
+        <span className="text-wrap line-clamp-1 w-full break-all text-sm text-[#F5F5F5]">{name}</span>
       </Tooltip>
 
       <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)} className="gap-1">
@@ -367,10 +367,10 @@ const AssetCategory = (props: {
           iconContainerClassName="ml-2"
         />
         <AssetIconMap name={category.name} />
-        <div className="flex w-full items-center gap-1 text-nowrap pr-2">
+        <div className="text-nowrap flex w-full items-center gap-1 pr-2">
           <span
             className={twMerge(
-              "flex flex-row items-center gap-2 text-nowrap font-['Figtree'] text-[#e7e7e7]",
+              "text-nowrap flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]",
               selectedCategory?.name === category.name && 'text-[#F5F5F5]'
             )}
           >

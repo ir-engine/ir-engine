@@ -352,7 +352,7 @@ const RecordingsList = () => {
                 getMutableState(RecordingUIState).mode.set('playback')
               }}
               label={
-                <HiPlay style={{ display: 'block', width: '24px', height: '24px' }} className="block min-h-6 min-w-6" />
+                <HiPlay style={{ display: 'block', width: '24px', height: '24px' }} className="min-h-6 min-w-6 block" />
               }
             />
             <Button
@@ -363,7 +363,7 @@ const RecordingsList = () => {
               label={
                 <HiPlusCircle
                   style={{ display: 'block', width: '24px', height: '24px' }}
-                  className="block min-h-6 min-w-6"
+                  className="min-h-6 min-w-6 block"
                 />
               }
             />

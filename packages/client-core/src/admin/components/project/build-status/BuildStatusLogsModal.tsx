@@ -78,7 +78,7 @@ export default function BuildStatusLogsModal({ buildStatus }: { buildStatus: Bui
           value={getStartOrEndDate(buildStatus.dateEnded)}
         />
         <div className="col-span-2 max-h-[50vh] overflow-auto">
-          <pre className="relative text-wrap bg-stone-300 px-4 py-2 text-sm font-[var(--lato)] dark:bg-stone-800">
+          <pre className="text-wrap relative bg-stone-300 px-4 py-2 text-sm font-[var(--lato)] dark:bg-stone-800">
             <div className="sticky right-0 top-0 float-right ml-[-100%] h-[calc(100%-1px)] w-[calc(100%-1px)]">
               <CopyText text={buildStatus.logs} className="sticky" />
             </div>
