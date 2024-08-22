@@ -29,7 +29,7 @@ import { defineComponent, useComponent, useEntityContext, useOptionalComponent }
 import { useState } from '@ir-engine/hyperflux'
 
 import { useLayoutEffect } from 'react'
-import { useAncestorWithComponent } from '../../transform/components/EntityTree'
+import { useAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
@@ -82,7 +82,7 @@ export const ColliderComponent = defineComponent({
     const entity = useEntityContext()
     const component = useComponent(entity, ColliderComponent)
     const transform = useComponent(entity, TransformComponent)
-    const rigidbodyEntity = useAncestorWithComponent(entity, RigidBodyComponent)
+    const rigidbodyEntity = useAncestorWithComponents(entity, [RigidBodyComponent])
     const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
     const physicsWorld = Physics.useWorld(entity)
     const triggerComponent = useOptionalComponent(entity, TriggerComponent)
