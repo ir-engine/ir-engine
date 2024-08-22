@@ -74,7 +74,7 @@ import {
   Vector3,
   VectorKeyframeTrack
 } from 'three'
-import { useTexture } from '../assets/functions/resourceLoaderHooks'
+import { useFile, useTexture } from '../assets/functions/resourceLoaderHooks'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { Loader } from '../assets/loaders/base/Loader'
 import {
@@ -329,9 +329,17 @@ const useLoadBufferView = (options: GLTFParserOptions, bufferViewIndex?: number)
 
 const useLoadBuffer = (options: GLTFParserOptions, bufferIndex) => {
   const json = options.document
-  const result = useHookstate<ArrayBuffer | null>(null)
+  const loader = useHookstate(() => {
+    const fileLoader = new FileLoader(options.manager)
+    fileLoader.setResponseType('arraybuffer')
+    if (options.crossOrigin === 'use-credentials') {
+      fileLoader.setWithCredentials(true)
+    }
+    return fileLoader
+  })
 
   const bufferDef = typeof bufferIndex === 'number' ? json.buffers![bufferIndex] : null
+  const [result] = useFile(bufferDef?.uri || '', UndefinedEntity, () => {}, loader.value)
 
   useEffect(() => {
     if (!bufferDef) return
@@ -341,36 +349,7 @@ const useLoadBuffer = (options: GLTFParserOptions, bufferIndex) => {
     }
   }, [bufferDef?.type])
 
-  useEffect(() => {
-    if (!bufferDef) return
-
-    // If present, GLB container is required to be the first buffer.
-    if (bufferDef.uri === undefined && bufferIndex === 0) {
-      result.set(options.body!)
-      return
-    }
-
-    /** @todo use resource hooks */
-    const fileLoader = new FileLoader(options.manager)
-    fileLoader.setResponseType('arraybuffer')
-    if (options.crossOrigin === 'use-credentials') {
-      fileLoader.setWithCredentials(true)
-    }
-
-    fileLoader.load(
-      LoaderUtils.resolveURL(bufferDef.uri!, options.path),
-      (val: ArrayBuffer) => {
-        result.set(val)
-      },
-      undefined,
-      function () {
-        result.set(null)
-        console.error(new Error('THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".'))
-      }
-    )
-  }, [bufferDef?.uri])
-
-  return result.get(NO_PROXY) as ArrayBuffer | null
+  return bufferDef && bufferDef.uri === undefined && bufferIndex === 0 ? options.body : result
 }
 
 export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primitiveDef: GLTF.IMeshPrimitive) {

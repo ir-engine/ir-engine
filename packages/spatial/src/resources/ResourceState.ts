@@ -70,6 +70,7 @@ export enum ResourceType {
   Material = 'Material',
   Object3D = 'Object3D',
   Audio = 'Audio',
+  File = 'File',
   Unknown = 'Unknown'
   // ECSData = 'ECSData',
 }
@@ -84,6 +85,7 @@ export type ResourceAssetType =
   | Mesh
   | DisposableObject
   | AudioBuffer
+  | ArrayBuffer
 
 type BaseMetadata = {
   size?: number
@@ -367,6 +369,13 @@ const resourceCallbacks = {
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (asset: AudioBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {}
+  },
+  [ResourceType.File]: {
+    onStart: (resource: State<Resource>) => {},
+    onLoad: (asset: ArrayBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
+    onUnload: (asset: ArrayBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {}
   },
   [ResourceType.Unknown]: {
     onStart: (resource: State<Resource>) => {},

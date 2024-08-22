@@ -39,9 +39,11 @@ import {
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { AssetLoader } from '../classes/AssetLoader'
+import { FileLoader } from '../loaders/base/FileLoader'
 import { GLTF as GLTFAsset } from '../loaders/gltf/GLTFLoader'
 import { TextureLoader } from '../loaders/texture/TextureLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
+import { ResourceLoadingManagerState } from '../state/ResourceLoadingManagerState'
 import { loadResource, setGLTFResource } from './resourceLoaderFunctions'
 
 function useLoader<T extends ResourceAssetType>(
@@ -240,6 +242,7 @@ export function useGLTF(
 
 export function useGLTFResource(url: string, entity: Entity): void {
   const loaded = GLTFComponent.useSceneLoaded(entity)
+  ResourceLoadingManagerState.initialize()
 
   useImmediateEffect(() => {
     if (!loaded) {
@@ -319,6 +322,15 @@ export function useTexture(
   loader: AssetLoader = new TextureLoader()
 ): [Texture | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
   return useLoader<Texture>(url, ResourceType.Texture, entity, loader, onUnload)
+}
+
+export function useFile(
+  url: string,
+  entity?: Entity,
+  onUnload?: (url: string) => void,
+  loader: AssetLoader = new FileLoader()
+): [ArrayBuffer | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
+  return useLoader<ArrayBuffer>(url, ResourceType.File, entity, loader, onUnload)
 }
 
 /**
