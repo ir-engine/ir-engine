@@ -71,15 +71,17 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         sceneId: string
       }
 
-      const verb = projectHistory.action === 'LOCATION_PUBLISHED' ? 'published' : 'unpublished'
-
       const { relativeURL, resourceURL } = getResourceURL(projectName, actionDetail.sceneURL, 'scene')
 
       return (
         <>
-          <Text>{verb} the location</Text>
+          <Text>
+            {projectHistory.action === 'LOCATION_PUBLISHED'
+              ? t('admin:components.history.publishedLocation')
+              : t('admin:components.history.unpublishedLocation')}
+          </Text>
 
-          {verb === 'published' ? (
+          {projectHistory.action === 'LOCATION_PUBLISHED' ? (
             <a href={`/location/${actionDetail.locationName}`}>
               <Text className="underline-offset-4 hover:underline" fontWeight="semibold">
                 {actionDetail.locationName}
@@ -89,7 +91,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
             <Text fontWeight="semibold">{actionDetail.locationName}</Text>
           )}
 
-          <Text>from the scene</Text>
+          <Text>{t('admin:components.history.fromScene')}</Text>
 
           <Text href={resourceURL} component="a" className="underline-offset-4 hover:underline" fontWeight="semibold">
             {relativeURL}.
@@ -103,7 +105,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text>modified the location</Text>
+          <Text>{t('admin:components.history.modifiedLocation')}</Text>
 
           <a href={`/location/${actionDetail.locationName}`}>
             <Text className="underline-offset-4 hover:underline" fontWeight="semibold">
@@ -119,14 +121,17 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         permissionType: string
       }
 
-      const verb = projectHistory.action === 'PERMISSION_CREATED' ? 'added' : 'removed'
-
       return (
         <>
-          <Text>{verb} the</Text>
+          <Text>
+            {projectHistory.action === 'PERMISSION_CREATED'
+              ? t('admin:components.history.added')
+              : t('admin:components.history.removed')}
+          </Text>
+
           <Text fontWeight="semibold">{actionDetail.permissionType}</Text>
 
-          <Text>access to</Text>
+          <Text>{t('admin:components.history.accessTo')}</Text>
 
           <Tooltip content={`UserId: ${actionDetail.userId}`}>
             <Text>{actionDetail.userName}</Text>
@@ -143,13 +148,13 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text>updated the permission of the user</Text>
+          <Text>{t('admin:components.history.updatePermission')}</Text>
           <Tooltip content={`UserId: ${actionDetail.userId}`}>
             <Text>{actionDetail.userName}</Text>
           </Tooltip>
-          <Text>from</Text>
+          <Text>{t('admin:components.setting.from').toLowerCase()}</Text>
           <Text fontWeight="semibold">{actionDetail.oldPermissionType}</Text>
-          <Text>to</Text>
+          <Text>{t('admin:components.setting.to').toLowerCase()}</Text>
           <Text fontWeight="semibold">{actionDetail.newPermissionType}</Text>
         </>
       )
@@ -161,10 +166,6 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
       projectHistory.action === 'SCENE_CREATED' ||
       projectHistory.action === 'SCENE_REMOVED'
     ) {
-      const verb =
-        projectHistory.action === 'RESOURCE_CREATED' || projectHistory.action === 'SCENE_CREATED'
-          ? 'created'
-          : 'removed'
       const object =
         projectHistory.action === 'RESOURCE_CREATED' || projectHistory.action === 'RESOURCE_REMOVED'
           ? 'resource'
@@ -179,10 +180,13 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
       return (
         <>
           <Text>
-            {verb} the {object}
+            {projectHistory.action.endsWith('CREATED')
+              ? t('admin:components.history.created')
+              : t('admin:components.history.removed')}{' '}
+            {object}
           </Text>
 
-          {verb === 'created' ? (
+          {projectHistory.action.endsWith('CREATED') ? (
             <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
               {relativeURL}
             </Text>
@@ -207,10 +211,12 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text>renamed a {object} from</Text>
+          <Text>
+            {t('admin:components.history.renamed')} {object} {t('admin:components.setting.from').toLowerCase()}
+          </Text>
 
           <Text fontWeight="semibold">{oldRelativeURL}</Text>
-          <Text>to</Text>
+          <Text>{t('admin:components.setting.to').toLowerCase()}</Text>
           <Text
             href={newResourceURL}
             component="a"
@@ -231,7 +237,9 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text>modified the {object}</Text>
+          <Text>
+            {t('admin:components.history.modified')} {object}
+          </Text>
           <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
             {relativeURL}
           </Text>
@@ -246,7 +254,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text>updated the tags for </Text>
+          <Text>{t('admin:components.history.updatedTags')}</Text>
           <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
             {relativeURL}
           </Text>
@@ -268,7 +276,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text>created a thumbnail: </Text>
+          <Text>{t('admin:components.history.createdThumbnail')}</Text>
           <Text
             href={thumbnailResourceURL}
             component="a"
@@ -277,7 +285,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
           >
             {relativeThumbnailURL}
           </Text>
-          <Text>for</Text>
+          <Text>{t('admin:components.setting.for').toLowerCase()}</Text>
           <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
             {relativeURL}
           </Text>
@@ -300,11 +308,11 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text>updated the thumbnail of the resource: </Text>
+          <Text>{t('admin:components.history.updatedThumbnail')}</Text>
           <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
             {relativeURL}
           </Text>
-          <Text>to</Text>
+          <Text>{t('admin:components.setting.to').toLowerCase()}</Text>
           <Text
             href={thumbnailResourceURL}
             component="a"
@@ -324,8 +332,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text>removed the thumbnail: </Text>
-          <Text>for the resource:</Text>
+          <Text>{t('admin:components.history.removedThumbnail')}</Text>
           <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
             {relativeURL}
           </Text>

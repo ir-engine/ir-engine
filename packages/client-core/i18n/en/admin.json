@@ -453,6 +453,8 @@
       "secure": "Secure",
       "auth": "Auth",
       "from": "From",
+      "for": "For",
+      "to": "To",
       "subject": "Subject",
       "login": "Login",
       "friend": "Friend",
@@ -745,6 +747,23 @@
         "route": "Route",
         "action": "Active"
       }
+    },
+    "history": {
+      "publishedLocation": "published the location",
+      "modifiedLocation": "modified the location",
+      "unpublishedLocation": "unpublished the location",
+      "fromScene": "from the scene",
+      "added": "added the",
+      "created": "created the",
+      "removed": "removed the",
+      "renamed": "renamed a",
+      "modified": "modified the",
+      "accessTo": "access to",
+      "updatedTags": "updated the tags for",
+      "createdThumbnail": "created a thumbnail: ",
+      "updatedThumbnail": "updated the thumbnail of the resource: ",
+      "removedThumbnail": "removed the thumbnail for the resource: ",
+      "updatePermission": "updated the permission of the user"
     }
   }
 }
