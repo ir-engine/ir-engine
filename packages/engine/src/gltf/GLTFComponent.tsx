@@ -228,8 +228,7 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
       if (!compValue[key]) return
     }
 
-    console.log(`All dependencies loaded for entity: ${entity} on component: ${component.jsonID}`)
-
+    // All dependencies loaded, remove from dependency array
     const gltfComponent = getMutableComponent(gltfComponentEntity, GLTFComponent)
     const uuid = getComponent(entity, UUIDComponent)
     gltfComponent.dependencies.set((prev) => {
