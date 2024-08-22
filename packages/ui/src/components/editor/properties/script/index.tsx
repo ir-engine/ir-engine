@@ -32,7 +32,7 @@ import { IoLogoJavascript } from 'react-icons/io5'
 
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { ScriptComponent } from '@ir-engine/engine'
-import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
+import { getEntityErrors, useEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import InputGroup from '../../input/Group'
 import ScriptInput from '../../input/Script'
 import { NodeEditor } from '../nodeEditor'
@@ -41,6 +41,9 @@ export const ScriptNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const scriptComponent = useComponent(props.entity, ScriptComponent)
+  useEntityErrors(props.entity, ScriptComponent)
+
+  const errors = getEntityErrors(props.entity, ScriptComponent)
 
   return (
     <NodeEditor
@@ -49,21 +52,23 @@ export const ScriptNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.script.description')}
       icon={<ScriptNodeEditor.iconComponent />}
     >
-      <InputGroup name={t('editor:properties.script.lbl-disabled')} label={t('editor:properties.script.lbl-disabled')}>
-        <BooleanInput value={scriptComponent.disabled.value} onChange={commitProperty(ScriptComponent, 'disabled')} />
-      </InputGroup>
       <InputGroup
         name={t('editor:properties.script.lbl-scriptPath')}
         label={t('editor:properties.script.lbl-scriptPath')}
       >
         <ScriptInput value={scriptComponent.src.value} onChange={commitProperty(ScriptComponent, 'src')} />
-      </InputGroup>
-      <InputGroup name={t('editor:properties.script.lbl-async')} label={t('editor:properties.script.lbl-async')}>
-        <BooleanInput value={scriptComponent.async.value} onChange={commitProperty(ScriptComponent, 'async')} />
-      </InputGroup>
-
-      <InputGroup name={t('editor:properties.script.lbl-run')} label={t('editor:properties.script.lbl-run')}>
-        <BooleanInput value={scriptComponent.run.value} onChange={commitProperty(ScriptComponent, 'run')} />
+        {errors?.MISSING_FILE && (
+          <div className="mt-0.5 text-red-700">{t('editor:properties.script.error.invalid-location')}</div>
+        )}
+        {errors?.INVALID_SCRIPT_TYPE && (
+          <div className="mt-0.5 text-red-700">{t('editor:properties.script.error.invalid-type')}</div>
+        )}
+        {errors?.INVALID_URL_FORMAT && (
+          <div className="mt-0.5 text-red-700">{t('editor:properties.script.error.invalid-format')}</div>
+        )}
+        {errors?.INVALID_URL_SCHEME && (
+          <div className="mt-0.5 text-red-700">{t('editor:properties.script.error.invalid-schema')}</div>
+        )}
       </InputGroup>
     </NodeEditor>
   )

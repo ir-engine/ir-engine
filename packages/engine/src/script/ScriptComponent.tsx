@@ -25,8 +25,33 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { cleanStorageProviderURLs } from '@ir-engine/common/src/utils/parseSceneJSON'
 import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { getState } from '@ir-engine/hyperflux'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { useEffect } from 'react'
-import { v4 as uuidv4 } from 'uuid'
+import { addError, clearErrors, removeError } from '../scene/functions/ErrorFunctions'
+
+function validateScriptUrl(entity, url: string): boolean {
+  try {
+    const parsedUrl = new URL(url)
+    const pathname = parsedUrl.pathname
+    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+      console.error('INVALID_URL_SCHEME')
+      addError(entity, ScriptComponent, 'INVALID_URL_SCHEME', 'Invalid URL scheme')
+      return false
+    }
+    if (!pathname.endsWith('.js')) {
+      // replace with itemTypes later
+      console.error('INVALID_SCRIPT_TYPE')
+      addError(entity, ScriptComponent, 'INVALID_SCRIPT_TYPE', 'URL does not point to a JavaScript file')
+      return false
+    }
+    return true
+  } catch (e) {
+    console.error('INVALID_URL_FORMAT')
+    addError(entity, ScriptComponent, 'INVALID_URL_FORMAT', 'Invalid URL format')
+    return false
+  }
+}
 
 export const ScriptComponent = defineComponent({
   name: 'ScriptComponent',
@@ -34,28 +59,18 @@ export const ScriptComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      uuid: '',
-      src: '', // default path is in the scripts directory
-      async: false,
-      run: false,
-      disabled: false
+      src: '' // default path is in the scripts directory
     }
   },
 
   toJSON: (entity, component) => {
     return {
-      src: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.src.get({ noproxy: true })))),
-      async: component.async.value,
-      run: false,
-      disabled: component.disabled.value
+      src: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.src.get({ noproxy: true }))))
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (typeof json.disabled === 'boolean') component.disabled.set(json.disabled)
-    if (typeof json.run === 'boolean') component.run.set(json.run)
-    if (typeof json.async === 'boolean') component.async.set(json.async)
     if (typeof json.src === 'string') component.src.set(json.src)
   },
 
@@ -65,34 +80,26 @@ export const ScriptComponent = defineComponent({
     const scriptComponent = useComponent(entity, ScriptComponent)
 
     useEffect(() => {
-      if (scriptComponent.disabled.value) return
-      const script: HTMLScriptElement | null = document.querySelector(`script[id="${scriptComponent.uuid.value}"]`)
-      if (!script) return
+      if (getState(EngineState).isEditing) return
+      const script = document.createElement('script')
+      if (!scriptComponent.src.value) return // return for empty src
+      if (!validateScriptUrl(entity, scriptComponent.src.value)) return // validation step
+      clearErrors(entity, ScriptComponent)
       script.src = scriptComponent.src.value
-    }, [scriptComponent.src])
 
-    useEffect(() => {
-      if (scriptComponent.disabled.value) return
-      const script: HTMLScriptElement | null = document.querySelector(`script[id="${scriptComponent.uuid.value}"]`)
-      if (!script) return
-      script.async = scriptComponent.async.value
-    }, [scriptComponent.async])
-
-    useEffect(() => {
-      if (scriptComponent.disabled.value) return
-      let script: HTMLScriptElement | null = document.querySelector(`script[id="${scriptComponent.uuid.value}"]`)
-      if (!script) {
-        script = document.createElement('script')
-        script.id = uuidv4()
-        scriptComponent.uuid.set(script.id)
+      script.onerror = () => {
+        addError(entity, ScriptComponent, 'MISSING_FILE', 'Failed to load the script!')
       }
-      if (!scriptComponent.run.value) return
-      script.src = scriptComponent.src.value
-      script.async = scriptComponent.async.value
+
+      script.onload = () => {
+        removeError(entity, ScriptComponent, 'MISSING_FILE')
+      }
+
       document.body.appendChild(script)
       return () => {
         document.body.removeChild(script)
       }
-    }, [scriptComponent.run])
-  }
+    }, [scriptComponent.src])
+  },
+  errors: ['MISSING_FILE', 'INVALID_URL_SCHEME', 'INVALID_SCRIPT_TYPE', 'INVALID_URL_FORMAT']
 })

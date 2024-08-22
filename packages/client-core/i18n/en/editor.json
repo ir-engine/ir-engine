@@ -1083,11 +1083,14 @@
     "script":{
       "name": "Script Component",
       "description": " adds a script to the entity",
-      "lbl-scriptName": "Script name",
-      "lbl-async": "Async Script",
       "lbl-scriptPath": "Script path",
-      "lbl-disabled": "Disable Script",
-      "lbl-run": "Play Script"
+      "error":{
+        "invalid-location":"Cannot find script",
+        "invalid-type":"Script is not of valid type", 
+        "invalid-format":"Url format is invalid",
+        "invalid-schema":"Url schema is invalid"
+
+      }
     }
   },
   "projects": {
