@@ -33,14 +33,13 @@ import {
   useComponent,
   useEntityContext,
   useOptionalComponent
-} from '@etherealengine/ecs'
-import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
-import { State, getState, useImmediateEffect } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { useAncestorWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { Bounds, getViewportBounds } from '@etherealengine/xrui'
+} from '@ir-engine/ecs'
+import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
+import { State, getState, useImmediateEffect } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { useAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React from 'react'
 import {
   Color,
@@ -54,12 +53,10 @@ import {
   Texture,
   Vector3
 } from 'three'
-
-export interface XRSizeMode {
-  x: 'proportional' | 'literal'
-  y: 'proportional' | 'literal'
-  z: 'proportional' | 'literal'
-}
+import { Bounds } from '../classes/Bounds'
+import { TimestampedValue, Transition } from '../classes/Transition'
+import { getViewportBounds } from '../dom-utils'
+import { XRLayoutComponent } from './XRLayoutComponent'
 
 export interface XRUIBorderRadius {
   topLeft: number

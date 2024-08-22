@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,16 +14,17 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Infinite Reality Engine.
+The Original Code is Ethereal Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Infinite Reality Engine team.
+Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
-Infinite Reality Engine. All Rights Reserved.
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
 */
 
-import { compress, decompress } from 'fflate'
+import { compress } from 'fflate'
+// import { Packr, Unpackr } from 'msgpackr'
 import { Matrix4 } from 'three'
 
 import { getBorder, getBounds, getMargin, getPadding, parseCSSTransform } from './dom-utils'
@@ -33,7 +34,6 @@ import { getAllEmbeddedStyles } from './serialization/getAllEmbeddedStyles'
 import { KTX2Encoder, UASTCFlags } from './textures/KTX2Encoder'
 import { WebLayer } from './WebLayer'
 import { WebRenderer } from './WebRenderer'
-
 import { StateHash, TextureHash, XRUILayerState } from './XRUILayerState'
 
 const scratchMatrix = new Matrix4()
@@ -91,88 +91,6 @@ export class WebLayerManagerBase {
   optimizeQueue = [] as { textureHash: TextureHash; resolve: (val: any) => void; promise: any }[]
 
   ktx2Encoder = new KTX2Encoder()
-
-  getActiveStateHashes() {
-    return Array.from(this._stateData.keys()).filter((k) => typeof k === 'string') as StateHash[]
-  }
-
-  getLayerState(hash: StateHash | HTMLMediaElement) {
-    let data = this._stateData.get(hash)
-    if (!data) {
-      data = {
-        cssTransform: undefined,
-        bounds: new Bounds(),
-        margin: new Edges(),
-        padding: new Edges(),
-        border: new Edges(),
-        fullWidth: 0,
-        fullHeight: 0,
-        renderAttempts: 0,
-        textureWidth: 32,
-        textureHeight: 32,
-        pixelRatio: 1,
-        texture: undefined!,
-        pseudo: {
-          hover: false,
-          active: false,
-          focus: false,
-          target: false
-        }
-      }
-      this._stateData.set(hash, data)
-    }
-    return data
-  }
-
-  getTextureState(textureHash: TextureHash) {
-    let data = this._textureData.get(textureHash)
-    if (!data) {
-      data = {
-        hash: textureHash,
-        canvas: undefined,
-        ktx2Url: undefined
-      }
-      this._textureData.set(textureHash, data)
-    }
-    return data
-  }
-
-  private _statesRequestedFromStore = new Set<StateHash>()
-  private _texturesRequestedFromStore = new Set<TextureHash>()
-  async requestStoredData(hash: StateHash | HTMLMediaElement) {
-    const stateData = this.getLayerState(hash)
-    if (typeof hash !== 'string') return stateData
-    if (!this._statesRequestedFromStore.has(hash)) {
-      this._statesRequestedFromStore.add(hash)
-      const state = await this.store.states.get(hash)
-      if (state?.textureHash) {
-        stateData.texture = this.getTextureState(state.textureHash)
-      }
-    }
-    const textureData = stateData.texture
-    if (
-      textureData &&
-      textureData.hash &&
-      !textureData.canvas &&
-      !textureData.ktx2Url &&
-      !this._texturesRequestedFromStore.has(textureData?.hash)
-    ) {
-      this._texturesRequestedFromStore.add(textureData.hash)
-      const storedTexture = await this.store.textures.get(textureData.hash)
-      if (storedTexture?.texture && !textureData.canvas) {
-        const data = await new Promise<Uint8Array>((resolve, reject) => {
-          decompress(storedTexture.texture!, { consume: true }, (err, data) => {
-            if (err) return reject(err)
-            resolve(data)
-          })
-        })
-        if (!textureData.canvas) {
-          textureData.ktx2Url = URL.createObjectURL(new Blob([data.buffer], { type: 'image/ktx2' }))
-        }
-      }
-    }
-    return stateData
-  }
 
   async compressTexture(textureHash: TextureHash) {
     const data = this._textureData.get(textureHash)
@@ -351,7 +269,7 @@ export class WebLayerManagerBase {
     }
 
     // update the layer state data
-    const data = await this.requestStoredData(result.stateKey)
+    const data = await XRUILayerState.requestStoredData(result.stateKey)
     data.cssTransform = cssTransform?.clone()
     data.bounds.left = left
     data.bounds.top = top

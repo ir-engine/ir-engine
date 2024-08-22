@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createEntity, setComponent, useComponent } from '@etherealengine/ecs'
+import { createEntity, setComponent, useComponent } from '@ir-engine/ecs'
 import React from 'react'
 import { XRUILayerComponent } from '../components/XRUILayerComponent'
 
