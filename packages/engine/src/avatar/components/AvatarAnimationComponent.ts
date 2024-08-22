@@ -160,6 +160,7 @@ export const AvatarRigComponent = defineComponent({
     useEffect(() => {
       if (gltfComponent?.progress?.value !== 100) return
       const vrm = createVRM(entity)
+      setupAvatarProportions(entity, vrm)
       rigComponent.vrm.set(vrm)
     }, [gltfComponent?.progress?.value])
 
@@ -167,7 +168,6 @@ export const AvatarRigComponent = defineComponent({
       if (!rigComponent?.vrm?.value) return
       const rig = getComponent(entity, AvatarRigComponent)
       setComponent(entity, VRMComponent, rig.vrm)
-      setupAvatarProportions(entity, rig.vrm)
       return () => {
         removeComponent(entity, VRMComponent)
       }
@@ -225,12 +225,12 @@ export default function createVRM(rootEntity: Entity) {
     }, {} as VRMHumanBones)
 
     /**hacky, @todo test with vrm1 */
-    iterateEntityNode(bones.hips.node.parent!.entity, (entity) => {
+    iterateEntityNode(rootEntity, (entity) => {
       const bone = getOptionalComponent(entity, BoneComponent)
       bone?.matrixWorld.identity()
-      bone?.matrixWorld.makeRotationY(Math.PI)
+      if (entity !== bones.hips.node.parent!.entity) bone?.matrixWorld.makeRotationY(Math.PI)
     })
-    bones.hips.node.parent!.rotateY(Math.PI)
+    bones.hips.node.rotateY(Math.PI)
 
     const humanoid = new VRMHumanoid(bones)
 
@@ -249,8 +249,6 @@ export default function createVRM(rootEntity: Entity) {
       // springBoneManager: gltf.userData.vrmSpringBoneManager,
       // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
     })
-
-    console.log(vrm)
 
     return vrm
   }
@@ -289,10 +287,11 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
    */
   const removeSuffix = mixamoPrefix ? false : !/[hp]/i.test(hipsName.charAt(9))
 
-  iterateEntityNode(hipsEntity, (entity) => {
+  iterateEntityNode(rootEntity, (entity) => {
     // if (!getComponent(entity, BoneComponent)) return
     const boneComponent = getOptionalComponent(entity, BoneComponent) || getComponent(entity, TransformComponent)
     boneComponent?.matrixWorld.identity()
+    if (entity === rootEntity) return
 
     const name = getComponent(entity, NameComponent)
     /**match the keys to create a humanoid bones object */
@@ -328,6 +327,7 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   if (!vrm.userData) vrm.userData = {}
   humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
   humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
+
   return vrm
 }
 
