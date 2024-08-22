@@ -23,11 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { API } from '@ir-engine/common'
 import { scopePath, ScopeTypeInterface, UserType } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 
 export const checkScope = async (user: UserType, currentType: string, scopeToVerify: string) => {
-  const scopes = (await Engine.instance.api.service(scopePath).find({
+  const scopes = (await API.instance.service(scopePath).find({
     query: {
       userId: user.id,
       paginate: false
