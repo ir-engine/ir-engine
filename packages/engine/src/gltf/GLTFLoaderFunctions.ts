@@ -28,6 +28,7 @@ import {
   ComponentType,
   EntityUUID,
   UUIDComponent,
+  UndefinedEntity,
   getComponent,
   getOptionalComponent,
   useOptionalComponent
@@ -57,7 +58,6 @@ import {
   LinearFilter,
   LinearMipmapLinearFilter,
   LinearSRGBColorSpace,
-  Loader,
   LoaderUtils,
   Mesh,
   MeshBasicMaterial,
@@ -74,7 +74,9 @@ import {
   Vector3,
   VectorKeyframeTrack
 } from 'three'
+import { useTexture } from '../assets/functions/resourceLoaderHooks'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
+import { Loader } from '../assets/loaders/base/Loader'
 import {
   ALPHA_MODES,
   ATTRIBUTES,
@@ -777,7 +779,7 @@ const useLoadTexture = (options: GLTFParserOptions, textureIndex?: number) => {
   const handler = typeof sourceDef?.uri === 'string' && options.manager.getHandler(sourceDef.uri)
   let loader: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader<unknown, string>
 
-  if (handler) loader = handler
+  if (handler) loader = handler as Loader<unknown, string>
   if (basisu) loader = getState(AssetLoaderState).gltfLoader.ktx2Loader!
   else {
     loader = textureLoader
@@ -852,16 +854,10 @@ const useLoadImageSource = (
   loader?: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader
 ) => {
   const json = options.document
-  const result = useHookstate<Texture | null>(null)
-
-  /** @todo caching */
-  // if (sourceCache[sourceIndex] !== undefined) {
-  //   return sourceCache[sourceIndex].then((texture) => texture.clone())
-  // }
-
   const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
 
-  const sourceURI = useHookstate(null as null | string)
+  const sourceURI = useHookstate('')
+  const [result] = useTexture(sourceURI.value, UndefinedEntity, () => {}, loader)
   let isObjectURL = false
 
   const bufferViewSourceURI = GLTFLoaderFunctions.useLoadBufferView(options, sourceDef?.bufferView)
@@ -878,7 +874,7 @@ const useLoadImageSource = (
       const url = LoaderUtils.resolveURL(sourceDef.uri, options.path)
       sourceURI.set(url)
       return () => {
-        sourceURI.set(null)
+        sourceURI.set('')
       }
     }
 
@@ -889,36 +885,15 @@ const useLoadImageSource = (
       sourceURI.set(url)
       return () => {
         URL.revokeObjectURL(url)
-        sourceURI.set(null)
+        sourceURI.set('')
       }
     }
   }, [sourceDef?.uri, bufferViewSourceURI])
 
   useEffect(() => {
-    if (!sourceURI.value) return
-    loader!.load(
-      LoaderUtils.resolveURL(sourceURI.value as string, options.path),
-      (imageBitmap: Texture | ImageBitmap) => {
-        if ((loader as ImageBitmapLoader).isImageBitmapLoader === true) {
-          const texture = new Texture(imageBitmap as ImageBitmap)
-          texture.needsUpdate = true
-          result.set(texture)
-        } else {
-          result.set(imageBitmap as Texture)
-        }
-      },
-      undefined,
-      (e) => {
-        console.error(e)
-        console.error("THREE.GLTFLoader: Couldn't load image", sourceURI.value)
-      }
-    )
-  }, [sourceURI.value])
+    if (!result || !sourceURI.value || !sourceDef) return
 
-  useEffect(() => {
-    if (!result.value || !sourceURI.value || !sourceDef) return
-
-    const texture = result.value as Texture
+    const texture = result
 
     // Clean up resources and configure Texture.
 
@@ -931,9 +906,9 @@ const useLoadImageSource = (
     texture.userData.mimeType = sourceDef.mimeType || getImageURIMimeType(sourceDef.uri)
 
     // sourceCache[sourceIndex] = promise
-  }, [result.value])
+  }, [result])
 
-  return result.get(NO_PROXY) as Texture | null
+  return result
 }
 
 const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>

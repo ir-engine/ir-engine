@@ -33,8 +33,7 @@ import {
   ResourceType
 } from '@ir-engine/spatial/src/resources/ResourceState'
 
-import { AssetExt } from '@ir-engine/common/src/constants/AssetType'
-import { AssetLoader, getLoader } from '../classes/AssetLoader'
+import { AssetLoader } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 
 interface Cloneable<T> {
@@ -55,16 +54,6 @@ const cloneAsset = <T>(asset: Cloneable<T> | undefined, onLoad: (T) => void): bo
   }
 
   return false
-}
-
-const getLoaderForResourceType = (resourceType: ResourceType) => {
-  switch (resourceType) {
-    case ResourceType.GLTF:
-      return getLoader(AssetExt.GLTF)
-    default:
-      break
-  }
-  return undefined
 }
 
 export const setGLTFResource = (url: string, entity: Entity, status: ResourceStatus) => {
@@ -116,6 +105,7 @@ export const loadResource = <T extends ResourceAssetType>(
   onProgress: (request: ProgressEvent) => void,
   onError: (event: ErrorEvent | Error) => void,
   signal: AbortSignal,
+  loader?: AssetLoader,
   uuid?: string
 ) => {
   const resourceState = getMutableState(ResourceState)
@@ -196,7 +186,7 @@ export const loadResource = <T extends ResourceAssetType>(
       ResourceManager.unload(url, entity, uuid)
     },
     signal,
-    getLoaderForResourceType(resourceType)
+    loader
   )
 }
 
