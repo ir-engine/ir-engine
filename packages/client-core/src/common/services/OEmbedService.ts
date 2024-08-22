@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { API } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
 import { oembedPath, OembedType } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineState, getMutableState } from '@ir-engine/hyperflux'
 
 import { NotificationService } from './NotificationService'
@@ -42,7 +42,7 @@ export const OEmbedState = defineState({
   fetchData: async (pathname: string, queryUrl: string) => {
     try {
       getMutableState(OEmbedState).merge({ oEmbed: undefined, pathname })
-      const oEmbed = (await Engine.instance.api.service(oembedPath).find({ query: { url: queryUrl } })) as OembedType
+      const oEmbed = (await API.instance.service(oembedPath).find({ query: { url: queryUrl } })) as OembedType
       getMutableState(OEmbedState).merge({ oEmbed, pathname })
     } catch (err) {
       logger.error(err)

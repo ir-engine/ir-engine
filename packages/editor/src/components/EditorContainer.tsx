@@ -52,8 +52,9 @@ import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
 import { useZendesk } from '@ir-engine/client-core/src/hooks/useZendesk'
+import { API } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { Engine, EntityUUID } from '@ir-engine/ecs'
+import { EntityUUID } from '@ir-engine/ecs'
 import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -140,7 +141,7 @@ const EditorContainer = () => {
     if (!scenePath.value) return
 
     const abortController = new AbortController()
-    Engine.instance.api
+    API.instance
       .service(staticResourcePath)
       .find({
         query: { key: scenePath.value, type: 'scene', $limit: 1 }

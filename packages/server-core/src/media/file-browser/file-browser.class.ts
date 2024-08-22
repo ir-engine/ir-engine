@@ -241,8 +241,6 @@ export class FileBrowserService
       } as any
     })) as unknown as StaticResourceType[]
 
-    if (!staticResources?.length) throw new Error('Static resources not found')
-
     const results = [] as StaticResourceType[]
     for (const resource of staticResources) {
       const newKey = resource.key.replace(path.join(oldDirectory, oldName), path.join(newDirectory, fileName))
