@@ -225,12 +225,12 @@ export default function createVRM(rootEntity: Entity) {
     }, {} as VRMHumanBones)
 
     /**hacky, @todo test with vrm1 */
-    iterateEntityNode(bones.hips.node.parent!.entity, (entity) => {
+    iterateEntityNode(rootEntity, (entity) => {
       const bone = getOptionalComponent(entity, BoneComponent)
       bone?.matrixWorld.identity()
-      bone?.matrixWorld.makeRotationY(Math.PI)
+      if (entity !== bones.hips.node.parent!.entity) bone?.matrixWorld.makeRotationY(Math.PI)
     })
-    bones.hips.node.parent!.rotateY(Math.PI)
+    bones.hips.node.rotateY(Math.PI)
 
     const humanoid = new VRMHumanoid(bones)
 
