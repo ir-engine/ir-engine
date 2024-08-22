@@ -35,13 +35,13 @@ import { VisualScriptActions, visualScriptQuery } from '@ir-engine/engine'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@ir-engine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@ir-engine/engine/src/avatar/functions/receiveJoinWorld'
-import { dispatchAction, getMutableState, getState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { WorldNetworkAction } from '@ir-engine/network'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -93,11 +93,14 @@ const PlayModeTool: React.FC = () => {
   const isEditing = useHookstate(getMutableState(EngineState).isEditing)
 
   const onTogglePlayMode = () => {
-    getMutableState(EngineState).isEditing.set(!isEditing) //getState(EngineState).isEditing)
+    getMutableState(EngineState).isEditing.set(!isEditing.value)
   }
 
-  useImmediateEffect(() => {
+  useEffect(() => {
     !isEditing.value ? onStartPlayMode() : onStopPlayMode()
+    return () => {
+      onStopPlayMode()
+    }
   }, [isEditing])
 
   return (
