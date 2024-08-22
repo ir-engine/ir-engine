@@ -61,14 +61,23 @@ import { DefaultButtonAlias, InputComponent, InputExecutionOrder, InputExecution
 import { InputSinkComponent } from './InputSinkComponent'
 import { InputSourceComponent } from './InputSourceComponent'
 
-const InputComponentDefaults = {
+type InputComponentData = {
+  inputSinks: EntityUUID[]
+  activationDistance: number
+  highlight: boolean
+  grow: boolean
+  inputSources: Entity[]
+}
+
+const InputComponentDefaults: InputComponentData = {
   inputSinks: ['Self'] as EntityUUID[],
   activationDistance: 2,
-  highlight: true,
+  highlight: false,
   grow: false,
   inputSources: [] as Entity[]
 }
-function assertInputComponentEq(A, B): void {
+
+function assertInputComponentEq(A: InputComponentData, B: InputComponentData): void {
   assertArrayEqual(A.inputSinks, B.inputSinks)
   assert.equal(A.activationDistance, B.activationDistance)
   assert.equal(A.highlight, B.highlight)

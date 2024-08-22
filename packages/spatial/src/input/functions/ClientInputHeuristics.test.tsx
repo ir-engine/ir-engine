@@ -380,13 +380,13 @@ describe('ClientInputHeuristics', () => {
 
       const one = createEntity()
       setComponent(one, VisibleComponent)
-      setComponent(one, EntityTreeComponent, { parentEntity: UndefinedEntity })
+      setComponent(one, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(one, TransformComponent, { position: new Vector3(2.1, 2.1, 2.1) })
       setComponent(one, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(one, ColliderComponent, { shape: Shapes.Box })
       const two = createEntity() // Should not be hit by the raycast
       setComponent(two, VisibleComponent)
-      setComponent(two, EntityTreeComponent, { parentEntity: UndefinedEntity })
+      setComponent(two, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(two, TransformComponent, { position: new Vector3(2.2, 2.2, 2.2) })
       setComponent(two, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(two, ColliderComponent, { shape: Shapes.Box })
@@ -947,8 +947,8 @@ describe('ClientInputHeuristics', () => {
         setComponent(sourceEntity, TransformComponent)
         const sorted = [] as IntersectionData[]
         const intersections = new Set<IntersectionData>()
-        Engine.instance.userID = 'testUserID' as UserID
-        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        Engine.instance.store.userID = 'testUserID' as UserID
+        const UUID = (Engine.instance.store.userID + '_avatar') as EntityUUID
         const testEntity = createEntity()
         setComponent(testEntity, VisibleComponent)
         setComponent(testEntity, TransformComponent)
@@ -1095,8 +1095,8 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, InputComponent)
         // Make the entity the selfAvatarEntity
-        Engine.instance.userID = 'testUserID' as UserID
-        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        Engine.instance.store.userID = 'testUserID' as UserID
+        const UUID = (Engine.instance.store.userID + '_avatar') as EntityUUID
         setComponent(testEntity, UUIDComponent, UUID)
 
         // Run and Check the result
@@ -1121,8 +1121,8 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, InputComponent)
         // Make the entity the selfAvatarEntity
-        Engine.instance.userID = 'testUserID' as UserID
-        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        Engine.instance.store.userID = 'testUserID' as UserID
+        const UUID = (Engine.instance.store.userID + '_avatar') as EntityUUID
         setComponent(testEntity, UUIDComponent, UUID)
 
         // Run and Check the result
@@ -1147,10 +1147,10 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, InputComponent)
         // Do not make the testEntity an Avatar entity, so that it is undefined
-        // Engine.instance.userID = "testUserID" as UserID
-        // const UUID = Engine.instance.userID + '_avatar' as EntityUUID
+        // Engine.instance.store.userID = "testUserID" as UserID
+        // const UUID = Engine.instance.store.userID + '_avatar' as EntityUUID
         // setComponent(testEntity, UUIDComponent, UUID)
-        const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
+        const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.store.userID + '_avatar') as EntityUUID)
         assert.equal(selfAvatarEntity, UndefinedEntity)
 
         // Run and Check the result
@@ -1180,8 +1180,8 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, InputComponent)
         // Make the entity the selfAvatarEntity
-        Engine.instance.userID = 'testUserID' as UserID
-        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        Engine.instance.store.userID = 'testUserID' as UserID
+        const UUID = (Engine.instance.store.userID + '_avatar') as EntityUUID
         setComponent(testEntity, UUIDComponent, UUID)
 
         // Run and Check the result
@@ -1202,8 +1202,8 @@ describe('ClientInputHeuristics', () => {
         const intersections = new Set<IntersectionData>()
 
         const testEntity = createEntity()
-        Engine.instance.userID = 'testUserID' as UserID
-        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
+        Engine.instance.store.userID = 'testUserID' as UserID
+        const UUID = (Engine.instance.store.userID + '_avatar') as EntityUUID
         setComponent(testEntity, UUIDComponent, UUID)
         setComponent(testEntity, VisibleComponent)
         setComponent(testEntity, TransformComponent)
@@ -1230,10 +1230,10 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, InputComponent)
         // Do not make the testEntity an Avatar entity, so that it is undefined
-        // Engine.instance.userID = "testUserID" as UserID
-        // const UUID = Engine.instance.userID + '_avatar' as EntityUUID
+        // Engine.instance.store.userID = "testUserID" as UserID
+        // const UUID = Engine.instance.store.userID + '_avatar' as EntityUUID
         // setComponent(testEntity, UUIDComponent, UUID)
-        const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
+        const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.store.userID + '_avatar') as EntityUUID)
         assert.equal(selfAvatarEntity, UndefinedEntity)
 
         // Run and Check the result

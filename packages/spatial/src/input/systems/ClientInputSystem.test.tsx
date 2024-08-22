@@ -428,6 +428,7 @@ describe('ClientInputCleanupSystem', () => {
         }
       }
 
+      const DOMbackup = globalThis.document
       // @ts-ignore Force-assign undefined to the dom
       globalThis.document = undefined
       // Run and Check the result
@@ -437,6 +438,8 @@ describe('ClientInputCleanupSystem', () => {
         const Axes = getComponent(entity, InputSourceComponent).source.gamepad!.axes
         for (const axis of Axes) assert.equal(axis, Initial)
       }
+      // Restore the DOM  (note: Other tests will break if this is not restored)
+      globalThis.document = DOMbackup
     })
   })
 })

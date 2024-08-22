@@ -63,23 +63,28 @@ describe('ClientInputFunctions', () => {
   })
 
   describe('preventDefaultKeyDown', () => {
-    const mockDocumentPrev = { ...globalThis.document } as Document
+    let mockDocumentPrev: Document
+    let mockInput: Document
+    let mockTextArea: Document
 
-    const mockInput = {
-      ...globalThis.document,
-      activeElement: {
-        ...globalThis.document.activeElement,
-        tagName: 'INPUT'
-      } as Element
-    } as Document
+    beforeEach(() => {
+      mockDocumentPrev = globalThis.document
+      mockInput = {
+        ...globalThis.document,
+        activeElement: {
+          ...globalThis.document.activeElement,
+          tagName: 'INPUT'
+        } as Element
+      } as Document
 
-    const mockTextArea = {
-      ...globalThis.document,
-      activeElement: {
-        ...globalThis.document.activeElement,
-        tagName: 'TEXTAREA'
-      } as Element
-    } as Document
+      mockTextArea = {
+        ...globalThis.document,
+        activeElement: {
+          ...globalThis.document.activeElement,
+          tagName: 'TEXTAREA'
+        } as Element
+      } as Document
+    })
 
     afterEach(() => {
       globalThis.document = mockDocumentPrev
