@@ -50,9 +50,9 @@ export default function ApiJobsTable() {
       id: row.id.toString(),
       name: row.name,
       status: row.status,
-      start_time: toDisplayDateTime(row.start_time),
-      end_time: toDisplayDateTime(row.end_time),
-      return_data: row.return_data
+      startTime: toDisplayDateTime(row.startTime),
+      endTime: toDisplayDateTime(row.endTime),
+      returnData: row.returnData
     }))
 
   return <DataTable query={adminApiJobsQuery} columns={apiJobColumns} rows={createRows(adminApiJobsQuery.data)} />
