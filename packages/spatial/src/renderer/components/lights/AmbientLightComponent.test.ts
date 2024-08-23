@@ -23,19 +23,32 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createEngine, createEntity, destroyEngine, removeEntity, setComponent, UndefinedEntity } from '@ir-engine/ecs'
+import {
+  createEngine,
+  createEntity,
+  destroyEngine,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  removeEntity,
+  serializeComponent,
+  setComponent,
+  UndefinedEntity
+} from '@ir-engine/ecs'
 import assert from 'assert'
-import { Color } from 'three'
+import { BoxGeometry, Color, Mesh } from 'three'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../RendererModule'
+import { addObjectToGroup, GroupComponent } from '../GroupComponent'
 import { AmbientLightComponent } from './AmbientLightComponent'
+import { LightTagComponent } from './LightTagComponent'
 
 type AmbientLightComponentData = { color: Color; intensity: number }
-const AmbientLightComponentDefaults = {
+const AmbientLightComponentDefaults: AmbientLightComponentData = {
   color: new Color(),
   intensity: 1
-} as AmbientLightComponentData
+}
 
 function assertAmbientLightComponentEq(A: AmbientLightComponentData, B: AmbientLightComponentData): void {
   assert.deepEqual(A.color, B.color)
@@ -71,12 +84,10 @@ describe('AmbientLightComponent', () => {
       return destroyEngine()
     })
 
-    /**
     it('should initialize the component with the expected default values', () => {
       const data = getComponent(testEntity, AmbientLightComponent)
       assertAmbientLightComponentEq(data, AmbientLightComponentDefaults)
     })
-    */
   }) //:: onInit
 
   describe('onSet', () => {
@@ -96,23 +107,184 @@ describe('AmbientLightComponent', () => {
       return destroyEngine()
     })
 
-    /**
-    it('should change the values of an initialized AmbientLightComponent', () => {})
-    it('should not change values of an initialized AmbientLightComponent when the data passed had incorrect types', () => {})
-    */
+    it('should change the intensity value of an initialized AmbientLightComponent', () => {
+      const before = getComponent(testEntity, AmbientLightComponent)
+      assertAmbientLightComponentEq(before, AmbientLightComponentDefaults)
+      const Expected: AmbientLightComponentData = {
+        color: AmbientLightComponentDefaults.color,
+        intensity: 42
+      }
+
+      // Run and Check the result
+      setComponent(testEntity, AmbientLightComponent, Expected)
+      const result = getComponent(testEntity, AmbientLightComponent)
+      assertAmbientLightComponentEq(result, Expected)
+      assert.notEqual(result.intensity, AmbientLightComponentDefaults.intensity)
+    })
+
+    it('should change the color value of an initialized AmbientLightComponent when the color is passed as a string', () => {
+      const before = getComponent(testEntity, AmbientLightComponent)
+      assertAmbientLightComponentEq(before, AmbientLightComponentDefaults)
+      const Expected = {
+        color: '#123456',
+        intensity: AmbientLightComponentDefaults.intensity
+      }
+
+      // Run and Check the result
+      // @ts-ignore Allow passing the color as a string. onSet understands it, but typescript does not
+      setComponent(testEntity, AmbientLightComponent, Expected)
+      const result = getComponent(testEntity, AmbientLightComponent)
+      assert.notDeepEqual(result.color, AmbientLightComponentDefaults.color)
+    })
+
+    it('should change the color value of an initialized AmbientLightComponent when the color is passed as a Color object (the default allowed type)', () => {
+      const before = getComponent(testEntity, AmbientLightComponent)
+      assertAmbientLightComponentEq(before, AmbientLightComponentDefaults)
+      const Expected = {
+        color: new Color(0x123456),
+        intensity: AmbientLightComponentDefaults.intensity
+      }
+
+      // Run and Check the result
+      setComponent(testEntity, AmbientLightComponent, Expected)
+      const result = getComponent(testEntity, AmbientLightComponent)
+      assert.notDeepEqual(result.color, AmbientLightComponentDefaults.color)
+    })
+
+    it('should not change values of an initialized AmbientLightComponent when the data passed had incorrect types', () => {
+      const before = getComponent(testEntity, AmbientLightComponent)
+      assertAmbientLightComponentEq(before, AmbientLightComponentDefaults)
+      const Incorrect = {
+        color: 42,
+        intensity: 'someIntensity'
+      }
+
+      // Run and Check the result
+      // @ts-ignore Allow coercing incorrect types into onSet
+      setComponent(testEntity, AmbientLightComponent, Incorrect)
+      const result = getComponent(testEntity, AmbientLightComponent)
+      assertAmbientLightComponentEq(result, AmbientLightComponentDefaults)
+    })
   }) //:: onSet
 
   describe('toJSON', () => {
+    let testEntity = UndefinedEntity
+
     beforeEach(async () => {
       createEngine()
+      mockSpatialEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, AmbientLightComponent)
     })
 
     afterEach(() => {
+      removeEntity(testEntity)
+      destroySpatialEngine()
       return destroyEngine()
     })
 
-    // it("should serialize the component's default data as expected", () => {})
+    it("should serialize the component's default data as expected", () => {
+      const Expected = {
+        color: AmbientLightComponentDefaults.color.getHex(),
+        intensity: AmbientLightComponentDefaults.intensity
+      }
+      const result = serializeComponent(testEntity, AmbientLightComponent)
+      assert.deepEqual(result, Expected)
+    })
   })
 
-  describe('reactor', () => {}) //:: reactor
+  describe.only('reactor', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      mockSpatialEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      destroySpatialEngine()
+      return destroyEngine()
+    })
+
+    it('should set a LightTagComponent on the entityContext when it is mounted', () => {
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, LightTagComponent), false)
+
+      // Run and Check the result
+      setComponent(testEntity, AmbientLightComponent)
+      assert.equal(hasComponent(testEntity, LightTagComponent), true)
+    })
+
+    it('should add an AmbientLight object to the GroupComponent of the entityContext when it is mounted', () => {
+      setComponent(testEntity, GroupComponent)
+
+      // Sanity check before running
+      const before = getComponent(testEntity, GroupComponent)
+      assert.equal(before.length, 0)
+
+      // Run and Check the result
+      setComponent(testEntity, AmbientLightComponent)
+      const after = getComponent(testEntity, GroupComponent)
+      assert.notEqual(after.length, 0)
+      assert.equal(after.length, 1)
+      const result = after[0].type === 'AmbientLight'
+      assert.equal(result, true)
+    })
+
+    it('should remove the AmbientLight object from the GroupComponent of the entityContext when it is unmounted', () => {
+      setComponent(testEntity, GroupComponent)
+      const DummyObject = new Mesh(new BoxGeometry())
+
+      // Sanity check before running
+      const before1 = getComponent(testEntity, GroupComponent)
+      assert.equal(before1.length, 0)
+      setComponent(testEntity, AmbientLightComponent)
+      addObjectToGroup(testEntity, DummyObject)
+      const before2 = getComponent(testEntity, GroupComponent)
+      assert.notEqual(before2.length, 0)
+      assert.equal(before2.length, 2)
+      assert.equal(before2[0].type, 'AmbientLight')
+
+      // Run and Check the result
+      removeComponent(testEntity, AmbientLightComponent)
+      const after = getComponent(testEntity, GroupComponent)
+      assert.notEqual(after.length, 2)
+      assert.equal(after.length, 1)
+      assert.notEqual(after[0].type, 'AmbientLight')
+    })
+
+    it('should react when component.intensity changes', () => {
+      const Initial = 21
+      const Expected = 42
+      setComponent(testEntity, AmbientLightComponent, { intensity: Initial })
+
+      // Sanity check before running
+      const before = getComponent(testEntity, AmbientLightComponent).intensity
+      assert.equal(before, Initial)
+
+      // Run and Check the result
+      setComponent(testEntity, AmbientLightComponent, { intensity: Expected })
+      const result = getComponent(testEntity, AmbientLightComponent).intensity
+      assert.equal(result, Expected)
+    })
+
+    it('should react when component.color changes', () => {
+      const Initial = new Color(0x123456)
+      const Expected = new Color(0x424242)
+      setComponent(testEntity, AmbientLightComponent, { color: Initial })
+
+      // Sanity check before running
+      const before = getComponent(testEntity, AmbientLightComponent).color
+      assert.equal(before.getHex(), Initial.getHex())
+
+      // Run and Check the result
+      setComponent(testEntity, AmbientLightComponent, { color: Expected })
+      const result = getComponent(testEntity, AmbientLightComponent).color
+      assert.equal(result.getHex(), Expected.getHex())
+    })
+  }) //:: reactor
 })
