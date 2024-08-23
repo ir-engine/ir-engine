@@ -56,6 +56,7 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EntityUUID } from '@ir-engine/ecs'
 import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
@@ -168,12 +169,19 @@ const EditorContainer = () => {
     }
   }, [scenePath.value])
 
-  const viewerEntity = useMutableState(EngineState).viewerEntity.value
+  useEffect(() => {
+    initializeSpatialEngine()
+    return () => {
+      destroySpatialEngine()
+    }
+  }, [])
+
+  const originEntity = useMutableState(EngineState).originEntity.value
 
   useEffect(() => {
-    if (!sceneAssetID.value || !currentLoadedSceneURL.value || !viewerEntity) return
+    if (!sceneAssetID.value || !currentLoadedSceneURL.value || !originEntity) return
     return setCurrentEditorScene(currentLoadedSceneURL.value, sceneAssetID.value as EntityUUID)
-  }, [viewerEntity, currentLoadedSceneURL.value])
+  }, [originEntity, currentLoadedSceneURL.value])
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 

@@ -24,14 +24,16 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getComponent } from '@ir-engine/ecs'
-import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
+import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { useEffect, useLayoutEffect } from 'react'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
   const lastRef = useHookstate(() => ref.current)
+
+  const engineState = useMutableState(EngineState)
 
   useLayoutEffect(() => {
     if (ref.current !== lastRef.value) {
@@ -41,12 +43,13 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
 
   useLayoutEffect(() => {
     if (!lastRef.value) return
+    if (!engineState.localFloorEntity || !engineState.originEntity) return
 
     const parent = lastRef.value as HTMLElement
 
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
     const originalParent = canvas.parentElement
-    initializeSpatialEngine(canvas)
+    initializeSpatialViewer(canvas)
     parent.appendChild(canvas)
 
     const observer = new ResizeObserver(() => {
@@ -56,12 +59,12 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
     observer.observe(parent)
 
     return () => {
-      destroySpatialEngine()
+      destroySpatialViewer()
       observer.disconnect()
       parent.removeChild(canvas)
       originalParent?.appendChild(canvas)
     }
-  }, [lastRef.value])
+  }, [lastRef.value, engineState.localFloorEntity, engineState.originEntity])
 }
 
 export const useRemoveEngineCanvas = () => {

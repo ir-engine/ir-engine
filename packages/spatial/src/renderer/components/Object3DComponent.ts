@@ -30,7 +30,7 @@ import { NO_PROXY, useImmediateEffect } from '@ir-engine/hyperflux'
 import { NameComponent } from '../../common/NameComponent'
 
 export const Object3DComponent = defineComponent({
-  name: 'Object3D Component',
+  name: 'Object3DComponent',
   jsonID: 'EE_object3d',
 
   onInit: (entity) => null! as Object3D,
