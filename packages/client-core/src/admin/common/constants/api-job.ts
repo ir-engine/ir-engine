@@ -23,26 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ECSState, Timer, setComponent } from '@ir-engine/ecs'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { EngineState } from '../../src/EngineState'
-import { initializeSpatialEngine, initializeSpatialViewer } from '../../src/initializeEngine'
-import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
-import { XRState } from '../../src/xr/XRState'
-import { mockEngineRenderer } from './MockEngineRenderer'
+import { t } from 'i18next'
 
-export const mockSpatialEngine = () => {
-  initializeSpatialEngine()
-  initializeSpatialViewer()
+import { ITableHeadCell } from '../Table'
 
-  const timer = Timer((time, xrFrame) => {
-    getMutableState(XRState).xrFrame.set(xrFrame)
-    // executeSystems(time)
-    getMutableState(XRState).xrFrame.set(null)
-  })
-  getMutableState(ECSState).timer.set(timer)
+type IdType = 'id' | 'name' | 'status' | 'startTime' | 'endTime' | 'returnData'
 
-  const { originEntity, localFloorEntity, viewerEntity } = getState(EngineState)
-  mockEngineRenderer(viewerEntity)
-  setComponent(viewerEntity, RendererComponent, { scenes: [originEntity, localFloorEntity, viewerEntity] })
+export type ApiJobRowType = Record<IdType, string | JSX.Element | undefined>
+
+interface IApiJobColumn extends ITableHeadCell {
+  id: IdType
 }
+
+export const apiJobColumns: IApiJobColumn[] = [
+  { id: 'id', label: t('admin:components.server.columns.apiJobs.id') },
+  { id: 'name', label: t('admin:components.server.columns.apiJobs.name') },
+  { id: 'status', label: t('admin:components.server.columns.apiJobs.status') },
+  { id: 'startTime', label: t('admin:components.server.columns.apiJobs.start_time'), sortable: true },
+  { id: 'endTime', label: t('admin:components.server.columns.apiJobs.end_time'), sortable: true },
+  { id: 'returnData', label: t('admin:components.server.columns.apiJobs.return_data') }
+]

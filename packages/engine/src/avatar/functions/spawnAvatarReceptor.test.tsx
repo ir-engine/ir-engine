@@ -37,7 +37,7 @@ import { ReactorReconciler, applyIncomingActions, dispatchAction } from '@ir-eng
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { EventDispatcher } from '@ir-engine/spatial/src/common/classes/EventDispatcher'
-import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
+import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import {
   RigidBodyComponent,
@@ -58,6 +58,7 @@ describe('spawnAvatarReceptor', () => {
   beforeEach(async () => {
     createEngine()
     initializeSpatialEngine()
+    initializeSpatialViewer()
     Engine.instance.store.defaultDispatchDelay = () => 0
     await Physics.load()
     Engine.instance.store.userID = 'user' as UserID

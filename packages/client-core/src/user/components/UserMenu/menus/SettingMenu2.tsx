@@ -218,7 +218,6 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
                     label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
                     value={mode === 'client' ? 'dark' : themeModes[mode]}
                     className="w-full"
-                    disabled={mode === 'client'}
                     inputClassName="rounded-lg overflow-hidden"
                     onChange={(val) => handleChangeUserThemeMode(mode, val)}
                     options={colorModesMenu}
