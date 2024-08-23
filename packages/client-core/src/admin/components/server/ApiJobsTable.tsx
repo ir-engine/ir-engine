@@ -59,7 +59,7 @@ export default function ApiJobsTable() {
     query: {
       $limit: 100,
       $sort: {
-        id: -1
+        startTime: -1
       }
     }
   })
