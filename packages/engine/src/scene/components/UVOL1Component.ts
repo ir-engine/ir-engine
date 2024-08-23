@@ -55,7 +55,6 @@ import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
@@ -161,7 +160,7 @@ function UVOL1Reactor() {
   useEffect(() => {
     if (!getState(AssetLoaderState).cortoLoader) {
       const loader = new CORTOLoader()
-      loader.setDecoderPath(getState(EngineState).publicPath + '/loader_decoders/')
+      loader.setDecoderPath(Engine.instance.store.publicPath + '/loader_decoders/')
       loader.preload()
       const assetLoaderState = getMutableState(AssetLoaderState)
       assetLoaderState.cortoLoader.set(loader)

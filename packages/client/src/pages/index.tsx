@@ -30,8 +30,6 @@ import { Navigate } from 'react-router-dom'
 import styles from '@ir-engine/client-core/src/admin/old-styles/admin.module.scss'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 
-import '@ir-engine/client-core/src/user/UserUISystem'
-
 import { PopupMenuState } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
 import config from '@ir-engine/common/src/config'
 import { getState, useMutableState } from '@ir-engine/hyperflux'

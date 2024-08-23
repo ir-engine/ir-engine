@@ -38,7 +38,7 @@ import {
 import { decode } from 'msgpackr'
 import os from 'os'
 
-import { Engine } from '@ir-engine/ecs/src/Engine'
+import { API } from '@ir-engine/common'
 import { dispatchAction, getMutableState, getState, Identifiable, none, PeerID, State } from '@ir-engine/hyperflux'
 import {
   DataChannelRegistryState,
@@ -399,7 +399,7 @@ export async function handleWebRtcTransportCreate(
 
     let { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
-    const instanceServerSettingsResponse = await Engine.instance.api.service(instanceServerSettingPath).find()
+    const instanceServerSettingsResponse = await API.instance.service(instanceServerSettingPath).find()
     const webRTCSettings = instanceServerSettingsResponse.data[0].webRTCSettings
     const iceServers: {
       urls: string | string[]

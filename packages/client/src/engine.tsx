@@ -23,65 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { Suspense, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-
-import { API } from '@ir-engine/client-core/src/API'
-import { BrowserRouter, history } from '@ir-engine/client-core/src/common/services/RouterService'
-import waitForClientAuthenticated from '@ir-engine/client-core/src/util/wait-for-client-authenticated'
-import { pipeLogs } from '@ir-engine/common/src/logger'
-import { Engine, createEngine } from '@ir-engine/ecs/src/Engine'
-import { getMutableState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { createEngine } from '@ir-engine/ecs/src/Engine'
+import { HyperFlux } from '@ir-engine/hyperflux'
 import { startTimer } from '@ir-engine/spatial/src/startTimer'
-
-import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
-import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import React from 'react'
 import useGoogleAnalytics from './hooks/useGoogleAnalytics'
-import { initializei18n } from './util'
 
-const initializeLogs = async () => {
-  await waitForClientAuthenticated()
-  pipeLogs(Engine.instance.api)
-}
-
-createEngine()
+createEngine(HyperFlux.store)
 startTimer()
-getMutableState(EngineState).publicPath.set(
-  // @ts-ignore
-  import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL!.slice(0, -1) // remove trailing '/'
-)
-initializei18n()
-API.createAPI()
-initializeLogs()
 
-export default function ({ children }): JSX.Element {
-  const { t } = useTranslation()
+export default function ({ children }: { children: React.ReactNode }) {
   useGoogleAnalytics()
 
-  useEffect(() => {
-    const urlSearchParams = new URLSearchParams(window.location.search)
-    const redirectUrl = urlSearchParams.get('redirectUrl')
-    if (redirectUrl) {
-      history.push(redirectUrl)
-    }
-  }, [])
-
-  return (
-    <>
-      <MetaTags>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;600;800&display=swap"
-          rel="stylesheet"
-        />
-      </MetaTags>
-      <BrowserRouter history={history}>
-        <Suspense
-          fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingClient')} />}
-        >
-          {children}
-        </Suspense>
-      </BrowserRouter>
-    </>
-  )
+  return <>{children}</>
 }
