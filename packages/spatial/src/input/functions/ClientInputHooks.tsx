@@ -44,7 +44,7 @@ import { Vector3 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../SpatialModule'
-import { EntityTreeComponent, useAncestorWithComponent } from '../../transform/components/EntityTree'
+import { EntityTreeComponent, useAncestorWithComponents } from '../../transform/components/EntityTree'
 import { XRState } from '../../xr/XRState'
 import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
@@ -344,7 +344,7 @@ export const CanvasInputReactor = () => {
 
 export const MeshInputReactor = () => {
   const entity = useEntityContext()
-  const shouldReceiveInput = !!useAncestorWithComponent(entity, InputComponent)
+  const shouldReceiveInput = !!useAncestorWithComponents(entity, [InputComponent])
 
   useImmediateEffect(() => {
     const inputState = getState(InputState)
@@ -356,7 +356,7 @@ export const MeshInputReactor = () => {
 
 export const BoundingBoxInputReactor = () => {
   const entity = useEntityContext()
-  const shouldReceiveInput = !!useAncestorWithComponent(entity, InputComponent)
+  const shouldReceiveInput = !!useAncestorWithComponents(entity, [InputComponent])
   useImmediateEffect(() => {
     const inputState = getState(InputState)
     if (shouldReceiveInput) inputState.inputBoundingBoxes.add(entity)

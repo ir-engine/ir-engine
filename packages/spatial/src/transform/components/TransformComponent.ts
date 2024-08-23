@@ -35,7 +35,8 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
-import { EntityTreeComponent, getAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
@@ -142,7 +143,7 @@ export const TransformComponent = defineComponent({
   },
 
   getMatrixRelativeToScene: (entity: Entity, outMatrix: Matrix4) => {
-    const relativeEntity = getAncestorWithComponent(entity, SceneComponent)
+    const relativeEntity = getAncestorWithComponents(entity, [SceneComponent])
     if (!relativeEntity) return outMatrix.copy(getComponent(entity, TransformComponent).matrixWorld)
     return TransformComponent.getMatrixRelativeToEntity(entity, relativeEntity, outMatrix)
   },
@@ -204,7 +205,7 @@ export const TransformComponent = defineComponent({
   },
 
   getSceneScale: (entity: Entity, vec3: Vector3) => {
-    const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+    const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
     if (!sceneEntity) return vec3.set(1, 1, 1)
 
     TransformComponent.getMatrixRelativeToEntity(entity, sceneEntity, _m1)

@@ -23,41 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow } from 'feathers-hooks-common'
+import { t } from 'i18next'
 
-import { emailDataValidator } from '@ir-engine/common/src/schemas/user/email.schema'
+import { ITableHeadCell } from '../Table'
 
-import refreshApiPods from '../../hooks/refresh-api-pods'
+type IdType = 'id' | 'name' | 'status' | 'startTime' | 'endTime' | 'returnData'
 
-export default {
-  before: {
-    all: [disallow('external')],
-    find: [],
-    get: [],
-    create: [schemaHooks.validateData(emailDataValidator)],
-    update: [],
-    patch: [],
-    remove: []
-  },
+export type ApiJobRowType = Record<IdType, string | JSX.Element | undefined>
 
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [refreshApiPods],
-    remove: []
-  },
+interface IApiJobColumn extends ITableHeadCell {
+  id: IdType
+}
 
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+export const apiJobColumns: IApiJobColumn[] = [
+  { id: 'id', label: t('admin:components.server.columns.apiJobs.id') },
+  { id: 'name', label: t('admin:components.server.columns.apiJobs.name') },
+  { id: 'status', label: t('admin:components.server.columns.apiJobs.status') },
+  { id: 'startTime', label: t('admin:components.server.columns.apiJobs.start_time'), sortable: true },
+  { id: 'endTime', label: t('admin:components.server.columns.apiJobs.end_time'), sortable: true },
+  { id: 'returnData', label: t('admin:components.server.columns.apiJobs.return_data') }
+]
