@@ -82,7 +82,7 @@ async function checkTokenAuth(context: HookContext<IdentityProviderService>, use
 
       if (key.data.length > 0) {
         const user = await context.app.service(userPath).get(key.data[0].userId)
-        if (userId !== user.id) throw new BadRequest('Cannot make identity-providers on other users')
+        if (userId && userId !== user.id) throw new BadRequest('Cannot make identity-providers on other users')
         else return true
       }
     }
@@ -192,7 +192,7 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
     ;(context.actualData as IdentityProviderData).type = 'guest' //Non-password/magiclink create requests must always be for guests
   }
 
-  if ((context.data as IdentityProviderData).type === 'guest') {
+  if ((context.data as IdentityProviderData).type === 'guest' && (context.actualData as IdentityProviderData).userId) {
     const existingUser = await context.app.service(userPath).find({
       query: {
         id: (context.actualData as IdentityProviderData).userId
@@ -302,7 +302,7 @@ export default {
 
   before: {
     all: [
-      () => schemaHooks.validateQuery(identityProviderQueryValidator),
+      schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
     find: [iff(isProvider('external'), setLoggedinUserInQuery('userId'))],
@@ -314,7 +314,7 @@ export default {
           throw new MethodNotAllowed('identity-provider create works only with singular entries')
         }
       ),
-      () => schemaHooks.validateData(identityProviderDataValidator),
+      schemaHooks.validateData(identityProviderDataValidator),
       schemaHooks.resolveData(identityProviderDataResolver),
       persistData,
       validateAuthParams,
@@ -326,7 +326,7 @@ export default {
     update: [disallow()],
     patch: [
       iff(isProvider('external'), checkIdentityProvider),
-      () => schemaHooks.validateData(identityProviderPatchValidator),
+      schemaHooks.validateData(identityProviderPatchValidator),
       schemaHooks.resolveData(identityProviderPatchResolver)
     ],
     remove: [iff(isProvider('external'), checkIdentityProvider, checkOnlyIdentityProvider)]
