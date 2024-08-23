@@ -23,14 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+export type MockEventListenerFunc = (this: any, ev?: any) => any
 export class MockEventListener {
-  listeners: ((this: any, ev?: any) => any)[] = []
+  listeners: Record<string, MockEventListenerFunc[]> = {}
+
+  hasEvent = (type: string): boolean => {
+    return !!this.listeners[type] && this.listeners[type].length !== 0
+  }
 
   addEventListener = (type, listener, options?) => {
-    this.listeners.push(listener)
+    if (this.listeners[type] === undefined) {
+      this.listeners[type] = [] as MockEventListenerFunc[]
+    }
+    this.listeners[type].push(listener)
   }
 
   removeEventListener = (type, listener, options?) => {
-    this.listeners.pop()
+    if (this.listeners[type] === undefined) return
+    this.listeners[type]?.pop()
   }
 }
