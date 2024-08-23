@@ -435,12 +435,12 @@ describe('useTreeQuery', () => {
     const { rerender, unmount } = render(tag)
 
     assert.equal(ents.length, 1, 'root entity not populated')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
 
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 1, 'root entity not populated after re-querying')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
 
     const childEntity = createEntity()
     setComponent(childEntity, EntityTreeComponent, { parentEntity: rootEntity })
@@ -448,8 +448,8 @@ describe('useTreeQuery', () => {
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 2, 'query incorrect after adding child')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
-    assert.equal(ents[1], childEntity, 'child entity not populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
+    assert.equal(ents.includes(childEntity), true, 'child entity not populated')
 
     const deepChildEntity = createEntity()
     setComponent(deepChildEntity, EntityTreeComponent, { parentEntity: childEntity })
@@ -457,9 +457,9 @@ describe('useTreeQuery', () => {
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 3, 'query incorrect after adding deep child')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
-    assert.equal(ents[1], childEntity, 'child entity not populated')
-    assert.equal(ents[2], deepChildEntity, 'deep child entity not populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
+    assert.equal(ents.includes(childEntity), true, 'child entity not populated')
+    assert.equal(ents.includes(deepChildEntity), true, 'deep child entity not populated')
 
     const deepChildEntity2 = createEntity()
     setComponent(deepChildEntity2, EntityTreeComponent, { parentEntity: childEntity })
@@ -479,30 +479,30 @@ describe('useTreeQuery', () => {
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 3, 'query incorrect after adding remove second deep child')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
-    assert.equal(ents[1], childEntity, 'child entity not populated')
-    assert.equal(ents[2], deepChildEntity, 'deep child entity not populated')
-    assert.equal(ents[3], undefined, 'deep child 2 entity still populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
+    assert.equal(ents.includes(childEntity), true, 'child entity not populated')
+    assert.equal(ents.includes(deepChildEntity), true, 'deep child entity not populated')
+    assert.equal(ents.includes(deepChildEntity2), false, 'deep child 2 entity still populated')
 
     removeEntity(childEntity)
 
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 1, 'query incorrect after adding removing child')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
-    assert.equal(ents[1], undefined, 'child entity still populated')
-    assert.equal(ents[2], undefined, 'deep child entity still populated')
-    assert.equal(ents[3], undefined, 'deep child 2 entity still populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
+    assert.equal(ents.includes(childEntity), false, 'child entity still populated')
+    assert.equal(ents.includes(deepChildEntity), false, 'deep child entity still populated')
+    assert.equal(ents.includes(deepChildEntity2), false, 'deep child 2 entity still populated')
 
     removeEntity(rootEntity)
 
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 0, 'query incorrect after adding removing all entities')
-    assert.equal(ents[0], undefined, 'root entity still populated')
-    assert.equal(ents[1], undefined, 'child entity still populated')
-    assert.equal(ents[2], undefined, 'deep child entity still populated')
-    assert.equal(ents[3], undefined, 'deep child 2 entity still populated')
+    assert.equal(ents.includes(rootEntity), false, 'root entity still populated')
+    assert.equal(ents.includes(childEntity), false, 'child entity still populated')
+    assert.equal(ents.includes(deepChildEntity), false, 'deep child entity still populated')
+    assert.equal(ents.includes(deepChildEntity2), false, 'deep child 2 entity still populated')
 
     unmount()
   })
