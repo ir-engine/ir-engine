@@ -27,17 +27,19 @@ import { t } from 'i18next'
 
 import { ITableHeadCell } from '../Table'
 
-type IdType = 'id' | 'name' | 'batch' | 'migration_time'
+type IdType = 'id' | 'name' | 'status' | 'startTime' | 'endTime' | 'returnData'
 
-export type MigrationsInfoRowType = Record<IdType, string | JSX.Element | undefined>
+export type ApiJobRowType = Record<IdType, string | JSX.Element | undefined>
 
-interface IMigrationsInfoColumn extends ITableHeadCell {
+interface IApiJobColumn extends ITableHeadCell {
   id: IdType
 }
 
-export const migrationsInfoColumns: IMigrationsInfoColumn[] = [
-  { id: 'id', label: t('admin:components.server.columns.migrationsInfo.id') },
-  { id: 'name', label: t('admin:components.server.columns.migrationsInfo.name') },
-  { id: 'batch', label: t('admin:components.server.columns.migrationsInfo.batch') },
-  { id: 'migration_time', label: t('admin:components.server.columns.migrationsInfo.migration_time'), sortable: true }
+export const apiJobColumns: IApiJobColumn[] = [
+  { id: 'id', label: t('admin:components.server.columns.apiJobs.id') },
+  { id: 'name', label: t('admin:components.server.columns.apiJobs.name') },
+  { id: 'status', label: t('admin:components.server.columns.apiJobs.status') },
+  { id: 'startTime', label: t('admin:components.server.columns.apiJobs.start_time'), sortable: true },
+  { id: 'endTime', label: t('admin:components.server.columns.apiJobs.end_time'), sortable: true },
+  { id: 'returnData', label: t('admin:components.server.columns.apiJobs.return_data') }
 ]
