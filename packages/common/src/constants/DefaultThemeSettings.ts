@@ -147,7 +147,7 @@ export const defaultThemeSettings = {
 }
 
 export const defaultThemeModes = {
-  client: 'light',
+  client: 'dark',
   studio: 'dark',
   admin: 'vaporwave'
 } as Record<string, string>
