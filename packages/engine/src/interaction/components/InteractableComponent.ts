@@ -108,7 +108,7 @@ const _size = new Vector3()
 
 export const updateInteractableUI = (entity: Entity) => {
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  const interactable = getComponent(entity, InteractableComponent)
+  const interactable = getOptionalComponent(entity, InteractableComponent)
 
   if (!selfAvatarEntity || !interactable || interactable.uiEntity == UndefinedEntity) return
 
