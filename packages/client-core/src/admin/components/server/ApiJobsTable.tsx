@@ -23,21 +23,37 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { ITableHeadCell } from '../Table'
+import { apiJobPath, ApiJobType } from '@ir-engine/common/src/schema.type.module'
+import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
-type IdType = 'id' | 'name' | 'batch' | 'migration_time'
+import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import { apiJobColumns } from '../../common/constants/api-job'
+import DataTable from '../../common/Table'
 
-export type MigrationsInfoRowType = Record<IdType, string | JSX.Element | undefined>
+export default function ApiJobsTable() {
+  const { t } = useTranslation()
 
-interface IMigrationsInfoColumn extends ITableHeadCell {
-  id: IdType
+  const adminApiJobsQuery = useFind(apiJobPath, {
+    query: {
+      $limit: 100,
+      $sort: {
+        id: -1
+      }
+    }
+  })
+
+  const createRows = (rows): ApiJobType[] =>
+    rows.map((row) => ({
+      id: row.id.toString(),
+      name: row.name,
+      status: row.status,
+      startTime: toDisplayDateTime(row.startTime),
+      endTime: toDisplayDateTime(row.endTime),
+      returnData: row.returnData
+    }))
+
+  return <DataTable query={adminApiJobsQuery} columns={apiJobColumns} rows={createRows(adminApiJobsQuery.data)} />
 }
-
-export const migrationsInfoColumns: IMigrationsInfoColumn[] = [
-  { id: 'id', label: t('admin:components.server.columns.migrationsInfo.id') },
-  { id: 'name', label: t('admin:components.server.columns.migrationsInfo.name') },
-  { id: 'batch', label: t('admin:components.server.columns.migrationsInfo.batch') },
-  { id: 'migration_time', label: t('admin:components.server.columns.migrationsInfo.migration_time'), sortable: true }
-]
