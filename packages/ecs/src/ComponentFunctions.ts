@@ -412,6 +412,21 @@ export const hasComponent = <C extends Component>(entity: Entity, component: C) 
   return bitECS.hasComponent(HyperFlux.store, component, entity)
 }
 
+/**
+ * Returns true if the entity has all the specified components, false if it is missing any
+ * @param entity
+ * @param components
+ */
+export function hasComponents(entity: Entity, components: ComponentType<any>[]): boolean {
+  if (!components) throw new Error('[hasComponent]: component is undefined')
+  if (components.length < 1 || !entity) return false
+
+  for (const component of components) {
+    if (!hasComponent(entity, component)) return false
+  }
+  return true
+}
+
 export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
   component.onRemove(entity, component.stateMap[entity]!)

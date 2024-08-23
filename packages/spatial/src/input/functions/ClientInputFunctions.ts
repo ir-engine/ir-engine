@@ -41,7 +41,7 @@ import {
 } from '@ir-engine/ecs'
 import { Quaternion, Vector3 } from 'three'
 import { PI, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
-import { getAncestorWithComponent } from '../../transform/components/EntityTree'
+import { getAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -143,7 +143,7 @@ export function updateGamepadInput(eid: Entity) {
 }
 
 export const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
-  const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
+  const inputEntity = getAncestorWithComponents(startEntity, [InputComponent])
   if (!inputEntity) return
   const inputComponent = getComponent(inputEntity, InputComponent)
 

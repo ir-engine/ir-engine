@@ -40,7 +40,7 @@ import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '../../EngineState'
 
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { getAncestorWithComponent, isAncestor } from '../../transform/components/EntityTree'
+import { getAncestorWithComponents, isAncestor } from '../../transform/components/EntityTree'
 import {
   AnyAxis,
   AnyButton,
@@ -122,8 +122,8 @@ export const InputComponent = defineComponent({
   },
 
   getInputEntities(entityContext: Entity): Entity[] {
-    const inputSinkEntity = getAncestorWithComponent(entityContext, InputSinkComponent)
-    const closestInputEntity = getAncestorWithComponent(entityContext, InputComponent)
+    const inputSinkEntity = getAncestorWithComponents(entityContext, [InputSinkComponent])
+    const closestInputEntity = getAncestorWithComponents(entityContext, [InputComponent])
     const inputSinkInputEntities = getOptionalComponent(inputSinkEntity, InputSinkComponent)?.inputEntities ?? []
     const inputEntities = [closestInputEntity, ...inputSinkInputEntities]
     return inputEntities.filter(
