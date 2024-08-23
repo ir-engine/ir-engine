@@ -333,9 +333,6 @@ const useLoadBuffer = (options: GLTFParserOptions, bufferIndex) => {
   const loader = useHookstate(() => {
     const fileLoader = new FileLoader(options.manager)
     fileLoader.setResponseType('arraybuffer')
-    if (options.crossOrigin === 'use-credentials') {
-      fileLoader.setWithCredentials(true)
-    }
     return fileLoader
   })
 
@@ -763,7 +760,6 @@ const useLoadTexture = (options: GLTFParserOptions, textureIndex?: number) => {
   if (basisu) loader = getState(AssetLoaderState).gltfLoader.ktx2Loader!
   else {
     loader = textureLoader
-    loader.setCrossOrigin(options.crossOrigin)
     loader.setRequestHeader(options.requestHeader)
   }
 
