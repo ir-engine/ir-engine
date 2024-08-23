@@ -30,6 +30,7 @@ import {
   createEntity,
   destroyEngine,
   Entity,
+  entityExists,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -42,6 +43,7 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { assertVecApproxEq } from '../../physics/classes/Physics.test'
 import { TransformComponent } from '../../SpatialModule'
 import { XRSpaceComponent } from '../../xr/XRComponents'
@@ -329,6 +331,41 @@ describe('ClientInputSystem', () => {
       const result = getComponent(testEntity, TransformComponent)
       assertVecApproxEq(result.position, position, 3)
       assertVecApproxEq(result.rotation, rotation, 4)
+    })
+
+    it('should remove any entities that match the query [InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)] when the InputPointerComponent.cameraEntity for that entity no longer exists (aka stalePointers)', () => {
+      const cameraEntity = createEntity()
+      const otherCameraEntity = createEntity()
+      setComponent(cameraEntity, CameraComponent)
+      setComponent(otherCameraEntity, CameraComponent)
+
+      const one = createEntity()
+      setComponent(one, InputPointerComponent, { pointerId: 1, cameraEntity: cameraEntity })
+      setComponent(one, InputSourceComponent)
+      assert.equal(hasComponent(one, XRSpaceComponent), false)
+      const two = createEntity()
+      setComponent(two, InputPointerComponent, { pointerId: 2, cameraEntity: cameraEntity })
+      setComponent(two, InputSourceComponent)
+      assert.equal(hasComponent(two, XRSpaceComponent), false)
+      const three = createEntity()
+      setComponent(three, InputPointerComponent, { pointerId: 3, cameraEntity: otherCameraEntity })
+      setComponent(three, InputSourceComponent)
+      assert.equal(hasComponent(three, XRSpaceComponent), false)
+
+      const StaleEntities = [one, two] as Entity[]
+      for (const entity of StaleEntities) assert.equal(entityExists(entity), true)
+      assert.equal(entityExists(three), true)
+
+      // Sanity check before running
+      clientInputSystemExecute()
+      for (const entity of StaleEntities) assert.equal(entityExists(entity), true)
+      assert.equal(entityExists(three), true)
+
+      // Run and Check the result
+      removeEntity(cameraEntity)
+      clientInputSystemExecute()
+      for (const entity of StaleEntities) assert.equal(entityExists(entity), false)
+      assert.equal(entityExists(three), true)
     })
 
     /**
