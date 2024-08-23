@@ -156,7 +156,8 @@ export const updateInteractableUI = (entity: Entity) => {
         let thresh = interactable.activationDistance
         thresh *= thresh //squared for dist squared comparison
         activateUI = distance < thresh
-      } else if (interactable.uiActivationType === XRUIActivationType.hover || interactable.clickInteract) {
+      }
+      if (!activateUI && (interactable.uiActivationType === XRUIActivationType.hover || interactable.clickInteract)) {
         //hover
         const input = getOptionalComponent(entity, InputComponent)
         if (input) {
@@ -314,7 +315,7 @@ export const InteractableComponent = defineComponent({
     InputComponent.useExecuteWithInput(
       () => {
         const buttons = InputComponent.getMergedButtons(entity)
-
+        if (!interactableComponent.clickInteract.value && buttons.PrimaryClick?.pressed) return
         if (
           buttons.Interact?.pressed &&
           !buttons.Interact?.dragging &&

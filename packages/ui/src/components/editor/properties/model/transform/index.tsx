@@ -26,9 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useCallback, useEffect } from 'react'
 import { DoubleSide, Mesh } from 'three'
 
+import { API } from '@ir-engine/common'
 import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
 import { ComponentType, getMutableComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import exportGLTF from '@ir-engine/editor/src/functions/exportGLTF'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
@@ -136,7 +136,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
         if (clientside) {
           nuPath = await clientSideTransformModel(variant as ModelTransformParameters)
         } else {
-          await Engine.instance.api.service(modelTransformPath).create(variant)
+          await API.instance.service(modelTransformPath).create(variant)
         }
       }
 
@@ -184,7 +184,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
       console.log('saved baked model')
       //perform gltf transform
       console.log('transforming model at ' + bakedPath + '...')
-      const transformedPath = await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
+      const transformedPath = await API.instance.service(modelTransformPath).create(transformParms.value)
       console.log('transformed model into ' + transformedPath)
       onChangeModel(transformedPath)
     }

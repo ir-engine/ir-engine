@@ -43,7 +43,50 @@ import { initializeEngineRenderer, RendererComponent } from './renderer/WebGLRen
 import { EntityTreeComponent } from './transform/components/EntityTree'
 import { TransformComponent } from './transform/components/TransformComponent'
 
-export const initializeSpatialEngine = (canvas?: HTMLCanvasElement) => {
+export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
+  const viewerEntity = createEntity()
+  setComponent(viewerEntity, NameComponent, 'viewer')
+  setComponent(viewerEntity, UUIDComponent, 'ee.viewer' as EntityUUID)
+  setComponent(viewerEntity, CameraComponent)
+  setComponent(viewerEntity, VisibleComponent, true)
+  setComponent(viewerEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+  setComponent(viewerEntity, InputComponent)
+  const camera = getComponent(viewerEntity, CameraComponent)
+  camera.matrixAutoUpdate = false
+  camera.matrixWorldAutoUpdate = false
+  camera.layers.disableAll()
+  camera.layers.enable(ObjectLayers.Scene)
+  camera.layers.enable(ObjectLayers.Avatar)
+  camera.layers.enable(ObjectLayers.UI)
+  camera.layers.enable(ObjectLayers.TransformGizmo)
+  camera.layers.enable(ObjectLayers.UVOL)
+
+  const { originEntity, localFloorEntity } = getState(EngineState)
+
+  if (canvas) {
+    setComponent(viewerEntity, RendererComponent, { canvas, scenes: [originEntity, localFloorEntity, viewerEntity] })
+    initializeEngineRenderer(viewerEntity)
+    PerformanceManager.buildPerformanceState(getComponent(viewerEntity, RendererComponent))
+  }
+
+  getMutableState(EngineState).merge({
+    viewerEntity
+  })
+}
+
+export const destroySpatialViewer = () => {
+  const { viewerEntity } = getState(EngineState)
+
+  if (viewerEntity) {
+    removeEntity(viewerEntity)
+  }
+
+  getMutableState(EngineState).merge({
+    viewerEntity: UndefinedEntity
+  })
+}
+
+export const initializeSpatialEngine = () => {
   const originEntity = createEntity()
   setComponent(originEntity, NameComponent, 'origin')
   setComponent(originEntity, UUIDComponent, 'ee.origin' as EntityUUID)
@@ -65,41 +108,15 @@ export const initializeSpatialEngine = (canvas?: HTMLCanvasElement) => {
   floorHelperMesh.frustumCulled = false
   origin.add(floorHelperMesh)
 
-  const viewerEntity = createEntity()
-  setComponent(viewerEntity, NameComponent, 'viewer')
-  setComponent(viewerEntity, UUIDComponent, 'ee.viewer' as EntityUUID)
-  setComponent(viewerEntity, CameraComponent)
-  setComponent(viewerEntity, VisibleComponent, true)
-  setComponent(viewerEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-  setComponent(viewerEntity, InputComponent)
-  const camera = getComponent(viewerEntity, CameraComponent)
-  camera.matrixAutoUpdate = false
-  camera.matrixWorldAutoUpdate = false
-  camera.layers.disableAll()
-  camera.layers.enable(ObjectLayers.Scene)
-  camera.layers.enable(ObjectLayers.Avatar)
-  camera.layers.enable(ObjectLayers.UI)
-  camera.layers.enable(ObjectLayers.TransformGizmo)
-  camera.layers.enable(ObjectLayers.UVOL)
-
-  if (canvas) {
-    setComponent(viewerEntity, RendererComponent, { canvas, scenes: [originEntity, localFloorEntity, viewerEntity] })
-    initializeEngineRenderer(viewerEntity)
-    PerformanceManager.buildPerformanceState(getComponent(viewerEntity, RendererComponent))
-  }
-
   getMutableState(EngineState).merge({
     originEntity,
-    localFloorEntity,
-    viewerEntity
+    localFloorEntity
   })
 }
 
 export const destroySpatialEngine = () => {
   const { originEntity, localFloorEntity, viewerEntity } = getState(EngineState)
-  if (viewerEntity) {
-    removeEntity(viewerEntity)
-  }
+
   if (localFloorEntity) {
     removeEntity(localFloorEntity)
   }
@@ -109,7 +126,6 @@ export const destroySpatialEngine = () => {
 
   getMutableState(EngineState).merge({
     originEntity: UndefinedEntity,
-    localFloorEntity: UndefinedEntity,
-    viewerEntity: UndefinedEntity
+    localFloorEntity: UndefinedEntity
   })
 }
