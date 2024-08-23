@@ -323,7 +323,7 @@ export const render = (
       camera.updateProjectionMatrix()
     }
 
-    state.updateCSMFrustums && renderer.csm?.updateFrustums()
+    state.useShadows && renderer.csm?.updateFrustums()
 
     if (renderer.effectComposer) {
       renderer.effectComposer.setSize(width, height, true)
