@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Vector2 } from 'three'
 
+import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 import {
   defineComponent,
   defineQuery,
@@ -37,12 +38,27 @@ import {
 } from '@ir-engine/ecs'
 import { defineState, getState, useImmediateEffect } from '@ir-engine/hyperflux'
 
+/**
+ * @description
+ * Type alias for CameraPointer hashes.
+ * Strings of this type Hash should be created with `InputPointerState.createCameraPointerHash(entity, pointerID)` */
+export type CameraPointerHash = OpaqueType<'CameraPointerHash'> & string
+
 export const InputPointerState = defineState({
   name: 'InputPointerState',
   initial() {
     return {
-      pointers: new Map<string, Entity>()
+      pointers: new Map<CameraPointerHash, Entity>()
     }
+  },
+
+  /**
+   * @description
+   *  Creates a string ID (aka hash) for the given `@param camera` and `@param pointer`,
+   *  with the format expected by the Keys of  `InputPointerState.pointers` Map.
+   * @warning Remember to call `.value` before sending the data into this function if you are getting them from a Component. */
+  createCameraPointerHash(camera: Entity, pointer: number): CameraPointerHash {
+    return `canvas-${camera}.pointer-${pointer}` as CameraPointerHash
   }
 })
 
@@ -71,7 +87,7 @@ export const InputPointerComponent = defineComponent({
     useImmediateEffect(() => {
       const pointerId = inputPointerComponent.pointerId.value
       const cameraEntity = inputPointerComponent.cameraEntity.value
-      const pointerHash = `canvas-${cameraEntity}.pointer-${pointerId}`
+      const pointerHash = InputPointerState.createCameraPointerHash(cameraEntity, pointerId)
 
       getState(InputPointerState).pointers.set(pointerHash, entity)
       return () => {
@@ -92,7 +108,7 @@ export const InputPointerComponent = defineComponent({
   },
 
   getPointerByID(cameraEntity: Entity, pointerId: number) {
-    const pointerHash = `canvas-${cameraEntity}.pointer-${pointerId}`
+    const pointerHash = InputPointerState.createCameraPointerHash(cameraEntity, pointerId)
     return getState(InputPointerState).pointers.get(pointerHash) ?? UndefinedEntity
   }
 })

@@ -115,12 +115,8 @@ export const InputComponent = defineComponent({
     const entity = useEntityContext()
 
     return useExecute(() => {
-      const capturingEntity = getState(InputState).capturingEntity
-      if (
-        (!executeWhenEditing && getState(EngineState).isEditing) ||
-        (capturingEntity && !isAncestor(capturingEntity, entity, true))
-      )
-        return
+      if (!executeWhenEditing && getState(EngineState).isEditing) return
+      if (!isAncestor(getState(InputState).capturingEntity, entity, true)) return
       executeOnInput()
     }, getInputExecutionInsert(order))
   },
@@ -158,6 +154,10 @@ export const InputComponent = defineComponent({
     return InputComponent.getMergedAxesForInputSources(inputSourceEntities, inputAlias)
   },
 
+  /**
+   * @description Returns an object that:
+   * - Contains all of the buttons described by the InputSourceComponent.buttons of all `@param inputSourceEntities`
+   * - Has synchronized the state of the buttons described by all entries of `@param inputAlias` into fields of the same name.  */
   getMergedButtonsForInputSources<AliasType extends InputAlias = typeof DefaultButtonAlias>(
     inputSourceEntities: Entity[],
     inputAlias: AliasType = DefaultButtonAlias as unknown as AliasType
