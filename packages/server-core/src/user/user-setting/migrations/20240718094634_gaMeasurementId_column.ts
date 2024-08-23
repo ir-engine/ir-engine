@@ -33,19 +33,15 @@ import type { Knex } from 'knex'
 export async function up(knex: Knex): Promise<void> {
   await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  await addGaMeasurementIdColumn(knex, userSettingPath)
-
-  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
-}
-
-export async function addGaMeasurementIdColumn(knex: Knex, tableName: string) {
-  const gaMeasurementIdColumnExists = await knex.schema.hasColumn(tableName, 'gaMeasurementId')
+  const gaMeasurementIdColumnExists = await knex.schema.hasColumn(userSettingPath, 'gaMeasurementId')
 
   if (gaMeasurementIdColumnExists === false) {
-    await knex.schema.alterTable(tableName, async (table) => {
+    await knex.schema.alterTable(userSettingPath, async (table) => {
       table.string('gaMeasurementId').nullable()
     })
   }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -55,17 +51,13 @@ export async function addGaMeasurementIdColumn(knex: Knex, tableName: string) {
 export async function down(knex: Knex): Promise<void> {
   await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  await dropGaMeasurementIdColumn(knex, userSettingPath)
-
-  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
-}
-
-export async function dropGaMeasurementIdColumn(knex: Knex, tableName: string) {
-  const gaMeasurementIdColumnExists = await knex.schema.hasColumn(tableName, 'gaMeasurementId')
+  const gaMeasurementIdColumnExists = await knex.schema.hasColumn(userSettingPath, 'gaMeasurementId')
 
   if (gaMeasurementIdColumnExists === true) {
-    await knex.schema.alterTable(tableName, async (table) => {
+    await knex.schema.alterTable(userSettingPath, async (table) => {
       table.dropColumn('gaMeasurementId')
     })
   }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
