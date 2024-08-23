@@ -37,7 +37,7 @@ import {
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { getAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { updateReferenceSpaceFromAvatarMovement } from '../../avatar/functions/moveAvatar'
 import { SceneSettingsComponent } from '../components/SceneSettingsComponent'
@@ -55,7 +55,7 @@ const execute = () => {
   const settingsEntities = settingsQuery()
   const sceneKillHeights = settingsEntities.map((entity) => {
     return [
-      getAncestorWithComponent(entity, SceneComponent),
+      getAncestorWithComponents(entity, [SceneComponent]),
       getComponent(entity, SceneSettingsComponent).sceneKillHeight
     ]
   })
@@ -63,7 +63,7 @@ const execute = () => {
   const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
 
   for (const entity of killableEntities) {
-    const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+    const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
     const sceneHeight = sceneKillHeights.find(([scene]) => scene === sceneEntity)?.[1]
     if (typeof sceneHeight !== 'number') continue
 

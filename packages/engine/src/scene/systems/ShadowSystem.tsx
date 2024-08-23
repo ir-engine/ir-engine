@@ -77,7 +77,7 @@ import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/compon
 import {
   EntityTreeComponent,
   iterateEntityNode,
-  useChildWithComponent
+  useChildWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRLightProbeState } from '@ir-engine/spatial/src/xr/XRLightProbeSystem'
@@ -240,7 +240,7 @@ function _CSMReactor() {
    *   considering multi-scene support and spatial volumes.
    *   note: use index 0 (origin entity), index 1 is local floor entity,
    */
-  const renderSettingsEntity = useChildWithComponent(renderer.scenes[0], RenderSettingsComponent)
+  const renderSettingsEntity = useChildWithComponents(renderer.scenes[0], [RenderSettingsComponent])
   const isEditor = useHookstate(getMutableState(EngineState).isEditor).value
   const renderMode = useHookstate(getMutableState(RendererState).renderMode).value
 
