@@ -153,12 +153,14 @@ export const AvatarRigComponent = defineComponent({
       if (!rigComponent?.avatarURL?.value) return
       setComponent(entity, GLTFComponent, { src: rigComponent.avatarURL.value })
       return () => {
-        removeComponent(entity, GLTFComponent)
+        console.log('cleaning up gltf!')
+        //removeComponent(entity, GLTFComponent)
       }
     }, [rigComponent?.avatarURL?.value])
 
     useEffect(() => {
       if (gltfComponent?.progress?.value !== 100) return
+      console.log('Creating VRM')
       const vrm = createVRM(entity)
       setupAvatarProportions(entity, vrm)
       rigComponent.vrm.set(vrm)
@@ -206,7 +208,7 @@ const _rightHandPos = new Vector3(),
 export default function createVRM(rootEntity: Entity) {
   const documentID = GLTFComponent.getInstanceID(rootEntity)
   const gltf = getState(GLTFDocumentState)[documentID]
-
+  console.log(gltf)
   if (!hasComponent(rootEntity, Object3DComponent)) {
     const obj3d = new Group()
     setComponent(rootEntity, Object3DComponent, obj3d)
@@ -214,15 +216,22 @@ export default function createVRM(rootEntity: Entity) {
     proxifyParentChildRelationships(obj3d)
   }
 
-  if (gltf.extensions?.VRM) {
-    const vrmExtensionDefinition = gltf.extensions!.VRM as V0VRM.VRM
-    console.log(vrmExtensionDefinition)
-    const bones = vrmExtensionDefinition.humanoid!.humanBones!.reduce((bones, bone) => {
+  if (gltf.extensions?.VRM || gltf.extensions?.VRMC_vrm) {
+    console.log('Creating VRM from VRM extension')
+    const vrmExtensionDefinition = (gltf.extensions!.VRM as V0VRM.VRM) ?? (gltf.extensions.VRMC_vrm as V0VRM.VRM)
+    const humanBonesArray = Array.isArray(vrmExtensionDefinition.humanoid?.humanBones)
+      ? vrmExtensionDefinition.humanoid?.humanBones
+      : Object.values(vrmExtensionDefinition.humanoid!.humanBones!)
+    console.log(humanBonesArray)
+    const bones = humanBonesArray.reduce((bones, bone) => {
+      console.log(bone)
       const nodeID = `${documentID}-${bone.node}` as EntityUUID
       const entity = UUIDComponent.getEntityByUUID(nodeID)
       bones[bone.bone!] = { node: getComponent(entity, BoneComponent) }
       return bones
     }, {} as VRMHumanBones)
+    console.log(bones)
+    console.log(vrmExtensionDefinition)
 
     /**hacky, @todo test with vrm1 */
     iterateEntityNode(rootEntity, (entity) => {

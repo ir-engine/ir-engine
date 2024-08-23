@@ -29,12 +29,14 @@ import {
   AnimationClip,
   AnimationMixer,
   Bone,
+  Color,
   Group,
   LoaderUtils,
+  Material,
   MathUtils,
   Matrix4,
   Mesh,
-  MeshBasicMaterial,
+  MeshStandardMaterial,
   Quaternion,
   Skeleton,
   SkinnedMesh,
@@ -83,6 +85,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { EntityTreeComponent, getAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
@@ -384,6 +387,8 @@ const ChildGLTFReactor = (props: { source: string }) => {
   const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
   const parentUUID = useComponent(entity, UUIDComponent).value
 
+  console.log(source)
+
   useLayoutEffect(() => {
     return () => {
       getMutableState(GLTFDocumentState)[source].set(none)
@@ -444,6 +449,7 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
       animations: scene.animations
     })
     return () => {
+      console.log('cleaning up gltf')
       removeComponent(rootEntity, AnimationComponent)
       if (!hasObject3d) {
         removeObjectFromGroup(rootEntity, getComponent(rootEntity, Object3DComponent))
@@ -452,6 +458,8 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
     }
   }, [animationState])
 
+  console.log('document reactor', documentState.value, props.documentID)
+  console.log(getComponent(rootEntity, NameComponent))
   return (
     <>
       {Object.entries(nodeState.get(NO_PROXY)).map(([uuid, { nodeIndex, childIndex, parentUUID }]) => (
@@ -639,6 +647,8 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   const entityState = useHookstate(UndefinedEntity)
   const entity = entityState.value
 
+  console.log('node reactor', node.value, props.nodeIndex)
+
   useLayoutEffect(() => {
     const uuid = getNodeUUID(node.get(NO_PROXY) as GLTF.IGLTF, props.documentID, props.nodeIndex)
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
@@ -687,18 +697,19 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
     return () => {
       //check if entity is in some other document
-      if (hasComponent(entity, UUIDComponent)) {
-        const uuid = getComponent(entity, UUIDComponent)
-        const documents = getState(GLTFDocumentState)
-        for (const documentID in documents) {
-          const document = documents[documentID]
-          if (!document?.nodes) continue
-          for (const node of document.nodes) {
-            if (node.extensions?.[UUIDComponent.jsonID] === uuid) return
-          }
-        }
-      }
-      removeEntity(entity)
+      // if (hasComponent(entity, UUIDComponent)) {
+      //   const uuid = getComponent(entity, UUIDComponent)
+      //   const documents = getState(GLTFDocumentState)
+      //   for (const documentID in documents) {
+      //     const document = documents[documentID]
+      //     if (!document?.nodes) continue
+      //     for (const node of document.nodes) {
+      //       if (node.extensions?.[UUIDComponent.jsonID] === uuid) return
+      //     }
+      //   }
+      // }
+      console.log('cleaning up node', getComponent(entity, NameComponent))
+      //removeEntity(entity)
     }
   }, [])
 
@@ -809,6 +820,7 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return console.warn('no component found for extension', props.extension)
     setComponent(props.entity, Component, extension)
+    console.log(props.extension, Component)
   }, [extension])
 
   return null
@@ -829,16 +841,13 @@ const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Ent
 
   return (
     <>
-      {mesh.primitives.map((primitive, index) => (
-        <PrimitiveReactor
-          isSinglePrimitive={isSinglePrimitive}
-          key={`${isSinglePrimitive}-${index}`}
-          primitiveIndex={index}
-          nodeIndex={props.nodeIndex}
-          documentID={props.documentID}
-          entity={props.entity}
-        />
-      ))}
+      <PrimitiveReactor
+        isSinglePrimitive={isSinglePrimitive}
+        key={`${isSinglePrimitive}`}
+        nodeIndex={props.nodeIndex}
+        documentID={props.documentID}
+        entity={props.entity}
+      />
     </>
   )
 }
@@ -953,7 +962,6 @@ const CameraReactor = (props: { nodeIndex: number; documentID: string; entity: E
 
 const PrimitiveReactor = (props: {
   isSinglePrimitive: boolean
-  primitiveIndex: number
   nodeIndex: number
   documentID: string
   entity: Entity
@@ -965,71 +973,94 @@ const PrimitiveReactor = (props: {
 
   const meshDef = documentState.meshes.get(NO_PROXY)![node.mesh!]
 
-  const primitive = meshDef.primitives[props.primitiveIndex] as GLTF.IMeshPrimitive
+  //const primitive = meshDef.primitives[props.primitiveIndex] as GLTF.IMeshPrimitive
 
   const options = getParserOptions(props.entity)
-  const geometry = GLTFLoaderFunctions.useLoadPrimitive(options, props.nodeIndex, props.primitiveIndex)
+  const geometries = meshDef.primitives.map(
+    (primitive, index) => GLTFLoaderFunctions.useLoadPrimitive(options, props.nodeIndex, index)!
+  )
 
-  /** @todo until we have multiple geometry to a single mesh entity support, we have to make children */
-  const entity = useHookstate(() => {
-    if (props.isSinglePrimitive) return props.entity
-
-    const uuid = (getNodeUUID(node, props.documentID, props.nodeIndex) +
-      '-primitive-' +
-      props.primitiveIndex) as EntityUUID
-    const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
-
-    setComponent(entity, UUIDComponent, uuid)
-    setComponent(entity, SourceComponent, props.documentID)
-
-    /** Ensure all base components are added for synchronous mount */
-    setComponent(entity, EntityTreeComponent, { parentEntity: props.entity, childIndex: props.primitiveIndex })
-    setComponent(entity, NameComponent, (node.name ?? 'Node-' + props.nodeIndex) + '_' + props.primitiveIndex)
-    setComponent(entity, TransformComponent)
-    setComponent(entity, VisibleComponent)
-
-    return entity
-  }).value
+  console.log('primitive reactor', getComponent(props.entity, NameComponent), geometries)
 
   useEffect(() => {
     return () => {
-      if (!props.isSinglePrimitive) removeEntity(entity)
+      if (!props.isSinglePrimitive) removeEntity(props.entity)
     }
   }, [])
 
   useLayoutEffect(() => {
-    if (!geometry) return
+    if (!geometries[geometries.length - 1]) return
 
+    console.log(node, 'skinned mesh ya')
     let mesh: Mesh | SkinnedMesh
-    if (typeof node.skin !== 'undefined') {
-      const skinnedMesh = new SkinnedMesh(geometry, new MeshBasicMaterial())
-      mesh = skinnedMesh
-      skinnedMesh.skeleton = new Skeleton()
-      setComponent(entity, MeshComponent, skinnedMesh)
-      setComponent(entity, SkinnedMeshComponent, skinnedMesh)
-    } else {
-      mesh = new Mesh(geometry, new MeshBasicMaterial())
-      setComponent(entity, MeshComponent, mesh)
+
+    // if(hasComponent(props.entity, MeshComponent)) {
+    //   const preexistingMesh = getComponent(props.entity, MeshComponent)
+    //   const preexistingGeometry = preexistingMesh.geometry
+    //   const preexistingMaterialsArray = Array.isArray(preexistingMesh.material) ? preexistingMesh.material : [preexistingMesh.material]
+
+    //   setComponent(props.entity, MeshComponent, mesh!)
+
+    // }else{
+
+    // }
+
+    const preexistingMaterialsArray = [] as Material[]
+    //For debug visualization of material indices
+    meshDef.primitives.map((primitive) => {
+      console.log(primitive.attributes)
+      const multiplier = typeof node.skin !== 'undefined' ? 1 : 0.5
+      const randomColor = new Color(Math.random() * multiplier, Math.random() * multiplier, Math.random() * multiplier)
+      preexistingMaterialsArray[primitive.material!] = new MeshStandardMaterial({ color: randomColor })
+    })
+
+    //HACK
+    for (let i = 0; i < geometries.length; i++) {
+      geometries[i].deleteAttribute('tangent')
     }
 
-    mesh.name = node.name ?? 'Node-' + props.nodeIndex
+    const mergedGeometry = mergeBufferGeometries(geometries, true)
+
+    //HACK HACK HACK!
+    for (let i = 0; i < meshDef.primitives.length; i++) {
+      mergedGeometry!.groups[i].materialIndex = meshDef.primitives[i].material!
+    }
+
+    // geometry.deleteAttribute('tangent')
+
+    console.log(mergedGeometry)
+    console.log(geometries)
+    mesh =
+      typeof node.skin !== 'undefined'
+        ? new SkinnedMesh(mergedGeometry!, new MeshStandardMaterial())
+        : new Mesh(mergedGeometry!, new MeshStandardMaterial())
+    if (typeof node.skin !== 'undefined') {
+      ;(mesh as SkinnedMesh).skeleton = new Skeleton()
+      setComponent(props.entity, SkinnedMeshComponent, mesh as SkinnedMesh)
+    }
+    console.log(getComponent(props.entity, NameComponent), mesh)
+    mesh.material = preexistingMaterialsArray
 
     /** @todo multiple primitive support */
-    addObjectToGroup(entity, mesh)
-    proxifyParentChildRelationships(mesh)
+    addObjectToGroup(props.entity, mesh)
+
+    // mesh.name = node.name ?? 'Node-' + props.nodeIndex
+
+    // /** @todo multiple primitive support */
+    // proxifyParentChildRelationships(mesh)
 
     return () => {
-      removeComponent(entity, SkinnedMeshComponent)
-      removeComponent(entity, MeshComponent)
-      removeObjectFromGroup(entity, mesh)
+      //removeComponent(entity, SkinnedMeshComponent)
+      //removeComponent(entity, MeshComponent)
+      //removeObjectFromGroup(entity, mesh)
     }
-  }, [node.skin, geometry])
+  }, [node.skin, geometries])
 
-  if (!geometry) return null
+  if (!geometries) return null
 
   return (
     <>
-      {typeof primitive.extensions === 'object' && (
+      {/* {typeof primitive.extensions === 'object' && (
         <PrimitiveExtensionReactor
           nodeIndex={props.nodeIndex}
           primitiveIndex={props.primitiveIndex}
@@ -1054,7 +1085,7 @@ const PrimitiveReactor = (props: {
           nodeIndex={props.nodeIndex}
           primitiveIndex={props.primitiveIndex}
         />
-      )}
+      )} */}
     </>
   )
 }
@@ -1078,8 +1109,8 @@ const PrimitiveExtensionReactor = (props: {
 
   useEffect(() => {
     if (!extensions) return
-
     for (const extension in extensions) {
+      console.log(extension)
       const Component = ComponentJSONIDMap.get(extension)
       if (!Component) continue
       setComponent(props.entity, Component, extensions[extension])
