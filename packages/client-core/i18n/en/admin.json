@@ -695,6 +695,7 @@
     "server": {
       "servers": "Servers",
       "migrations": "Migrations",
+      "apiJobs": "API Jobs",
       "loading": "Fetching Server Info",
       "loadingLogs": "Fetching Server Logs",
       "name": "Name",
@@ -727,10 +728,20 @@
       "confirmPodDelete": "Do you want to delete pod",
       "viewLogs": "View Logs",
       "columns": {
+        "migrationsInfo": {
         "id": "ID",
         "name": "Name",
         "batch": "Batch",
         "migration_time": "Migration Time"
+        },
+        "apiJobs": {
+        "id": "ID",
+        "name": "Name",
+        "status": "Status",
+        "start_time": "Start Time",
+        "end_time": "End Time",
+        "return_data": "Return Data"
+        }
       }
     },
     "recording": {
