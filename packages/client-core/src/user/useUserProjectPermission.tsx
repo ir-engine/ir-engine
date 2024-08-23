@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ProjectPermissionType, projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs'
+import { HyperFlux } from '@ir-engine/hyperflux'
 import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
 /**
@@ -38,7 +38,7 @@ export const useProjectPermissions = (project: string): ProjectPermissionType =>
   const { data } = useFind(projectPermissionPath, {
     query: {
       project,
-      userId: Engine.instance.userID,
+      userId: HyperFlux.store.userID,
       paginate: false
     }
   })

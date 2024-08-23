@@ -69,6 +69,7 @@ export const AnimateScaleComponent = defineComponent({
   }
 })
 
+/** @todo Export this function so that it is accessible by this file's UnitTests */
 const animateScale = (entity: Entity, newScale: Vector3) => {
   const highlight = { scaler: 0 }
   const { scale } = getComponent(entity, TransformComponent) ?? getComponent(entity, TransformComponent)

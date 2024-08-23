@@ -32,7 +32,7 @@ import { useFind, useSearch } from '@ir-engine/spatial/src/common/functions/Feat
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
-import { Engine } from '@ir-engine/ecs'
+import { API } from '@ir-engine/common'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { resourceColumns } from '../../common/constants/resources'
 import DataTable from '../../common/Table'
@@ -87,7 +87,7 @@ export default function ResourceTable({ search }: { search: string }) {
                 <ConfirmDialog
                   text={`${t('admin:components.resources.confirmResourceDelete')} '${el.key}'?`}
                   onSubmit={async () => {
-                    await Engine.instance.api.service(staticResourcePath).remove(el.id)
+                    await API.instance.service(staticResourcePath).remove(el.id)
                   }}
                 />
               )

@@ -26,13 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { ECSState, Timer, setComponent } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { EngineState } from '../../src/EngineState'
-import { initializeSpatialEngine } from '../../src/initializeEngine'
+import { initializeSpatialEngine, initializeSpatialViewer } from '../../src/initializeEngine'
 import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
 import { XRState } from '../../src/xr/XRState'
 import { mockEngineRenderer } from './MockEngineRenderer'
 
 export const mockSpatialEngine = () => {
   initializeSpatialEngine()
+  initializeSpatialViewer()
 
   const timer = Timer((time, xrFrame) => {
     getMutableState(XRState).xrFrame.set(xrFrame)
