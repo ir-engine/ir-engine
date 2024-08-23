@@ -43,7 +43,6 @@ import { useEffect } from 'react'
 import { Vector3 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
-import { TransformComponent } from '../../SpatialModule'
 import { EntityTreeComponent, useAncestorWithComponent } from '../../transform/components/EntityTree'
 import { XRState } from '../../xr/XRState'
 import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
@@ -53,6 +52,7 @@ import { AnyButton, ButtonState, ButtonStateMap, createInitialButtonState, Mouse
 import { InputState } from '../state/InputState'
 import ClientInputFunctions from './ClientInputFunctions'
 import normalizeWheel from './normalizeWheel'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export const useNonSpatialInputSources = () => {
   useEffect(() => {
