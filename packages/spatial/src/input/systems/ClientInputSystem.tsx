@@ -56,7 +56,6 @@ import { InputSourceComponent } from '../components/InputSourceComponent'
 import ClientInputFunctions from '../functions/ClientInputFunctions'
 import ClientInputHeuristics, { HeuristicData, HeuristicFunctions } from '../functions/ClientInputHeuristics'
 import ClientInputHooks from '../functions/ClientInputHooks'
-import { ButtonState, ButtonStateMap } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 
 const pointersQuery = defineQuery([InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)])
@@ -193,16 +192,6 @@ export const ClientInputSystem = defineSystem({
   reactor
 })
 
-function cleanupButton(
-  key: string,
-  buttons: ButtonStateMap<Partial<Record<string | number | symbol, ButtonState | undefined>>>,
-  hasFocus: boolean
-) {
-  const button = buttons[key]
-  if (button?.down) button.down = false
-  if (button?.up || !hasFocus) delete buttons[key]
-}
-
 const cleanupInputs = () => {
   if (typeof globalThis.document === 'undefined') return
 
@@ -211,7 +200,7 @@ const cleanupInputs = () => {
   for (const eid of inputSourceQuery()) {
     const source = getComponent(eid, InputSourceComponent)
     for (const key in source.buttons) {
-      cleanupButton(key, source.buttons, hasFocus)
+      ClientInputFunctions.cleanupButton(key, source.buttons, hasFocus)
     }
 
     // clear non-spatial emulated axes data end of each frame
