@@ -88,6 +88,7 @@ export const HemisphereLightComponent = defineComponent({
         removeObjectFromGroup(entity, light)
       }
     }, [])
+
     useEffect(() => {
       light.groundColor.set(hemisphereLightComponent.groundColor.value)
     }, [hemisphereLightComponent.groundColor])

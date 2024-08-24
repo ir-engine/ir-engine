@@ -151,7 +151,7 @@ describe('AmbientLightComponent', () => {
       assert.notDeepEqual(result.color, AmbientLightComponentDefaults.color)
     })
 
-    it('should not change values of an initialized AmbientLightComponent when the data passed had incorrect types', () => {
+    it('should not change the values of an initialized AmbientLightComponent when the data passed had incorrect types', () => {
       const before = getComponent(testEntity, AmbientLightComponent)
       assertAmbientLightComponentEq(before, AmbientLightComponentDefaults)
       const Incorrect = {
@@ -194,7 +194,7 @@ describe('AmbientLightComponent', () => {
     })
   })
 
-  describe.only('reactor', () => {
+  describe('reactor', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
