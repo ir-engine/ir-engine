@@ -32,7 +32,6 @@ import { clearErrors } from '@ir-engine/engine/src/scene/functions/ErrorFunction
 import { Editor } from '@monaco-editor/react'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import AutoSizer from 'react-virtualized-auto-sizer'
 import Button from '../../../../../primitives/tailwind/Button'
 import { fetchCode, updateScriptFile } from '../../../properties/script'
 
@@ -64,36 +63,32 @@ const ActiveScript = () => {
   const addScript = () => EditorControlFunctions.addOrRemoveComponent([entity], ScriptComponent, true)
   useQuery([ScriptComponent])
   return (
-    <AutoSizer>
-      {({ width, height }) => (
-        <div className="flex items-center justify-center" style={{ width, height }}>
-          {entities.length && !validEntity ? (
-            <Button
-              variant="outline"
-              onClick={() => {
-                addScript()
-              }}
-            >
-              {t('editor:script.panel.addScript')}
-            </Button>
-          ) : (
-            <></>
-          )}
-          {validEntity && (
-            <Editor
-              height="100%"
-              language="javascript"
-              defaultLanguage="javascript"
-              value={code} // get the file contents
-              onChange={(newCode) => {
-                setCode(newCode ?? code)
-              }}
-              theme="vs-dark"
-            />
-          )}
-        </div>
+    <div className="flex h-full w-full items-center justify-center">
+      {entities.length && !validEntity ? (
+        <Button
+          variant="outline"
+          onClick={() => {
+            addScript()
+          }}
+        >
+          {t('editor:script.panel.addScript')}
+        </Button>
+      ) : (
+        <></>
       )}
-    </AutoSizer>
+      {validEntity && (
+        <Editor
+          height="100%"
+          language="javascript"
+          defaultLanguage="javascript"
+          value={code} // get the file contents
+          onChange={(newCode) => {
+            setCode(newCode ?? code)
+          }}
+          theme="vs-dark"
+        />
+      )}
+    </div>
   )
 }
 
@@ -101,9 +96,7 @@ export const ScriptPanel = () => {
   return (
     <>
       <div className="flex h-full w-full flex-col">
-        <div className="flex h-full w-full flex-col">
-          <ActiveScript />
-        </div>
+        <ActiveScript />
       </div>
     </>
   )
