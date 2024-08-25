@@ -41,9 +41,8 @@ import {
 } from '@ir-engine/ecs'
 import { Quaternion, Vector3 } from 'three'
 import { PI, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
-import { TransformComponent } from '../../SpatialModule'
-import { getAncestorWithComponent } from '../../transform/components/EntityTree'
-import { TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
+import { getAncestorWithComponents } from '../../transform/components/EntityTree'
+import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
@@ -53,10 +52,10 @@ import { ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } fr
 import { HeuristicData, HeuristicFunctions, IntersectionData } from './ClientInputHeuristics'
 
 /** radian threshold for rotating state*/
-const ROTATING_THRESHOLD = 1.5 * (PI / 180)
+export const ROTATING_THRESHOLD = 1.5 * (PI / 180)
 
 /** squared distance threshold for dragging state */
-const DRAGGING_THRESHOLD = 0.001
+export const DRAGGING_THRESHOLD = 0.001
 
 /** anti-garbage variable!! value not to be used unless you set values just before use*/
 const _pointerPositionVector3 = new Vector3()
@@ -99,6 +98,7 @@ export function updateGamepadInput(eid: Entity) {
     }
     const buttonState = buttons[i] as ButtonState
     if (buttonState && (gamepadButton.pressed || gamepadButton.touched)) {
+      // First frame condition: Initialize downPosition when buttonState.pressed and gamepadButton.pressed are different (aka the first frame)
       if (!buttonState.pressed && gamepadButton.pressed) {
         buttonState.down = true
         buttonState.downPosition = new Vector3()
@@ -112,6 +112,7 @@ export function updateGamepadInput(eid: Entity) {
           buttonState.downRotation.copy(xrTransform.rotation)
         }
       }
+      // Sync buttonState with gamepadButton
       buttonState.pressed = gamepadButton.pressed
       buttonState.touched = gamepadButton.touched
       buttonState.value = gamepadButton.value
@@ -120,13 +121,11 @@ export function updateGamepadInput(eid: Entity) {
         //if not yet dragging, compare distance to drag threshold and begin if appropriate
         if (!buttonState.dragging) {
           if (pointer) _pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
+          // Will always be 0 on the first frame: downPosition will be set this frame, and therefore checked against itself
           const squaredDistance = buttonState.downPosition.distanceToSquared(
             pointer ? _pointerPositionVector3 : xrTransform?.position ?? Vector3_Zero
           )
-
-          if (squaredDistance > DRAGGING_THRESHOLD) {
-            buttonState.dragging = true
-          }
+          buttonState.dragging = squaredDistance > DRAGGING_THRESHOLD
         }
 
         //if not yet rotating, compare distance to drag threshold and begin if appropriate
@@ -134,9 +133,7 @@ export function updateGamepadInput(eid: Entity) {
           const angleRadians = buttonState.downRotation!.angleTo(
             pointer ? Q_IDENTITY : xrTransform?.rotation ?? Q_IDENTITY
           )
-          if (angleRadians > ROTATING_THRESHOLD) {
-            buttonState.rotating = true
-          }
+          buttonState.rotating = angleRadians > ROTATING_THRESHOLD
         }
       }
     } else if (buttonState) {
@@ -144,8 +141,9 @@ export function updateGamepadInput(eid: Entity) {
     }
   }
 }
+
 export const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
-  const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
+  const inputEntity = getAncestorWithComponents(startEntity, [InputComponent])
   if (!inputEntity) return
   const inputComponent = getComponent(inputEntity, InputComponent)
 
@@ -168,22 +166,20 @@ export function updatePointerDragging(pointerEntity: Entity, event: PointerEvent
     else if ((event as MouseEvent).button === 2) button = MouseButton.SecondaryClick
   }
   const btn = state[button]
-  if (btn && !btn.dragging) {
-    const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
+  if (!btn || btn.dragging) return
 
-    if (btn.pressed && btn.downPosition) {
-      //if not yet dragging, compare distance to drag threshold and begin if appropriate
-      if (!btn.dragging) {
-        pointer
-          ? _pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
-          : _pointerPositionVector3.copy(Vector3_Zero)
-        const squaredDistance = btn.downPosition.distanceToSquared(_pointerPositionVector3)
+  const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
 
-        if (squaredDistance > DRAGGING_THRESHOLD) {
-          btn.dragging = true
-        }
-      }
-    }
+  if (!btn.pressed || !btn.downPosition) return
+
+  //if not yet dragging, compare distance to drag threshold and begin if appropriate
+  pointer
+    ? _pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
+    : _pointerPositionVector3.copy(Vector3_Zero)
+  const squaredDistance = btn.downPosition.distanceToSquared(_pointerPositionVector3)
+
+  if (squaredDistance > DRAGGING_THRESHOLD) {
+    btn.dragging = true
   }
 }
 
