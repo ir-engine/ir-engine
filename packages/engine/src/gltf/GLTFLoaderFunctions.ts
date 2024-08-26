@@ -28,6 +28,7 @@ import {
   ComponentType,
   EntityUUID,
   UUIDComponent,
+  UndefinedEntity,
   getComponent,
   getOptionalComponent,
   useOptionalComponent
@@ -37,6 +38,7 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { MaterialPrototypeComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { useEffect } from 'react'
 import {
   AnimationClip,
@@ -57,7 +59,6 @@ import {
   LinearFilter,
   LinearMipmapLinearFilter,
   LinearSRGBColorSpace,
-  Loader,
   LoaderUtils,
   Mesh,
   MeshBasicMaterial,
@@ -70,12 +71,13 @@ import {
   SkinnedMesh,
   Sphere,
   Texture,
-  TextureLoader,
   Vector2,
   Vector3,
   VectorKeyframeTrack
 } from 'three'
+import { useFile, useTexture } from '../assets/functions/resourceLoaderHooks'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
+import { Loader } from '../assets/loaders/base/Loader'
 import {
   ALPHA_MODES,
   ATTRIBUTES,
@@ -95,6 +97,7 @@ import {
 } from '../assets/loaders/gltf/GLTFLoaderFunctions'
 import { GLTFParserOptions, GLTFRegistry, getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
 import { KTX2Loader } from '../assets/loaders/gltf/KTX2Loader'
+import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
@@ -103,7 +106,7 @@ import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } fr
 const cache = new GLTFRegistry()
 
 const useLoadPrimitive = (options: GLTFParserOptions, nodeIndex: number, primitiveIndex: number) => {
-  const result = useHookstate(null as null | BufferGeometry)
+  const [result] = useResource(() => null as null | BufferGeometry)
 
   const json = options.document
   const node = json.nodes![nodeIndex]!
@@ -327,9 +330,14 @@ const useLoadBufferView = (options: GLTFParserOptions, bufferViewIndex?: number)
 
 const useLoadBuffer = (options: GLTFParserOptions, bufferIndex) => {
   const json = options.document
-  const result = useHookstate<ArrayBuffer | null>(null)
+  const loader = useHookstate(() => {
+    const fileLoader = new FileLoader(options.manager)
+    fileLoader.setResponseType('arraybuffer')
+    return fileLoader
+  })
 
   const bufferDef = typeof bufferIndex === 'number' ? json.buffers![bufferIndex] : null
+  const [result] = useFile(bufferDef?.uri || '', UndefinedEntity, () => {}, loader.value)
 
   useEffect(() => {
     if (!bufferDef) return
@@ -339,36 +347,7 @@ const useLoadBuffer = (options: GLTFParserOptions, bufferIndex) => {
     }
   }, [bufferDef?.type])
 
-  useEffect(() => {
-    if (!bufferDef) return
-
-    // If present, GLB container is required to be the first buffer.
-    if (bufferDef.uri === undefined && bufferIndex === 0) {
-      result.set(options.body!)
-      return
-    }
-
-    /** @todo use resource hooks */
-    const fileLoader = new FileLoader(options.manager)
-    fileLoader.setResponseType('arraybuffer')
-    if (options.crossOrigin === 'use-credentials') {
-      fileLoader.setWithCredentials(true)
-    }
-
-    fileLoader.load(
-      LoaderUtils.resolveURL(bufferDef.uri!, options.path),
-      (val: ArrayBuffer) => {
-        result.set(val)
-      },
-      undefined,
-      function () {
-        result.set(null)
-        console.error(new Error('THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".'))
-      }
-    )
-  }, [bufferDef?.uri])
-
-  return result.get(NO_PROXY) as ArrayBuffer | null
+  return bufferDef && bufferDef.uri === undefined && bufferIndex === 0 ? options.body : result
 }
 
 export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primitiveDef: GLTF.IMeshPrimitive) {
@@ -462,7 +441,7 @@ const useLoadMaterial = (
   options: GLTFParserOptions,
   materialDef: ComponentType<typeof MaterialDefinitionComponent>
 ) => {
-  const result = useHookstate(null as null | MeshStandardMaterial | MeshBasicMaterial)
+  const [result] = useResource(() => null as null | MeshStandardMaterial | MeshBasicMaterial)
 
   useEffect(() => {
     /** @todo refactor this into a proper registry, rather than prototype definition entities */
@@ -487,7 +466,7 @@ const useLoadMaterial = (
     result.set(material)
   }, [materialDef.type])
 
-  const material = result.get(NO_PROXY) as MeshStandardMaterial | MeshBasicMaterial
+  const material = result.get(NO_PROXY) as null | MeshStandardMaterial | MeshBasicMaterial
   const map = GLTFLoaderFunctions.useAssignTexture(options, materialDef.pbrMetallicRoughness?.baseColorTexture)
 
   useEffect(() => {
@@ -777,11 +756,10 @@ const useLoadTexture = (options: GLTFParserOptions, textureIndex?: number) => {
   const handler = typeof sourceDef?.uri === 'string' && options.manager.getHandler(sourceDef.uri)
   let loader: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader<unknown, string>
 
-  if (handler) loader = handler
+  if (handler) loader = handler as Loader<unknown, string>
   if (basisu) loader = getState(AssetLoaderState).gltfLoader.ktx2Loader!
   else {
     loader = textureLoader
-    loader.setCrossOrigin(options.crossOrigin)
     loader.setRequestHeader(options.requestHeader)
   }
 
@@ -852,16 +830,10 @@ const useLoadImageSource = (
   loader?: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader
 ) => {
   const json = options.document
-  const result = useHookstate<Texture | null>(null)
-
-  /** @todo caching */
-  // if (sourceCache[sourceIndex] !== undefined) {
-  //   return sourceCache[sourceIndex].then((texture) => texture.clone())
-  // }
-
   const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
 
-  const sourceURI = useHookstate(null as null | string)
+  const sourceURI = useHookstate('')
+  const [result] = useTexture(sourceURI.value, UndefinedEntity, () => {}, loader)
   let isObjectURL = false
 
   const bufferViewSourceURI = GLTFLoaderFunctions.useLoadBufferView(options, sourceDef?.bufferView)
@@ -878,7 +850,7 @@ const useLoadImageSource = (
       const url = LoaderUtils.resolveURL(sourceDef.uri, options.path)
       sourceURI.set(url)
       return () => {
-        sourceURI.set(null)
+        sourceURI.set('')
       }
     }
 
@@ -889,36 +861,15 @@ const useLoadImageSource = (
       sourceURI.set(url)
       return () => {
         URL.revokeObjectURL(url)
-        sourceURI.set(null)
+        sourceURI.set('')
       }
     }
   }, [sourceDef?.uri, bufferViewSourceURI])
 
   useEffect(() => {
-    if (!sourceURI.value) return
-    loader!.load(
-      LoaderUtils.resolveURL(sourceURI.value as string, options.path),
-      (imageBitmap: Texture | ImageBitmap) => {
-        if ((loader as ImageBitmapLoader).isImageBitmapLoader === true) {
-          const texture = new Texture(imageBitmap as ImageBitmap)
-          texture.needsUpdate = true
-          result.set(texture)
-        } else {
-          result.set(imageBitmap as Texture)
-        }
-      },
-      undefined,
-      (e) => {
-        console.error(e)
-        console.error("THREE.GLTFLoader: Couldn't load image", sourceURI.value)
-      }
-    )
-  }, [sourceURI.value])
+    if (!result || !sourceURI.value || !sourceDef) return
 
-  useEffect(() => {
-    if (!result.value || !sourceURI.value || !sourceDef) return
-
-    const texture = result.value as Texture
+    const texture = result
 
     // Clean up resources and configure Texture.
 
@@ -931,9 +882,9 @@ const useLoadImageSource = (
     texture.userData.mimeType = sourceDef.mimeType || getImageURIMimeType(sourceDef.uri)
 
     // sourceCache[sourceIndex] = promise
-  }, [result.value])
+  }, [result])
 
-  return result.get(NO_PROXY) as Texture | null
+  return result
 }
 
 const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>

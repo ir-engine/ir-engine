@@ -96,7 +96,7 @@ export function createDisposable<T extends DisposableObject, T2 extends new (...
   return [obj, unload]
 }
 
-type ObjOrFunction<T> = T | (() => T)
+export type ObjOrFunction<T> = T | (() => T)
 /**
  *
  * Hook to add any resource to be tracked by the resource manager
@@ -108,7 +108,7 @@ type ObjOrFunction<T> = T | (() => T)
  * @param onUnload *Optional* a callback called when the resource is unloaded
  * @returns the resource object passed in
  */
-export function useResource<TObj extends NonNullable<object>>(
+export function useResource<TObj>(
   resource: ObjOrFunction<TObj>,
   entity: Entity = UndefinedEntity,
   id?: string,

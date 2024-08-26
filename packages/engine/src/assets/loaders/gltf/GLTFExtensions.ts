@@ -43,6 +43,7 @@ import {
   Quaternion,
   SpotLight,
   SRGBColorSpace,
+  TextureLoader,
   Vector2,
   Vector3
 } from 'three'
@@ -849,7 +850,7 @@ export class GLTFTextureWebPExtension {
     let loader = parser.textureLoader
     if (source.uri) {
       const handler = parser.options.manager.getHandler(source.uri)
-      if (handler !== null) loader = handler
+      if (handler !== null) loader = handler as TextureLoader
     }
 
     return this.detectSupport().then(function (isSupported) {
@@ -916,7 +917,7 @@ export class GLTFTextureAVIFExtension {
     let loader = parser.textureLoader
     if (source.uri) {
       const handler = parser.options.manager.getHandler(source.uri)
-      if (handler !== null) loader = handler
+      if (handler !== null) loader = handler as TextureLoader
     }
 
     return this.detectSupport().then(function (isSupported) {

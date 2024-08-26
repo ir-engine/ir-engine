@@ -127,7 +127,6 @@ export type GLTFParserOptions = {
   body: null | ArrayBuffer
   documentID: string
   document: GLTF.IGLTF
-  crossOrigin: 'anonymous' | string
   ktx2Loader: KTX2Loader
   manager: LoadingManager
   meshoptDecoder: any
@@ -208,15 +207,10 @@ export class GLTFParser {
       this.textureLoader = new ImageBitmapLoader(this.options.manager)
     }
 
-    this.textureLoader.setCrossOrigin(this.options.crossOrigin)
     this.textureLoader.setRequestHeader(this.options.requestHeader)
 
     this.fileLoader = new FileLoader(this.options.manager)
     this.fileLoader.setResponseType('arraybuffer')
-
-    if (this.options.crossOrigin === 'use-credentials') {
-      this.fileLoader.setWithCredentials(true)
-    }
   }
 
   setExtensions(extensions) {

@@ -44,6 +44,7 @@ import { Geometry } from '../common/constants/Geometry'
 import iterateObject3D from '../common/functions/iterateObject3D'
 import { PerformanceState } from '../renderer/PerformanceState'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
+import { ObjOrFunction } from './resourceHooks'
 
 export interface DisposableObject {
   uuid: string
@@ -70,6 +71,7 @@ export enum ResourceType {
   Material = 'Material',
   Object3D = 'Object3D',
   Audio = 'Audio',
+  File = 'File',
   Unknown = 'Unknown'
   // ECSData = 'ECSData',
 }
@@ -84,6 +86,7 @@ export type ResourceAssetType =
   | Mesh
   | DisposableObject
   | AudioBuffer
+  | ArrayBuffer
 
 type BaseMetadata = {
   size?: number
@@ -368,6 +371,13 @@ const resourceCallbacks = {
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (asset: AudioBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {}
   },
+  [ResourceType.File]: {
+    onStart: (resource: State<Resource>) => {},
+    onLoad: (asset: ArrayBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
+    onUnload: (asset: ArrayBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {}
+  },
   [ResourceType.Unknown]: {
     onStart: (resource: State<Resource>) => {},
     onLoad: (asset: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
@@ -591,10 +601,11 @@ const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resource
   }
 }
 
-const addResource = <T extends object>(res: NonNullable<T> | (() => NonNullable<T>), id: string, entity: Entity): T => {
+const addResource = <T>(res: ObjOrFunction<T>, id: string, entity: Entity): T => {
+  const obj = (res instanceof Function ? res() : res) as unknown as ResourceAssetType
+  if (!obj) return obj
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
-  const obj = (typeof res === 'function' ? res() : res) as unknown as ResourceAssetType
   const resourceType = getResourceType(obj)
   const callbacks = resourceCallbacks[resourceType]
 
