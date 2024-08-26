@@ -35,9 +35,12 @@ export const instanceServerSettingMethods = ['find', 'get', 'create', 'patch', '
 
 export const iceServerSchema = Type.Object(
   {
-    urls: Type.String() || Type.Array(Type.String()),
+    urls: Type.Union([Type.Array(Type.String()), Type.String()]),
+    useFixedCredentials: Type.Optional(Type.Boolean()),
+    useTimeLimitedCredentials: Type.Optional(Type.Boolean()),
     username: Type.Optional(Type.String()),
-    credential: Type.Optional(Type.String())
+    credential: Type.Optional(Type.String()),
+    webRTCStaticAuthSecretKey: Type.Optional(Type.String())
   },
   { $id: 'IceServerSchema', additionalProperties: false }
 )
@@ -48,8 +51,6 @@ export const webRTCSettingsSchema = Type.Object(
   {
     iceServers: Type.Array(Type.Ref(iceServerSchema)),
     useCustomICEServers: Type.Boolean(),
-    useTimeLimitedCredentials: Type.Boolean(),
-    webRTCStaticAuthSecretKey: Type.String(),
     usePrivateInstanceserverIP: Type.Boolean()
   },
   { $id: 'webRTCSettingsSchema', additionalProperties: false }

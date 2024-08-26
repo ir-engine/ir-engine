@@ -39,7 +39,7 @@ import ErrorPopUp from '@ir-engine/editor/src/components/popup/ErrorPopUp'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { updateModelResource } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
+import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
 import { recursiveHipsLookup } from '@ir-engine/engine/src/avatar/AvatarBoneMatching'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
@@ -82,7 +82,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   ])
 
   const getRelativePath = useCallback(() => {
-    const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[2]
+    const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[3].split('/')[1]
     if (!relativePath) {
       return 'assets/new-model'
     } else {
@@ -112,6 +112,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     exportRelativeGLTF(entity, srcProject.value, fileName).then(() => {
       const nuPath = pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName)
       commitProperty(ModelComponent, 'src')(nuPath)
+      ResourceLoaderManager.updateResource(nuPath)
       exporting.set(false)
     })
   }
@@ -142,7 +143,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           value={modelComponent.src.value}
           onRelease={(src) => {
             if (src !== modelComponent.src.value) commitProperty(ModelComponent, 'src')(src)
-            else updateModelResource(src)
+            else ResourceLoaderManager.updateResource(src)
           }}
         />
         {errors?.LOADING_ERROR ||

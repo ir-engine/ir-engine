@@ -58,7 +58,7 @@ export default function ImagePreviewInput({
         </div>
         {(previewOnly === undefined || previewOnly === false) && (
           <div className="inline-flex w-[305px] items-center justify-center gap-2.5 self-stretch rounded-b-md bg-[#1A1A1A] px-2 py-1">
-            <ImageInput className="bg-[#242424]" containerClassname="w-full" value={value} onRelease={onRelease} />
+            <ImageInput className="bg-[#242424]" containerClassName="w-full" value={value} onRelease={onRelease} />
           </div>
         )}
       </div>

@@ -16,6 +16,7 @@
   "dependencies": {
     "@ir-engine/common": "^1.6.0",
     "@ir-engine/ecs": "^1.6.0",
+    "three": "0.158.0",
     "@ir-engine/hyperflux": "^1.6.0"
   },
   "devDependencies": {
