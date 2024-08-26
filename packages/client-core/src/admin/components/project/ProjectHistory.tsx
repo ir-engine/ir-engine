@@ -36,6 +36,7 @@ import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaSortAmountDown, FaSortAmountUpAlt } from 'react-icons/fa'
+import { FiRefreshCw } from 'react-icons/fi'
 
 const PROJECT_HISTORY_PAGE_LIMIT = 10
 
@@ -70,27 +71,27 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         sceneId: string
       }
 
-      const verb = projectHistory.action === 'LOCATION_PUBLISHED' ? 'published' : 'unpublished'
-
       const { relativeURL, resourceURL } = getResourceURL(projectName, actionDetail.sceneURL, 'scene')
 
       return (
         <>
-          <Text>{verb} the location</Text>
+          <Text>
+            {projectHistory.action === 'LOCATION_PUBLISHED'
+              ? t('admin:components.history.publishedLocation')
+              : t('admin:components.history.unpublishedLocation')}
+          </Text>
 
-          {verb === 'published' ? (
+          {projectHistory.action === 'LOCATION_PUBLISHED' ? (
             <a href={`/location/${actionDetail.locationName}`}>
               <Text className="underline-offset-4 hover:underline" fontWeight="semibold">
                 {actionDetail.locationName}
               </Text>
             </a>
           ) : (
-            <Text className="underline-offset-4 hover:underline" fontWeight="semibold">
-              {actionDetail.locationName}
-            </Text>
+            <Text fontWeight="semibold">{actionDetail.locationName}</Text>
           )}
 
-          <Text>from the scene</Text>
+          <Text>{t('admin:components.history.fromScene')}</Text>
 
           <Text href={resourceURL} component="a" className="underline-offset-4 hover:underline" fontWeight="semibold">
             {relativeURL}.
@@ -104,7 +105,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text>modified the location</Text>
+          <Text>{t('admin:components.history.modifiedLocation')}</Text>
 
           <a href={`/location/${actionDetail.locationName}`}>
             <Text className="underline-offset-4 hover:underline" fontWeight="semibold">
@@ -120,14 +121,17 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         permissionType: string
       }
 
-      const verb = projectHistory.action === 'PERMISSION_CREATED' ? 'added' : 'removed'
-
       return (
         <>
-          <Text>{verb} the</Text>
+          <Text>
+            {projectHistory.action === 'PERMISSION_CREATED'
+              ? t('admin:components.history.added')
+              : t('admin:components.history.removed')}
+          </Text>
+
           <Text fontWeight="semibold">{actionDetail.permissionType}</Text>
 
-          <Text>access to</Text>
+          <Text>{t('admin:components.history.accessTo')}</Text>
 
           <Tooltip content={`UserId: ${actionDetail.userId}`}>
             <Text>{actionDetail.userName}</Text>
@@ -144,13 +148,13 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text>updated the permission of the user</Text>
+          <Text>{t('admin:components.history.updatePermission')}</Text>
           <Tooltip content={`UserId: ${actionDetail.userId}`}>
             <Text>{actionDetail.userName}</Text>
           </Tooltip>
-          <Text>from</Text>
+          <Text>{t('admin:components.setting.from').toLowerCase()}</Text>
           <Text fontWeight="semibold">{actionDetail.oldPermissionType}</Text>
-          <Text>to</Text>
+          <Text>{t('admin:components.setting.to').toLowerCase()}</Text>
           <Text fontWeight="semibold">{actionDetail.newPermissionType}</Text>
         </>
       )
@@ -162,10 +166,6 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
       projectHistory.action === 'SCENE_CREATED' ||
       projectHistory.action === 'SCENE_REMOVED'
     ) {
-      const verb =
-        projectHistory.action === 'RESOURCE_CREATED' || projectHistory.action === 'SCENE_CREATED'
-          ? 'created'
-          : 'removed'
       const object =
         projectHistory.action === 'RESOURCE_CREATED' || projectHistory.action === 'RESOURCE_REMOVED'
           ? 'resource'
@@ -180,11 +180,19 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
       return (
         <>
           <Text>
-            {verb} the {object}
+            {projectHistory.action.endsWith('CREATED')
+              ? t('admin:components.history.created')
+              : t('admin:components.history.removed')}{' '}
+            {object}
           </Text>
-          <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
-            {relativeURL}
-          </Text>
+
+          {projectHistory.action.endsWith('CREATED') ? (
+            <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
+              {relativeURL}
+            </Text>
+          ) : (
+            <Text fontWeight="semibold">{relativeURL}</Text>
+          )}
         </>
       )
     } else if (projectHistory.action === 'RESOURCE_RENAMED' || projectHistory.action === 'SCENE_RENAMED') {
@@ -203,10 +211,12 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text>renamed a {object} from</Text>
+          <Text>
+            {t('admin:components.history.renamed')} {object} {t('admin:components.setting.from').toLowerCase()}
+          </Text>
 
           <Text fontWeight="semibold">{oldRelativeURL}</Text>
-          <Text>to</Text>
+          <Text>{t('admin:components.setting.to').toLowerCase()}</Text>
           <Text
             href={newResourceURL}
             component="a"
@@ -227,7 +237,102 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
 
       return (
         <>
-          <Text>modified the {object}</Text>
+          <Text>
+            {t('admin:components.history.modified')} {object}
+          </Text>
+          <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
+            {relativeURL}
+          </Text>
+        </>
+      )
+    } else if (projectHistory.action === 'TAGS_MODIFIED') {
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        url: string
+      }
+
+      const { relativeURL, resourceURL } = getResourceURL(projectName, actionDetail.url, 'resource')
+
+      return (
+        <>
+          <Text>{t('admin:components.history.updatedTags')}</Text>
+          <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
+            {relativeURL}
+          </Text>
+        </>
+      )
+    } else if (projectHistory.action === 'THUMBNAIL_CREATED') {
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        thumbnailURL: string
+        url: string
+      }
+
+      const { relativeURL: relativeThumbnailURL, resourceURL: thumbnailResourceURL } = getResourceURL(
+        projectName,
+        actionDetail.thumbnailURL,
+        'resource'
+      )
+
+      const { relativeURL, resourceURL } = getResourceURL(projectName, actionDetail.url, 'resource')
+
+      return (
+        <>
+          <Text>{t('admin:components.history.createdThumbnail')}</Text>
+          <Text
+            href={thumbnailResourceURL}
+            component="a"
+            fontWeight="semibold"
+            className="underline-offset-4 hover:underline"
+          >
+            {relativeThumbnailURL}
+          </Text>
+          <Text>{t('admin:components.setting.for').toLowerCase()}</Text>
+          <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
+            {relativeURL}
+          </Text>
+        </>
+      )
+    } else if (projectHistory.action === 'THUMBNAIL_MODIFIED') {
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        oldThumbnailURL: string
+        newThumbnailURL: string
+        url: string
+      }
+
+      const { relativeURL: relativeThumbnailURL, resourceURL: thumbnailResourceURL } = getResourceURL(
+        projectName,
+        actionDetail.newThumbnailURL,
+        'resource'
+      )
+
+      const { relativeURL, resourceURL } = getResourceURL(projectName, actionDetail.url, 'resource')
+
+      return (
+        <>
+          <Text>{t('admin:components.history.updatedThumbnail')}</Text>
+          <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
+            {relativeURL}
+          </Text>
+          <Text>{t('admin:components.setting.to').toLowerCase()}</Text>
+          <Text
+            href={thumbnailResourceURL}
+            component="a"
+            fontWeight="semibold"
+            className="underline-offset-4 hover:underline"
+          >
+            {relativeThumbnailURL}
+          </Text>
+        </>
+      )
+    } else if (projectHistory.action === 'THUMBNAIL_REMOVED') {
+      const actionDetail = JSON.parse(projectHistory.actionDetail) as {
+        url: string
+      }
+
+      const { relativeURL, resourceURL } = getResourceURL(projectName, actionDetail.url, 'resource')
+
+      return (
+        <>
+          <Text>{t('admin:components.history.removedThumbnail')}</Text>
           <Text href={resourceURL} component="a" fontWeight="semibold" className="underline-offset-4 hover:underline">
             {relativeURL}
           </Text>
@@ -279,13 +384,20 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
 
   return (
     <div className="w-full flex-row justify-between gap-5 px-2">
-      <Button
-        className="mb-4"
-        onClick={toggleSortOrder}
-        endIcon={sortOrder === -1 ? <FaSortAmountDown /> : <FaSortAmountUpAlt />}
-      >
-        {sortOrder === -1 ? t('admin:components.common.newestFirst') : t('admin:components.common.oldestFirst')}
-      </Button>
+      <div className="mb-4 flex items-center justify-start gap-3">
+        <Button onClick={toggleSortOrder} endIcon={sortOrder === -1 ? <FaSortAmountDown /> : <FaSortAmountUpAlt />}>
+          {sortOrder === -1 ? t('admin:components.common.newestFirst') : t('admin:components.common.oldestFirst')}
+        </Button>
+
+        <Button
+          startIcon={<FiRefreshCw />}
+          onClick={() => {
+            projectHistoryQuery.refetch()
+          }}
+        >
+          {t('admin:components.common.refresh')}
+        </Button>
+      </div>
 
       {projectHistoryQuery.data &&
         projectHistoryQuery.data.map((projectHistory, index) => (
