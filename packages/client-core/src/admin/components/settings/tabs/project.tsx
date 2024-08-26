@@ -183,7 +183,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
           {displayedSettings.value.map((setting: ProjectSettingType, index: number) => (
             <div className="my-2 flex flex-row items-end gap-2" key={index}>
               <Input
-                containerClassname="w-1/4"
+                containerClassName="w-1/4"
                 label={t('admin:components.setting.project.keyName')}
                 value={setting.key}
                 endComponent={
@@ -199,7 +199,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 onChange={(e) => handleSettingsKeyChange(e, setting, index)}
               />
               <Input
-                containerClassname="w-1/4"
+                containerClassName="w-1/4"
                 label={t('admin:components.setting.project.value')}
                 value={setting.value || ''}
                 endComponent={
