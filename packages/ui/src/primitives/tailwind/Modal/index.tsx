@@ -138,10 +138,10 @@ const Modal = ({
 }: ModalProps) => {
   const twClassName = twMerge('relative z-50 max-h-[80vh] w-full bg-theme-surface-main', className)
   return (
-    <div className={twClassName}>
+    <div data-test-id={id} className={twClassName}>
       <div className="relative rounded-lg shadow">
         {onClose && <ModalHeader title={title} onClose={onClose} />}
-        {rawChildren && rawChildren}
+        {rawChildren}
         {children && <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>}
 
         {!hideFooter && (
