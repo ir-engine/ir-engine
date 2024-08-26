@@ -23,38 +23,31 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { v4 as uuidv4 } from 'uuid'
+import * as fs from 'fs'
+import type { Knex } from 'knex'
+import * as path from 'path'
 
-import { LocationID, locationPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+const sqlFilePath = path.join(__dirname, './static-resource_triggers.sql')
 
-import { Application } from '../../declarations'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const sql = fs.readFileSync(sqlFilePath, 'utf8')
+  await knex.raw(sql)
+}
 
-export const createTestLocation = async (app: Application, params = { isInternal: true } as any) => {
-  const name = `Test Location ${uuidv4()}`
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('DROP PROCEDURE IF EXISTS handle_thumbnails;')
+  await knex.raw('DROP PROCEDURE IF EXISTS handle_tags;')
+  await knex.raw('DROP PROCEDURE IF EXISTS update_static_resource_history;')
+  await knex.raw('DROP TRIGGER IF EXISTS after_static_resource_update;')
 
-  const scene = await app.service(staticResourcePath).find({
-    query: {
-      key: 'projects/ir-engine/default-project/public/scenes/default.gltf'
-    }
-  })
-
-  return await app.service(locationPath).create(
-    {
-      name,
-      slugifiedName: '',
-      sceneId: scene.data[0].id,
-      maxUsersPerInstance: 20,
-      locationSetting: {
-        locationType: 'public',
-        audioEnabled: true,
-        videoEnabled: true,
-        faceStreamingEnabled: false,
-        screenSharingEnabled: false,
-        locationId: '' as LocationID
-      },
-      isLobby: false,
-      isFeatured: false
-    },
-    { ...params }
-  )
+  await knex.raw('DROP PROCEDURE IF EXISTS insert_static_resource_history;')
+  await knex.raw('DROP TRIGGER IF EXISTS after_static_resource_insert;')
 }

@@ -93,7 +93,7 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(inviteQueryValidator), schemaHooks.resolveQuery(inviteQueryResolver)],
+    all: [schemaHooks.validateQuery(inviteQueryValidator), schemaHooks.resolveQuery(inviteQueryResolver)],
     find: [
       iffElse(
         (context) => !!context.params.query?.action,
@@ -105,13 +105,13 @@ export default {
     get: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     create: [
       attachOwnerIdInBody('userId'),
-      () => schemaHooks.validateData(inviteDataValidator),
+      schemaHooks.validateData(inviteDataValidator),
       schemaHooks.resolveData(inviteDataResolver)
     ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('invite', 'write')),
-      () => schemaHooks.validateData(invitePatchValidator),
+      schemaHooks.validateData(invitePatchValidator),
       schemaHooks.resolveData(invitePatchResolver)
     ],
     remove: [iff(isProvider('external'), inviteRemoveAuthenticate(), removeFriend)]
