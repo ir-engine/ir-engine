@@ -363,9 +363,54 @@ const execute = () => {
         selectedEntities.length !== 1 ||
         (selectedEntities.length === 1 && selectedEntities[0] !== clickStartEntity)
       ) {
-        SelectionState.updateSelection([getComponent(clickStartEntity, UUIDComponent)])
+        updateSelection(
+          clickStartEntity,
+          !!buttons.MetaLeft?.pressed || !!buttons.MetaRight?.pressed,
+          !!buttons.ShiftLeft?.pressed || !!buttons.ShiftRight?.pressed
+        )
       }
     }
+  }
+}
+
+const updateSelection = (clickedEntity: Entity, control: boolean, shift: boolean) => {
+  const selectedEntities = SelectionState.getSelectedEntities()
+  if (control) {
+    if (selectedEntities.includes(clickedEntity)) {
+      SelectionState.updateSelection(
+        selectedEntities
+          .filter((entity) => entity !== clickedEntity)
+          .map((entity) => getComponent(entity, UUIDComponent))
+      )
+    } else {
+      SelectionState.updateSelection([
+        ...selectedEntities.map((entity) => getComponent(entity, UUIDComponent)),
+        getComponent(clickedEntity, UUIDComponent)
+      ])
+    }
+  }
+  /** @todo decide how we want shift selection to work with viewport */
+  // else if (shift) {
+  //   const lastSelectedEntity = selectedEntities[selectedEntities.length - 1]
+  //   const lastSelectedIndex = selectedEntities.indexOf(lastSelectedEntity)
+  //   const clickedEntityIndex = selectedEntities.indexOf(clickedEntity)
+  //   if (lastSelectedIndex === -1) {
+  //     SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
+  //   } else if (clickedEntityIndex === -1) {
+  //     const min = Math.min(lastSelectedIndex, selectedEntities.indexOf(clickedEntity))
+  //     const max = Math.max(lastSelectedIndex, selectedEntities.indexOf(clickedEntity))
+  //     const newSelection = selectedEntities.slice(0, min).concat(selectedEntities.slice(max))
+  //
+  //     SelectionState.updateSelection(newSelection.map((entity) => getComponent(entity, UUIDComponent)))
+  //   } else {
+  //     const min = Math.min(lastSelectedIndex, clickedEntityIndex)
+  //     const max = Math.max(lastSelectedIndex, clickedEntityIndex)
+  //     const newSelection = selectedEntities.slice(min, max + 1)
+  //     SelectionState.updateSelection(newSelection.map((entity) => getComponent(entity, UUIDComponent)))
+  //   }
+  // }
+  else {
+    SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
   }
 }
 
