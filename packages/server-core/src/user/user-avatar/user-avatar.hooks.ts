@@ -48,12 +48,12 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(userAvatarQueryValidator), schemaHooks.resolveQuery(userAvatarQueryResolver)],
+    all: [schemaHooks.validateQuery(userAvatarQueryValidator), schemaHooks.resolveQuery(userAvatarQueryResolver)],
     find: [],
     get: [disallow('external')],
     create: [
       disallow('external'),
-      () => schemaHooks.validateData(userAvatarDataValidator),
+      schemaHooks.validateData(userAvatarDataValidator),
       schemaHooks.resolveData(userAvatarDataResolver)
     ],
     patch: [
@@ -65,7 +65,7 @@ export default {
           [setLoggedinUserInQuery('userId')]
         )
       ),
-      () => schemaHooks.validateData(userAvatarPatchValidator),
+      schemaHooks.validateData(userAvatarPatchValidator),
       schemaHooks.resolveData(userAvatarPatchResolver)
     ],
     remove: [disallow('external')]

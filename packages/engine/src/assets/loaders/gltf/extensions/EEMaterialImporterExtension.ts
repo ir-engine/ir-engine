@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Color, Material, SRGBColorSpace } from 'three'
 import matches from 'ts-matches'
 
-import { getComponent, UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, getOptionalComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   MaterialPrototypeComponent,
   MaterialPrototypeObjectConstructor,
@@ -93,7 +93,10 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
         }
       }
     }
-    const materialComponent = getComponent(UUIDComponent.getEntityByUUID(extension.uuid), MaterialStateComponent)
+    const materialComponent = getOptionalComponent(
+      UUIDComponent.getEntityByUUID(extension.uuid),
+      MaterialStateComponent
+    )
     let foundPrototype = false
     if (materialComponent) {
       foundPrototype = !!materialComponent.prototypeEntity

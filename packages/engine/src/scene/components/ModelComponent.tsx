@@ -47,7 +47,7 @@ import {
   EntityTreeComponent,
   iterateEntityNode,
   removeEntityNodeRecursively,
-  useAncestorWithComponent
+  useAncestorWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
@@ -252,7 +252,7 @@ function ModelReactor() {
  */
 export const useHasModelOrIndependentMesh = (entity: Entity) => {
   const hasModel = !!useOptionalComponent(entity, ModelComponent)
-  const isChildOfModel = !!useAncestorWithComponent(entity, ModelComponent)
+  const isChildOfModel = !!useAncestorWithComponents(entity, [ModelComponent])
   const hasMesh = !!useOptionalComponent(entity, MeshComponent)
 
   return hasModel || (hasMesh && !isChildOfModel)
