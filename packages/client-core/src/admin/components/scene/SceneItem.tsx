@@ -66,6 +66,7 @@ export const SceneItem = ({
       await deleteScene(scene.key)
 
       if (onDeleteScene) {
+        onDeleteScene(scene)
       } else {
         refetchProjectsData()
       }
