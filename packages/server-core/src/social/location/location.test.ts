@@ -66,15 +66,12 @@ describe('location.test', () => {
         sceneId: scene.data[0].id,
         maxUsersPerInstance: 20,
         locationSetting: {
-          id: '',
           locationType: 'public',
           audioEnabled: true,
           videoEnabled: true,
           faceStreamingEnabled: false,
           screenSharingEnabled: false,
-          locationId: '' as LocationID,
-          createdAt: '',
-          updatedAt: ''
+          locationId: '' as LocationID
         },
         isLobby: false,
         isFeatured: false
@@ -107,18 +104,14 @@ describe('location.test', () => {
       locationId: locations[0].id
     })
 
-    const locationData = JSON.parse(JSON.stringify(locations[0]))
-    delete locationData.locationBans
-    delete locationData.locationAuthorizedUsers
-    delete locationData.locationAdmin
-    delete locationData.createdAt
-    delete locationData.updatedAt
-    delete locationData.sceneAsset
-    delete locationData.url
+    locationSetting.audioEnabled = true
+    locationSetting.videoEnabled = true
+    locationSetting.faceStreamingEnabled = false
+    locationSetting.screenSharingEnabled = false
 
     const item = (await app
       .service(locationPath)
-      .patch(locations[0].id, { ...locationData, name: newName, locationSetting })) as any as LocationType
+      .patch(locations[0].id, { name: newName, locationSetting })) as any as LocationType
 
     assert.ok(item)
     assert.equal(item.name, newName)
