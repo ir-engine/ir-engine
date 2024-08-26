@@ -47,7 +47,7 @@ import {
   FilesViewModeSettings,
   FilesViewModeState,
   availableTableColumns,
-  useFilesQuery
+  useCurrentFiles
 } from '../../services/FilesState'
 import { handleDownloadProject } from './loaders'
 
@@ -63,7 +63,7 @@ function extractDirectoryWithoutOrgName(directory: string, orgName: string) {
 
 function BreadcrumbItems() {
   const filesState = useMutableState(FilesState)
-  const { onChangeDirectoryByPath } = useFilesQuery()
+  const { onChangeDirectoryByPath } = useCurrentFiles()
 
   const handleBreadcrumbDirectoryClick = (targetFolder: string) => {
     if (filesState.orgName.value && targetFolder === 'projects') return
@@ -192,7 +192,7 @@ export default function FilesToolbar() {
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/public/') ||
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/assets/')
 
-  const { onBackDirectory, onRefreshDirectory, onCreateNewFolder } = useFilesQuery()
+  const { onBackDirectory, onRefreshDirectory, onCreateNewFolder } = useCurrentFiles()
 
   return (
     <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">

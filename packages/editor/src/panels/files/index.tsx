@@ -42,5 +42,6 @@ export const FilesPanelTab: TabData = {
   id: 'filesPanel',
   closable: true,
   title: <FilesPanelTitle />,
+  // content: <FilesPanelContainer />,
   content: <FileBrowser />
 }
