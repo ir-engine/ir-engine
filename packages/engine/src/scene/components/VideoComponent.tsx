@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import {
   ClampToEdgeWrapping,
+  CompressedTexture,
   DoubleSide,
   LinearFilter,
   Mesh,
@@ -33,6 +34,7 @@ import {
   ShaderMaterial,
   Side,
   SphereGeometry,
+  Texture,
   Uniform,
   Vector2,
   VideoTexture,
@@ -58,10 +60,10 @@ import { MeshComponent, useMeshComponent } from '@ir-engine/spatial/src/renderer
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
-import { ContentFitType, ObjectFitFunctions } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
+import { ContentFitType } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
 
 import { clearErrors } from '../functions/ErrorFunctions'
-import { PLANE_GEO, resizeVideoMesh, SPHERE_GEO } from './ImageComponent'
+import { getTextureSize, PLANE_GEO, resizeVideoMesh, SPHERE_GEO } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
@@ -296,6 +298,8 @@ function VideoReactor() {
   useEffect(() => {
     const videoMesh = mesh.value as Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
     resizeVideoMesh(videoMesh)
+
+    /*
     const scale = ObjectFitFunctions.computeContentFitScale(
       videoMesh.scale.x,
       videoMesh.scale.y,
@@ -304,6 +308,33 @@ function VideoReactor() {
       video.fit.value
     )
     videoMesh.scale.setScalar(scale)
+    */
+    const uvOffset = new Vector2(0, 0)
+    const uvScale = new Vector2(1, 1)
+
+    const containerWidth = video.size.width.value
+    const containerHeight = video.size.height.value
+    const containerRatio = containerWidth / containerHeight
+
+    videoMesh.scale.x = containerWidth
+    videoMesh.scale.y = containerHeight
+
+    const imageSize = getTextureSize(videoMesh.material.uniforms.map.value as Texture | CompressedTexture)
+    const imageRatio = imageSize.x / imageSize.y
+
+    if (video.fit.value == 'horizontal') {
+      uvScale.y = imageRatio / containerRatio
+      uvScale.x = 1
+      uvOffset.y = (1 - uvScale.y) / 2
+    }
+    if (video.fit.value == 'vertical') {
+      uvScale.x = 1 / imageRatio / (1 / containerRatio)
+      uvScale.y = 1
+      uvOffset.x = (1 - uvScale.x) / 2
+    }
+
+    video.uvOffset.set(uvOffset)
+    video.uvScale.set(uvScale)
   }, [video.size, video.fit, video.texture])
 
   useEffect(() => {
