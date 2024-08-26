@@ -349,8 +349,6 @@ function VideoReactor() {
 
     fitPlacementUvOffset.set(uvOffset)
     fitPlacementUvScale.set(uvScale)
-    //video.uvOffset.set(uvOffset)
-    //video.uvScale.set(uvScale)
   }, [video.size, video.fit, video.texture, mesh.material])
 
   useEffect(() => {
