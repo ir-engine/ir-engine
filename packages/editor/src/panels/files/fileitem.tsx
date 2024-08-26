@@ -46,7 +46,7 @@ import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
-import { FileContextMenu } from './filecontextmenu'
+import { FileContextMenu } from './contextmenu'
 import { FileIcon } from './fileicon'
 
 type DisplayTypeProps = {

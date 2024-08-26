@@ -40,7 +40,7 @@ import {
   useFileBrowserDrop
 } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
-import { BrowserContextMenu } from './filecontextmenu'
+import { BrowserContextMenu } from './contextmenu'
 import FileItem from './fileitem'
 import FilesLoaders from './loaders'
 import FilesToolbar from './toolbar'
