@@ -26,14 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Not } from 'bitecs'
 import { Vector3 } from 'three'
 
-import {
-  defineQuery,
-  defineSystem,
-  getComponent,
-  setComponent,
-  SimulationSystemGroup,
-  UUIDComponent
-} from '@ir-engine/ecs'
+import { defineQuery, defineSystem, getComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 import { NetworkObjectAuthorityTag } from '@ir-engine/network'
 import { SpawnPoseState, TransformComponent } from '@ir-engine/spatial'
@@ -44,15 +37,14 @@ import {
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { getAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { updateReferenceSpaceFromAvatarMovement } from '../../avatar/functions/moveAvatar'
 import { SceneSettingsComponent } from '../components/SceneSettingsComponent'
 
 const heightKillApplicableQuery = defineQuery([
   RigidBodyComponent,
   NetworkObjectAuthorityTag,
-  Not(AvatarComponent),
   Not(RigidBodyFixedTagComponent)
 ])
 
@@ -63,7 +55,7 @@ const execute = () => {
   const settingsEntities = settingsQuery()
   const sceneKillHeights = settingsEntities.map((entity) => {
     return [
-      getAncestorWithComponent(entity, SceneComponent),
+      getAncestorWithComponents(entity, [SceneComponent]),
       getComponent(entity, SceneSettingsComponent).sceneKillHeight
     ]
   })
@@ -71,7 +63,7 @@ const execute = () => {
   const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
 
   for (const entity of killableEntities) {
-    const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+    const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
     const sceneHeight = sceneKillHeights.find(([scene]) => scene === sceneEntity)?.[1]
     if (typeof sceneHeight !== 'number') continue
 
@@ -100,6 +92,6 @@ const execute = () => {
 
 export const SceneKillHeightSystem = defineSystem({
   uuid: 'ee.engine.SceneKillHeightSystem',
-  insert: { before: SimulationSystemGroup },
+  insert: { before: TransformDirtyUpdateSystem },
   execute
 })

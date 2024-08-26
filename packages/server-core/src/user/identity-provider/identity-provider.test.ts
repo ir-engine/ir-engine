@@ -33,7 +33,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-describe('identity-provider.service', () => {
+describe('identity-provider.test', () => {
   let userId: UserID
   let accessToken: string
   let app: Application

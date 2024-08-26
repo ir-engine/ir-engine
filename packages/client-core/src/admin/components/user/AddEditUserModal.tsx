@@ -29,6 +29,7 @@ import {
   scopeTypePath,
   UserData,
   UserName,
+  UserPatch,
   userPath,
   UserType
 } from '@ir-engine/common/src/schema.type.module'
@@ -116,12 +117,12 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       name: name.value as UserName,
       avatarId: avatarId.value as AvatarID,
       isGuest: user?.isGuest,
-      scopes: scopes.value as { type: ScopeType }[]
+      scopes: scopes.value.map((scope) => ({ type: scope.type }))
     }
     submitLoading.set(true)
     try {
       if (user?.id) {
-        await userMutation.patch(user.id, userData)
+        await userMutation.patch(user.id, userData as UserPatch)
       } else {
         await userMutation.create(userData)
       }

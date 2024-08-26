@@ -32,7 +32,6 @@ import { initGA, logPageView } from '@ir-engine/client-core/src/common/analytics
 import { NotificationSnackbar } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { useSearchParamState } from '@ir-engine/client-core/src/common/services/RouterService'
 import { useThemeProvider } from '@ir-engine/client-core/src/common/services/ThemeService'
-import Debug from '@ir-engine/client-core/src/components/Debug'
 import InviteToast from '@ir-engine/client-core/src/components/InviteToast'
 import { LoadWebappInjection } from '@ir-engine/client-core/src/components/LoadWebappInjection'
 import { useAuthenticated } from '@ir-engine/client-core/src/user/services/AuthService'
@@ -63,7 +62,6 @@ const AppPage = (props: { children: React.ReactNode }) => {
       <NotificationSnackbar />
       <LoadWebappInjection>{props.children}</LoadWebappInjection>
       <InviteToast />
-      <Debug />
     </>
   )
 }
