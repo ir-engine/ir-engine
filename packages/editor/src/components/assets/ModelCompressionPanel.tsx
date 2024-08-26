@@ -63,8 +63,8 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
+import { FileDataType } from '../../panels/files/helpers'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
-import { FileDataType } from './FileBrowser/FileDataType'
 
 const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity): Entity => {
   const entity = createEntity()

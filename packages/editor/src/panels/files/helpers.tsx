@@ -34,7 +34,6 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
-import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
@@ -52,6 +51,18 @@ export type DnDFileType = {
   dataTransfer: DataTransfer
   files: File[]
   items: DataTransferItemList
+}
+
+export type FileDataType = {
+  key: string
+  path: string
+  name: string
+  fullName: string
+  size?: string
+  thumbnailURL?: string
+  url: string
+  type: string
+  isFolder: boolean
 }
 
 /* HOOKS */

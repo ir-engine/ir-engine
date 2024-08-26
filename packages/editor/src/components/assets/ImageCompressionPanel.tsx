@@ -47,7 +47,7 @@ import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
-import { FileDataType } from './FileBrowser/FileDataType'
+import { FileDataType } from '../../panels/files/helpers'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },

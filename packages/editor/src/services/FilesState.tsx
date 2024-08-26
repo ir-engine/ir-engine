@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
 import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
+import { FileDataType } from '../panels/files/helpers'
 
 export const FilesViewModeState = defineState({
   name: 'FilesViewModeState',

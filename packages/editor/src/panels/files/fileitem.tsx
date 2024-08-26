@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
 import {
   FilesState,
   FilesViewModeSettings,
@@ -44,7 +43,13 @@ import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileContextMenu } from './contextmenu'
 import { FileIcon } from './fileicon'
-import { availableTableColumns, canDropOnFileBrowser, useCurrentFiles, useFileBrowserDrop } from './helpers'
+import {
+  FileDataType,
+  availableTableColumns,
+  canDropOnFileBrowser,
+  useCurrentFiles,
+  useFileBrowserDrop
+} from './helpers'
 
 type DisplayTypeProps = {
   file: FileDataType
