@@ -58,7 +58,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
         <ImageInput
           value={imageComponent.source.value}
           onRelease={commitProperty(ImageComponent, 'source')}
-          containerClassname="rounded-lg text-xs text-[#8B8B8D]"
+          containerClassName="rounded-lg text-xs text-[#8B8B8D]"
           className="h-10 rounded-md bg-[#1A1A1A] text-xs text-[#8B8B8D]"
         />
       </InputGroup>

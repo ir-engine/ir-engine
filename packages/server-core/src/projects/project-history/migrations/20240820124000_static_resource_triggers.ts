@@ -23,27 +23,31 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+import * as fs from 'fs'
+import type { Knex } from 'knex'
+import * as path from 'path'
 
-export interface LabelProps extends React.HtmlHTMLAttributes<HTMLLabelElement> {
-  className?: string
-  htmlFor?: string
+const sqlFilePath = path.join(__dirname, './static-resource_triggers.sql')
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const sql = fs.readFileSync(sqlFilePath, 'utf8')
+  await knex.raw(sql)
 }
 
-const Label = ({ className, htmlFor, children, ...props }: LabelProps) => {
-  return (
-    <label
-      htmlFor={htmlFor}
-      className={twMerge(
-        'inline-block text-sm font-medium leading-none text-theme-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </label>
-  )
-}
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('DROP PROCEDURE IF EXISTS handle_thumbnails;')
+  await knex.raw('DROP PROCEDURE IF EXISTS handle_tags;')
+  await knex.raw('DROP PROCEDURE IF EXISTS update_static_resource_history;')
+  await knex.raw('DROP TRIGGER IF EXISTS after_static_resource_update;')
 
-export default Label
+  await knex.raw('DROP PROCEDURE IF EXISTS insert_static_resource_history;')
+  await knex.raw('DROP TRIGGER IF EXISTS after_static_resource_insert;')
+}

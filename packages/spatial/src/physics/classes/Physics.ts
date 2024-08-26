@@ -522,7 +522,10 @@ function createColliderDesc(world: PhysicsWorld, entity: Entity, rootEntity: Ent
   colliderDesc.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
   colliderDesc.setRotation(quaternionRelativeToRoot)
 
-  colliderDesc.setSensor(hasComponent(entity, TriggerComponent))
+  if (hasComponent(entity, TriggerComponent)) {
+    colliderDesc.setSensor(true)
+    colliderDesc.setCollisionGroups(getInteractionGroups(CollisionGroups.Trigger, collisionMask))
+  }
 
   // TODO expose these
   colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)

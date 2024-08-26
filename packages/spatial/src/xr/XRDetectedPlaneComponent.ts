@@ -81,7 +81,6 @@ export const XRDetectedPlaneComponent = defineComponent({
       component.plane.set(json.plane as XRPlane)
     }
     if (matches.object.test(json.geometry)) {
-      component.geometry.value?.dispose?.()
       component.geometry.set(json.geometry as BufferGeometry)
     }
   },
