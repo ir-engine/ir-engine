@@ -159,10 +159,9 @@ export default function FileItem({ file }: { file: FileDataType }) {
   const { t } = useTranslation()
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
   const isListView = filesViewMode.value === 'list'
-  const files = useCurrentFiles().files
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent>(undefined)
   const filesState = useMutableState(FilesState)
-  const { onChangeDirectoryByPath, onCreateNewFolder } = useCurrentFiles()
+  const { changeDirectoryByPath, files } = useCurrentFiles()
   const dropOnFileBrowser = useFileBrowserDrop()
   const selectedFiles = useMutableState(SelectedFilesState)
 
@@ -229,7 +228,7 @@ export default function FileItem({ file }: { file: FileDataType }) {
   const handleFileClick = (event: React.MouseEvent) => {
     if (file.isFolder && event.detail === 2) {
       const newPath = `${filesState.selectedDirectory.value}${file.name}/`
-      onChangeDirectoryByPath(newPath)
+      changeDirectoryByPath(newPath)
     } else {
       ClickPlacementState.setSelectedAsset(file.url)
     }

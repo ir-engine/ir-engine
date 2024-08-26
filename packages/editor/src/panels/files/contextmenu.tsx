@@ -90,14 +90,14 @@ export function FileContextMenu({
   file: FileDataType
 }) {
   const { t } = useTranslation()
-  const { onCreateNewFolder, onRefreshDirectory } = useCurrentFiles()
+  const { createNewFolder, refreshDirectory } = useCurrentFiles()
   const selectedFiles = useMutableState(SelectedFilesState)
   const filesState = useMutableState(FilesState)
 
   return (
     <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
       <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
-        <Button variant="outline" size="small" fullWidth onClick={onCreateNewFolder}>
+        <Button variant="outline" size="small" fullWidth onClick={createNewFolder}>
           {t('editor:layout.filebrowser.addNewFolder')}
         </Button>
         {!file.isFolder && (
@@ -264,7 +264,7 @@ export function FileContextMenu({
             onClick={() => {
               if (fileConsistsOfContentType(selectedFiles.value, 'model')) {
                 PopoverState.showPopupover(
-                  <ModelCompressionPanel selectedFiles={selectedFiles.value} refreshDirectory={onRefreshDirectory} />
+                  <ModelCompressionPanel selectedFiles={selectedFiles.value} refreshDirectory={refreshDirectory} />
                 )
               }
               setAnchorEvent(undefined)
@@ -282,7 +282,7 @@ export function FileContextMenu({
             onClick={() => {
               if (fileConsistsOfContentType(selectedFiles.value, 'image')) {
                 PopoverState.showPopupover(
-                  <ImageCompressionPanel selectedFiles={selectedFiles.value} refreshDirectory={onRefreshDirectory} />
+                  <ImageCompressionPanel selectedFiles={selectedFiles.value} refreshDirectory={refreshDirectory} />
                 )
               }
               setAnchorEvent(undefined)
@@ -305,7 +305,7 @@ export function BrowserContextMenu({
 }) {
   const { t } = useTranslation()
   const filesState = useMutableState(FilesState)
-  const { onCreateNewFolder } = useCurrentFiles()
+  const { createNewFolder: onCreateNewFolder } = useCurrentFiles()
 
   return (
     <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>

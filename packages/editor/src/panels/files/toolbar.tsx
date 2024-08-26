@@ -58,7 +58,7 @@ const VIEW_MODES = [
 
 function BreadcrumbItems() {
   const filesState = useMutableState(FilesState)
-  const { onChangeDirectoryByPath } = useCurrentFiles()
+  const { changeDirectoryByPath } = useCurrentFiles()
 
   const handleBreadcrumbDirectoryClick = (targetFolder: string) => {
     const pattern = /([^/]+)/g
@@ -71,7 +71,7 @@ function BreadcrumbItems() {
         break
       }
     }
-    onChangeDirectoryByPath(newPath)
+    changeDirectoryByPath(newPath)
   }
 
   let breadcrumbDirectoryFiles = filesState.selectedDirectory.value.slice(1, -1).split('/')
@@ -181,7 +181,7 @@ export default function FilesToolbar() {
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/public/') ||
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/assets/')
 
-  const { onBackDirectory, onRefreshDirectory, onCreateNewFolder } = useCurrentFiles()
+  const { backDirectory, refreshDirectory, createNewFolder } = useCurrentFiles()
 
   return (
     <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
@@ -189,14 +189,14 @@ export default function FilesToolbar() {
       {showBackButton && (
         <div id="backDir" className={`pointer-events-auto flex h-7 w-7 items-center rounded-lg bg-[#2F3137]`}>
           <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
-            <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={onBackDirectory} />
+            <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={backDirectory} />
           </Tooltip>
         </div>
       )}
 
       <div id="refreshDir" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
         <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-          <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={onRefreshDirectory} />
+          <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={refreshDirectory} />
         </Tooltip>
       </div>
 
@@ -243,7 +243,7 @@ export default function FilesToolbar() {
 
       <div id="newFolder" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
         <Tooltip content={t('editor:layout.filebrowser.addNewFolder')}>
-          <Button variant="transparent" startIcon={<PiFolderPlusBold />} className="p-0" onClick={onCreateNewFolder} />
+          <Button variant="transparent" startIcon={<PiFolderPlusBold />} className="p-0" onClick={createNewFolder} />
         </Tooltip>
       </div>
 
@@ -259,7 +259,7 @@ export default function FilesToolbar() {
             projectName: filesState.projectName.value,
             directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1)
           })
-            .then(() => onRefreshDirectory())
+            .then(() => refreshDirectory())
             .catch((err) => {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
             })
@@ -280,7 +280,7 @@ export default function FilesToolbar() {
             directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1),
             preserveDirectory: true
           })
-            .then(onRefreshDirectory)
+            .then(refreshDirectory)
             .catch((err) => {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
             })

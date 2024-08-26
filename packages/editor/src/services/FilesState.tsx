@@ -78,10 +78,10 @@ export const FilesState = defineState({
 const FilesQueryContext = createContext({
   filesQuery: null as null | ReturnType<typeof useFind<'file-browser'>>,
   files: [] as FileDataType[],
-  onChangeDirectoryByPath: (_path: string) => {},
-  onBackDirectory: () => {},
-  onRefreshDirectory: async () => {},
-  onCreateNewFolder: () => {}
+  changeDirectoryByPath: (_path: string) => {},
+  backDirectory: () => {},
+  refreshDirectory: async () => {},
+  createNewFolder: () => {}
 })
 
 export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }) => {
@@ -106,12 +106,12 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
     filesState.searchText.value
   )
 
-  const onChangeDirectoryByPath = (path: string) => {
+  const changeDirectoryByPath = (path: string) => {
     filesState.merge({ selectedDirectory: path })
     filesQuery.setPage(0)
   }
 
-  const onBackDirectory = () => {
+  const backDirectory = () => {
     const pattern = /([^/]+)/g
     const result = filesState.selectedDirectory.value.match(pattern)
     if (!result || result.length === 1) return
@@ -119,14 +119,14 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
     for (let i = 0; i < result.length - 1; i++) {
       newPath += result[i] + '/'
     }
-    onChangeDirectoryByPath(newPath)
+    changeDirectoryByPath(newPath)
   }
 
-  const onRefreshDirectory = async () => {
+  const refreshDirectory = async () => {
     await filesQuery.refetch()
   }
 
-  const onCreateNewFolder = () => fileService.create(`${filesState.selectedDirectory.value}New-Folder`)
+  const createNewFolder = () => fileService.create(`${filesState.selectedDirectory.value}New-Folder`)
 
   const files = filesQuery.data.map((file) => {
     const isFolder = file.type === 'folder'
@@ -146,7 +146,7 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
 
   return (
     <FilesQueryContext.Provider
-      value={{ filesQuery, files, onChangeDirectoryByPath, onBackDirectory, onRefreshDirectory, onCreateNewFolder }}
+      value={{ filesQuery, files, changeDirectoryByPath, backDirectory, refreshDirectory, createNewFolder }}
     >
       {children}
     </FilesQueryContext.Provider>
@@ -190,7 +190,7 @@ export function useFileBrowserDrop() {
         isCopy
       })
 
-      await currentFiles.onRefreshDirectory()
+      await currentFiles.refreshDirectory()
     } catch (error) {
       console.error('Error moving file:', error)
       NotificationService.dispatchNotify((error as Error).message, { variant: 'error' })
@@ -246,7 +246,7 @@ export function useFileBrowserDrop() {
       }
     }
 
-    await currentFiles.onRefreshDirectory()
+    await currentFiles.refreshDirectory()
   }
 
   return dropItemsOnFileBrowser
