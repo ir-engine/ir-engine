@@ -204,7 +204,7 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="mb-3 flex h-auto min-w-40 cursor-pointer flex-col items-center text-center"
+      className="mb-3 flex h-auto w-40 cursor-pointer flex-col items-center text-center"
     >
       <span
         className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
@@ -525,7 +525,7 @@ const AssetPanel = () => {
             }
           : undefined,
         $sort: { mimeType: 1 },
-        $limit: ASSETS_PAGE_LIMIT,
+        $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
         $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
       } as StaticResourceQuery
 
@@ -551,6 +551,13 @@ const AssetPanel = () => {
     return () => {
       abortController.abort()
     }
+  }
+
+  const calculateItemsToFetch = () => {
+    const containerHeight = window.innerHeight
+    const itemHeight = 160
+    const itemsInView = Math.ceil(containerHeight / itemHeight)
+    return itemsInView
   }
 
   useEffect(() => staticResourcesPagination.skip.set(0), [searchText])
@@ -711,7 +718,9 @@ const AssetPanel = () => {
             disableEvent={
               staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || loading.value
             }
-            onScrollBottom={() => staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)}
+            onScrollBottom={() => {
+              staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT + calculateItemsToFetch())
+            }}
           >
             <div className="mt-auto flex h-full w-full flex-wrap gap-2">
               <ResourceItems />
