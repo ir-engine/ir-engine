@@ -161,7 +161,7 @@ export default function ImageCompressionPanel({
         />
       </div>
 
-      <div className="mx-auto grid w-1/2 gap-y-2">
+      <div className="mx-auto grid w-[80%] justify-center gap-y-2">
         <InputGroup
           containerClassName="w-full justify-start"
           labelClassName="w-24 text-theme-gray3"
