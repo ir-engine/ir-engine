@@ -33,7 +33,7 @@ import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { TablePagination } from '@ir-engine/ui/src/primitives/tailwind/Table'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaSortAmountDown, FaSortAmountUpAlt } from 'react-icons/fa'
 import { FiRefreshCw } from 'react-icons/fi'
@@ -382,6 +382,10 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
     })
   }
 
+  useEffect(() => {
+    projectHistoryQuery.refetch()
+  }, [])
+
   return (
     <div className="w-full flex-row justify-between gap-5 px-2">
       <div className="mb-4 flex items-center justify-start gap-3">
@@ -389,12 +393,7 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
           {sortOrder === -1 ? t('admin:components.common.newestFirst') : t('admin:components.common.oldestFirst')}
         </Button>
 
-        <Button
-          startIcon={<FiRefreshCw />}
-          onClick={() => {
-            projectHistoryQuery.refetch()
-          }}
-        >
+        <Button startIcon={<FiRefreshCw />} onClick={projectHistoryQuery.refetch}>
           {t('admin:components.common.refresh')}
         </Button>
       </div>
