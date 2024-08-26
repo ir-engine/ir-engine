@@ -73,7 +73,7 @@ const DiscardableInput = ({
         className={twMerge('mb-2 flex items-center', isDroppable && 'outline outline-2 outline-white')}
       >
         <Input
-          containerClassname="flex-grow"
+          containerClassName="flex-grow"
           className="border-none bg-[#242424] text-[#8B8B8D]"
           value={value}
           onChange={(event) => onChange(event.target.value, index)}
