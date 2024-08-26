@@ -33,7 +33,7 @@ import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { TablePagination } from '@ir-engine/ui/src/primitives/tailwind/Table'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaSortAmountDown, FaSortAmountUpAlt } from 'react-icons/fa'
 import { FiRefreshCw } from 'react-icons/fi'
@@ -344,15 +344,15 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
   }
 
   return (
-    <div className="mb-3 flex w-full items-center justify-between rounded-lg bg-[#191B1F] px-5 py-2">
-      <div className="grid grid-flow-col place-items-center gap-x-2 [&>*]:text-nowrap">
-        <AvatarImage
-          className="inline-grid min-h-10 min-w-10 rounded-full"
-          src={projectHistory.userAvatarURL}
-          name={projectHistory.userName}
-        />
+    <div className="mb-3 flex w-full items-center justify-between gap-x-2 rounded-lg bg-[#191B1F] px-5 py-2">
+      <AvatarImage
+        className="inline-grid min-h-10 min-w-10 rounded-full"
+        src={projectHistory.userAvatarURL}
+        name={projectHistory.userName}
+      />
 
-        <Text className="text-nowrap">{projectHistory.userName}</Text>
+      <div className="flex w-full flex-wrap items-center justify-start gap-x-2 [&>*]:whitespace-nowrap">
+        <Text>{projectHistory.userName}</Text>
 
         <RenderAction />
       </div>
@@ -382,6 +382,10 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
     })
   }
 
+  useEffect(() => {
+    projectHistoryQuery.refetch()
+  }, [])
+
   return (
     <div className="w-full flex-row justify-between gap-5 px-2">
       <div className="mb-4 flex items-center justify-start gap-3">
@@ -389,12 +393,7 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
           {sortOrder === -1 ? t('admin:components.common.newestFirst') : t('admin:components.common.oldestFirst')}
         </Button>
 
-        <Button
-          startIcon={<FiRefreshCw />}
-          onClick={() => {
-            projectHistoryQuery.refetch()
-          }}
-        >
+        <Button startIcon={<FiRefreshCw />} onClick={projectHistoryQuery.refetch}>
           {t('admin:components.common.refresh')}
         </Button>
       </div>
