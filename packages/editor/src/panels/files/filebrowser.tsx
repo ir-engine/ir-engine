@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useMutableState } from '@ir-engine/hyperflux'
-import { canDropItemOverFolder } from '@ir-engine/ui/src/components/editor/panels/Files/browserGrid'
+// import { canDropItemOverFolder } from '@ir-engine/ui/src/components/editor/panels/Files/browserGrid'
 import React, { useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { twMerge } from 'tailwind-merge'
@@ -35,22 +35,24 @@ import {
   FilesState,
   FilesViewModeState,
   SelectedFilesState,
+  canDropOnFileBrowser,
   useCurrentFiles,
   useFileBrowserDrop
 } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
+import { BrowserContextMenu } from './filecontextmenu'
 import FileItem from './fileitem'
 import FilesLoaders from './loaders'
 import FilesToolbar from './toolbar'
 
 function Browser() {
-  const [anchorEvent, setAnchorEvent] = useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
+  const [anchorEvent, setAnchorEvent] = useState<undefined | React.MouseEvent>(undefined)
   const dropOnFileBrowser = useFileBrowserDrop()
   const filesState = useMutableState(FilesState)
   const [{ isFileDropOver }, fileDropRef] = useDrop({
     accept: [...SupportedFileTypes],
     drop: (dropItem) => dropOnFileBrowser(dropItem as any),
-    canDrop: () => canDropItemOverFolder(filesState.selectedDirectory.value),
+    canDrop: () => canDropOnFileBrowser(filesState.selectedDirectory.value),
     collect: (monitor) => ({ isFileDropOver: monitor.canDrop() && monitor.isOver() })
   })
   const isListView = useMutableState(FilesViewModeState).viewMode.value === 'list'
@@ -85,6 +87,7 @@ function Browser() {
           ))}
         </div>
       </div>
+      <BrowserContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} />
     </div>
   )
 }

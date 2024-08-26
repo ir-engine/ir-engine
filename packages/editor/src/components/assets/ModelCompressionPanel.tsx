@@ -40,7 +40,7 @@ import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComp
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { proxifyParentChildRelationships } from '@ir-engine/engine/src/scene/functions/loadGLTFModel'
-import { getState, ImmutableArray, NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
@@ -52,7 +52,6 @@ import {
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { FileType } from '@ir-engine/ui/src/components/editor/panels/Files/container'
 import { useTranslation } from 'react-i18next'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import exportGLTF from '../../functions/exportGLTF'
@@ -65,6 +64,7 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
+import { FileDataType } from './FileBrowser/FileDataType'
 
 const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity): Entity => {
   const entity = createEntity()
@@ -143,7 +143,7 @@ export default function ModelCompressionPanel({
   selectedFiles,
   refreshDirectory
 }: {
-  selectedFiles: ImmutableArray<FileType>
+  selectedFiles: readonly FileDataType[]
   refreshDirectory: () => Promise<void>
 }) {
   const { t } = useTranslation()
@@ -198,7 +198,7 @@ export default function ModelCompressionPanel({
     localStorage.setItem('presets', JSON.stringify(presetList.value))
   }
 
-  const compressModel = async (file: FileType) => {
+  const compressModel = async (file: FileDataType) => {
     const clientside = true
     const exportCombined = true
 

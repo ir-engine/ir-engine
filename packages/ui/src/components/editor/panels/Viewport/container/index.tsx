@@ -30,11 +30,13 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { clientSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { processFileName } from '@ir-engine/common/src/utils/processFileName'
 import { useComponent, useQuery } from '@ir-engine/ecs'
+import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
 import { ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
 import { getCursorSpawnPosition } from '@ir-engine/editor/src/functions/screenSpaceFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { DnDFileType } from '@ir-engine/editor/src/services/FilesState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePendingComponent'
 import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
@@ -48,7 +50,6 @@ import { twMerge } from 'tailwind-merge'
 import { Vector2, Vector3 } from 'three'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
-import { DnDFileType, FileType } from '../../Files/container'
 import { SceneElementType } from '../../Properties/elementList'
 import GizmoTool from '../tools/GizmoTool'
 import GridTool from '../tools/GridTool'
@@ -67,7 +68,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
     collect: (monitor) => ({
       isDragging: monitor.getItem() !== null && monitor.canDrop() && monitor.isOver()
     }),
-    drop(item: SceneElementType | FileType | DnDFileType, monitor) {
+    drop(item: SceneElementType | FileDataType | DnDFileType, monitor) {
       const vec3 = new Vector3()
       getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
       if ('componentJsonID' in item) {

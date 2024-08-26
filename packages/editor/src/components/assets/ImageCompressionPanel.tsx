@@ -39,7 +39,6 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
-import { FileType, createFileDigest } from '@ir-engine/ui/src/components/editor/panels/Files/container'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -48,6 +47,7 @@ import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
+import { FileDataType } from './FileBrowser/FileDataType'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },
@@ -67,11 +67,10 @@ export default function ImageCompressionPanel({
   selectedFiles,
   refreshDirectory
 }: {
-  selectedFiles: ImmutableArray<FileType>
+  selectedFiles: ImmutableArray<FileDataType>
   refreshDirectory: () => Promise<void>
 }) {
   const { t } = useTranslation()
-  const digest = createFileDigest(selectedFiles)
 
   const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const compressionLoading = useHookstate(false)
@@ -88,7 +87,7 @@ export default function ImageCompressionPanel({
     PopoverState.hidePopupover()
   }
 
-  const compressImage = async (props: FileType) => {
+  const compressImage = async (props: FileDataType) => {
     compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
 
     const ktx2Encoder = new KTX2Encoder()

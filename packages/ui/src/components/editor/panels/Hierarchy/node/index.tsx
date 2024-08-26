@@ -53,11 +53,11 @@ import { ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/A
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
+import { DnDFileType } from '@ir-engine/editor/src/services/FilesState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { twMerge } from 'tailwind-merge'
 import TransformPropertyGroup from '../../../properties/transform'
-import { DnDFileType } from '../../Files/container'
 
 /**
  * getNodeElId function provides id for node.

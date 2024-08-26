@@ -115,7 +115,7 @@ export function ProjectDownloadProgress() {
   ) : null
 }
 
-function FileUploadProgress() {
+export function FileUploadProgress() {
   const { t } = useTranslation()
   const { completed, total, progress } = useUploadingFiles()
 

@@ -23,14 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
+import { fileBrowserPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
 import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
-import { defineState, NO_PROXY, syncStateWithLocalStorage, useMutableState } from '@ir-engine/hyperflux'
-import { useFind, useMutation, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
-import React, { createContext, ReactNode, useContext } from 'react'
+import { NO_PROXY, defineState, syncStateWithLocalStorage, useMutableState } from '@ir-engine/hyperflux'
+import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import React, { ReactNode, createContext, useContext } from 'react'
 import { handleUploadFiles } from '../functions/assetFunctions'
 
 export const FilesViewModeState = defineState({
@@ -139,6 +140,9 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
       isFolder
     }
   })
+
+  useRealtime(staticResourcePath, filesQuery.refetch)
+  FileThumbnailJobState.useGenerateThumbnails(filesQuery.data)
 
   return (
     <FilesQueryContext.Provider
