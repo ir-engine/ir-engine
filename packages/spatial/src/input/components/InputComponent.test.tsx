@@ -972,7 +972,7 @@ describe('InputComponent', () => {
       // Run a test for every condition we defined in the test cases matrix
       cases.forEach(function (data: CaseData) {
         // if (!executeWhenEditing && getState(EngineState).isEditing) return
-        const ConditionOne = data.executeWhenEditing && data.isEditing
+        const ConditionOne = !data.executeWhenEditing && data.isEditing
         // if (!isAncestor(getState(InputState).capturingEntity, entity, true)) return
         const ConditionAncestor = data.notAncestor
         const MakeAncestor = !data.notAncestor // Unconfuse the double negative into a readable name for the rest of the test
