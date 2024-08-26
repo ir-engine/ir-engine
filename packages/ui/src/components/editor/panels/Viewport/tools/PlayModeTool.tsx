@@ -41,51 +41,68 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
-const PlayModeTool = () => {
+/**
+ * Returns true if we stopped play mode, false if we were not in play mode
+ */
+export const onStopPlayMode = (): boolean => {
+  const entity = AvatarComponent.getSelfAvatarEntity()
+  if (entity) {
+    dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(entity, UUIDComponent) }))
+    removeEntity(entity)
+    const viewerEntity = getState(EngineState).viewerEntity
+    removeComponent(viewerEntity, ComputedTransformComponent)
+    removeComponent(viewerEntity, FollowCameraComponent)
+    removeComponent(viewerEntity, TargetCameraRotationComponent)
+    visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.stop({ entity })))
+    // stop all visual script logic
+  }
+  return !!entity
+}
+
+export const onStartPlayMode = () => {
+  const authState = getState(AuthState)
+  const avatarDetails = authState.user.avatar //.value
+
+  const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
+  const currentScene = getComponent(getState(EditorState).rootEntity, UUIDComponent)
+
+  if (avatarDetails)
+    spawnLocalAvatarInWorld({
+      parentUUID: currentScene,
+      avatarSpawnPose,
+      avatarID: avatarDetails.id!,
+      name: authState.user.name //.value
+    })
+
+  // todo
+  // run all visual script logic
+  visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
+  transformGizmoControlledQuery().forEach((entity) => removeComponent(entity, TransformGizmoControlledComponent))
+  //just remove all gizmo in the scene
+}
+
+const PlayModeTool: React.FC = () => {
   const { t } = useTranslation()
 
   const isEditing = useHookstate(getMutableState(EngineState).isEditing)
-  const authState = useHookstate(getMutableState(AuthState))
 
   const onTogglePlayMode = () => {
-    const entity = AvatarComponent.getSelfAvatarEntity()
-    if (entity) {
-      dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(entity, UUIDComponent) }))
-      removeEntity(entity)
-      removeComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
-      removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
-      removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
-      getMutableState(EngineState).isEditing.set(true)
-      visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.stop({ entity })))
-      // stop all visual script logic
-    } else {
-      const avatarDetails = authState.user.avatar.value
-
-      const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
-      const currentScene = getComponent(getState(EditorState).rootEntity, UUIDComponent)
-
-      if (avatarDetails)
-        spawnLocalAvatarInWorld({
-          parentUUID: currentScene,
-          avatarSpawnPose,
-          avatarID: avatarDetails.id!,
-          name: authState.user.name.value
-        })
-
-      // todo
-      getMutableState(EngineState).isEditing.set(false)
-      // run all visual script logic
-      visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
-      transformGizmoControlledQuery().forEach((entity) => removeComponent(entity, TransformGizmoControlledComponent))
-      //just remove all gizmo in the scene
-    }
+    getMutableState(EngineState).isEditing.set(!isEditing.value)
   }
+
+  useEffect(() => {
+    if (isEditing.value) return
+    onStartPlayMode()
+    return () => {
+      onStopPlayMode()
+    }
+  }, [isEditing])
 
   return (
     <div id="preview" className="flex items-center">

@@ -42,7 +42,7 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { EntityTreeComponent, getAncestorWithComponent } from '../../transform/components/EntityTree'
+import { EntityTreeComponent, getAncestorWithComponents } from '../../transform/components/EntityTree'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { assertVecAllApproxNotEq, assertVecApproxEq } from '../classes/Physics.test'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
@@ -338,9 +338,9 @@ describe('ColliderComponent', () => {
 
         removeComponent(testEntity, EntityTreeComponent)
         setComponent(testEntity, EntityTreeComponent, { parentEntity: newParent })
-        const ancestor = getAncestorWithComponent(
+        const ancestor = getAncestorWithComponents(
           testEntity,
-          RigidBodyComponent,
+          [RigidBodyComponent],
           /*closest*/ true,
           /*includeSelf*/ false
         )

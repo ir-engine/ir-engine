@@ -27,7 +27,7 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 
-import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { EntityUUID, hasComponents, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
@@ -37,6 +37,7 @@ import { startReactor } from '@ir-engine/hyperflux'
 import { NameComponent } from '../../common/NameComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import {
   destroyEntityTree,
   EntityTreeComponent,
@@ -45,8 +46,9 @@ import {
   removeFromEntityTree,
   traverseEntityNode,
   traverseEntityNodeParent,
-  useAncestorWithComponent,
-  useChildWithComponent,
+  useAncestorWithComponents,
+  useChildrenWithComponents,
+  useChildWithComponents,
   useTreeQuery
 } from './EntityTree'
 
@@ -413,6 +415,7 @@ describe('useTreeQuery', () => {
   it('should return complete deep list of entites for an entity tree', async () => {
     const rootEntity = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
+    setComponent(rootEntity, NameComponent, 'rootEntity')
 
     console.log({ rootEntity })
 
@@ -435,12 +438,12 @@ describe('useTreeQuery', () => {
     const { rerender, unmount } = render(tag)
 
     assert.equal(ents.length, 1, 'root entity not populated')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
 
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 1, 'root entity not populated after re-querying')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
 
     const childEntity = createEntity()
     setComponent(childEntity, EntityTreeComponent, { parentEntity: rootEntity })
@@ -448,8 +451,8 @@ describe('useTreeQuery', () => {
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 2, 'query incorrect after adding child')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
-    assert.equal(ents[1], childEntity, 'child entity not populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
+    assert.equal(ents.includes(childEntity), true, 'child entity not populated')
 
     const deepChildEntity = createEntity()
     setComponent(deepChildEntity, EntityTreeComponent, { parentEntity: childEntity })
@@ -457,9 +460,9 @@ describe('useTreeQuery', () => {
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 3, 'query incorrect after adding deep child')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
-    assert.equal(ents[1], childEntity, 'child entity not populated')
-    assert.equal(ents[2], deepChildEntity, 'deep child entity not populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
+    assert.equal(ents.includes(childEntity), true, 'child entity not populated')
+    assert.equal(ents.includes(deepChildEntity), true, 'deep child entity not populated')
 
     const deepChildEntity2 = createEntity()
     setComponent(deepChildEntity2, EntityTreeComponent, { parentEntity: childEntity })
@@ -467,10 +470,10 @@ describe('useTreeQuery', () => {
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 4, 'query incorrect after adding another deep child')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
-    assert.equal(ents[1], childEntity, 'child entity not populated')
-    assert.equal(ents[2], deepChildEntity, 'deep child entity not populated')
-    assert.equal(ents[3], deepChildEntity2, 'deep child 2 entity not populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
+    assert.equal(ents.includes(childEntity), true, 'child entity not populated')
+    assert.equal(ents.includes(deepChildEntity), true, 'deep child entity not populated')
+    assert.equal(ents.includes(deepChildEntity2), true, 'deep child 2 entity not populated')
 
     console.log({ ents }, '\n')
 
@@ -479,30 +482,30 @@ describe('useTreeQuery', () => {
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 3, 'query incorrect after adding remove second deep child')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
-    assert.equal(ents[1], childEntity, 'child entity not populated')
-    assert.equal(ents[2], deepChildEntity, 'deep child entity not populated')
-    assert.equal(ents[3], undefined, 'deep child 2 entity still populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
+    assert.equal(ents.includes(childEntity), true, 'child entity not populated')
+    assert.equal(ents.includes(deepChildEntity), true, 'deep child entity not populated')
+    assert.equal(ents.includes(deepChildEntity2), false, 'deep child 2 entity still populated')
 
     removeEntity(childEntity)
 
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 1, 'query incorrect after adding removing child')
-    assert.equal(ents[0], rootEntity, 'root entity not populated')
-    assert.equal(ents[1], undefined, 'child entity still populated')
-    assert.equal(ents[2], undefined, 'deep child entity still populated')
-    assert.equal(ents[3], undefined, 'deep child 2 entity still populated')
+    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
+    assert.equal(ents.includes(childEntity), false, 'child entity still populated')
+    assert.equal(ents.includes(deepChildEntity), false, 'deep child entity still populated')
+    assert.equal(ents.includes(deepChildEntity2), false, 'deep child 2 entity still populated')
 
     removeEntity(rootEntity)
 
     await act(() => rerender(tag))
 
     assert.equal(ents.length, 0, 'query incorrect after adding removing all entities')
-    assert.equal(ents[0], undefined, 'root entity still populated')
-    assert.equal(ents[1], undefined, 'child entity still populated')
-    assert.equal(ents[2], undefined, 'deep child entity still populated')
-    assert.equal(ents[3], undefined, 'deep child 2 entity still populated')
+    assert.equal(ents.includes(rootEntity), false, 'root entity still populated')
+    assert.equal(ents.includes(childEntity), false, 'child entity still populated')
+    assert.equal(ents.includes(deepChildEntity), false, 'deep child entity still populated')
+    assert.equal(ents.includes(deepChildEntity2), false, 'deep child 2 entity still populated')
 
     unmount()
   })
@@ -524,10 +527,11 @@ describe('useChildWithComponent', () => {
     let child_2 = createEntity()
     let result = UndefinedEntity
     const component = HighlightComponent
+    const component2 = VisibleComponent
 
     // Define the Reactor that will run the tested hook
     const Reactor = () => {
-      const entity = useChildWithComponent(rootEntity, component)
+      const entity = useChildWithComponents(rootEntity, [component, component2])
       console.log('render', entity)
       useEffect(() => {
         console.log('effect', entity)
@@ -542,14 +546,16 @@ describe('useChildWithComponent', () => {
      */
     // Case 1: Initialize
     setComponent(rootEntity, EntityTreeComponent)
+    setComponent(rootEntity, NameComponent, 'rootEntity')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_1, component)
+    setComponent(child_1, component2)
     // Case1: Validate
     assertEntityHierarchy('rootEntity', rootEntity)
     assertEntityHierarchy('child_1', child_1, rootEntity)
     assert.equal(
       true,
-      hasComponent(child_1, component),
+      hasComponents(child_1, [component, component2]),
       'Case1: The child entity did not get its test component set correctly'
     )
     // Case1: Check
@@ -568,16 +574,18 @@ describe('useChildWithComponent', () => {
     child_1 = createEntity()
     child_2 = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
+    setComponent(rootEntity, NameComponent, 'rootEntity')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     setComponent(child_2, component)
+    setComponent(child_2, component2)
     // Case2: Validate
     assertEntityHierarchy('rootEntity', rootEntity)
     assertEntityHierarchy('child_1', child_1, rootEntity)
     assertEntityHierarchy('child_2', child_2, child_1)
     assert.equal(
       true,
-      hasComponent(child_2, component),
+      hasComponents(child_2, [component, component2]),
       'Case2: The child entity did not get its test component set correctly'
     )
     // Case2: Check
@@ -596,6 +604,7 @@ describe('useChildWithComponent', () => {
     child_1 = createEntity()
     child_2 = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
+    setComponent(rootEntity, NameComponent, 'rootEntity')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     //setComponent(child_2, component)  // The Component for the third case is not set at all
@@ -622,9 +631,11 @@ describe('useChildWithComponent', () => {
     child_1 = createEntity()
     child_2 = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
+    setComponent(rootEntity, NameComponent, 'rootEntity')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     setComponent(child_1, component)
+    setComponent(child_1, component2)
     // Case4: Validate
     assertEntityHierarchy('rootEntity', rootEntity)
     assertEntityHierarchy('child_1', child_1, rootEntity)
@@ -633,6 +644,183 @@ describe('useChildWithComponent', () => {
     const R4 = render(tag)
     assert.equal(child_1, result, `Case4: Did not return the correct entity. result = ${result}`)
     assert.notEqual(child_2, result, `Case4: Did not return the correct entity. result = ${result}`)
+    // Case4: Terminate
+    destroyEntityTree(rootEntity)
+    R4.unmount()
+  })
+})
+
+describe('useChildrenWithComponent', () => {
+  // Run before every test case
+  beforeEach(() => {
+    createEngine()
+  })
+  afterEach(() => {
+    return destroyEngine()
+  })
+
+  it('returns the closest children entities that has the requested components', async () => {
+    // Initialize with dummy data for the test
+    let rootEntity = createEntity()
+    let child_1 = createEntity()
+    let child_2 = createEntity()
+    let results = [UndefinedEntity]
+    const component = HighlightComponent
+    const component2 = VisibleComponent
+
+    // Define the Reactor that will run the tested hook
+    const Reactor = () => {
+      //TODO pick up here where i left off in tests, need to properly convert result/entity to an array
+      //DO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT
+      //MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT
+      // MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT ME
+
+      const entities = useChildrenWithComponents(rootEntity, [component, component2])
+      console.log('render', entities)
+      useEffect(() => {
+        console.log('effect', entities)
+        results = entities
+      }, [entities])
+      return null
+    }
+    const tag = <Reactor />
+
+    /**
+     * @description Case 1:  rootEntity -> child_1 + child_2(with component)
+     */
+    // Case 1: Initialize
+    setComponent(rootEntity, EntityTreeComponent)
+    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child_1, component)
+    setComponent(child_1, component2)
+    setComponent(child_2, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child_2, component)
+    setComponent(child_2, component2)
+    setComponent(child_1, NameComponent, 'child_1')
+    setComponent(child_2, NameComponent, 'child_2')
+    // Case1: Validate
+    assertEntityHierarchy('rootEntity', rootEntity)
+    assertEntityHierarchy('child_1', child_1, rootEntity)
+    assert.equal(
+      true,
+      hasComponents(child_1, [component, component2]),
+      'Case1: The child entity did not get its test component set correctly'
+    )
+    assertEntityHierarchy('child_2', child_2, rootEntity)
+    assert.equal(
+      true,
+      hasComponents(child_2, [component, component2]),
+      'Case1: The child entity did not get its test component set correctly'
+    )
+    // Case1: Check
+    const R1 = render(tag)
+    for (const rslt of results) {
+      assertEntityHierarchy('Case1: result', rslt, rootEntity)
+    }
+    assert.ok(results.indexOf(child_1) !== -1, `Case1: Results did not contain correct entity. results = ${results}`)
+    assert.ok(results.indexOf(child_2) !== -1, `Case1: Results did not contain correct entity. results = ${results}`)
+    // Case1: Terminate
+    destroyEntityTree(rootEntity)
+    R1.unmount()
+
+    /**
+     * @description Case 2:  rootEntity -> child_1 -> child_2 (with component)
+     */
+    // Case 2: Initialize
+    rootEntity = createEntity()
+    child_1 = createEntity()
+    child_2 = createEntity()
+    setComponent(rootEntity, EntityTreeComponent)
+    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
+    setComponent(child_2, component)
+    setComponent(child_2, component2)
+    setComponent(child_1, NameComponent, 'child_1')
+    setComponent(child_2, NameComponent, 'child_2')
+    // Case2: Validate
+    assertEntityHierarchy('rootEntity', rootEntity)
+    assertEntityHierarchy('child_1', child_1, rootEntity)
+    assertEntityHierarchy('child_2', child_2, child_1)
+    assert.equal(
+      true,
+      hasComponents(child_2, [component, component2]),
+      'Case2: The child entity did not get its test component set correctly'
+    )
+    // Case2: Check
+    const R2 = render(tag)
+    const c1Index = results.indexOf(child_1)
+    const c2Index = results.indexOf(child_2)
+
+    assert.ok(c1Index === -1, `Case2: Results did not contain correct entity. results = ${results}`)
+    assert.ok(c2Index !== -1, `Case2: Results did not contain correct entity. results = ${results}`)
+
+    assertEntityHierarchy('Case2: result', results[c2Index], child_1)
+    // Case2: Terminate
+    destroyEntityTree(rootEntity)
+    R2.unmount()
+
+    /**
+     * @description Case 3:  rootEntity -> child_1 -> child_2    (none have the component)
+     */
+    // Case 3: Initialize
+    rootEntity = createEntity()
+    child_1 = createEntity()
+    child_2 = createEntity()
+    setComponent(rootEntity, EntityTreeComponent)
+    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
+    setComponent(child_1, NameComponent, 'child_1')
+    setComponent(child_2, NameComponent, 'child_2')
+    //setComponent(child_2, component)  // The Component for the third case is not set at all
+    // Case3: Validate
+    assertEntityHierarchy('rootEntity', rootEntity)
+    assertEntityHierarchy('child_1', child_1, rootEntity)
+    assertEntityHierarchy('child_2', child_2, child_1)
+    // Case3: Check
+    const R3 = render(tag)
+    assert.ok(
+      results.indexOf(child_1) === -1,
+      `Case3: Results contained an entity when there should be no valid results ([UndefinedEntity]) = ${results}`
+    )
+    assert.ok(
+      results.indexOf(child_2) === -1,
+      `Case3: Results contained an entity when there should be no valid results ([UndefinedEntity]) = ${results}`
+    )
+    assert.equal(
+      results.length,
+      0,
+      `Case3: Returned a valid results content when it should return an empty array. result = ${results}`
+    )
+    // Case3: Terminate
+    destroyEntityTree(rootEntity)
+    R3.unmount()
+
+    /**
+     * @description Case 4:  rootEntity -> child_1 (with component) -> child_2
+     */
+    // Case 4: Initialize
+    rootEntity = createEntity()
+    child_1 = createEntity()
+    child_2 = createEntity()
+    setComponent(rootEntity, EntityTreeComponent)
+    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
+    setComponent(child_1, NameComponent, 'child_1')
+    setComponent(child_2, NameComponent, 'child_2')
+    setComponent(child_1, component)
+    setComponent(child_1, component2)
+    // Case4: Validate
+    assertEntityHierarchy('rootEntity', rootEntity)
+    assertEntityHierarchy('child_1', child_1, rootEntity)
+    assertEntityHierarchy('child_2', child_2, child_1)
+    // Case4: Check
+    const R4 = render(tag)
+    assert.ok(results.indexOf(child_1) !== -1, `Case4: Results did not contain correct entity. results = ${results}`)
+    assert.ok(results.indexOf(child_2) === -1, `Case4: Results did not contain correct entity. results = ${results}`)
     // Case4: Terminate
     destroyEntityTree(rootEntity)
     R4.unmount()
@@ -655,10 +843,11 @@ describe('useAncestorWithComponent', () => {
     let parent_2 = createEntity()
     let result = UndefinedEntity
     const component = HighlightComponent
+    const component2 = VisibleComponent
 
     // Define the Reactor that will run the tested hook
     const Reactor = () => {
-      const entity = useAncestorWithComponent(rootEntity, component)
+      const entity = useAncestorWithComponents(rootEntity, [component, component2])
       console.log('render', entity)
       useEffect(() => {
         console.log('effect', entity)
@@ -673,14 +862,16 @@ describe('useAncestorWithComponent', () => {
      */
     // Case 1: Initialize
     setComponent(parent_1, EntityTreeComponent)
+    setComponent(parent_1, NameComponent, 'parent_1')
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
     setComponent(parent_1, component)
+    setComponent(parent_1, component2)
     // Case1: Validate
     assertEntityHierarchy('parent_1', parent_1)
     assertEntityHierarchy('rootEntity', rootEntity, parent_1)
     assert.equal(
       true,
-      hasComponent(parent_1, component),
+      hasComponents(parent_1, [component, component2]),
       'Case1: The parent entity did not get its test component set correctly'
     )
     // Case1: Check
@@ -698,9 +889,12 @@ describe('useAncestorWithComponent', () => {
     rootEntity = createEntity()
     parent_1 = createEntity()
     parent_2 = createEntity()
+    setComponent(parent_2, NameComponent, 'parent_2')
     setComponent(parent_2, component)
+    setComponent(parent_2, component2)
     setComponent(parent_2, EntityTreeComponent)
     setComponent(parent_1, EntityTreeComponent, { parentEntity: parent_2 })
+    setComponent(parent_1, NameComponent, 'parent_1')
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
     // Case2: Validate
     assertEntityHierarchy('parent_2', parent_2)
@@ -708,7 +902,7 @@ describe('useAncestorWithComponent', () => {
     assertEntityHierarchy('rootEntity', rootEntity, parent_1)
     assert.equal(
       true,
-      hasComponent(parent_2, component),
+      hasComponents(parent_2, [component, component2]),
       'Case2: The parent entity did not get its test component set correctly'
     )
     // Case2: Check
@@ -726,6 +920,8 @@ describe('useAncestorWithComponent', () => {
     rootEntity = createEntity()
     parent_1 = createEntity()
     parent_2 = createEntity()
+    setComponent(parent_1, NameComponent, 'parent_1')
+    setComponent(parent_2, NameComponent, 'parent_2')
     setComponent(parent_2, EntityTreeComponent)
     setComponent(parent_1, EntityTreeComponent, { parentEntity: parent_2 })
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
@@ -752,9 +948,12 @@ describe('useAncestorWithComponent', () => {
     rootEntity = createEntity()
     parent_1 = createEntity()
     parent_2 = createEntity()
+    setComponent(parent_1, NameComponent, 'parent_1')
+    setComponent(parent_2, NameComponent, 'parent_2')
     setComponent(parent_2, EntityTreeComponent)
     setComponent(parent_1, EntityTreeComponent, { parentEntity: parent_2 })
     setComponent(parent_1, component)
+    setComponent(parent_1, component2)
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
     // Case4: Validate
     assertEntityHierarchy('parent_2', parent_2)
@@ -767,5 +966,39 @@ describe('useAncestorWithComponent', () => {
     // Case4: Terminate
     destroyEntityTree(rootEntity)
     R4.unmount()
+
+    /**
+     * @description Case 5:  parent_1 (with component) -> rootEntity
+     */
+    // Case 5: Initialize
+    rootEntity = createEntity()
+    parent_1 = createEntity()
+    setComponent(parent_1, NameComponent, 'parent_1')
+    setComponent(parent_1, EntityTreeComponent)
+    setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
+    setComponent(parent_1, component)
+    // Case5: Validate
+    assertEntityHierarchy('parent_1', parent_1)
+    assertEntityHierarchy('rootEntity', rootEntity, parent_1)
+    assert.equal(
+      false,
+      hasComponents(parent_1, [component, component2]),
+      'Case1: The parent entity did not get its test component set correctly'
+    )
+    // Case5 further initialization
+
+    setComponent(parent_1, component2)
+    assert.equal(
+      true,
+      hasComponents(parent_1, [component, component2]),
+      'Case1: The parent entity did not get its test component set correctly'
+    )
+    // Case1: Check
+    const R5 = render(tag)
+    assertEntityHierarchy('Case5: result', result)
+    assert.equal(parent_1, result, `Case5: Did not return the correct entity. result = ${result}`)
+    // Case1: Terminate
+    destroyEntityTree(parent_1)
+    R5.unmount()
   })
 })

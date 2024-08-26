@@ -43,7 +43,6 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 
-import { getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
@@ -52,7 +51,6 @@ import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { RendererState } from '../RendererState'
 import Frustum from './Frustum'
 import Shader from './Shader'
 
@@ -321,8 +319,7 @@ export class CSM {
     if (this.sourceLight) this.lightDirection.subVectors(this.sourceLight.target.position, this.sourceLight.position)
     if (this.needsUpdate) {
       this.injectInclude()
-      // Only update uniforms if WebGLRendererSystem isn't already updating them every frame
-      this.updateFrustums(!getState(RendererState).updateCSMFrustums)
+      this.updateFrustums()
       for (const light of this.lights) {
         light.shadow.map?.dispose()
         light.shadow.map = null as any
@@ -396,7 +393,6 @@ export class CSM {
 
     if (this.fade) material.defines.CSM_FADE = ''
 
-    const breaksVec2 = []
     const shaders = this.shaders
 
     shaders.delete(material)
@@ -408,10 +404,12 @@ export class CSM {
 
         const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
         const far = Math.min(camera.far, this.maxFar)
-        this.getExtendedBreaks(breaksVec2)
+        const near = Math.min(this.maxFar, camera.near)
 
-        shader.uniforms.CSM_cascades = { value: breaksVec2 }
-        shader.uniforms.cameraNear = { value: camera.near }
+        if (!shader.uniforms.CSM_cascades) shader.uniforms.CSM_cascades = { value: [] }
+        this.getExtendedBreaks(shader.uniforms.CSM_cascades.value)
+
+        shader.uniforms.cameraNear = { value: near }
         shader.uniforms.shadowFar = { value: far }
 
         shaders.set(material, shader)
@@ -448,8 +446,7 @@ export class CSM {
 
       if (shader !== null) {
         const uniforms = shader.uniforms
-        this.getExtendedBreaks(uniforms.CSM_cascades.value)
-        uniforms.cameraNear.value = camera.near
+        uniforms.cameraNear.value = Math.min(this.maxFar, camera.near)
         uniforms.shadowFar.value = far
       }
 
@@ -463,7 +460,7 @@ export class CSM {
     }
   }
 
-  getExtendedBreaks(target: Vector2[]): void {
+  getExtendedBreaks(target: Vector2[]): Vector2[] {
     while (target.length < this.breaks.length) {
       target.push(new Vector2())
     }
@@ -471,18 +468,20 @@ export class CSM {
     target.length = this.breaks.length
 
     for (let i = 0; i < this.cascades; i++) {
-      const amount = this.breaks[i]
+      const amount = this.breaks[i] || 0
       const prev = this.breaks[i - 1] || 0
       target[i].x = prev
       target[i].y = amount
     }
+
+    return target
   }
 
-  updateFrustums(updateUniforms = true): void {
+  updateFrustums(): void {
     this.getBreaks()
     this.initCascades()
     this.updateShadowBounds()
-    if (updateUniforms) this.updateUniforms()
+    this.updateUniforms()
   }
 
   remove(): void {

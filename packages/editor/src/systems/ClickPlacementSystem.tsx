@@ -69,7 +69,7 @@ import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/component
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { HolographicMaterial } from '@ir-engine/spatial/src/renderer/materials/prototypes/HolographicMaterial.mat'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
 import { Euler, Material, Mesh, Quaternion, Raycaster, Vector3 } from 'three'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -259,7 +259,7 @@ const clickListener = () => {
 
 export const ClickPlacementSystem = defineSystem({
   uuid: 'ee.studio.ClickPlacementSystem',
-  insert: { before: TransformDirtyUpdateSystem },
+  insert: { after: TransformDirtyCleanupSystem },
   reactor: () => {
     const parentEntity = useHookstate(getMutableState(EditorState)).rootEntity
 
