@@ -25,14 +25,24 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { API } from '@ir-engine/common'
 import { projectPath } from '@ir-engine/common/src/schema.type.module'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { canDropItemOverFolder } from '@ir-engine/ui/src/components/editor/panels/Files/browserGrid'
 import React, { useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
+import { twMerge } from 'tailwind-merge'
+import { FileDataType } from '../../components/assets/FileBrowser/FileDataType'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorState } from '../../services/EditorServices'
-import { FilesQueryProvider, FilesState } from '../../services/FilesState'
+import {
+  CurrentFilesQueryProvider,
+  FilesState,
+  FilesViewModeState,
+  useCurrentFiles,
+  useFileBrowserDrop
+} from '../../services/FilesState'
+import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
+import FileItem from './fileitem'
 import FilesLoaders from './loaders'
 import FilesToolbar from './toolbar'
 
@@ -59,84 +69,19 @@ const getValidProjectForFileBrowser = async (path: string) => {
 }
 
 function Browser() {
+  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
+  const dropOnFileBrowser = useFileBrowserDrop()
+  const filesState = useMutableState(FilesState)
   const [{ isFileDropOver }, fileDropRef] = useDrop({
     accept: [...SupportedFileTypes],
-    canDrop: (item: Record<string, unknown>) => 'key' in item || canDropItemOverFolder(selectedDirectory.value),
-    drop: (dropItem) => dropItemsOnPanel(dropItem as any),
+    drop: (dropItem) => dropOnFileBrowser(dropItem as any),
+    canDrop: (item: Record<string, unknown>) =>
+      'key' in item || canDropItemOverFolder(filesState.selectedDirectory.value),
     collect: (monitor) => ({ isFileDropOver: monitor.canDrop() && monitor.isOver() })
   })
-
-  const isListView = filesViewMode.value === 'list'
-  const staticResourceData = useFind(staticResourcePath, {
-    query: {
-      key: {
-        $in: isListView ? files.map((file) => file.key) : []
-      },
-      project: props.projectName,
-      $select: ['key', 'updatedAt'] as any,
-      $limit: FILES_PAGE_LIMIT
-    }
-  })
-  const staticResourceModifiedDates = useHookstate<Record<string, string>>({})
-
-  useEffect(() => {
-    if (staticResourceData.status !== 'success') return
-    const modifiedDates: Record<string, string> = {}
-    staticResourceData.data.forEach((data) => {
-      modifiedDates[data.key] = new Date(data.updatedAt).toLocaleString()
-    })
-    staticResourceModifiedDates.set(modifiedDates)
-  }, [staticResourceData.status])
-
-  const handleFileBrowserItemClick = (e: React.MouseEvent, currentFile: FileDataType) => {
-    e.stopPropagation()
-    if (e.ctrlKey || e.metaKey) {
-      fileProperties.set((prevFileProperties) =>
-        prevFileProperties.some((file) => file.key === currentFile.key)
-          ? prevFileProperties.filter((file) => file.key !== currentFile.key)
-          : [...prevFileProperties, currentFile]
-      )
-    } else if (e.shiftKey) {
-      const lastIndex = files.findIndex((file) => file.key === fileProperties.value.at(-1)?.key)
-      const clickedIndex = files.findIndex((file) => file.key === currentFile.key)
-      const newSelectedFiles = files.slice(Math.min(lastIndex, clickedIndex), Math.max(lastIndex, clickedIndex) + 1)
-      fileProperties.set((prevFileProperties) => [
-        ...prevFileProperties,
-        ...newSelectedFiles.filter((newFile) => !prevFileProperties.some((file) => newFile.key === file.key))
-      ])
-    } else {
-      if (fileProperties.value.some((file) => file.key === currentFile.key)) {
-        fileProperties.set([])
-      } else {
-        fileProperties.set([currentFile])
-      }
-    }
-  }
-
-  const resetSelection = () => {
-    fileProperties.set([])
-    ClickPlacementState.resetSelectedAsset()
-  }
-
-  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
-  const handleClose = () => {
-    setAnchorEvent(undefined)
-  }
-
-  const pasteContent = async () => {
-    handleClose()
-    if (isLoading) return
-
-    fileService.update(null, {
-      oldProject: projectName,
-      newProject: projectName,
-      oldName: currentContentRef.current.item.fullName,
-      newName: currentContentRef.current.item.fullName,
-      oldPath: currentContentRef.current.item.path,
-      newPath: currentContentRef.current.item.path,
-      isCopy: currentContentRef.current.isCopy
-    })
-  }
+  const isListView = useMutableState(FilesViewModeState).viewMode.value === 'list'
+  const selectedFiles = useHookstate<FileDataType[]>([])
+  const files = useCurrentFiles().files
 
   return (
     <div
@@ -151,116 +96,20 @@ function Browser() {
         ref={fileDropRef}
         className={twMerge(
           'mb-2 h-auto px-3 pb-6 text-gray-400 ',
-          isListView ? '' : 'flex py-8',
+          !isListView && 'flex py-8',
           isFileDropOver ? 'border-2 border-gray-300' : ''
         )}
         onClick={(event) => {
           event.stopPropagation()
-          resetSelection()
+          selectedFiles.set([])
+          ClickPlacementState.resetSelectedAsset()
         }}
       >
         <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
-          <FileTableWrapper wrap={isListView}>
-            <>
-              {unique(files, (file) => file.key).map((file) => (
-                <FileBrowserItem
-                  key={file.key}
-                  item={file}
-                  disableDnD={props.disableDnD}
-                  projectName={projectName}
-                  onClick={(event) => {
-                    handleFileBrowserItemClick(event, file)
-                    onSelect(event, file)
-                  }}
-                  onContextMenu={(event, currentFile) => {
-                    if (!fileProperties.value.length) {
-                      fileProperties.set([file])
-                    }
-                  }}
-                  currentContent={currentContentRef}
-                  handleDropItemsOnPanel={(data, dropOn) =>
-                    dropItemsOnPanel(
-                      data,
-                      dropOn,
-                      fileProperties.value.map((file) => file.key)
-                    )
-                  }
-                  openFileProperties={(item) => {
-                    /** If the file is not in the list of files, add it */
-                    if (!(fileProperties.get(NO_PROXY) as FileDataType[]).includes(item)) {
-                      if (fileProperties.value.length > 1) {
-                        fileProperties.merge([item])
-                      } else {
-                        fileProperties.set([item])
-                      }
-                    }
-                    PopoverState.showPopupover(
-                      <FilePropertiesModal projectName={projectName} files={fileProperties.value} />
-                    )
-                  }}
-                  openDeleteFileModal={() => {
-                    PopoverState.showPopupover(
-                      <DeleteFileModal
-                        files={fileProperties.value as FileDataType[]}
-                        onComplete={(err) => {
-                          resetSelection()
-                        }}
-                      />
-                    )
-                  }}
-                  openImageCompress={() => {
-                    if (filesConsistOfContentType(fileProperties.value, 'image')) {
-                      PopoverState.showPopupover(
-                        <ImageCompressionPanel
-                          selectedFiles={fileProperties.value}
-                          refreshDirectory={refreshDirectory}
-                        />
-                      )
-                    }
-                  }}
-                  openModelCompress={() => {
-                    if (filesConsistOfContentType(fileProperties.value, 'model')) {
-                      PopoverState.showPopupover(
-                        <ModelCompressionPanel
-                          selectedFiles={fileProperties.value}
-                          refreshDirectory={refreshDirectory}
-                        />
-                      )
-                    }
-                  }}
-                  isFilesLoading={isLoading}
-                  addFolder={createNewFolder}
-                  isListView={isListView}
-                  staticResourceModifiedDates={staticResourceModifiedDates.value}
-                  isSelected={fileProperties.value.some(({ key }) => key === file.key)}
-                  refreshDirectory={refreshDirectory}
-                  selectedFileKeys={fileProperties.value.map((file) => file.key)}
-                />
-              ))}
-            </>
-          </FileTableWrapper>
-          {/*   
-            {total > 0 && validFiles.value.length < total && (
-            <TablePagination
-              className={styles.pagination}
-              component="div"
-              count={total}
-              page={page}
-              rowsPerPage={FILES_PAGE_LIMIT}
-              rowsPerPageOptions={[]}
-              onPageChange={handlePageChange}
-            />
-          )}*/}
+          {files.map((file) => (
+            <FileItem file={file} selectedFiles={selectedFiles} key={file.key} />
+          ))}
         </div>
-
-        <ContextMenu anchorEvent={anchorEvent} onClose={handleClose}>
-          <Button variant="outline" size="small" fullWidth onClick={() => createNewFolder()}>
-            {t('editor:layout.filebrowser.addNewFolder')}
-          </Button>
-          <Button variant="outline" size="small" fullWidth disabled={!currentContentRef.current} onClick={pasteContent}>
-            {t('editor:layout.filebrowser.pasteAsset')}
-          </Button>
-        </ContextMenu>
       </div>
     </div>
   )
@@ -272,7 +121,7 @@ export default function FileBrowser() {
 
   const originalPath = useMutableState(EditorState).projectName.value
   useEffect(() => {
-    if (originalPath) filesState.selectedDirectory.set(originalPath)
+    if (originalPath) filesState.selectedDirectory.set(`/projects/${originalPath}/assets/`)
   }, [originalPath])
 
   useEffect(() => {
@@ -283,9 +132,10 @@ export default function FileBrowser() {
   }, [filesState.selectedDirectory])
 
   return (
-    <FilesQueryProvider>
+    <CurrentFilesQueryProvider>
       <FilesToolbar />
       <FilesLoaders />
-    </FilesQueryProvider>
+      <Browser />
+    </CurrentFilesQueryProvider>
   )
 }

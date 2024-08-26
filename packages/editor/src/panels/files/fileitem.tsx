@@ -23,21 +23,38 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
 import {
+  FilesState,
   FilesViewModeSettings,
   FilesViewModeState,
-  availableTableColumns
+  availableTableColumns,
+  canDropOnFileBrowser,
+  useCurrentFiles,
+  useFileBrowserDrop
 } from '@ir-engine/editor/src/services/FilesState'
-import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { State, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
-import React, { MouseEventHandler } from 'react'
-import { ConnectDragSource, ConnectDropTarget, useDrag } from 'react-dnd'
-import { useTranslation } from 'react-i18next'
+import React, { MouseEventHandler, useEffect } from 'react'
+import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import { IoIosArrowForward } from 'react-icons/io'
 import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { SupportedFileTypes } from '../../constants/AssetTypes'
+import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from './fileicon'
+
+type DisplayTypeProps = {
+  file: FileDataType
+  onDoubleClick?: MouseEventHandler
+  onClick?: MouseEventHandler
+  isSelected: boolean
+  onContextMenu: React.MouseEventHandler
+}
 
 function TableView({
   file,
@@ -70,7 +87,7 @@ function TableView({
   const tableColumns = {
     name: (
       <span
-        className="flex h-7 max-h-7 flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]"
+        className="flex h-7 max-h-7 flex-row items-center gap-2 font-figtree text-[#e7e7e7]"
         style={{ fontSize: `${fontSize}px` }}
       >
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
@@ -102,71 +119,146 @@ function TableView({
   )
 }
 
-function GridView(props: {
-  item: FileDataType
-  onDoubleClick?: MouseEventHandler<HTMLDivElement>
-  onClick?: MouseEventHandler<HTMLDivElement>
-  isSelected: boolean
-  projectName: string
-  onContextMenu: React.MouseEventHandler
-  drop?: ConnectDropTarget
-  drag?: ConnectDragSource
-  isOver: boolean
-}) {
-  const { t } = useTranslation()
+function GridView({ file, onDoubleClick, onContextMenu, onClick, isSelected }: DisplayTypeProps) {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
-  const thumbnailURL = props.item.thumbnailURL
-  const dragFn = props.drag ?? ((input) => input)
-  const dropFn = props.drop ?? ((input) => input)
+  const thumbnailURL = file.thumbnailURL
+
+  console.log('debug1 the file was', file)
 
   return (
-    <div ref={dropFn} className={twMerge('h-min', props.isOver && 'border-2 border-gray-400')}>
-      <div ref={dragFn}>
-        <div onContextMenu={props.onContextMenu}>
-          <div
-            className={`flex h-auto max-h-32 w-28 cursor-pointer flex-col items-center text-center ${
-              props.isSelected ? 'rounded bg-[#191B1F]' : ''
-            }`}
-            onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
-            onClick={props.onClick}
-          >
-            <div
-              className="mx-4 mt-2 font-['Figtree']"
-              style={{
-                height: iconSize,
-                width: iconSize,
-                fontSize: iconSize
-              }}
-            >
-              <FileIcon
-                thumbnailURL={thumbnailURL}
-                type={props.item.type}
-                isFolder={props.item.isFolder}
-                color="text-[#375DAF]"
-              />
-            </div>
-
-            <Tooltip content={t(props.item.fullName)}>
-              <div className="text-secondary line-clamp-1 w-full text-wrap break-all text-sm">
-                {props.item.fullName}
-              </div>
-            </Tooltip>
-          </div>
+    <div onContextMenu={onContextMenu}>
+      <div
+        className={twMerge(
+          'flex h-auto max-h-32 w-28 cursor-pointer flex-col items-center text-center',
+          isSelected && 'rounded bg-[#191B1F]'
+        )}
+        onDoubleClick={file.isFolder ? onDoubleClick : undefined}
+        onClick={onClick}
+      >
+        <div
+          className="mx-4 mt-2 font-figtree"
+          style={{
+            height: iconSize,
+            width: iconSize,
+            fontSize: iconSize
+          }}
+        >
+          <FileIcon thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} color="text-[#375DAF]" />
         </div>
+
+        <Tooltip content={file.fullName}>
+          <Text theme="secondary" fontSize="sm" className="line-clamp-1 w-full text-wrap break-all">
+            {file.fullName}
+          </Text>
+        </Tooltip>
       </div>
     </div>
   )
 }
 
-export default function FileItem({ file }: { file: FileDataType }) {
+export default function FileItem({
+  file,
+  selectedFiles
+}: {
+  file: FileDataType
+  selectedFiles: State<FileDataType[]>
+}) {
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
   const isListView = filesViewMode.value === 'list'
+  const files = useCurrentFiles().files
+  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent>(undefined)
+  const filesState = useMutableState(FilesState)
+  const { onChangeDirectoryByPath } = useCurrentFiles()
+  const dropOnFileBrowser = useFileBrowserDrop()
 
   const [_dragProps, drag, preview] = useDrag(() => ({
-    type: item.type,
-    item,
+    type: file.type,
+    file,
     multiple: false
   }))
 
-  // return isListView ?
+  useEffect(() => {
+    if (preview) preview(getEmptyImage(), { captureDraggingState: true })
+  }, [preview])
+
+  const [{ isOver }, drop] = useDrop({
+    accept: [...SupportedFileTypes],
+    drop: (dropItem) =>
+      dropOnFileBrowser(
+        dropItem as any,
+        file,
+        selectedFiles.map((selectedFile) => selectedFile.key.value)
+      ),
+    canDrop: (dropItem: Record<string, unknown>) =>
+      file.isFolder &&
+      ('key' in dropItem || canDropOnFileBrowser(file.key)) &&
+      !selectedFiles.find((selectedFile) => selectedFile.key.value === file.key),
+    collect: (monitor) => ({
+      isOver: monitor.canDrop() && monitor.isOver()
+    })
+  })
+
+  const fileService = useMutation(fileBrowserPath)
+
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setAnchorEvent(event)
+    if (!selectedFiles.value.length) selectedFiles.set([file])
+  }
+
+  const handleSelectedFiles = (event: React.MouseEvent) => {
+    event.stopPropagation()
+    if (!files) return
+
+    if (event.ctrlKey || event.metaKey) {
+      selectedFiles.set((prevSelectedFiles) =>
+        prevSelectedFiles.some((file) => file.key === file.key)
+          ? prevSelectedFiles.filter((prevFile) => prevFile.key !== file.key)
+          : [...prevSelectedFiles, file]
+      )
+    } else if (event.shiftKey) {
+      const lastIndex = files.findIndex((file) => file.key === selectedFiles.value.at(-1)?.key)
+      const clickedIndex = files.findIndex((prevFile) => prevFile.key === file.key)
+      const newSelectedFiles = files.slice(Math.min(lastIndex, clickedIndex), Math.max(lastIndex, clickedIndex) + 1)
+      selectedFiles.merge(
+        newSelectedFiles.filter((newFile) => !selectedFiles.value.some((file) => newFile.key === file.key))
+      )
+    } else {
+      if (selectedFiles.value.some((prevFile) => prevFile.key === file.key)) {
+        selectedFiles.set([])
+      } else {
+        selectedFiles.set([file])
+      }
+    }
+  }
+
+  const handleFileClick = (event: React.MouseEvent) => {
+    if (file.isFolder && event.detail === 2) {
+      const newPath = `${filesState.selectedDirectory.value}${file.name}/`
+      onChangeDirectoryByPath(newPath)
+    } else {
+      ClickPlacementState.setSelectedAsset(file.url)
+    }
+  }
+
+  return (
+    <div ref={drop} className={twMerge('h-min', isOver && 'border-2 border-gray-400')}>
+      <div ref={drag}>
+        <div onContextMenu={handleContextMenu}>
+          <GridView
+            file={file}
+            onClick={(event) => {
+              handleSelectedFiles(event)
+              handleFileClick(event)
+            }}
+            onDoubleClick={handleFileClick}
+            onContextMenu={handleContextMenu}
+            isSelected={selectedFiles.value.some(({ key }) => key === file.key)}
+          />
+        </div>
+      </div>
+      {/* impplement context menu like popovers */}
+    </div>
+  )
 }

@@ -23,10 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
-import { defineState, syncStateWithLocalStorage, useMutableState } from '@ir-engine/hyperflux'
+import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
+import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
+import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
+import { defineState, NO_PROXY, syncStateWithLocalStorage, useMutableState } from '@ir-engine/hyperflux'
 import { useFind, useMutation, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
-import React, { ReactNode, createContext, useContext } from 'react'
+import React, { createContext, ReactNode, useContext } from 'react'
+import { handleUploadFiles } from '../functions/assetFunctions'
 
 export const FilesViewModeState = defineState({
   name: 'FilesViewModeState',
@@ -71,18 +76,19 @@ export const FilesState = defineState({
 
 const FilesQueryContext = createContext({
   filesQuery: null as null | ReturnType<typeof useFind<'file-browser'>>,
+  files: [] as FileDataType[],
   onChangeDirectoryByPath: (_path: string) => {},
   onBackDirectory: () => {},
-  onRefreshDirectory: () => {},
+  onRefreshDirectory: async () => {},
   onCreateNewFolder: () => {}
 })
 
-export const FilesQueryProvider = ({ children }: { children?: ReactNode }) => {
+export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }) => {
   const filesState = useMutableState(FilesState)
 
   const filesQuery = useFind(fileBrowserPath, {
     query: {
-      $limit: FILES_PAGE_LIMIT * 100,
+      $limit: FILES_PAGE_LIMIT,
       directory: filesState.selectedDirectory.value
     }
   })
@@ -119,13 +125,127 @@ export const FilesQueryProvider = ({ children }: { children?: ReactNode }) => {
 
   const onCreateNewFolder = () => useMutation(fileBrowserPath).create(`${filesState.selectedDirectory.value}New_Folder`)
 
+  const files = filesQuery.data.map((file) => {
+    const isFolder = file.type === 'folder'
+    const fullName = isFolder ? file.name : file.name + '.' + file.type
+
+    return {
+      ...file,
+      size: file.size ? bytesToSize(file.size) : '0',
+      path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
+      fullName,
+      isFolder
+    }
+  })
+
   return (
     <FilesQueryContext.Provider
-      value={{ filesQuery, onChangeDirectoryByPath, onBackDirectory, onRefreshDirectory, onCreateNewFolder }}
+      value={{ filesQuery, files, onChangeDirectoryByPath, onBackDirectory, onRefreshDirectory, onCreateNewFolder }}
     >
       {children}
     </FilesQueryContext.Provider>
   )
 }
 
-export const useFilesQuery = () => useContext(FilesQueryContext)
+export const useCurrentFiles = () => useContext(FilesQueryContext)
+
+export type DnDFileType = {
+  dataTransfer: DataTransfer
+  files: File[]
+  items: DataTransferItemList
+}
+
+function isFileDataType(value: any): value is FileDataType {
+  return value && value.key
+}
+
+export function useFileBrowserDrop() {
+  const filesState = useMutableState(FilesState)
+  const currentFiles = useCurrentFiles()
+  const fileService = useMutation(fileBrowserPath)
+  const isLoading = currentFiles.filesQuery?.status === 'pending'
+
+  const moveContent = async (
+    oldName: string,
+    newName: string,
+    oldPath: string,
+    newPath: string,
+    isCopy = false
+  ): Promise<void> => {
+    if (isLoading) return
+    try {
+      await fileService.update(null, {
+        oldProject: filesState.projectName.value,
+        newProject: filesState.projectName.value,
+        oldName,
+        newName,
+        oldPath,
+        newPath,
+        isCopy
+      })
+
+      await currentFiles.onRefreshDirectory()
+    } catch (error) {
+      console.error('Error moving file:', error)
+      NotificationService.dispatchNotify((error as Error).message, { variant: 'error' })
+    }
+  }
+
+  const dropItemsOnFileBrowser = async (
+    data: FileDataType | DnDFileType,
+    dropOn?: FileDataType,
+    selectedFileKeys?: string[]
+  ) => {
+    // if (isLoading) return
+    const destinationPath = dropOn?.isFolder ? `${dropOn.key}/` : filesState.selectedDirectory.value
+
+    if (selectedFileKeys && selectedFileKeys.length > 0) {
+      await Promise.all(
+        selectedFileKeys.map(async (fileKey) => {
+          const file = currentFiles.files.find((f) => f.key === fileKey)
+          if (file) {
+            const newName = file.isFolder ? file.name : `${file.name}${file.type ? '.' + file.type : ''}`
+            await moveContent(file.fullName, newName, file.path, destinationPath, false)
+          }
+        })
+      )
+    } else if (isFileDataType(data)) {
+      if (dropOn?.isFolder) {
+        const newName = data.isFolder ? data.name : `${data.name}${data.type ? '.' + data.type : ''}`
+        await moveContent(data.fullName, newName, data.path, destinationPath, false)
+      }
+    } else {
+      const path = filesState.selectedDirectory.get(NO_PROXY).slice(1)
+      const filesToUpload = [] as File[]
+
+      await Promise.all(
+        data.files.map(async (file) => {
+          const assetType = !file.type || file.type.length === 0 ? AssetLoader.getAssetType(file.name) : file.type
+          if (!assetType || assetType === file.name) {
+            await fileService.create(`${destinationPath}${file.name}`)
+          } else {
+            filesToUpload.push(file)
+          }
+        })
+      )
+
+      if (filesToUpload.length) {
+        try {
+          await handleUploadFiles(filesState.projectName.value, path, filesToUpload)
+        } catch (err) {
+          NotificationService.dispatchNotify(err.message, { variant: 'error' })
+        }
+      }
+    }
+
+    await currentFiles.onRefreshDirectory()
+  }
+
+  return dropItemsOnFileBrowser
+}
+
+export const canDropOnFileBrowser = (folderName: string) =>
+  folderName.endsWith('/assets') ||
+  folderName.indexOf('/assets/') !== -1 ||
+  folderName.endsWith('/public') ||
+  folderName.indexOf('/public/') !== -1
