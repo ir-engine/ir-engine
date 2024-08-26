@@ -28,8 +28,8 @@ import i18n from 'i18next'
 import React, { lazy, useEffect, useLayoutEffect } from 'react'
 import { BrowserRouterProps as NativeBrowserRouterProps, Router, useSearchParams } from 'react-router-dom'
 
+import { API } from '@ir-engine/common'
 import { routePath, RouteType } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineState, getMutableState, NO_PROXY, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { loadRoute } from '@ir-engine/projects/loadRoute'
 
@@ -94,6 +94,8 @@ export const useSearchParamState = () => {
         const params = new URLSearchParams(location.search)
         const current = Object.fromEntries([...params.entries()])
 
+        if (current[props.keyID] === value) return
+
         setSearchParams({ ...current, [props.keyID]: value })
 
         return () => {
@@ -139,9 +141,7 @@ export type CustomRoute = {
  * getCustomRoutes used to get the routes created by the user.
  */
 export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
-  const routes = (await Engine.instance.api
-    .service(routePath)
-    .find({ query: { paginate: false } })) as any as RouteType[]
+  const routes = (await API.instance.service(routePath).find({ query: { paginate: false } })) as any as RouteType[]
 
   const elements: CustomRoute[] = []
 

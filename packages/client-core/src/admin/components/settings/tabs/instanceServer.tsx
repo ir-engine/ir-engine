@@ -27,8 +27,8 @@ import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
+import { API } from '@ir-engine/common'
 import { instanceServerSettingPath, InstanceServerSettingType } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs'
 import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
 import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
@@ -69,6 +69,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     event.preventDefault()
     const newSettings = {
       ...settingsState.get(NO_PROXY),
+      local: Boolean(settingsState.value?.local),
       createdAt: undefined!,
       updatedAt: undefined!
     } as any as InstanceServerSettingType
@@ -79,7 +80,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       //
     }
 
-    Engine.instance.api
+    API.instance
       .service(instanceServerSettingPath)
       .patch(id, newSettings)
       .then(() => {

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import image from '../../../../../../../PoweredByEE.png'
+import image from '../../../../../../../PoweredByIR.png'
 import Component from './index'
 
 const argTypes = {}

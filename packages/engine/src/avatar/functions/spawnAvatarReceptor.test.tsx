@@ -28,6 +28,7 @@ import assert from 'assert'
 import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 
+import { API } from '@ir-engine/common'
 import { AvatarID, UserID } from '@ir-engine/common/src/schema.type.module'
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -36,7 +37,7 @@ import { ReactorReconciler, applyIncomingActions, dispatchAction } from '@ir-eng
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { EventDispatcher } from '@ir-engine/spatial/src/common/classes/EventDispatcher'
-import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
+import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import {
   RigidBodyComponent,
@@ -57,9 +58,10 @@ describe('spawnAvatarReceptor', () => {
   beforeEach(async () => {
     createEngine()
     initializeSpatialEngine()
+    initializeSpatialViewer()
     Engine.instance.store.defaultDispatchDelay = () => 0
     await Physics.load()
-    Engine.instance.userID = 'user' as UserID
+    Engine.instance.store.userID = 'user' as UserID
     sceneEntity = loadEmptyScene()
 
     setComponent(sceneEntity, SceneComponent)
@@ -69,7 +71,7 @@ describe('spawnAvatarReceptor', () => {
     createMockNetwork()
 
     const eventDispatcher = new EventDispatcher()
-    ;(Engine.instance.api as any) = {
+    ;(API.instance as any) = {
       service: () => {
         return {
           on: (serviceName, cb) => {

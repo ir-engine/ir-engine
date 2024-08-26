@@ -28,6 +28,7 @@ import { strictEqual } from 'assert'
 import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 
+import { API } from '@ir-engine/common'
 import { AvatarID, UserID } from '@ir-engine/common/src/schema.type.module'
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -37,7 +38,7 @@ import { applyIncomingActions, dispatchAction, getMutableState } from '@ir-engin
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { EventDispatcher } from '@ir-engine/spatial/src/common/classes/EventDispatcher'
-import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
+import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { Physics, PhysicsWorld } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 
@@ -55,8 +56,9 @@ describe('moveAvatar function tests', () => {
   beforeEach(async () => {
     createEngine()
     initializeSpatialEngine()
+    initializeSpatialViewer()
     await Physics.load()
-    Engine.instance.userID = 'userId' as UserID
+    Engine.instance.store.userID = 'userId' as UserID
     sceneEntity = loadEmptyScene()
     setComponent(sceneEntity, SceneComponent)
     physicsWorld = Physics.createWorld(getComponent(sceneEntity, UUIDComponent))
@@ -65,7 +67,7 @@ describe('moveAvatar function tests', () => {
     createMockNetwork()
 
     const eventDispatcher = new EventDispatcher()
-    ;(Engine.instance.api as any) = {
+    ;(API.instance as any) = {
       service: () => {
         return {
           on: (serviceName, cb) => {
@@ -166,7 +168,7 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', async () => {
-    Engine.instance.userID = 'user' as UserID
+    Engine.instance.store.userID = 'user' as UserID
 
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTimestep.set(1000 / 60)
@@ -209,7 +211,7 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should not allow velocity to breach a full unit through multiple frames', async () => {
-    Engine.instance.userID = 'user' as UserID
+    Engine.instance.store.userID = 'user' as UserID
 
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTimestep.set(1000 / 60)

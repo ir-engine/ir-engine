@@ -31,6 +31,7 @@ import {
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
+  hasComponents,
   removeComponent,
   setComponent,
   useOptionalComponent
@@ -168,12 +169,15 @@ export function removeEntityNodeRecursively(entity: Entity) {
 }
 
 /**
- * Traverse child nodes of the given node. Traversal will start from the passed node
- * note - does not support removing the current node during traversal
- * @param entity Node to be traverse
- * @param cb Callback function which will be called for every traverse
- * @param index index of the curren node in it's parent
- * @param tree Entity Tree
+ * @description
+ * Recursively call the `@param cb` function on `@param entity` and all of its children.
+ * The `@param cb` function will also be called for `@param entity`
+ * The tree will be traversed using the respective {@link EntityTreeComponent} of each entity found in the tree.
+ * @note
+ * Does not support removing the current `@param entity` node during traversal
+ * @param entity Entity Node where traversal will start
+ * @param cb Callback function called for every entity of the tree
+ * @param index Index of the current node (relative to its parent)
  */
 export function traverseEntityNode(entity: Entity, cb: (entity: Entity, index: number) => void, index = 0): void {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
@@ -267,24 +271,24 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
 }
 
 /**
- * Returns the closest ancestor of an entity that has the given component by walking up the entity tree
+ * Returns the closest ancestor of an entity that has the given components by walking up the entity tree
  * @param entity Entity to start from
- * @param component Component to search for
+ * @param components Components to search for
  * @param closest (default true) - whether to return the closest ancestor or the furthest ancestor
  * @param includeSelf (default true) - whether to include the entity itself in the search
  * @returns
  */
-export function getAncestorWithComponent(
+export function getAncestorWithComponents(
   entity: Entity,
-  component: ComponentType<any>,
+  components: ComponentType<any>[],
   closest = true,
   includeSelf = true
 ): Entity {
   let result = UndefinedEntity
-  if (includeSelf && closest && hasComponent(entity, component)) return entity
+  if (includeSelf && closest && hasComponents(entity, components)) return entity
   traverseEntityNodeParent(entity, (parent) => {
     if (closest && result) return
-    if (hasComponent(parent, component)) {
+    if (hasComponents(parent, components)) {
       result = parent
     }
   })
@@ -376,21 +380,23 @@ export function useTreeQuery(entity: Entity) {
 
 /**
  * Returns the closest ancestor of an entity that has a component
- * @todo maybe extend this to be a list of components?
  * @todo maybe extend this or write an alternative to get the furthest ancestor with component?
  * @param entity
- * @param component
+ * @param components
  * @param closest
  * @returns
  */
-export function useAncestorWithComponent(entity: Entity, component: ComponentType<any>) {
-  const result = useHookstate(() => getAncestorWithComponent(entity, component))
+export function useAncestorWithComponents(entity: Entity, components: ComponentType<any>[]) {
+  const result = useHookstate(() => getAncestorWithComponents(entity, components))
+
+  const componentsString = components.map((component) => component.name).join()
 
   useImmediateEffect(() => {
     let unmounted = false
     const ParentSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = !!useOptionalComponent(props.entity, component)?.value
+
+      const matchesQuery = components.every((component) => !!useOptionalComponent(props.entity, component))
 
       useLayoutEffect(() => {
         if (!matchesQuery) return
@@ -414,23 +420,24 @@ export function useAncestorWithComponent(entity: Entity, component: ComponentTyp
       unmounted = true
       root.stop()
     }
-  }, [entity, component])
+  }, [entity, componentsString])
 
   return result.value
 }
 
 /**
- * @todo - return an array of entities that have the component
- *
+ * Returns the closest child of an entity that has a component
+ * @param rootEntity
+ * @param components
  */
-export function useChildWithComponent(rootEntity: Entity, component: ComponentType<any>) {
+export function useChildWithComponents(rootEntity: Entity, components: ComponentType<any>[]) {
   const result = useHookstate(UndefinedEntity)
-
+  const componentsString = components.map((component) => component.name).join()
   useLayoutEffect(() => {
     let unmounted = false
     const ChildSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = !!useOptionalComponent(props.entity, component)?.value
+      const matchesQuery = components.every((component) => !!useOptionalComponent(props.entity, component))
 
       useLayoutEffect(() => {
         if (!matchesQuery) return
@@ -460,9 +467,57 @@ export function useChildWithComponent(rootEntity: Entity, component: ComponentTy
       unmounted = true
       root.stop()
     }
-  }, [rootEntity, component])
+  }, [rootEntity, componentsString])
 
   return result.value
+}
+
+export function useChildrenWithComponents(rootEntity: Entity, components: ComponentType<any>[]): Entity[] {
+  const children = useHookstate([] as Entity[])
+  const componentsString = components.map((component) => component.name).join()
+  useLayoutEffect(() => {
+    let unmounted = false
+    const ChildSubReactor = (props: { entity: Entity }) => {
+      const tree = useOptionalComponent(props.entity, EntityTreeComponent)
+      const matchesQuery = components.every((component) => !!useOptionalComponent(props.entity, component))
+
+      useLayoutEffect(() => {
+        if (!matchesQuery) return
+        children.set((prev) => {
+          if (prev.indexOf(props.entity) < 0) prev.push(props.entity)
+          return prev
+        })
+        return () => {
+          if (!unmounted) {
+            children.set((prev) => {
+              const index = prev.indexOf(props.entity)
+              prev.splice(index, 1)
+              return prev
+            })
+          }
+        }
+      }, [matchesQuery])
+
+      if (!tree?.children?.value) return null
+      return (
+        <>
+          {tree.children.value.map((e) => (
+            <ChildSubReactor key={e} entity={e} />
+          ))}
+        </>
+      )
+    }
+
+    const root = startReactor(function useQueryReactor() {
+      return <ChildSubReactor entity={rootEntity} key={rootEntity} />
+    })
+    return () => {
+      unmounted = true
+      root.stop()
+    }
+  }, [rootEntity, componentsString])
+
+  return children.value as Entity[]
 }
 
 /** @todo make a query component for useTreeQuery */

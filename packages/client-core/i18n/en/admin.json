@@ -453,6 +453,8 @@
       "secure": "Secure",
       "auth": "Auth",
       "from": "From",
+      "for": "For",
+      "to": "To",
       "subject": "Subject",
       "login": "Login",
       "friend": "Friend",
@@ -579,6 +581,14 @@
         "header": "Zendesk",
         "subtitle": "Edit Zendesk Settings"
       },
+      "mailchimp": {
+        "header": "Mailchimp",
+        "subtitle": "Edit Mailchimp Settings", 
+        "key": "Key", 
+        "server": "Server",
+        "audienceId": "Audience Id",
+        "defaultTags": "Default Tags (comma separated)"
+      },
       "keyName": "key Name",
       "kid": "Key Id"
     },
@@ -687,6 +697,7 @@
     "server": {
       "servers": "Servers",
       "migrations": "Migrations",
+      "apiJobs": "API Jobs",
       "loading": "Fetching Server Info",
       "loadingLogs": "Fetching Server Logs",
       "name": "Name",
@@ -719,10 +730,20 @@
       "confirmPodDelete": "Do you want to delete pod",
       "viewLogs": "View Logs",
       "columns": {
+        "migrationsInfo": {
         "id": "ID",
         "name": "Name",
         "batch": "Batch",
         "migration_time": "Migration Time"
+        },
+        "apiJobs": {
+        "id": "ID",
+        "name": "Name",
+        "status": "Status",
+        "start_time": "Start Time",
+        "end_time": "End Time",
+        "return_data": "Return Data"
+        }
       }
     },
     "recording": {
@@ -745,6 +766,23 @@
         "route": "Route",
         "action": "Active"
       }
+    },
+    "history": {
+      "publishedLocation": "published the location",
+      "modifiedLocation": "modified the location",
+      "unpublishedLocation": "unpublished the location",
+      "fromScene": "from the scene",
+      "added": "added the",
+      "created": "created the",
+      "removed": "removed the",
+      "renamed": "renamed a",
+      "modified": "modified the",
+      "accessTo": "access to",
+      "updatedTags": "updated the tags for",
+      "createdThumbnail": "created a thumbnail: ",
+      "updatedThumbnail": "updated the thumbnail of the resource: ",
+      "removedThumbnail": "removed the thumbnail for the resource: ",
+      "updatePermission": "updated the permission of the user"
     }
   }
 }

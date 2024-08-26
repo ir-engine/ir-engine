@@ -24,10 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { archiverPath } from '@ir-engine/common/src/schema.type.module'
 import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
-import { Engine } from '@ir-engine/ecs'
 import { downloadBlobAsZip } from '@ir-engine/editor/src/functions/assetFunctions'
 import { defineState, getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import React from 'react'
@@ -44,7 +44,7 @@ const DownloadProjectState = defineState({
 })
 
 export const handleDownloadProject = async (projectName: string, selectedDirectory: string) => {
-  const data = await Engine.instance.api
+  const data = await API.instance
     .service(archiverPath)
     .get(null, { query: { project: projectName } })
     .catch((err: Error) => {
