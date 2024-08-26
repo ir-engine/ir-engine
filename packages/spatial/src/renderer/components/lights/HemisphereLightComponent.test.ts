@@ -203,7 +203,7 @@ describe('HemisphereLightComponent', () => {
       assert.equal(hasComponent(testEntity, LightTagComponent), true)
     })
 
-    it('should react when directionalLightComponent.color changes', () => {
+    it('should react when directionalLightComponent.groundColor changes', () => {
       const Expected = new Color(0x123456)
 
       // Set the data as expected
@@ -219,7 +219,7 @@ describe('HemisphereLightComponent', () => {
       assert.equal(result.getHex(), Expected.getHex())
     })
 
-    it('should react when directionalLightComponent.color changes', () => {
+    it('should react when directionalLightComponent.skyColor changes', () => {
       const Expected = new Color(0x123456)
 
       // Set the data as expected
