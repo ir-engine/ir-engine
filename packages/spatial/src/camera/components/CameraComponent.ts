@@ -25,13 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ArrayCamera, PerspectiveCamera } from 'three'
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-
+import { useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
 
 export const CameraComponent = defineComponent({
   name: 'CameraComponent',
   jsonID: 'EE_camera',
+
   onInit: (entity) => {
     const camera = new ArrayCamera()
     camera.fov = 60
@@ -41,17 +43,15 @@ export const CameraComponent = defineComponent({
     camera.cameras = [new PerspectiveCamera().copy(camera, false)]
     return camera
   },
+
   onSet: (entity, component, json) => {
-    addObjectToGroup(entity, component.value as ArrayCamera)
     if (!json) return
     if (typeof json.fov === 'number') component.fov.set(json.fov)
-    if (typeof json.aspect === 'number') component.fov.set(json.aspect)
-    if (typeof json.near === 'number') component.fov.set(json.near)
-    if (typeof json.far === 'number') component.fov.set(json.far)
+    if (typeof json.aspect === 'number') component.aspect.set(json.aspect)
+    if (typeof json.near === 'number') component.near.set(json.near)
+    if (typeof json.far === 'number') component.far.set(json.far)
   },
-  onRemove: (entity, component) => {
-    removeObjectFromGroup(entity, component.value as ArrayCamera)
-  },
+
   toJSON: (entity, component) => {
     return {
       fov: component.fov.value,
@@ -59,5 +59,19 @@ export const CameraComponent = defineComponent({
       near: component.near.value,
       far: component.far.value
     }
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const cameraComponent = useComponent(entity, CameraComponent)
+
+    useImmediateEffect(() => {
+      const camera = cameraComponent.value as ArrayCamera
+      addObjectToGroup(entity, camera)
+      return () => {
+        removeObjectFromGroup(entity, camera)
+      }
+    }, [])
+    return null
   }
 })
