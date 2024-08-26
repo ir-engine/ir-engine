@@ -107,6 +107,32 @@ export function resolveObject<O extends object, P extends string>(
   return keyPath.reduce((prev, curr) => prev?.[curr], obj as any)
 }
 
+export function getNestedObject(object: any, propertyName: string) {
+  const props = propertyName.split('.')
+  let result = object
+
+  for (let i = 0; i < props.length - 1; i++) {
+    let isNumber = false
+
+    try {
+      Number(props[0])
+      isNumber = true
+    } catch (e) {
+      isNumber = false
+    }
+
+    let val = props[i] as string | number
+
+    if (isNumber) {
+      val = Number(val)
+    }
+
+    if (typeof result[props[i]] === 'undefined') result[props[i]] = {}
+    result = result[props[i]]
+  }
+
+  return { result, finalProp: props[props.length - 1] }
+}
 
 export function useMutableState<S, I, E, R extends ReceptorMap, P extends string>(
   StateDefinition: StateDefinition<S, I, E, R>

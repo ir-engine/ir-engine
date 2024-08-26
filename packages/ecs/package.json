@@ -14,7 +14,6 @@
   "author": "Infinite Reality Engine",
   "license": "CPAL",
   "dependencies": {
-    "@ir-engine/common": "^1.6.0",
     "@ir-engine/hyperflux": "^1.6.0",
     "bitecs": "0.3.40",
     "uuid": "9.0.0"

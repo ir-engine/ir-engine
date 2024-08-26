@@ -38,7 +38,7 @@ import { UserName, userPath } from '@ir-engine/common/src/schemas/user/user.sche
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application, HookContext } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 import { identityProviderDataResolver } from '../../user/identity-provider/identity-provider.resolvers'
 
 describe('project-github-push.test', () => {
@@ -56,9 +56,7 @@ describe('project-github-push.test', () => {
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
-  })
 
-  before(async () => {
     const name = ('test-project-destination-check-user-name-' + uuidv4()) as UserName
 
     const avatar = await app.service(avatarPath).create({
@@ -86,9 +84,7 @@ describe('project-github-push.test', () => {
       ),
       getParams()
     )
-  })
 
-  before(async () => {
     const projectName = `test-project-github-push-${uuidv4()}`
     const fullName = `@ir-engine/${projectName}`
     testProject = await app
@@ -109,9 +105,11 @@ describe('project-github-push.test', () => {
 
   after(async () => {
     await app.service(projectPath).remove(testProject.id)
+
+    await tearDownAPI()
+    destroyEngine()
   })
 
-  after(() => destroyEngine())
 
   it('should check for accessible repo', async () => {
     nock('https://api.github.com')

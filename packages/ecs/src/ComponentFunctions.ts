@@ -32,9 +32,9 @@ import React, { startTransition, use } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
-import { getNestedObject } from '@ir-engine/common/src/utils/getNestedProperty'
-import {
+import { 
   DeepReadonly,
+  getNestedObject,
   HyperFlux,
   InferStateValueType,
   NO_PROXY_STEALTH,

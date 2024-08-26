@@ -37,7 +37,7 @@ import appRootPath from 'app-root-path'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../declarations'
-import { createFeathersKoaApp } from '../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../createApp'
 import verifyProjectPermission from './verify-project-permission'
 
 const mockHookContext = (
@@ -58,7 +58,8 @@ describe('verify-project-permission', () => {
   })
 
   after(async () => {
-    return await destroyEngine()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should fail if user is not authenticated', async () => {

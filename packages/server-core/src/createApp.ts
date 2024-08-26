@@ -262,3 +262,12 @@ export const createFeathersKoaApp = (
 
   return app
 }
+
+export const tearDownAPI = async () => {
+  if (API.instance) {
+    if ((API.instance as any).server) await API.instance.teardown()
+
+    const knex = (API.instance as any).get?.('knexClient')
+    if (knex) await knex.destroy()
+  }
+}

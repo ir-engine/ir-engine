@@ -31,6 +31,7 @@ export * from './src/functions/StateFunctions'
 export * from './src/functions/StoreFunctions'
 export * from './src/functions/useImmediateEffect'
 export * from './src/functions/useReactiveRef'
+export * from './src/functions/useForceUpdate'
 
 export type * from './src/types/Types'
 export type * from './src/types/DeepReadonly'

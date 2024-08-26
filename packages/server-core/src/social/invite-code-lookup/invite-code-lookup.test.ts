@@ -31,7 +31,7 @@ import { UserName, userPath, UserType } from '@ir-engine/common/src/schemas/user
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 let user: UserType
 
@@ -56,9 +56,11 @@ describe('invite-code-lookup service', () => {
       scopes: []
     })
   })
-  after(() => {
-    return destroyEngine()
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
+
 
   it('registered the service', async () => {
     const service = await app.service(inviteCodeLookupPath)

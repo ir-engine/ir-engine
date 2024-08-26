@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 /** Functions to provide engine level functionalities. */
 
-import logger from '@ir-engine/common/src/logger'
 import { getMutableState, getState, HyperFlux } from '@ir-engine/hyperflux'
 
 import { ECSState } from './ECSState'
@@ -69,7 +68,7 @@ export const executeSystems = (elapsedTime: number) => {
   const end = nowMilliseconds()
   const duration = end - start
   if (duration > 150) {
-    logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
+    HyperFlux.store.logger('ecs:execute').warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
   }
   ecsState.lastSystemExecutionDuration.set(duration)
 }

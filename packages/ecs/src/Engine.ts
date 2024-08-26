@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import * as bitECS from 'bitecs'
 import { getAllEntities } from 'bitecs'
 
-import { API } from '@ir-engine/common'
 import * as Hyperflux from '@ir-engine/hyperflux'
 import {
   createHyperStore,
@@ -100,15 +99,8 @@ export function createEngine(hyperstore = createHyperStore({ publicPath: '' })) 
   const UndefinedEntity = bitECS.addEntity(hyperstore)
 }
 
-export async function destroyEngine() {
+export function destroyEngine() {
   getState(ECSState).timer?.clear()
-
-  if (API.instance) {
-    if ((API.instance as any).server) await API.instance.teardown()
-
-    const knex = (API.instance as any).get?.('knexClient')
-    if (knex) await knex.destroy()
-  }
 
   /** Remove all entities */
   const entities = getAllEntities(HyperFlux.store) as Entity[]

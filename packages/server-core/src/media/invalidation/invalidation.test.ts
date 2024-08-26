@@ -29,7 +29,7 @@ import { invalidationPath } from '@ir-engine/common/src/schemas/media/invalidati
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 const pathName1 = '/path/to/file1'
 const pathName2 = '/path/to/file2'
@@ -45,9 +45,11 @@ describe('invalidation.test', () => {
     })
   })
 
-  after(() => {
-    return destroyEngine()
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
+
 
   let createdPath1, createdPath2, createdFile1
   it('creates one invalidation entry', async () => {
