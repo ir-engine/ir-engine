@@ -52,7 +52,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, NO_PROXY, useHookstate, useState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { createPriorityQueue } from '@ir-engine/spatial/src/common/functions/PriorityQueue'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -274,6 +274,9 @@ function VideoReactor() {
       })
   )
 
+  const fitPlacementUvOffset = useState(new Vector2(0, 0))
+  const fitPlacementUvScale = useState(new Vector2(1, 1))
+
   useEffect(() => {
     const videoEntity = videoMeshEntity.value
     video.videoMeshEntity.set(videoEntity)
@@ -320,33 +323,45 @@ function VideoReactor() {
     videoMesh.scale.y = containerHeight
 
     const imageSize = getTextureSize(videoMesh.material.uniforms.map.value as Texture | CompressedTexture)
-    const imageRatio = imageSize.x / imageSize.y
+    const imageRatio = imageSize.x / imageSize.y || 1
 
+    let placement = 'horz'
     if (video.fit.value == 'horizontal') {
+      placement = 'horz'
+    }
+    if (video.fit.value == 'vertical') {
+      placement = 'vert'
+    }
+    if (video.fit.value == 'contain') {
+      if (imageRatio > containerRatio) {
+        placement = 'horz'
+      } else {
+        placement = 'vert'
+      }
+    }
+    if (video.fit.value == 'cover') {
+      if (imageRatio > containerRatio) {
+        placement = 'vert'
+      } else {
+        placement = 'horz'
+      }
+    }
+
+    if (placement == 'horz') {
       uvScale.y = imageRatio / containerRatio
       uvScale.x = 1
       uvOffset.y = (1 - uvScale.y) / 2
-    }
-    if (video.fit.value == 'vertical') {
+    } else {
       uvScale.x = 1 / imageRatio / (1 / containerRatio)
       uvScale.y = 1
       uvOffset.x = (1 - uvScale.x) / 2
     }
-    if (video.fit.value == 'contain') {
-      if (imageRatio > containerRatio) {
-        uvScale.y = imageRatio / containerRatio
-        uvScale.x = 1
-        uvOffset.y = (1 - uvScale.y) / 2
-      } else {
-        uvScale.x = 1 / imageRatio / (1 / containerRatio)
-        uvScale.y = 1
-        uvOffset.x = (1 - uvScale.x) / 2
-      }
-    }
 
-    video.uvOffset.set(uvOffset)
-    video.uvScale.set(uvScale)
-  }, [video.size, video.fit, video.texture])
+    fitPlacementUvOffset.set(uvOffset)
+    fitPlacementUvScale.set(uvScale)
+    //video.uvOffset.set(uvOffset)
+    //video.uvScale.set(uvScale)
+  }, [video.size, video.fit, video.texture, mesh.material])
 
   useEffect(() => {
     mesh.geometry.set(video.projection.value === 'Flat' ? PLANE_GEO() : SPHERE_GEO())
@@ -384,13 +399,21 @@ function VideoReactor() {
 
   useEffect(() => {
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
-    uniforms.uvOffset.value = video.uvOffset.value
-  }, [video.uvOffset])
+    uniforms.uvOffset.value = new Vector2(
+      video.uvOffset.x.value + fitPlacementUvOffset.x.value,
+      video.uvOffset.y.value + fitPlacementUvOffset.y.value
+    )
+  }, [video.uvOffset, fitPlacementUvOffset])
 
   useEffect(() => {
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.uvScale.value = video.uvScale.value
-  }, [video.uvScale])
+
+    uniforms.uvScale.value = new Vector2(
+      video.uvScale.x.value * fitPlacementUvScale.x.value,
+      video.uvScale.y.value * fitPlacementUvScale.y.value
+    )
+  }, [video.uvScale, fitPlacementUvScale])
 
   useEffect(() => {
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
