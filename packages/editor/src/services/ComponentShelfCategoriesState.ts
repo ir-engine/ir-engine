@@ -53,7 +53,7 @@ import { TextComponent } from '@ir-engine/engine/src/scene/components/TextCompon
 import { VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { defineState, getMutableState } from '@ir-engine/hyperflux'
 import {
   AmbientLightComponent,

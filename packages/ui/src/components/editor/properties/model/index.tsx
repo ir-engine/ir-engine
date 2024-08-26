@@ -43,7 +43,7 @@ import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/re
 import { recursiveHipsLookup } from '@ir-engine/engine/src/avatar/AvatarBoneMatching'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { getState, useState } from '@ir-engine/hyperflux'
 import Button from '../../../../primitives/tailwind/Button'
 import BooleanInput from '../../input/Boolean'

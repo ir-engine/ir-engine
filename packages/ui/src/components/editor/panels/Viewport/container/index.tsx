@@ -37,7 +37,7 @@ import { getCursorSpawnPosition } from '@ir-engine/editor/src/functions/screenSp
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePendingComponent'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'

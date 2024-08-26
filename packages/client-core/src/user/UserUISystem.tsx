@@ -31,7 +31,7 @@ import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, none } from '@ir-engine/hyperflux'
 
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu'

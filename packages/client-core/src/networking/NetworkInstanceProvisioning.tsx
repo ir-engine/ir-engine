@@ -42,7 +42,7 @@ import { ChannelService, ChannelState } from '@ir-engine/client-core/src/social/
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { InstanceID, LocationID, RoomCode } from '@ir-engine/common/src/schema.type.module'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { FriendService } from '../social/services/FriendService'

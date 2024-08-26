@@ -51,6 +51,7 @@ import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/S
 import { SearchParamState } from '../common/services/RouterService'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
+import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   if (!isClient) return null
@@ -117,7 +118,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
 
 const reactor = () => {
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const sceneEntity = GLTFAssetState.useScene(locationSceneID)
+  const sceneEntity = useLoadedSceneEntity(locationSceneID)
 
   if (!sceneEntity) return null
 

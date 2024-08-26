@@ -69,6 +69,7 @@ import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
+import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 
 const SCREEN_SIZE = new Vector2()
 
@@ -334,7 +335,7 @@ const Reactor = () => {
   const themeState = useMutableState(AppThemeState)
   const themeModes = useHookstate(getMutableState(AuthState).user?.userSetting?.ornull?.themeModes)
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const sceneEntity = GLTFAssetState.useScene(locationSceneID)
+  const sceneEntity = useLoadedSceneEntity(locationSceneID)
   const gltfDocumentState = useMutableState(GLTFDocumentState)
 
   useEffect(() => {

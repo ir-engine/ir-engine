@@ -68,7 +68,7 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { GLTFAssetState, GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
