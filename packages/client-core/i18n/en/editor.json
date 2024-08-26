@@ -1168,6 +1168,12 @@
       "makeTemplate": "Make into template"
     }
   },
+  "script":{
+    "panel": {
+      "title": "Script",
+      "addScript": "Add Script"
+    }
+  },
   "layout": {
     "assetGrid": {
       "loading": "Loading...",
@@ -1475,7 +1481,8 @@
   },
   "tabs": {
     "scene-assets": "Assets",
-    "project-assets": "Project Assets"
+    "project-assets": "Project Assets",
+    "file-browser": "Files"
   },
   "generatingThumbnails": {
     "title": "Generating Thumbnails",

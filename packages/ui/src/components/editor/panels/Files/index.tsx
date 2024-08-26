@@ -37,7 +37,7 @@ export const FilesPanelTitle = () => {
     <div>
       <PanelDragContainer>
         <PanelTitle>
-          <span>{'Files'}</span>
+          <span>{t('editor:tabs.file-browser')}</span>
         </PanelTitle>
       </PanelDragContainer>
     </div>

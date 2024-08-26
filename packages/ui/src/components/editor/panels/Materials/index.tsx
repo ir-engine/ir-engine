@@ -37,7 +37,7 @@ export const MaterialsPanelTitle = () => {
     <div>
       <PanelDragContainer>
         <PanelTitle>
-          <span>{'Materials'}</span>
+          <span>{t('editor:materialLibrary.tab-materials')}</span>
         </PanelTitle>
       </PanelDragContainer>
     </div>

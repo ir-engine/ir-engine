@@ -30,24 +30,20 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { useEffect } from 'react'
 import { addError, clearErrors, removeError } from '../scene/functions/ErrorFunctions'
 
-function validateScriptUrl(entity, url: string): boolean {
+export function validateScriptUrl(entity, url: string): boolean {
   try {
     const parsedUrl = new URL(url)
-    const pathname = parsedUrl.pathname
     if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-      console.error('INVALID_URL_SCHEME')
       addError(entity, ScriptComponent, 'INVALID_URL_SCHEME', 'Invalid URL scheme')
       return false
     }
-    if (!pathname.endsWith('.js')) {
+    if (!url.endsWith('.js')) {
       // replace with itemTypes later
-      console.error('INVALID_SCRIPT_TYPE')
       addError(entity, ScriptComponent, 'INVALID_SCRIPT_TYPE', 'URL does not point to a JavaScript file')
       return false
     }
     return true
   } catch (e) {
-    console.error('INVALID_URL_FORMAT')
     addError(entity, ScriptComponent, 'INVALID_URL_FORMAT', 'Invalid URL format')
     return false
   }
