@@ -332,6 +332,17 @@ function VideoReactor() {
       uvScale.y = 1
       uvOffset.x = (1 - uvScale.x) / 2
     }
+    if (video.fit.value == 'contain') {
+      if (imageRatio > containerRatio) {
+        uvScale.y = imageRatio / containerRatio
+        uvScale.x = 1
+        uvOffset.y = (1 - uvScale.y) / 2
+      } else {
+        uvScale.x = 1 / imageRatio / (1 / containerRatio)
+        uvScale.y = 1
+        uvOffset.x = (1 - uvScale.x) / 2
+      }
+    }
 
     video.uvOffset.set(uvOffset)
     video.uvScale.set(uvScale)
