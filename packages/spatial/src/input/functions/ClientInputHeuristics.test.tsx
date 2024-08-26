@@ -65,6 +65,7 @@ import { TransformComponent } from '../../SpatialModule'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
 import { InputComponent } from '../components/InputComponent'
 import { InputState } from '../state/InputState'
@@ -1018,6 +1019,7 @@ describe('ClientInputHeuristics', () => {
         sorted = [] as IntersectionData[]
 
         setComponent(sourceEntity, TransformComponent, { position: new Vector3(1, 1, 1) })
+        computeTransformMatrix(sourceEntity)
         ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         const afterTwo = sorted.length
         assert.equal(afterTwo, 1)
