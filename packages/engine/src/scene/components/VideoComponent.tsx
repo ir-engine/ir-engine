@@ -302,16 +302,6 @@ function VideoReactor() {
     const videoMesh = mesh.value as Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
     resizeVideoMesh(videoMesh)
 
-    /*
-    const scale = ObjectFitFunctions.computeContentFitScale(
-      videoMesh.scale.x,
-      videoMesh.scale.y,
-      video.size.width.value,
-      video.size.height.value,
-      video.fit.value
-    )
-    videoMesh.scale.setScalar(scale)
-    */
     const uvOffset = new Vector2(0, 0)
     const uvScale = new Vector2(1, 1)
 
