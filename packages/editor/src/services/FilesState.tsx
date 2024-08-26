@@ -111,7 +111,7 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
   const onBackDirectory = () => {
     const pattern = /([^/]+)/g
     const result = filesState.selectedDirectory.value.match(pattern)
-    if (!result || result.length === 1 || (filesState.orgName && result.length === 2)) return
+    if (!result || result.length === 1) return
     let newPath = '/'
     for (let i = 0; i < result.length - 1; i++) {
       newPath += result[i] + '/'

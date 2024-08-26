@@ -56,17 +56,11 @@ const VIEW_MODES = [
   { mode: 'icons', icon: <FiGrid /> }
 ]
 
-function extractDirectoryWithoutOrgName(directory: string, orgName: string) {
-  if (!orgName) return directory
-  return directory.replace(`projects/${orgName}`, 'projects/')
-}
-
 function BreadcrumbItems() {
   const filesState = useMutableState(FilesState)
   const { onChangeDirectoryByPath } = useCurrentFiles()
 
   const handleBreadcrumbDirectoryClick = (targetFolder: string) => {
-    if (filesState.orgName.value && targetFolder === 'projects') return
     const pattern = /([^/]+)/g
     const result = filesState.selectedDirectory.value.match(pattern)
     if (!result) return
@@ -80,12 +74,7 @@ function BreadcrumbItems() {
     onChangeDirectoryByPath(newPath)
   }
 
-  let breadcrumbDirectoryFiles = extractDirectoryWithoutOrgName(
-    filesState.selectedDirectory.value,
-    filesState.orgName.value
-  )
-    .slice(1, -1)
-    .split('/')
+  let breadcrumbDirectoryFiles = filesState.selectedDirectory.value.slice(1, -1).split('/')
 
   const nestedIndex = breadcrumbDirectoryFiles.indexOf('projects')
 
@@ -97,7 +86,7 @@ function BreadcrumbItems() {
       {breadcrumbDirectoryFiles.map((file, index, arr) => (
         <Fragment key={index}>
           {index !== 0 && <span className="cursor-default items-center text-sm text-[#A3A3A3]"> {'>'} </span>}
-          {index === arr.length - 1 || (filesState.orgName.value && index === 0) ? (
+          {index === arr.length - 1 ? (
             <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline">
               {file}
             </span>

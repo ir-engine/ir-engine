@@ -29,7 +29,6 @@ import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { canDropItemOverFolder } from '@ir-engine/ui/src/components/editor/panels/Files/browserGrid'
 import React, { useEffect } from 'react'
 import { useDrop } from 'react-dnd'
-import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { FileDataType } from '../../components/assets/FileBrowser/FileDataType'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
@@ -116,20 +115,12 @@ function Browser() {
 }
 
 export default function FileBrowser() {
-  const { t } = useTranslation()
   const filesState = useMutableState(FilesState)
 
   const originalPath = useMutableState(EditorState).projectName.value
   useEffect(() => {
-    if (originalPath) filesState.selectedDirectory.set(`/projects/${originalPath}/assets/`)
+    if (originalPath) filesState.selectedDirectory.set(`/projects/${originalPath}`)
   }, [originalPath])
-
-  useEffect(() => {
-    getValidProjectForFileBrowser(filesState.selectedDirectory.value).then((projectName) => {
-      const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
-      filesState.merge({ projectName, orgName })
-    })
-  }, [filesState.selectedDirectory])
 
   return (
     <CurrentFilesQueryProvider>
