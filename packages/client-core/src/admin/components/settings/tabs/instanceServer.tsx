@@ -73,6 +73,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     event.preventDefault()
     const newSettings = {
       ...settingsState.get(NO_PROXY),
+      local: Boolean(settingsState.value?.local),
       createdAt: undefined!,
       updatedAt: undefined!
     } as any as InstanceServerSettingType

@@ -27,7 +27,7 @@ import * as fs from 'fs'
 import type { Knex } from 'knex'
 import * as path from 'path'
 
-const sqlFilePath = path.join(__dirname, './project_triggers.sql')
+const sqlFilePath = path.join(__dirname, './static-resource_triggers.sql')
 
 /**
  * @param { import("knex").Knex } knex
@@ -43,6 +43,11 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  await knex.raw('DROP PROCEDURE IF EXISTS insert_project_history;')
-  await knex.raw('DROP TRIGGER IF EXISTS after_project_insert;')
+  await knex.raw('DROP PROCEDURE IF EXISTS handle_thumbnails;')
+  await knex.raw('DROP PROCEDURE IF EXISTS handle_tags;')
+  await knex.raw('DROP PROCEDURE IF EXISTS update_static_resource_history;')
+  await knex.raw('DROP TRIGGER IF EXISTS after_static_resource_update;')
+
+  await knex.raw('DROP PROCEDURE IF EXISTS insert_static_resource_history;')
+  await knex.raw('DROP TRIGGER IF EXISTS after_static_resource_insert;')
 }
