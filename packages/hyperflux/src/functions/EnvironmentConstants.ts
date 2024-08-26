@@ -23,18 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Function, Object, String } from 'ts-toolbelt'
+const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined'
 
-export type Paths<S> = S extends object
-  ? {
-      [K in keyof S]: K extends string ? [K, ...Paths<S[K]>] : never
-    }[keyof S]
-  : []
+/* eslint-disable no-restricted-globals */
+const isWebWorker =
+  typeof self === 'object' && self.constructor && self.constructor.name === 'DedicatedWorkerGlobalScope'
+/* eslint-enable no-restricted-globals */
 
-export function resolveObject<O extends object, P extends string>(
-  obj: O,
-  path: Function.AutoPath<O, P>
-): Object.Path<O, String.Split<P, '.'>> {
-  const keyPath = Array.isArray(path) ? path : path.split('.')
-  return keyPath.reduce((prev, curr) => prev?.[curr], obj as any)
-}
+const isClient =
+  typeof process !== 'object' || typeof process.versions !== 'object' || typeof process.versions.node === 'undefined'
+
+const isDev = globalThis.process.env.APP_ENV === 'development'
+
+const isTest = globalThis.process.env.APP_ENV === 'test'
+
+export { isBrowser, isClient, isWebWorker, isDev, isTest }

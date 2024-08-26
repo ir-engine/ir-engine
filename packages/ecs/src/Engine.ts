@@ -28,8 +28,15 @@ import { getAllEntities } from 'bitecs'
 
 import { API } from '@ir-engine/common'
 import * as Hyperflux from '@ir-engine/hyperflux'
-import { getState, NO_PROXY_STEALTH, ReactorReconciler } from '@ir-engine/hyperflux'
-import { createHyperStore, disposeStore, HyperFlux, HyperStore } from '@ir-engine/hyperflux/functions/StoreFunctions'
+import {
+  createHyperStore,
+  disposeStore,
+  getState,
+  HyperFlux,
+  HyperStore,
+  NO_PROXY_STEALTH,
+  ReactorReconciler
+} from '@ir-engine/hyperflux'
 
 import { ECSState } from './ECSState'
 import { Entity } from './Entity'

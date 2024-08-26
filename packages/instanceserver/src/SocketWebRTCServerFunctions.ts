@@ -27,8 +27,7 @@ import { Consumer, DataProducer, Producer, TransportInternal, WebRtcTransport } 
 import { encode } from 'msgpackr'
 
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
-import { getState, PeerID } from '@ir-engine/hyperflux'
-import { Action, Topic } from '@ir-engine/hyperflux/functions/ActionFunctions'
+import { Action, getState, PeerID, Topic } from '@ir-engine/hyperflux'
 import {
   createNetwork,
   DataChannelType,

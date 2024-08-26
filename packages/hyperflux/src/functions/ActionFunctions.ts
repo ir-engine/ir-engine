@@ -26,19 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { matches, Parser, Validator } from 'ts-matches'
 import { v4 as uuidv4 } from 'uuid'
 
-import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
-import multiLogger from '@ir-engine/common/src/logger'
-import { InstanceID } from '@ir-engine/common/src/schema.type.module'
-import { createHookableFunction } from '@ir-engine/common/src/utils/createHookableFunction'
-import { deepEqual } from '@ir-engine/common/src/utils/deepEqual'
+import { createHookableFunction } from './createHookableFunction'
 
+import { OpaqueType } from '../types/OpaqueType'
+import { NetworkID, PeerID } from '../types/Types'
 import { ReactorRoot } from './ReactorFunctions'
 import { setInitialState, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
-
-const logger = multiLogger.child({ component: 'hyperflux:Action' })
-
-export type PeerID = OpaqueType<'PeerID'> & string
 
 const matchesPeerID = matches.string as Validator<unknown, PeerID>
 
@@ -103,7 +97,7 @@ export type ActionOptions = {
    * Optionally specify the network to send this action to.
    * Specifying this will not send the action to other networks, even as a cached action.
    */
-  $network?: InstanceID | undefined // TODO make a type for NetworkID
+  $network?: NetworkID | undefined
 
   /**
    * Specifies how this action should be cached for newly joining clients.
@@ -349,7 +343,7 @@ export const dispatchAction = <A extends Action>(_action: A) => {
 
 export function addOutgoingTopicIfNecessary(topic: Topic) {
   if (!HyperFlux.store.actions.outgoing[topic]) {
-    logger.info(`Added topic ${topic}`)
+    HyperFlux.store.logger('hyperflux:action').info(`Added topic ${topic}`)
     HyperFlux.store.actions.outgoing[topic] = {
       queue: [],
       history: [],
@@ -447,7 +441,7 @@ const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
               hasNewActions = true
             }
           } catch (e) {
-            logger.error(e)
+            HyperFlux.store.logger('hyperflux:action').error(e)
           }
         }
       }
@@ -490,7 +484,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     //actions had circular references. Just try/catching the logger.info call was not catching them properly,
     //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
     try {
-      logger.info(`[Action]: ${action.type} %o`, action)
+      HyperFlux.store.logger('hyperflux:action').info(`[Action]: ${action.type} %o`, action)
     } catch (err) {
       console.log('error in logging action', action)
     }
@@ -499,7 +493,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     const stack = (e as Error).stack!.split('\n')
     stack.shift()
     action.$ERROR = { message, stack }
-    logger.error(e)
+    HyperFlux.store.logger('hyperflux:action').error(e)
   } finally {
     HyperFlux.store.actions.history.push(action)
     HyperFlux.store.actions.knownUUIDs.add(action.$uuid)
@@ -646,4 +640,20 @@ export type ActionCreator<A extends ActionShape<Action>> = {
 
 export const matchesWithDefault = <A>(matches: Validator<unknown, A>, defaultValue: () => A): MatchesWithDefault<A> => {
   return { matches, defaultValue }
+}
+
+export function deepEqual(x: any, y: any): boolean {
+  if (x === y) {
+    return true
+  } else if (typeof x == 'object' && x != null && typeof y == 'object' && y != null) {
+    if (Object.keys(x).length != Object.keys(y).length) return false
+
+    for (const prop in x) {
+      if (typeof y[prop] !== 'undefined') {
+        if (!deepEqual(x[prop], y[prop])) return false
+      } else return false
+    }
+
+    return true
+  } else return false
 }

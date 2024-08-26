@@ -40,7 +40,7 @@ import { transformModel as clientSideTransformModel } from '@ir-engine/engine/sr
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { NO_PROXY, State, useMutableState } from '@ir-engine/hyperflux/functions/StateFunctions'
+import { NO_PROXY, State, useMutableState } from '@ir-engine/hyperflux'
 import { IoIosArrowBack, IoIosArrowDown } from 'react-icons/io'
 import Accordion from '../../../../../primitives/tailwind/Accordion'
 import Button from '../../../../../primitives/tailwind/Button'

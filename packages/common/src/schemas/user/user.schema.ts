@@ -40,6 +40,9 @@ import { avatarDataSchema, AvatarID } from './avatar.schema'
 import { identityProviderSchema } from './identity-provider.schema'
 import { userApiKeySchema } from './user-api-key.schema'
 import { userLoginSchema } from './user-login.schema'
+import { UserID } from '@ir-engine/hyperflux'
+
+export type { UserID}
 
 export const userPath = 'user'
 
@@ -52,7 +55,6 @@ export const userScopeSchema = Type.Object(
   { $id: 'UserScope', additionalProperties: false }
 )
 
-export type UserID = OpaqueType<'UserID'> & string
 export type InviteCode = OpaqueType<'InviteCode'> & string
 export type UserName = OpaqueType<'UserName'> & string
 

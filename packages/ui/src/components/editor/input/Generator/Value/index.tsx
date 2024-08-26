@@ -33,7 +33,7 @@ import {
   ValueGeneratorJSON,
   ValueGeneratorJSONDefaults
 } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
-import { State } from '@ir-engine/hyperflux/functions/StateFunctions'
+import { State } from '@ir-engine/hyperflux'
 import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../Group'
 import NumericInput from '../../Numeric'

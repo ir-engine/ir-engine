@@ -34,7 +34,7 @@ import {
   matches,
   Validator
 } from '@ir-engine/hyperflux'
-import { none } from '@ir-engine/hyperflux/functions/StateFunctions'
+import { none } from '@ir-engine/hyperflux'
 
 import { Widget } from './Widgets'
 

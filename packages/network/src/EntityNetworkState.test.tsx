@@ -34,8 +34,7 @@ import { getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunction
 import { createEngine, destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { SystemDefinitions } from '@ir-engine/ecs/src/SystemFunctions'
-import { PeerID, ReactorReconciler } from '@ir-engine/hyperflux'
-import { applyIncomingActions, dispatchAction } from '@ir-engine/hyperflux/functions/ActionFunctions'
+import { applyIncomingActions, dispatchAction, PeerID, ReactorReconciler } from '@ir-engine/hyperflux'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 
 import { createMockNetwork } from '../tests/createMockNetwork'

@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { renderHook } from '@testing-library/react'
 import assert from 'assert'
-import { useImmediateEffect } from './useImmediateEffect'
+import { useImmediateEffect } from '../src/functions/useImmediateEffect'
 
 describe('useImmediateEffect', () => {
   it('should call the effect function immediately', () => {

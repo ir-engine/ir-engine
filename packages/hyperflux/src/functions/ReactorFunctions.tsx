@@ -28,9 +28,7 @@ import React, { Suspense, useTransition } from 'react'
 import Reconciler from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
 
-import { isDev } from '@ir-engine/common/src/config'
-import { createErrorBoundary } from '@ir-engine/common/src/utils/createErrorBoundary'
-
+import { isDev } from './EnvironmentConstants'
 import { HyperFlux } from './StoreFunctions'
 
 export const ReactorReconciler = Reconciler({
@@ -88,10 +86,34 @@ export type ReactorRoot = {
   stop: () => void
 }
 
-const ReactorRootContext = React.createContext<ReactorRoot>(undefined as any)
+type ErrorHandler = (error: Error, info: React.ErrorInfo) => void
+type ErrorHandlingComponent<Props> = (props: Props, error?: Error) => React.ReactNode
 
-export function useReactorRootContext(): ReactorRoot {
-  return React.useContext(ReactorRootContext)
+type ErrorState = { error?: Error }
+
+export function createErrorBoundary<P extends { children: React.ReactNode }>(
+  component: ErrorHandlingComponent<P>,
+  errorHandler?: ErrorHandler
+): React.ComponentType<P> {
+  return class extends React.Component<P, ErrorState> {
+    state: ErrorState = {
+      error: undefined
+    }
+
+    static getDerivedStateFromError(error: Error) {
+      return { error }
+    }
+
+    componentDidCatch(error: Error, info: React.ErrorInfo) {
+      if (errorHandler) {
+        errorHandler(error, info)
+      }
+    }
+
+    render() {
+      return component(this.props, this.state.error)
+    }
+  }
 }
 
 export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactNode; reactorRoot: ReactorRoot }>(
@@ -113,6 +135,12 @@ export const ErrorBoundary = createErrorBoundary(function error(props, error?: E
     return <React.Fragment>{props.children}</React.Fragment>
   }
 })
+
+const ReactorRootContext = React.createContext<ReactorRoot>(undefined as any)
+
+export function useReactorRootContext(): ReactorRoot {
+  return React.useContext(ReactorRootContext)
+}
 
 export function startReactor(Reactor: React.FC): ReactorRoot {
   const isStrictMode = false

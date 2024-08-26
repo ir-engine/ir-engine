@@ -26,9 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { State } from '@hookstate/core'
 import { v4 as uuidv4 } from 'uuid'
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
-import { PeerID } from '@ir-engine/hyperflux'
-
+import { PeerID, UserID } from '../types/Types'
 import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
 import { ReactorReconciler, ReactorRoot } from './ReactorFunctions'
 
@@ -103,6 +101,14 @@ export interface HyperStore {
 
   /** active reactors */
   activeReactors: Set<ReactorRoot>
+
+  logger: (component: string) => {
+    debug: (...message: any[]) => void
+    info: (...message: any[]) => void
+    warn: (...message: any[]) => void
+    error: (...message: any[]) => void
+    fatal: (...message: any[]) => void
+  }
 }
 
 export class HyperFlux {
@@ -135,7 +141,14 @@ export function createHyperStore(options: {
       outgoing: {}
     },
     receptors: {},
-    activeReactors: new Set()
+    activeReactors: new Set(),
+    logger: (component: string) => ({
+      debug: (...message: string[]) => console.debug(`[${component}]`, ...message),
+      info: (...message: string[]) => console.info(`[${component}]`, ...message),
+      warn: (...message: string[]) => console.warn(`[${component}]`, ...message),
+      error: (...message: string[]) => console.error(`[${component}]`, ...message),
+      fatal: (...message: string[]) => console.error(`[${component}]`, ...message)
+    })
   }
   HyperFlux.store = store
   return store

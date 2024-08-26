@@ -25,8 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { getMutableState, none, PeerID } from '@ir-engine/hyperflux'
-import { Action } from '@ir-engine/hyperflux/functions/ActionFunctions'
+import { Action, getMutableState, none, PeerID } from '@ir-engine/hyperflux'
 
 import { Network } from '../Network'
 import { NetworkState } from '../NetworkState'

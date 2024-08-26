@@ -23,11 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { DeepReadonly } from '@ir-engine/common/src/DeepReadonly'
 import { insertionSort } from '@ir-engine/common/src/utils/insertionSort'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { Query } from '@ir-engine/ecs/src/QueryFunctions'
+import { DeepReadonly } from '@ir-engine/hyperflux'
 
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 

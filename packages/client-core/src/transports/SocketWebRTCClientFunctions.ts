@@ -62,7 +62,7 @@ import {
   addOutgoingTopicIfNecessary,
   defineActionQueue,
   removeActionQueue
-} from '@ir-engine/hyperflux/functions/ActionFunctions'
+} from '@ir-engine/hyperflux'
 import {
   DataChannelType,
   MediaStreamAppData,

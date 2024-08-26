@@ -27,14 +27,11 @@ import { extend, ExtensionFactory, hookstate, SetInitialStateAction, State, useH
 import { Identifiable, identifiable } from '@hookstate/identifiable'
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
-import { DeepReadonly } from '@ir-engine/common/src/DeepReadonly'
-import multiLogger from '@ir-engine/common/src/logger'
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
-import { resolveObject } from '@ir-engine/common/src/utils/resolveObject'
-
 import { ActionQueueHandle, ActionReceptor } from './ActionFunctions'
 import { startReactor } from './ReactorFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
+import { DeepReadonly } from '../types/DeepReadonly'
+import { isClient } from './EnvironmentConstants'
 
 export * from '@hookstate/core'
 export { useHookstate as useState } from '@hookstate/core'
@@ -42,8 +39,6 @@ export * from '@hookstate/identifiable'
 
 /** @deprecated */
 export const createState = hookstate
-
-const logger = multiLogger.child({ component: 'hyperflux:State' })
 
 export const NO_PROXY = { noproxy: true }
 export const NO_PROXY_STEALTH = { noproxy: true, stealth: true }
@@ -97,6 +92,21 @@ export function getState<S>(StateDefinition: StateDefinition<S, any, any, any>) 
   if (!HyperFlux.store.stateMap[StateDefinition.name]) setInitialState(StateDefinition)
   return HyperFlux.store.stateMap[StateDefinition.name].get(NO_PROXY_STEALTH) as DeepReadonly<S>
 }
+
+export type Paths<S> = S extends object
+  ? {
+      [K in keyof S]: K extends string ? [K, ...Paths<S[K]>] : never
+    }[keyof S]
+  : []
+
+export function resolveObject<O extends object, P extends string>(
+  obj: O,
+  path: Function.AutoPath<O, P>
+): _Object.Path<O, String.Split<P, '.'>> {
+  const keyPath = Array.isArray(path) ? path : path.split('.')
+  return keyPath.reduce((prev, curr) => prev?.[curr], obj as any)
+}
+
 
 export function useMutableState<S, I, E, R extends ReceptorMap, P extends string>(
   StateDefinition: StateDefinition<S, I, E, R>
