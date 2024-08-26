@@ -23,16 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
-import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { fileBrowserPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
 import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
-import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
-import { NO_PROXY, defineState, syncStateWithLocalStorage, useMutableState } from '@ir-engine/hyperflux'
-import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
-import React, { ReactNode, createContext, useContext } from 'react'
-import { handleUploadFiles } from '../functions/assetFunctions'
+import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
 
 export const FilesViewModeState = defineState({
   name: 'FilesViewModeState',
@@ -41,8 +33,6 @@ export const FilesViewModeState = defineState({
   },
   extension: syncStateWithLocalStorage(['viewMode'])
 })
-
-export const availableTableColumns = ['name', 'type', 'dateModified', 'size'] as const
 
 export const FilesViewModeSettings = defineState({
   name: 'FilesViewModeSettings',
@@ -63,8 +53,6 @@ export const FilesViewModeSettings = defineState({
   extension: syncStateWithLocalStorage(['icons', 'list'])
 })
 
-export const FILES_PAGE_LIMIT = 100
-
 export const FilesState = defineState({
   name: 'FilesState',
   initial: () => ({
@@ -74,189 +62,6 @@ export const FilesState = defineState({
     searchText: ''
   })
 })
-
-const FilesQueryContext = createContext({
-  filesQuery: null as null | ReturnType<typeof useFind<'file-browser'>>,
-  files: [] as FileDataType[],
-  changeDirectoryByPath: (_path: string) => {},
-  backDirectory: () => {},
-  refreshDirectory: async () => {},
-  createNewFolder: () => {}
-})
-
-export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }) => {
-  const filesState = useMutableState(FilesState)
-
-  const filesQuery = useFind(fileBrowserPath, {
-    query: {
-      $limit: FILES_PAGE_LIMIT,
-      directory: filesState.selectedDirectory.value
-    }
-  })
-
-  const fileService = useMutation(fileBrowserPath)
-
-  useSearch(
-    filesQuery,
-    {
-      key: {
-        $like: `%${filesState.searchText.value}%`
-      }
-    },
-    filesState.searchText.value
-  )
-
-  const changeDirectoryByPath = (path: string) => {
-    filesState.merge({ selectedDirectory: path })
-    filesQuery.setPage(0)
-  }
-
-  const backDirectory = () => {
-    const pattern = /([^/]+)/g
-    const result = filesState.selectedDirectory.value.match(pattern)
-    if (!result || result.length === 1) return
-    let newPath = '/'
-    for (let i = 0; i < result.length - 1; i++) {
-      newPath += result[i] + '/'
-    }
-    changeDirectoryByPath(newPath)
-  }
-
-  const refreshDirectory = async () => {
-    await filesQuery.refetch()
-  }
-
-  const createNewFolder = () => fileService.create(`${filesState.selectedDirectory.value}New-Folder`)
-
-  const files = filesQuery.data.map((file) => {
-    const isFolder = file.type === 'folder'
-    const fullName = isFolder ? file.name : file.name + '.' + file.type
-
-    return {
-      ...file,
-      size: file.size ? bytesToSize(file.size) : '0',
-      path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
-      fullName,
-      isFolder
-    }
-  })
-
-  useRealtime(staticResourcePath, filesQuery.refetch)
-  FileThumbnailJobState.useGenerateThumbnails(filesQuery.data)
-
-  return (
-    <FilesQueryContext.Provider
-      value={{ filesQuery, files, changeDirectoryByPath, backDirectory, refreshDirectory, createNewFolder }}
-    >
-      {children}
-    </FilesQueryContext.Provider>
-  )
-}
-
-export const useCurrentFiles = () => useContext(FilesQueryContext)
-
-export type DnDFileType = {
-  dataTransfer: DataTransfer
-  files: File[]
-  items: DataTransferItemList
-}
-
-function isFileDataType(value: any): value is FileDataType {
-  return value && value.key
-}
-
-export function useFileBrowserDrop() {
-  const filesState = useMutableState(FilesState)
-  const currentFiles = useCurrentFiles()
-  const fileService = useMutation(fileBrowserPath)
-  const isLoading = currentFiles.filesQuery?.status === 'pending'
-
-  const moveContent = async (
-    oldName: string,
-    newName: string,
-    oldPath: string,
-    newPath: string,
-    isCopy = false
-  ): Promise<void> => {
-    if (isLoading) return
-    try {
-      await fileService.update(null, {
-        oldProject: filesState.projectName.value,
-        newProject: filesState.projectName.value,
-        oldName,
-        newName,
-        oldPath,
-        newPath,
-        isCopy
-      })
-
-      await currentFiles.refreshDirectory()
-    } catch (error) {
-      console.error('Error moving file:', error)
-      NotificationService.dispatchNotify((error as Error).message, { variant: 'error' })
-    }
-  }
-
-  const dropItemsOnFileBrowser = async (
-    data: FileDataType | DnDFileType,
-    dropOn?: FileDataType,
-    selectedFileKeys?: string[]
-  ) => {
-    // if (isLoading) return
-    const destinationPath = dropOn?.isFolder ? `${dropOn.key}/` : filesState.selectedDirectory.value
-
-    if (selectedFileKeys && selectedFileKeys.length > 0) {
-      await Promise.all(
-        selectedFileKeys.map(async (fileKey) => {
-          const file = currentFiles.files.find((f) => f.key === fileKey)
-          if (file) {
-            const newName = file.isFolder ? file.name : `${file.name}${file.type ? '.' + file.type : ''}`
-            await moveContent(file.fullName, newName, file.path, destinationPath, false)
-          }
-        })
-      )
-    } else if (isFileDataType(data)) {
-      if (dropOn?.isFolder) {
-        const newName = data.isFolder ? data.name : `${data.name}${data.type ? '.' + data.type : ''}`
-        await moveContent(data.fullName, newName, data.path, destinationPath, false)
-      }
-    } else {
-      const path = filesState.selectedDirectory.get(NO_PROXY).slice(1)
-      const filesToUpload = [] as File[]
-
-      await Promise.all(
-        data.files.map(async (file) => {
-          const assetType = !file.type || file.type.length === 0 ? AssetLoader.getAssetType(file.name) : file.type
-          if (!assetType || assetType === file.name) {
-            await fileService.create(`${destinationPath}${file.name}`)
-          } else {
-            filesToUpload.push(file)
-          }
-        })
-      )
-
-      console.log('debug1 the files to upload', data)
-
-      if (filesToUpload.length) {
-        try {
-          await handleUploadFiles(filesState.projectName.value, path, filesToUpload)
-        } catch (err) {
-          NotificationService.dispatchNotify(err.message, { variant: 'error' })
-        }
-      }
-    }
-
-    await currentFiles.refreshDirectory()
-  }
-
-  return dropItemsOnFileBrowser
-}
-
-export const canDropOnFileBrowser = (folderName: string) =>
-  folderName.endsWith('/assets') ||
-  folderName.indexOf('/assets/') !== -1 ||
-  folderName.endsWith('/public') ||
-  folderName.indexOf('/public/') !== -1
 
 export const SelectedFilesState = defineState({
   name: 'FilesSelectedFilesState',

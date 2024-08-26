@@ -30,18 +30,11 @@ import { useDrop } from 'react-dnd'
 import { twMerge } from 'tailwind-merge'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorState } from '../../services/EditorServices'
-import {
-  CurrentFilesQueryProvider,
-  FilesState,
-  FilesViewModeState,
-  SelectedFilesState,
-  canDropOnFileBrowser,
-  useCurrentFiles,
-  useFileBrowserDrop
-} from '../../services/FilesState'
+import { FilesState, FilesViewModeState, SelectedFilesState } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { BrowserContextMenu } from './contextmenu'
 import FileItem from './fileitem'
+import { CurrentFilesQueryProvider, canDropOnFileBrowser, useCurrentFiles, useFileBrowserDrop } from './helpers'
 import FilesLoaders from './loaders'
 import FilesToolbar from './toolbar'
 

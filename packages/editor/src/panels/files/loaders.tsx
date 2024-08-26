@@ -36,7 +36,7 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Progress from '@ir-engine/ui/src/primitives/tailwind/Progress'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useCurrentFiles } from '../../services/FilesState'
+import { useCurrentFiles } from './helpers'
 
 const DownloadProjectState = defineState({
   name: 'DownloadProjectState',
@@ -151,7 +151,7 @@ function GeneratingThumbnailsProgress() {
 
 function FilesLoading() {
   const { t } = useTranslation()
-  const filesQuery = useCurrentFiles().filesQuery
+  const { filesQuery } = useCurrentFiles()
   const isLoading = filesQuery?.status === 'pending'
 
   return isLoading ? (

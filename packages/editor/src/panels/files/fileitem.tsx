@@ -28,11 +28,7 @@ import {
   FilesState,
   FilesViewModeSettings,
   FilesViewModeState,
-  SelectedFilesState,
-  availableTableColumns,
-  canDropOnFileBrowser,
-  useCurrentFiles,
-  useFileBrowserDrop
+  SelectedFilesState
 } from '@ir-engine/editor/src/services/FilesState'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -48,6 +44,7 @@ import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileContextMenu } from './contextmenu'
 import { FileIcon } from './fileicon'
+import { availableTableColumns, canDropOnFileBrowser, useCurrentFiles, useFileBrowserDrop } from './helpers'
 
 type DisplayTypeProps = {
   file: FileDataType
@@ -57,6 +54,7 @@ type DisplayTypeProps = {
   onContextMenu: React.MouseEventHandler
 }
 
+/* todo - implement table view */
 function TableView({
   file,
   onContextMenu,

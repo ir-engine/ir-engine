@@ -42,13 +42,8 @@ import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { PiFolderPlusBold } from 'react-icons/pi'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
-import {
-  FilesState,
-  FilesViewModeSettings,
-  FilesViewModeState,
-  availableTableColumns,
-  useCurrentFiles
-} from '../../services/FilesState'
+import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
+import { availableTableColumns, useCurrentFiles } from './helpers'
 import { handleDownloadProject } from './loaders'
 
 const VIEW_MODES = [
