@@ -23,29 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
 import {
   FilesState,
   FilesViewModeSettings,
   FilesViewModeState,
+  SelectedFilesState,
   availableTableColumns,
   canDropOnFileBrowser,
   useCurrentFiles,
   useFileBrowserDrop
 } from '@ir-engine/editor/src/services/FilesState'
-import { State, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { MouseEventHandler, useEffect } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
+import { useTranslation } from 'react-i18next'
 import { IoIosArrowForward } from 'react-icons/io'
 import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
+import { FileContextMenu } from './filecontextmenu'
 import { FileIcon } from './fileicon'
 
 type DisplayTypeProps = {
@@ -102,7 +103,7 @@ function TableView({
   return (
     <tr
       key={file.key}
-      className={`h-9 text-[#a3a3a3] hover:bg-[#191B1F]`}
+      className="h-9 text-[#a3a3a3] hover:bg-[#191B1F]"
       onContextMenu={onContextMenu}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
@@ -122,8 +123,6 @@ function TableView({
 function GridView({ file, onDoubleClick, onContextMenu, onClick, isSelected }: DisplayTypeProps) {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
   const thumbnailURL = file.thumbnailURL
-
-  console.log('debug1 the file was', file)
 
   return (
     <div onContextMenu={onContextMenu}>
@@ -156,20 +155,16 @@ function GridView({ file, onDoubleClick, onContextMenu, onClick, isSelected }: D
   )
 }
 
-export default function FileItem({
-  file,
-  selectedFiles
-}: {
-  file: FileDataType
-  selectedFiles: State<FileDataType[]>
-}) {
+export default function FileItem({ file }: { file: FileDataType }) {
+  const { t } = useTranslation()
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
   const isListView = filesViewMode.value === 'list'
   const files = useCurrentFiles().files
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent>(undefined)
   const filesState = useMutableState(FilesState)
-  const { onChangeDirectoryByPath } = useCurrentFiles()
+  const { onChangeDirectoryByPath, onCreateNewFolder } = useCurrentFiles()
   const dropOnFileBrowser = useFileBrowserDrop()
+  const selectedFiles = useMutableState(SelectedFilesState)
 
   const [_dragProps, drag, preview] = useDrag(() => ({
     type: file.type,
@@ -197,8 +192,6 @@ export default function FileItem({
       isOver: monitor.canDrop() && monitor.isOver()
     })
   })
-
-  const fileService = useMutation(fileBrowserPath)
 
   const handleContextMenu = (event: React.MouseEvent) => {
     event.preventDefault()
@@ -256,9 +249,9 @@ export default function FileItem({
             onContextMenu={handleContextMenu}
             isSelected={selectedFiles.value.some(({ key }) => key === file.key)}
           />
+          <FileContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} file={file} />
         </div>
       </div>
-      {/* impplement context menu like popovers */}
     </div>
   )
 }

@@ -69,7 +69,7 @@ export const FilesState = defineState({
   initial: () => ({
     selectedDirectory: '',
     projectName: '',
-    orgName: '',
+    clipboardFile: null as { isCopy?: boolean; file: FileDataType } | null,
     searchText: ''
   })
 })
@@ -92,6 +92,8 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
       directory: filesState.selectedDirectory.value
     }
   })
+
+  const fileService = useMutation(fileBrowserPath)
 
   useSearch(
     filesQuery,
@@ -123,7 +125,7 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
     await filesQuery.refetch()
   }
 
-  const onCreateNewFolder = () => useMutation(fileBrowserPath).create(`${filesState.selectedDirectory.value}New_Folder`)
+  const onCreateNewFolder = () => fileService.create(`${filesState.selectedDirectory.value}New-Folder`)
 
   const files = filesQuery.data.map((file) => {
     const isFolder = file.type === 'folder'
@@ -229,6 +231,8 @@ export function useFileBrowserDrop() {
         })
       )
 
+      console.log('debug1 the files to upload', data)
+
       if (filesToUpload.length) {
         try {
           await handleUploadFiles(filesState.projectName.value, path, filesToUpload)
@@ -249,3 +253,8 @@ export const canDropOnFileBrowser = (folderName: string) =>
   folderName.indexOf('/assets/') !== -1 ||
   folderName.endsWith('/public') ||
   folderName.indexOf('/public/') !== -1
+
+export const SelectedFilesState = defineState({
+  name: 'FilesSelectedFilesState',
+  initial: [] as FileDataType[]
+})

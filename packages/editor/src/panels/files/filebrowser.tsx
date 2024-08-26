@@ -23,20 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { API } from '@ir-engine/common'
-import { projectPath } from '@ir-engine/common/src/schema.type.module'
-import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { canDropItemOverFolder } from '@ir-engine/ui/src/components/editor/panels/Files/browserGrid'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { twMerge } from 'tailwind-merge'
-import { FileDataType } from '../../components/assets/FileBrowser/FileDataType'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorState } from '../../services/EditorServices'
 import {
   CurrentFilesQueryProvider,
   FilesState,
   FilesViewModeState,
+  SelectedFilesState,
   useCurrentFiles,
   useFileBrowserDrop
 } from '../../services/FilesState'
@@ -45,42 +43,19 @@ import FileItem from './fileitem'
 import FilesLoaders from './loaders'
 import FilesToolbar from './toolbar'
 
-const getValidProjectForFileBrowser = async (path: string) => {
-  const [orgName, projectName] = path.split('/').slice(2, 4)
-  const projects = await API.instance.service(projectPath).find({
-    query: {
-      $or: [
-        {
-          name: `${orgName}/${projectName}`
-        },
-        {
-          name: orgName
-        }
-      ],
-      action: 'studio',
-      allowed: true
-    }
-  })
-  return (
-    projects.data.find((project) => project.name === orgName || project.name === `${orgName}/${projectName}`)?.name ??
-    ''
-  )
-}
-
 function Browser() {
-  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
+  const [anchorEvent, setAnchorEvent] = useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
   const dropOnFileBrowser = useFileBrowserDrop()
   const filesState = useMutableState(FilesState)
   const [{ isFileDropOver }, fileDropRef] = useDrop({
     accept: [...SupportedFileTypes],
     drop: (dropItem) => dropOnFileBrowser(dropItem as any),
-    canDrop: (item: Record<string, unknown>) =>
-      'key' in item || canDropItemOverFolder(filesState.selectedDirectory.value),
+    canDrop: () => canDropItemOverFolder(filesState.selectedDirectory.value),
     collect: (monitor) => ({ isFileDropOver: monitor.canDrop() && monitor.isOver() })
   })
   const isListView = useMutableState(FilesViewModeState).viewMode.value === 'list'
-  const selectedFiles = useHookstate<FileDataType[]>([])
-  const files = useCurrentFiles().files
+  const selectedFiles = useMutableState(SelectedFilesState)
+  const { files } = useCurrentFiles()
 
   return (
     <div
@@ -106,7 +81,7 @@ function Browser() {
       >
         <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
           {files.map((file) => (
-            <FileItem file={file} selectedFiles={selectedFiles} key={file.key} />
+            <FileItem file={file} key={file.key} />
           ))}
         </div>
       </div>
@@ -117,10 +92,12 @@ function Browser() {
 export default function FileBrowser() {
   const filesState = useMutableState(FilesState)
 
-  const originalPath = useMutableState(EditorState).projectName.value
+  const projectName = useMutableState(EditorState).projectName.value
   useEffect(() => {
-    if (originalPath) filesState.selectedDirectory.set(`/projects/${originalPath}`)
-  }, [originalPath])
+    if (projectName) {
+      filesState.merge({ selectedDirectory: `/projects/${projectName}`, projectName: projectName })
+    }
+  }, [projectName])
 
   return (
     <CurrentFilesQueryProvider>
