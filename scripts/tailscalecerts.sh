@@ -30,8 +30,8 @@ case "$(uname -s)" in
     domain=$(/Applications/Tailscale.app/Contents/MacOS/Tailscale cert 2>&1 | grep -o '".*"' | sed 's/"//g')
     mkdir -p ./certs/tailscale && chmod a+r ./certs/tailscale
     /Applications/Tailscale.app/Contents/MacOS/Tailscale cert $domain 2>&1>/dev/null
-    sudo cp ~/Library/Containers/io.tailscale.ipn.macos/Data/$domain.crt ./certs/tailscale/cert.pem
-    sudo cp ~/Library/Containers/io.tailscale.ipn.macos/Data/$domain.key ./certs/tailscale/key.pem
+    sudo cp ./$domain.crt ./certs/tailscale/cert.pem
+    sudo cp ./$domain.key ./certs/tailscale/key.pem
     instructions
      ;;
    Linux)
