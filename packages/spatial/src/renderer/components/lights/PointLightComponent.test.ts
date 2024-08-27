@@ -38,7 +38,7 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { BoxGeometry, Color, MeshBasicMaterial, PointLight } from 'three'
+import { BoxGeometry, ColorRepresentation, MeshBasicMaterial, PointLight } from 'three'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
@@ -50,7 +50,7 @@ import { LightTagComponent } from './LightTagComponent'
 import { PointLightComponent } from './PointLightComponent'
 
 type PointLightComponentData = {
-  color: Color
+  color: ColorRepresentation
   intensity: number
   range: number
   decay: number
@@ -61,7 +61,7 @@ type PointLightComponentData = {
 }
 
 const PointLightComponentDefaults: PointLightComponentData = {
-  color: new Color(),
+  color: 0xffffff,
   intensity: 1,
   range: 0,
   decay: 2,
@@ -72,7 +72,7 @@ const PointLightComponentDefaults: PointLightComponentData = {
 }
 
 function assertPointLightComponentEq(A: PointLightComponentData, B: PointLightComponentData): void {
-  assert.equal(A.color.getHex(), B.color.getHex())
+  assert.equal(A.color, B.color)
   assert.equal(A.intensity, B.intensity)
   assert.equal(A.range, B.range)
   assert.equal(A.decay, B.decay)
@@ -83,7 +83,7 @@ function assertPointLightComponentEq(A: PointLightComponentData, B: PointLightCo
 }
 
 function assertPointLightComponentNotEq(A: PointLightComponentData, B: PointLightComponentData): void {
-  assert.notEqual(A.color.getHex(), B.color.getHex())
+  assert.notEqual(A.color, B.color)
   assert.notEqual(A.intensity, B.intensity)
   assert.notEqual(A.range, B.range)
   assert.notEqual(A.decay, B.decay)
@@ -146,7 +146,7 @@ describe('PointLightComponent', () => {
       assertPointLightComponentEq(before, PointLightComponentDefaults)
       const DummyEntity = Number.MAX_VALUE as Entity
       const Expected = {
-        color: new Color(0x123456),
+        color: 0x123456,
         intensity: 40,
         range: 41,
         decay: 42,
@@ -205,7 +205,7 @@ describe('PointLightComponent', () => {
 
     it("should serialize the component's default data as expected", () => {
       const Expected = {
-        color: PointLightComponentDefaults.color.getHex(),
+        color: PointLightComponentDefaults.color,
         intensity: PointLightComponentDefaults.intensity,
         range: PointLightComponentDefaults.range,
         decay: PointLightComponentDefaults.decay,
@@ -244,22 +244,22 @@ describe('PointLightComponent', () => {
     })
 
     it('should react when directionalLightComponent.color changes', () => {
-      const Expected = new Color(0x123456)
+      const Expected = 0x123456
 
       // Set the data as expected
       setComponent(testEntity, PointLightComponent)
 
       // Sanity check before running
       const before = getComponent(testEntity, PointLightComponent).color
-      assert.equal(before.getHex(), PointLightComponentDefaults.color.getHex())
+      assert.equal(before, PointLightComponentDefaults.color)
 
       // Run and Check the result
       setComponent(testEntity, PointLightComponent, { color: Expected })
       const result = getComponent(testEntity, PointLightComponent).color
-      assert.equal(result.getHex(), Expected.getHex())
+      assert.equal(result, Expected)
       // Check side-effect
       const light = getComponent(testEntity, GroupComponent)[0] as PointLight
-      assert.equal(light.color.getHex(), Expected.getHex())
+      assert.equal(light.color.getHex(), Expected)
     })
 
     it('should react when hemisphereLightComponent.intensity changes', () => {
