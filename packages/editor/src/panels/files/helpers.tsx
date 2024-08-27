@@ -188,10 +188,14 @@ export function useFileBrowserDrop() {
     dropOn?: FileDataType,
     selectedFileKeys?: string[]
   ) => {
-    // if (isLoading) return
     const destinationPath = dropOn?.isFolder ? `${dropOn.key}/` : filesState.selectedDirectory.value
 
-    if (selectedFileKeys && selectedFileKeys.length > 0) {
+    if (isFileDataType(data)) {
+      if (dropOn?.isFolder) {
+        const newName = data.isFolder ? data.name : `${data.name}${data.type ? '.' + data.type : ''}`
+        await moveContent(data.fullName, newName, data.path, destinationPath, false)
+      }
+    } else if (selectedFileKeys && selectedFileKeys.length > 0) {
       await Promise.all(
         selectedFileKeys.map(async (fileKey) => {
           const file = currentFiles.files.find((f) => f.key === fileKey)
@@ -201,11 +205,6 @@ export function useFileBrowserDrop() {
           }
         })
       )
-    } else if (isFileDataType(data)) {
-      if (dropOn?.isFolder) {
-        const newName = data.isFolder ? data.name : `${data.name}${data.type ? '.' + data.type : ''}`
-        await moveContent(data.fullName, newName, data.path, destinationPath, false)
-      }
     } else {
       const path = filesState.selectedDirectory.get(NO_PROXY).slice(1)
       const filesToUpload = [] as File[]
@@ -220,8 +219,6 @@ export function useFileBrowserDrop() {
           }
         })
       )
-
-      console.log('debug1 the files to upload', data)
 
       if (filesToUpload.length) {
         try {

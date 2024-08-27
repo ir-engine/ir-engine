@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useMutableState } from '@ir-engine/hyperflux'
-// import { canDropItemOverFolder } from '@ir-engine/ui/src/components/editor/panels/Files/browserGrid'
 import React, { useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { twMerge } from 'tailwind-merge'

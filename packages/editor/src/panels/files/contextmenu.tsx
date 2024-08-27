@@ -44,33 +44,42 @@ import DeleteFileModal from './modals/DeleteFileModal'
 import FilePropertiesModal from './modals/FilePropertiesModal'
 import RenameFileModal from './modals/RenameFileModal'
 
-function PasteFileButton({ setAnchorEvent }: { setAnchorEvent: (event: React.MouseEvent | undefined) => void }) {
+function PasteFileButton({
+  file: fFile,
+  newPath,
+  setAnchorEvent
+}: {
+  file?: FileDataType
+  newPath?: string
+  setAnchorEvent: (event: React.MouseEvent | undefined) => void
+}) {
   const { t } = useTranslation()
   const { filesQuery } = useCurrentFiles()
   const isFilesLoading = filesQuery?.status === 'pending'
   const filesState = useMutableState(FilesState)
   const fileService = useMutation(fileBrowserPath)
   const file = filesState.clipboardFile.value?.file
-
-  if (!file) return null
+  const currentDirectory = filesState.selectedDirectory.value.startsWith('/')
+    ? filesState.selectedDirectory.value.substring(1)
+    : filesState.selectedDirectory.value
 
   return (
     <Button
       variant="outline"
       size="small"
       fullWidth
-      disabled={!filesState.clipboardFile.value}
+      disabled={!file}
       onClick={() => {
-        if (!filesState.clipboardFile.value || isFilesLoading) return
+        if (!file || isFilesLoading) return
         setAnchorEvent(undefined)
         fileService.update(null, {
           oldProject: filesState.projectName.value,
           newProject: filesState.projectName.value,
-          oldName: filesState.clipboardFile.value.file.fullName,
-          newName: filesState.clipboardFile.value.file.fullName,
-          oldPath: filesState.clipboardFile.value.file.path,
-          newPath: file.isFolder ? file.path + file.fullName : file.path,
-          isCopy: filesState.clipboardFile.value.isCopy
+          oldName: file.fullName,
+          newName: file.fullName,
+          oldPath: file.path,
+          newPath: (newPath ?? currentDirectory) + file.fullName,
+          isCopy: filesState.clipboardFile.value?.isCopy
         })
       }}
     >
@@ -182,7 +191,7 @@ export function FileContextMenu({
         >
           {t('editor:layout.filebrowser.copyAsset')}
         </Button>
-        <PasteFileButton setAnchorEvent={setAnchorEvent} />
+        <PasteFileButton file={file} newPath={file.isFolder ? file.key : undefined} setAnchorEvent={setAnchorEvent} />
         <Button
           variant="outline"
           size="small"
@@ -303,12 +312,11 @@ export function BrowserContextMenu({
   setAnchorEvent: (event: React.MouseEvent | undefined) => void
 }) {
   const { t } = useTranslation()
-  const filesState = useMutableState(FilesState)
-  const { createNewFolder: onCreateNewFolder } = useCurrentFiles()
+  const { createNewFolder } = useCurrentFiles()
 
   return (
     <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
-      <Button variant="outline" size="small" fullWidth onClick={onCreateNewFolder}>
+      <Button variant="outline" size="small" fullWidth onClick={createNewFolder}>
         {t('editor:layout.filebrowser.addNewFolder')}
       </Button>
       <PasteFileButton setAnchorEvent={setAnchorEvent} />
