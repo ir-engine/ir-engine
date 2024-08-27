@@ -142,7 +142,7 @@ function GeneratingThumbnailsProgress() {
   return (
     <LoadingView
       titleClassname="mt-0"
-      containerClassname="flex-row mt-1"
+      containerClassName="flex-row mt-1"
       className="mx-2 my-auto h-6 w-6"
       title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailJobState.length })}
     />
