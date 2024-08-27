@@ -36,7 +36,7 @@ import {
   UndefinedEntity
 } from '@ir-engine/ecs'
 import assert from 'assert'
-import { BoxGeometry, Color, Mesh } from 'three'
+import { BoxGeometry, Color, ColorRepresentation, Mesh } from 'three'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../RendererModule'
@@ -44,18 +44,18 @@ import { addObjectToGroup, GroupComponent } from '../GroupComponent'
 import { AmbientLightComponent } from './AmbientLightComponent'
 import { LightTagComponent } from './LightTagComponent'
 
-type AmbientLightComponentData = { color: Color; intensity: number }
+type AmbientLightComponentData = { color: ColorRepresentation; intensity: number }
 const AmbientLightComponentDefaults: AmbientLightComponentData = {
-  color: new Color(),
+  color: 0xffffff,
   intensity: 1
 }
 
 function assertAmbientLightComponentEq(A: AmbientLightComponentData, B: AmbientLightComponentData): void {
-  assert.deepEqual(A.color, B.color)
+  assert.equal(A.color, B.color)
   assert.equal(A.intensity, B.intensity)
 }
 function assertAmbientLightComponentNotEq(A: AmbientLightComponentData, B: AmbientLightComponentData): void {
-  assert.notDeepEqual(A.color, B.color)
+  assert.notEqual(A.color, B.color)
   assert.notEqual(A.intensity, B.intensity)
 }
 
@@ -131,7 +131,6 @@ describe('AmbientLightComponent', () => {
       }
 
       // Run and Check the result
-      // @ts-ignore Allow passing the color as a string. onSet understands it, but typescript does not
       setComponent(testEntity, AmbientLightComponent, Expected)
       const result = getComponent(testEntity, AmbientLightComponent)
       assert.notDeepEqual(result.color, AmbientLightComponentDefaults.color)
@@ -155,7 +154,7 @@ describe('AmbientLightComponent', () => {
       const before = getComponent(testEntity, AmbientLightComponent)
       assertAmbientLightComponentEq(before, AmbientLightComponentDefaults)
       const Incorrect = {
-        color: 42,
+        color: true,
         intensity: 'someIntensity'
       }
 
@@ -186,7 +185,7 @@ describe('AmbientLightComponent', () => {
 
     it("should serialize the component's default data as expected", () => {
       const Expected = {
-        color: AmbientLightComponentDefaults.color.getHex(),
+        color: new Color(AmbientLightComponentDefaults.color).getHex(),
         intensity: AmbientLightComponentDefaults.intensity
       }
       const result = serializeComponent(testEntity, AmbientLightComponent)
@@ -279,12 +278,12 @@ describe('AmbientLightComponent', () => {
 
       // Sanity check before running
       const before = getComponent(testEntity, AmbientLightComponent).color
-      assert.equal(before.getHex(), Initial.getHex())
+      assert.equal(new Color(before).getHex(), Initial.getHex())
 
       // Run and Check the result
       setComponent(testEntity, AmbientLightComponent, { color: Expected })
       const result = getComponent(testEntity, AmbientLightComponent).color
-      assert.equal(result.getHex(), Expected.getHex())
+      assert.equal(new Color(result).getHex(), Expected.getHex())
     })
   }) //:: reactor
 })
