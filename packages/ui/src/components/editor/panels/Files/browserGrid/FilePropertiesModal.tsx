@@ -277,6 +277,41 @@ export default function FilePropertiesModal({
                 )}
               </span>
             </div>
+            <div className="grid grid-cols-2 items-center gap-2">
+              <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.description')}</Text>
+              <span className="flex items-center">
+                {editedField.value === 'description' ? (
+                  <>
+                    <Input
+                      value={resourceDigest.description.value ?? ''}
+                      onChange={onChange('description', resourceDigest.description)}
+                    />
+                    <Button
+                      title={t('common:components.save')}
+                      variant="transparent"
+                      size="small"
+                      startIcon={<RiSave2Line />}
+                      onClick={() => editedField.set(null)}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Text className="text-theme-input">
+                      {files.length > 1 && !sharedFields.value.includes('description')
+                        ? t('editor:layout.filebrowser.fileProperties.mixedValues')
+                        : resourceDigest.description.value || <em>{t('common:components.none')}</em>}
+                    </Text>
+                    <Button
+                      title={t('common:components.edit')}
+                      variant="transparent"
+                      size="small"
+                      startIcon={<HiPencil />}
+                      onClick={() => editedField.set('description')}
+                    />
+                  </>
+                )}
+              </span>
+            </div>
             <div className="mt-10 flex flex-col gap-2">
               <Text className="text-theme-gray3" fontSize="sm">
                 {t('editor:layout.filebrowser.fileProperties.addTag')}
