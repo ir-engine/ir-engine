@@ -115,8 +115,12 @@ export const InputComponent = defineComponent({
     const entity = useEntityContext()
 
     return useExecute(() => {
-      if (!executeWhenEditing && getState(EngineState).isEditing) return
-      if (!isAncestor(getState(InputState).capturingEntity, entity, true)) return
+      const capturingEntity = getState(InputState).capturingEntity
+      if (
+        (!executeWhenEditing && getState(EngineState).isEditing) ||
+        (capturingEntity && !isAncestor(capturingEntity, entity, true))
+      )
+        return
       executeOnInput()
     }, getInputExecutionInsert(order))
   },

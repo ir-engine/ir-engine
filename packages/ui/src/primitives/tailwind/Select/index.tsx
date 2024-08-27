@@ -167,7 +167,7 @@ const Select = <T extends OptionValueType>({
             }}
           />
         }
-        containerClassname={inputContainerClassName}
+        containerClassName={inputContainerClassName}
       />
       <div
         className={`absolute z-30 mt-2 w-full rounded border border-theme-primary bg-theme-surface-main ${

@@ -37,7 +37,7 @@ export interface StringInputProps extends Omit<InputProps, 'onChange'> {
 const StringInput = ({ value, onChange, onRelease, className, inputRef, ...rest }: StringInputProps) => {
   return (
     <Input
-      containerClassname="w-50 h-10 rounded-lg overflow-hidden"
+      containerClassName="w-50 h-10 rounded-lg overflow-hidden"
       className={twMerge(
         'h-full text-ellipsis rounded-lg border-none bg-[#1A1A1A] px-5 py-2 text-xs font-normal text-[#8B8B8D]',
         className
@@ -71,7 +71,7 @@ export default StringInput
 
 // do we really need a controlled string input? we could easily integrate this with string input itself
 export const ControlledStringInput = React.forwardRef<any, StringInputProps>((values, ref) => {
-  const { onChange, onRelease, value, placeholder, disabled, type, containerClassname, className, ...rest } = values
+  const { onChange, onRelease, value, placeholder, disabled, type, containerClassName, className, ...rest } = values
   const [tempValue, setTempValue] = useState(value)
 
   useEffect(() => {
@@ -90,7 +90,7 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
   return (
     <Input
       ref={ref}
-      containerClassname={twMerge('w-50 h-10 overflow-hidden rounded-lg', containerClassname)}
+      containerClassName={twMerge('w-50 h-10 overflow-hidden rounded-lg', containerClassName)}
       className={twMerge(
         'h-full text-ellipsis rounded-lg border-none bg-[#1A1A1A] px-5 py-2 text-xs font-normal text-[#8B8B8D]',
         className

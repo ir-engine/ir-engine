@@ -52,20 +52,20 @@ export default {
   before: {
     all: [
       iff(isProvider('external'), verifyScope('admin', 'admin')),
-      () => schemaHooks.validateQuery(mailchimpSettingQueryValidator),
+      schemaHooks.validateQuery(mailchimpSettingQueryValidator),
       schemaHooks.resolveQuery(mailchimpSettingQueryResolver)
     ],
     find: [iff(isProvider('external'), verifyScope('settings', 'read'))],
     get: [iff(isProvider('external'), verifyScope('settings', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('settings', 'write')),
-      () => schemaHooks.validateData(mailchimpSettingDataValidator),
+      schemaHooks.validateData(mailchimpSettingDataValidator),
       schemaHooks.resolveData(mailchimpSettingDataResolver)
     ],
     update: [iff(isProvider('external'), verifyScope('settings', 'write'))],
     patch: [
       iff(isProvider('external'), verifyScope('settings', 'write')),
-      () => schemaHooks.validateData(mailchimpSettingPatchValidator),
+      schemaHooks.validateData(mailchimpSettingPatchValidator),
       schemaHooks.resolveData(mailchimpSettingPatchResolver)
     ],
     remove: [iff(isProvider('external'), verifyScope('settings', 'write'))]

@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { useEngineCanvas } from '@ir-engine/client-core/src/hooks/useEngineCanvas'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { clientSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
@@ -37,7 +38,6 @@ import { getCursorSpawnPosition } from '@ir-engine/editor/src/functions/screenSp
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePendingComponent'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
@@ -130,7 +130,7 @@ const SceneLoadingProgress = ({ rootEntity }) => {
     <LoadingView
       fullSpace
       className="block h-12 w-12"
-      containerClassname="absolute bg-black bg-opacity-70"
+      containerClassName="absolute bg-black bg-opacity-70"
       title={t('editor:loadingScenesWithProgress', { progress, assetsLeft: resourcePendingQuery.length })}
     />
   )
