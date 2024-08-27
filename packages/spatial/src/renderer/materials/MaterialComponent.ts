@@ -31,7 +31,8 @@ import {
   defineComponent,
   defineQuery,
   getComponent,
-  getMutableComponent
+  getMutableComponent,
+  hasComponent
 } from '@ir-engine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { PluginType } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
@@ -113,6 +114,7 @@ export const MaterialStateComponent = defineComponent({
   onRemove: (entity) => {
     const materialComponent = getComponent(entity, MaterialStateComponent)
     for (const instanceEntity of materialComponent.instances) {
+      if (!hasComponent(instanceEntity, MaterialInstanceComponent)) continue
       setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
     }
   }
