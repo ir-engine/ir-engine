@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
+import ReactGA from 'react-ga4'
 
 const useGoogleAnalytics = () => {
   const user = useMutableState(AuthState).user
@@ -35,32 +36,31 @@ const useGoogleAnalytics = () => {
   useEffect(() => {
     // If user is not a guest and has a GA measurementId , initialize Google Analytics
     if (!isGuest && gaMeasurementId) {
-      const script = document.createElement('script')
-      script.src = `https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`
-      script.async = true
-      document.head.appendChild(script)
-
-      script.onload = () => {
-        window.dataLayer = window.dataLayer || []
-        window.gtag = function (...args) {
-          window.dataLayer!.push(...args)
-        }
-        window.gtag('js', new Date())
-        window.gtag('config', gaMeasurementId)
-      }
-
-      // Clean up the script tag
-      return () => {
-        document.head.removeChild(script)
-
-        // Cleanup window.gtag and dataLayer to remove previous configurations
-        if (window.dataLayer) {
-          delete window.dataLayer
-        }
-        if (window.gtag) {
-          delete window.gtag
-        }
-      }
+      ReactGA.initialize(gaMeasurementId)
+      ReactGA.send({ hitType: 'pageview', page: window.location.pathname })
+      // const script = document.createElement('script')
+      // script.src = `https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`
+      // script.async = true
+      // document.head.appendChild(script)
+      // script.onload = () => {
+      //   window.dataLayer = window.dataLayer || []
+      //   window.gtag = function (...args) {
+      //     window.dataLayer!.push(...args)
+      //   }
+      //   window.gtag('js', new Date())
+      //   window.gtag('config', gaMeasurementId)
+      // }
+      // // Clean up the script tag
+      // return () => {
+      //   document.head.removeChild(script)
+      //   // Cleanup window.gtag and dataLayer to remove previous configurations
+      //   if (window.dataLayer) {
+      //     delete window.dataLayer
+      //   }
+      //   if (window.gtag) {
+      //     delete window.gtag
+      //   }
+      // }
     }
   }, [isGuest, gaMeasurementId])
 }

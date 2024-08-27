@@ -38,6 +38,7 @@ Infinite Reality Engine. All Rights Reserved.
 import type { FeathersApplication } from '@feathersjs/feathers'
 import NodeCache from 'node-cache'
 import schedule from 'node-schedule'
+import ReactGA from 'react-ga4'
 
 import { ServiceTypes } from '../declarations'
 import config from './config'
@@ -82,16 +83,32 @@ function pushToEngine(): void {
 // Function to send cached data to Google Analytics
 function sendToGoogleAnalytics(data: any): void {
   // Log to Google Analytics if gtag is available
-  if (typeof window !== 'undefined' && window.gtag) {
-    if (Array.isArray(data)) {
-      data.forEach((item) => {
-        if (item && window.gtag) {
-          window.gtag('event', 'irengine_logs', item)
-        }
-      })
-    } else {
-      window.gtag('event', 'irengine_logs', data)
-    }
+  // if (typeof window !== 'undefined' && window.gtag) {
+  //   if (Array.isArray(data)) {
+  //     data.forEach((item) => {
+  //       if (item && window.gtag) {
+  //         window.gtag('event', 'irengine_logs', item)
+  //       }
+  //     })
+  //   } else {
+  //     window.gtag('event', 'irengine_logs', data)
+  //   }
+  // }
+
+  if (Array.isArray(data)) {
+    data.forEach((item) => {
+      if (item) {
+        ReactGA.event({
+          category: 'irengine_logs',
+          action: item
+        })
+      }
+    })
+  } else {
+    ReactGA.event({
+      category: 'IR Engine Logs',
+      action: data
+    })
   }
 }
 
