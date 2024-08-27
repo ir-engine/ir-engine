@@ -30,10 +30,13 @@ import {
   createEntity,
   destroyEngine,
   getComponent,
+  getOptionalComponent,
+  hasComponent,
   setComponent
 } from '@ir-engine/ecs'
 import assert from 'assert'
 import { Material } from 'three'
+import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { MaterialStateComponent } from './MaterialComponent'
 import { getMaterial } from './materialFunctions'
 
@@ -43,6 +46,7 @@ describe('materialFunctions', () => {
 
     beforeEach(() => {
       createEngine()
+      mockSpatialEngine()
       testEntity = createEntity()
     })
 
@@ -64,21 +68,25 @@ describe('materialFunctions', () => {
       assert.equal(result.uuid, Expected.uuid)
     })
 
-    /**
-    // @todo Why does fallbackEntity not have a MaterialStateComponent ???
-    it("should return MaterialStateComponent.fallbackMaterial.material when the entity does not have a MaterialStateComponent", () => {
+    it('should return MaterialStateComponent.fallbackMaterial.material when the entity does not have a MaterialStateComponent', () => {
+      const Expected = new Material()
       const uuid = MaterialStateComponent.fallbackMaterial
-      const fallbackEntity = UUIDComponent.getEntityByUUID(uuid)
-      const Expected = getComponent(fallbackEntity, MaterialStateComponent).material
+      // Set the data as expected
+      const fallbackEntity = createEntity()
+      setComponent(fallbackEntity, UUIDComponent, uuid)
+      setComponent(fallbackEntity, MaterialStateComponent, { instances: [UndefinedEntity], material: Expected })
+      const testEntityUUID = UUIDComponent.generateUUID()
+      setComponent(testEntity, UUIDComponent, testEntityUUID)
       // Sanity check before running
       const material = getOptionalComponent(fallbackEntity, MaterialStateComponent)
-      assert.equal(material, undefined)
+      assert.notEqual(fallbackEntity, undefined)
+      assert.notEqual(fallbackEntity, UndefinedEntity)
+      assert.notEqual(material, undefined)
       assert.equal(hasComponent(testEntity, MaterialStateComponent), false)
       // Run and Check the result
-      const result = getMaterial(uuid)
+      const result = getMaterial(testEntityUUID)
       assert.equal(result.uuid, Expected.uuid)
     })
-    */
   }) //:: getMaterial
 
   describe('createMaterialPrototype', () => {}) //:: createMaterialPrototype
@@ -90,9 +98,6 @@ describe('materialFunctions', () => {
   describe('updateMaterialPrototype', () => {}) //:: updateMaterialPrototype
   describe('MaterialNotFoundError', () => {}) //:: MaterialNotFoundError
   describe('PrototypeNotFoundError', () => {}) //:: PrototypeNotFoundError
-  describe('assignMaterial', () => {}) //:: assignMaterial
-  describe('createMaterialEntity', () => {}) //:: createMaterialEntity
-  describe('createAndAssignMaterial', () => {}) //:: createAndAssignMaterial
   describe('getMaterialIndices', () => {}) //:: getMaterialIndices
   describe('getPrototypeEntityFromName', () => {}) //:: getPrototypeEntityFromName
   describe('injectMaterialDefaults', () => {}) //:: injectMaterialDefaults
@@ -106,5 +111,12 @@ describe('materialFunctions', () => {
   describe('extractDefaults', () => {}) //:: extractDefaults
 
   describe('loadMaterialGLTF', () => {}) //:: loadMaterialGLTF
+  */
+
+  /**
+  // @deprecated
+  describe('assignMaterial', () => {}) //:: assignMaterial
+  describe('createAndAssignMaterial', () => {}) //:: createAndAssignMaterial
+  describe('createMaterialEntity', () => {}) //:: createMaterialEntity
   */
 }) //:: materialFunctions
