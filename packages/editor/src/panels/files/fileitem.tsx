@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   FilesState,
   FilesViewModeSettings,
@@ -30,6 +31,7 @@ import {
   SelectedFilesState
 } from '@ir-engine/editor/src/services/FilesState'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { MouseEventHandler, useEffect } from 'react'
@@ -44,6 +46,7 @@ import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileContextMenu } from './contextmenu'
 import { FileIcon } from './fileicon'
 import {
+  FILES_PAGE_LIMIT,
   FileDataType,
   availableTableColumns,
   canDropOnFileBrowser,
@@ -56,35 +59,61 @@ type DisplayTypeProps = {
   onDoubleClick?: MouseEventHandler
   onClick?: MouseEventHandler
   isSelected: boolean
+  drag: ConnectDragSource
+  drop: ConnectDropTarget
+  isOver: boolean
   onContextMenu: React.MouseEventHandler
 }
 
-/* todo - implement table view */
-function TableView({
-  file,
-  onContextMenu,
-  onClick,
-  onDoubleClick,
-  modifiedDate,
-  drop,
-  isOver,
-  drag,
-  projectName
-}: {
-  file: FileDataType
-  onContextMenu: React.MouseEventHandler
-  onClick?: MouseEventHandler<HTMLDivElement>
-  onDoubleClick?: MouseEventHandler<HTMLDivElement>
-  modifiedDate?: string
-  drop?: ConnectDropTarget
-  isOver: boolean
-  drag?: ConnectDragSource
-  projectName: string
-}) {
+export function TableWrapper({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation()
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
-  const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
-  const dragFn = drag ?? ((input) => input)
-  const dropFn = drop ?? ((input) => input)
+
+  return (
+    <table className="w-full">
+      <thead>
+        <tr className="h-8 text-left text-[#E7E7E7]">
+          {availableTableColumns
+            .filter((header) => selectedTableColumns[header])
+            .map((header) => (
+              <th key={header} className="table-cell text-xs font-normal dark:text-[#A3A3A3]">
+                {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
+              </th>
+            ))}
+        </tr>
+      </thead>
+      <tbody>{children}</tbody>
+    </table>
+  )
+}
+
+function TableView({ file, onClick, onDoubleClick, drag, drop, isOver, onContextMenu }: DisplayTypeProps) {
+  const filesViewModeSettings = useMutableState(FilesViewModeSettings)
+  const selectedTableColumns = filesViewModeSettings.list.selectedTableColumns.value
+  const fontSize = filesViewModeSettings.list.fontSize.value
+  const { files } = useCurrentFiles()
+  const { projectName } = useMutableState(FilesState)
+  const staticResourceModifiedDates = useHookstate<Record<string, string>>({})
+
+  const staticResourceData = useFind(staticResourcePath, {
+    query: {
+      key: {
+        $in: files.map((file) => file.key)
+      },
+      project: projectName.value,
+      $select: ['key', 'updatedAt'] as any,
+      $limit: FILES_PAGE_LIMIT
+    }
+  })
+
+  useEffect(() => {
+    if (staticResourceData.status !== 'success') return
+    const modifiedDates: Record<string, string> = {}
+    staticResourceData.data.forEach((data) => {
+      modifiedDates[data.key] = new Date(data.updatedAt).toLocaleString()
+    })
+    staticResourceModifiedDates.set(modifiedDates)
+  }, [staticResourceData.status])
 
   const thumbnailURL = file.thumbnailURL
 
@@ -100,17 +129,17 @@ function TableView({
       </span>
     ),
     type: file.type.toUpperCase(),
-    dateModified: modifiedDate || '',
+    dateModified: staticResourceModifiedDates.value[file.key] || '',
     size: file.size
   }
   return (
     <tr
       key={file.key}
-      className="h-9 text-[#a3a3a3] hover:bg-[#191B1F]"
+      ref={(ref) => drag(drop(ref))}
+      className={twMerge('h-9 text-[#a3a3a3] hover:bg-[#191B1F]', isOver && 'border-2 border-gray-400')}
       onContextMenu={onContextMenu}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
-      ref={(ref) => dragFn(dropFn(ref))}
     >
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
@@ -123,12 +152,16 @@ function TableView({
   )
 }
 
-function GridView({ file, onDoubleClick, onContextMenu, onClick, isSelected }: DisplayTypeProps) {
+function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver, onContextMenu }: DisplayTypeProps) {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
   const thumbnailURL = file.thumbnailURL
 
   return (
-    <div onContextMenu={onContextMenu}>
+    <div
+      ref={(ref) => drag(drop(ref))}
+      className={twMerge('h-min', isOver && 'border-2 border-gray-400')}
+      onContextMenu={onContextMenu}
+    >
       <div
         className={twMerge(
           'flex h-auto max-h-32 w-28 cursor-pointer flex-col items-center text-center',
@@ -237,26 +270,27 @@ export default function FileItem({ file }: { file: FileDataType }) {
     }
   }
 
+  const commonProps: DisplayTypeProps = {
+    file,
+    onClick: (event: React.MouseEvent) => {
+      handleSelectedFiles(event)
+      handleFileClick(event)
+    },
+    onDoubleClick: (event: React.MouseEvent) => {
+      selectedFiles.set([])
+      handleFileClick(event)
+    },
+    isSelected: selectedFiles.value.some((selectedFile) => selectedFile.key === file.key),
+    drag: drop,
+    drop: drop,
+    isOver: isOver,
+    onContextMenu: handleContextMenu
+  }
+
   return (
-    <div
-      ref={(ref) => drag(drop(ref))}
-      className={twMerge('h-min', isOver && 'border-2 border-gray-400')}
-      onContextMenu={handleContextMenu}
-    >
-      <GridView
-        file={file}
-        onClick={(event) => {
-          handleSelectedFiles(event)
-          handleFileClick(event)
-        }}
-        onDoubleClick={(event) => {
-          selectedFiles.set([])
-          handleFileClick(event)
-        }}
-        onContextMenu={handleContextMenu}
-        isSelected={selectedFiles.value.some(({ key }) => key === file.key)}
-      />
+    <>
+      {isListView ? <TableView {...commonProps} /> : <GridView {...commonProps} />}
       <FileContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} file={file} />
-    </div>
+    </>
   )
 }

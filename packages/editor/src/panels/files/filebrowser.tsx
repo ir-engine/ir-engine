@@ -32,7 +32,7 @@ import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeState, SelectedFilesState } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { BrowserContextMenu } from './contextmenu'
-import FileItem from './fileitem'
+import FileItem, { TableWrapper } from './fileitem'
 import { CurrentFilesQueryProvider, canDropOnFileBrowser, useCurrentFiles, useFileBrowserDrop } from './helpers'
 import FilesLoaders from './loaders'
 import FilesToolbar from './toolbar'
@@ -50,6 +50,14 @@ function Browser() {
   const isListView = useMutableState(FilesViewModeState).viewMode.value === 'list'
   const selectedFiles = useMutableState(SelectedFilesState)
   const { files } = useCurrentFiles()
+
+  const FileItems = () => (
+    <>
+      {files.map((file) => (
+        <FileItem file={file} key={file.key} />
+      ))}
+    </>
+  )
 
   return (
     <div
@@ -74,9 +82,13 @@ function Browser() {
         }}
       >
         <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
-          {files.map((file) => (
-            <FileItem file={file} key={file.key} />
-          ))}
+          {isListView ? (
+            <TableWrapper>
+              <FileItems />
+            </TableWrapper>
+          ) : (
+            <FileItems />
+          )}
         </div>
       </div>
       <BrowserContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} />
