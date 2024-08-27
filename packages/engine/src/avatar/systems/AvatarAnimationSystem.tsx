@@ -380,18 +380,17 @@ export const AvatarAnimationSystem = defineSystem({
   reactor: () => {
     useEffect(() => {
       const networkState = getMutableState(NetworkState)
-  
+
       networkState.networkSchema[IKSerialization.ID].set({
         read: IKSerialization.readBlendWeight,
         write: IKSerialization.writeBlendWeight
       })
-  
+
       return () => {
         networkState.networkSchema[IKSerialization.ID].set(none)
       }
     }, [])
-  
-  
+
     if (!useMutableState(EngineState).viewerEntity.value) return null
     return <Reactor />
   }
