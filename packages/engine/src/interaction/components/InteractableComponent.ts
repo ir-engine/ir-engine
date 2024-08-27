@@ -108,7 +108,7 @@ const _size = new Vector3()
 
 export const updateInteractableUI = (entity: Entity) => {
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  const interactable = getComponent(entity, InteractableComponent)
+  const interactable = getOptionalComponent(entity, InteractableComponent)
 
   if (!selfAvatarEntity || !interactable || interactable.uiEntity == UndefinedEntity) return
 
@@ -156,7 +156,8 @@ export const updateInteractableUI = (entity: Entity) => {
         let thresh = interactable.activationDistance
         thresh *= thresh //squared for dist squared comparison
         activateUI = distance < thresh
-      } else if (interactable.uiActivationType === XRUIActivationType.hover || interactable.clickInteract) {
+      }
+      if (!activateUI && (interactable.uiActivationType === XRUIActivationType.hover || interactable.clickInteract)) {
         //hover
         const input = getOptionalComponent(entity, InputComponent)
         if (input) {
@@ -204,6 +205,13 @@ const addInteractableUI = (entity: Entity) => {
   if (!interactable.label || interactable.label === '' || interactable.uiEntity != UndefinedEntity) return //null or empty label = no ui
 
   const uiEntity = createUI(entity, interactable.label, interactable.uiInteractable).entity
+
+  const uiTransform = getComponent(uiEntity, TransformComponent)
+  const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
+  if (boundingBox) {
+    updateBoundingBox(entity)
+    boundingBox.box.getCenter(uiTransform.position)
+  }
   getMutableComponent(entity, InteractableComponent).uiEntity.set(uiEntity)
   setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
   setComponent(uiEntity, ComputedTransformComponent, {
@@ -218,7 +226,7 @@ const addInteractableUI = (entity: Entity) => {
 
 const removeInteractableUI = (entity: Entity) => {
   const interactable = getComponent(entity, InteractableComponent)
-  if (!interactable.label || interactable.label === '' || interactable.uiEntity == UndefinedEntity) return //null or empty label = no ui
+  if (interactable.uiEntity == UndefinedEntity) return //null or empty label = no ui
 
   removeEntity(interactable.uiEntity)
   getMutableComponent(entity, InteractableComponent).uiEntity.set(UndefinedEntity)
@@ -239,7 +247,7 @@ export const InteractableComponent = defineComponent({
       //TODO canInteract for grabbed state on grabbable?
       uiInteractable: true,
       uiEntity: UndefinedEntity,
-      label: null as string | null,
+      label: 'E',
       uiVisibilityOverride: XRUIVisibilityOverride.none as XRUIVisibilityOverride,
       uiActivationType: XRUIActivationType.proximity as XRUIActivationType,
       activationDistance: 2,
@@ -308,6 +316,7 @@ export const InteractableComponent = defineComponent({
         removeComponent(entity, DistanceFromCameraComponent)
         removeComponent(entity, DistanceFromLocalClientComponent)
         removeComponent(entity, BoundingBoxComponent)
+        removeInteractableUI(entity)
       }
     }, [])
 
@@ -334,9 +343,9 @@ export const InteractableComponent = defineComponent({
     useEffect(() => {
       if (!isEditing.value) {
         addInteractableUI(entity)
-        return () => {
-          removeInteractableUI(entity)
-        }
+      }
+      return () => {
+        removeInteractableUI(entity)
       }
     }, [isEditing.value])
 

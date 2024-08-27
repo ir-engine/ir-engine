@@ -38,7 +38,7 @@ import { applyIncomingActions, dispatchAction, getMutableState } from '@ir-engin
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { EventDispatcher } from '@ir-engine/spatial/src/common/classes/EventDispatcher'
-import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
+import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { Physics, PhysicsWorld } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 
@@ -56,6 +56,7 @@ describe('moveAvatar function tests', () => {
   beforeEach(async () => {
     createEngine()
     initializeSpatialEngine()
+    initializeSpatialViewer()
     await Physics.load()
     Engine.instance.store.userID = 'userId' as UserID
     sceneEntity = loadEmptyScene()

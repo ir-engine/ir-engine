@@ -295,7 +295,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         .map((c) => getState(ComponentEditorsState)[c.name]?.iconComponent)
         .filter((icon) => !!icon)
     : []
-  const IconComponent = icons.length ? icons[icons.length - 1] : TransformPropertyGroup.iconComponent
+  const IconComponent = icons.length > 0 ? icons[0] : TransformPropertyGroup.iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entity
 
   return (
@@ -303,7 +303,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       style={fixedSizeListStyles}
       className={twMerge(
         'cursor-pointer',
-        selected ? 'text-white' : 'text-[#b2b5bd]',
+        selected ? 'border text-white' : 'text-[#b2b5bd]',
         selected && (props.index % 2 ? 'bg-[#1d1f23]' : 'bg-zinc-900'),
         !selected && (props.index % 2 ? 'bg-[#141619] hover:bg-[#1d1f23]' : 'bg-[#080808] hover:bg-zinc-900'),
         !visible && (props.index % 2 ? 'bg-[#191B1F]' : 'bg-[#0e0f11]'),
