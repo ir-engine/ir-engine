@@ -50,7 +50,6 @@ import persistData from '../../hooks/persist-data'
 import persistQuery from '../../hooks/persist-query'
 import verifyScope from '../../hooks/verify-scope'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import { userAvatarDataResolver } from '../user-avatar/user-avatar.resolvers'
 import { UserService } from './user.class'
 import {
   userDataResolver,
@@ -224,14 +223,7 @@ const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
       })
 
       if (existingUserAvatar.data.length === 0) {
-        const userAvatarData = await userAvatarDataResolver.resolve(
-          {
-            userId: item.id,
-            avatarId: item.avatarId
-          },
-          context
-        )
-        await context.app.service(userAvatarPath).create(userAvatarData)
+        await context.app.service(userAvatarPath).create({ userId: item.id, avatarId: item.avatarId })
       } else if (existingUserAvatar.data[0].avatarId !== item.avatarId) {
         await context.app.service(userAvatarPath).patch(existingUserAvatar.data[0].id, {
           avatarId: item.avatarId
@@ -329,7 +321,7 @@ export default createSkippableHooks(
     },
 
     before: {
-      all: [() => schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
+      all: [schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
       find: [
         iff(
           isProvider('external'),
@@ -343,7 +335,7 @@ export default createSkippableHooks(
       get: [persistQuery, discardQuery('skipAvatar')],
       create: [
         iff(isProvider('external'), verifyScope('user', 'write')),
-        () => schemaHooks.validateData(userDataValidator),
+        schemaHooks.validateData(userDataValidator),
         schemaHooks.resolveData(userDataResolver),
         persistData,
         discard('scopes', 'avatarId')
@@ -351,7 +343,7 @@ export default createSkippableHooks(
       update: [disallow()],
       patch: [
         iff(isProvider('external'), restrictUserPatch),
-        () => schemaHooks.validateData(userPatchValidator),
+        schemaHooks.validateData(userPatchValidator),
         schemaHooks.resolveData(userPatchResolver),
         persistData,
         disallowNonId,

@@ -29,12 +29,13 @@ import { Quaternion, Ray, Raycaster, Vector3 } from 'three'
 
 import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { QueryReactor, defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 
+import { entityExists, removeEntity } from '@ir-engine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { RaycastArgs } from '../../physics/classes/Physics'
@@ -55,7 +56,6 @@ import { InputSourceComponent } from '../components/InputSourceComponent'
 import ClientInputFunctions from '../functions/ClientInputFunctions'
 import ClientInputHeuristics, { HeuristicData, HeuristicFunctions } from '../functions/ClientInputHeuristics'
 import ClientInputHooks from '../functions/ClientInputHooks'
-import { ButtonState, ButtonStateMap } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 
 const pointersQuery = defineQuery([InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)])
@@ -106,9 +106,16 @@ const execute = () => {
     getMutableComponent(eid, InputComponent).inputSources.set([])
   }
 
+  const stalePointers: Entity[] = []
+
   // update 2D screen-based (driven by pointer api) input sources
   for (const eid of pointersQuery()) {
     const pointer = getComponent(eid, InputPointerComponent)
+    // check if pointer camera entity still exists
+    if (!pointer.cameraEntity || !entityExists(pointer.cameraEntity)) {
+      stalePointers.push(eid)
+      continue
+    }
     const inputSource = getComponent(eid, InputSourceComponent)
     const camera = getComponent(pointer.cameraEntity, CameraComponent)
     pointer.movement.copy(pointer.position).sub(pointer.lastPosition)
@@ -123,6 +130,11 @@ const execute = () => {
     TransformComponent.rotation.z[eid] = _rayRotation.z
     TransformComponent.rotation.w[eid] = _rayRotation.w
     TransformComponent.dirtyTransforms[eid] = true
+  }
+
+  // remove stale pointers
+  for (const stalePointer of stalePointers) {
+    removeEntity(stalePointer)
   }
 
   // update xr input sources
@@ -180,16 +192,6 @@ export const ClientInputSystem = defineSystem({
   reactor
 })
 
-function cleanupButton(
-  key: string,
-  buttons: ButtonStateMap<Partial<Record<string | number | symbol, ButtonState | undefined>>>,
-  hasFocus: boolean
-) {
-  const button = buttons[key]
-  if (button?.down) button.down = false
-  if (button?.up || !hasFocus) delete buttons[key]
-}
-
 const cleanupInputs = () => {
   if (typeof globalThis.document === 'undefined') return
 
@@ -198,7 +200,7 @@ const cleanupInputs = () => {
   for (const eid of inputSourceQuery()) {
     const source = getComponent(eid, InputSourceComponent)
     for (const key in source.buttons) {
-      cleanupButton(key, source.buttons, hasFocus)
+      ClientInputFunctions.cleanupButton(key, source.buttons, hasFocus)
     }
 
     // clear non-spatial emulated axes data end of each frame

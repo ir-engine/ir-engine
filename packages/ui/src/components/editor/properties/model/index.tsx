@@ -30,6 +30,7 @@ import { MdOutlineViewInAr } from 'react-icons/md'
 import { Object3D, Scene } from 'three'
 
 import { ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import config from '@ir-engine/common/src/config'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { STATIC_ASSET_REGEX } from '@ir-engine/common/src/regex'
@@ -43,7 +44,6 @@ import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/re
 import { recursiveHipsLookup } from '@ir-engine/engine/src/avatar/AvatarBoneMatching'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
 import { getState, useState } from '@ir-engine/hyperflux'
 import Button from '../../../../primitives/tailwind/Button'
 import BooleanInput from '../../input/Boolean'
@@ -82,7 +82,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   ])
 
   const getRelativePath = useCallback(() => {
-    const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[2]
+    const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[3].split('/')[1]
     if (!relativePath) {
       return 'assets/new-model'
     } else {

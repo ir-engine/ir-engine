@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs'
+import { defineComponent, Entity } from '@ir-engine/ecs'
 
 /** InputSinkComponent - receives input from input entities.  */
 export const InputSinkComponent = defineComponent({
@@ -34,7 +34,7 @@ export const InputSinkComponent = defineComponent({
       /**
        * The set of entities that are actively channeling input into this Entity Tree
        */
-      inputEntities: []
+      inputEntities: [] as Entity[]
     }
   }
 })

@@ -33,6 +33,7 @@ import LoadingView from '../LoadingView'
 import Text from '../Text'
 
 export interface ModalProps {
+  id?: string
   title?: string
   hideFooter?: boolean
   className?: string
@@ -71,6 +72,7 @@ export const ModalHeader = ({
 }
 
 export const ModalFooter = ({
+  id,
   onCancel,
   onSubmit,
   submitLoading,
@@ -80,6 +82,7 @@ export const ModalFooter = ({
   submitButtonText,
   showCloseButton = true
 }: {
+  id?: string
   onCancel?: (isHeader: boolean) => void
   onSubmit?: () => void
   submitLoading?: boolean
@@ -93,12 +96,18 @@ export const ModalFooter = ({
   return (
     <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
       {showCloseButton && (
-        <Button variant="secondary" disabled={closeButtonDisabled} onClick={() => onCancel && onCancel(false)}>
+        <Button
+          data-test-id={`${id}-close-button`}
+          variant="secondary"
+          disabled={closeButtonDisabled}
+          onClick={() => onCancel && onCancel(false)}
+        >
           {closeButtonText || t('common:components.cancel')}
         </Button>
       )}
       {onSubmit && (
         <Button
+          data-test-id={`${id}-submit-button`}
           endIcon={submitLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
           disabled={submitButtonDisabled || submitLoading}
           onClick={onSubmit}
@@ -112,6 +121,7 @@ export const ModalFooter = ({
 }
 
 const Modal = ({
+  id,
   title,
   onClose,
   onSubmit,
@@ -126,16 +136,17 @@ const Modal = ({
   submitButtonDisabled,
   showCloseButton = true
 }: ModalProps) => {
-  const twClassName = twMerge('relative z-50 max-h-[80vh] w-full bg-theme-surface-main', className)
+  const twClassName = twMerge('relative z-50 w-full bg-theme-surface-main', className)
   return (
-    <div className={twClassName}>
+    <div data-test-id={id} className={twClassName}>
       <div className="relative rounded-lg shadow">
         {onClose && <ModalHeader title={title} onClose={onClose} />}
-        {rawChildren && rawChildren}
+        {rawChildren}
         {children && <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>}
 
         {!hideFooter && (
           <ModalFooter
+            id={id}
             closeButtonText={closeButtonText}
             submitButtonText={submitButtonText}
             closeButtonDisabled={closeButtonDisabled}

@@ -42,9 +42,7 @@ export const userAvatarSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    userId: TypedString<UserID>({
-      format: 'uuid'
-    }),
+    userId: TypedString<UserID>(),
     avatarId: TypedString<AvatarID>({
       format: 'uuid'
     }),

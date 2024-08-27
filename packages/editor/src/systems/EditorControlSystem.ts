@@ -70,8 +70,8 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { FeatureFlagsState } from '@ir-engine/engine'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
@@ -267,6 +267,8 @@ const findNextSelectionEntity = (topLevelParent: Entity, child: Entity): Entity 
 const inputQuery = defineQuery([InputSourceComponent])
 let clickStartEntity = UndefinedEntity
 
+let hierarchyFeatureFlagEnabled = false
+
 const execute = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
   if (entity) return
@@ -330,7 +332,7 @@ const execute = () => {
         selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
 
       // If not showing model children in hierarchy don't allow those objects to be selected
-      if (!FeatureFlagsState.enabled(FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren)) {
+      if (!hierarchyFeatureFlagEnabled) {
         const inAuthoringLayer = GLTFSnapshotState.isInSnapshot(
           getOptionalComponent(selectedParentEntity, SourceComponent),
           selectedEntity
@@ -372,6 +374,7 @@ const execute = () => {
 const reactor = () => {
   const editorHelperState = useMutableState(EditorHelperState)
   const rendererState = useMutableState(RendererState)
+  const flag = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
 
   useEffect(() => {
     // todo figure out how to do these with our input system
@@ -404,6 +407,10 @@ const reactor = () => {
       removeComponent(viewerEntity, InputComponent)
     }
   }, [viewerEntity])
+
+  useEffect(() => {
+    hierarchyFeatureFlagEnabled = flag[0]
+  }, [flag])
 
   return null
 }

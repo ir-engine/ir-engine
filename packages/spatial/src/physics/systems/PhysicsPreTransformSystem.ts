@@ -30,7 +30,11 @@ import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { getState } from '@ir-engine/hyperflux'
 
 import { Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
-import { EntityTreeComponent, getAncestorWithComponent, iterateEntityNode } from '../../transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  getAncestorWithComponents,
+  iterateEntityNode
+} from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../../transform/systems/TransformSystem'
 import { Physics } from '../classes/Physics'
@@ -78,7 +82,7 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
   const transform = getComponent(entity, TransformComponent)
 
-  const rigidBodyEntity = getAncestorWithComponent(entity, RigidBodyComponent)
+  const rigidBodyEntity = getAncestorWithComponents(entity, [RigidBodyComponent])
   const rigidBodyTransform = getComponent(rigidBodyEntity, TransformComponent)
   parentMatrixInverse.copy(rigidBodyTransform.matrixWorld).invert()
   localMatrix.compose(position, rotation, Vector3_One).premultiply(parentMatrixInverse)
@@ -141,7 +145,7 @@ const copyTransformToCollider = (entity: Entity) => {
   const world = Physics.getWorld(entity)
   if (!world) return
   computeTransformMatrix(entity)
-  const rigidbodyEntity = getAncestorWithComponent(entity, RigidBodyComponent)
+  const rigidbodyEntity = getAncestorWithComponents(entity, [RigidBodyComponent])
   if (!rigidbodyEntity) return
   const colliderDesc = Physics.createColliderDesc(world, entity, rigidbodyEntity)
   if (!colliderDesc) return

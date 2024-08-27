@@ -34,6 +34,7 @@ import {
   getAllComponents,
   getComponent,
   hasComponent,
+  hasComponents,
   removeComponent,
   setComponent,
   useComponent,
@@ -221,6 +222,83 @@ describe('ComponentFunctions', async () => {
     it('should throw nullish component argument', () => {
       assert.throws(() => hasComponent(null!, null!))
       assert.throws(() => hasComponent(undefined!, undefined!))
+    })
+  })
+
+  describe('hasComponents', () => {
+    it('should have components', () => {
+      const TestComponent = defineComponent({ name: 'TestComponent', onInit: () => true })
+      const TestComponent2 = defineComponent({ name: 'TestComponent2', onInit: () => true })
+
+      const entity = createEntity()
+      setComponent(entity, TestComponent)
+      setComponent(entity, TestComponent2)
+
+      assert.ok(hasComponents(entity, [TestComponent, TestComponent2]))
+    })
+
+    it('should have components with AoS values', () => {
+      const TestComponent = defineComponent({
+        name: 'TestComponent',
+
+        onInit(entity) {
+          return { val: 1 }
+        },
+
+        onSet(entity, component, json) {
+          if (!json) return
+          if (typeof json.val !== 'undefined') component.val.set(json.val)
+        }
+      })
+      const TestComponent2 = defineComponent({
+        name: 'TestComponent2',
+
+        onInit(entity) {
+          return { val: 2 }
+        },
+
+        onSet(entity, component, json) {
+          if (!json) return
+          if (typeof json.val !== 'undefined') component.val.set(json.val)
+        }
+      })
+
+      const entity = createEntity()
+      setComponent(entity, TestComponent, { val: 2 })
+      setComponent(entity, TestComponent2, { val: 3 })
+
+      assert.ok(hasComponents(entity, [TestComponent, TestComponent2]))
+    })
+
+    it('should have components with SoA values', () => {
+      const { f32 } = Types
+      const ValueSchema = { value: f32 }
+      const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
+      const TestComponent2 = defineComponent({ name: 'TestComponent2', schema: ValueSchema })
+
+      const entity = createEntity()
+      setComponent(entity, TestComponent)
+      setComponent(entity, TestComponent2)
+
+      assert.ok(hasComponents(entity, [TestComponent, TestComponent2]))
+    })
+
+    it('should return false for nullish entity argument', () => {
+      const TestComponent = defineComponent({ name: 'TestComponent' })
+      const TestComponent2 = defineComponent({ name: 'TestComponent2' })
+
+      assert(!hasComponents(null!, [TestComponent, TestComponent2]))
+      assert(!hasComponents(undefined!, [TestComponent, TestComponent2]))
+    })
+
+    it('should return false empty array of components', () => {
+      const entity = createEntity()
+      assert(!hasComponents(entity, []))
+    })
+
+    it('should throw nullish component argument', () => {
+      assert.throws(() => hasComponents(null!, null!))
+      assert.throws(() => hasComponents(undefined!, undefined!))
     })
   })
 

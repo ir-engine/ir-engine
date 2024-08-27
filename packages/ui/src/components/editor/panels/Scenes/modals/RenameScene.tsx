@@ -31,19 +31,18 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { renameScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { useHookstate } from '@ir-engine/hyperflux'
 import Input from '../../../../../primitives/tailwind/Input'
 import Modal from '../../../../../primitives/tailwind/Modal'
 
 type Props = {
   sceneName: string
   scene: StaticResourceType
-  updateEditorState?: boolean
+  onRenameScene?: (newName: string) => void
   refetchProjectsData: () => void
 }
 
-export default function RenameSceneModal({ sceneName, updateEditorState, scene, refetchProjectsData }: Props) {
+export default function RenameSceneModal({ sceneName, onRenameScene, scene, refetchProjectsData }: Props) {
   const { t } = useTranslation()
   const newSceneName = useHookstate(sceneName)
   const inputError = useHookstate('')
@@ -58,8 +57,8 @@ export default function RenameSceneModal({ sceneName, updateEditorState, scene, 
     const newData = await renameScene(scene, newURL, scene.project!)
     refetchProjectsData()
 
-    if (updateEditorState) {
-      getMutableState(EditorState).scenePath.set(newData[0].key)
+    if (onRenameScene) {
+      onRenameScene(newData[0].key)
     }
 
     PopoverState.hidePopupover()

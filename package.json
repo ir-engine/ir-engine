@@ -75,7 +75,6 @@
     "migrate:rollback": "cd packages/server-core && npm run migrate:rollback",
     "migrate:unlock": "cd packages/server-core && npm run migrate:unlock",
     "postinstall": "patch-package --exclude ./node_modules/@mui/",
-    "precommit": "no-master-commits -b main",
     "prepare-database": "cross-env APP_ENV=production PREPARE_DATABASE=true EXIT_ON_DB_INIT=true ts-node --swc packages/server/src/index.ts",
     "publish": "lerna publish from-package --yes --registry https://registry.npmjs.org",
     "publish-npm": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://registry.npmjs.org",
@@ -104,10 +103,10 @@
   ],
   "lint-staged": {
     "*.{ts,tsx}": [
-      "prettier --write"
+      "prettier --write \"**/*.{ts,tsx}\""
     ],
     "*.scss": [
-      "stylelint --fix"
+      "stylelint \"**/*.scss\" --fix"
     ]
   },
   "devDependencies": {
@@ -134,7 +133,6 @@
     "lerna": "6.5.1",
     "lint-staged": "13.2.0",
     "mocha": "10.2.0",
-    "no-master-commits": "1.1.1",
     "nyc": "^15.1.0",
     "package-json-type": "1.0.3",
     "pre-commit": "1.2.2",
