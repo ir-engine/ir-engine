@@ -55,6 +55,13 @@ export function detectOS() {
   return os
 }
 
+/**
+ * Returns true if the user's operating system uses the control key for keyboard shortcuts. (e.g. Windows, Linux)
+ *
+ * OR
+ *
+ * false if the user's operating system uses the command key for keyboard shortcuts. (e.g. MacOS)
+ */
 export function usesCtrlKey() {
   return detectOS() !== OperatingSystems.MacOS
 }

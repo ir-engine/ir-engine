@@ -72,6 +72,7 @@ import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
@@ -365,9 +366,13 @@ const execute = () => {
         selectedEntities.length !== 1 ||
         (selectedEntities.length === 1 && selectedEntities[0] !== clickStartEntity)
       ) {
+        const ctrlOrMetaClicked = usesCtrlKey()
+          ? !!buttons.ControlLeft?.pressed || !!buttons.ControlRight?.pressed
+          : !!buttons.MetaLeft?.pressed || !!buttons.MetaRight?.pressed
+
         updateSelection(
           clickStartEntity,
-          !!buttons.MetaLeft?.pressed || !!buttons.MetaRight?.pressed,
+          ctrlOrMetaClicked,
           !!buttons.ShiftLeft?.pressed || !!buttons.ShiftRight?.pressed
         )
       }
