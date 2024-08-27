@@ -30,17 +30,16 @@ import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { matches } from '@ir-engine/hyperflux'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { Type } from '@sinclair/typebox'
 
 export const ShadowComponent = defineComponent({
   name: 'ShadowComponent',
   jsonID: 'EE_shadow',
 
-  onInit: (entity) => {
-    return {
-      cast: true,
-      receive: true
-    }
-  },
+  schema: Type.Object({
+    cast: Type.Boolean({ default: true }),
+    receive: Type.Boolean({ default: true })
+  }),
 
   toJSON: (entity, component) => {
     return {
