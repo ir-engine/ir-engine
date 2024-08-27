@@ -31,9 +31,9 @@ import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import RenameSceneModal from '@ir-engine/ui/src/components/editor/panels/Scenes/modals/RenameScene'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { default as React, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsThreeDotsVertical } from 'react-icons/bs'
@@ -111,7 +111,7 @@ export const SceneItem = ({
         <div className="inline-flex w-full flex-col items-start justify-start">
           <div className="space-between flex w-full flex-row">
             <Text component="h3" fontWeight="light" className="leading-6 text-neutral-100">
-              <Tooltip title={sceneName}>
+              <Tooltip content={sceneName}>
                 <div className="w-52 truncate">{sceneName}</div>
               </Tooltip>
             </Text>
