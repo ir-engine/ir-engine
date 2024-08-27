@@ -34,7 +34,7 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { matches, useMutableState } from '@ir-engine/hyperflux'
+import { matches, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
 import { useDisposable } from '../../../resources/resourceHooks'
@@ -147,7 +147,7 @@ export const DirectionalLightComponent = defineComponent({
     const [light] = useDisposable(DirectionalLight, entity)
     const lightHelper = useOptionalComponent(entity, LineSegmentComponent)
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
       directionalLightComponent.light.set(light)
       addObjectToGroup(entity, light)
