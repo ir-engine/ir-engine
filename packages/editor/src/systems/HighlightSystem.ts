@@ -35,11 +35,15 @@ const reactor = () => {
 
   useEffect(() => {
     if (!selectedEntities) return
-    const lastSelection = selectedEntities[selectedEntities.length - 1]
-    if (!lastSelection) return
-    setComponent(lastSelection, HighlightComponent)
+    const prevSelectedEntities = selectedEntities //[selectedEntities.length - 1]
+    if (!prevSelectedEntities) return
+    for (const entity of prevSelectedEntities) {
+      setComponent(entity, HighlightComponent)
+    }
     return () => {
-      removeComponent(lastSelection, HighlightComponent)
+      for (const entity of prevSelectedEntities) {
+        removeComponent(entity, HighlightComponent)
+      }
     }
   }, [selectedEntities])
 
