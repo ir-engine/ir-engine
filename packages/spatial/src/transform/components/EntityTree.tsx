@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  Component,
   ComponentType,
   defineComponent,
   getComponent,
@@ -278,7 +279,7 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
  */
 export function getAncestorWithComponents(
   entity: Entity,
-  components: ComponentType<any>[],
+  components: Component[],
   closest = true,
   includeSelf = true
 ): Entity {

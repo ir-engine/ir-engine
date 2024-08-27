@@ -61,7 +61,7 @@ export type AvatarIKTargetsType = {
 
 export const AvatarIKTargetComponent = defineComponent({
   name: 'AvatarIKTargetComponent',
-  schema: { blendWeight: Types.f64 },
+  ecsSchema: { blendWeight: Types.f64 },
 
   reactor: function () {
     const entity = useEntityContext()

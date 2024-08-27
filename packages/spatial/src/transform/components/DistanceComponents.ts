@@ -34,17 +34,17 @@ export const DistanceComponentSchema = { squaredDistance: Types.f32 }
 
 export const DistanceFromLocalClientComponent = defineComponent({
   name: 'DistanceFromLocalClientComponent',
-  schema: DistanceComponentSchema
+  ecsSchema: DistanceComponentSchema
 })
 export const DistanceFromCameraComponent = defineComponent({
   name: 'DistanceFromCameraComponent',
-  schema: DistanceComponentSchema
+  ecsSchema: DistanceComponentSchema
 })
 
 export const FrustumCullCameraSchema = { isCulled: Types.ui8 }
 export const FrustumCullCameraComponent = defineComponent({
   name: 'FrustumCullCameraComponent',
-  schema: FrustumCullCameraSchema,
+  ecsSchema: FrustumCullCameraSchema,
 
   reactor: () => {
     const entity = useEntityContext()

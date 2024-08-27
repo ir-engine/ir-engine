@@ -29,7 +29,7 @@ import { useEffect } from 'react'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { QuaternionSchema, Vector3Schema } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { QuaternionECS, Vector3ECS } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',
@@ -39,17 +39,17 @@ export const MotionCaptureRigComponent = defineComponent({
       prevScreenLandmarks: null as NormalizedLandmark[] | null
     }
   },
-  schema: {
-    rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionSchema])) as Record<
+  ecsSchema: {
+    rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionECS])) as Record<
       VRMHumanBoneName,
-      typeof QuaternionSchema
+      typeof QuaternionECS
     >,
-    slerpedRig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionSchema])) as Record<
+    slerpedRig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionECS])) as Record<
       VRMHumanBoneName,
-      typeof QuaternionSchema
+      typeof QuaternionECS
     >,
-    hipPosition: Vector3Schema,
-    hipRotation: QuaternionSchema,
+    hipPosition: Vector3ECS,
+    hipRotation: QuaternionECS,
     footOffset: 'f64',
     solvingLowerBody: 'ui8'
   },

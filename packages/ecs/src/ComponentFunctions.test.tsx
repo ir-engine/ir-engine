@@ -74,7 +74,7 @@ describe('ComponentFunctions', async () => {
       const Vector3Schema = { x: f32, y: f32, z: f32 }
       const Vector3Component = defineComponent({
         name: 'Vector3Component',
-        schema: Vector3Schema
+        ecsSchema: Vector3Schema
       })
 
       assert.equal(Vector3Component.name, 'Vector3Component')
@@ -120,7 +120,7 @@ describe('ComponentFunctions', async () => {
     it('should add component with SoA values', () => {
       const { f32 } = Types
       const ValueSchema = { value: f32 }
-      const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
+      const TestComponent = defineComponent({ name: 'TestComponent', ecsSchema: ValueSchema })
 
       const entity = createEntity()
       TestComponent.value[entity] = 3
@@ -205,7 +205,7 @@ describe('ComponentFunctions', async () => {
     it('should have component with SoA values', () => {
       const { f32 } = Types
       const ValueSchema = { value: f32 }
-      const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
+      const TestComponent = defineComponent({ name: 'TestComponent', ecsSchema: ValueSchema })
 
       const entity = createEntity()
       setComponent(entity, TestComponent)
@@ -273,8 +273,8 @@ describe('ComponentFunctions', async () => {
     it('should have components with SoA values', () => {
       const { f32 } = Types
       const ValueSchema = { value: f32 }
-      const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
-      const TestComponent2 = defineComponent({ name: 'TestComponent2', schema: ValueSchema })
+      const TestComponent = defineComponent({ name: 'TestComponent', ecsSchema: ValueSchema })
+      const TestComponent2 = defineComponent({ name: 'TestComponent2', ecsSchema: ValueSchema })
 
       const entity = createEntity()
       setComponent(entity, TestComponent)
@@ -344,7 +344,7 @@ describe('ComponentFunctions', async () => {
     it('should remove component with SoA values', () => {
       const { f32 } = Types
       const ValueSchema = { value: f32 }
-      const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
+      const TestComponent = defineComponent({ name: 'TestComponent', ecsSchema: ValueSchema })
 
       const entity = createEntity()
       setComponent(entity, TestComponent)

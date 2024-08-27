@@ -34,13 +34,11 @@ import type from 'react/experimental'
 
 import config from '@ir-engine/common/src/config'
 import { DeepReadonly } from '@ir-engine/common/src/DeepReadonly'
-import { HookableFunction } from '@ir-engine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@ir-engine/common/src/utils/getNestedProperty'
 import { HyperFlux, ReactorRoot, startReactor } from '@ir-engine/hyperflux'
 import {
   hookstate,
   InferStateValueType,
-  NO_PROXY,
   NO_PROXY_STEALTH,
   none,
   State,
@@ -50,7 +48,8 @@ import {
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
-import { Static, TObject, TSchema } from '@feathersjs/typebox'
+import { Static, TSchema } from '@sinclair/typebox'
+import { Value } from '@sinclair/typebox/value'
 
 /**
  * @description
@@ -154,10 +153,10 @@ export interface ComponentPartial<
 export interface Component<
   Schema extends ComponentSchema = any,
   ComponentType = Static<Schema>,
-  ECSSchema extends bitECS.ISchema = Record<string, never>,
+  ECSSchema extends bitECS.ISchema = Record<string, any>,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
-  ErrorTypes = never
+  ErrorTypes = string
 > {
   isComponent: true
   name: string
@@ -165,7 +164,7 @@ export interface Component<
   schema?: Schema
   ecsSchema?: ECSSchema
   /** @deprecated */
-  onInit: (entity: Entity) => ComponentType & OnInitValidateNotState<ComponentType>
+  onInit?: (entity: Entity) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
@@ -230,11 +229,16 @@ export const defineComponent = <
 >(
   def: ComponentPartial<Schema, ComponentType, ECSSchema, JSON, SetJSON, ErrorTypes> & ComponentExtras
 ) => {
-  const Component = (
-    def.ecsSchema ? bitECS.defineComponent(def.ecsSchema, INITIAL_COMPONENT_SIZE) : {}
-  ) as SoAComponentType<ECSSchema> & Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, ErrorTypes>
+  const Component = (def.ecsSchema ? bitECS.defineComponent(def.ecsSchema, INITIAL_COMPONENT_SIZE) : {}) as Component<
+    Schema,
+    ComponentType,
+    ECSSchema,
+    JSON,
+    SetJSON,
+    ErrorTypes
+  > &
+    SoAComponentType<ECSSchema>
   Component.isComponent = true
-  Component.onInit = (entity) => true as any
   Component.onSet = (entity, component, json) => {}
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => null!
@@ -277,18 +281,22 @@ export const defineComponent = <
   // return ExternalComponentReactor as typeof Component & { _TYPE: ComponentType } & typeof ExternalComponentReactor
 }
 
-export const getOptionalMutableComponent = <Schema extends ComponentSchema, ComponentType>(
+export const getOptionalMutableComponent = <
+  Schema extends ComponentSchema,
+  ComponentType,
+  ECSSchema extends bitECS.ISchema
+>(
   entity: Entity,
-  component: Component<Schema, ComponentType, Record<string, any>, unknown>
+  component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
 ): State<ComponentType> | undefined => {
   if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType>
   const componentState = component.stateMap[entity]!
   return componentState.promised ? undefined : componentState
 }
 
-export const getMutableComponent = <Schema extends ComponentSchema, ComponentType>(
+export const getMutableComponent = <Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
   entity: Entity,
-  component: Component<Schema, ComponentType, Record<string, any>, unknown>
+  component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
 ): State<ComponentType> => {
   const componentState = getOptionalMutableComponent(entity, component)
   if (!componentState || componentState.promised) {
@@ -300,17 +308,17 @@ export const getMutableComponent = <Schema extends ComponentSchema, ComponentTyp
   return componentState
 }
 
-export const getOptionalComponent = <Schema extends ComponentSchema, ComponentType>(
+export const getOptionalComponent = <Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
   entity: Entity,
-  component: Component<Schema, ComponentType, Record<string, any>, unknown>
+  component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
 ): ComponentType | undefined => {
   const componentState = component.stateMap[entity]!
   return componentState?.promised ? undefined : (componentState?.get(NO_PROXY_STEALTH) as ComponentType | undefined)
 }
 
-export const getComponent = <Schema extends ComponentSchema, ComponentType>(
+export const getComponent = <Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
   entity: Entity,
-  component: Component<Schema, ComponentType, Record<string, any>, unknown>
+  component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
 ): ComponentType => {
   if (!bitECS.hasComponent(HyperFlux.store, component, entity)) {
     console.warn(
@@ -320,6 +328,21 @@ export const getComponent = <Schema extends ComponentSchema, ComponentType>(
   }
   const componentState = component.stateMap[entity]!
   return componentState.get(NO_PROXY_STEALTH) as ComponentType
+}
+
+const createInitialComponentValue = <
+  Schema extends ComponentSchema,
+  ComponentType,
+  ECSSchema extends bitECS.ISchema,
+  JSON,
+  SetJSON
+>(
+  entity: Entity,
+  Component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
+): ComponentType => {
+  if (Component.onInit) return Component.onInit(entity) as ComponentType
+  else if (Component.schema) return Value.Create(Component.schema) as ComponentType
+  else return undefined as ComponentType
 }
 
 /**
@@ -334,11 +357,17 @@ export const getComponent = <Schema extends ComponentSchema, ComponentType>(
  * @param args `@todo` Explain what `setComponent(   args)` is
  * @returns The component that was attached.
  */
-export const setComponent = <C extends Component>(
+export const setComponent = <
+  Schema extends ComponentSchema,
+  ComponentType,
+  ECSSchema extends bitECS.ISchema,
+  JSON,
+  SetJSON
+>(
   entity: Entity,
-  Component: C,
-  args: SetComponentType<C> | undefined = undefined
-) => {
+  Component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>,
+  args: SetJSON | undefined = undefined
+): ComponentType => {
   if (!entity) {
     throw new Error('[setComponent]: entity is undefined')
   }
@@ -347,7 +376,7 @@ export const setComponent = <C extends Component>(
   }
   const componentExists = hasComponent(entity, Component)
   if (!componentExists) {
-    const value = Component.onInit(entity)
+    const value = createInitialComponentValue(entity, Component)
 
     if (!Component.stateMap[entity]) {
       Component.stateMap[entity] = hookstate(value)
@@ -358,7 +387,7 @@ export const setComponent = <C extends Component>(
     bitECS.addComponent(HyperFlux.store, Component, entity, false) // don't clear data on-add
   }
 
-  Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
+  Component.onSet(entity, Component.stateMap[entity]!, args)
 
   if (!componentExists && Component.reactor && !Component.reactorMap.has(entity)) {
     const root = startReactor(() => {
@@ -367,12 +396,12 @@ export const setComponent = <C extends Component>(
     root['entity'] = entity
     root['component'] = Component.name
     Component.reactorMap.set(entity, root)
-    return getComponent(entity, Component) as ComponentType<C>
+    return getComponent(entity, Component)
   }
 
   const root = Component.reactorMap.get(entity)
   root?.run()
-  return getComponent(entity, Component) as ComponentType<C>
+  return getComponent(entity, Component)
 }
 
 /**
@@ -415,7 +444,10 @@ export const updateComponent = <C extends Component>(
   })
 }
 
-export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
+export const hasComponent = <Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
+  entity: Entity,
+  component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
+) => {
   if (!component) throw new Error('[hasComponent]: component is undefined')
   if (!entity) return false
   return bitECS.hasComponent(HyperFlux.store, component, entity)
@@ -426,7 +458,10 @@ export const hasComponent = <C extends Component>(entity: Entity, component: C) 
  * @param entity
  * @param components
  */
-export function hasComponents(entity: Entity, components: ComponentType<any>[]): boolean {
+export function hasComponents<Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
+  entity: Entity,
+  components: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>[]
+): boolean {
   if (!components) throw new Error('[hasComponent]: component is undefined')
   if (components.length < 1 || !entity) return false
 
@@ -455,7 +490,7 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
  * @returns JSON object containing the requested data.
  */
 export const componentJsonDefaults = <C extends Component>(component: C) => {
-  const initial = component.onInit(UndefinedEntity)
+  const initial = createInitialComponentValue(UndefinedEntity, component)
   const pseudoState: Record<string, { value: any; get: () => any }> = {}
   for (const key of Object.keys(initial)) {
     pseudoState[key] = {
@@ -531,23 +566,29 @@ export function _use(promise) {
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useComponent<C extends Component>(entity: Entity, Component: C) {
+export function useComponent<Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
+  entity: Entity,
+  Component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
+) {
   if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
-  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(none)
-  const componentState = Component.stateMap[entity]!
+  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(none) as State<ComponentType>
+  const componentState = Component.stateMap[entity]
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
   if (componentState.promise) {
     ;(use ?? _use)(componentState.promise)
   }
-  return useHookstate(componentState) as any as State<ComponentType<C>> // todo fix any cast
+  return useHookstate(componentState)
 }
 
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useOptionalComponent<C extends Component>(entity: Entity, Component: C) {
-  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(none)
-  const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
+export function useOptionalComponent<Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
+  entity: Entity,
+  Component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
+) {
+  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(none) as State<ComponentType>
+  const component = useHookstate(Component.stateMap[entity])
   return component.promised ? undefined : component
 }
 

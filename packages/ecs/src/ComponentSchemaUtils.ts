@@ -23,34 +23,33 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  Component,
-  ComponentErrorsType,
-  defineComponent,
-  getOptionalMutableComponent,
-  useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { NumericOptions, Type } from '@feathersjs/typebox'
 
-export type ErrorComponentType = {
-  [componentName: string]: {
-    [errorKey: string]: string
-  }
-}
+export const Vector3Schema = (options?: { x: NumericOptions; y: NumericOptions; z: NumericOptions }) =>
+  Type.Object({
+    x: Type.Number(options?.x ?? { default: 0 }),
+    y: Type.Number(options?.y ?? { default: 0 }),
+    z: Type.Number(options?.z ?? { default: 0 })
+  })
 
-export const ErrorComponent = defineComponent({
-  name: 'ErrorComponent',
-  onInit: () => ({}) as ErrorComponentType
-})
+export const QuaternionSchema = (options?: {
+  x: NumericOptions
+  y: NumericOptions
+  z: NumericOptions
+  w: NumericOptions
+}) =>
+  Type.Object({
+    x: Type.Number(options?.x ?? { default: 0 }),
+    y: Type.Number(options?.y ?? { default: 0 }),
+    z: Type.Number(options?.z ?? { default: 0 }),
+    w: Type.Number(options?.w ?? { default: 0 })
+  })
 
-export const getEntityErrors = <C extends Component>(entity: Entity, component: C) => {
-  return getOptionalMutableComponent(entity, ErrorComponent)?.[component.name].value as Record<
-    ComponentErrorsType<C>,
-    string
-  >
-}
-
-export const useEntityErrors = <C extends Component>(entity: Entity, component: C) => {
-  const errors = useOptionalComponent(entity, ErrorComponent)?.[component.name]
-  return errors
-}
+export const Matrix4Schema = (options?: any) =>
+  Type.Object({
+    elements: Type.Array(Type.Number(), {
+      default: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      maxItems: 16,
+      minItems: 16
+    })
+  })

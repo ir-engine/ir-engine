@@ -56,7 +56,7 @@ const SCHEMA = {
 export const RigidBodyComponent = defineComponent({
   name: 'RigidBodyComponent',
   jsonID: 'EE_rigidbody',
-  schema: SCHEMA,
+  ecsSchema: SCHEMA,
 
   onInit(entity) {
     return {

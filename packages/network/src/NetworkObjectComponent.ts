@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { ISchema } from 'bitecs'
 import { useLayoutEffect } from 'react'
 
 import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
@@ -50,7 +49,7 @@ let availableNetworkId = 0 as NetworkId
 export const NetworkObjectComponent = defineComponent({
   name: 'NetworkObjectComponent',
 
-  schema: {
+  ecsSchema: {
     networkId: ECS.Types.ui32
   },
 
@@ -130,7 +129,7 @@ export const NetworkObjectComponent = defineComponent({
    * @param component
    * @returns
    */
-  getOwnedNetworkObjectWithComponent<T, S extends ISchema>(userId: UserID, component: Component<T, S>) {
+  getOwnedNetworkObjectWithComponent(userId: UserID, component: Component) {
     return (
       NetworkObjectComponent.getOwnedNetworkObjects(userId).find((eid) => {
         return hasComponent(eid, component)
@@ -144,7 +143,7 @@ export const NetworkObjectComponent = defineComponent({
    * @param component
    * @returns
    */
-  getOwnedNetworkObjectsWithComponent<T, S extends ISchema>(userId: UserID, component: Component<T, S>) {
+  getOwnedNetworkObjectsWithComponent(userId: UserID, component: Component) {
     return NetworkObjectComponent.getOwnedNetworkObjects(userId).filter((eid) => {
       return hasComponent(eid, component)
     })

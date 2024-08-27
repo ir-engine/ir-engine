@@ -37,6 +37,8 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { Type } from '@feathersjs/typebox'
+import { Matrix4Schema, QuaternionSchema, Vector3Schema } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
@@ -50,22 +52,30 @@ export type TransformComponentType = {
 }
 
 const { f64 } = Types
-export const Vector3Schema = { x: f64, y: f64, z: f64 }
-export const QuaternionSchema = { x: f64, y: f64, z: f64, w: f64 }
-export const PoseSchema = {
-  position: Vector3Schema,
-  rotation: QuaternionSchema
+export const Vector3ECS = { x: f64, y: f64, z: f64 }
+export const QuaternionECS = { x: f64, y: f64, z: f64, w: f64 }
+export const PoseECS = {
+  position: Vector3ECS,
+  rotation: QuaternionECS
 }
-export const TransformSchema = {
-  position: Vector3Schema,
-  rotation: QuaternionSchema,
-  scale: Vector3Schema
+export const TransformECS = {
+  position: Vector3ECS,
+  rotation: QuaternionECS,
+  scale: Vector3ECS
 }
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
   jsonID: 'EE_transform',
-  schema: TransformSchema,
+  ecsSchema: TransformECS,
+
+  schema: Type.Object({
+    position: Vector3Schema(),
+    rotation: QuaternionSchema(),
+    scale: Vector3Schema(),
+    matrix: Matrix4Schema(),
+    matrixWorld: Matrix4Schema()
+  }),
 
   onInit: (entity) => {
     const dirtyTransforms = TransformComponent.dirtyTransforms
