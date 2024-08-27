@@ -46,6 +46,7 @@ import { useTranslation } from 'react-i18next'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import exportGLTF from '../../functions/exportGLTF'
 
+import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
@@ -172,7 +173,8 @@ export default function ModelCompressionPanel({
 
     if (selectedFiles.length > 1) {
       fileLODs = fileLODs.map((lod) => {
-        const src = file.url
+        const url = new URL(file.url)
+        const src = pathJoin(url.origin, url.pathname)
         const fileName = src.split('/').pop()!.split('.').shift()!
         const dst = fileName + lod.suffix
         return {
@@ -207,8 +209,8 @@ export default function ModelCompressionPanel({
     if (firstFile == null) {
       return
     }
-
-    const fullSrc = firstFile.url
+    const url = new URL(firstFile.url)
+    const fullSrc = pathJoin(url.origin, url.pathname)
     const fileName = fullSrc.split('/').pop()!.split('.').shift()!
 
     const defaults = defaultLODs.map((defaultLOD) => {
