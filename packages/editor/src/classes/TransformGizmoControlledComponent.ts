@@ -153,11 +153,14 @@ export const TransformGizmoControlledComponent = defineComponent({
         case TransformPivot.Origin:
           newPosition.setScalar(0)
           break
-        case TransformPivot.Selection:
-          getMidpointWorldPosition(controlledEntities, newPosition)
+        case TransformPivot.FirstSelected:
+          TransformComponent.getWorldPosition(controlledEntities[0], newPosition)
           break
         case TransformPivot.Center:
-        case TransformPivot.Bottom:
+          getMidpointWorldPosition(controlledEntities, newPosition)
+          break
+        case TransformPivot.BoundingBox:
+        case TransformPivot.BoundingBoxBottom:
           box.makeEmpty()
 
           for (let i = 0; i < controlledEntities.length; i++) {
@@ -166,7 +169,7 @@ export const TransformGizmoControlledComponent = defineComponent({
           }
           box.getCenter(newPosition)
 
-          if (editorHelperState.transformPivot.value === TransformPivot.Bottom) newPosition.y = box.min.y
+          if (editorHelperState.transformPivot.value === TransformPivot.BoundingBoxBottom) newPosition.y = box.min.y
           break
       }
 
