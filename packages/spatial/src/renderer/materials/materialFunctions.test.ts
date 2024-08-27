@@ -28,6 +28,7 @@ import {
   UndefinedEntity,
   createEngine,
   createEntity,
+  defineQuery,
   destroyEngine,
   getComponent,
   getOptionalComponent,
@@ -35,10 +36,17 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import assert from 'assert'
+import sinon from 'sinon'
 import { Material } from 'three'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
-import { MaterialStateComponent } from './MaterialComponent'
-import { getMaterial } from './materialFunctions'
+import { NameComponent } from '../../common/NameComponent'
+import {
+  MaterialPrototypeComponent,
+  MaterialPrototypeConstructor,
+  MaterialPrototypeDefinitions,
+  MaterialStateComponent
+} from './MaterialComponent'
+import { createMaterialPrototype, getMaterial } from './materialFunctions'
 
 describe('materialFunctions', () => {
   describe('getMaterial', () => {
@@ -89,7 +97,84 @@ describe('materialFunctions', () => {
     })
   }) //:: getMaterial
 
-  describe('createMaterialPrototype', () => {}) //:: createMaterialPrototype
+  describe('createMaterialPrototype', () => {
+    beforeEach(() => {
+      createEngine()
+      mockSpatialEngine()
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    const testQuery = defineQuery([MaterialPrototypeComponent, NameComponent, UUIDComponent])
+
+    it('should create a new entity with components [MaterialPrototypeComponent, NameComponent, UUIDComponent]', () => {
+      // Sanity check before running
+      const before = testQuery()
+      assert.equal(before.length, 0)
+      // Run and Check the result
+      createMaterialPrototype(MaterialPrototypeDefinitions[0])
+      const result = testQuery()
+      assert.equal(result.length, 1)
+    })
+
+    it('should create a new entity with components [MaterialPrototypeComponent, NameComponent, UUIDComponent] for every entry of the MaterialPrototypeDefinitions array', () => {
+      // Sanity check before running
+      const before = testQuery()
+      assert.equal(before.length, 0)
+      // Run and Check the result
+      for (const prototype of MaterialPrototypeDefinitions) createMaterialPrototype(prototype)
+      const result = testQuery()
+      assert.equal(result.length, MaterialPrototypeDefinitions.length)
+    })
+
+    it('should assign the `@param prototype`.arguments field to the MaterialPrototypeComponent.prototypeArguments for the new entity that it creates', () => {
+      const prototype = MaterialPrototypeDefinitions[0]
+      const Expected = prototype.arguments
+      // Sanity check before running
+      const before = testQuery()
+      assert.equal(before.length, 0)
+      // Run and Check the result
+      createMaterialPrototype(prototype)
+      const entities = testQuery()
+      assert.equal(entities.length, 1)
+      const result = getComponent(entities[0], MaterialPrototypeComponent).prototypeArguments
+      assert.deepEqual(result, Expected)
+    })
+
+    it('should set the `@param prototype`.prototypeConstructor into the MaterialPrototypeComponent.prototypeConstructor object at ID prototype.prototypeId', () => {
+      const spy = sinon.spy()
+      const prototype = MaterialPrototypeDefinitions[0]
+      const ID = prototype.prototypeId
+      prototype.prototypeConstructor = spy as unknown as MaterialPrototypeConstructor
+      const Expected = prototype.prototypeConstructor
+      // Sanity check before running
+      const before = testQuery()
+      assert.equal(before.length, 0)
+      // Run and Check the result
+      createMaterialPrototype(prototype)
+      const entities = testQuery()
+      assert.equal(entities.length, 1)
+      const result = getComponent(entities[0], MaterialPrototypeComponent).prototypeConstructor[ID]
+      assert.deepEqual(result, Expected)
+    })
+
+    it("should set the new entity's NameComponent to `@param prototype`.prototypeId", () => {
+      const prototype = MaterialPrototypeDefinitions[0]
+      const Expected = prototype.prototypeId
+      // Sanity check before running
+      const before = testQuery()
+      assert.equal(before.length, 0)
+      // Run and Check the result
+      createMaterialPrototype(prototype)
+      const entities = testQuery()
+      assert.equal(entities.length, 1)
+      const result = getComponent(entities[0], NameComponent)
+      assert.deepEqual(result, Expected)
+    })
+  }) //:: createMaterialPrototype
+
   describe('setMeshMaterial', () => {}) //:: setMeshMaterial
   describe('setPlugin', () => {}) //:: setPlugin
   describe('hasPlugin', () => {}) //:: hasPlugin
