@@ -59,7 +59,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
-import { baseName, pathJoin } from '@ir-engine/common/src/utils/miscUtils'
+import { baseName, dropRoot, pathJoin } from '@ir-engine/common/src/utils/miscUtils'
 import {
   ExtractedImageTransformParameters,
   extractParameters,
@@ -794,7 +794,7 @@ export async function transformModel(
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
     const folderURL = resourcePath.replace(config.client.fileServer, '')
-    //await API.instance.service(fileBrowserPath).remove(folderURL)
+
     await API.instance.service(fileBrowserPath).create(folderURL)
 
     json.images?.map((image) => {
@@ -814,7 +814,7 @@ export async function transformModel(
       )
     })
     Object.keys(resources).map((uri) => {
-      const localPath = pathJoin(resourcePath, baseName(uri))
+      const localPath = pathJoin(resourcePath, dropRoot(uri))
       resources[localPath] = resources[uri]
       delete resources[uri]
     })

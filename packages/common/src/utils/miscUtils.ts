@@ -150,6 +150,14 @@ export function baseName(path: string): string {
   return path.split(/[\\/]/).pop()!
 }
 
+export function dropRoot(path: string): string {
+  const parts = path.split(/[\\/]/)
+  if (parts.length > 1) {
+    parts.shift()
+  }
+  return parts.join('/')
+}
+
 export function relativePathTo(src: string, dst: string): string {
   const normalizePath = (path: string) => path.split('/').filter(Boolean)
 
