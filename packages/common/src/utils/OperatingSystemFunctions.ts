@@ -23,28 +23,38 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { featureFlagSettingPath } from '@ir-engine/common/src/schema.type.module'
-import { defineState, getMutableState } from '@ir-engine/hyperflux/functions/StateFunctions'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
-import { useEffect } from 'react'
+export enum OperatingSystems {
+  Windows,
+  MacOS,
+  Linux,
+  Android,
+  iOS,
+  Unknown
+}
 
-export const FeatureFlagsState = defineState({
-  name: 'ee.engine.FeatureFlagsState',
-  initial: {} as Record<string, boolean>,
-  enabled(flagName: string) {
-    const state = getMutableState(FeatureFlagsState)[flagName].value
-    return typeof state === 'boolean' ? state : true
-  },
-  reactor: () => {
-    const featureFlagQuery = useFind(featureFlagSettingPath, { query: { paginate: false } })
+export function detectOS() {
+  const userAgent = window.navigator.userAgent
+  const platform = window.navigator.platform
+  const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K']
+  const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE']
+  const iosPlatforms = ['iPhone', 'iPad', 'iPod']
+  let os = OperatingSystems.Unknown
 
-    useEffect(() => {
-      const data = featureFlagQuery.data
-      getMutableState(FeatureFlagsState).merge(
-        Object.fromEntries(data.map(({ flagName, flagValue }) => [flagName, flagValue]))
-      )
-    }, [featureFlagQuery.data])
-
-    return null
+  if (macosPlatforms.includes(platform)) {
+    os = OperatingSystems.MacOS
+  } else if (iosPlatforms.includes(platform)) {
+    os = OperatingSystems.iOS
+  } else if (windowsPlatforms.includes(platform)) {
+    os = OperatingSystems.Windows
+  } else if (/Android/.test(userAgent)) {
+    os = OperatingSystems.Android
+  } else if (/Linux/.test(platform)) {
+    os = OperatingSystems.Linux
   }
-})
+
+  return os
+}
+
+export function usesCtrlKey() {
+  return detectOS() !== OperatingSystems.MacOS
+}
