@@ -23,8 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import type { WebContainer3D } from '@ir-engine/xrui'
+import { useLayoutEffect } from 'react'
 
 export const XRUIComponent = defineComponent({
   name: 'XRUIComponent',
@@ -39,7 +41,17 @@ export const XRUIComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    component.value.destroy()
+  reactor: () => {
+    const entity = useEntityContext()
+    const xruiComponent = useComponent(entity, XRUIComponent)
+
+    useLayoutEffect(() => {
+      const xrui = xruiComponent.value
+      return () => {
+        xrui.destroy()
+      }
+    }, [])
+
+    return null
   }
 })

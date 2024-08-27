@@ -82,7 +82,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   ])
 
   const getRelativePath = useCallback(() => {
-    const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[2]
+    const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[3].split('/')[1]
     if (!relativePath) {
       return 'assets/new-model'
     } else {
