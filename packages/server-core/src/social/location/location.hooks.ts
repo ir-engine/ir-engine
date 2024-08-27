@@ -43,6 +43,9 @@ import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import verifyScope from '@ir-engine/server-core/src/hooks/verify-scope'
 
 import { projectHistoryPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import isAction from '@ir-engine/server-core/src/hooks/is-action'
+import makeQueryJoinable from '@ir-engine/server-core/src/hooks/make-query-joinable'
+import { accountProjectPath } from '@theinfinitereality/irpro-multitenancy/services/account/account-project/account-project.schema'
 import { HookContext } from '../../../declarations'
 import checkScope from '../../hooks/check-scope'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -84,6 +87,23 @@ const sortByLocationSetting = async (context: HookContext<LocationService>) => {
       }
     }
   }
+}
+
+/**
+ * Hook used to ensure all account projects that a user has permission to are returned for location.
+ * @param context
+ * @returns
+ */
+export const locationByAccountProject = async (context: HookContext) => {
+  await makeQueryJoinable(locationPath)(context)
+  const userId = context.params.user?.id
+
+  const query = context.service.createQuery(context.params)
+  query.innerJoin(accountProjectPath, `${locationPath}.projectId`, '=', `${accountProjectPath}.projectId`)
+  query.where(`${accountProjectPath}.userId`, '=', userId)
+  query.whereNotNull(`${accountProjectPath}.userId`)
+
+  context.params.knex = query
 }
 
 /* (AFTER) CREATE HOOKS */
@@ -229,7 +249,12 @@ export default {
 
   before: {
     all: [schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
-    find: [discardQuery('action'), discardQuery('studio'), sortByLocationSetting],
+    find: [
+      discardQuery('action'),
+      discardQuery('studio'),
+      sortByLocationSetting,
+      iff(isProvider('external'), iffElse(isAction('admin'), verifyScope('admin', 'super'), locationByAccountProject))
+    ],
     get: [],
     create: [
       schemaHooks.validateData(locationDataValidator),
