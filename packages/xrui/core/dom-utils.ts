@@ -24,6 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Matrix4 } from 'three'
+import { Bounds } from './classes/Bounds'
+import { Edges } from './classes/Edges'
 
 function id(element: HTMLElement) {
   return element.id ? `#${element.id}` : ''

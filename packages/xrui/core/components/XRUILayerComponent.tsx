@@ -73,6 +73,7 @@ export const XRUILayerComponent = defineComponent({
   onInit: (entity) => {
     return {
       element: null as HTMLElement | null,
+      clonedElement: null as HTMLElement | null,
 
       stackGroup: new Group(),
       backgroundMesh: null! as Mesh,
@@ -180,6 +181,7 @@ export const XRUILayerComponent = defineComponent({
       const parentRect = parentLayer?.domRect.value
 
       // generate texture
+      const clonedElement = cloneDomWithXrLayerReplacement(layer.element.value)
 
       // update layout
       if (layer.autoUpdateLayout.value) {
@@ -280,4 +282,85 @@ const viewportBounds = new Bounds()
  */
 export function _getViewportBounds() {
   return getViewportBounds(viewportBounds)
+}
+
+const renderedFontCache = new Map()
+
+function getRenderedFont(element) {
+  const computedStyle = getComputedStyle(element)
+  const fontFamily = computedStyle.fontFamily
+
+  if (renderedFontCache.has(fontFamily)) {
+    return renderedFontCache.get(fontFamily)
+  }
+
+  const fonts = fontFamily.split(',').map((f) => f.trim())
+  const testString = 'ABCDWxyz0123'
+
+  const canvas = document.createElement('canvas')
+  const context = canvas.getContext('2d')!
+
+  const baselineFont = 'monospace'
+  context.font = `100px ${baselineFont}`
+  const baselineWidth = context.measureText(testString).width
+
+  let selectedFont = fonts[0]
+
+  for (let font of fonts) {
+    context.font = `100px ${font}, ${baselineFont}`
+    const width = context.measureText(testString).width
+
+    if (width !== baselineWidth) {
+      selectedFont = font
+      break
+    }
+  }
+
+  renderedFontCache.set(fontFamily, selectedFont)
+  return selectedFont
+}
+
+function cloneDomWithXrLayerReplacement(node) {
+  // If the node is an element and has the xr-layer attribute
+  if (node.nodeType === Node.ELEMENT_NODE && node.hasAttribute('xr-layer')) {
+    // Create an invisible placeholder that retains layout
+    const placeholder = document.createElement('div')
+    const computedStyle = getComputedStyle(node)
+
+    // Copy over essential styles to maintain layout integrity
+    placeholder.style.display = computedStyle.display
+    placeholder.style.position = computedStyle.position
+    placeholder.style.margin = computedStyle.margin
+    placeholder.style.padding = computedStyle.padding
+    placeholder.style.width = computedStyle.width
+    placeholder.style.height = computedStyle.height
+    placeholder.style.flex = computedStyle.flex
+    placeholder.style.gridArea = computedStyle.gridArea
+    placeholder.style.visibility = 'hidden' // Invisible but takes up space
+    placeholder.style.boxSizing = computedStyle.boxSizing
+
+    // Special handling for Flexbox and Grid layouts
+    if (computedStyle.display.includes('flex') || computedStyle.display.includes('grid')) {
+      placeholder.style.minWidth = computedStyle.minWidth
+      placeholder.style.minHeight = computedStyle.minHeight
+      placeholder.style.maxWidth = computedStyle.maxWidth
+      placeholder.style.maxHeight = computedStyle.maxHeight
+      placeholder.style.alignSelf = computedStyle.alignSelf
+      placeholder.style.justifySelf = computedStyle.justifySelf
+    }
+
+    return placeholder
+  }
+
+  // If the node is a text node, simply clone it
+  if (node.nodeType === Node.TEXT_NODE) {
+    return node.cloneNode(true)
+  }
+
+  // Otherwise, clone the node and recursively clone its children
+  const clone = node.cloneNode(false) // Shallow clone
+  for (let child of node.childNodes) {
+    clone.appendChild(cloneDomWithXrLayerReplacement(child))
+  }
+  return clone
 }
