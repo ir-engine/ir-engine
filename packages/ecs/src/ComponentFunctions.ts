@@ -284,10 +284,12 @@ export const defineComponent = <
 export const getOptionalMutableComponent = <
   Schema extends ComponentSchema,
   ComponentType,
-  ECSSchema extends bitECS.ISchema
+  ECSSchema extends bitECS.ISchema,
+  JSON,
+  SetJSON
 >(
   entity: Entity,
-  component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
+  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
 ): State<ComponentType> | undefined => {
   if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType>
   const componentState = component.stateMap[entity]!
@@ -308,17 +310,29 @@ export const getMutableComponent = <Schema extends ComponentSchema, ComponentTyp
   return componentState
 }
 
-export const getOptionalComponent = <Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
+export const getOptionalComponent = <
+  Schema extends ComponentSchema,
+  ComponentType,
+  ECSSchema extends bitECS.ISchema,
+  JSON,
+  SetJSON
+>(
   entity: Entity,
-  component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
+  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
 ): ComponentType | undefined => {
   const componentState = component.stateMap[entity]!
-  return componentState?.promised ? undefined : (componentState?.get(NO_PROXY_STEALTH) as ComponentType | undefined)
+  return componentState?.promised ? undefined : (componentState?.get(NO_PROXY_STEALTH) as ComponentType)
 }
 
-export const getComponent = <Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
+export const getComponent = <
+  Schema extends ComponentSchema,
+  ComponentType,
+  ECSSchema extends bitECS.ISchema,
+  JSON,
+  SetJSON
+>(
   entity: Entity,
-  component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
+  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
 ): ComponentType => {
   if (!bitECS.hasComponent(HyperFlux.store, component, entity)) {
     console.warn(
@@ -330,7 +344,7 @@ export const getComponent = <Schema extends ComponentSchema, ComponentType, ECSS
   return componentState.get(NO_PROXY_STEALTH) as ComponentType
 }
 
-const createInitialComponentValue = <
+export const createInitialComponentValue = <
   Schema extends ComponentSchema,
   ComponentType,
   ECSSchema extends bitECS.ISchema,
@@ -338,10 +352,10 @@ const createInitialComponentValue = <
   SetJSON
 >(
   entity: Entity,
-  Component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
+  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
 ): ComponentType => {
-  if (Component.onInit) return Component.onInit(entity) as ComponentType
-  else if (Component.schema) return Value.Create(Component.schema) as ComponentType
+  if (component.onInit) return component.onInit(entity) as ComponentType
+  else if (component.schema) return Value.Create(component.schema) as ComponentType
   else return undefined as ComponentType
 }
 
@@ -353,7 +367,7 @@ const createInitialComponentValue = <
  * - Unlike calling {@link removeComponent} followed by {@link addComponent}, the entry queue will not be rerun.
  *
  * @param entity The entity to which the Component will be attached.
- * @param Component The Component that will be attached.
+ * @param component The Component that will be attached.
  * @param args `@todo` Explain what `setComponent(   args)` is
  * @returns The component that was attached.
  */
@@ -365,7 +379,7 @@ export const setComponent = <
   SetJSON
 >(
   entity: Entity,
-  Component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>,
+  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>,
   args: SetJSON | undefined = undefined
 ): ComponentType => {
   if (!entity) {
@@ -374,34 +388,34 @@ export const setComponent = <
   if (!bitECS.entityExists(HyperFlux.store, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
-  const componentExists = hasComponent(entity, Component)
+  const componentExists = hasComponent(entity, component)
   if (!componentExists) {
-    const value = createInitialComponentValue(entity, Component)
+    const value = createInitialComponentValue(entity, component)
 
-    if (!Component.stateMap[entity]) {
-      Component.stateMap[entity] = hookstate(value)
+    if (!component.stateMap[entity]) {
+      component.stateMap[entity] = hookstate(value)
     } else {
-      Component.stateMap[entity]!.set(value)
+      component.stateMap[entity]!.set(value)
     }
 
-    bitECS.addComponent(HyperFlux.store, Component, entity, false) // don't clear data on-add
+    bitECS.addComponent(HyperFlux.store, component, entity, false) // don't clear data on-add
   }
 
-  Component.onSet(entity, Component.stateMap[entity]!, args)
+  component.onSet(entity, component.stateMap[entity]!, args)
 
-  if (!componentExists && Component.reactor && !Component.reactorMap.has(entity)) {
+  if (!componentExists && component.reactor && !component.reactorMap.has(entity)) {
     const root = startReactor(() => {
-      return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(Component.reactor!, {}))
+      return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor!, {}))
     }) as ReactorRoot
     root['entity'] = entity
-    root['component'] = Component.name
-    Component.reactorMap.set(entity, root)
-    return getComponent(entity, Component)
+    root['component'] = component.name
+    component.reactorMap.set(entity, root)
+    return getComponent(entity, component)
   }
 
-  const root = Component.reactorMap.get(entity)
+  const root = component.reactorMap.get(entity)
   root?.run()
-  return getComponent(entity, Component)
+  return getComponent(entity, component)
 }
 
 /**
@@ -444,10 +458,16 @@ export const updateComponent = <C extends Component>(
   })
 }
 
-export const hasComponent = <Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
+export const hasComponent = <
+  Schema extends ComponentSchema,
+  ComponentType,
+  ECSSchema extends bitECS.ISchema,
+  JSON,
+  SetJSON
+>(
   entity: Entity,
-  component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
-) => {
+  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
+): boolean => {
   if (!component) throw new Error('[hasComponent]: component is undefined')
   if (!entity) return false
   return bitECS.hasComponent(HyperFlux.store, component, entity)
@@ -458,10 +478,13 @@ export const hasComponent = <Schema extends ComponentSchema, ComponentType, ECSS
  * @param entity
  * @param components
  */
-export function hasComponents<Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
-  entity: Entity,
-  components: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>[]
-): boolean {
+export function hasComponents<
+  Schema extends ComponentSchema,
+  ComponentType,
+  ECSSchema extends bitECS.ISchema,
+  JSON,
+  SetJSON
+>(entity: Entity, components: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>[]): boolean {
   if (!components) throw new Error('[hasComponent]: component is undefined')
   if (components.length < 1 || !entity) return false
 
@@ -566,13 +589,19 @@ export function _use(promise) {
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useComponent<Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
+export function useComponent<
+  Schema extends ComponentSchema,
+  ComponentType,
+  ECSSchema extends bitECS.ISchema,
+  JSON,
+  SetJSON
+>(
   entity: Entity,
-  Component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
-) {
+  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
+): State<ComponentType> {
   if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
-  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(none) as State<ComponentType>
-  const componentState = Component.stateMap[entity]
+  if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType>
+  const componentState = component.stateMap[entity]!
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
   if (componentState.promise) {
     ;(use ?? _use)(componentState.promise)
@@ -583,13 +612,19 @@ export function useComponent<Schema extends ComponentSchema, ComponentType, ECSS
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useOptionalComponent<Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
+export function useOptionalComponent<
+  Schema extends ComponentSchema,
+  ComponentType,
+  ECSSchema extends bitECS.ISchema,
+  JSON,
+  SetJSON
+>(
   entity: Entity,
-  Component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
-) {
-  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(none) as State<ComponentType>
-  const component = useHookstate(Component.stateMap[entity])
-  return component.promised ? undefined : component
+  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
+): State<ComponentType> | undefined {
+  if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType>
+  const componentState = useHookstate(component.stateMap[entity])
+  return componentState.promised ? undefined : componentState
 }
 
 export const getComponentCountOfType = <C extends Component>(component: C): number => {

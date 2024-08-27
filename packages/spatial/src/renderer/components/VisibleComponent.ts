@@ -23,12 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Type } from '@feathersjs/typebox'
 import { defineComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
 export const VisibleComponent = defineComponent({
   name: 'VisibleComponent',
   jsonID: 'EE_visible',
+  schema: Type.Boolean({ default: true }),
   toJSON: () => true
 })
 

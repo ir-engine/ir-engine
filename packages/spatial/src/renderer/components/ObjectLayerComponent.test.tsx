@@ -220,14 +220,14 @@ describe('ObjectLayerMaskComponent', () => {
     })
   }) //:: IDs
 
-  describe('schema', () => {
-    it('should initialize the schema with the expected values', () => {
-      assert.notEqual(ObjectLayerMaskComponent.schema, undefined)
-      const KeysSchema = Object.keys(ObjectLayerMaskComponent.schema)
+  describe('ecs schema', () => {
+    it('should initialize the ecs schema with the expected values', () => {
+      assert.notEqual(ObjectLayerMaskComponent.ecsSchema, undefined)
+      const KeysSchema = Object.keys(ObjectLayerMaskComponent.ecsSchema)
       assert.equal(KeysSchema.length, 1)
       assert.equal(KeysSchema.includes('mask'), true)
-      assert.notEqual(ObjectLayerMaskComponent.schema.mask, undefined)
-      assert.equal(ObjectLayerMaskComponent.schema.mask, 'i32')
+      assert.notEqual(ObjectLayerMaskComponent.ecsSchema.mask, undefined)
+      assert.equal(ObjectLayerMaskComponent.ecsSchema.mask, 'i32')
     })
   })
 

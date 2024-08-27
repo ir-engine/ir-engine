@@ -61,6 +61,7 @@ describe('ComponentFunctions', async () => {
 
       assert.equal(TagComponent.name, 'TagComponent')
       assert.equal(typeof TagComponent.schema, 'undefined')
+      assert.equal(typeof TagComponent.ecsSchema, 'undefined')
       assert.equal(ComponentMap.size, 1)
     })
 
@@ -78,7 +79,7 @@ describe('ComponentFunctions', async () => {
       })
 
       assert.equal(Vector3Component.name, 'Vector3Component')
-      assert.equal(Vector3Component.schema, Vector3Schema)
+      assert.equal(Vector3Component.ecsSchema, Vector3Schema)
       assert.equal(ComponentMap.size, 1)
     })
   })
