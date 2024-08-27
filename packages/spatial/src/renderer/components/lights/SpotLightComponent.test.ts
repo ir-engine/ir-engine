@@ -37,7 +37,7 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { BoxGeometry, Color, Mesh, MeshBasicMaterial, SpotLight, Vector3 } from 'three'
+import { BoxGeometry, ColorRepresentation, Mesh, MeshBasicMaterial, SpotLight, Vector3 } from 'three'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
@@ -50,7 +50,7 @@ import { LightTagComponent } from './LightTagComponent'
 import { SpotLightComponent } from './SpotLightComponent'
 
 type SpotLightComponentData = {
-  color: Color
+  color: ColorRepresentation
   intensity: number
   range: number
   decay: number
@@ -62,7 +62,7 @@ type SpotLightComponentData = {
 }
 
 const SpotLightComponentDefaults: SpotLightComponentData = {
-  color: new Color(),
+  color: 0xffffff,
   intensity: 10,
   range: 0,
   decay: 2,
@@ -74,7 +74,7 @@ const SpotLightComponentDefaults: SpotLightComponentData = {
 }
 
 function assertSpotLightComponentEq(A: SpotLightComponentData, B: SpotLightComponentData): void {
-  assert.equal(A.color.getHex(), B.color.getHex())
+  assert.equal(A.color, B.color)
   assert.equal(A.intensity, B.intensity)
   assert.equal(A.range, B.range)
   assert.equal(A.decay, B.decay)
@@ -86,7 +86,7 @@ function assertSpotLightComponentEq(A: SpotLightComponentData, B: SpotLightCompo
 }
 
 function assertSpotLightComponentNotEq(A: SpotLightComponentData, B: SpotLightComponentData): void {
-  assert.notEqual(A.color.getHex(), B.color.getHex())
+  assert.notEqual(A.color, B.color)
   assert.notEqual(A.intensity, B.intensity)
   assert.notEqual(A.range, B.range)
   assert.notEqual(A.decay, B.decay)
@@ -149,7 +149,7 @@ describe('SpotLightComponent', () => {
       const before = getComponent(testEntity, SpotLightComponent)
       assertSpotLightComponentEq(before, SpotLightComponentDefaults)
       const Expected = {
-        color: new Color(0x123456),
+        color: 0x123456,
         intensity: 40,
         range: 41,
         decay: 42,
@@ -208,7 +208,7 @@ describe('SpotLightComponent', () => {
 
     it("should serialize the component's default data as expected", () => {
       const Expected = {
-        color: SpotLightComponentDefaults.color.getHex(),
+        color: SpotLightComponentDefaults.color,
         intensity: SpotLightComponentDefaults.intensity,
         range: SpotLightComponentDefaults.range,
         decay: SpotLightComponentDefaults.decay,
@@ -317,22 +317,22 @@ describe('SpotLightComponent', () => {
     })
 
     it('should react when directionalLightComponent.color changes', () => {
-      const Expected = new Color(0x123456)
+      const Expected = 0x123456
 
       // Set the data as expected
       setComponent(testEntity, SpotLightComponent)
 
       // Sanity check before running
       const before = getComponent(testEntity, SpotLightComponent).color
-      assert.equal(before.getHex(), SpotLightComponentDefaults.color.getHex())
+      assert.equal(before, SpotLightComponentDefaults.color)
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { color: Expected })
       const result = getComponent(testEntity, SpotLightComponent).color
-      assert.equal(result.getHex(), Expected.getHex())
+      assert.equal(result, Expected)
       // Check side-effect
       const light = getComponent(testEntity, GroupComponent)[0] as SpotLight
-      assert.equal(light.color.getHex(), Expected.getHex())
+      assert.equal(light.color.getHex(), Expected)
     })
 
     it('should react when hemisphereLightComponent.intensity changes', () => {
