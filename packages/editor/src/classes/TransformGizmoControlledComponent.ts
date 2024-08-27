@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Box3, Vector3 } from 'three'
 
-import { Engine, UndefinedEntity } from '@ir-engine/ecs'
+import { Engine, Entity, UndefinedEntity } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -154,7 +154,7 @@ export const TransformGizmoControlledComponent = defineComponent({
           newPosition.setScalar(0)
           break
         case TransformPivot.Selection:
-          TransformComponent.getWorldPosition(controlledEntities[controlledEntities.length - 1], newPosition)
+          getMidpointWorldPosition(controlledEntities, newPosition)
           break
         case TransformPivot.Center:
         case TransformPivot.Bottom:
@@ -176,3 +176,13 @@ export const TransformGizmoControlledComponent = defineComponent({
     return null
   }
 })
+
+const getMidpointWorldPosition = (entities: Entity[], outVec3: Vector3) => {
+  outVec3.set(0, 0, 0)
+  const position = new Vector3()
+  for (const entity of entities) {
+    TransformComponent.getWorldPosition(entity, position)
+    outVec3.add(position)
+  }
+  outVec3.divideScalar(entities.length)
+}
